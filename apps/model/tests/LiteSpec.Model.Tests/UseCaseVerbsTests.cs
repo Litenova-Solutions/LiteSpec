@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class UseCaseVerbsTests
 {
     /// <summary>The baseline reading verbs name a query.</summary>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("read")]
@@ -19,6 +20,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The baseline changing verbs name a command.</summary>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("create")]
@@ -35,6 +37,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The model-written text verbs serve either kind.</summary>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("answer")]
@@ -71,6 +74,8 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The opening word of a name is its verb.</summary>
+    /// <param name="name">The use-case name whose opening word is read.</param>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("submit-expense", "submit")]
@@ -97,6 +102,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A baseline verb of any kind counts as declared.</summary>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("read")]
@@ -118,6 +124,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>An unknown verb and a retired synonym count as undeclared.</summary>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("frobnicate")]
@@ -128,6 +135,8 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>Each retired synonym names the verb that replaces it.</summary>
+    /// <param name="synonym">The retired synonym under test.</param>
+    /// <param name="verb">The use-case verb under test.</param>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("get", "read")]

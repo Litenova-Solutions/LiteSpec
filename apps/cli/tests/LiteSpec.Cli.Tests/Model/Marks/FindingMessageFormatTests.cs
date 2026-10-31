@@ -27,6 +27,7 @@ public sealed class FindingMessageFormatTests
         "Endpoint for '",
     ];
 
+    /// <summary>Code Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
     public void Code_Messages_Start_With_A_Subject_And_Identifier()
@@ -49,6 +50,7 @@ public sealed class FindingMessageFormatTests
         Assert.All(findings, AssertFormat);
     }
 
+    /// <summary>Contract And Template Store Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
     public void Contract_And_Template_Store_Messages_Start_With_A_Subject_And_Identifier()
@@ -68,6 +70,7 @@ public sealed class FindingMessageFormatTests
         Assert.All(findings, AssertFormat);
     }
 
+    /// <summary>Mark Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
     public void Mark_Messages_Start_With_A_Subject_And_Identifier()
@@ -95,6 +98,7 @@ public sealed class FindingMessageFormatTests
         Assert.All(ours, AssertFormat);
     }
 
+    /// <summary>Screen Setting Constituent And Record Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
     public void Screen_Setting_Constituent_And_Record_Messages_Start_With_A_Subject_And_Identifier()
@@ -129,6 +133,8 @@ public sealed class FindingMessageFormatTests
     }
 
     /// <summary>A model triggering the code-reading findings: one handler per shape, one raising method, and two endpoints sharing an operation.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the triggering records.</returns>
     static ProjectModel CodeModel(string root)
     {
         File.WriteAllText(
@@ -163,6 +169,8 @@ public sealed class FindingMessageFormatTests
     }
 
     /// <summary>A model triggering screen, setting, constituent and record findings without readers or files.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the triggering records.</returns>
     static ProjectModel MixedModel(string root)
     {
         File.WriteAllText(

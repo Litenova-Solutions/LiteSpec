@@ -4,37 +4,42 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class TestRun
 {
-    /// <summary>The files read, relative to the root.</summary>
+    /// <summary>Gets the files read, relative to the root.</summary>
     public List<string> Files { get; } = [];
 
-    /// <summary>Outcome by test name, exactly as the result file writes it.</summary>
+    /// <summary>Gets outcome by test name, exactly as the result file writes it.</summary>
     public Dictionary<string, string> OutcomeByTest { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    ///     Outcome by fully qualified test name: the namespace, the containing types
+    ///     Gets outcome by fully qualified test name: the namespace, the containing types
     ///     joined with dots, and the method, without any data-row arguments. A renamed
     ///     test matches nothing instead of matching another test's same-named method.
     /// </summary>
     public Dictionary<string, string> OutcomeByMethod { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    ///     Outcome by browser test title, exactly as the test declares it. A Playwright
+    ///     Gets outcome by browser test title, exactly as the test declares it. A Playwright
     ///     result answers to the bare title of its test, without any describe chain or
     ///     project prefix, so a scenario proved in the browser can be passing.
     /// </summary>
     public Dictionary<string, string> OutcomeByTitle { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    ///     The tests that both passed and failed within the runs read, by fully
+    ///     Gets the tests that both passed and failed within the runs read, by fully
     ///     qualified method name or browser title, as the proves links name them.
     /// </summary>
     public HashSet<string> Flaky { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>Gets or sets the total number of tests the run reports.</summary>
     public int Total { get; set; }
+
+    /// <summary>Gets or sets the number of tests the run reports as passed.</summary>
     public int Passed { get; set; }
+
+    /// <summary>Gets or sets the number of tests the run reports as failed.</summary>
     public int Failed { get; set; }
 
-    /// <summary>The run date, yyyy-MM-dd, or null when no result file names one.</summary>
+    /// <summary>Gets or sets the run date, yyyy-MM-dd, or null when no result file names one.</summary>
     public string? Date { get; set; }
 
     /// <summary>
@@ -42,6 +47,8 @@ sealed class TestRun
     ///     outcome is Passed, false when it ran and did not pass, null when the run
     ///     holds no outcome for the title.
     /// </summary>
+    /// <param name="title">The browser test title, exactly as the test declares it.</param>
+    /// <returns>True for a passed outcome, false for a run outcome that is not Passed, or null when the run holds no outcome for the title.</returns>
     public bool? PassingOfTitle(string title) =>
         OutcomeByTitle.TryGetValue(title, out var outcome) ? outcome == "Passed" : null;
 
@@ -50,6 +57,9 @@ sealed class TestRun
     ///     and a test seen both passed and failed is recorded as flaky. A skipped
     ///     outcome never marks a test flaky.
     /// </summary>
+    /// <param name="map">The outcome map to merge into, keyed by test name or title.</param>
+    /// <param name="key">The test name or title the outcome belongs to.</param>
+    /// <param name="outcome">The outcome to merge, as the result file writes it.</param>
     public void MergeOutcome(Dictionary<string, string> map, string key, string outcome)
     {
         if (map.TryGetValue(key, out var kept))
@@ -77,6 +87,9 @@ sealed class TestRun
     ///     "[chromium] expenses list › lists the expenses" all answer to
     ///     "lists the expenses".
     /// </summary>
+    /// <param name="classname">The JUnit class name of the case.</param>
+    /// <param name="name">The JUnit case name, carrying any describe chain and project prefix.</param>
+    /// <returns>The bare browser title, or null when the case is no browser case or yields no title.</returns>
     public static string? BrowserTitleOf(string classname, string name)
     {
         if (name.Length == 0)
@@ -91,7 +104,7 @@ sealed class TestRun
 
         var text = name;
 
-        if (text.StartsWith("[", StringComparison.Ordinal))
+        if (text.StartsWith('['))
         {
             var close = text.IndexOf(']');
 
@@ -108,6 +121,8 @@ sealed class TestRun
     }
 
     /// <summary>Whether the JUnit class names a Playwright test file: a path or a JavaScript file.</summary>
+    /// <param name="classname">The JUnit class name to test.</param>
+    /// <returns>True when the class name is a path or carries a JavaScript or TypeScript extension.</returns>
     private static bool TestFile(string classname) =>
         classname.Contains('/') || classname.Contains('\\')
         || classname.EndsWith(".ts", StringComparison.OrdinalIgnoreCase)

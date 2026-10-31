@@ -52,6 +52,7 @@ public sealed class LayoutTests
         StandardsFixture.Write(root, "docs/frontend/web/notes.txt", "not a page\n");
     }
 
+    /// <summary>Stacks read folders kinds and pairing rules.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stacks read folders kinds and pairing rules")]
     public void StacksReadFoldersKindsAndPairingRules()
@@ -75,13 +76,14 @@ public sealed class LayoutTests
         Assert.Equal("react", stacks[1].Id);
         Assert.Equal("docs/frontend/web/react", stacks[1].Folder);
         Assert.Equal("frontend", stacks[1].Kind);
-        Assert.Equal(new[] { "dotnet" }, stacks[1].Requires);
-        Assert.Equal(new[] { "dotnet" }, stacks[1].PairsWith);
+        Assert.Equal(["dotnet"], stacks[1].Requires);
+        Assert.Equal(["dotnet"], stacks[1].PairsWith);
         Assert.Equal("stray", stacks[2].Id);
         Assert.Equal("", stacks[2].Kind);
         Assert.Empty(Layout.Stacks(Manifest("{}")));
     }
 
+    /// <summary>Applied pages for a server project.</summary>
     /// <proves>litespec/core/stacks#apply-the-complete-stack</proves>
     [Fact(DisplayName = "applied pages for a server project")]
     public void AppliedPagesForAServerProject()
@@ -108,6 +110,7 @@ public sealed class LayoutTests
         Assert.Equal(expected, pages);
     }
 
+    /// <summary>Applied pages for a client-only project.</summary>
     /// <proves>litespec/core/stacks#apply-the-complete-stack</proves>
     [Fact(DisplayName = "applied pages for a client-only project")]
     public void AppliedPagesForAClientOnlyProject()
@@ -132,6 +135,7 @@ public sealed class LayoutTests
         Assert.Equal(expected, pages);
     }
 
+    /// <summary>Applied pages include a selected stack extension.</summary>
     /// <proves>litespec/core/stacks#apply-the-complete-stack</proves>
     [Fact(DisplayName = "applied pages include a selected stack extension")]
     public void AppliedPagesIncludeASelectedStackExtension()
@@ -155,6 +159,7 @@ public sealed class LayoutTests
         Assert.Equal(expected, pages);
     }
 
+    /// <summary>Applied pages ignore unknown stacks extensions and shapes.</summary>
     /// <proves>litespec/core/stacks#apply-the-complete-stack</proves>
     [Fact(DisplayName = "applied pages ignore unknown stacks extensions and shapes")]
     public void AppliedPagesIgnoreUnknownSelections()
@@ -173,6 +178,7 @@ public sealed class LayoutTests
         Assert.Equal(expected, pages);
     }
 
+    /// <summary>A folder holding no stack applies with its parent.</summary>
     /// <proves>litespec/core/stacks#apply-the-complete-stack</proves>
     [Fact(DisplayName = "a folder holding no stack applies with its parent")]
     public void AFolderHoldingNoStackAppliesWithItsParent()
@@ -193,7 +199,7 @@ public sealed class LayoutTests
         Assert.Contains("docs/backend/sample/guides/errors.md", sample);
         Assert.DoesNotContain("docs/frontend/patterns/record-detail.md", sample);
         Assert.Equal(
-            new[] { "docs/frontend/patterns", "docs/frontend/patterns/forms" },
+            ["docs/frontend/patterns", "docs/frontend/patterns/forms"],
             Layout.CompanionFolders(temp.Path, "docs/frontend"));
     }
 }

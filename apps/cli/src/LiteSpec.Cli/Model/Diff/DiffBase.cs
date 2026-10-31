@@ -11,6 +11,13 @@ namespace LiteSpec.Model.Diff;
 /// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 sealed class DiffBase : IDisposable
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DiffBase"/> class.
+    ///     The temporary folder is removed on disposal; a folder base passes null for it.
+    /// </summary>
+    /// <param name="model">The base model built from the folder or revision.</param>
+    /// <param name="label">The base name as the caller passed it.</param>
+    /// <param name="temp">The temporary folder holding a git base, or null for a folder base.</param>
     DiffBase(ProjectModel model, string label, string? temp)
     {
         Model = model;
@@ -18,15 +25,16 @@ sealed class DiffBase : IDisposable
         Temp = temp;
     }
 
-    /// <summary>The base model.</summary>
+    /// <summary>Gets the base model.</summary>
     public ProjectModel Model { get; }
 
-    /// <summary>The base name, as the caller passed it.</summary>
+    /// <summary>Gets the base name, as the caller passed it.</summary>
     public string Label { get; }
 
-    /// <summary>The temporary folder holding a git base, or null for a folder base.</summary>
+    /// <summary>Gets the temporary folder holding a git base, or null for a folder base.</summary>
     string? Temp { get; }
 
+    /// <summary>Removes the temporary folder of a git base; a folder base has none to remove.</summary>
     public void Dispose()
     {
         if (Temp is null)
@@ -50,6 +58,9 @@ sealed class DiffBase : IDisposable
     ///     Loads the base: a consumer folder holding <c>litespec.project.json</c>, or a
     ///     git revision of the consumer, read through an archive into a temporary folder.
     /// </summary>
+    /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
+    /// <param name="baseArg">The base argument: a consumer folder or a git revision.</param>
+    /// <returns>The loaded base, holding its model and label.</returns>
     public static DiffBase Load(ConsumerConfig headConfig, string baseArg)
     {
         if (FolderOf(headConfig, baseArg) is { } folder)
@@ -69,6 +80,8 @@ sealed class DiffBase : IDisposable
     }
 
     /// <summary>The head name: the current branch, or the working tree outside git.</summary>
+    /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
+    /// <returns>The branch name, or working tree when no branch is checked out.</returns>
     public static string HeadLabel(ConsumerConfig headConfig)
     {
         var branch = RunGit(headConfig.Root, "branch", "--show-current");
@@ -78,6 +91,13 @@ sealed class DiffBase : IDisposable
             : "working tree";
     }
 
+    /// <summary>
+    ///     The consumer folder the base argument names: the path itself or the folder beside the head root, or
+    ///     null when neither exists.
+    /// </summary>
+    /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
+    /// <param name="baseArg">The base argument: a consumer folder or a git revision.</param>
+    /// <returns>The folder path the base argument names, or null when it names no existing folder.</returns>
     static string? FolderOf(ConsumerConfig headConfig, string baseArg)
     {
         var direct = Path.IsPathRooted(baseArg)
@@ -102,6 +122,13 @@ sealed class DiffBase : IDisposable
         return null;
     }
 
+    /// <summary>
+    ///     Loads a git revision base by archiving the revision into a temporary folder and building the model
+    ///     from that copy.
+    /// </summary>
+    /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
+    /// <param name="baseArg">The base argument: a consumer folder or a git revision.</param>
+    /// <returns>The loaded base read from the git revision archive.</returns>
     static DiffBase LoadRevision(ConsumerConfig headConfig, string baseArg)
     {
         string Neither() => $"Base '{baseArg}' is neither a consumer folder nor a git revision.";
@@ -154,6 +181,13 @@ sealed class DiffBase : IDisposable
         return new DiffBase(ModelBuilder.Build(ConsumerConfig.Load(root)), baseArg, temp);
     }
 
+    /// <summary>
+    ///     Runs git in the given folder and captures its status, output, and error text; a timeout or a missing
+    ///     git reports status 1.
+    /// </summary>
+    /// <param name="workdir">The folder git runs in.</param>
+    /// <param name="args">The git arguments, in order.</param>
+    /// <returns>The exit status together with the captured output and error text.</returns>
     static (int Status, string Stdout, string Error) RunGit(string workdir, params string[] args)
     {
         var start = new ProcessStartInfo("git")
@@ -189,6 +223,13 @@ sealed class DiffBase : IDisposable
         }
     }
 
+    /// <summary>
+    ///     Runs git in the given folder and captures its status, raw output bytes, and error text; a timeout or
+    ///     a missing git reports status 1.
+    /// </summary>
+    /// <param name="workdir">The folder git runs in.</param>
+    /// <param name="args">The git arguments, in order.</param>
+    /// <returns>The exit status together with the captured output bytes and error text.</returns>
     static (int Status, byte[] Bytes, string Error) RunGitBytes(string workdir, params string[] args)
     {
         var start = new ProcessStartInfo("git")

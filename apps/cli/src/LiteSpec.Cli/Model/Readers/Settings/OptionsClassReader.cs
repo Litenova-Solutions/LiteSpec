@@ -5,21 +5,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Readers.Settings;
 
-/// <summary>One options class binding keyed settings: its section, properties and marked settings.</summary>
-/// <param name="Class">The class name.</param>
-/// <param name="File">The absolute path.</param>
-/// <param name="Line">The 1-based line of the class name.</param>
-/// <param name="SectionName">The <c>SectionName</c> constant value, or null when the class declares none.</param>
-/// <param name="Properties">The instance property names.</param>
-/// <param name="Settings">The <c>setting/</c> record ids its <c>implements</c> marks name.</param>
-sealed record OptionsClass(
-    string Class,
-    string File,
-    int Line,
-    string? SectionName,
-    IReadOnlyList<string> Properties,
-    IReadOnlyList<string> Settings);
-
 /// <summary>
 ///     Reads the options classes that bind keyed settings: every class carrying an
 ///     <c>implements</c> mark naming a <c>setting/</c> record, with its
@@ -29,6 +14,8 @@ sealed record OptionsClass(
 static class OptionsClassReader
 {
     /// <summary>Reads every marked options class under the .NET source roots.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>Every marked options class under the .NET source roots.</returns>
     public static IReadOnlyList<OptionsClass> Read(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -55,6 +42,12 @@ static class OptionsClassReader
         return found;
     }
 
+    /// <summary>
+    ///     Reads one source file into the options class collection, adding every marked options class it
+    ///     declares.
+    /// </summary>
+    /// <param name="file">The source file path to read.</param>
+    /// <param name="found">The options classes collected so far, added to in place.</param>
     private static void ReadFile(string file, List<OptionsClass> found)
     {
         SyntaxTree tree;
@@ -95,6 +88,8 @@ static class OptionsClassReader
     }
 
     /// <summary>The <c>SectionName</c> constant value, or null when the class declares none.</summary>
+    /// <param name="type">The options class declaration whose SectionName constant is read.</param>
+    /// <returns>The constant value, or null when the class declares no SectionName constant.</returns>
     private static string? SectionNameOf(TypeDeclarationSyntax type)
     {
         foreach (var field in type.Members.OfType<FieldDeclarationSyntax>())
@@ -119,7 +114,9 @@ static class OptionsClassReader
     }
 
     /// <summary>The instance property names, in document order.</summary>
-    private static IReadOnlyList<string> PropertiesOf(TypeDeclarationSyntax type) =>
+    /// <param name="type">The options class declaration whose properties are read.</param>
+    /// <returns>The instance property names in document order.</returns>
+    private static List<string> PropertiesOf(TypeDeclarationSyntax type) =>
         type.Members
             .OfType<PropertyDeclarationSyntax>()
             .Where(property => !property.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.StaticKeyword)))

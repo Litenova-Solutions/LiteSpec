@@ -1,12 +1,5 @@
 namespace LiteSpec.Model.Readers.Operations;
 
-/// <summary>One follows mark in an operations file.</summary>
-/// <param name="File">The absolute file path.</param>
-/// <param name="Line">The 1-based line.</param>
-/// <param name="Id">The decision, exception or provision the mark names.</param>
-/// <param name="Style">The style the mark was written in: always the comment.</param>
-sealed record OperationsMark(string File, int Line, string Id, MarkStyle Style = MarkStyle.Comment);
-
 /// <summary>
 ///     Reads the follows marks of the deployment, proxy, host and workflow files
 ///     the project lists in paths.operations, from their hash comment lines,
@@ -16,6 +9,8 @@ sealed record OperationsMark(string File, int Line, string Id, MarkStyle Style =
 static class OperationsMarkReader
 {
     /// <summary>Every operations file: a named file as named, every file below a named folder except its Markdown documentation.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The operations file paths in sorted order, without Markdown documentation.</returns>
     public static IReadOnlyList<string> Files(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -38,6 +33,8 @@ static class OperationsMarkReader
     }
 
     /// <summary>Reads every follows mark in the operations files.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>Every follows mark in the operations files.</returns>
     public static List<OperationsMark> Read(ConsumerConfig config)
     {
         var marks = new List<OperationsMark>();

@@ -2,11 +2,6 @@ using System.Xml.Linq;
 
 namespace LiteSpec.Model.Readers.Coverage;
 
-/// <summary>What the coverage read found: unreached lines and whether any file was read.</summary>
-/// <param name="Gaps">One entry per line no scenario test reaches.</param>
-/// <param name="Read">Whether at least one coverage file was read.</param>
-sealed record CoverageRead(IReadOnlyList<CoverageGap> Gaps, bool Read);
-
 /// <summary>
 ///     Reads scenario-only coverage: Coverlet Cobertura files and Vitest lcov files
 ///     beside the test results. Every line they mark unreached is listed for triage.
@@ -17,6 +12,8 @@ sealed record CoverageRead(IReadOnlyList<CoverageGap> Gaps, bool Read);
 static class CoverageReader
 {
     /// <summary>Reads every coverage file under the test results folder.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The coverage gaps together with whether any coverage file was read.</returns>
     public static CoverageRead Read(ConsumerConfig config)
     {
         var gaps = new List<CoverageGap>();
@@ -69,11 +66,17 @@ static class CoverageReader
         return new CoverageRead(gaps, read);
     }
 
+    /// <summary>Whether the file is an lcov file, by its lcov.info or .lcov ending.</summary>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>True when the file name ends with lcov.info or .lcov; otherwise false.</returns>
     private static bool IsLcov(string file) =>
         file.EndsWith("lcov.info", StringComparison.OrdinalIgnoreCase)
         || file.EndsWith(".lcov", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Reads one Cobertura file, or null when it holds no coverage.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>One gap per unreached line, or null when the file holds no coverage element.</returns>
     private static List<CoverageGap>? ReadCobertura(ConsumerConfig config, string file)
     {
         var document = XDocument.Load(file);
@@ -117,6 +120,9 @@ static class CoverageReader
     }
 
     /// <summary>Reads one lcov file, or null when it holds no record with a file.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>One gap per unreached line, or null when the file holds no file record.</returns>
     private static List<CoverageGap>? ReadLcov(ConsumerConfig config, string file)
     {
         var gaps = new List<CoverageGap>();
@@ -178,6 +184,9 @@ static class CoverageReader
     }
 
     /// <summary>The function starting nearest above the line, or empty when none does.</summary>
+    /// <param name="functions">The function start lines of the current file, in the order the coverage file states them.</param>
+    /// <param name="number">The source line whose enclosing function is wanted.</param>
+    /// <returns>The name of that function, or an empty string when none starts at or above the line.</returns>
     private static string Enclosing(List<(int Line, string Name)> functions, int number)
     {
         var member = "";
@@ -195,6 +204,13 @@ static class CoverageReader
         return member;
     }
 
+    /// <summary>
+    ///     The coverage path made absolute, resolving a relative path against the consumer root and normalizing
+    ///     its separators.
+    /// </summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="path">The coverage file path as the coverage file states it.</param>
+    /// <returns>The absolute path, resolved against the consumer root when the stated path is relative.</returns>
     private static string Resolve(ConsumerConfig config, string path)
     {
         var normalized = path.Replace('/', Path.DirectorySeparatorChar);

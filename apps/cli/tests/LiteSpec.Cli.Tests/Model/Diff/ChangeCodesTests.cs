@@ -41,6 +41,8 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>Every change code the differ emits or maps to a message.</summary>
+    /// <param name="repository">The LiteSpec repository root folder.</param>
+    /// <returns>Every change code the differ knows.</returns>
     static IReadOnlyList<string> DifferCodes(string repository)
     {
         var source = DifferSource(repository);
@@ -60,6 +62,8 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>Every change code the differ emits: reason calls and removal reasons.</summary>
+    /// <param name="differSource">The differ source text to scan.</param>
+    /// <returns>The change codes the differ emits.</returns>
     static IReadOnlyList<string> EmittedCodes(string differSource)
     {
         var found = new SortedSet<string>(StringComparer.Ordinal);
@@ -78,6 +82,8 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>The codes in the differ's reason table, read from its source.</summary>
+    /// <param name="differSource">The differ source text to scan.</param>
+    /// <returns>The change codes in the reason table.</returns>
     static IReadOnlyList<string> MappedCodes(string differSource)
     {
         var start = differSource.IndexOf("static BreakingReason Reason(string code)", StringComparison.Ordinal);
@@ -101,6 +107,8 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>The codes in the breaking-reason table on the model page.</summary>
+    /// <param name="repository">The LiteSpec repository root folder.</param>
+    /// <returns>The documented breaking change codes.</returns>
     static IReadOnlyList<string> DocumentedCodes(string repository)
     {
         var lines = File.ReadAllLines(Path.Combine(repository, "docs", "tools", "model.md"));
@@ -129,6 +137,8 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>Whether the code ends with a past participle.</summary>
+    /// <param name="code">The change code to classify.</param>
+    /// <returns>True when the last word of the code reads as a past participle.</returns>
     static bool EndsWithParticiple(string code)
     {
         var dash = code.LastIndexOf('-');
@@ -145,10 +155,13 @@ public sealed class ChangeCodesTests
     }
 
     /// <summary>The differ source, read from the repository.</summary>
+    /// <param name="repository">The LiteSpec repository root folder.</param>
+    /// <returns>The differ source text.</returns>
     static string DifferSource(string repository) =>
         File.ReadAllText(Path.Combine(repository, "apps", "cli", "src", "LiteSpec.Cli", "Model", "Diff", "Differ.cs"));
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>
+    /// <returns>The repository root folder path.</returns>
     static string FindRepository()
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)

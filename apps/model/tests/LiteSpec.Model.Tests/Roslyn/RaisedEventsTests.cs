@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for the shared raised-event extraction every host calls.</summary>
 public sealed class RaisedEventsTests
 {
+    /// <summary>A direct RaiseDomainEvent of a constructed event returns its simple name.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A direct RaiseDomainEvent of a constructed event returns its simple name")]
     public void DirectRaiseReturnsSimpleName()
@@ -21,9 +22,10 @@ public sealed class RaisedEventsTests
             }
             """);
 
-        Assert.Equal(new[] { "ExpenseSubmittedEvent" }, RaisedEvents.Of(method, owner));
+        Assert.Equal(["ExpenseSubmittedEvent"], RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A raise through one private helper returns its simple name.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A raise through one private helper returns its simple name")]
     public void HelperRaiseReturnsSimpleName()
@@ -40,9 +42,10 @@ public sealed class RaisedEventsTests
             }
             """);
 
-        Assert.Equal(new[] { "ExpenseSubmittedEvent" }, RaisedEvents.Of(method, owner));
+        Assert.Equal(["ExpenseSubmittedEvent"], RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A call through any other Raise name raises nothing.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A call through any other Raise name raises nothing")]
     public void OtherRaiseNamesAreIgnored()
@@ -60,6 +63,7 @@ public sealed class RaisedEventsTests
         Assert.Empty(RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A RaiseDomainEvent without a constructed event raises nothing.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A RaiseDomainEvent without a constructed event raises nothing")]
     public void RaiseWithoutCreationIsIgnored()
@@ -77,6 +81,7 @@ public sealed class RaisedEventsTests
         Assert.Empty(RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A raise through a public helper is not followed.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A raise through a public helper is not followed")]
     public void NonPrivateHelperIsIgnored()
@@ -96,6 +101,7 @@ public sealed class RaisedEventsTests
         Assert.Empty(RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A raise through a second helper is not followed.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A raise through a second helper is not followed")]
     public void SecondLevelHelperIsIgnored()
@@ -117,6 +123,7 @@ public sealed class RaisedEventsTests
         Assert.Empty(RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>Qualified and generic event names simplify.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Qualified and generic event names simplify")]
     public void QualifiedAndGenericNamesSimplify()
@@ -133,10 +140,11 @@ public sealed class RaisedEventsTests
             """);
 
         Assert.Equal(
-            new[] { "ExpenseSubmittedEvent", "ExpenseWrapper" },
+            ["ExpenseSubmittedEvent", "ExpenseWrapper"],
             RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>A twice-raised event returns once.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A twice-raised event returns once")]
     public void DuplicateRaisesReturnOnce()
@@ -152,9 +160,10 @@ public sealed class RaisedEventsTests
             }
             """);
 
-        Assert.Equal(new[] { "ExpenseSubmittedEvent" }, RaisedEvents.Of(method, owner));
+        Assert.Equal(["ExpenseSubmittedEvent"], RaisedEvents.Of(method, owner));
     }
 
+    /// <summary>Of rejects a null method.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Of rejects a null method")]
     public void OfRejectsNullMethod()
@@ -171,6 +180,7 @@ public sealed class RaisedEventsTests
         Assert.Throws<ArgumentNullException>(() => RaisedEvents.Of(null!, owner));
     }
 
+    /// <summary>Of rejects a null owner.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Of rejects a null owner")]
     public void OfRejectsNullOwner()

@@ -40,6 +40,7 @@ public sealed class IntentFindingMessageFormatTests
         "write its parent record",
     ];
 
+    /// <summary>Intent Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
     public void Intent_Messages_Start_With_A_Subject_And_Identifier()
@@ -66,6 +67,8 @@ public sealed class IntentFindingMessageFormatTests
     }
 
     /// <summary>A model triggering the intent-side findings: uncited requirements, unparented records, unknown verbs, vague words, and lookalikes.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the triggering records.</returns>
     static ProjectModel IntentModel(string root)
     {
         return TestModel.Model(

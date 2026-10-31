@@ -11,6 +11,7 @@ namespace LiteSpec.Tests.Model.Builder;
 /// <summary>Proves the builder extracts the new links, derives results in the written form and exports follows.</summary>
 public sealed class LinkExportTests
 {
+    /// <summary>Feature Advancing A Goal Passes Link Types.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void Feature_Advancing_A_Goal_Passes_Link_Types()
@@ -24,6 +25,7 @@ public sealed class LinkExportTests
         Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "field-invalid" && finding.Message.Contains("advances", StringComparison.Ordinal));
     }
 
+    /// <summary>Feature Advancing A Problem Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void Feature_Advancing_A_Problem_Reports_Invalid_Field()
@@ -38,6 +40,7 @@ public sealed class LinkExportTests
             finding.Code == "field-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
     }
 
+    /// <summary>Use Case Reads Setting Is Exported As A Link.</summary>
     /// <proves>litespec/core/use-cases#name-the-settings-each-use-case-reads</proves>
     [Fact]
     public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
@@ -61,6 +64,7 @@ public sealed class LinkExportTests
         Assert.False(setting.GetProperty("links").TryGetProperty("readBy", out _));
     }
 
+    /// <summary>Derived Results Take The Written Form.</summary>
     /// <proves>litespec/core/model#derive-generic-refusals</proves>
     [Fact]
     public void Derived_Results_Take_The_Written_Form()
@@ -77,6 +81,7 @@ public sealed class LinkExportTests
         Assert.All(derived, id => Assert.Equal(2, id["result/".Length..].Split('.').Length));
     }
 
+    /// <summary>Follows Marks Are Exported Beside Implements.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact]
     public void Follows_Marks_Are_Exported_Beside_Implements()
@@ -92,6 +97,7 @@ public sealed class LinkExportTests
             && !Path.IsPathRooted(link.GetProperty("path").GetString()!));
     }
 
+    /// <summary>A Model Without Follows Marks Exports An Empty Array.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact]
     public void A_Model_Without_Follows_Marks_Exports_An_Empty_Array()
@@ -104,6 +110,7 @@ public sealed class LinkExportTests
         Assert.Equal(0, document.RootElement.GetProperty("links").GetProperty("follows").GetArrayLength());
     }
 
+    /// <summary>Wave5 Objects Export Their Ids As Links.</summary>
     /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
     [Fact]
     public void Wave5_Objects_Export_Their_Ids_As_Links()
@@ -128,6 +135,7 @@ public sealed class LinkExportTests
         Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
     }
 
+    /// <summary>Wave6 Effects Triggers And Steps Export Their Ids As Links.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
     [Fact]

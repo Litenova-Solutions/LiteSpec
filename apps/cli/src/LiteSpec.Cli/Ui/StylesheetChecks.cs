@@ -195,7 +195,7 @@ sealed class StylesheetChecks
             }
 
             string packageName;
-            if (specifier.StartsWith("@", StringComparison.Ordinal))
+            if (specifier.StartsWith('@'))
             {
                 var parts = specifier.Split('/');
                 packageName = parts.Length >= 2 ? parts[0] + "/" + parts[1] : specifier;

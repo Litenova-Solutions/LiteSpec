@@ -19,8 +19,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unimplemented",
@@ -31,13 +31,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "use-case-unimplemented" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["use-case-unimplemented"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Empty(partition.Findings);
         Assert.Single(partition.Known);
@@ -55,8 +55,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unimplemented",
@@ -67,13 +67,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "use-case-unimplemented" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["use-case-unimplemented"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -91,8 +91,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unimplemented",
@@ -104,13 +104,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "use-case-unimplemented" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["use-case-unimplemented"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -128,8 +128,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "ListLoansHandler.cs"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unimplemented",
@@ -140,13 +140,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "use-case-unimplemented" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["use-case-unimplemented"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -164,8 +164,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "Shop", "LegacyHandler.cs"),
             3,
             null);
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/legacy-shop",
@@ -176,13 +176,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "behavior-unrecorded" },
-                    ["paths"] = new[] { "src/**" },
+                    ["covers"] = ["behavior-unrecorded"],
+                    ["paths"] = ["src/**"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Empty(partition.Findings);
         Assert.Single(partition.Known);
@@ -200,8 +200,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "Shop", "LegacyHandler.cs"),
             3,
             null);
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/legacy-docs",
@@ -212,13 +212,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "behavior-unrecorded" },
-                    ["paths"] = new[] { "docs/**" },
+                    ["covers"] = ["behavior-unrecorded"],
+                    ["paths"] = ["docs/**"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -236,8 +236,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-departure",
@@ -248,19 +248,19 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding },
+            [finding],
             records,
             root,
             new DateTime(2026, 10, 28),
             _ => null,
             provision => provision == "litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"
-                ? new[] { "use-case-unimplemented" }
+                ? ["use-case-unimplemented"]
                 : Array.Empty<string>());
 
         Assert.Empty(partition.Findings);
@@ -279,8 +279,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-departure",
@@ -291,13 +291,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -315,8 +315,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "governance", "exceptions", "list-loans-unimplemented.md"),
             3,
             "exception/list-loans-unimplemented");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unimplemented",
@@ -327,13 +327,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "exception-expired" },
-                    ["subject"] = new[] { "exception/list-loans-unimplemented" },
+                    ["covers"] = ["exception-expired"],
+                    ["subject"] = ["exception/list-loans-unimplemented"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding }, records, root, new DateTime(2026, 10, 28), _ => null);
+            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
         Assert.Empty(partition.Known);
@@ -351,8 +351,8 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "scenario/list-loans.listing");
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "exception",
                 "exception/list-loans-unproved",
@@ -363,13 +363,13 @@ public sealed class SuppressionTests
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = new[] { "proves-unreached" },
-                    ["subject"] = new[] { "use-case/lending.list-loans" },
+                    ["covers"] = ["proves-unreached"],
+                    ["subject"] = ["use-case/lending.list-loans"],
                 }),
-        };
+        ];
 
         var partition = Suppression.Partition(
-            new[] { finding },
+            [finding],
             records,
             root,
             new DateTime(2026, 10, 28),

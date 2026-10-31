@@ -11,6 +11,7 @@ public sealed class FlakyRunTests
 {
     const string Method = "Library.Acceptance.Tests.Flaky.FlakyScenarios.Borrowing_an_available_copy_succeeds";
 
+    /// <summary>Same Test Passed And Failed Across Trx Files Is Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Same_Test_Passed_And_Failed_Across_Trx_Files_Is_Flaky()
@@ -26,6 +27,7 @@ public sealed class FlakyRunTests
         Assert.Equal("Failed", run.OutcomeByMethod[Method]);
     }
 
+    /// <summary>Same Test Passed And Failed Across Readers Is Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Same_Test_Passed_And_Failed_Across_Readers_Is_Flaky()
@@ -42,6 +44,7 @@ public sealed class FlakyRunTests
         Assert.Equal("Failed", run.OutcomeByMethod[Method]);
     }
 
+    /// <summary>Passed Test Skipped Elsewhere Is Not Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Passed_Test_Skipped_Elsewhere_Is_Not_Flaky()

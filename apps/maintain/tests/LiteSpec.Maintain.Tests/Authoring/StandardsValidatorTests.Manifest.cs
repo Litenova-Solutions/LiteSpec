@@ -79,18 +79,21 @@ public sealed partial class StandardsValidatorTests
 
     static void LayerPage(string root, string relative) => StandardsFixture.Write(root, relative, "# Sample\n");
 
+    /// <summary>Manifest JSON.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest JSON")]
     public void ManifestJson() => Check(
         root => StandardsFixture.Write(root, "litespec.manifest.json", "{"),
         ["MANIFEST_JSON"]);
 
+    /// <summary>Manifest path.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest path")]
     public void ManifestPath() => Check(
         root => StandardsFixture.Write(root, "litespec.manifest.json", "{\"agentsEntry\":\"missing.md\"}"),
         ["MANIFEST_PATH"]);
 
+    /// <summary>Manifest anchor.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest anchor")]
     public void ManifestAnchor() => Check(
@@ -101,12 +104,14 @@ public sealed partial class StandardsValidatorTests
         },
         ["MANIFEST_ANCHOR"]);
 
+    /// <summary>Manifest duplicate path.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest duplicate path")]
     public void ManifestDuplicatePath() => Check(
         root => StandardsFixture.Write(root, "litespec.manifest.json", "{\"shapes\":{\"server\":{\"backendStacks\":1,\"backendPages\":[\"docs/backend/topic.md\",\"docs/backend/topic.md\"]}}}"),
         ["MANIFEST_DUPLICATE_PATH"]);
 
+    /// <summary>Stack folder that does not exist.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack folder that does not exist")]
     public void StackFolderMissing()
@@ -116,6 +121,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_FOLDER", codes);
     }
 
+    /// <summary>Stack folder outside the stack areas.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack folder outside the stack areas")]
     public void StackFolderOutsideAreas()
@@ -129,6 +135,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_FOLDER", codes);
     }
 
+    /// <summary>Stack folder without a stack.md.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack folder without a stack.md")]
     public void StackFolderWithoutEntry()
@@ -142,6 +149,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_FOLDER", codes);
     }
 
+    /// <summary>Stack folders holding stack.md.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack folders holding stack.md")]
     public void StackFoldersHoldingEntry()
@@ -157,6 +165,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("STACK_FOLDER", codes);
     }
 
+    /// <summary>Stack requiring a stack the manifest does not ship.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack requiring a stack the manifest does not ship")]
     public void StackRequiringUnknownStack()
@@ -170,6 +179,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_REFERENCE", codes);
     }
 
+    /// <summary>Stack pairing with a stack the manifest does not ship.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack pairing with a stack the manifest does not ship")]
     public void StackPairingWithUnknownStack()
@@ -183,6 +193,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_REFERENCE", codes);
     }
 
+    /// <summary>Stack pairing with a frontend stack.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack pairing with a frontend stack")]
     public void StackPairingWithFrontendStack()
@@ -197,6 +208,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("STACK_REFERENCE", codes);
     }
 
+    /// <summary>Stack references naming shipped stacks.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack references naming shipped stacks")]
     public void StackReferencesNamingShippedStacks()
@@ -211,6 +223,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("STACK_REFERENCE", codes);
     }
 
+    /// <summary>Extension outside every ext folder.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension outside every ext folder")]
     public void ExtensionOutsideExtFolders()
@@ -224,6 +237,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_LOCATION", codes);
     }
 
+    /// <summary>Extension file not naming the extension.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension file not naming the extension")]
     public void ExtensionFileNotNamingTheExtension()
@@ -237,6 +251,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_LOCATION", codes);
     }
 
+    /// <summary>Located extensions.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "located extensions")]
     public void LocatedExtensions()
@@ -252,6 +267,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("EXTENSION_LOCATION", codes);
     }
 
+    /// <summary>Ext page no extension lists.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "ext page no extension lists")]
     public void ExtPageNoExtensionLists()
@@ -265,6 +281,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_UNLISTED", codes);
     }
 
+    /// <summary>Every ext page listed.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "every ext page listed")]
     public void EveryExtPageListed()
@@ -280,6 +297,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("EXTENSION_UNLISTED", codes);
     }
 
+    /// <summary>Page in a stack folder the manifest does not list.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "page in a stack folder the manifest does not list")]
     public void PageInUncoveredFolder()
@@ -295,6 +313,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("LAYER_UNREACHABLE", codes);
     }
 
+    /// <summary>Page in a folder holding no stack applies with its parent.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "page in a folder holding no stack applies with its parent")]
     public void PageInNestedFolderOfAStack()
@@ -310,6 +329,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("LAYER_UNREACHABLE", codes);
     }
 
+    /// <summary>Pages in stack folders and their ancestors.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "pages in stack folders and their ancestors")]
     public void PagesInStackFoldersAndAncestors()
@@ -326,6 +346,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("LAYER_UNREACHABLE", codes);
     }
 
+    /// <summary>Shape backend page in a stack folder.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "shape backend page in a stack folder")]
     public void ShapeBackendPageInAStackFolder()
@@ -339,6 +360,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("SHAPE_PAGE", codes);
     }
 
+    /// <summary>Shape backend page outside the backend area.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "shape backend page outside the backend area")]
     public void ShapeBackendPageOutsideBackend()
@@ -352,6 +374,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("SHAPE_PAGE", codes);
     }
 
+    /// <summary>Shape backend pages directly in docs/backend.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "shape backend pages directly in docs/backend")]
     public void ShapeBackendPagesDirectlyInBackend()
@@ -366,6 +389,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("SHAPE_PAGE", codes);
     }
 
+    /// <summary>Page outside the known areas.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "page outside the known areas")]
     public void PageOutsideKnownAreas()
@@ -379,6 +403,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("LAYER_UNLISTED", codes);
     }
 
+    /// <summary>Every page inside a known area.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "every page inside a known area")]
     public void EveryPageInsideAKnownArea()
@@ -394,6 +419,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("LAYER_UNLISTED", codes);
     }
 
+    /// <summary>Extension scope mismatch.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension scope mismatch")]
     public void ExtensionScopeMismatch()
@@ -407,6 +433,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_SCOPE", codes);
     }
 
+    /// <summary>Extension kind mismatch.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension kind mismatch")]
     public void ExtensionKindMismatch()
@@ -420,6 +447,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_KIND", codes);
     }
 
+    /// <summary>Missing extension activation.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "missing extension activation")]
     public void MissingExtensionActivation()
@@ -433,6 +461,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_ACTIVATION", codes);
     }
 
+    /// <summary>Empty baseline relationship.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "empty baseline relationship")]
     public void EmptyBaselineRelationship()
@@ -446,6 +475,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_BASELINE", codes);
     }
 
+    /// <summary>Empty extension dependencies.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "empty extension dependencies")]
     public void EmptyExtensionDependencies()
@@ -459,6 +489,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_DEPENDENCIES", codes);
     }
 
+    /// <summary>Extension replacing an unknown provision.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension replacing an unknown provision")]
     public void ExtensionReplacesUnknown()
@@ -472,6 +503,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_REPLACES_UNKNOWN", codes);
     }
 
+    /// <summary>Extension enforcing a replaced provision.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension enforcing a replaced provision")]
     public void ExtensionReplacesEnforced()
@@ -485,6 +517,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("EXTENSION_REPLACES_ENFORCED", codes);
     }
 
+    /// <summary>Extension replacing a baseline provision.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "extension replacing a baseline provision")]
     public void ExtensionReplacesBaseline()
@@ -500,6 +533,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain("EXTENSION_REPLACES_ENFORCED", codes);
     }
 
+    /// <summary>Page file name that is not lowercase kebab case.</summary>
     /// <proves>litespec/core/authoring#name-the-owning-page-in-the-identifier</proves>
     [Fact(DisplayName = "page file name that is not lowercase kebab case")]
     public void PageFileNameNotKebabCase()
@@ -509,6 +543,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Contains("ID_PAGE_FILENAME", codes);
     }
 
+    /// <summary>Lowercase workflow prose passes.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "lowercase workflow prose passes")]
     public void LowercaseWorkflowPasses() => Check(
@@ -551,18 +586,21 @@ public sealed partial class StandardsValidatorTests
         StandardsFixture.RebuildIndex(root);
     }
 
+    /// <summary>Analyzer pin behind the analyzer project.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "analyzer pin behind the analyzer project")]
     public void AnalyzerPinBehindProject() => Check(
         root => AnalyzerPinFiles(root, "2.0.0"),
         ["MANIFEST_ANALYZER_PIN"]);
 
+    /// <summary>Analyzer pin matching the analyzer project.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "analyzer pin matching the analyzer project")]
     public void AnalyzerPinMatchingProject() => Check(
         root => AnalyzerPinFiles(root, "3.0.0"),
         []);
 
+    /// <summary>Stack page citing a rule the pinned release does not ship.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack page citing a rule the pinned release does not ship")]
     public void AnalyzerRuleNotShipped() => Check(
@@ -574,6 +612,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["MANIFEST_ANALYZER_RULE"]);
 
+    /// <summary>Stack page citing a rule the pinned release ships.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack page citing a rule the pinned release ships")]
     public void AnalyzerRuleShipped() => Check(

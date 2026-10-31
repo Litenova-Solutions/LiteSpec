@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the result-scenario-missing check: a written result shown by no scenario, at tier G for a success and tier A for a refusal.</summary>
 public sealed class ResultScenarioCheckTests
 {
+    /// <summary>Success Result Named By A Scenario Passes.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Success_Result_Named_By_A_Scenario_Passes()
@@ -22,6 +23,7 @@ public sealed class ResultScenarioCheckTests
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Success Result With No Scenario Reports At Tier G.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Success_Result_With_No_Scenario_Reports_At_Tier_G()
@@ -40,6 +42,7 @@ public sealed class ResultScenarioCheckTests
         Assert.Contains("is shown by no scenario", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Refusal Result With No Scenario Reports At Tier A.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Refusal_Result_With_No_Scenario_Reports_At_Tier_A()
@@ -58,6 +61,7 @@ public sealed class ResultScenarioCheckTests
         Assert.Contains("names code 'spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Derived Result With No Scenario Passes.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Derived_Result_With_No_Scenario_Passes()
@@ -71,6 +75,7 @@ public sealed class ResultScenarioCheckTests
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Scenario Naming The Runs Use Case Result Passes.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Reaction_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
@@ -86,6 +91,7 @@ public sealed class ResultScenarioCheckTests
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Job Scenario Naming The Runs Use Case Result Passes.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Job_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
@@ -101,6 +107,7 @@ public sealed class ResultScenarioCheckTests
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }
 
+    /// <summary>UseCaseOf Resolves Derived Shaped Id Holder.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void UseCaseOf_Resolves_Derived_Shaped_Id_Holder()
@@ -116,6 +123,7 @@ public sealed class ResultScenarioCheckTests
         Assert.Equal("use-case/spending.submit-expense", holder.Id);
     }
 
+    /// <summary>Scenario Ending In Other Use Case Result Reports.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Scenario_Ending_In_Other_Use_Case_Result_Reports()
@@ -131,6 +139,7 @@ public sealed class ResultScenarioCheckTests
         Assert.Contains("scenario-result-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Scenario Ending In Own Use Case Derived Forbidden Passes.</summary>
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
     public void Scenario_Ending_In_Own_Use_Case_Derived_Forbidden_Passes()
@@ -146,6 +155,13 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>An entry of the type and id on the page, with the JSON fields.</summary>
+    /// <param name="type">The record type of the entry.</param>
+    /// <param name="id">The record id of the entry.</param>
+    /// <param name="file">The page file the entry sits on.</param>
+    /// <param name="json">The entry fields as JSON.</param>
+    /// <param name="pageId">The id of the page holding the entry.</param>
+    /// <param name="derived">Whether the entry id derives from its page.</param>
+    /// <returns>The record for the entry.</returns>
     static Record Entry(string type, string id, string file, string json, string pageId, bool derived = false)
     {
         using var document = JsonDocument.Parse(json);

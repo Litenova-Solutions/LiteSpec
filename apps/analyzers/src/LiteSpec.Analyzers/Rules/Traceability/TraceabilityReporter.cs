@@ -36,7 +36,7 @@ internal static class TraceabilityReporter
         var line = location.SourceTree is null
             ? 1
             : location.SourceTree.GetLineSpan(location.SourceSpan).StartLinePosition.Line + 1;
-        var finding = new Finding(code, descriptor.Title.ToString(), path, line, subject);
+        var finding = new Finding(code, descriptor.Title.ToString(System.Globalization.CultureInfo.InvariantCulture), path, line, subject);
 
         if (state.IsKnown(finding))
         {

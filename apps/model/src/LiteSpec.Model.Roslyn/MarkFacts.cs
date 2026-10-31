@@ -75,6 +75,10 @@ public static class MarkFacts
         return elements;
     }
 
+    /// <summary>Reads the 1-based line of a span.</summary>
+    /// <param name="tree">The syntax tree.</param>
+    /// <param name="span">The span to locate.</param>
+    /// <returns>The 1-based line where the span starts.</returns>
     private static int LineOf(SyntaxTree tree, TextSpan span) =>
         tree.GetLineSpan(span).StartLinePosition.Line + 1;
 }

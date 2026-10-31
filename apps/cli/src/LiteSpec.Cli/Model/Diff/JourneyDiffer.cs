@@ -74,7 +74,7 @@ static class JourneyDiffer
 
     /// <summary>One product sentence per journey step, in step order.</summary>
     /// <param name="record">The journey record.</param>
-    /// <returns>One product sentence per journey step, in step order.</returns>
+    /// <returns>One line per step, holding the step id and its quoted statement, ordered by step id.</returns>
     public static List<string> StepsLines(Record record)
     {
         var steps = DiffEntries.JourneySteps(record);

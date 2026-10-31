@@ -66,9 +66,13 @@ static class Checker
     ///     workflow and approval data, canonicalized and hashed to eight hex characters.
     ///     Prose bodies sit outside the hash, so rewording prose reopens no approval.
     /// </summary>
+    /// <param name="record">The record whose written fields are hashed.</param>
+    /// <returns>The eight-hex-character semantic hash of the record.</returns>
     public static string SemanticHash(Record record) => SemanticHash(record.Raw);
 
     /// <summary>The semantic hash over written record fields, as <see cref="SemanticHash(Record)" /> computes it.</summary>
+    /// <param name="raw">The written record fields as JSON, before exclusions are applied.</param>
+    /// <returns>The eight-hex-character semantic hash of the fields.</returns>
     public static string SemanticHash(JsonElement raw)
     {
         var built = new StringBuilder();
@@ -81,6 +85,8 @@ static class Checker
     }
 
     /// <summary>Runs every check, partitioning findings from known gaps.</summary>
+    /// <param name="model">The built project model to check.</param>
+    /// <returns>The findings that stand and the findings known gaps suppress, each in sorted order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Check(ProjectModel model)
     {
         var findings = new List<Finding>(model.Problems);
@@ -177,6 +183,9 @@ static class Checker
         return Suppress(model, findings);
     }
 
+    /// <summary>Runs one check phase and reports its elapsed time to the timing log.</summary>
+    /// <param name="name">The phase name used in the timing line.</param>
+    /// <param name="run">The check phase to run.</param>
     private static void Time(string name, Action run)
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -186,6 +195,10 @@ static class Checker
         Timing.Report($"[time] check-{name} {watch.Elapsed.TotalSeconds:0.0}s");
     }
 
+    /// <summary>Partitions findings into the ones that stand and the ones a known gap covers.</summary>
+    /// <param name="model">The built project model the findings belong to.</param>
+    /// <param name="findings">The findings from every check, in sorted order.</param>
+    /// <returns>The standing findings and the suppressed findings.</returns>
     private static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Suppress(
         ProjectModel model, List<Finding> findings)
     {
@@ -204,7 +217,8 @@ static class Checker
     ///     The finding codes each provision governs, from the codes its Checked by
     ///     line names. Built once per check, so departures cover their provision.
     /// </summary>
-    private static IReadOnlyDictionary<string, IReadOnlyList<string>> CodesOfProvision()
+    /// <returns>The finding codes governed by each provision id, or an empty map when no LiteSpec home is found.</returns>
+    private static Dictionary<string, IReadOnlyList<string>> CodesOfProvision()
     {
         var empty = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         var home = LiteSpecHome.Root;
@@ -239,9 +253,13 @@ static class Checker
         return governed;
     }
 
+    /// <summary>The pattern matching one backtick-quoted code span in a Checked by line.</summary>
     private static readonly Regex CodeSpan = new("`(?<code>[^`]+)`", RegexOptions.Compiled);
 
     /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
+    /// <param name="config">The consumer configuration holding the project root.</param>
+    /// <param name="file">The file path to test.</param>
+    /// <returns>True when the file sits under the implementation decisions folder.</returns>
     internal static bool UnderImplementationDecisions(ConsumerConfig config, string file) =>
         MarkChecks.UnderImplementationDecisions(config, file);
 }

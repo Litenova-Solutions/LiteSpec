@@ -161,7 +161,7 @@ static class ElementReader
     /// <summary>The one mark naming the prefix, or null when the element carries none or several.</summary>
     /// <param name="marks">The marks the element carries.</param>
     /// <param name="prefix">The mark prefix.</param>
-    /// <returns>The one mark naming the prefix, or null when the element carries none or several.</returns>
+    /// <returns>The record id of that single mark, or null when none or more than one matches the prefix.</returns>
     public static string? SingleMark(IReadOnlyList<CodeMark> marks, string prefix)
     {
         string? found = null;

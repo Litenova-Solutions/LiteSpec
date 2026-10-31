@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 
 namespace LiteSpec.Book;
@@ -55,7 +56,7 @@ static class BookImplementationDetail
                 return;
             }
 
-            if (!seen.Add(kind + "\0" + path + "\0" + (line?.ToString() ?? "null")))
+            if (!seen.Add(kind + "\0" + path + "\0" + (line?.ToString(CultureInfo.InvariantCulture) ?? "null")))
             {
                 return;
             }

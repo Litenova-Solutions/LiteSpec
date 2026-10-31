@@ -108,6 +108,7 @@ public sealed class NewEntryTests
         # Settings
         """;
 
+    /// <summary>New entry appends a requirement last and reserves its identifier.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a requirement last and reserves its identifier")]
     public void AppendsRequirementLast()
@@ -134,6 +135,7 @@ public sealed class NewEntryTests
         Assert.True(0 <= existing && existing < added);
     }
 
+    /// <summary>New entry appends a rule under the page's existing home.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a rule under the page's existing home")]
     public void AppendsRuleUnderExistingHome()
@@ -155,6 +157,7 @@ public sealed class NewEntryTests
         Assert.Contains("\"statement\": \"<The rule in one sentence>\"", inserted);
     }
 
+    /// <summary>New entry appends a permission without a home.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a permission without a home")]
     public void AppendsPermissionWithoutHome()
@@ -176,6 +179,7 @@ public sealed class NewEntryTests
         Assert.Contains("\"scope\": \"<scope, such as platform, tenant or self>\"", inserted);
     }
 
+    /// <summary>New entry appends a setting under its module.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a setting under its module")]
     public void AppendsSettingUnderModule()
@@ -197,6 +201,7 @@ public sealed class NewEntryTests
         Assert.Contains("\"setBy\": \"decider\"", inserted);
     }
 
+    /// <summary>New entry refuses a taken requirement id and leaves the page alone.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken requirement id and leaves the page alone")]
     public void RefusesTakenRequirementId()
@@ -214,6 +219,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
+    /// <summary>New entry refuses a taken rule id and leaves the page alone.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken rule id and leaves the page alone")]
     public void RefusesTakenRuleId()
@@ -231,6 +237,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
+    /// <summary>New entry refuses a taken permission id and leaves the page alone.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken permission id and leaves the page alone")]
     public void RefusesTakenPermissionId()
@@ -248,6 +255,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
+    /// <summary>New entry refuses a taken setting id and leaves the page alone.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken setting id and leaves the page alone")]
     public void RefusesTakenSettingId()
@@ -265,6 +273,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(page));
     }
 
+    /// <summary>New entry takes the requirement home from an empty page's file stem.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry takes the requirement home from an empty page's file stem")]
     public void DerivesRequirementHomeFromFileStem()
@@ -284,6 +293,7 @@ public sealed class NewEntryTests
             File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
+    /// <summary>New entry takes the setting home from the parent modules folder.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry takes the setting home from the parent modules folder")]
     public void DerivesSettingModuleFromPath()
@@ -303,6 +313,7 @@ public sealed class NewEntryTests
             File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
+    /// <summary>New entry refuses a setting page outside a modules folder with no settings.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a setting page outside a modules folder with no settings")]
     public void RefusesSettingWithoutAModule()
@@ -321,6 +332,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
+    /// <summary>New entry refuses a type the page does not own.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a type the page does not own")]
     public void RefusesTypeThePageDoesNotOwn()
@@ -337,6 +349,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, File.ReadAllText(Path.Combine(consumer.Path, RequirementPage)));
     }
 
+    /// <summary>New help documents the entry form.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new help documents the entry form")]
     public void HelpDocumentsEntryForm()
@@ -365,6 +378,8 @@ public sealed class NewEntryTests
         { ["entry", PermissionPage, "permission", "submit-expense"] },
     };
 
+    /// <summary>Run refuses invalid entries and leaves every page alone.</summary>
+    /// <param name="args">One rejected argument set from the theory data.</param>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Theory(DisplayName = "run refuses invalid entries and leaves every page alone")]
     [MemberData(nameof(RejectedArgs))]
@@ -377,6 +392,7 @@ public sealed class NewEntryTests
         Assert.Equal(before, AllPages(consumer.Path));
     }
 
+    /// <summary>The filled release record validates.</summary>
     /// <proves>litespec/core/release#record-the-release-artifact</proves>
     [Fact(DisplayName = "the filled release record validates")]
     public void FilledReleaseRecordValidates()
@@ -430,6 +446,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>A minimal consumer holding one page per entry type.</summary>
+    /// <returns>The temporary consumer folder holding the pages.</returns>
     static TempFolder Consumer()
     {
         var temp = Cli.Temp("new-entry");
@@ -442,6 +459,10 @@ public sealed class NewEntryTests
     }
 
     /// <summary>Writes one list page with an empty records array.</summary>
+    /// <param name="root">The consumer root folder.</param>
+    /// <param name="relative">The page path under the root.</param>
+    /// <param name="type">The record type the page lists.</param>
+    /// <param name="title">The page heading text.</param>
     static void WritePage(string root, string relative, string type, string title)
     {
         WriteText(root, relative, $$"""
@@ -461,6 +482,9 @@ public sealed class NewEntryTests
     }
 
     /// <summary>Writes one consumer-relative file, creating its directory.</summary>
+    /// <param name="root">The consumer root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <param name="contents">The file contents to write.</param>
     static void WriteText(string root, string relative, string contents)
     {
         var file = Path.Combine(root, relative);
@@ -469,6 +493,9 @@ public sealed class NewEntryTests
     }
 
     /// <summary>Runs the entry path in process against the consumer.</summary>
+    /// <param name="consumer">The fixture consumer to append to.</param>
+    /// <param name="args">The entry arguments, without the root option the helper adds.</param>
+    /// <returns>The entry run exit code.</returns>
     static int Append(TempFolder consumer, params string[] args)
     {
         var parsed = CliArgs.Parse(
@@ -481,6 +508,8 @@ public sealed class NewEntryTests
     }
 
     /// <summary>Every list page's text, for the untouched proof.</summary>
+    /// <param name="root">The consumer root folder.</param>
+    /// <returns>The text of every list page in the fixture.</returns>
     static List<string> AllPages(string root) =>
     [
         File.ReadAllText(Path.Combine(root, RequirementPage)),
@@ -490,6 +519,10 @@ public sealed class NewEntryTests
     ];
 
     /// <summary>Proves the page grew by one contiguous insertion holding the new entry.</summary>
+    /// <param name="before">The page text before the insertion.</param>
+    /// <param name="after">The page text after the insertion.</param>
+    /// <param name="marker">The text the inserted block must contain.</param>
+    /// <returns>The inserted text.</returns>
     static string AssertSingleInsertion(string before, string after, string marker)
     {
         // Lines, not characters: a new entry shares its opening lines with its neighbour,

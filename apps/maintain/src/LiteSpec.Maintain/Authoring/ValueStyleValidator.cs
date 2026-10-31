@@ -60,7 +60,7 @@ internal sealed partial class ValueStyleValidator
                 continue;
             }
 
-            if (!Context.Records.TryParseRecordFrontmatter(raw, out var frontmatter, out _))
+            if (!RecordsValidator.TryParseRecordFrontmatter(raw, out var frontmatter, out _))
             {
                 continue;
             }
@@ -242,7 +242,7 @@ internal sealed partial class ValueStyleValidator
     /// <param name="text">The text to check.</param>
     /// <param name="word">The word to match.</param>
     /// <returns>True when the text starts with the word.</returns>
-    private bool StartsWithWord(string text, string word) =>
+    private static bool StartsWithWord(string text, string word) =>
         text.StartsWith(word, StringComparison.OrdinalIgnoreCase)
         && (text.Length == word.Length || !char.IsLetterOrDigit(text[word.Length]));
 

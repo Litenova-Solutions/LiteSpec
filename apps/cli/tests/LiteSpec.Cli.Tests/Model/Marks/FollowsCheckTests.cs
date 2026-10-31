@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Tests the follows checks against the marks-follows fixture consumer.</summary>
 public sealed class FollowsCheckTests
 {
+    /// <summary>A technical class with follows marks reports nothing.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A technical class with follows marks reports nothing")]
     public void TechnicalClassWithFollowsReportsNothing()
@@ -30,6 +31,7 @@ public sealed class FollowsCheckTests
         }
     }
 
+    /// <summary>A technical class without a mark reports mark-missing.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A technical class without a mark reports mark-missing")]
     public void TechnicalClassWithoutAMarkReportsMarkMissing()
@@ -43,6 +45,7 @@ public sealed class FollowsCheckTests
         Assert.Equal("LoanCache.cs", FileName(finding));
     }
 
+    /// <summary>A technical class with only implements use-case reports nothing.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A technical class with only implements use-case reports nothing")]
     public void TechnicalClassWithOnlyImplementsReportsNothing()
@@ -54,6 +57,7 @@ public sealed class FollowsCheckTests
         Assert.DoesNotContain(findings, finding => FileName(finding) == "BorrowCopyValidator.cs");
     }
 
+    /// <summary>A technical class with both verbs reports nothing.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A technical class with both verbs reports nothing")]
     public void TechnicalClassWithBothVerbsReportsNothing()
@@ -65,6 +69,7 @@ public sealed class FollowsCheckTests
         Assert.DoesNotContain(findings, finding => FileName(finding) == "BorrowCopyStore.cs");
     }
 
+    /// <summary>A technical class with only implements decision reports mark-unknown.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A technical class with only implements decision reports mark-unknown")]
     public void TechnicalClassWithImplementsDecisionReportsMarkUnresolved()
@@ -78,6 +83,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("which is a decision record", finding.Message);
     }
 
+    /// <summary>An implements aggregate on a technical class does not silence aggregate-unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact(DisplayName = "An implements aggregate on a technical class does not silence aggregate-unimplemented")]
     public void TechnicalImplementsAggregateDoesNotSilenceUnimplemented()
@@ -99,6 +105,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("has no aggregate root carrying its mark", unimplemented.Message);
     }
 
+    /// <summary>A follows naming an unknown provision reports mark-unknown.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A follows naming an unknown provision reports mark-unknown")]
     public void UnknownProvisionReportsMarkUnresolved()
@@ -112,6 +119,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("which matches no provision of the carried release.", finding.Message);
     }
 
+    /// <summary>A follows naming a provision on an unapplied page reports mark-unknown.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A follows naming a provision on an unapplied page reports mark-unknown")]
     public void UnappliedProvisionReportsMarkUnresolved()
@@ -125,6 +133,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("which sits on a page the project's stacks and extensions do not apply.", finding.Message);
     }
 
+    /// <summary>A follows naming an unknown decision reports mark-unknown.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A follows naming an unknown decision reports mark-unknown")]
     public void UnknownDecisionReportsMarkUnresolved()
@@ -138,6 +147,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("which matches no decision or exception.", finding.Message);
     }
 
+    /// <summary>A follows naming a retired decision reports mark-unknown.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A follows naming a retired decision reports mark-unknown")]
     public void RetiredDecisionReportsMarkUnresolved()
@@ -151,6 +161,7 @@ public sealed class FollowsCheckTests
         Assert.Contains("which is retired.", finding.Message);
     }
 
+    /// <summary>No other mark-unknown fires in the follows fixture.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "No other mark-unknown fires in the follows fixture")]
     public void NoOtherMarkUnresolvedFires()
@@ -162,6 +173,7 @@ public sealed class FollowsCheckTests
         Assert.Equal(5, unresolved.Count);
     }
 
+    /// <summary>A technical class naming one decision twice reports mark-count-invalid.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A technical class naming one decision twice reports mark-count-invalid")]
     public void DuplicateFollowsReportsMarkCount()
@@ -175,6 +187,7 @@ public sealed class FollowsCheckTests
         Assert.Equal("LoanCounter.cs", FileName(finding));
     }
 
+    /// <summary>A technical decision no code follows reports decision-unimplemented.</summary>
     /// <proves>litespec/core/model#record-each-technical-choice-as-a-decision</proves>
     [Fact(DisplayName = "A technical decision no code follows reports decision-unimplemented")]
     public void UnfollowedDecisionReportsDecisionUnfollowed()
@@ -187,6 +200,7 @@ public sealed class FollowsCheckTests
         Assert.Equal("Decision 'decision/0003-loan-cache-region' is followed by no code element.", finding.Message);
     }
 
+    /// <summary>A product decision with no decides reports decision-decides-missing.</summary>
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
     [Fact(DisplayName = "A product decision with no decides reports decision-decides-missing")]
     public void ProductDecisionWithoutDecidesReportsDecidesNothing()
@@ -199,6 +213,7 @@ public sealed class FollowsCheckTests
         Assert.Equal("Decision 'decision/0001-loan-threshold' names nothing it decides.", finding.Message);
     }
 
+    /// <summary>Excluded shapes report nothing.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Excluded shapes report nothing")]
     public void ExclusionsReportNothing()
@@ -221,6 +236,7 @@ public sealed class FollowsCheckTests
         }
     }
 
+    /// <summary>A follows mark in the attribute style resolves.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "A follows mark in the attribute style resolves")]
     public void AttributeStyleFollowsResolves()

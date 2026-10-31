@@ -48,7 +48,7 @@ static class GlobWalker
             {
                 entries = Directory.GetFileSystemEntries(directory);
             }
-            catch
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
                 return;
             }

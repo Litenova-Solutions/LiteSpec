@@ -17,13 +17,19 @@ namespace LiteSpec.Authoring;
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class PageReader
 {
+    /// <summary>The Markdig pipeline every page read uses.</summary>
     static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder().UsePipeTables().UsePreciseSourceLocation().Build();
 
+    /// <summary>The pattern of a bare URL token.</summary>
     static readonly Regex BareUrlToken = new(@"https?://\S+", RegexOptions.Compiled);
+    /// <summary>The pattern of an anchor token.</summary>
     static readonly Regex AnchorToken = new(@"\{#[^}]+\}", RegexOptions.Compiled);
+    /// <summary>The pattern of an emphasis token.</summary>
     static readonly Regex EmphasisToken = new(@"[*_~]", RegexOptions.Compiled);
+    /// <summary>The pattern of a whitespace token.</summary>
     static readonly Regex WhitespaceToken = new(@"\s+", RegexOptions.Compiled);
 
+    /// <summary>The labels stripped from a fragment's visible text.</summary>
     static readonly HashSet<string> StrippedLabels = new(
         ["Statement", "Deviation", "Rationale", "Example", "Default", "Replacement"],
         StringComparer.Ordinal);
@@ -43,45 +49,59 @@ public sealed class PageReader
     /// <summary>A pipe table: its header cells, header line, and data rows.</summary>
     public sealed record ReaderTable(IReadOnlyList<string> Header, int HeaderLine, IReadOnlyList<ReaderTableRow> Rows);
 
-    /// <summary>The page text.</summary>
+    /// <summary>Gets the page text.</summary>
     public string Raw { get; }
 
-    /// <summary>The source lines.</summary>
+    /// <summary>Gets the source lines.</summary>
     public string[] Lines { get; }
 
-    /// <summary>The Markdig document.</summary>
+    /// <summary>Gets the Markdig document.</summary>
     public MarkdownDocument Document { get; }
 
-    /// <summary>Top-level ATX headings in document order, outside generated regions.</summary>
+    /// <summary>Gets top-level ATX headings in document order, outside generated regions.</summary>
     public IReadOnlyList<ReaderHeading> Headings { get; }
 
-    /// <summary>Labeled top-level paragraphs: 1-based first line to label name, outside generated regions.</summary>
+    /// <summary>Gets labeled top-level paragraphs: 1-based first line to label name, outside generated regions.</summary>
     public IReadOnlyDictionary<int, string> LabelAtLine { get; }
 
-    /// <summary>1-based lines inside fenced code blocks, fence markers included.</summary>
+    /// <summary>Gets 1-based lines inside fenced code blocks, fence markers included.</summary>
     public IReadOnlySet<int> FencedLines { get; }
 
-    /// <summary>1-based lines inside paired generated regions, comment fences included.</summary>
+    /// <summary>Gets 1-based lines inside paired generated regions, comment fences included.</summary>
     public IReadOnlySet<int> GeneratedLines { get; }
 
-    /// <summary>Links and images in document order, outside fenced blocks and generated regions.</summary>
+    /// <summary>Gets links and images in document order, outside fenced blocks and generated regions.</summary>
     public IReadOnlyList<ReaderLink> Links { get; }
 
-    /// <summary>Top-level pipe tables in document order, outside generated regions.</summary>
+    /// <summary>Gets top-level pipe tables in document order, outside generated regions.</summary>
     public IReadOnlyList<ReaderTable> Tables { get; }
 
-    /// <summary>1-based lines of ordered list items with a dot delimiter, sorted, outside generated regions.</summary>
+    /// <summary>Gets 1-based lines of ordered list items with a dot delimiter, sorted, outside generated regions.</summary>
     public IReadOnlyList<int> OrderedStepLines { get; }
 
-    /// <summary>1-based lines of top-level dash bullets starting with a link, sorted, outside generated regions.</summary>
+    /// <summary>Gets 1-based lines of top-level dash bullets starting with a link, sorted, outside generated regions.</summary>
     public IReadOnlyList<int> NavBulletLines { get; }
 
-    /// <summary>Fenced code blocks in document order.</summary>
+    /// <summary>Gets fenced code blocks in document order.</summary>
     public IReadOnlyList<ReaderFence> Fences { get; }
 
-    /// <summary>Anchors the page defines: explicit {#anchors} and heading slugs.</summary>
+    /// <summary>Gets anchors the page defines: explicit {#anchors} and heading slugs.</summary>
     public IReadOnlySet<string> Anchors { get; }
 
+    /// <summary>Initializes a new instance of the <see cref="PageReader"/> class.</summary>
+    /// <param name="raw">The page text.</param>
+    /// <param name="lines">The source lines.</param>
+    /// <param name="document">The Markdig document.</param>
+    /// <param name="headings">The top-level headings.</param>
+    /// <param name="labelAtLine">The label at each labeled paragraph line.</param>
+    /// <param name="fencedLines">The lines inside fenced code blocks.</param>
+    /// <param name="generatedLines">The lines inside generated regions.</param>
+    /// <param name="links">The links and images.</param>
+    /// <param name="tables">The top-level pipe tables.</param>
+    /// <param name="orderedStepLines">The ordered step lines.</param>
+    /// <param name="navBulletLines">The navigation bullet lines.</param>
+    /// <param name="fences">The fenced code blocks.</param>
+    /// <param name="anchors">The anchors the page defines.</param>
     PageReader(
         string raw,
         string[] lines,
@@ -113,6 +133,8 @@ public sealed class PageReader
     }
 
     /// <summary>Parses the page once with Markdig.</summary>
+    /// <param name="raw">The page text.</param>
+    /// <returns>The page read.</returns>
     public static PageReader Parse(string raw)
     {
         var lines = raw.Split(["\r\n", "\n"], StringSplitOptions.None);
@@ -351,6 +373,8 @@ public sealed class PageReader
     }
 
     /// <summary>The visible words of a Markdown fragment: code spans count as one token and link destinations, HTML, and emphasis markers are removed.</summary>
+    /// <param name="fragment">The Markdown fragment.</param>
+    /// <returns>The visible text of the fragment.</returns>
     public static string VisibleText(string fragment)
     {
         var document = Markdown.Parse(fragment, Pipeline);
@@ -369,6 +393,8 @@ public sealed class PageReader
     }
 
     /// <summary>Removes a trailing {#anchor} suffix with the spaces before it.</summary>
+    /// <param name="text">The heading text.</param>
+    /// <returns>The text without its anchor suffix.</returns>
     public static string StripAnchorSuffix(string text)
     {
         var end = text.Length;
@@ -411,6 +437,8 @@ public sealed class PageReader
     }
 
     /// <summary>The explicit {#anchor} at the end of the text, or null when there is none.</summary>
+    /// <param name="text">The heading text.</param>
+    /// <returns>The explicit anchor, or null when the text carries none.</returns>
     public static string? ExplicitAnchor(string text)
     {
         var end = text.Length;
@@ -442,6 +470,9 @@ public sealed class PageReader
     }
 
     /// <summary>Whether the line is an ID line with its stated identifier.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <param name="stated">The stated identifier, when the line is an ID line.</param>
+    /// <returns>True when the line is an ID line.</returns>
     public static bool TryParseIdLine(string line, out string stated)
     {
         stated = "";
@@ -468,6 +499,10 @@ public sealed class PageReader
     }
 
     /// <summary>Whether the line is a verification line with its label and evidence.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <param name="label">The verification label, when the line is a verification line.</param>
+    /// <param name="evidence">The verification evidence, when the line is a verification line.</param>
+    /// <returns>True when the line is a verification line.</returns>
     public static bool TryParseVerificationLine(string line, out string label, out string evidence)
     {
         label = "";
@@ -485,6 +520,9 @@ public sealed class PageReader
         return false;
     }
 
+    /// <summary>Reads the label a paragraph opens with.</summary>
+    /// <param name="inline">The paragraph content.</param>
+    /// <returns>The label name, or null when the paragraph opens with no label.</returns>
     static string? LabelName(Inline? inline)
     {
         var first = inline is ContainerInline container ? container.FirstChild : inline;
@@ -502,6 +540,9 @@ public sealed class PageReader
         return inner[..^1];
     }
 
+    /// <summary>Reads the plain text inside a container inline.</summary>
+    /// <param name="container">The container inline.</param>
+    /// <returns>The inner text.</returns>
     static string InnerText(ContainerInline container)
     {
         var builder = new StringBuilder();
@@ -532,6 +573,9 @@ public sealed class PageReader
     ///     number signs. Markdig releases a heading's lines once its inlines are parsed, so
     ///     the text comes from the source.
     /// </summary>
+    /// <param name="raw">The page text.</param>
+    /// <param name="heading">The heading block.</param>
+    /// <returns>The heading text as written.</returns>
     static string AtxText(string raw, HeadingBlock heading)
     {
         var text = raw.Substring(heading.Span.Start, heading.Span.Length).Trim();
@@ -547,6 +591,10 @@ public sealed class PageReader
             : text;
     }
 
+    /// <summary>Reads a heading's display text: its text with code spans blanked.</summary>
+    /// <param name="raw">The page text.</param>
+    /// <param name="heading">The heading block.</param>
+    /// <returns>The display text.</returns>
     static string HeadingDisplayText(string raw, HeadingBlock heading)
     {
         if (heading.Inline is null)
@@ -559,6 +607,9 @@ public sealed class PageReader
         return WhitespaceToken.Replace(builder.ToString(), " ").Trim();
     }
 
+    /// <summary>Appends display text for one inline sequence.</summary>
+    /// <param name="inline">The inline sequence.</param>
+    /// <param name="builder">The text to append to.</param>
     static void AppendDisplay(Inline? inline, StringBuilder builder)
     {
         for (var current = inline; current is not null; current = current.NextSibling)
@@ -585,6 +636,9 @@ public sealed class PageReader
         }
     }
 
+    /// <summary>Appends visible text for one inline sequence.</summary>
+    /// <param name="inline">The inline sequence.</param>
+    /// <param name="builder">The text to append to.</param>
     static void AppendVisible(Inline? inline, StringBuilder builder)
     {
         for (var current = inline; current is not null; current = current.NextSibling)
@@ -620,6 +674,10 @@ public sealed class PageReader
         }
     }
 
+    /// <summary>Appends visible text for one fragment block.</summary>
+    /// <param name="block">The block to read.</param>
+    /// <param name="builder">The text to append to.</param>
+    /// <param name="first">Whether the block is the fragment's first.</param>
     static void AppendFragmentBlock(Block block, StringBuilder builder, ref bool first)
     {
         switch (block)
@@ -655,6 +713,9 @@ public sealed class PageReader
         }
     }
 
+    /// <summary>Reads one pipe table.</summary>
+    /// <param name="table">The table block.</param>
+    /// <returns>The table read.</returns>
     static ReaderTable ReadTable(Table table)
     {
         var header = new List<string>();
@@ -690,6 +751,9 @@ public sealed class PageReader
         return new ReaderTable(header, headerLine, rows);
     }
 
+    /// <summary>Reads one table cell's visible text.</summary>
+    /// <param name="cell">The table cell.</param>
+    /// <returns>The cell text.</returns>
     static string CellText(TableCell cell)
     {
         var builder = new StringBuilder();
@@ -709,6 +773,9 @@ public sealed class PageReader
         return WhitespaceToken.Replace(text, " ").Trim();
     }
 
+    /// <summary>Lists the offset each line starts at.</summary>
+    /// <param name="raw">The page text.</param>
+    /// <returns>The line start offsets.</returns>
     static List<int> LineStarts(string raw)
     {
         var starts = new List<int> { 0 };
@@ -723,8 +790,15 @@ public sealed class PageReader
         return starts;
     }
 
+    /// <summary>One generated-region comment: whether it opens, and the lines it spans.</summary>
+    /// <param name="Opener">Whether the comment opens a region.</param>
+    /// <param name="FirstLine">The 1-based first line.</param>
+    /// <param name="LastLine">The 1-based last line.</param>
     sealed record HtmlComment(bool Opener, int FirstLine, int LastLine);
 
+    /// <summary>Pairs generated-region comments into the lines they cover.</summary>
+    /// <param name="comments">The generated-region comments in document order.</param>
+    /// <returns>The lines inside paired generated regions.</returns>
     static HashSet<int> PairGenerated(List<HtmlComment> comments)
     {
         var generated = new HashSet<int>();

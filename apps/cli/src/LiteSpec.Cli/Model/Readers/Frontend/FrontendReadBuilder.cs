@@ -14,6 +14,11 @@ namespace LiteSpec.Model.Readers.Frontend;
 static class FrontendReadBuilder
 {
     /// <summary>Builds the screen read for one frontend from its facts.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="frontend">The frontend whose facts are built into a screen read.</param>
+    /// <param name="facts">The frontend facts the result is built from.</param>
+    /// <param name="code">The code model the screens are checked against.</param>
+    /// <returns>The screen read built from the frontend facts.</returns>
     public static ScreenRead Build(ConsumerConfig config, FrontendConfig frontend, FrontendFacts facts, CodeModel code)
     {
         code.Elements.AddRange(ModuleElements(config, frontend, facts));
@@ -84,7 +89,7 @@ static class FrontendReadBuilder
                 config.Relative(file),
                 [.. operations.Select(operation => new GeneratedOperation(operation, "", ""))],
                 [.. useCases],
-                route.Marks.FirstOrDefault(),
+                route.Marks.Count > 0 ? route.Marks[0] : null,
                 facts.Reader,
                 route.Line)
             {
@@ -122,6 +127,11 @@ static class FrontendReadBuilder
         };
     }
 
+    /// <summary>One marked element per use-case module folder in the facts, in file and line order.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="facts">The frontend facts the result is built from.</param>
+    /// <returns>One marked element per use-case module folder, in file and line order.</returns>
     private static IReadOnlyList<MarkedElement> ModuleElements(
         ConsumerConfig config, FrontendConfig frontend, FrontendFacts facts)
     {
@@ -142,6 +152,11 @@ static class FrontendReadBuilder
         return [.. found.OrderBy(element => element.File, StringComparer.Ordinal).ThenBy(element => element.Line)];
     }
 
+    /// <summary>One marked element per route entry in the facts, in file and line order.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="facts">The frontend facts the result is built from.</param>
+    /// <returns>One marked element per route entry, in file and line order.</returns>
     private static IReadOnlyList<MarkedElement> RouteElements(
         ConsumerConfig config, FrontendConfig frontend, FrontendFacts facts)
     {
@@ -166,6 +181,11 @@ static class FrontendReadBuilder
     ///     frontend, the style the .NET reader saw on a Blazor or Android frontend,
     ///     and the declared style when the reader recorded none.
     /// </summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="route">The route entry whose mark style is wanted.</param>
+    /// <param name="index">The position of the mark within the route marks, matching its recorded style.</param>
+    /// <returns>The mark style that applies to this route mark.</returns>
     private static MarkStyle RouteStyle(ConsumerConfig config, FrontendConfig frontend, RouteFact route, int index)
     {
         if (frontend.Platform is "svelte" or "react")
@@ -182,6 +202,9 @@ static class FrontendReadBuilder
     }
 
     /// <summary>The module folder name a mark finding shows: the path under the modules root.</summary>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="folder">The module folder path, relative to the frontend root.</param>
+    /// <returns>The module folder name as findings show it, under the modules root.</returns>
     private static string ModuleName(FrontendConfig frontend, string folder)
     {
         var root = frontend.Platform == "react" ? "src/modules/" : "src/lib/modules/";
@@ -189,6 +212,10 @@ static class FrontendReadBuilder
         return folder.StartsWith(root, StringComparison.Ordinal) ? folder[root.Length..] : folder;
     }
 
+    /// <summary>The absolute path of a frontend-relative path under the frontend root.</summary>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="relative">The path relative to the frontend root, with forward slashes.</param>
+    /// <returns>The absolute path under the frontend root.</returns>
     private static string Absolute(FrontendConfig frontend, string relative) =>
         Path.GetFullPath(Path.Combine(frontend.Path, relative.Replace('/', Path.DirectorySeparatorChar)));
 }

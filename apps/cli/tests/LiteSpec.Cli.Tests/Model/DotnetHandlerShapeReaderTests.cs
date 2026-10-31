@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the backend reader collects the handler shape facts: aggregate calls and methods, message types, dependency counts, collaborators, loop reads, memory filters and audit actions.</summary>
 public sealed class DotnetHandlerShapeReaderTests
 {
+    /// <summary>Handler Call On An Aggregate Local Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Call_On_An_Aggregate_Local_Is_Collected()
@@ -35,6 +36,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal(9, call.Line);
     }
 
+    /// <summary>Handler Call On A Loaded Var Resolves Through The Repository.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Call_On_A_Loaded_Var_Resolves_Through_The_Repository()
@@ -61,6 +63,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal("Abandon", call.Method);
     }
 
+    /// <summary>Static Calls And Non Root Types Are Not Aggregate Calls.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Static_Calls_And_Non_Root_Types_Are_Not_Aggregate_Calls()
@@ -97,6 +100,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).Handlers.Single().AggregateCalls!);
     }
 
+    /// <summary>Aggregate Methods Carry The Events They Raise.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Aggregate_Methods_Carry_The_Events_They_Raise()
@@ -137,6 +141,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.DoesNotContain(methods, method => method.Method == "Wipe");
     }
 
+    /// <summary>Methods Outside An Aggregate Root Are Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Methods_Outside_An_Aggregate_Root_Are_Ignored()
@@ -158,6 +163,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).AggregateMethods);
     }
 
+    /// <summary>Handler Message Type And Dependency Count Are Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Message_Type_And_Dependency_Count_Are_Collected()
@@ -183,6 +189,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal(3, handler.DependencyCount);
     }
 
+    /// <summary>Event Handler Dependency Count Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Handler_Dependency_Count_Is_Collected()
@@ -201,6 +208,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal(2, Read(temp.Path).Reactions.Single().DependencyCount);
     }
 
+    /// <summary>Collaborator Built With New And Holding A Repository Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Collaborator_Built_With_New_And_Holding_A_Repository_Is_Collected()
@@ -238,6 +246,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal(8, collaborator.Line);
     }
 
+    /// <summary>Collaborator Without A Repository Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Collaborator_Without_A_Repository_Is_Ignored()
@@ -260,6 +269,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).Handlers.Single().Collaborators!);
     }
 
+    /// <summary>Repository Read Inside A Loop Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Repository_Read_Inside_A_Loop_Is_Collected()
@@ -290,6 +300,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal(11, read.Line);
     }
 
+    /// <summary>Query Filter On A Repository List Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Query_Filter_On_A_Repository_List_Is_Collected()
@@ -313,6 +324,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Single(Read(temp.Path).Handlers.Single().MemoryFilters!);
     }
 
+    /// <summary>Query Filter On A Session Query Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Query_Filter_On_A_Session_Query_Is_Ignored()
@@ -335,6 +347,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).Handlers.Single().MemoryFilters!);
     }
 
+    /// <summary>Command Filter On A Repository List Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Command_Filter_On_A_Repository_List_Is_Ignored()
@@ -358,6 +371,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(Read(temp.Path).Handlers.Single().MemoryFilters!);
     }
 
+    /// <summary>Audited Action Literal Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Audited_Action_Literal_Is_Collected()
@@ -377,6 +391,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal("void-order", action.Action);
     }
 
+    /// <summary>State Changing Method Without An Event Is An Aggregate Method Element.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void State_Changing_Method_Without_An_Event_Is_An_Aggregate_Method_Element()
@@ -401,7 +416,7 @@ public sealed class DotnetHandlerShapeReaderTests
             }
             """);
 
-        var element = Assert.Single(Read(temp.Path).Elements.Where(found => found.Kind == CodeKind.AggregateMethod));
+        var element = Assert.Single(Read(temp.Path).Elements, found => found.Kind == CodeKind.AggregateMethod);
 
         Assert.Equal("Order", element.Class);
         Assert.Equal("Erase", element.Member);

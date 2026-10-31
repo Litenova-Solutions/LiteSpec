@@ -9,6 +9,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class OneActTests
 {
+    /// <summary>Two Marks On A Root Method Report Mark Count.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Two_Marks_On_A_Root_Method_Report_Mark_Count()
@@ -21,6 +22,7 @@ public sealed class OneActTests
         Assert.Contains("takes one", finding.Message);
     }
 
+    /// <summary>Single Mark On A Root Method Reports No Mark Count.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Single_Mark_On_A_Root_Method_Reports_No_Mark_Count()
@@ -31,6 +33,7 @@ public sealed class OneActTests
         Assert.Empty(counts);
     }
 
+    /// <summary>Marked Reading Method Reports Mark Unresolved.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Marked_Reading_Method_Reports_Mark_Unresolved()
@@ -43,6 +46,7 @@ public sealed class OneActTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Unmarked Reading Method Reports No Mark Unresolved.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Unmarked_Reading_Method_Reports_No_Mark_Unresolved()
@@ -54,6 +58,7 @@ public sealed class OneActTests
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("Loan.Borrow"));
     }
 
+    /// <summary>Marked Private Method Reports Mark Unresolved.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Marked_Private_Method_Reports_Mark_Unresolved()
@@ -66,6 +71,7 @@ public sealed class OneActTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Unmarked Private Helper Reports No Mark Unresolved.</summary>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Unmarked_Private_Helper_Reports_No_Mark_Unresolved()
@@ -76,6 +82,7 @@ public sealed class OneActTests
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("ApplyBorrow"));
     }
 
+    /// <summary>Proves Without Test Attribute Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_Without_Test_Attribute_Reports_Mark_Unresolved()
@@ -89,6 +96,7 @@ public sealed class OneActTests
         Assert.Equal(3, unresolved.Count);
     }
 
+    /// <summary>Proves With Test Attribute Reports No Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_With_Test_Attribute_Reports_No_Mark_Unresolved()
@@ -103,6 +111,7 @@ public sealed class OneActTests
     ///     Writes a consumer with a marked act, a marked reading method, a marked
     ///     private helper, and a proves mark with and without its test attribute.
     /// </summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
         var temp = Cli.Temp("marks");

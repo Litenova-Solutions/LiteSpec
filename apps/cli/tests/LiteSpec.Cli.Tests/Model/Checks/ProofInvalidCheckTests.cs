@@ -9,6 +9,7 @@ public sealed class ProofInvalidCheckTests
     const string TestName = "Library.Acceptance.Tests.Proof.ProofScenarios.Borrowing_an_available_copy_succeeds";
     const string Scenario = "scenario/borrow-copy.borrowing-an-available-copy-succeeds";
 
+    /// <summary>Flaky Test Reports.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Flaky_Test_Reports()
@@ -45,6 +46,7 @@ public sealed class ProofInvalidCheckTests
         Assert.Equal(12, finding.Line);
     }
 
+    /// <summary>Steady Test Passes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Steady_Test_Passes()
@@ -75,6 +77,7 @@ public sealed class ProofInvalidCheckTests
         Assert.DoesNotContain("proof-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Missing Run Passes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Missing_Run_Passes()

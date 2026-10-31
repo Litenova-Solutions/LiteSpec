@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2013, the handler audit value rule.</summary>
 public sealed class HandlerAuditValueAnalyzerTests
 {
+    /// <summary>LS2013 reports a target read from the message.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a target read from the message")]
     public Task ReportsATargetReadFromTheMessage() =>
@@ -29,6 +31,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 reports a reason formatted from the message.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a reason formatted from the message")]
     public Task ReportsAReasonFormattedFromTheMessage() =>
@@ -52,6 +56,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 accepts a target read from a loaded aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a loaded aggregate")]
     public Task AcceptsATargetReadFromALoadedAggregate() =>
@@ -88,6 +94,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 accepts a target read from a generated value.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a generated value")]
     public Task AcceptsATargetReadFromAGeneratedValue() =>
@@ -114,6 +122,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 accepts a constant audit value.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a constant audit value")]
     public Task AcceptsAConstantAuditValue() =>
@@ -137,6 +147,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 accepts a message value in a query handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a message value in a query handler")]
     public Task AcceptsAMessageValueInAQueryHandler() =>
@@ -160,6 +172,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 accepts a target call on another receiver type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target call on another receiver type")]
     public Task AcceptsATargetCallOnAnotherReceiverType() =>
@@ -182,6 +196,8 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2013 stays silent outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>

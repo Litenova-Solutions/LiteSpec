@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Support;
 /// </summary>
 public sealed class InputErrorTests
 {
+    /// <summary>A Malformed Percent Escape In A Link Is A Broken Link.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
     public void A_Malformed_Percent_Escape_In_A_Link_Is_A_Broken_Link()
@@ -21,6 +22,7 @@ public sealed class InputErrorTests
         Assert.DoesNotContain("Unhandled exception", result.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Provisions Refuses A Root Without Docs.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact]
     public void Provisions_Refuses_A_Root_Without_Docs()

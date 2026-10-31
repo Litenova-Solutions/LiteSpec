@@ -15,6 +15,8 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public abstract class TraceabilityAnalyzer : LayerAnalyzer
 {
+    /// <summary>Loads the records for the compilation and hands the rule its traceability context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected sealed override void Register(CompilationStartAnalysisContext context)
     {
         if (TraceabilityContext.TryGet(context.Compilation, out var cached) && cached is not null)

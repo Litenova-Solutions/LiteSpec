@@ -33,6 +33,8 @@ public sealed class SeverityMatrixTests
         }
         """;
 
+    /// <summary>An approved subject reports an error.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact(DisplayName = "An approved subject reports an error")]
     public Task ApprovedSubjectReportsError() =>
@@ -41,6 +43,8 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>An editorconfig lowering turns an approved subject into a warning.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact(DisplayName = "An editorconfig lowering turns an approved subject into a warning")]
     public Task EditorconfigLoweringReportsWarning() =>
@@ -50,6 +54,8 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = warning");
 
+    /// <summary>A draft subject reports a warning.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact(DisplayName = "A draft subject reports a warning")]
     public Task DraftSubjectReportsWarning() =>
@@ -58,6 +64,8 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(status: "draft")],
             assemblyName: "Shop.Application");
 
+    /// <summary>An editorconfig entry overrides a draft warning back to an error.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact(DisplayName = "An editorconfig entry overrides a draft warning back to an error")]
     public Task EditorconfigOverridesDraftWarning() =>
@@ -67,6 +75,8 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = error");
 
+    /// <summary>A retired subject stays silent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact(DisplayName = "A retired subject stays silent")]
     public Task RetiredSubjectStaysSilent() =>
@@ -95,6 +105,8 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(status: "retired")],
             assemblyName: "Shop.Application");
 
+    /// <summary>An exception covering the file stays silent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An exception covering the file stays silent")]
     public Task ExceptionCoveringFileStaysSilent() =>
@@ -117,6 +129,8 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), Exception(["mark-missing"], paths: ["Source.cs"])],
             assemblyName: "Shop.Application");
 
+    /// <summary>An exception covering the subject stays silent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An exception covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
@@ -145,6 +159,8 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
+    /// <summary>An open exception covering the finding stays silent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact(DisplayName = "An open exception covering the finding stays silent")]
     public Task ExceptionCoveringFindingStaysSilent() =>
@@ -173,6 +189,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
+    /// <summary>The traceability context is shared per compilation.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The traceability context is shared per compilation")]
     public void ContextIsSharedPerCompilation()
@@ -188,6 +205,7 @@ public sealed class SeverityMatrixTests
         Assert.Same(first, cached);
     }
 
+    /// <summary>The hoisted known sets match the store.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The hoisted known sets match the store")]
     public void HoistedKnownSetsMatchStore()

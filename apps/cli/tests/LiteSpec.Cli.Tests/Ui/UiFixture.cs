@@ -85,52 +85,53 @@ sealed class UiFixture : IDisposable
         this.home = home;
     }
 
-    /// <summary>The consumer root.</summary>
+    /// <summary>Gets the consumer root.</summary>
     public string Root => temp.Path;
 
-    /// <summary>The shared package root.</summary>
+    /// <summary>Gets the shared package root.</summary>
     public string PackageRoot => Join("packages/ui");
 
-    /// <summary>The shared composite case file.</summary>
+    /// <summary>Gets the shared composite case file.</summary>
     public string CaseFile => Join("packages/ui/src/floorplans/fixture-case.tsx");
 
-    /// <summary>The copied button source the digest case appends to.</summary>
+    /// <summary>Gets the copied button source the digest case appends to.</summary>
     public string ButtonFile => Join("packages/ui/src/components/button.tsx");
 
-    /// <summary>The application route case file.</summary>
+    /// <summary>Gets the application route case file.</summary>
     public string AppCase => Join("apps/web/src/routes/case.tsx");
 
-    /// <summary>The route suite specification.</summary>
+    /// <summary>Gets the route suite specification.</summary>
     public string SuiteFile => Join("apps/web/tests/routes/every-route.spec.ts");
 
-    /// <summary>The token stylesheet.</summary>
+    /// <summary>Gets the token stylesheet.</summary>
     public string TokensCss => Join("packages/ui/src/styles/tokens.css");
 
-    /// <summary>The application stylesheet.</summary>
+    /// <summary>Gets the application stylesheet.</summary>
     public string AppStyles => Join("apps/web/src/styles.css");
 
-    /// <summary>The consumer project file.</summary>
+    /// <summary>Gets the consumer project file.</summary>
     public string ProjectFile => Join("litespec.project.json");
 
-    /// <summary>The source lock.</summary>
+    /// <summary>Gets the source lock.</summary>
     public string LockFile => Join("packages/ui/ui-source-lock.json");
 
-    /// <summary>The design contract.</summary>
+    /// <summary>Gets the design contract.</summary>
     public string DesignFile => Join("packages/ui/DESIGN.md");
 
-    /// <summary>The pattern catalog.</summary>
+    /// <summary>Gets the pattern catalog.</summary>
     public string CatalogFile => Join("docs/ui/pattern-catalog.json");
 
-    /// <summary>The baseline configuration file.</summary>
+    /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");
 
-    /// <summary>The fixture LiteSpec release the fixture-local run resolves.</summary>
+    /// <summary>Gets the fixture LiteSpec release the fixture-local run resolves.</summary>
     public string HomeDir => home.Path;
 
-    /// <summary>The fixture pattern page the fixture-local run reads.</summary>
+    /// <summary>Gets the fixture pattern page the fixture-local run reads.</summary>
     public string FixturePatternPage => Path.Join(HomeDir, "docs", "frontend", "patterns", "page-frames.md");
 
     /// <summary>Builds a fresh fixture from the tracked templates.</summary>
+    /// <returns>The fresh fixture.</returns>
     public static UiFixture Create()
     {
         var fixture = new UiFixture(Cli.Temp("ui"), Cli.Temp("ui-home"));
@@ -139,9 +140,13 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Reads a JSON file.</summary>
+    /// <param name="file">The JSON file path.</param>
+    /// <returns>The parsed JSON value, or null when the file holds null.</returns>
     public static JsonNode? ReadJson(string file) => JsonNode.Parse(File.ReadAllText(file));
 
     /// <summary>Writes a JSON file two-space indented with a trailing newline.</summary>
+    /// <param name="file">The JSON file path.</param>
+    /// <param name="value">The JSON value to write.</param>
     public static void WriteJson(string file, JsonNode? value)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
@@ -149,18 +154,22 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Runs <c>litespec ui</c> against the fixture.</summary>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult Run() => Cli.Run("ui", "--root", Root);
 
     /// <summary>
     /// Runs <c>litespec ui</c> against the fixture with the LiteSpec home pointed at the
     /// fixture release, so the pattern pages it reads are the fixture pages.
     /// </summary>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult RunWithFixtureHome() => Cli.Run(
-        new[] { "ui", "--root", Root },
+        ["ui", "--root", Root],
         null,
         new Dictionary<string, string> { ["LITESPEC_HOME"] = HomeDir });
 
     /// <summary>Every problem line the run printed, without the leading marker.</summary>
+    /// <param name="result">The completed UI run.</param>
+    /// <returns>The problem lines without the bullet prefix.</returns>
     public static List<string> Problems(CliResult result) => result.Output
         .Split('\n')
         .Where(line => line.StartsWith("  - ", StringComparison.Ordinal))
@@ -168,6 +177,7 @@ sealed class UiFixture : IDisposable
         .ToList();
 
     /// <summary>Asserts the run printed no problem, showing the full output when it did.</summary>
+    /// <param name="result">The completed UI run.</param>
     public static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
@@ -176,6 +186,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Asserts one problem contains the expectation, showing the full output when none does.</summary>
+    /// <param name="result">The completed UI run.</param>
+    /// <param name="expectation">The text one problem line must contain.</param>
     public static void AssertProblem(CliResult result, string expectation)
     {
         var problems = Problems(result);
@@ -184,6 +196,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes one shared-package composite file and runs the validator.</summary>
+    /// <param name="code">The composite file source code.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult CompositeCase(string code)
     {
         File.WriteAllText(CaseFile, code + "\n");
@@ -191,6 +205,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes one application route file and runs the validator.</summary>
+    /// <param name="code">The route file source code.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult AppCaseWith(string code)
     {
         File.WriteAllText(AppCase, code + "\n");
@@ -198,6 +214,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes the token stylesheet and runs the validator.</summary>
+    /// <param name="css">The stylesheet text to write.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult CssCase(string css)
     {
         File.WriteAllText(TokensCss, css);
@@ -205,6 +223,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes the application stylesheet and runs the validator.</summary>
+    /// <param name="css">The stylesheet text to write.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult AppStylesCase(string css)
     {
         File.WriteAllText(AppStyles, css);
@@ -212,6 +232,9 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes one consumer-relative file and runs the validator.</summary>
+    /// <param name="relative">The file path under the fixture root.</param>
+    /// <param name="contents">The file contents to write.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult PathCase(string relative, string contents)
     {
         var file = Join(relative);
@@ -221,12 +244,20 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes one Exception record under the default exceptions folder.</summary>
+    /// <param name="name">The exception file and record name.</param>
+    /// <param name="provision">The provision id the exception covers.</param>
+    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
+    /// <returns>The full path to the exception file.</returns>
     public string WriteException(string name, string provision, string expiresOn) =>
         WriteExceptionFile($"docs/governance/exceptions/{name}.md",
             ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn),
             $"Fixture exception {name}");
 
     /// <summary>Writes one Exception record at a consumer-relative path.</summary>
+    /// <param name="relative">The file path under the fixture root.</param>
+    /// <param name="meta">The exception frontmatter object.</param>
+    /// <param name="heading">The page heading text.</param>
+    /// <returns>The full path to the exception file.</returns>
     public string WriteExceptionFile(string relative, JsonObject meta, string heading)
     {
         var file = Join(relative);
@@ -236,6 +267,11 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>The frontmatter of a fixture Exception record.</summary>
+    /// <param name="id">The exception record id.</param>
+    /// <param name="title">The exception title.</param>
+    /// <param name="provision">The provision id the exception covers.</param>
+    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
+    /// <returns>The exception frontmatter object.</returns>
     public static JsonObject ExceptionMeta(string id, string title, string provision, string expiresOn) => new()
     {
         ["type"] = "exception",
@@ -251,6 +287,7 @@ sealed class UiFixture : IDisposable
     };
 
     /// <summary>Mutates the source lock in place.</summary>
+    /// <param name="mutate">The change to apply to the source lock object.</param>
     public void MutateLock(Action<JsonObject> mutate)
     {
         var sourceLock = (JsonObject)ReadJson(LockFile)!;
@@ -259,6 +296,7 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Mutates the pattern catalog in place.</summary>
+    /// <param name="mutate">The change to apply to the catalog object.</param>
     public void MutateCatalog(Action<JsonObject> mutate)
     {
         var catalog = (JsonObject)ReadJson(CatalogFile)!;
@@ -267,6 +305,7 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Mutates the consumer project file in place.</summary>
+    /// <param name="mutate">The change to apply to the project object.</param>
     public void MutateProject(Action<JsonObject> mutate)
     {
         var project = (JsonObject)ReadJson(ProjectFile)!;
@@ -275,6 +314,8 @@ sealed class UiFixture : IDisposable
     }
 
     /// <summary>Writes a workspace <c>package.json</c> carrying one extra top-level section.</summary>
+    /// <param name="key">The extra top-level section name.</param>
+    /// <param name="value">The extra section value.</param>
     public void WriteManifest(string key, JsonNode value)
     {
         var manifest = new JsonObject { ["name"] = "fixture", [key] = value };
@@ -443,8 +484,8 @@ sealed class UiFixture : IDisposable
                 @"[ \t]+$",
                 string.Empty,
                 RegexOptions.Multiline).TrimEnd() + "\n";
-            using var sha = SHA256.Create();
-            var digest = Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(normalized))).ToLowerInvariant();
+            // The static HashData call below produces the same digest.
+            var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized))).ToLowerInvariant();
             component["digest"] = $"sha256:{digest}";
         }
 

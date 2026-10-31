@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class ActCheckTests
 {
+    /// <summary>Handler Calling No Marked Method Reports Use Case Act Uncalled.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Handler_Calling_No_Marked_Method_Reports_Use_Case_Act_Uncalled()
@@ -20,6 +21,7 @@ public sealed class ActCheckTests
         Assert.Contains("use-case/lending.renew-loan", finding.Message);
     }
 
+    /// <summary>Handler Calling The Shared Method Passes.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Handler_Calling_The_Shared_Method_Passes()
@@ -30,6 +32,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <summary>Fan Out Command With No Changes Reports Nothing.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Fan_Out_Command_With_No_Changes_Reports_Nothing()
@@ -40,6 +43,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.fan-out");
     }
 
+    /// <summary>Store Only Command Reports Nothing.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Store_Only_Command_Reports_Nothing()
@@ -50,6 +54,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.record-scan");
     }
 
+    /// <summary>Entity Command Without A Called Act Still Reports.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Entity_Command_Without_A_Called_Act_Still_Reports()
@@ -61,6 +66,7 @@ public sealed class ActCheckTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Shared Method Raising An Unlisted Event Reports Act Event Undeclared.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Shared_Method_Raising_An_Unlisted_Event_Reports_Act_Event_Undeclared()
@@ -74,6 +80,7 @@ public sealed class ActCheckTests
         Assert.Contains("event/loan.loan-borrowed", finding.Message);
     }
 
+    /// <summary>Use Case Sharing The Method Reports No Undeclared For Its Listed Event.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_Sharing_The_Method_Reports_No_Undeclared_For_Its_Listed_Event()
@@ -84,6 +91,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(undeclared, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <summary>Listed Event The Shared Method Never Raises Reports Act Event Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Listed_Event_The_Shared_Method_Never_Raises_Reports_Act_Event_Unraised()
@@ -96,6 +104,7 @@ public sealed class ActCheckTests
         Assert.Contains("event/loan.loan-renewed", finding.Message);
     }
 
+    /// <summary>Use Case Whose Shared Method Raises Its Event Reports No Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_Whose_Shared_Method_Raises_Its_Event_Reports_No_Unraised()
@@ -106,6 +115,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <summary>Use Case With No Marked Method Reports No Act Event Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_With_No_Marked_Method_Reports_No_Act_Event_Unraised()
@@ -116,6 +126,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <summary>Unmarked Raising Method Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Unmarked_Raising_Method_Reports_Mark_Missing()
@@ -128,6 +139,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Writes a consumer where an entity command, a fan-out with no changes, and a store-only command each have a handler calling nothing.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WritePassConsumer()
     {
         var temp = Cli.Temp("marks");
@@ -380,6 +392,7 @@ public sealed class ActCheckTests
     }
 
     /// <summary>Writes a consumer where the raising method carries no mark, so the use case has no marked method.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteUnmarkedConsumer()
     {
         var temp = Cli.Temp("marks");

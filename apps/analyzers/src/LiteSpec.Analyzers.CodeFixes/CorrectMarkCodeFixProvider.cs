@@ -86,6 +86,12 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
         }
     }
 
+    /// <summary>Returns the solution.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="recordId">The record identifier the mark names, spelled as the record states it.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the solution.</returns>
     private static async Task<Solution> CorrectAsync(
         Document document, Diagnostic diagnostic, string recordId, System.Threading.CancellationToken token)
     {
@@ -103,6 +109,8 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     ///     The records of the kind's expected types, or every record when the
     ///     marked element is of no known kind.
     /// </summary>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <returns>The records, in the order this method builds them, or an empty collection when none apply.</returns>
     private static IReadOnlyList<IRecordFacts> ExpectedRecords(TraceabilityFix fix)
     {
         if (fix.Kind is not CodeKind kind)
@@ -121,7 +129,9 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The decision and exception records a <c>follows</c> mark may name.</summary>
-    private static IReadOnlyList<IRecordFacts> FollowsRecords(TraceabilityFix fix)
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <returns>The records, in the order this method builds them, or an empty collection when none apply.</returns>
+    private static List<IRecordFacts> FollowsRecords(TraceabilityFix fix)
     {
         var records = new List<IRecordFacts>();
 
@@ -132,6 +142,9 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The verb of the mark holding the span, or null when none holds it.</summary>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="span">The source span the diagnostic covers.</param>
+    /// <returns>The at, or null when none applies.</returns>
     private static MarkVerb? VerbAt(TraceabilityFix fix, Microsoft.CodeAnalysis.Text.TextSpan span)
     {
         foreach (var mark in MarkReader.Read(fix.Member))
@@ -146,6 +159,8 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>Whether the span text is an identifier a mark could carry: no tag or quote characters.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>True when the text is identifier; otherwise false.</returns>
     private static bool IsIdentifier(string text)
     {
         if (text.Length == 0)

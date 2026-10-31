@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using LiteSpec.Analyzers.Tests.Support;
@@ -10,6 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission entries with their scope, group, reads and risks.</summary>
 public sealed class PermissionMetadataTests
 {
+    /// <summary>The entry carries scope, group, reads and risks from the record.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The entry carries scope, group, reads and risks from the record")]
     public void EntryCarriesFactsFromTheRecord()
@@ -27,6 +29,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An entry without scope, group and risks reads empty, null and empty.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An entry without scope, group and risks reads empty, null and empty")]
     public void EntryWithoutFactsReadsDefaults()
@@ -43,6 +46,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A changing verb reads false and stays silent.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A changing verb reads false and stays silent")]
     public void ChangingVerbReadsFalse()
@@ -59,6 +63,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unknown first word reads false and reports LS5010.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "An unknown first word reads false and reports LS5010")]
     public void UnknownFirstWordReportsLS5010()
@@ -71,13 +76,14 @@ public sealed class PermissionMetadataTests
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5010", diagnostic.Id);
-        Assert.Contains("permission/frobnicate-widgets", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("frobnicate", diagnostic.GetMessage(), StringComparison.Ordinal);
+        Assert.Contains("permission/frobnicate-widgets", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("frobnicate", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
         Assert.Contains("new LiteSpecPermission(\"permission/frobnicate-widgets\", \"tenant\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A manage permission changes and stays silent.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A manage permission changes and stays silent")]
     public void ManagePermissionChangesAndStaysSilent()
@@ -94,6 +100,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A declared project verb reads false and stays silent.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A declared project verb reads false and stays silent")]
     public void DeclaredProjectVerbStaysSilent()
@@ -112,6 +119,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A project query verb reads true and stays silent.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A project query verb reads true and stays silent")]
     public void ProjectQueryVerbReadsTrue()
@@ -130,6 +138,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Of returns the entry for a known id and throws for an unknown id.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Of returns the entry for a known id and throws for an unknown id")]
     public void OfReturnsKnownAndThrowsForUnknown()
@@ -149,11 +158,12 @@ public sealed class PermissionMetadataTests
             trees.Add(CSharpSyntaxTree.ParseText(
                 SourceText.From(generated.Value, Encoding.UTF8),
                 new CSharpParseOptions(LanguageVersion.Latest),
-                generated.Key));
+                generated.Key,
+                cancellationToken: TestContext.Current.CancellationToken));
         }
 
         using var stream = new MemoryStream();
-        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream);
+        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(emitted.Success, "The generated code does not emit:\n" + string.Join("\n", emitted.Diagnostics));
 
         var permissions = Assembly.Load(stream.ToArray()).GetType("LiteSpec.LiteSpecPermissions");
@@ -161,7 +171,7 @@ public sealed class PermissionMetadataTests
         var of = permissions.GetMethod("Of", BindingFlags.Public | BindingFlags.Static);
         Assert.NotNull(of);
 
-        var entry = of.Invoke(null, new object[] { "permission/read-loans" });
+        var entry = of.Invoke(null, ["permission/read-loans"]);
         Assert.NotNull(entry);
         Assert.Equal("permission/read-loans", Property(entry, "Id"));
         Assert.Equal("tenant", Property(entry, "Scope"));
@@ -173,7 +183,7 @@ public sealed class PermissionMetadataTests
         Assert.NotNull(all);
         Assert.Equal(2, ((System.Collections.ICollection)all.GetValue(null)!).Count);
 
-        var thrown = Assert.Throws<TargetInvocationException>(() => of.Invoke(null, new object[] { "permission/unknown" }));
+        var thrown = Assert.Throws<TargetInvocationException>(() => of.Invoke(null, ["permission/unknown"]));
         var argument = Assert.IsType<ArgumentException>(thrown.InnerException);
         Assert.Equal("id", argument.ParamName);
     }

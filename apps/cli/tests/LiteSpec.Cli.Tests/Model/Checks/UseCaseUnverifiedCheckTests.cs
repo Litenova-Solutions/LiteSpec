@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the use-case-unverified check against hand-built models.</summary>
 public sealed class UseCaseUnverifiedCheckTests
 {
+    /// <summary>Use Case With Unproved Scenarios Reports.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
     public void Use_Case_With_Unproved_Scenarios_Reports()
@@ -23,6 +24,7 @@ public sealed class UseCaseUnverifiedCheckTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Verified Use Case Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
     public void Verified_Use_Case_Passes()
@@ -37,6 +39,7 @@ public sealed class UseCaseUnverifiedCheckTests
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
     }
 
+    /// <summary>Use Case Without Scenarios Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
     public void Use_Case_Without_Scenarios_Passes()
@@ -50,6 +53,7 @@ public sealed class UseCaseUnverifiedCheckTests
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
     }
 
+    /// <summary>Use Case Without Status Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
     public void Use_Case_Without_Status_Passes()

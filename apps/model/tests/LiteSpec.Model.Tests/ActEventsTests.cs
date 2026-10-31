@@ -6,17 +6,17 @@ namespace LiteSpec.Model.Tests;
 /// <summary>Tests for the shared act-event check both hosts call.</summary>
 public sealed class ActEventsTests
 {
+    /// <summary>An event a method raises without a listing is undeclared on that method.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "An event a method raises without a listing is undeclared on that method")]
     public void UndeclaredPerMethodAndEvent()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted" },
-            new[]
-            {
-                new ActMethodRaises(new[] { "event/expense.submitted", "event/expense.approved" }),
-                new ActMethodRaises(new[] { "event/expense.approved", "event/expense.paid" }),
-            });
+            ["event/expense.submitted"],
+            [
+                new ActMethodRaises(["event/expense.submitted", "event/expense.approved"]),
+                new ActMethodRaises(["event/expense.approved", "event/expense.paid"]),
+            ]);
 
         Assert.Equal(
             new[]
@@ -28,98 +28,103 @@ public sealed class ActEventsTests
             Of(findings));
     }
 
+    /// <summary>A listed event no method raises is unraised once on the first method.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A listed event no method raises is unraised once on the first method")]
     public void UnraisedOnceOnFirstMethod()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted" },
-            new[]
-            {
+            ["event/expense.submitted"],
+            [
                 new ActMethodRaises(Array.Empty<string>()),
                 new ActMethodRaises(Array.Empty<string>()),
-            });
+            ]);
 
         Assert.Equal(
             new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
             Of(findings));
     }
 
+    /// <summary>A use case with no marked method yields nothing.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A use case with no marked method yields nothing")]
     public void NoMethodsYieldsNothing()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted" },
+            ["event/expense.submitted"],
             Array.Empty<ActMethodRaises>());
 
         Assert.Empty(findings);
     }
 
+    /// <summary>Declared events each raised yield nothing.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Declared events each raised yield nothing")]
     public void AllRaisedYieldsNothing()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted", "event/expense.approved" },
-            new[]
-            {
-                new ActMethodRaises(new[] { "event/expense.submitted" }),
-                new ActMethodRaises(new[] { "event/expense.approved" }),
-            });
+            ["event/expense.submitted", "event/expense.approved"],
+            [
+                new ActMethodRaises(["event/expense.submitted"]),
+                new ActMethodRaises(["event/expense.approved"]),
+            ]);
 
         Assert.Empty(findings);
     }
 
+    /// <summary>A listed event raised by another marked method yields nothing.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A listed event raised by another marked method yields nothing")]
     public void RaisedUnionAcrossMethods()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted", "event/expense.approved" },
-            new[]
-            {
-                new ActMethodRaises(new[] { "event/expense.submitted" }),
+            ["event/expense.submitted", "event/expense.approved"],
+            [
+                new ActMethodRaises(["event/expense.submitted"]),
                 new ActMethodRaises(Array.Empty<string>()),
-            });
+            ]);
 
         Assert.Equal(
             new[] { ("act-event-unimplemented", 0, "event/expense.approved") },
             Of(findings));
     }
 
+    /// <summary>A twice-listed unraised event is reported once.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A twice-listed unraised event is reported once")]
     public void DuplicateRaisesYieldOneUnraised()
     {
         var findings = ActEvents.Check(
-            new[] { "event/expense.submitted", "event/expense.submitted" },
-            new[] { new ActMethodRaises(Array.Empty<string>()) });
+            ["event/expense.submitted", "event/expense.submitted"],
+            [new ActMethodRaises(Array.Empty<string>())]);
 
         Assert.Equal(
             new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
             Of(findings));
     }
 
+    /// <summary>A twice-raised undeclared event is reported once per method.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "A twice-raised undeclared event is reported once per method")]
     public void DuplicateRaisedYieldOneUndeclaredPerMethod()
     {
         var findings = ActEvents.Check(
             Array.Empty<string>(),
-            new[] { new ActMethodRaises(new[] { "event/expense.approved", "event/expense.approved" }) });
+            [new ActMethodRaises(["event/expense.approved", "event/expense.approved"])]);
 
         Assert.Equal(
             new[] { ("act-event-undeclared", 0, "event/expense.approved") },
             Of(findings));
     }
 
+    /// <summary>Check rejects null raises.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Check rejects null raises")]
     public void CheckRejectsNullRaises() =>
         Assert.Throws<ArgumentNullException>(
             () => ActEvents.Check(null!, Array.Empty<ActMethodRaises>()));
 
+    /// <summary>Check rejects null methods.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "Check rejects null methods")]
     public void CheckRejectsNullMethods() =>

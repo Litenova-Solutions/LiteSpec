@@ -17,12 +17,22 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2013);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the handler audit value analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
 
+    /// <summary>Analyzes the invocation.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeInvocation(OperationAnalysisContext context)
     {
         var invocation = (IInvocationOperation)context.Operation;
@@ -73,6 +83,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
             Descriptors.LS2013, MemberLocation(invocation), handler.Name, invocation.TargetMethod.Name));
     }
 
+    /// <summary>Returns the type.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static ITypeSymbol? ReceiverType(IInvocationOperation invocation)
     {
         if (invocation.Instance != null)
@@ -90,6 +103,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return invocation.TargetMethod.ContainingType;
     }
 
+    /// <summary>Returns the parameter.</summary>
+    /// <param name="method">The method under inspection.</param>
+    /// <returns>The parameter, or null when none applies.</returns>
     private static IParameterSymbol? MessageParameter(IMethodSymbol? method)
     {
         if (method == null || method.Parameters.Length == 0)
@@ -108,6 +124,11 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return method.Parameters[0];
     }
 
+    /// <summary>Returns true when the reads-only-message condition holds; otherwise false.</summary>
+    /// <param name="operation">The operation under inspection.</param>
+    /// <param name="message">The message type under inspection.</param>
+    /// <param name="sawMessage">Whether a message handler has been seen in the type.</param>
+    /// <returns>True when the reads-only-message condition holds; otherwise false.</returns>
     private static bool ReadsOnlyMessage(IOperation operation, IParameterSymbol message, ref bool sawMessage)
     {
         switch (operation)
@@ -164,6 +185,11 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the arguments-clean condition holds; otherwise false.</summary>
+    /// <param name="arguments">The argument list under inspection.</param>
+    /// <param name="message">The message type under inspection.</param>
+    /// <param name="sawMessage">Whether a message handler has been seen in the type.</param>
+    /// <returns>True when the arguments-clean condition holds; otherwise false.</returns>
     private static bool ArgumentsClean(
         ImmutableArray<IArgumentOperation> arguments, IParameterSymbol message, ref bool sawMessage)
     {
@@ -178,6 +204,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return true;
     }
 
+    /// <summary>Returns true when the in-system condition holds; otherwise false.</summary>
+    /// <param name="space">The space supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>True when the in-system condition holds; otherwise false.</returns>
     private static bool InSystem(INamespaceSymbol? space)
     {
         var name = space?.ToDisplayString();
@@ -186,6 +215,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
                 || name.StartsWith("System.", StringComparison.Ordinal));
     }
 
+    /// <summary>Returns true when the type is command handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command handler; otherwise false.</returns>
     private static bool IsCommandHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -209,6 +241,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns the type.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static INamedTypeSymbol? InnermostType(ISymbol symbol)
     {
         for (var current = symbol; current != null; current = current.ContainingSymbol)
@@ -222,6 +257,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns the method.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The method, or null when none applies.</returns>
     private static IMethodSymbol? InnermostMethod(ISymbol symbol)
     {
         for (var current = symbol; current != null; current = current.ContainingSymbol)
@@ -235,6 +273,9 @@ public sealed class HandlerAuditValueAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns the location.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>The location.</returns>
     private static Location MemberLocation(IInvocationOperation invocation)
     {
         if (invocation.Syntax is InvocationExpressionSyntax syntax)

@@ -2,11 +2,6 @@ using System.Text.Json;
 
 namespace LiteSpec.Model.Readers.Dependencies;
 
-/// <summary>What the bill of materials read found: direct packages and the configured paths it could not read.</summary>
-/// <param name="Packages">Every direct package of every readable bill of materials.</param>
-/// <param name="Problems">One <c>reader-missing</c> finding per configured path that could not be read or parsed, is not JSON, is neither SPDX nor CycloneDX, or yields no packages.</param>
-sealed record SbomRead(IReadOnlyList<DirectPackage> Packages, IReadOnlyList<Finding> Problems);
-
 /// <summary>
 ///     Reads the direct packages of every bill of materials the project names in paths.sbom:
 ///     every .json file under each named file or folder, read as SPDX 2.x or CycloneDX 1.x.
@@ -18,6 +13,8 @@ sealed record SbomRead(IReadOnlyList<DirectPackage> Packages, IReadOnlyList<Find
 static class SbomReader
 {
     /// <summary>Reads every direct package of every named bill of materials, in file order, with its problems.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The direct packages in file order together with one problem per unreadable configured path.</returns>
     public static SbomRead Read(ConsumerConfig config)
     {
         var problems = new List<Finding>();
@@ -117,6 +114,9 @@ static class SbomReader
     }
 
     /// <summary>One <c>reader-missing</c> finding naming the bill of materials path.</summary>
+    /// <param name="path">The configured bill of materials path that could not be read.</param>
+    /// <param name="message">The reason the path could not be read.</param>
+    /// <returns>A reader-missing finding that names the path and the reason.</returns>
     private static Finding Missing(string path, string message) =>
         new("reader-missing", message, path, 1, null)
         {

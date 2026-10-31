@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2009, result part names.</summary>
 public sealed class ResultPartNamingAnalyzerTests
 {
+    /// <summary>LS2009 accepts a part named after its query result.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 accepts a part named after its query result")]
     public Task AcceptsAPartNamedAfterItsQueryResult() =>
@@ -17,6 +19,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ReadLoanQueryResultHold(int HoldId);
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2009 accepts a part named after its command result.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 accepts a part named after its command result")]
     public Task AcceptsAPartNamedAfterItsCommandResult() =>
@@ -28,6 +32,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ApproveExpenseCommandResultLine(int LineId);
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2009 reports a part not named after its result.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 reports a part not named after its result")]
     public Task ReportsAPartNotNamedAfterItsResult() =>
@@ -39,6 +45,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2009 ignores the message, handler, validator, and definition.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 ignores the message, handler, validator, and definition")]
     public Task IgnoresTheSurroundingTypes() =>
@@ -62,6 +70,8 @@ public sealed class ResultPartNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2009 ignores a type where no result is declared.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 ignores a type where no result is declared")]
     public Task IgnoresATypeWhereNoResultIsDeclared() =>
@@ -71,6 +81,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record LoanHoldItem(int HoldId);
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2009 ignores a part outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 ignores a part outside Application and Infrastructure")]
     public Task IgnoresAPartOutsideItsLayers() =>
@@ -82,6 +94,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record LoanHoldItem(int HoldId);
             """, assemblyName: "Shop.Domain");
 
+    /// <summary>LS2009 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
@@ -93,6 +107,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
             """, assemblyName: "Shop.Core", layer: "Application");
 
+    /// <summary>LS2009 ignores a helper the result does not reach.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
     [Fact(DisplayName = "LS2009 ignores a helper the result does not reach")]
     public Task IgnoresAHelperTheResultDoesNotReach() =>

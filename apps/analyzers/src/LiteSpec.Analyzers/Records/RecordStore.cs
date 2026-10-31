@@ -8,27 +8,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Records;
 
 /// <summary>
-///     One Markdown file handed to the record index: its path and its text.
-/// </summary>
-public sealed class RecordFile
-{
-    /// <summary>Creates a record file.</summary>
-    /// <param name="path">The file path, as the host reports it.</param>
-    /// <param name="text">The file text.</param>
-    public RecordFile(string path, string text)
-    {
-        Path = path;
-        Text = text;
-    }
-
-    /// <summary>The file path, as the host reports it.</summary>
-    public string Path { get; }
-
-    /// <summary>The file text.</summary>
-    public string Text { get; }
-}
-
-/// <summary>
 ///     The consumer's records for one compilation: the project settings and the
 ///     record index built from the record pages. Loads from the project file and
 ///     the Markdown pages found among the additional files, and stays silent
@@ -40,13 +19,23 @@ public sealed class RecordFile
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class RecordStore
 {
+    /// <summary>Guards the shared store cache against concurrent access.</summary>
     private static readonly object CacheLock = new object();
+    /// <summary>Stores the cache used by the containing code.</summary>
     private static readonly Dictionary<string, RecordStore?> Cache =
         new Dictionary<string, RecordStore?>(StringComparer.Ordinal);
 
+    /// <summary>Holds the use case by home collected for this operation, keyed or ordered as the type states.</summary>
     private readonly Dictionary<string, string> useCaseByHome;
+    /// <summary>Holds the docs roots collected for this operation, keyed or ordered as the type states.</summary>
     private readonly List<string> docsRoots;
 
+    /// <summary>Initializes a new instance of the <see cref="RecordStore"/> class.</summary>
+    /// <param name="settings">The project settings parsed from the project file.</param>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="projectFile">The project file path, as the host reported it.</param>
+    /// <param name="docsRoots">The docs roots resolved from the project file, in declaration order.</param>
     private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile, List<string> docsRoots)
     {
         Settings = settings;
@@ -68,16 +57,16 @@ public sealed class RecordStore
         }
     }
 
-    /// <summary>The check settings from the project file: the mark style.</summary>
+    /// <summary>Gets the check settings from the project file: the mark style.</summary>
     public ProjectSettings Settings { get; }
 
-    /// <summary>The records read from the pages under the docs roots.</summary>
+    /// <summary>Gets the records read from the pages under the docs roots.</summary>
     public RecordIndex Index { get; }
 
-    /// <summary>The project directory holding the project file.</summary>
+    /// <summary>Gets the project directory holding the project file.</summary>
     public string Root { get; }
 
-    /// <summary>The project file path, as the host reported it.</summary>
+    /// <summary>Gets the project file path, as the host reported it.</summary>
     public string ProjectFile { get; }
 
     /// <summary>
@@ -162,7 +151,7 @@ public sealed class RecordStore
     public bool IsKnown(Finding finding)
     {
         var (_, known) = LiteSpec.Model.Suppression.Partition(
-            new Finding[] { finding }, Index.Records, Root, DateTime.UtcNow.Date, UseCaseOfHome);
+            [finding], Index.Records, Root, DateTime.UtcNow.Date, UseCaseOfHome);
 
         return known.Count > 0;
     }
@@ -193,6 +182,9 @@ public sealed class RecordStore
         return false;
     }
 
+    /// <summary>Returns the uncached.</summary>
+    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <returns>The uncached, or null when none applies.</returns>
     private static RecordStore? LoadUncached(IReadOnlyList<RecordFile> files)
     {
         var project = ProjectFileOf(files);
@@ -244,6 +236,9 @@ public sealed class RecordStore
         return new RecordStore(settings, new RecordIndex(records), directory, project.Path, docsRoots);
     }
 
+    /// <summary>Returns the file of.</summary>
+    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <returns>The file of, or null when none applies.</returns>
     private static RecordFile? ProjectFileOf(IReadOnlyList<RecordFile> files)
     {
         RecordFile? found = null;
@@ -260,6 +255,9 @@ public sealed class RecordStore
         return found;
     }
 
+    /// <summary>Returns the name.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>The name as text.</returns>
     private static string FileName(string path)
     {
         var slash = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
@@ -267,6 +265,9 @@ public sealed class RecordStore
         return slash < 0 ? path : path.Substring(slash + 1);
     }
 
+    /// <summary>Returns the directory of the path.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>The directory of the path.</returns>
     private static string DirectoryOf(string path)
     {
         var slash = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
@@ -280,6 +281,10 @@ public sealed class RecordStore
     ///     (defaulting to <c>docs/behavior</c>), resolved against the project
     ///     directory. Returns null when the paths do not resolve.
     /// </summary>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="directory">The directory the folder is resolved against.</param>
+    /// <param name="docsOnly">The docs-only roots that receive the folder beside the index roots.</param>
+    /// <returns>The roots, in the order this method builds them.</returns>
     private static List<string>? DocsRoots(JsonText root, string directory, out List<string> docsOnly)
     {
         var roots = new List<string>();
@@ -352,12 +357,19 @@ public sealed class RecordStore
     }
 
     /// <summary>Adds a <c>paths.docs</c> folder to both the index roots and the docs-only roots.</summary>
+    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
+    /// <param name="docsOnly">The docs-only roots that receive the folder beside the index roots.</param>
+    /// <param name="folder">The folder to add, as the project file states it.</param>
     private static void AddDocsRoot(List<string> roots, List<string> docsOnly, string folder)
     {
         roots.Add(folder);
         docsOnly.Add(folder);
     }
 
+    /// <summary>Resolves the folder against the directory and returns the combined path.</summary>
+    /// <param name="directory">The directory the folder is resolved against.</param>
+    /// <param name="folder">The folder to add, as the project file states it.</param>
+    /// <returns>The string as text.</returns>
     private static string Combine(string directory, string folder)
     {
         var combined = folder.Replace('\\', '/');
@@ -376,9 +388,16 @@ public sealed class RecordStore
         return directory.Replace('\\', '/').TrimEnd('/') + "/" + combined.TrimStart('/');
     }
 
+    /// <summary>Returns true when the path is markdown; otherwise false.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>True when the path is markdown; otherwise false.</returns>
     private static bool IsMarkdown(string path) =>
         path.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>Returns true when the under-roots condition holds; otherwise false.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
+    /// <returns>True when the under-roots condition holds; otherwise false.</returns>
     private static bool UnderRoots(string path, List<string> roots)
     {
         var candidate = path.Replace('\\', '/');
@@ -400,6 +419,8 @@ public sealed class RecordStore
     ///     The checksum key of the files: a 64-bit FNV-1a hash over the project
     ///     file and every Markdown path and text, in path order.
     /// </summary>
+    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <returns>The string as text.</returns>
     private static string Checksum(IReadOnlyList<RecordFile> files)
     {
         var paths = new List<string>();
@@ -436,6 +457,11 @@ public sealed class RecordStore
         }
     }
 
+    /// <summary>Returns the ulong.</summary>
+    /// <param name="hash">The running hash value to fold the text into.</param>
+    /// <param name="prime">The FNV prime the hash folds with.</param>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>The ulong.</returns>
     private static ulong Fold(ulong hash, ulong prime, string text)
     {
         unchecked

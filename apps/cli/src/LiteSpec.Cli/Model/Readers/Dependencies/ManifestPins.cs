@@ -15,6 +15,7 @@ sealed record ManifestPins(IReadOnlyDictionary<string, string> NuGet, IReadOnlyD
     ///     Reads the NuGet and npm pins from the manifest of the carried release.
     ///     Empty when the release or its manifest cannot be read.
     /// </summary>
+    /// <returns>The pins by ecosystem and package name; empty when the manifest cannot be read.</returns>
     public static ManifestPins Read()
     {
         var nuget = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -58,6 +59,9 @@ sealed record ManifestPins(IReadOnlyDictionary<string, string> NuGet, IReadOnlyD
     }
 
     /// <summary>Copies the ecosystem's package pins into the table, first entry winning.</summary>
+    /// <param name="packages">The manifest element that holds the package pins of one ecosystem.</param>
+    /// <param name="ecosystem">The ecosystem the pins belong to, such as nuget or npm.</param>
+    /// <param name="pins">The pins collected so far, by package name, added to in place.</param>
     private static void AddPins(JsonElement packages, string ecosystem, Dictionary<string, string> pins)
     {
         if (!packages.TryGetProperty(ecosystem, out var table) || table.ValueKind != JsonValueKind.Object)

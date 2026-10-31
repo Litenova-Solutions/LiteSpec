@@ -112,6 +112,7 @@ public sealed class DecideTests
     }
 
     /// <summary>Drafts borrow-copy with a risk value and an unanswered past-due question.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void DraftTier1Question(string root)
     {
         var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
@@ -142,6 +143,7 @@ public sealed class DecideTests
     }
 
     /// <summary>Writes a draft scenario for borrow-copy with no proving test.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
         var path = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy-draft-scenario.md");
@@ -169,6 +171,7 @@ public sealed class DecideTests
     }
 
     /// <summary>Drafts the requirement list-loans fulfills, with its decider and decide-by date.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void DraftMaxActiveLoans(string root)
     {
         var file = Path.Combine(root, "docs", "product", "lending", "borrowing.md");
@@ -189,6 +192,7 @@ public sealed class DecideTests
     }
 
     /// <summary>Declares a Svelte frontend the reader cannot reach once Node is hidden from PATH.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void AddWebFrontend(string root)
     {
         var file = Path.Combine(root, "litespec.project.json");
@@ -206,6 +210,7 @@ public sealed class DecideTests
     }
 
     /// <summary>The process PATH without the folders holding Node, so the TypeScript reader is unavailable.</summary>
+    /// <returns>The PATH value with every Node folder removed.</returns>
     static string PathWithoutNode()
     {
         var path = Environment.GetEnvironmentVariable("PATH") ?? "";
@@ -218,6 +223,9 @@ public sealed class DecideTests
     }
 
     /// <summary>Reads one finding's outcome and reason from the check JSON.</summary>
+    /// <param name="stdout">The check command JSON output.</param>
+    /// <param name="code">The finding code to read.</param>
+    /// <returns>The finding outcome and reason, each null when absent.</returns>
     static (string? Outcome, string? Reason) OutcomeOf(string stdout, string code)
     {
         using var document = JsonDocument.Parse(stdout);

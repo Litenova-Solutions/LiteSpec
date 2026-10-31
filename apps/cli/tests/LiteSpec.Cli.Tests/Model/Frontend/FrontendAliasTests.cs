@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves the import aliases the reader is given come from the frontend's package file.</summary>
 public sealed class FrontendAliasTests
 {
+    /// <summary>Declared Subpath Imports Are The Aliases.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Declared_Subpath_Imports_Are_The_Aliases()
@@ -25,6 +26,7 @@ public sealed class FrontendAliasTests
             aliases);
     }
 
+    /// <summary>A Frontend Declaring None Takes Its Stack Alias.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void A_Frontend_Declaring_None_Takes_Its_Stack_Alias()

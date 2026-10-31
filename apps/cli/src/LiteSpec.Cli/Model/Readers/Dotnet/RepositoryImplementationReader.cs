@@ -52,7 +52,7 @@ static class RepositoryImplementationReader
     /// <returns>True when the name is a domain repository interface.</returns>
     public static bool IsRepositoryInterface(string face) =>
         face.Length > "IRepository".Length
-        && face.StartsWith("I", StringComparison.Ordinal)
+        && face.StartsWith('I')
         && char.IsUpper(face[1])
         && face.EndsWith("Repository", StringComparison.Ordinal);
 
@@ -80,7 +80,7 @@ static class RepositoryImplementationReader
                 {
                     if (ClassDetailsReader.ConstructorTypes(declared, tree)
                         .Select(entry => DotnetNames.KindOf(entry.Type))
-                        .Any(kind => kind.StartsWith("I", StringComparison.Ordinal) && kind.EndsWith("Repository", StringComparison.Ordinal)))
+                        .Any(kind => kind.StartsWith('I') && kind.EndsWith("Repository", StringComparison.Ordinal)))
                     {
                         holders.Add(declared.Identifier.ValueText);
                     }

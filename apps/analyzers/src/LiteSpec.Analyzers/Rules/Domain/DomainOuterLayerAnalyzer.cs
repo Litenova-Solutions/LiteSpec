@@ -14,6 +14,7 @@ namespace LiteSpec.Analyzers.Rules.Domain;
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
 {
     // The user-facing copy of this list lives in the Detection Limits section of docs/analyzers/README.md.
+    /// <summary>The outer layer namespaces text held for this operation.</summary>
     private static readonly string[] OuterLayerNamespaces =
     [
         "Microsoft.EntityFrameworkCore",
@@ -41,14 +42,24 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1001);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the domain outer layer analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         context.RegisterSyntaxNodeAction(AnalyzeName, SyntaxKind.IdentifierName, SyntaxKind.GenericName);
         context.RegisterSyntaxNodeAction(AnalyzeUsing, SyntaxKind.UsingDirective);
     }
 
+    /// <summary>Analyzes the name.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeName(SyntaxNodeAnalysisContext context)
     {
         var node = (SimpleNameSyntax)context.Node;
@@ -68,6 +79,8 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS1001, node.Identifier.GetLocation(), name, namespaceName));
     }
 
+    /// <summary>Analyzes the using.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeUsing(SyntaxNodeAnalysisContext context)
     {
         var directive = (UsingDirectiveSyntax)context.Node;
@@ -91,6 +104,10 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS1001, directive.Name.GetLocation(), directive.Name.ToString(), namespaceName));
     }
 
+    /// <summary>Returns true when the node is covered by enclosing node; otherwise false.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <returns>True when the node is covered by enclosing node; otherwise false.</returns>
     private static bool IsCoveredByEnclosingNode(SimpleNameSyntax node, SyntaxNodeAnalysisContext context)
     {
         var child = (SyntaxNode)node;
@@ -114,12 +131,18 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the symbol is outer layer symbol; otherwise false.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>True when the symbol is outer layer symbol; otherwise false.</returns>
     private static bool IsOuterLayerSymbol(ISymbol? symbol)
     {
         var (_, containing) = NameAndNamespace(symbol);
         return IsOuterLayerNamespace(containing, out _);
     }
 
+    /// <summary>Returns the simple name and containing namespace of the symbol.</summary>
+    /// <param name="symbol">The symbol whose name and namespace the check reads, or null when it has none.</param>
+    /// <returns>The name and namespace pair, with both parts null when the symbol is of no named kind.</returns>
     private static (string? Name, INamespaceSymbol? Namespace) NameAndNamespace(ISymbol? symbol)
     {
         switch (symbol)
@@ -141,6 +164,10 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the containing is outer layer namespace; otherwise false.</summary>
+    /// <param name="containing">The containing supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="namespaceName">The namespace name the check resolved.</param>
+    /// <returns>True when the containing is outer layer namespace; otherwise false.</returns>
     private static bool IsOuterLayerNamespace(INamespaceSymbol? containing, out string namespaceName)
     {
         if (containing is null || containing.IsGlobalNamespace)

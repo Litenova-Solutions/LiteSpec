@@ -16,6 +16,7 @@ public sealed class BookModelTests
     }
 
     /// <summary>Without a stored tier, any risk value makes the record tier 1, including physical access.</summary>
+    /// <param name="risk">The risk value on the record, which drives the tier 1 fallback.</param>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Theory]
     [InlineData("money")]

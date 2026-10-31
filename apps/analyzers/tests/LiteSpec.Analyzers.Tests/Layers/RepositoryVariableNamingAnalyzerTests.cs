@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2010, repository variable names.</summary>
 public sealed class RepositoryVariableNamingAnalyzerTests
 {
+    /// <summary>LS2010 accepts parameters named after their interfaces.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 accepts parameters named after their interfaces")]
     public Task AcceptsParametersNamedAfterTheirInterfaces() =>
@@ -26,6 +28,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 accepts fields with or without a leading underscore.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 accepts fields with or without a leading underscore")]
     public Task AcceptsFieldsWithOrWithoutALeadingUnderscore() =>
@@ -44,6 +48,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 accepts a local named after its interface.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 accepts a local named after its interface")]
     public Task AcceptsALocalNamedAfterItsInterface() =>
@@ -63,6 +69,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 reports a parameter not named after its interface.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 reports a parameter not named after its interface")]
     public Task ReportsAParameterNotNamedAfterItsInterface() =>
@@ -76,6 +84,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 reports an underscored parameter.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 reports an underscored parameter")]
     public Task ReportsAnUnderscoredParameter() =>
@@ -89,6 +99,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 reports a field not named after its interface.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 reports a field not named after its interface")]
     public Task ReportsAFieldNotNamedAfterItsInterface() =>
@@ -103,6 +115,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 reports a local not named after its interface.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 reports a local not named after its interface")]
     public Task ReportsALocalNotNamedAfterItsInterface() =>
@@ -120,6 +134,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 ignores a non-repository interface.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 ignores a non-repository interface")]
     public Task IgnoresANonRepositoryInterface() =>
@@ -133,6 +149,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2010 ignores a repository variable outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 ignores a repository variable outside Application and Infrastructure")]
     public Task IgnoresARepositoryVariableOutsideItsLayers() =>
@@ -146,6 +164,8 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <summary>LS2010 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
     [Fact(DisplayName = "LS2010 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

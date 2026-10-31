@@ -146,7 +146,7 @@ static class ProofConfirmation
             return false;
         }
 
-        var resultId = claimed.Ids(RecordFields.Result).FirstOrDefault();
+        var resultId = claimed.Ids(RecordFields.Result) is { Count: > 0 } claimedIds ? claimedIds[0] : null;
         var result = resultId is not null && model.ById.TryGetValue(resultId, out var found) ? found : null;
 
         if (result?.Field(RecordFields.Outcome) == "refusal")
@@ -512,7 +512,7 @@ static class ProofConfirmation
     {
         var stem = service;
 
-        if (stem.StartsWith("I", StringComparison.Ordinal) && stem.Length > 1 && char.IsUpper(stem[1]))
+        if (stem.StartsWith('I') && stem.Length > 1 && char.IsUpper(stem[1]))
         {
             stem = stem[1..];
         }
@@ -540,10 +540,10 @@ static class ProofConfirmation
     /// <summary>The refusal result a scenario ends in, or null when it ends in a success.</summary>
     /// <param name="model">The project model.</param>
     /// <param name="scenario">The scenario record.</param>
-    /// <returns>The refusal result a scenario ends in, or null when it ends in a success.</returns>
+    /// <returns>The linked result record when its outcome is refusal; otherwise null.</returns>
     private static Record? RefusalOf(ProjectModel model, Record scenario)
     {
-        var resultId = scenario.Ids(RecordFields.Result).FirstOrDefault();
+        var resultId = scenario.Ids(RecordFields.Result) is { Count: > 0 } scenarioIds ? scenarioIds[0] : null;
 
         return resultId is not null
             && model.ById.TryGetValue(resultId, out var result)

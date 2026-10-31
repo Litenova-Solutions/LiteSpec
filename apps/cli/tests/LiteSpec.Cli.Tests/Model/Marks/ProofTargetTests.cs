@@ -55,9 +55,12 @@ public sealed class ProofTargetTests
         }
     }
 
+    /// <summary>A test proving each of the seven kinds reports no mark finding.</summary>
+    /// <param name="file">The passing test file name the case checks for mark findings.</param>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Theory(DisplayName = "A test proving each of the seven kinds reports no mark finding")]
     [MemberData(nameof(PassingFiles))]
+    // The MemberData values name each passing proof-target file case.
     public void ProofOfEachKindPasses(string file)
     {
         using var temp = MarksFixture.Prepare("proof-targets");
@@ -72,9 +75,12 @@ public sealed class ProofTargetTests
         }
     }
 
+    /// <summary>A proof beyond scenario and rule never reports proves-unreached.</summary>
+    /// <param name="file">The standing-proof test file name the case checks for proves-unreached.</param>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Theory(DisplayName = "A proof beyond scenario and rule never reports proves-unreached")]
     [MemberData(nameof(StandingProofFiles))]
+    // The MemberData values name each standing-proof file case.
     public void StandingProofNeverReportsProvesUnconfirmed(string file)
     {
         using var temp = MarksFixture.Prepare("proof-targets");
@@ -84,6 +90,7 @@ public sealed class ProofTargetTests
         Assert.DoesNotContain(unconfirmed, finding => FileName(finding) == file);
     }
 
+    /// <summary>A test proving a functional requirement reports mark-unknown.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a functional requirement reports mark-unknown")]
     public void FunctionalRequirementProofReportsMarkUnresolved()
@@ -98,6 +105,7 @@ public sealed class ProofTargetTests
         Assert.Equal("requirement/borrowing.borrow-form", finding.Subject);
     }
 
+    /// <summary>A test proving a product decision reports mark-unknown.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a product decision reports mark-unknown")]
     public void ProductDecisionProofReportsMarkUnresolved()
@@ -112,6 +120,7 @@ public sealed class ProofTargetTests
         Assert.Equal("decision/0001-loan-threshold", finding.Subject);
     }
 
+    /// <summary>A test proving an aggregate reports mark-unknown.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving an aggregate reports mark-unknown")]
     public void AggregateProofReportsMarkUnresolved()
@@ -127,6 +136,7 @@ public sealed class ProofTargetTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <summary>A test proving an unknown provision reports mark-unknown.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving an unknown provision reports mark-unknown")]
     public void UnknownProvisionProofReportsMarkUnresolved()
@@ -141,6 +151,7 @@ public sealed class ProofTargetTests
         Assert.Equal("litespec/backend/no-such-page#no-such-provision", finding.Subject);
     }
 
+    /// <summary>A test proving a provision on an unapplied page reports mark-unknown.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a provision on an unapplied page reports mark-unknown")]
     public void UnappliedProvisionProofReportsMarkUnresolved()
@@ -155,6 +166,7 @@ public sealed class ProofTargetTests
         Assert.Equal("litespec/frontend/blazor/browser#bound-what-is-stored", finding.Subject);
     }
 
+    /// <summary>No other mark-unknown fires in the proof-targets fixture.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "No other mark-unknown fires in the proof-targets fixture")]
     public void NoOtherMarkUnresolvedFires()
@@ -166,6 +178,7 @@ public sealed class ProofTargetTests
         Assert.Equal(5, unresolved.Count);
     }
 
+    /// <summary>A scenario proof still verifies its use case.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A scenario proof still verifies its use case")]
     public void ScenarioProofStillVerifies()
@@ -176,6 +189,7 @@ public sealed class ProofTargetTests
         Assert.True(model.Status["use-case/lending.borrow-copy"].Verified);
     }
 
+    /// <summary>A quality-requirement proof does not verify a use case.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A quality-requirement proof does not verify a use case")]
     public void QualityProofDoesNotVerify()
@@ -186,6 +200,7 @@ public sealed class ProofTargetTests
         Assert.False(model.Status["use-case/lending.extend-loan"].Verified);
     }
 
+    /// <summary>Tested appears for proof targets with a passing proving test.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "Tested appears for proof targets with a passing proving test")]
     public void TestedAppearsForProofTargets()

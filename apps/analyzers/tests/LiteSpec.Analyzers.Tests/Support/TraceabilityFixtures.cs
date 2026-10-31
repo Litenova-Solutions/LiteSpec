@@ -13,6 +13,8 @@ internal static class TraceabilityFixtures
     public const string DocsRoot = "/repo/docs";
 
     /// <summary>A project file with the mark style.</summary>
+    /// <param name="marks">The mark style name the project file declares.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) ProjectFile(string marks = "xml") =>
         (ProjectPath, $$"""
             {
@@ -23,6 +25,11 @@ internal static class TraceabilityFixtures
             """);
 
     /// <summary>A use-case page with its raises list and status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <param name="raises">The identifiers of the events the use case raises, or null for the default raised event.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) UseCase(
         string id = "use-case/spending.submit-expense",
         string title = "Submit expense",
@@ -39,6 +46,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>An event page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Event(
         string id = "event/expense.submitted",
         string title = "Expense submitted",
@@ -53,6 +64,11 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A rule page with its refusal and status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <param name="refusal">The identifier of the refusing result, or null when the rule names no refusal.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Rule(
         string id = "rule/spending.receipt-required",
         string title = "Receipt required",
@@ -71,6 +87,12 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A result page with its outcome, code and status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="outcome">The outcome the result declares.</param>
+    /// <param name="code">The stable code the result carries.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Result(
         string id = "result/submit-expense.receipt-missing",
         string title = "Receipt missing",
@@ -90,6 +112,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A scenario page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Scenario(
         string id = "scenario/submit-expense.submitting-with-a-receipt-succeeds",
         string title = "Submitting with a receipt succeeds",
@@ -108,6 +134,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>An aggregate page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Aggregate(
         string id = "aggregate/spending.expense",
         string title = "Expense",
@@ -122,6 +152,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A job page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Job(
         string id = "job/spending.remind-approvers",
         string title = "Remind approvers",
@@ -136,6 +170,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A reaction page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Reaction(
         string id = "reaction/spending.notify-subscribers-on-order-placed",
         string title = "Notify subscribers on order placed",
@@ -150,6 +188,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>An external-system page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) ExternalSystem(
         string id = "external-system/payments",
         string title = "Payments",
@@ -164,6 +206,13 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>An approved exception covering the codes on the subjects and paths until 2099.</summary>
+    /// <param name="covers">The finding codes the exception covers.</param>
+    /// <param name="subjects">The subject identifiers the exception covers, or null for none.</param>
+    /// <param name="paths">The file paths the exception covers, or null for none.</param>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="expiresOn">The date the exception expires, as ISO date text.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Exception(
         string[] covers,
         string[]? subjects = null,
@@ -187,6 +236,10 @@ internal static class TraceabilityFixtures
             """, "Marks deferred");
 
     /// <summary>A decision page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Decision(
         string id = "decision/0002-store-expenses-as-documents",
         string title = "Store expenses as documents",
@@ -201,6 +254,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A technical decision page under the implementation decisions folder.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) TechnicalDecision(
         string id = "decision/0002-store-expenses-as-documents",
         string title = "Store expenses as documents",
@@ -215,6 +272,11 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>A requirement page with its kind and status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <param name="kind">The requirement kind the page declares.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) Requirement(
         string id = "requirement/borrowing.borrow-latency",
         string title = "Borrow latency",
@@ -232,6 +294,10 @@ internal static class TraceabilityFixtures
             """, title);
 
     /// <summary>An integration-event page with its status.</summary>
+    /// <param name="id">The record identifier of the page.</param>
+    /// <param name="title">The title of the page.</param>
+    /// <param name="status">The status the page carries.</param>
+    /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) IntegrationEvent(
         string id = "integration-event/expense-submitted",
         string title = "Expense submitted",

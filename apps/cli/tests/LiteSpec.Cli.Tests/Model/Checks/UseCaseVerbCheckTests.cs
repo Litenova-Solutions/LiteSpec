@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the naming checks: the baseline and project verbs, one kind per verb, and the reaction and job name forms.</summary>
 public sealed class UseCaseVerbCheckTests
 {
+    /// <summary>Declared Verb Passes.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Declared_Verb_Passes()
@@ -20,6 +21,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Single Word Name Equal To Verb Passes.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Single_Word_Name_Equal_To_Verb_Passes()
@@ -33,6 +35,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Declared Phrasal Verb Passes.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Declared_Phrasal_Verb_Passes()
@@ -46,6 +49,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Unknown Verb Reports Use Case Verb Unknown.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Unknown_Verb_Reports_Use_Case_Verb_Unknown()
@@ -60,6 +64,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("starts with 'fetch'", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Verb Prefix Without Dash Reports.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Verb_Prefix_Without_Dash_Reports()
@@ -73,6 +78,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Synonym Names Its Replacement.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Retired_Synonym_Names_Its_Replacement()
@@ -87,6 +93,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("starts with 'update' and 'change' replaces it", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Missing Vocabulary Checks The Baseline.</summary>
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Missing_Vocabulary_Checks_The_Baseline()
@@ -104,6 +111,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("'read' replaces it", unknown[0].Message);
     }
 
+    /// <summary>Query Opening With A Changing Verb Reports The Kind.</summary>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Query_Opening_With_A_Changing_Verb_Reports_The_Kind()
@@ -118,6 +126,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-invalid"));
     }
 
+    /// <summary>Project Query Verb Opens Only A Query.</summary>
     /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Project_Query_Verb_Opens_Only_A_Query()
@@ -131,6 +140,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use-case-verb-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Named For Its Act And Trigger Passes.</summary>
     /// <proves>litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger</proves>
     [Fact]
     public void Reaction_Named_For_Its_Act_And_Trigger_Passes()
@@ -148,6 +158,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("notify-borrower", form[0].Message);
     }
 
+    /// <summary>Job Carries The Verb Of The Use Case It Runs.</summary>
     /// <proves>litespec/core/automation#name-each-job-for-the-use-case-it-runs</proves>
     [Fact]
     public void Job_Carries_The_Verb_Of_The_Use_Case_It_Runs()

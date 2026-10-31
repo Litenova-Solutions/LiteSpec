@@ -3,24 +3,6 @@ using System.Text;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Where one lookalike form first occurs.
-/// </summary>
-/// <param name="Form">The form in lower kebab case.</param>
-/// <param name="Seen">The first record id, or the relative path when no record holds it.</param>
-/// <param name="Subject">The first record id, or null when no record holds the form.</param>
-/// <param name="File">The absolute path of the first occurrence.</param>
-/// <param name="Line">The 1-based line of the first occurrence.</param>
-sealed record LookalikeHit(string Form, string Seen, string? Subject, string File, int Line);
-
-/// <summary>
-///     One lookalike pair: two forms of one concept, ordered so the first sorts before the second.
-/// </summary>
-/// <param name="Kind">The pair kind: hyphenation, spelling, or plurality.</param>
-/// <param name="First">The first form and where it first occurs.</param>
-/// <param name="Second">The second form and where it first occurs.</param>
-sealed record LookalikePair(string Kind, LookalikeHit First, LookalikeHit Second);
-
-/// <summary>
 ///     The lookalike-term vocabulary: the spelling table and the token logic behind the
 ///     term-clash check, the names report, and the names page.
 /// </summary>
@@ -51,6 +33,8 @@ static class TermLookalikes
     ///     names in one home. A pair reports only when both forms occur, and never when the
     ///     project's lookalike ignore list names it.
     /// </summary>
+    /// <param name="model">The built project model holding the records and code.</param>
+    /// <returns>Every lookalike pair in use, ordered by first then second form.</returns>
     public static IReadOnlyList<LookalikePair> FindPairs(ProjectModel model)
     {
         var words = new Dictionary<string, Occurrence>(StringComparer.Ordinal);
@@ -90,8 +74,12 @@ static class TermLookalikes
     }
 
     /// <summary>Collects the words and their consecutive pairs, keeping the first occurrence of each.</summary>
+    /// <param name="found">The words found in one name or term.</param>
+    /// <param name="at">The occurrence the words are collected at.</param>
+    /// <param name="words">The first occurrence of each word, updated in place.</param>
+    /// <param name="splits">The first occurrence of each consecutive word pair, updated in place.</param>
     static void Collect(
-        IReadOnlyList<string> found,
+        List<string> found,
         Occurrence at,
         Dictionary<string, Occurrence> words,
         Dictionary<string, Occurrence> splits)
@@ -108,6 +96,9 @@ static class TermLookalikes
     }
 
     /// <summary>Collects the words of every C# type name the code model holds.</summary>
+    /// <param name="model">The built project model holding the code model.</param>
+    /// <param name="words">The first occurrence of each word, updated in place.</param>
+    /// <param name="splits">The first occurrence of each consecutive word pair, updated in place.</param>
     static void CollectCode(
         ProjectModel model,
         Dictionary<string, Occurrence> words,
@@ -208,10 +199,16 @@ static class TermLookalikes
     }
 
     /// <summary>An occurrence on the record when one holds the class, else on the code file.</summary>
+    /// <param name="record">The record holding the class, or null when none holds it.</param>
+    /// <param name="file">The code file the class occurs in.</param>
+    /// <param name="line">The 1-based line the class occurs on.</param>
+    /// <returns>The occurrence on the record when one holds it; otherwise the occurrence on the code file.</returns>
     static Occurrence At(Record? record, string file, int line) =>
         new(record, record?.File ?? file, record?.Line ?? line);
 
     /// <summary>The simple class name: the last dotted segment.</summary>
+    /// <param name="qualified">The qualified type name to shorten.</param>
+    /// <returns>The segment after the last dot, or the whole name when it holds no dot.</returns>
     static string SimpleName(string qualified) =>
         qualified[(qualified.LastIndexOf('.') + 1)..];
 
@@ -225,7 +222,11 @@ static class TermLookalikes
     };
 
     /// <summary>Every joined form beside the hyphenated split it also occurs with.</summary>
-    static IReadOnlyList<LookalikePair> JoinedPairs(
+    /// <param name="words">The first occurrence of each word.</param>
+    /// <param name="splits">The first occurrence of each hyphenated split.</param>
+    /// <param name="config">The consumer configuration, for the relative path of a form no record holds.</param>
+    /// <returns>The hyphenation pairs, in joined-form order.</returns>
+    static List<LookalikePair> JoinedPairs(
         Dictionary<string, Occurrence> words, Dictionary<string, Occurrence> splits, ConsumerConfig config)
     {
         var pairs = new List<LookalikePair>();
@@ -259,7 +260,10 @@ static class TermLookalikes
     }
 
     /// <summary>Every British spelling beside the American spelling it also occurs with.</summary>
-    static IReadOnlyList<LookalikePair> SpellingPairs(Dictionary<string, Occurrence> words, ConsumerConfig config)
+    /// <param name="words">The first occurrence of each word.</param>
+    /// <param name="config">The consumer configuration, for the relative path of a form no record holds.</param>
+    /// <returns>The spelling pairs, in spelling-table order.</returns>
+    static List<LookalikePair> SpellingPairs(Dictionary<string, Occurrence> words, ConsumerConfig config)
     {
         var pairs = new List<LookalikePair>();
 
@@ -275,7 +279,10 @@ static class TermLookalikes
     }
 
     /// <summary>Every singular beside its plural as two record names sharing one home.</summary>
-    static IReadOnlyList<LookalikePair> PluralPairs(
+    /// <param name="names">The record names with their homes and occurrences.</param>
+    /// <param name="config">The consumer configuration, for the relative path of a form no record holds.</param>
+    /// <returns>The plurality pairs, grouped by home in name order.</returns>
+    static List<LookalikePair> PluralPairs(
         List<(string Name, string? Home, Occurrence At)> names, ConsumerConfig config)
     {
         var pairs = new List<LookalikePair>();
@@ -303,6 +310,13 @@ static class TermLookalikes
     }
 
     /// <summary>One pair with its forms ordered, each with where it first occurs.</summary>
+    /// <param name="kind">The pair kind: hyphenation, spelling, or plurality.</param>
+    /// <param name="leftForm">The first candidate form.</param>
+    /// <param name="left">The first occurrence of the left form.</param>
+    /// <param name="rightForm">The second candidate form.</param>
+    /// <param name="right">The first occurrence of the right form.</param>
+    /// <param name="config">The consumer configuration, for the relative path of a form no record holds.</param>
+    /// <returns>The pair with the ordinally smaller form first.</returns>
     static LookalikePair Pair(
         string kind, string leftForm, Occurrence left, string rightForm, Occurrence right, ConsumerConfig config) =>
         string.Compare(leftForm, rightForm, StringComparison.Ordinal) <= 0
@@ -310,10 +324,17 @@ static class TermLookalikes
             : new LookalikePair(kind, Hit(rightForm, right, config), Hit(leftForm, left, config));
 
     /// <summary>Where one form first occurs: its record id, or its relative path without one.</summary>
+    /// <param name="form">The lookalike form.</param>
+    /// <param name="at">The first occurrence of the form.</param>
+    /// <param name="config">The consumer configuration, for the relative path when no record holds the form.</param>
+    /// <returns>The hit naming the form and its first occurrence.</returns>
     static LookalikeHit Hit(string form, Occurrence at, ConsumerConfig config) =>
         new(form, at.Source?.Id ?? config.Relative(at.File), at.Source?.Id, at.File, at.Line);
 
     /// <summary>Whether one name is the plural of the other: a trailing s, es, or ies for y.</summary>
+    /// <param name="left">The first name.</param>
+    /// <param name="right">The second name.</param>
+    /// <returns>True when the longer name is the plural of the shorter by a trailing s, es, or ies for y.</returns>
     static bool IsPluralPair(string left, string right)
     {
         var (shorter, longer) = left.Length <= right.Length ? (left, right) : (right, left);
@@ -340,14 +361,18 @@ static class TermLookalikes
     }
 
     /// <summary>The words of one kebab-case name: lowercase letter runs of two or more.</summary>
-    static IReadOnlyList<string> KebabWords(string name) =>
+    /// <param name="name">The kebab-case name to split.</param>
+    /// <returns>The lowercase words of at least two letters in the name.</returns>
+    static List<string> KebabWords(string name) =>
         name.Split('-', StringSplitOptions.RemoveEmptyEntries)
             .Select(word => word.ToLowerInvariant())
             .Where(word => word.Length >= 2 && word.All(character => character is >= 'a' and <= 'z'))
             .ToList();
 
     /// <summary>The words of one glossary term: lowercase letter runs of two or more.</summary>
-    static IReadOnlyList<string> TermWords(string term)
+    /// <param name="term">The glossary term to split.</param>
+    /// <returns>The lowercase letter runs of at least two letters in the term.</returns>
+    static List<string> TermWords(string term)
     {
         var words = new List<string>();
         var current = new StringBuilder();
@@ -377,7 +402,9 @@ static class TermLookalikes
     }
 
     /// <summary>The words of one C# type name: each dotted segment split before every capital.</summary>
-    static IReadOnlyList<string> TypeWords(string qualified)
+    /// <param name="qualified">The qualified type name to split.</param>
+    /// <returns>The lowercase words of at least two letters in the type name.</returns>
+    static List<string> TypeWords(string qualified)
     {
         var words = new List<string>();
 

@@ -10,6 +10,8 @@ namespace LiteSpec.Model.Readers.JUnit;
 sealed class JUnitRunReader : ITestRunReader
 {
     /// <summary>Reads the run, or null when no JUnit file exists.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The test run, or null when no result file exists.</returns>
     public TestRun? Read(ConsumerConfig config)
     {
         var files = SourceTree.Files(config.TestResultsDir, ".xml");
@@ -91,6 +93,8 @@ sealed class JUnitRunReader : ITestRunReader
     ///     The fully qualified names a case answers to: its class and name without any
     ///     data-row arguments, plus the dotted form when nested types join with a plus.
     /// </summary>
+    /// <param name="testName">The recorded test name, with any data-row arguments it carries.</param>
+    /// <returns>The names a case answers to, without data-row arguments.</returns>
     private static IReadOnlyList<string> NamesOf(string testName)
     {
         var bare = testName;
@@ -113,6 +117,9 @@ sealed class JUnitRunReader : ITestRunReader
     }
 
     /// <summary>The file's run date, yyyy-MM-dd: the latest suite timestamp, else the file date.</summary>
+    /// <param name="document">The parsed run document to read dates from.</param>
+    /// <param name="file">The run file path, whose write day is the last fallback.</param>
+    /// <returns>The yyyy-MM-dd run date, or null when the document and the file state none.</returns>
     private static string? RunDateOf(XDocument document, string file)
     {
         string? latest = null;
@@ -131,6 +138,8 @@ sealed class JUnitRunReader : ITestRunReader
     }
 
     /// <summary>The yyyy-MM-dd day the timestamp starts with, or null when it names none.</summary>
+    /// <param name="stamp">The timestamp text, or null when the run states none.</param>
+    /// <returns>The yyyy-MM-dd day, or null when the timestamp starts with no valid date.</returns>
     private static string? DateOf(string? stamp)
     {
         if (stamp is not { Length: >= 10 })
@@ -145,6 +154,9 @@ sealed class JUnitRunReader : ITestRunReader
             : null;
     }
 
+    /// <summary>The file last write day in UTC, as yyyy-MM-dd.</summary>
+    /// <param name="file">The run file path whose last write day is wanted.</param>
+    /// <returns>A yyyy-MM-dd text built from the file last write time in UTC.</returns>
     private static string FileDate(string file) =>
         File.GetLastWriteTimeUtc(file).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 }

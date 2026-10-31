@@ -11,6 +11,8 @@ namespace LiteSpec.Model.Checks;
 internal static class SettingChecks
 {
     /// <summary>Reports setting-key-missing, setting-unimplemented, setting-key-drift, template-unimplemented, template-unrecorded and template-param-drift.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckSettingKeyMissing(model, findings);
@@ -19,6 +21,8 @@ internal static class SettingChecks
     }
 
     /// <summary>Reports an operator setting naming no configuration key.</summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSettingKeyMissing(ProjectModel model, List<Finding> findings)
     {
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
@@ -36,6 +40,8 @@ internal static class SettingChecks
     }
 
     /// <summary>Reports a keyed setting no options class marks, and a marked options class not spelling its setting's key.</summary>
+    /// <param name="model">The loaded project model that holds every setting record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSettingBound(ProjectModel model, List<Finding> findings)
     {
         var options = Readers.Settings.OptionsClassReader.Read(model.Config);
@@ -95,6 +101,9 @@ internal static class SettingChecks
     }
 
     /// <summary>Whether the section value joined by <c>:</c> with one of the properties spells the key.</summary>
+    /// <param name="bound">The marked options class whose section name and properties are tested.</param>
+    /// <param name="key">The configuration key the setting declares.</param>
+    /// <returns>True when the section name joined with a property name spells the key exactly; otherwise false.</returns>
     private static bool SpellsKey(Readers.Settings.OptionsClass bound, string key)
     {
         if (bound.SectionName is not { Length: > 0 })
@@ -114,6 +123,8 @@ internal static class SettingChecks
     }
 
     /// <summary>Reports a declared template the store lacks, a stored key no notification declares, and a declared parameter no text uses.</summary>
+    /// <param name="model">The loaded project model that holds every notification record and the template store path.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTemplates(ProjectModel model, List<Finding> findings)
     {
         if (model.Config.TemplateStore.Length == 0)
@@ -181,6 +192,8 @@ internal static class SettingChecks
     }
 
     /// <summary>The template keys a notification declares, without <c>none</c>; a <c>template: none</c> notification declares none.</summary>
+    /// <param name="notification">The notification record whose declared template keys are read.</param>
+    /// <returns>The declared keys in ordinal order without duplicates, or an empty list when the notification declares none.</returns>
     private static IReadOnlyList<string> TemplateKeys(Record notification)
     {
         if (notification.Field(RecordFields.Template) is not { Length: > 0 } template)
@@ -197,6 +210,9 @@ internal static class SettingChecks
     }
 
     /// <summary>Reports a declared parameter whose placeholder none of the notification's stored texts uses.</summary>
+    /// <param name="notification">The notification record whose declared parameters are tested against its stored texts.</param>
+    /// <param name="held">The stored templates by key, read from the template store.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTemplateParams(
         Record notification, Dictionary<string, Readers.Settings.StoredTemplate> held, List<Finding> findings)
     {
@@ -237,6 +253,8 @@ internal static class SettingChecks
     }
 
     /// <summary>The PascalCase form of a declared parameter: each part capitalized and joined.</summary>
+    /// <param name="name">The declared parameter name in any separator form.</param>
+    /// <returns>The PascalCase form with each separator part capitalized and the separators removed.</returns>
     private static string ToPascalCase(string name)
     {
         var built = new StringBuilder();
@@ -247,7 +265,7 @@ internal static class SettingChecks
 
             if (part.Length > 1)
             {
-                built.Append(part.Substring(1));
+                built.Append(part.AsSpan(1));
             }
         }
 

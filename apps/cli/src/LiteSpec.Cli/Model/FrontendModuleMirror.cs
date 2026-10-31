@@ -10,6 +10,9 @@ namespace LiteSpec.Model;
 static class FrontendModuleMirror
 {
     /// <summary>The use-case id the folder under a modules root mirrors, or null outside a use-case folder.</summary>
+    /// <param name="frontend">The frontend whose modules root the folder sits under.</param>
+    /// <param name="folder">The folder path to resolve, absolute or relative to the working directory.</param>
+    /// <returns>The mirrored use-case id, or null when the folder lies outside the modules root or names no use case.</returns>
     public static string? ExpectedUseCase(FrontendConfig frontend, string folder)
     {
         var root = Path.GetFullPath(frontend.ModulesRoot);
@@ -38,6 +41,10 @@ static class FrontendModuleMirror
     ///     The use-case id the mark's folder mirrors, when the mark names an existing
     ///     use case other than that one. Null for any other element, mark or path.
     /// </summary>
+    /// <param name="model">The built project model holding the records the mark names.</param>
+    /// <param name="element">The marked code element whose folder is checked.</param>
+    /// <param name="mark">The mark on the element, naming the record the folder should mirror.</param>
+    /// <returns>The use-case id the folder actually mirrors, or null when it mirrors the named record or no use case.</returns>
     public static string? PathMismatch(ProjectModel model, MarkedElement element, CodeMark mark)
     {
         if (element.Kind != CodeKind.FrontendModule)

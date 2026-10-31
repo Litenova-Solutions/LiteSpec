@@ -45,6 +45,8 @@ internal static class RecordNameChecks
     };
 
     /// <summary>Reports use-case-noun-unknown, refusal-code-invalid, template-key-invalid, setting-unit-missing, integration-event-name-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckUseCaseNoun(model, findings);
@@ -55,6 +57,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports a use case naming no aggregate, declared part, or glossary term after its verb.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate, term and use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseNoun(ProjectModel model, List<Finding> findings)
     {
         var aggregates = model.Records.Where(record => record.Type == RecordTypes.Aggregate).ToList();
@@ -135,12 +139,17 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Whether the word run names the aggregate in its singular or plural form.</summary>
+    /// <param name="aggregate">The aggregate or glossary term name in its declared form.</param>
+    /// <param name="run">The run of words taken from the use case name after its verb.</param>
+    /// <returns>True when the run equals the name or its regular plural in either direction; otherwise false.</returns>
     private static bool NounMatches(string aggregate, string run) =>
         run.Equals(aggregate, StringComparison.Ordinal)
         || PluralForms(aggregate).Contains(run, StringComparer.Ordinal)
         || PluralForms(run).Contains(aggregate, StringComparer.Ordinal);
 
     /// <summary>The regular plural forms of one word.</summary>
+    /// <param name="word">The singular word whose plural forms are wanted.</param>
+    /// <returns>The regular plural spellings, including the y-to-ies form where it applies.</returns>
     private static IEnumerable<string> PluralForms(string word)
     {
         yield return word + "s";
@@ -153,6 +162,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>A glossary term as kebab-case, so a phrase matches the words of a name.</summary>
+    /// <param name="text">The glossary term text as written on the term record.</param>
+    /// <returns>The term in lowercase kebab-case.</returns>
     private static string NormalizeTerm(string text)
     {
         var words = text.Split([' ', '\t', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -161,6 +172,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports a refusal code outside its module, outside kebab-case, or carrying a vague word.</summary>
+    /// <param name="model">The loaded project model that holds every result record and the refusal configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRefusalCodeForm(ProjectModel model, List<Finding> findings)
     {
         var declared = new HashSet<string>(StringComparer.Ordinal)
@@ -242,6 +255,9 @@ internal static class RecordNameChecks
     }
 
     /// <summary>The module holding a result: its page's module, else its use case's module.</summary>
+    /// <param name="model">The loaded project model that resolves the result use case.</param>
+    /// <param name="result">The refusal result whose owning module is wanted.</param>
+    /// <returns>The module name, or null when neither the page nor the use case names one.</returns>
     private static string? ResultModule(ProjectModel model, Record result)
     {
         if (result.PageId is { Length: > 0 } page
@@ -264,6 +280,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Whether the name is kebab-case: lowercase words joined by single hyphens.</summary>
+    /// <param name="value">The code suffix under test.</param>
+    /// <returns>True when the value is non-empty lowercase words joined by single hyphens; otherwise false.</returns>
     private static bool IsKebab(string value)
     {
         if (value.Length == 0)
@@ -276,6 +294,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports a notification template key ending in no audience the record declares.</summary>
+    /// <param name="model">The loaded project model that holds every notification record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTemplateKeyForm(ProjectModel model, List<Finding> findings)
     {
         foreach (var notification in model.Records.Where(record => record.Type == RecordTypes.Notification))
@@ -318,6 +338,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports a setting holding a number or a duration with no unit.</summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSettingUnit(ProjectModel model, List<Finding> findings)
     {
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
@@ -335,6 +357,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports an outbound integration event named with an internal word.</summary>
+    /// <param name="model">The loaded project model that holds every integration event record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIntegrationEventWording(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "out"))
@@ -354,6 +378,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports use-case-verb-unknown and use-case-verb-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every use case record and the verb vocabulary.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunVerbs(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
@@ -384,6 +410,8 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Reports reaction-name-invalid and job-name-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every reaction and job record and the verb vocabulary.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunNames(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record => record.Type is RecordTypes.Reaction or RecordTypes.Job))
@@ -420,14 +448,24 @@ internal static class RecordNameChecks
     }
 
     /// <summary>Whether the baseline or the project declares the verb.</summary>
+    /// <param name="config">The project configuration that holds the project verb declarations.</param>
+    /// <param name="verb">The leading verb taken from the record name.</param>
+    /// <returns>True when the baseline or the project declares the verb; otherwise false.</returns>
     private static bool Declares(ConsumerConfig config, string verb) =>
         UseCaseVerbs.IsDeclared(verb, config.Verbs, config.QueryVerbs, config.PhrasalVerbs);
 
     /// <summary>The kind a declared verb names: the baseline kind, a project query verb, or either.</summary>
+    /// <param name="config">The project configuration that holds the project query verbs.</param>
+    /// <param name="verb">The declared verb whose kind is wanted.</param>
+    /// <returns>The kind the verb names.</returns>
     private static UseCaseVerbs.VerbKind KindOf(ConsumerConfig config, string verb) =>
         UseCaseVerbs.KindOf(verb, config.QueryVerbs);
 
     /// <summary>The message for an undeclared verb, naming its replacement when the verb is a retired synonym.</summary>
+    /// <param name="config">The project configuration that holds the retired verb replacements.</param>
+    /// <param name="subject">The record description that opens the message.</param>
+    /// <param name="verb">The undeclared verb taken from the record name.</param>
+    /// <returns>The finding message, naming the replacement verb when the verb is a retired synonym.</returns>
     private static string UnknownVerbMessage(ConsumerConfig config, string subject, string verb) =>
         config.RetiredVerbs.TryGetValue(verb, out var replacement) || UseCaseVerbs.Retired.TryGetValue(verb, out replacement)
             ? $"{subject} starts with '{verb}' and '{replacement}' replaces it."

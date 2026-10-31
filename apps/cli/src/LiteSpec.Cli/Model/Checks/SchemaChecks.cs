@@ -15,10 +15,15 @@ namespace LiteSpec.Model.Checks;
 internal static class SchemaChecks
 {
     /// <summary>Whether the record lives in the behavior layer, from the one layer table.</summary>
+    /// <param name="record">The record whose layer is read.</param>
+    /// <returns>True when the record type belongs to the behavior layer; otherwise false.</returns>
     private static bool IsBehavior(Record record) =>
         RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) && layer == "behavior";
 
     /// <summary>Runs the schema checks on every record.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <param name="owners">The parsed CODEOWNERS rules that decide team coverage of each record path.</param>
     internal static void Run(ProjectModel model, List<Finding> findings, Codeowners owners)
     {
         foreach (var record in model.Records)
@@ -100,6 +105,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>Whether the status fits the record layer vocabulary.</summary>
+    /// <param name="record">The record whose status and type decide the allowed vocabulary.</param>
+    /// <returns>True when the status belongs to the vocabulary of the record layer; otherwise false.</returns>
     private static bool ValidStatus(Record record)
     {
         if (record.Status is RecordStatuses.Draft or RecordStatuses.Retired)
@@ -119,6 +126,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>The status words the record layer vocabulary allows.</summary>
+    /// <param name="record">The record whose layer decides the vocabulary text.</param>
+    /// <returns>The allowed status words as one comma-separated phrase for the finding message.</returns>
     private static string StatusVocabulary(Record record)
     {
         if (record.Type == RecordTypes.Term)
@@ -132,6 +141,9 @@ internal static class SchemaChecks
     }
 
     /// <summary>Reports a question entry naming no decider or no decide-by date.</summary>
+    /// <param name="record">The record whose question entries are inspected.</param>
+    /// <param name="model">The loaded project model that holds the owner list.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckQuestionDeciders(Record record, ProjectModel model, List<Finding> findings)
     {
         if (record.Status == RecordStatuses.Retired)
@@ -183,12 +195,15 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Caches the run targets of each built model, so the schema pass computes them once per model.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ProjectModel, HashSet<string>> RunTargetCache = new();
 
     /// <summary>
     ///     The use cases another record runs: a reaction, job or use case through a `runs`
     ///     effect, or a saga through a step. Such a use case is reached from inside the system.
     /// </summary>
+    /// <param name="model">The loaded project model whose records declare the runs effects and saga steps.</param>
+    /// <returns>The identifiers of use cases that another record runs.</returns>
     private static HashSet<string> RunTargets(ProjectModel model) => RunTargetCache.GetValue(model, built =>
     {
         var targets = new HashSet<string>(StringComparer.Ordinal);
@@ -219,6 +234,10 @@ internal static class SchemaChecks
         return targets;
     });
 
+    /// <summary>Reports each field the record type requires that is missing, misshaped or outside its vocabulary.</summary>
+    /// <param name="model">The loaded project model used to decide whether a use case needs its own entry point.</param>
+    /// <param name="record">The record whose fields are judged by its type.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTypeFields(ProjectModel model, Record record, List<Finding> findings)
     {
         switch (record.Type)
@@ -488,6 +507,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>Reports an exception whose covers names no shared provision or no emitted finding code.</summary>
+    /// <param name="record">The exception record whose covers field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckExceptionCovers(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.Kind) == "departure")
@@ -514,6 +535,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>Reports an exception naming neither the records nor the paths it covers.</summary>
+    /// <param name="record">The exception record whose subject and paths fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckExceptionScope(Record record, List<Finding> findings)
     {
         if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
@@ -522,6 +545,10 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports each link whose target record type the linking field forbids, and each step or actor a journey names wrongly.</summary>
+    /// <param name="model">The loaded project model that resolves each link target.</param>
+    /// <param name="record">The record whose links are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckLinkTypes(ProjectModel model, Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object)
@@ -605,6 +632,12 @@ internal static class SchemaChecks
     ///     operation its record holds. The citation check reads only the base id,
     ///     so a missing step or operation is reported here.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves the link target.</param>
+    /// <param name="record">The record that holds the link.</param>
+    /// <param name="target">The full link target including any step or operation fragment.</param>
+    /// <param name="baseId">The target record identifier without its fragment.</param>
+    /// <param name="resolved">The record the base identifier resolves to.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFragment(
         ProjectModel model, Record record, string target, string baseId, Record resolved, List<Finding> findings)
     {
@@ -634,6 +667,9 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>The operation names an external system record declares.</summary>
+    /// <param name="system">The external system record whose operations array is read.</param>
+    /// <returns>The declared operation names in written order, or an empty list when it declares none.</returns>
     private static IReadOnlyList<string> OperationNames(Record system)
     {
         if (system.Raw.ValueKind != JsonValueKind.Object
@@ -653,6 +689,10 @@ internal static class SchemaChecks
         ];
     }
 
+    /// <summary>Reports a replaces link on a record that is no decision, or one naming a record of another type.</summary>
+    /// <param name="model">The loaded project model that resolves each replaces target.</param>
+    /// <param name="record">The record whose replaces field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckReplaces(ProjectModel model, Record record, List<Finding> findings)
     {
         if (record.Type != RecordTypes.Decision && record.Ids(RecordFields.Replaces).Any())
@@ -669,14 +709,24 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Decides whether text states a date as an ISO day or a timestamp.</summary>
+    /// <param name="text">The date text under test.</param>
+    /// <returns>True when the text parses as an ISO date or a timestamp; otherwise false.</returns>
     private static bool ValidDate(string text) =>
         IsoDate(text, out _)
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
 
+    /// <summary>Decides whether text is exactly one shared provision citation.</summary>
+    /// <param name="text">The covers text under test.</param>
+    /// <returns>True when the whole text is one provision citation; otherwise false.</returns>
     private static bool IsProvisionCitation(string text) =>
         Identifiers.SharedCitation().IsMatch(text)
         && Identifiers.SharedCitation().Match(text).Value == text;
 
+    /// <summary>Reports the record when the named field holds no non-empty string.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name that must hold text.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireString(Record record, string field, List<Finding> findings)
     {
         if (record.Field(field) is not { Length: > 0 })
@@ -685,6 +735,9 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the aggregate when any state entry lacks a name or a meaning.</summary>
+    /// <param name="record">The aggregate record whose state entries are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireStateEntries(Record record, List<Finding> findings)
     {
         if (!record.Raw.TryGetProperty(RecordFields.States, out var value) || value.ValueKind != JsonValueKind.Array)
@@ -708,6 +761,11 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field is absent, holds no array, or holds fewer entries than required.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name that must hold an array.</param>
+    /// <param name="minimum">The smallest entry count the field must hold.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireArray(Record record, string field, int minimum, List<Finding> findings)
     {
         if (!record.Has(field))
@@ -728,6 +786,11 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field names no identifier and at least one is required.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name that must name identifiers.</param>
+    /// <param name="minimum">The smallest identifier count the field must name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireIds(Record record, string field, int minimum, List<Finding> findings)
     {
         var ids = record.Ids(field);
@@ -743,6 +806,11 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field is absent or holds a value outside the allowed set.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name whose value is judged.</param>
+    /// <param name="values">The allowed field values in message order.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireEnum(Record record, string field, string[] values, List<Finding> findings)
     {
         var value = record.Field(field);
@@ -758,6 +826,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>Reports a setBy outside the decider, operator and tenant who sets the value.</summary>
+    /// <param name="record">The record whose setBy field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSetBy(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.SetBy) is { } setBy && setBy is not ("decider" or "operator" or "tenant"))
@@ -766,6 +836,10 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field is absent or holds no boolean.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name that must hold a boolean.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireBoolean(Record record, string field, List<Finding> findings)
     {
         if (!record.Has(field))
@@ -779,6 +853,10 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field is absent or holds no date.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name that must hold a date.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequireDate(Record record, string field, List<Finding> findings)
     {
         var value = record.Field(field);
@@ -793,6 +871,12 @@ internal static class SchemaChecks
         }
     }
 
+    /// <summary>Reports the record when the named field is absent or its value breaks the required pattern.</summary>
+    /// <param name="record">The record whose field is required.</param>
+    /// <param name="field">The field name whose value is judged.</param>
+    /// <param name="pattern">The regular expression the value must match in full.</param>
+    /// <param name="shape">The prose name of the required form, shown in the finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void RequirePattern(Record record, string field, string pattern, string shape, List<Finding> findings)
     {
         var value = record.Field(field);
@@ -811,6 +895,9 @@ internal static class SchemaChecks
     ///     Flags the retired top-level edge fields on a reaction or job: edges live in
     ///     the effects array, under one grammar for every record that has edges.
     /// </summary>
+    /// <param name="record">The reaction or job record whose top-level fields are judged.</param>
+    /// <param name="fields">The retired top-level edge field names.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckLegacyEdges(Record record, string[] fields, List<Finding> findings)
     {
         foreach (var field in fields)
@@ -834,6 +921,8 @@ internal static class SchemaChecks
     ///     The idempotency key and scope: the key templates {field} placeholders over
     ///     the record's input field names, and the scope names one of the four tenancies.
     /// </summary>
+    /// <param name="record">The record whose idempotency key and scope are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIdempotency(Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -891,6 +980,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>The record's input field names, in written order.</summary>
+    /// <param name="record">The record whose input array is read.</param>
+    /// <returns>The input field names in written order, or an empty list when the record holds no input array.</returns>
     private static IReadOnlyList<string> InputNames(Record record)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -915,6 +1006,8 @@ internal static class SchemaChecks
     ///     The reaction or job failure handling: a mode object naming retry with its
     ///     attempts and delays, or skip-and-log, or discard. Prose and malformed values report.
     /// </summary>
+    /// <param name="record">The reaction or job record whose failure handling is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFailurePolicy(Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind == JsonValueKind.Object
@@ -927,6 +1020,8 @@ internal static class SchemaChecks
     }
 
     /// <summary>One structured onFailure for every edge: each effect entry carries the same mode object.</summary>
+    /// <param name="record">The record whose effect entries carry the failure policies under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckEffectFailurePolicy(Record record, List<Finding> findings)
     {
         foreach (var entry in EffectEntries(record))
@@ -939,6 +1034,10 @@ internal static class SchemaChecks
     }
 
     /// <summary>The failure mode object: retry with attempts, delays and dead-letter, or a terminal mode.</summary>
+    /// <param name="record">The record that holds the failure policy.</param>
+    /// <param name="policy">The failure policy value under test.</param>
+    /// <param name="where">The policy location description quoted in each finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckOnFailureObject(Record record, JsonElement policy, string where, List<Finding> findings)
     {
         if (policy.ValueKind == JsonValueKind.String)
@@ -994,6 +1093,10 @@ internal static class SchemaChecks
     }
 
     /// <summary>The retry object: positive attempts, ISO 8601 delays and a backoff of exponential or fixed.</summary>
+    /// <param name="record">The record that holds the failure policy.</param>
+    /// <param name="retry">The retry object under test.</param>
+    /// <param name="where">The policy location description quoted in each finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRetryObject(Record record, JsonElement retry, string where, List<Finding> findings)
     {
         if (!retry.TryGetProperty(RecordFields.MaxAttempts, out var attempts)
@@ -1020,6 +1123,11 @@ internal static class SchemaChecks
     }
 
     /// <summary>One ISO 8601 duration inside the failure policy: missing or malformed reports.</summary>
+    /// <param name="record">The record that holds the failure policy.</param>
+    /// <param name="holder">The policy object that holds the duration field.</param>
+    /// <param name="field">The duration field name under test.</param>
+    /// <param name="where">The duration location description quoted in each finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPolicyDuration(Record record, JsonElement holder, string field, string where, List<Finding> findings)
     {
         if (!holder.TryGetProperty(field, out var value)

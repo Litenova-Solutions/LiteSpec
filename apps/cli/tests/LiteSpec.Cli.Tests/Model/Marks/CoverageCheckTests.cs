@@ -5,6 +5,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves the record-side traceability findings against the marks fixtures.</summary>
 public sealed class CoverageCheckTests
 {
+    /// <summary>Aggregate Without A Marked Root Reports Aggregate Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Aggregate_Without_A_Marked_Root_Reports_Aggregate_Unimplemented()
@@ -16,6 +17,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <summary>Store Aggregate Without A Root Reports Nothing.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Store_Aggregate_Without_A_Root_Reports_Nothing()
@@ -26,6 +28,7 @@ public sealed class CoverageCheckTests
         Assert.DoesNotContain(findings, finding => finding.Subject == "aggregate/lending.outbox");
     }
 
+    /// <summary>Entity Aggregate Without A Root Still Reports.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Entity_Aggregate_Without_A_Root_Still_Reports()
@@ -37,6 +40,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <summary>Reaction Without A Marked Handler Reports Reaction Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Reaction_Without_A_Marked_Handler_Reports_Reaction_Unimplemented()
@@ -48,6 +52,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("reaction/lending.send-due-notice-on-loan-borrowed", finding.Subject);
     }
 
+    /// <summary>Job Without A Marked Host Reports Job Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Job_Without_A_Marked_Host_Reports_Job_Unimplemented()
@@ -59,6 +64,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("job/lending.nightly-due-scan", finding.Subject);
     }
 
+    /// <summary>System Without A Marked Port Reports External System Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void System_Without_A_Marked_Port_Reports_External_System_Unimplemented()
@@ -70,6 +76,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("external-system/text-gateway", finding.Subject);
     }
 
+    /// <summary>Browser Use Case Without An Endpoint Reports Use Case Unexposed.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Browser_Use_Case_Without_An_Endpoint_Reports_Use_Case_Unexposed()
@@ -82,6 +89,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <summary>Browser Use Case Without A Screen Reports Use Case Unreached.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Browser_Use_Case_Without_A_Screen_Reports_Use_Case_Unreached()
@@ -94,6 +102,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <summary>Declared Edge No Code Takes Reports Effect Unimplemented.</summary>
     /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
     [Fact]
     public void Declared_Edge_No_Code_Takes_Reports_Effect_Unimplemented()
@@ -107,6 +116,7 @@ public sealed class CoverageCheckTests
     }
 
     /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteKindConsumer()
     {
         var temp = Cli.Temp("marks");

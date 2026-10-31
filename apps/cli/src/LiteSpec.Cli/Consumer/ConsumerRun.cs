@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
@@ -28,7 +29,7 @@ sealed class ConsumerRun
     /// <summary>Gets the consumer repository root.</summary>
     public string Root { get; }
 
-    /// <summary>Gets whether the report is written as JSON.</summary>
+    /// <summary>Gets a value indicating whether gets whether the report is written as JSON.</summary>
     public bool Json { get; }
 
     /// <summary>Gets the problems the checks reported.</summary>
@@ -127,7 +128,7 @@ sealed class ConsumerRun
         {
             Project = ReadJson(projectFile);
         }
-        catch (Exception cause)
+        catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
         {
             FailInput($"litespec.project.json: not valid JSON ({cause.Message})");
         }

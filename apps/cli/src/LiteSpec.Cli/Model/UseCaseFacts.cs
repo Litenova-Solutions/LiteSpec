@@ -109,7 +109,7 @@ static class UseCaseFacts
 
     /// <summary>The permission inside a self() grant, or the value itself.</summary>
     /// <param name="value">The grant value as written.</param>
-    /// <returns>The permission inside a self() grant, or the value itself.</returns>
+    /// <returns>For a self() grant, the permission it wraps; for any other value, the value unchanged.</returns>
     internal static string UnwrapSelf(string value) =>
         value.StartsWith("self(", StringComparison.Ordinal)
         && value.EndsWith(')')

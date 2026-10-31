@@ -5,35 +5,22 @@ using System.Text;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The JSON kinds a value carries.
-/// </summary>
-public enum JsonKind
-{
-    /// <summary>An object: named values in braces.</summary>
-    Object,
-    /// <summary>An array: values in brackets.</summary>
-    Array,
-    /// <summary>A string.</summary>
-    String,
-    /// <summary>A number, kept as written.</summary>
-    Number,
-    /// <summary>The literal true.</summary>
-    True,
-    /// <summary>The literal false.</summary>
-    False,
-    /// <summary>The literal null.</summary>
-    Null,
-}
-
-/// <summary>
 ///     One JSON value with the 1-based line where it starts.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public sealed class JsonText
 {
+    /// <summary>The object's properties in file order.</summary>
     private readonly List<KeyValuePair<string, JsonText>> properties;
+    /// <summary>The scalar text: the string value or the number as written.</summary>
     private readonly string value;
 
+    /// <summary>Initializes a new instance of the <see cref="JsonText"/> class.</summary>
+    /// <param name="kind">The value kind.</param>
+    /// <param name="line">The 1-based line where the value starts.</param>
+    /// <param name="value">The scalar text.</param>
+    /// <param name="properties">The object's properties.</param>
+    /// <param name="items">The array's items.</param>
     private JsonText(JsonKind kind, int line, string value, List<KeyValuePair<string, JsonText>> properties, List<JsonText> items)
     {
         Kind = kind;
@@ -43,13 +30,13 @@ public sealed class JsonText
         Items = items;
     }
 
-    /// <summary>The value's kind.</summary>
+    /// <summary>Gets the value's kind.</summary>
     public JsonKind Kind { get; }
 
-    /// <summary>The 1-based line where the value starts.</summary>
+    /// <summary>Gets the 1-based line where the value starts.</summary>
     public int Line { get; }
 
-    /// <summary>The array's items, in order; empty when the value is no array.</summary>
+    /// <summary>Gets the array's items, in order; empty when the value is no array.</summary>
     public IReadOnlyList<JsonText> Items { get; }
 
     /// <summary>
@@ -77,6 +64,7 @@ public sealed class JsonText
     }
 
     /// <summary>The string's unescaped text, or null when the value is no string.</summary>
+    /// <returns>The string text, or null when the value is no string.</returns>
     public string? GetString() => Kind == JsonKind.String ? value : null;
 
     /// <summary>
@@ -87,16 +75,25 @@ public sealed class JsonText
     /// <exception cref="JsonTextException">The text is no JSON; the message names the line.</exception>
     public static JsonText Parse(string text) => new Parser(text).Parse();
 
+    /// <summary>The recursive-descent parser for one JSON text.</summary>
     private sealed class Parser
     {
+        /// <summary>The deepest nesting the parser accepts.</summary>
         private const int MaxDepth = 64;
 
+        /// <summary>The JSON text to parse.</summary>
         private readonly string text;
+        /// <summary>The offset of the next character.</summary>
         private int at;
+        /// <summary>The 1-based line of the next character.</summary>
         private int line = 1;
 
+        /// <summary>Initializes a new instance of the <see cref="Parser"/> class.</summary>
+        /// <param name="text">The JSON text to parse.</param>
         public Parser(string text) => this.text = text;
 
+        /// <summary>Parses the whole text as one JSON value.</summary>
+        /// <returns>The parsed value.</returns>
         public JsonText Parse()
         {
             SkipGaps();
@@ -118,6 +115,9 @@ public sealed class JsonText
             return value;
         }
 
+        /// <summary>Parses one value at the current offset.</summary>
+        /// <param name="depth">The nesting depth of the value.</param>
+        /// <returns>The parsed value.</returns>
         private JsonText ParseValue(int depth)
         {
             if (depth > MaxDepth)
@@ -169,6 +169,10 @@ public sealed class JsonText
             throw Fail("a value");
         }
 
+        /// <summary>Parses one object at the current offset.</summary>
+        /// <param name="start">The 1-based line where the object starts.</param>
+        /// <param name="depth">The nesting depth of the object.</param>
+        /// <returns>The parsed object.</returns>
         private JsonText ParseObject(int start, int depth)
         {
             Next();
@@ -232,6 +236,10 @@ public sealed class JsonText
             }
         }
 
+        /// <summary>Parses one array at the current offset.</summary>
+        /// <param name="start">The 1-based line where the array starts.</param>
+        /// <param name="depth">The nesting depth of the array.</param>
+        /// <returns>The parsed array.</returns>
         private JsonText ParseArray(int start, int depth)
         {
             Next();
@@ -278,6 +286,8 @@ public sealed class JsonText
             }
         }
 
+        /// <summary>Parses one string at the current offset.</summary>
+        /// <returns>The unescaped string text.</returns>
         private string ParseString()
         {
             Next();
@@ -315,6 +325,8 @@ public sealed class JsonText
             }
         }
 
+        /// <summary>Parses one escape sequence at the current offset.</summary>
+        /// <returns>The escaped text.</returns>
         private string ParseEscape()
         {
             Next();
@@ -343,6 +355,8 @@ public sealed class JsonText
             }
         }
 
+        /// <summary>Parses one unicode escape at the current offset.</summary>
+        /// <returns>The escaped character text.</returns>
         private string ParseUnicode()
         {
             var high = ParseHex4();
@@ -368,6 +382,8 @@ public sealed class JsonText
             return ((char)high).ToString();
         }
 
+        /// <summary>Parses four hex digits at the current offset.</summary>
+        /// <returns>The hex value.</returns>
         private int ParseHex4()
         {
             if (at + 4 > text.Length)
@@ -407,6 +423,8 @@ public sealed class JsonText
             return value;
         }
 
+        /// <summary>Parses one number at the current offset.</summary>
+        /// <returns>The number as written.</returns>
         private string ParseNumber()
         {
             var start = at;
@@ -475,6 +493,8 @@ public sealed class JsonText
             return text.Substring(start, at - start);
         }
 
+        /// <summary>Reads one literal at the current offset.</summary>
+        /// <param name="literal">The literal to read.</param>
         private void ReadLiteral(string literal)
         {
             if (at + literal.Length <= text.Length
@@ -491,6 +511,7 @@ public sealed class JsonText
             throw Fail("a value");
         }
 
+        /// <summary>Skips whitespace at the current offset.</summary>
         private void SkipGaps()
         {
             while (at < text.Length)
@@ -506,6 +527,7 @@ public sealed class JsonText
             }
         }
 
+        /// <summary>Advances to the next character, counting lines.</summary>
         private void Next()
         {
             if (text[at] == '\n')
@@ -516,27 +538,19 @@ public sealed class JsonText
             at++;
         }
 
+        /// <summary>Creates an empty property list.</summary>
+        /// <returns>An empty property list.</returns>
         private static List<KeyValuePair<string, JsonText>> NoProperties() =>
             new List<KeyValuePair<string, JsonText>>();
 
+        /// <summary>Creates an empty item list.</summary>
+        /// <returns>An empty item list.</returns>
         private static List<JsonText> NoItems() => new List<JsonText>();
 
+        /// <summary>Builds the parse error for the current line.</summary>
+        /// <param name="want">What was wanted.</param>
+        /// <returns>The parse error.</returns>
         private JsonTextException Fail(string want) =>
             new JsonTextException($"Invalid JSON on line {line}: expected {want}.", line);
     }
-}
-
-/// <summary>
-///     The parse error a JSON text carries: what was wanted, and the 1-based line.
-/// </summary>
-public sealed class JsonTextException : Exception
-{
-    /// <summary>Builds the error for the line.</summary>
-    /// <param name="message">What was wanted, naming the line.</param>
-    /// <param name="line">The 1-based line.</param>
-    public JsonTextException(string message, int line)
-        : base(message) => Line = line;
-
-    /// <summary>The 1-based line holding the error.</summary>
-    public int Line { get; }
 }

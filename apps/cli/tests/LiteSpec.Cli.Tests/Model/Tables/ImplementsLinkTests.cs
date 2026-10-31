@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 /// <summary>Proves a reaction or job links its record through its mark.</summary>
 public sealed class ImplementsLinkTests
 {
+    /// <summary>Reaction Without A Tag But With An Implements Link Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_Without_A_Tag_But_With_An_Implements_Link_Passes()
@@ -22,6 +23,7 @@ public sealed class ImplementsLinkTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Implementing Its Reaction Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_Implementing_Its_Reaction_Record_Passes()
@@ -37,6 +39,7 @@ public sealed class ImplementsLinkTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Marking A Record Of Another Kind Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reaction_Marking_A_Record_Of_Another_Kind_Reports_Mark_Unresolved()
@@ -57,6 +60,7 @@ public sealed class ImplementsLinkTests
         Assert.Contains("mark-unknown", codes);
     }
 
+    /// <summary>Job Without A Tag But With An Implements Link Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Job_Without_A_Tag_But_With_An_Implements_Link_Passes()
@@ -72,6 +76,7 @@ public sealed class ImplementsLinkTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Mark Naming No Record Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
@@ -90,6 +95,7 @@ public sealed class ImplementsLinkTests
         Assert.Contains("mark-unknown", codes);
     }
 
+    /// <summary>Reaction Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reaction_Without_A_Mark_Reports_Mark_Missing()

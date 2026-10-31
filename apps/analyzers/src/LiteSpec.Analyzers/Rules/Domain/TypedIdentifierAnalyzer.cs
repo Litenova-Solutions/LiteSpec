@@ -17,8 +17,16 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1012);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the typed identifier analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var guid = context.Compilation.GetTypeByMetadataName("System.Guid");
@@ -26,6 +34,10 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
         context.RegisterSymbolAction(symbol => Analyze(symbol, guid, reported), SymbolKind.NamedType);
     }
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="guid">The guid supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="reported">The reported this operation works with.</param>
     private static void Analyze(
         SymbolAnalysisContext context, INamedTypeSymbol? guid, ConcurrentDictionary<ISymbol, byte> reported)
     {
@@ -44,6 +56,11 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
         AnalyzeTypeArgument(context, type, guid, reported);
     }
 
+    /// <summary>Analyzes the type argument.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="guid">The guid supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="reported">The reported this operation works with.</param>
     private static void AnalyzeTypeArgument(
         SymbolAnalysisContext context, INamedTypeSymbol type, INamedTypeSymbol? guid, ConcurrentDictionary<ISymbol, byte> reported)
     {
@@ -83,6 +100,10 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the type is well formed identifier; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="guid">The guid supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>True when the type is well formed identifier; otherwise false.</returns>
     private static bool IsWellFormedIdentifier(INamedTypeSymbol type, INamedTypeSymbol? guid)
     {
         if (!type.IsRecord || type.TypeKind != TypeKind.Struct || !type.IsReadOnly)
@@ -120,6 +141,9 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
         return true;
     }
 
+    /// <summary>Returns the type location.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The type location.</returns>
     private static Location BaseTypeLocation(INamedTypeSymbol type)
     {
         if (type.DeclaringSyntaxReferences.Length != 0

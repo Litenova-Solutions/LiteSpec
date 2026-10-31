@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2006, the endpoint suffix.</summary>
 public sealed class EndpointNamingAnalyzerTests
 {
+    /// <summary>LS2006 reports an endpoint without its suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 reports an endpoint without its suffix")]
     public Task ReportsAnEndpointWithoutItsSuffix() =>
@@ -19,6 +21,8 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2006 accepts an endpoint with its suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 accepts an endpoint with its suffix")]
     public Task AcceptsAnEndpointWithItsSuffix() =>
@@ -32,6 +36,8 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2006 ignores a class that implements no endpoint contract.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 ignores a class that implements no endpoint contract")]
     public Task IgnoresANonEndpoint() =>
@@ -43,6 +49,8 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2006 ignores an endpoint outside WebApi.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 ignores an endpoint outside WebApi")]
     public Task IgnoresEndpointOutsideWebApi() =>
@@ -56,6 +64,8 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2006 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

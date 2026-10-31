@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the fail-loud reader side: Worker code is read like every backend layer, and the CI environment variable is visible to the severity decision.</summary>
 public sealed class FailLoudTests
 {
+    /// <summary>Worker Root Defaults To The Worker Project.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Worker_Root_Defaults_To_The_Worker_Project()
@@ -22,6 +23,7 @@ public sealed class FailLoudTests
             config.WorkerRoot);
     }
 
+    /// <summary>Worker Root Follows The Declared Path.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Worker_Root_Follows_The_Declared_Path()
@@ -34,6 +36,7 @@ public sealed class FailLoudTests
         Assert.Equal(Path.GetFullPath(Path.Combine(temp.Path, "src", "Worker")), config.WorkerRoot);
     }
 
+    /// <summary>Job In Worker Is Discovered.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Job_In_Worker_Is_Discovered()
@@ -56,6 +59,7 @@ public sealed class FailLoudTests
         Assert.Equal("job/lending.remind-overdue-borrowers", job.RecordId);
     }
 
+    /// <summary>Job Trigger Steps Are Read From Proof.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Job_Trigger_Steps_Are_Read_From_Proof()
@@ -68,6 +72,7 @@ public sealed class FailLoudTests
         Assert.Equal(["ClockSteps"], ConsumerConfig.Load(temp.Path).JobTriggerSteps);
     }
 
+    /// <summary>Continuous Integration Is Set When The CI Variable Is Set.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Continuous_Integration_Is_Set_When_The_CI_Variable_Is_Set()
@@ -88,6 +93,7 @@ public sealed class FailLoudTests
         }
     }
 
+    /// <summary>Continuous Integration Is Unset When The CI Variable Is Absent.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Continuous_Integration_Is_Unset_When_The_CI_Variable_Is_Absent()

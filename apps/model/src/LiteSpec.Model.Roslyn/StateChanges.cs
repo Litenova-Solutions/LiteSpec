@@ -58,6 +58,10 @@ public static class StateChanges
         return false;
     }
 
+    /// <summary>Whether the method assigns a state field directly.</summary>
+    /// <param name="method">The method to read.</param>
+    /// <param name="fields">The owner's field and property names.</param>
+    /// <returns>True when the method assigns the state of its owner.</returns>
     private static bool Assigns(MethodDeclarationSyntax method, HashSet<string> fields)
     {
         var shadowed = ShadowedNames(method);
@@ -93,6 +97,11 @@ public static class StateChanges
         return false;
     }
 
+    /// <summary>Whether an assignment target writes owner state.</summary>
+    /// <param name="target">The assignment target.</param>
+    /// <param name="fields">The owner's field and property names.</param>
+    /// <param name="shadowed">The parameter and local names that shadow owner members.</param>
+    /// <returns>True when the target writes the state of the owner.</returns>
     private static bool WritesState(ExpressionSyntax target, HashSet<string> fields, HashSet<string> shadowed)
     {
         switch (target)
@@ -110,6 +119,9 @@ public static class StateChanges
         }
     }
 
+    /// <summary>Reads the field and property names a type declares.</summary>
+    /// <param name="owner">The type to read.</param>
+    /// <returns>The owner's field and property names.</returns>
     private static HashSet<string> OwnerFields(TypeDeclarationSyntax owner)
     {
         var fields = new HashSet<string>(StringComparer.Ordinal);
@@ -138,6 +150,9 @@ public static class StateChanges
         return fields;
     }
 
+    /// <summary>Reads the parameter and local names that shadow owner members.</summary>
+    /// <param name="method">The method to read.</param>
+    /// <returns>The names declared inside the method.</returns>
     private static HashSet<string> ShadowedNames(MethodDeclarationSyntax method)
     {
         var shadowed = new HashSet<string>(StringComparer.Ordinal);
@@ -163,6 +178,10 @@ public static class StateChanges
         return shadowed;
     }
 
+    /// <summary>Finds a private method of the type by name.</summary>
+    /// <param name="parent">The type declaring the method.</param>
+    /// <param name="name">The method name.</param>
+    /// <returns>The method, or null when the type declares no private method with the name.</returns>
     private static MethodDeclarationSyntax? FindPrivateMethod(TypeDeclarationSyntax parent, string name)
     {
         foreach (var candidate in parent.Members.OfType<MethodDeclarationSyntax>())
@@ -176,6 +195,9 @@ public static class StateChanges
         return null;
     }
 
+    /// <summary>Whether the method is private: no public, internal, or protected modifier.</summary>
+    /// <param name="method">The method to test.</param>
+    /// <returns>True when the method is private.</returns>
     private static bool IsPrivate(MethodDeclarationSyntax method)
     {
         foreach (var modifier in method.Modifiers)
@@ -191,6 +213,9 @@ public static class StateChanges
         return true;
     }
 
+    /// <summary>Reads the simple name an invocation calls.</summary>
+    /// <param name="invocation">The invocation to read.</param>
+    /// <returns>The called name, or null when the invocation calls no simple name.</returns>
     private static string? InvocationName(InvocationExpressionSyntax invocation)
     {
         switch (invocation.Expression)

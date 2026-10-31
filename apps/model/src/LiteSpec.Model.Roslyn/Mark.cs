@@ -14,7 +14,7 @@ namespace LiteSpec.Model.Roslyn;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class Mark : IEquatable<Mark>
 {
-    /// <summary>Creates a mark.</summary>
+    /// <summary>Initializes a new instance of the <see cref="Mark"/> class.Creates a mark.</summary>
     /// <param name="recordId">The record identifier, or empty when malformed.</param>
     /// <param name="style">The style the mark was written in.</param>
     /// <param name="verb">The verb the mark was written with.</param>
@@ -38,25 +38,25 @@ public sealed class Mark : IEquatable<Mark>
         Span = span;
     }
 
-    /// <summary>The record identifier, or empty when the mark is malformed.</summary>
+    /// <summary>Gets the record identifier, or empty when the mark is malformed.</summary>
     public string RecordId { get; }
 
-    /// <summary>The style the mark was written in.</summary>
+    /// <summary>Gets the style the mark was written in.</summary>
     public MarkStyle Style { get; }
 
-    /// <summary>The verb the mark was written with.</summary>
+    /// <summary>Gets the verb the mark was written with.</summary>
     public MarkVerb Verb { get; }
 
-    /// <summary>The 1-based line of the mark.</summary>
+    /// <summary>Gets the 1-based line of the mark.</summary>
     public int Line { get; }
 
     /// <summary>
-    ///     The span of the identifier text when present, otherwise the span of the
+    ///     Gets the span of the identifier text when present, otherwise the span of the
     ///     mark that carries it.
     /// </summary>
     public TextSpan Span { get; }
 
-    /// <summary>Whether the mark names a record: false for a malformed mark.</summary>
+    /// <summary>Gets a value indicating whether whether the mark names a record: false for a malformed mark.</summary>
     public bool HasRecordId => RecordId.Length != 0;
 
     /// <inheritdoc />

@@ -6,9 +6,11 @@ namespace LiteSpec.Analyzers.Generation;
 /// <summary>Every diagnostic the generator reports.</summary>
 internal static class GeneratorDiagnostics
 {
+    /// <summary>The provision the related descriptors enforce: generate runtime values from the records (litespec/backend/dotnet/stack#generate-runtime-values-from-the-records).</summary>
     private static readonly Provision RuntimeValues =
         Provision.Of("backend/dotnet/stack", "generate-runtime-values-from-the-records");
 
+    /// <summary>The provision the registry descriptors enforce: generate the registry permissions and roles from the records (litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records).</summary>
     private static readonly Provision RegistryPermissionsAndRoles =
         Provision.Of("backend/dotnet/stack", "generate-the-registry-permissions-and-roles-from-the-records");
 

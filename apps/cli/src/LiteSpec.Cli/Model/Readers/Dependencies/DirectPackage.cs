@@ -12,6 +12,6 @@ namespace LiteSpec.Model.Readers.Dependencies;
 /// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
 sealed record DirectPackage(string Ecosystem, string Name, string Version, string License, string File)
 {
-    /// <summary>The package id: the ecosystem and name joined by a colon.</summary>
+    /// <summary>Gets the package id: the ecosystem and name joined by a colon.</summary>
     public string Id => $"{Ecosystem}:{Name}";
 }

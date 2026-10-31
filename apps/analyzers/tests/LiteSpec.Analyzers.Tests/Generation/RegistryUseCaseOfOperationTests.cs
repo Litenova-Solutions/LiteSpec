@@ -10,6 +10,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the registry's operation-name-to-use-case answer in WebApi projects.</summary>
 public sealed class RegistryUseCaseOfOperationTests
 {
+    /// <summary>A WebApi project maps each endpoint operation name to its use case.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A WebApi project maps each endpoint operation name to its use case")]
     public void WebApiMapsOperationNamesToUseCases()
@@ -44,11 +45,12 @@ public sealed class RegistryUseCaseOfOperationTests
         var assembly = Emit(sources, run, "Shop.WebApi");
         var lookup = Lookup(assembly);
 
-        Assert.Equal("use-case/spending.submit-expense", lookup.Invoke(null, new object[] { "SubmitExpense" }));
-        Assert.Equal("use-case/spending.export-expense-report", lookup.Invoke(null, new object[] { "ExportExpenseReport" }));
-        Assert.Null(lookup.Invoke(null, new object[] { "Unknown" }));
+        Assert.Equal("use-case/spending.submit-expense", lookup.Invoke(null, ["SubmitExpense"]));
+        Assert.Equal("use-case/spending.export-expense-report", lookup.Invoke(null, ["ExportExpenseReport"]));
+        Assert.Null(lookup.Invoke(null, ["Unknown"]));
     }
 
+    /// <summary>A WebApi project without marked endpoints maps no operation.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A WebApi project without marked endpoints maps no operation")]
     public void WebApiWithoutMarkedEndpointsMapsNothing()
@@ -67,6 +69,7 @@ public sealed class RegistryUseCaseOfOperationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A non-WebApi registry carries no operation lookup.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A non-WebApi registry carries no operation lookup")]
     public void NonWebApiRegistryHasNoOperationLookup()

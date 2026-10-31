@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the release stage and its deferral exceptions.</summary>
 public sealed partial class ConsumerValidatorTests
 {
     static JsonObject StageSelection(Action<JsonObject>? extend = null)
@@ -21,6 +22,9 @@ public sealed partial class ConsumerValidatorTests
     ///     record shape a pre-production consumer defers with. Every sentence stays
     ///     inside the prose measures, so the cases prove the checks.
     /// </summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="provision">The provision id the deferral covers.</param>
+    /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
     static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
         ConsumerFixture.WriteFile(root, "docs/governance/exceptions/stage-deferral.md", ConsumerFixture.Page(
             ConsumerFixture.Meta(
@@ -37,6 +41,7 @@ public sealed partial class ConsumerValidatorTests
 
             """));
 
+    /// <summary>Stage selection with its release stage and a live deferral.</summary>
     /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "stage selection with its release stage and a live deferral")]
@@ -54,6 +59,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Stage selection without a release stage.</summary>
     /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection without a release stage")]
     public void StageSelectionWithoutAReleaseStage()
@@ -66,6 +72,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "releaseStage");
     }
 
+    /// <summary>Stage selection with an unknown release stage.</summary>
     /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection with an unknown release stage")]
     public void StageSelectionWithAnUnknownReleaseStage()
@@ -81,6 +88,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/releaseStage");
     }
 
+    /// <summary>Release stage on another extension.</summary>
     /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "release stage on another extension")]
     public void ReleaseStageOnAnotherExtension()
@@ -100,6 +108,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/id");
     }
 
+    /// <summary>Production stage that still defers.</summary>
     /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "production stage that still defers")]
     public void ProductionStageThatStillDefers()
@@ -116,6 +125,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "declares production and still defers");
     }
 
+    /// <summary>Deferral of a provision the standards do not hold.</summary>
     /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "deferral of a provision the standards do not hold")]
     public void DeferralOfAProvisionTheStandardsDoNotHold()
@@ -132,6 +142,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "is not a provision in the pinned LiteSpec release");
     }
 
+    /// <summary>Deferral past its end date stays silent here.</summary>
     /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "deferral past its end date stays silent here")]
     public void DeferralPastItsEndDateStaysSilentHere()

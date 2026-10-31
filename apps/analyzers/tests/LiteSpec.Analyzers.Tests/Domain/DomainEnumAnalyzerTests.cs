@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1002, enums in Domain.</summary>
 public sealed class DomainEnumAnalyzerTests
 {
+    /// <summary>LS1002 reports an enum declared in Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 reports an enum declared in Domain")]
     public Task ReportsAnEnumInDomain() =>
@@ -15,6 +17,8 @@ public sealed class DomainEnumAnalyzerTests
             public enum {|LS1002:OrderStatus|} { Draft, Placed }
             """);
 
+    /// <summary>LS1002 accepts a closed record hierarchy.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 accepts a closed record hierarchy")]
     public Task AcceptsARecordHierarchy() =>
@@ -26,6 +30,8 @@ public sealed class DomainEnumAnalyzerTests
             public sealed record Draft() : OrderStatus("draft");
             """);
 
+    /// <summary>LS1002 ignores an enum outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 ignores an enum outside Domain")]
     public Task IgnoresAnEnumOutsideDomain() =>
@@ -35,6 +41,8 @@ public sealed class DomainEnumAnalyzerTests
             public enum ResponseShape { Full, Summary }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1002 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

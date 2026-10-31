@@ -84,5 +84,8 @@ public static class Authority
         return effective;
     }
 
+    /// <summary>Whether the status counts as live: approved or reviewed.</summary>
+    /// <param name="status">The status to test.</param>
+    /// <returns>True when the status is approved or reviewed.</returns>
     private static bool Live(string status) => status is "approved" or "reviewed";
 }

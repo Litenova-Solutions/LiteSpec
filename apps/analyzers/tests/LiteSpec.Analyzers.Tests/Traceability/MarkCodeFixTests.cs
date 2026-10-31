@@ -8,6 +8,8 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests every traceability code fix: the before and after, and the Fix All policy.</summary>
 public sealed class MarkCodeFixTests
 {
+    /// <summary>Add mark offers one action per candidate record titled with the record title.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark offers one action per candidate record titled with the record title")]
     public Task AddMarkOffersOneActionPerCandidate() =>
@@ -50,6 +52,8 @@ public sealed class MarkCodeFixTests
             true,
             2);
 
+    /// <summary>Add mark writes an attribute when the project declares attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark writes an attribute when the project declares attribute")]
     public Task AddMarkWritesAnAttribute() =>
@@ -89,6 +93,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Add mark writes a proves tag on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark writes a proves tag on a test")]
     public Task AddMarkWritesAProvesTagOnATest() =>
@@ -128,6 +134,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Scenario()],
             "Shop.Domain.Tests");
 
+    /// <summary>Add mark offers a test its scenarios only.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark offers a test its scenarios only")]
     public Task AddMarkOffersATestItsScenariosOnly() =>
@@ -170,6 +178,8 @@ public sealed class MarkCodeFixTests
             true,
             1);
 
+    /// <summary>Correct mark offers the three nearest records of the expected type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Correct mark offers the three nearest records of the expected type")]
     public Task CorrectMarkOffersTheThreeNearestRecords() =>
@@ -216,6 +226,8 @@ public sealed class MarkCodeFixTests
             "Shop.Application",
             expectedActionCount: 3);
 
+    /// <summary>Convert mark turns a documentation tag into an attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a documentation tag into an attribute")]
     public Task ConvertMarkTurnsATagIntoAnAttribute() =>
@@ -256,6 +268,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Convert mark turns a follows tag into an attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a follows tag into an attribute")]
     public Task ConvertMarkTurnsAFollowsTagIntoAnAttribute() =>
@@ -288,6 +302,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), Decision()],
             "Shop.Application");
 
+    /// <summary>Convert mark turns a follows attribute into a documentation tag.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns a follows attribute into a documentation tag")]
     public Task ConvertMarkTurnsAFollowsAttributeIntoATag() =>
@@ -332,6 +348,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Decision()],
             "Shop.Application");
 
+    /// <summary>Add mark offers no action for a technical class with no sibling handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Add mark offers no action for a technical class with no sibling handler")]
     public async Task AddMarkOffersNoActionForATechnicalClassWithNoSibling()
@@ -354,6 +372,8 @@ public sealed class MarkCodeFixTests
         Assert.Empty(titles);
     }
 
+    /// <summary>Add mark offers the sibling handler's use case for a technical class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Add mark offers the sibling handler's use case for a technical class")]
     public Task AddMarkOffersTheSiblingHandlersUseCase() =>
@@ -413,6 +433,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), UseCase()],
             "Shop.Application");
 
+    /// <summary>Convert mark turns an attribute into a documentation tag.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark turns an attribute into a documentation tag")]
     public Task ConvertMarkTurnsAnAttributeIntoATag() =>
@@ -463,6 +485,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), UseCase()],
             "Shop.Application");
 
+    /// <summary>Add partial declares the type partial.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     [Fact(DisplayName = "Add partial declares the type partial")]
     public Task AddPartialDeclaresTheTypePartial() =>
@@ -487,6 +511,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Event()],
             "Shop.Domain");
 
+    /// <summary>Delete value removes the drifting hand-written Classification.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Delete value removes the drifting hand-written Classification")]
     public Task DeleteValueRemovesTheDriftingClassification() =>
@@ -516,6 +542,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Event()],
             "Shop.Domain");
 
+    /// <summary>Delete value removes the hand-written value equal to the record.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Delete value removes the hand-written value equal to the record")]
     public Task DeleteValueRemovesTheValueEqualToTheRecord() =>
@@ -545,6 +573,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Event()],
             "Shop.Domain");
 
+    /// <summary>Fix All converts every mark across the solution.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Fix All converts every mark across the solution")]
     public Task FixAllConvertsEveryMark() =>
@@ -623,6 +653,7 @@ public sealed class MarkCodeFixTests
             "ConvertMarkStyle",
             "Shop.Application");
 
+    /// <summary>Add mark and correct mark offer no Fix All.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark and correct mark offer no Fix All")]
     public void AddMarkAndCorrectMarkOfferNoFixAll()
@@ -631,6 +662,7 @@ public sealed class MarkCodeFixTests
         Assert.Null(new CorrectMarkCodeFixProvider().GetFixAllProvider());
     }
 
+    /// <summary>Convert mark, add partial and delete value offer Fix All.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     /// <proves>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</proves>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
@@ -642,6 +674,8 @@ public sealed class MarkCodeFixTests
         Assert.NotNull(new DeleteHandWrittenValueCodeFixProvider().GetFixAllProvider());
     }
 
+    /// <summary>Add mark writes a qualified attribute that compiles with the generator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark writes a qualified attribute that compiles with the generator")]
     public Task AddMarkWritesQualifiedAttributeCompilingWithGenerator() =>
@@ -681,6 +715,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Convert mark writes a qualified attribute that compiles with the generator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark writes a qualified attribute that compiles with the generator")]
     public Task ConvertMarkWritesQualifiedAttributeCompilingWithGenerator() =>
@@ -721,6 +757,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Add mark ranks the module-folder exact match first in the real layout.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark ranks the module-folder exact match first in the real layout")]
     public async Task AddMarkRanksModuleFolderExactFirst()
@@ -747,6 +785,8 @@ public sealed class MarkCodeFixTests
         Assert.Equal(["Submit expense", "Submit billing expense"], titles);
     }
 
+    /// <summary>Add mark falls back to identifier order with no exact home.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark falls back to identifier order with no exact home")]
     public async Task AddMarkFallsBackToIdentifierOrder()
@@ -773,6 +813,8 @@ public sealed class MarkCodeFixTests
         Assert.Equal(["Submit billing expense", "Submit expense"], titles);
     }
 
+    /// <summary>Add mark keeps the summary and adds the tag after it.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark keeps the summary and adds the tag after it")]
     public Task AddMarkKeepsSummary() =>
@@ -814,6 +856,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), UseCase()],
             "Shop.Application");
 
+    /// <summary>Add mark keeps the summary and adds the qualified attribute after it.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Add mark keeps the summary and adds the qualified attribute after it")]
     public Task AddMarkAttributeKeepsSummary() =>
@@ -855,6 +899,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Convert mark to attribute keeps the summary.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark to attribute keeps the summary")]
     public Task ConvertMarkToAttributeKeepsSummary() =>
@@ -897,6 +943,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    /// <summary>Convert mark to tag keeps the summary.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Convert mark to tag keeps the summary")]
     public Task ConvertMarkToXmlKeepsSummary() =>

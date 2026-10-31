@@ -12,6 +12,8 @@ namespace LiteSpec.Model.Checks;
 internal static class LinkChecks
 {
     /// <summary>Reports link-unknown.</summary>
+    /// <param name="model">The loaded project model that holds every record page body and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var found = new System.Collections.Concurrent.ConcurrentBag<Finding>();
@@ -45,6 +47,8 @@ internal static class LinkChecks
     }
 
     /// <summary>Blanks fenced and inline code, keeping offsets and line breaks, so links in examples are not read.</summary>
+    /// <param name="text">The page body text whose code spans are blanked.</param>
+    /// <returns>The text with fenced and inline code replaced by spaces, keeping every offset and line break.</returns>
     private static string WithoutCode(string text)
     {
         static string Blank(Match match) => Regex.Replace(match.Value, @"[^\r\n]", " ");
@@ -53,11 +57,15 @@ internal static class LinkChecks
         return InlineCode.Replace(fenced, Blank);
     }
 
+    /// <summary>Finds each Markdown link and image target in a page body.</summary>
     private static readonly Regex MarkdownLink = new(@"!?\[[^\]\r\n]*\]\((?<target>[^)\s]+)(?:\s+""[^""]*"")?\)", RegexOptions.Compiled);
 
+    /// <summary>Matches a URI scheme prefix, so external targets are left unchecked.</summary>
     private static readonly Regex UriScheme = new(@"^[a-zA-Z][a-zA-Z0-9+.-]*:", RegexOptions.Compiled);
 
+    /// <summary>Matches one fenced code block from its opening fence to its closing fence.</summary>
     private static readonly Regex FencedCode = new(@"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\r\n]*$", RegexOptions.Compiled);
 
+    /// <summary>Matches one inline code span delimited by single backticks.</summary>
     private static readonly Regex InlineCode = new(@"`[^`\r\n]*`", RegexOptions.Compiled);
 }

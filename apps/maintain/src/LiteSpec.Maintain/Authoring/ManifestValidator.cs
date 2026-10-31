@@ -78,6 +78,7 @@ internal sealed partial class ManifestValidator
     /// <summary>Checks the manifest references, stacks, shapes, and extensions.</summary>
     /// <param name="activeIds">The active provision identifiers.</param>
     /// <param name="provisionsByPage">The provisions of each page, by relative path.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckManifest reports a manifest that cannot be read or parsed as a MANIFEST_JSON diagnostic instead of crashing the validation run on malformed repository input.")]
     internal void CheckManifest(HashSet<string> activeIds, Dictionary<string, List<Provision>> provisionsByPage)
     {
         var root = Context.Root;
@@ -557,6 +558,7 @@ internal sealed partial class ManifestValidator
     // A schema id is the URL a consumer's editor fetches, so it names the release that
     // ships the schema: a pinned consumer keeps resolving the shape it reviewed.
     /// <summary>Checks that every schema id names its published home and release.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckSchemaIds reports a schema or manifest that cannot be read or parsed as a diagnostic, or skips it, instead of crashing the validation run on malformed repository input.")]
     internal void CheckSchemaIds()
     {
         var root = Context.Root;
@@ -613,6 +615,7 @@ internal sealed partial class ManifestValidator
     /// <summary>Validates one shipped value against one shipped schema.</summary>
     /// <param name="schemaRelative">The schema path, relative to the root.</param>
     /// <param name="valueRelative">The value path, relative to the root.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ValidateSchemaConsumer reports a schema, value, or validation failure as a SCHEMA_JSON diagnostic or a collected error instead of crashing the validation run on malformed repository input.")]
     internal void ValidateSchemaConsumer(string schemaRelative, string valueRelative)
     {
         var root = Context.Root;
@@ -698,6 +701,7 @@ internal sealed partial class ManifestValidator
 
     /// <summary>Reads the pinned analyzer package version from the manifest, or null when there is none.</summary>
     /// <returns>The pinned version, or null.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadAnalyzerPin returns null when the manifest cannot be read or parsed, so a malformed manifest reads as no pin instead of crashing the validation run.")]
     internal string? ReadAnalyzerPin()
     {
         var root = Context.Root;
@@ -819,7 +823,7 @@ internal sealed partial class ManifestValidator
     /// <param name="release">The release version.</param>
     /// <param name="pin">The pinned version.</param>
     /// <returns>True when the release is at or before the pin.</returns>
-    private bool ReleaseAtOrBefore(string release, string pin)
+    private static bool ReleaseAtOrBefore(string release, string pin)
     {
         if (System.Version.TryParse(release, out var releaseVersion) && System.Version.TryParse(pin, out var pinVersion))
         {

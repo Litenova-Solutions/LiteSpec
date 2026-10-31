@@ -17,12 +17,22 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2012);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the handler authorization analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterOperationAction(AnalyzeThrow, OperationKind.Throw);
 
+    /// <summary>Analyzes the throw.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeThrow(OperationAnalysisContext context)
     {
         var throwOperation = (IThrowOperation)context.Operation;
@@ -51,6 +61,9 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
             Descriptors.LS2012, location, handler.Name, thrown.Type.Name));
     }
 
+    /// <summary>Returns true when the type is command or query handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command or query handler; otherwise false.</returns>
     private static bool IsCommandOrQueryHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -75,11 +88,17 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the type is access exception; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is access exception; otherwise false.</returns>
     private static bool IsAccessException(ITypeSymbol type) =>
         type.Name.EndsWith("ForbiddenException", StringComparison.Ordinal)
         || type.Name.EndsWith("UnauthorizedException", StringComparison.Ordinal)
         || type.Name.EndsWith("AccessDeniedException", StringComparison.Ordinal);
 
+    /// <summary>Returns the type.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static INamedTypeSymbol? InnermostType(ISymbol symbol)
     {
         for (var current = symbol; current != null; current = current.ContainingSymbol)

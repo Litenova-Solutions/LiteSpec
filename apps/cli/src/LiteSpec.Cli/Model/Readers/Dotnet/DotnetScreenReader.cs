@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -48,6 +49,10 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>Adds one <c>reader-missing</c> problem for the file, when none was added for it yet.</summary>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="reported">The files already reported, so each file reports one problem.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="message">The problem message to record for the file.</param>
     private static void AddProblem(List<Finding> problems, HashSet<string> reported, string file, string message)
     {
         if (!reported.Add(file))
@@ -62,6 +67,11 @@ static partial class DotnetScreenReader
         });
     }
 
+    /// <summary>Reads every Blazor component of the frontend, one route fact per page template it declares.</summary>
+    /// <param name="frontend">The Blazor frontend whose components are read.</param>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="reported">The files already reported, so each file reports one problem.</param>
+    /// <returns>One route fact per page template, in file, line, and address order.</returns>
     private static IReadOnlyList<RouteFact> ReadBlazor(
         FrontendConfig frontend, List<Finding> problems, HashSet<string> reported)
     {
@@ -112,6 +122,11 @@ static partial class DotnetScreenReader
             .ThenBy(route => route.Address, StringComparer.Ordinal)];
     }
 
+    /// <summary>Reads every Android destination class of the frontend, one route fact per destination.</summary>
+    /// <param name="frontend">The Android frontend whose destination classes are read.</param>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="reported">The files already reported, so each file reports one problem.</param>
+    /// <returns>One route fact per destination class, in file, line, and address order.</returns>
     private static IReadOnlyList<RouteFact> ReadAndroid(
         FrontendConfig frontend, List<Finding> problems, HashSet<string> reported)
     {
@@ -138,7 +153,7 @@ static partial class DotnetScreenReader
 
             if (parseError is not null)
             {
-                AddProblem(problems, reported, file, $"Screen file '{file}' could not be parsed: {parseError.GetMessage()}");
+                AddProblem(problems, reported, file, $"Screen file '{file}' could not be parsed: {parseError.GetMessage(CultureInfo.InvariantCulture)}");
 
                 continue;
             }
@@ -173,6 +188,8 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>Whether the class directly derives <c>Activity</c> or <c>Fragment</c>, by simple base type name.</summary>
+    /// <param name="destination">The destination class declaration whose base types are checked.</param>
+    /// <returns>True when a base type is named Activity or Fragment; otherwise false.</returns>
     private static bool DerivesDestination(ClassDeclarationSyntax destination)
     {
         if (destination.BaseList is null)
@@ -199,6 +216,8 @@ static partial class DotnetScreenReader
     ///     <c>implements</c> mark that names a record, in source order, each with
     ///     the style it was written in.
     /// </summary>
+    /// <param name="destination">The class declaration whose marks are read.</param>
+    /// <returns>The screen marks in source order, each with the style it was written in.</returns>
     private static IReadOnlyList<ScreenMark> ScreenMarks(ClassDeclarationSyntax destination) =>
         [.. MarkReader.Read(destination)
             .Where(mark => mark.Verb == MarkVerb.Implements && mark.HasRecordId)
@@ -209,6 +228,12 @@ static partial class DotnetScreenReader
     ///     <c>.razor.cs</c> file exists, else from the marks in the <c>@code</c> blocks,
     ///     read through the shared mark parser.
     /// </summary>
+    /// <param name="file">The component file path, used in problem reports.</param>
+    /// <param name="text">The component text the marks are read from.</param>
+    /// <param name="blocks">The code blocks of the text.</param>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="reported">The files already reported, so each file reports one problem.</param>
+    /// <returns>The marks from the paired code-behind class, or from the code blocks when there is none.</returns>
     private static IReadOnlyList<ScreenMark> ComponentMarks(
         string file, string text, IReadOnlyList<CodeBlock> blocks, List<Finding> problems, HashSet<string> reported)
     {
@@ -235,7 +260,7 @@ static partial class DotnetScreenReader
 
             if (parseError is not null)
             {
-                AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage()}");
+                AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage(CultureInfo.InvariantCulture)}");
 
                 return [];
             }
@@ -270,6 +295,9 @@ static partial class DotnetScreenReader
     ///     The component class of a code-behind file: the top-level class matching the component
     ///     name, else the first top-level class, else the first class of the file.
     /// </summary>
+    /// <param name="root">The syntax root of the code-behind file.</param>
+    /// <param name="stem">The component name without its extension.</param>
+    /// <returns>The matching class declaration, or null when the file declares no class.</returns>
     private static ClassDeclarationSyntax? ComponentClass(SyntaxNode root, string stem)
     {
         var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
@@ -285,6 +313,13 @@ static partial class DotnetScreenReader
     ///     Every generated-client operation the component calls: from the code-behind component
     ///     class, from each <c>@code</c> block, and from the inline markup expressions.
     /// </summary>
+    /// <param name="relative">The component path relative to the frontend root, recorded on each call.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="text">The text to scan.</param>
+    /// <param name="blocks">The code blocks of the text.</param>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="reported">The files already reported, so each file reports one problem.</param>
+    /// <returns>Every generated-client call the component makes.</returns>
     private static IReadOnlyList<CallFact> ComponentCalls(
         string relative, string file, string text, IReadOnlyList<CodeBlock> blocks,
         List<Finding> problems, HashSet<string> reported)
@@ -307,7 +342,7 @@ static partial class DotnetScreenReader
 
                 if (parseError is not null)
                 {
-                    AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage()}");
+                    AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage(CultureInfo.InvariantCulture)}");
                     behindTree = null;
                 }
                 else
@@ -387,6 +422,10 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>The code-behind path relative to the frontend root, beside its component's path.</summary>
+    /// <param name="behind">The code-behind file path to make relative.</param>
+    /// <param name="file">The component file path beside the code-behind file.</param>
+    /// <param name="relative">The component path relative to the frontend root.</param>
+    /// <returns>The code-behind path relative to the frontend root, with forward slashes.</returns>
     private static string RelativeOf(string behind, string file, string relative)
     {
         var folder = relative.Contains('/')
@@ -400,6 +439,8 @@ static partial class DotnetScreenReader
     ///     The members of the class that are typed like the generated client: fields, properties,
     ///     parameters, and locals declared with a <c>*Client</c> type or created with <c>new *Client</c>.
     /// </summary>
+    /// <param name="scope">The syntax node searched or followed.</param>
+    /// <returns>The names of the members typed or created as the generated client.</returns>
     private static HashSet<string> ClientMembers(SyntaxNode scope)
     {
         var names = new HashSet<string>(StringComparer.Ordinal);
@@ -440,6 +481,12 @@ static partial class DotnetScreenReader
     ///     Every generated-client operation invoked under the node: an <c>*Async</c> method call on
     ///     a receiver typed or named like the generated client, reported without the suffix.
     /// </summary>
+    /// <param name="tree">The syntax tree that maps nodes to source lines.</param>
+    /// <param name="relative">The file path relative to the frontend root, recorded on each call.</param>
+    /// <param name="scope">The syntax node searched or followed.</param>
+    /// <param name="clients">The names of the members that hold the generated client.</param>
+    /// <param name="lineShift">How far the block's lines sit below the file's first line.</param>
+    /// <returns>One call fact per generated-client invocation under the node, without the Async suffix.</returns>
     private static IReadOnlyList<CallFact> ClientCalls(
         SyntaxTree tree, string relative, SyntaxNode scope, HashSet<string> clients, int lineShift)
     {
@@ -490,6 +537,8 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>The rightmost identifier of a receiver: <c>_client</c> of <c>this._client</c>.</summary>
+    /// <param name="receiver">The receiver expression, or null for a bare call.</param>
+    /// <returns>The rightmost identifier text, or an empty string when the receiver has none.</returns>
     private static string Rightmost(ExpressionSyntax? receiver) => receiver switch
     {
         IdentifierNameSyntax identifier => identifier.Identifier.Text,
@@ -498,9 +547,15 @@ static partial class DotnetScreenReader
         _ => "",
     };
 
+    /// <summary>Whether the type names a generated client, by its rightmost name ending with Client.</summary>
+    /// <param name="type">The type syntax or declaration to inspect.</param>
+    /// <returns>True when the rightmost type name ends with Client; otherwise false.</returns>
     private static bool IsClientType(TypeSyntax type) =>
         RightmostType(type).EndsWith("Client", StringComparison.Ordinal);
 
+    /// <summary>The rightmost name of a type syntax, without generic arguments.</summary>
+    /// <param name="type">The type syntax or declaration to inspect.</param>
+    /// <returns>The rightmost type name text, without generic arguments.</returns>
     private static string RightmostType(TypeSyntax type) => type switch
     {
         IdentifierNameSyntax identifier => identifier.Identifier.Text,
@@ -512,6 +567,9 @@ static partial class DotnetScreenReader
         _ => "",
     };
 
+    /// <summary>Whether the value creates a generated client type.</summary>
+    /// <param name="value">The value expression that may create a client, or null when there is none.</param>
+    /// <returns>True when the value creates a client type; otherwise false.</returns>
     private static bool CreatesClient(ExpressionSyntax? value) =>
         value is ObjectCreationExpressionSyntax creation && IsClientType(creation.Type);
 
@@ -522,7 +580,9 @@ static partial class DotnetScreenReader
     ///     Every <c>@code</c> or <c>@functions</c> block of the razor text, skipping blocks
     ///     inside razor comments. Braces inside strings, characters, and comments do not count.
     /// </summary>
-    private static IReadOnlyList<CodeBlock> CodeBlocks(string text)
+    /// <param name="text">The razor text to scan for code blocks.</param>
+    /// <returns>The code blocks with their full and inner spans, in text order.</returns>
+    private static List<CodeBlock> CodeBlocks(string text)
     {
         var comments = CommentSpans(text);
         var blocks = new List<CodeBlock>();
@@ -570,7 +630,9 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>The spans of the razor comments in the text, each from <c>@*</c> to <c>*@</c>.</summary>
-    private static IReadOnlyList<(int Start, int End)> CommentSpans(string text)
+    /// <param name="text">The razor text to scan for razor comments.</param>
+    /// <returns>The razor comment spans in text order.</returns>
+    private static List<(int Start, int End)> CommentSpans(string text)
     {
         var spans = new List<(int Start, int End)>();
         var index = 0;
@@ -601,6 +663,9 @@ static partial class DotnetScreenReader
     }
 
     /// <summary>The offset of the brace closing the block opened at <c>open</c>, or null when unbalanced.</summary>
+    /// <param name="text">The razor text holding the block.</param>
+    /// <param name="open">The offset of the brace that opens the block.</param>
+    /// <returns>The offset of the closing brace, or null when the block is unbalanced.</returns>
     private static int? ClosingBrace(string text, int open)
     {
         var depth = 0;
@@ -684,6 +749,13 @@ static partial class DotnetScreenReader
         return null;
     }
 
+    /// <summary>
+    ///     The end of a verbatim string that opens at the quote, skipping doubled quotes, or null when it never
+    ///     closes.
+    /// </summary>
+    /// <param name="text">The text holding the verbatim string.</param>
+    /// <param name="quote">The offset of the opening quote.</param>
+    /// <returns>The offset of the closing quote, or null when the verbatim string is unterminated.</returns>
     private static int? VerbatimEnd(string text, int quote)
     {
         for (var index = quote + 1; index < text.Length; index++)
@@ -704,6 +776,13 @@ static partial class DotnetScreenReader
         return null;
     }
 
+    /// <summary>
+    ///     The end of a quoted string or character that opens at the quote, skipping escapes, or null when it
+    ///     never closes on the line.
+    /// </summary>
+    /// <param name="text">The text holding the quoted string.</param>
+    /// <param name="quote">The offset of the opening quote.</param>
+    /// <returns>The offset of the closing quote, or null when the string is unterminated or reaches a newline.</returns>
     private static int? QuotedEnd(string text, int quote)
     {
         var delimiter = text[quote];
@@ -731,6 +810,9 @@ static partial class DotnetScreenReader
     ///     The razor text with razor comments and <c>@code</c> blocks blanked to spaces, keeping
     ///     newlines so offsets still map to lines. Directives and markup stay readable.
     /// </summary>
+    /// <param name="text">The razor text to blank out.</param>
+    /// <param name="blocks">The code blocks of the text.</param>
+    /// <returns>The text with comments and code blocks replaced by spaces, keeping newlines.</returns>
     private static string Masked(string text, IReadOnlyList<CodeBlock> blocks)
     {
         var masked = text.ToCharArray();
@@ -748,6 +830,12 @@ static partial class DotnetScreenReader
         return new string(masked);
     }
 
+    /// <summary>
+    ///     Blanks the given span of the buffer to spaces, keeping newlines so offsets still map to lines.
+    /// </summary>
+    /// <param name="masked">The character buffer blanked in place.</param>
+    /// <param name="start">The first offset to blank.</param>
+    /// <param name="end">The offset at which blanking stops.</param>
     private static void Blank(char[] masked, int start, int end)
     {
         for (var index = start; index < end && index < masked.Length; index++)
@@ -759,9 +847,17 @@ static partial class DotnetScreenReader
         }
     }
 
+    /// <summary>The file path relative to the frontend root, with forward slashes.</summary>
+    /// <param name="frontend">The frontend whose files are read.</param>
+    /// <param name="file">The file path to make relative to the frontend root.</param>
+    /// <returns>The relative path text, using forward slashes as separators.</returns>
     private static string Relative(FrontendConfig frontend, string file) =>
         Path.GetRelativePath(frontend.Path, file).Replace(Path.DirectorySeparatorChar, '/');
 
+    /// <summary>The 1-based line that contains the character offset.</summary>
+    /// <param name="text">The text whose lines are counted.</param>
+    /// <param name="offset">The character offset whose line is wanted.</param>
+    /// <returns>The 1-based line that contains the offset.</returns>
     private static int LineOf(string text, int offset)
     {
         var line = 1;

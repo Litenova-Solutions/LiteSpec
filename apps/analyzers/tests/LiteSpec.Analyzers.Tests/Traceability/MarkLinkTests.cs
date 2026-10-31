@@ -7,6 +7,8 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests for LS5002, LS5003 and LS5004, the mark link, count and style.</summary>
 public sealed class MarkLinkTests
 {
+    /// <summary>LS5002 reports a mark naming no record.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a mark naming no record")]
     public Task ReportsAMarkNamingNoRecord() =>
@@ -30,6 +32,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a mark naming a record of the wrong type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a mark naming a record of the wrong type")]
     public Task ReportsAMarkNamingTheWrongType() =>
@@ -53,6 +57,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase(), Rule()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a mistyped attribute mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a mistyped attribute mark")]
     public Task ReportsAMistypedAttributeMark() =>
@@ -81,6 +87,8 @@ public sealed class MarkLinkTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a mark carrying no record identifier.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a mark carrying no record identifier")]
     public Task ReportsAMarkCarryingNoIdentifier() =>
@@ -104,6 +112,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a mark naming the record the element takes.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a mark naming the record the element takes")]
     public Task AcceptsAResolvingMark() =>
@@ -127,6 +137,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5003 reports a handler carrying two marks.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5003 reports a handler carrying two marks")]
     public Task ReportsAHandlerCarryingTwoMarks() =>
@@ -151,6 +163,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense")],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5003 reports one record named twice.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5003 reports one record named twice")]
     public Task ReportsOneRecordNamedTwice() =>
@@ -175,6 +189,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5003 reports a root method carrying two use-case marks.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5003 reports a root method carrying two use-case marks")]
     public Task ReportsARootMethodCarryingTwoMarks() =>
@@ -206,6 +222,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5003 accepts a root method carrying one mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5003 accepts a root method carrying one mark")]
     public Task AcceptsARootMethodCarryingOneMark() =>
@@ -236,6 +254,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 reports a mark on a reading method.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5002 reports a mark on a reading method")]
     public Task ReportsAMarkOnAReadingMethod() =>
@@ -252,6 +272,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 accepts a reading method with no mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact(DisplayName = "LS5002 accepts a reading method with no mark")]
     public Task AcceptsAReadingMethodWithNoMark() =>
@@ -267,6 +289,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 reports a mark on a private method.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a mark on a private method")]
     public Task ReportsAMarkOnAPrivateMethod() =>
@@ -293,6 +317,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 accepts a private method with no mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a private method with no mark")]
     public Task AcceptsAPrivateMethodWithNoMark() =>
@@ -318,6 +344,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 reports a proves mark on a method with no test attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark on a method with no test attribute")]
     public Task ReportsAProvesMarkWithNoTestAttribute() =>
@@ -336,6 +364,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5003 reports one record named twice on a multi-mark kind.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5003 reports one record named twice on a multi-mark kind")]
     public Task ReportsOneRecordNamedTwiceOnAMultiMarkKind() =>
@@ -367,6 +397,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5002 reports a proves mark on a handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark on a handler")]
     public Task ReportsAProvesMarkOnAHandler() =>
@@ -390,6 +422,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports an implements mark on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports an implements mark on a test")]
     public Task ReportsAnImplementsMarkOnATest() =>
@@ -413,6 +447,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark on a test")]
     public Task AcceptsAProvesMarkOnATest() =>
@@ -436,6 +472,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 on a draft record reports a warning.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact(DisplayName = "LS5002 on a draft record reports a warning")]
     public Task DraftSubjectReportsWarning() =>
@@ -459,6 +497,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase(), Rule(status: "draft")],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5004 reports an attribute mark when the project declares xml.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 reports an attribute mark when the project declares xml")]
     public Task ReportsAnAttributeMarkUnderXml() =>
@@ -487,6 +527,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5004 reports a documentation tag when the project declares attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 reports a documentation tag when the project declares attribute")]
     public Task ReportsADocumentationTagUnderAttribute() =>
@@ -510,6 +552,8 @@ public sealed class MarkLinkTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5004 accepts a mark in the declared xml style.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 accepts a mark in the declared xml style")]
     public Task AcceptsAMarkInXmlStyle() =>
@@ -533,6 +577,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5004 accepts a mark in the declared attribute style.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "LS5004 accepts a mark in the declared attribute style")]
     public Task AcceptsAMarkInAttributeStyle() =>
@@ -561,6 +607,8 @@ public sealed class MarkLinkTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a follows naming an unknown decision.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 reports a follows naming an unknown decision")]
     public Task ReportsAFollowsNamingAnUnknownDecision() =>
@@ -579,6 +627,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a follows naming a retired decision.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 reports a follows naming a retired decision")]
     public Task ReportsAFollowsNamingARetiredDecision() =>
@@ -597,6 +647,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision(status: "retired")],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports a follows naming an unknown provision.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 reports a follows naming an unknown provision")]
     public Task ReportsAFollowsNamingAnUnknownProvision() =>
@@ -615,6 +667,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a follows naming a provision of the carried release.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 accepts a follows naming a provision of the carried release")]
     public Task AcceptsAFollowsNamingAProvision() =>
@@ -633,6 +687,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a follows naming a decision or exception.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 accepts a follows naming a decision or exception")]
     public Task AcceptsAFollowsNamingADecisionOrException() =>
@@ -652,6 +708,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision(), Exception(["mark-missing"])],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a follows on a handler beside its implements.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 accepts a follows on a handler beside its implements")]
     public Task AcceptsAFollowsOnAHandler() =>
@@ -674,6 +732,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 reports an implements mark naming a non-Behavior record on a technical class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 reports an implements mark naming a non-Behavior record on a technical class")]
     public Task ReportsAnImplementsNamingNonBehaviorOnATechnicalClass() =>
@@ -692,6 +752,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts an implements mark naming a use case on a technical class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 accepts an implements mark naming a use case on a technical class")]
     public Task AcceptsAnImplementsNamingAUseCaseOnATechnicalClass() =>
@@ -710,6 +772,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a technical class with both verbs.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5002 accepts a technical class with both verbs")]
     public Task AcceptsATechnicalClassWithBothVerbs() =>
@@ -729,6 +793,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5003 reports a technical class naming one decision twice.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5003 reports a technical class naming one decision twice")]
     public Task ReportsADuplicateFollows() =>
@@ -748,6 +814,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a proves mark naming a rule on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming a rule on a test")]
     public Task AcceptsAProvesMarkNamingARuleOnATest() =>
@@ -771,6 +839,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Rule()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark naming a quality requirement on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming a quality requirement on a test")]
     public Task AcceptsAProvesMarkNamingAQualityRequirementOnATest() =>
@@ -794,6 +864,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Requirement()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark naming a technical decision on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming a technical decision on a test")]
     public Task AcceptsAProvesMarkNamingATechnicalDecisionOnATest() =>
@@ -817,6 +889,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), TechnicalDecision()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark naming an external system on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming an external system on a test")]
     public Task AcceptsAProvesMarkNamingAnExternalSystemOnATest() =>
@@ -840,6 +914,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), ExternalSystem()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark naming an integration event on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming an integration event on a test")]
     public Task AcceptsAProvesMarkNamingAnIntegrationEventOnATest() =>
@@ -863,6 +939,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), IntegrationEvent()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a proves mark naming a provision on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a proves mark naming a provision on a test")]
     public Task AcceptsAProvesMarkNamingAProvisionOnATest() =>
@@ -886,6 +964,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 accepts a test proving two kinds.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts a test proving two kinds")]
     public Task AcceptsATestProvingTwoKinds() =>
@@ -910,6 +990,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario(), Requirement()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 reports a proves mark naming a functional requirement.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark naming a functional requirement")]
     public Task ReportsAProvesMarkNamingAFunctionalRequirement() =>
@@ -933,6 +1015,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Requirement(kind: "functional")],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 reports a proves mark naming a product decision.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark naming a product decision")]
     public Task ReportsAProvesMarkNamingAProductDecision() =>
@@ -956,6 +1040,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 reports a proves mark naming an aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark naming an aggregate")]
     public Task ReportsAProvesMarkNamingAnAggregate() =>
@@ -979,6 +1065,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5002 reports a proves mark naming an unknown provision.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a proves mark naming an unknown provision")]
     public Task ReportsAProvesMarkNamingAnUnknownProvision() =>
@@ -1002,6 +1090,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5003 reports one proof named twice on a test.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5003 reports one proof named twice on a test")]
     public Task ReportsOneProofNamedTwiceOnATest() =>

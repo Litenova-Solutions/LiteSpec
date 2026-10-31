@@ -51,9 +51,10 @@ public sealed class StaleProofTests
             Path.Combine(temp.Path, "docs", "proof", "proofs.json")));
         var entry = ledger.RootElement.GetProperty(Scenario);
 
-        Assert.NotEmpty(entry.GetProperty("scenario").GetString());
-        Assert.NotEmpty(entry.GetProperty("test").GetString());
-        Assert.NotEmpty(entry.GetProperty("run").GetString());
+        // The builder always writes the three hash strings for a recorded proof.
+        Assert.NotEmpty(entry.GetProperty("scenario").GetString()!);
+        Assert.NotEmpty(entry.GetProperty("test").GetString()!);
+        Assert.NotEmpty(entry.GetProperty("run").GetString()!);
     }
 
     /// <summary>A scenario whose semantic fields change after its proof passed reads stale and unverifies its use case.</summary>

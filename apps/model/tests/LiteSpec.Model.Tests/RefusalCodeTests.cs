@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests;
 /// <summary>Tests for the shared refusal-code rule every host calls.</summary>
 public sealed class RefusalCodeTests
 {
+    /// <summary>A refusal naming a refusal result returns its code.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A refusal naming a refusal result returns its code")]
     public void ResultRefusalWithCodeReturnsCode()
@@ -24,6 +25,7 @@ public sealed class RefusalCodeTests
         Assert.Equal("spending.receipt-missing", RefusalCode.Of(rule, ById(result)));
     }
 
+    /// <summary>A bare refusal code returns as is.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A bare refusal code returns as is")]
     public void BareCodeReturnsAsIs()
@@ -33,6 +35,7 @@ public sealed class RefusalCodeTests
         Assert.Equal("spending.receipt-missing", RefusalCode.Of(rule, ById()));
     }
 
+    /// <summary>A rule with no refusal returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A rule with no refusal returns null")]
     public void MissingRefusalReturnsNull()
@@ -42,6 +45,7 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById()));
     }
 
+    /// <summary>A rule with an empty refusal returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A rule with an empty refusal returns null")]
     public void EmptyRefusalReturnsNull()
@@ -51,6 +55,7 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById()));
     }
 
+    /// <summary>A refusal naming no record returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A refusal naming no record returns null")]
     public void UnresolvedRefusalReturnsNull()
@@ -60,6 +65,7 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById()));
     }
 
+    /// <summary>A refusal naming a record of another type returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A refusal naming a record of another type returns null")]
     public void RefusalToNonResultReturnsNull()
@@ -77,6 +83,7 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById(other)));
     }
 
+    /// <summary>A refusal naming a success result with a code returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A refusal naming a success result with a code returns null")]
     public void RefusalToSuccessResultReturnsNull()
@@ -94,6 +101,7 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById(result)));
     }
 
+    /// <summary>A refusal naming a refusal result without a code returns null.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "A refusal naming a refusal result without a code returns null")]
     public void RefusalToResultWithoutCodeReturnsNull()
@@ -110,11 +118,13 @@ public sealed class RefusalCodeTests
         Assert.Null(RefusalCode.Of(rule, ById(result)));
     }
 
+    /// <summary>Of rejects a null rule.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "Of rejects a null rule")]
     public void OfRejectsNullRule() =>
         Assert.Throws<ArgumentNullException>(() => RefusalCode.Of(null!, ById()));
 
+    /// <summary>Of rejects a null lookup.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "Of rejects a null lookup")]
     public void OfRejectsNullLookup() =>

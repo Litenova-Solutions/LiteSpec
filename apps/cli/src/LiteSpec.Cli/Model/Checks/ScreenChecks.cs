@@ -14,6 +14,8 @@ namespace LiteSpec.Model.Checks;
 internal static class ScreenChecks
 {
     /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, refusal-sentence-missing, reader-missing and proves-duplicate.</summary>
+    /// <param name="model">The loaded project model that holds every record, each screen and each browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckScreenImplemented(model, findings);
@@ -33,6 +35,8 @@ internal static class ScreenChecks
     ///     own entry points is <c>mark-unknown</c>: the generated records
     ///     file of that frontend does not hold the id.
     /// </summary>
+    /// <param name="model">The loaded project model that holds each marked element and every frontend entry point.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFrontendMarkScope(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements.Where(element =>
@@ -85,6 +89,8 @@ internal static class ScreenChecks
     ///     test there with no <c>proves</c> annotation is <c>mark-missing</c>,
     ///     and one naming a scenario is <c>mark-unknown</c>.
     /// </summary>
+    /// <param name="model">The loaded project model that holds each frontend and each browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRouteSuiteMarks(ProjectModel model, List<Finding> findings)
     {
         foreach (var frontend in model.Config.Frontends)
@@ -134,6 +140,10 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Decides whether a file is the named path or sits beneath it, with the platform path comparison.</summary>
+    /// <param name="file">The test file path under test.</param>
+    /// <param name="path">The suite or goldens path the frontend names.</param>
+    /// <returns>True when the file equals the path or sits under it; otherwise false.</returns>
     private static bool UnderPath(string file, string path)
     {
         var comparison = Path.DirectorySeparatorChar == '\\'
@@ -145,15 +155,24 @@ internal static class ScreenChecks
     }
 
     /// <summary>The route elements naming the screen, across every frontend.</summary>
+    /// <param name="model">The loaded project model that holds each marked code element.</param>
+    /// <param name="screenId">The screen record identifier the route must mark.</param>
+    /// <returns>Each route element that marks the screen.</returns>
     private static IReadOnlyList<MarkedElement> RoutesFor(ProjectModel model, string screenId) =>
         [.. model.Code.Elements.Where(element =>
             element.Kind == CodeKind.FrontendRoute
             && element.Marks.Any(mark => mark.RecordId == screenId))];
 
     /// <summary>The computed screens (routes) naming the screen record.</summary>
+    /// <param name="model">The loaded project model that holds each computed screen.</param>
+    /// <param name="screenId">The screen record identifier the computed screen must name.</param>
+    /// <returns>Each computed screen that names the record.</returns>
     private static IReadOnlyList<ScreenInfo> ReadScreensFor(ProjectModel model, string screenId) =>
         [.. model.Screens.Where(screen => screen.ScreenId == screenId)];
 
+    /// <summary>Reports each screen record that no route element marks.</summary>
+    /// <param name="model">The loaded project model that holds each screen record and route element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenImplemented(ProjectModel model, List<Finding> findings)
     {
         foreach (var screen in ScreenRecords(model))
@@ -174,6 +193,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each route element that carries no screen mark or marks no screen record.</summary>
+    /// <param name="model">The loaded project model that holds each route element and screen record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRouteRecorded(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements.Where(element => element.Kind == CodeKind.FrontendRoute))
@@ -211,6 +233,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each screen whose offered use cases differ from the use cases its routes call.</summary>
+    /// <param name="model">The loaded project model that holds each screen record and computed screen.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenCalls(ProjectModel model, List<Finding> findings)
     {
         foreach (var screen in ScreenRecords(model))
@@ -255,6 +280,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each journey step a screen serves that none of its offered use cases serves.</summary>
+    /// <param name="model">The loaded project model that holds each screen and use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenServes(ProjectModel model, List<Finding> findings)
     {
         foreach (var screen in ScreenRecords(model))
@@ -282,6 +310,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each journey step served by a browser or device use case that no screen serves.</summary>
+    /// <param name="model">The loaded project model that holds each journey, screen and use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckStepUnscreened(ProjectModel model, List<Finding> findings)
     {
         var screened = new HashSet<string>(ScreenRecords(model).SelectMany(screen => screen.Ids(RecordFields.Serves)), StringComparer.Ordinal);
@@ -313,6 +344,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each reachable refusal that its frontend dictionary and browser tests leave without a sentence.</summary>
+    /// <param name="model">The loaded project model that holds each screen, frontend and browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckResultUnshown(ProjectModel model, List<Finding> findings)
     {
         foreach (var screen in ScreenRecords(model))
@@ -369,7 +403,9 @@ internal static class ScreenChecks
     }
 
     /// <summary>The refusal codes a frontend's dictionary holds a sentence for, read from its file or folder.</summary>
-    private static IReadOnlySet<string> RefusalDictionaryKeys(FrontendConfig frontend)
+    /// <param name="frontend">The frontend configuration that names the refusal dictionary file or folder.</param>
+    /// <returns>The refusal codes the dictionary holds a sentence for, or an empty set when it names none.</returns>
+    private static HashSet<string> RefusalDictionaryKeys(FrontendConfig frontend)
     {
         var keys = new HashSet<string>(StringComparer.Ordinal);
         var path = frontend.RefusalDictionary;
@@ -412,8 +448,12 @@ internal static class ScreenChecks
         return keys;
     }
 
+    /// <summary>Finds each refusal code key in a dictionary file, as a quoted key or a heading.</summary>
     private static readonly Regex DictionaryKey = new(@"(?:^|[\s{,\""'])[""']?(?<code>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)[""']?\s*[:=]|^#{1,6}\s+(?<code2>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)\s*$", RegexOptions.Compiled | RegexOptions.Multiline);
 
+    /// <summary>Reports each browser test claim that its screens and assertions leave unreached or that names no provable record.</summary>
+    /// <param name="model">The loaded project model that holds each browser test and record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckBrowserProofs(ProjectModel model, List<Finding> findings)
     {
         foreach (var test in model.BrowserTests)
@@ -459,6 +499,9 @@ internal static class ScreenChecks
         }
     }
 
+    /// <summary>Reports each scenario that more than one unit or browser test carries a proves mark for.</summary>
+    /// <param name="model">The loaded project model that holds each unit test and browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckProvesDuplicated(ProjectModel model, List<Finding> findings)
     {
         var byScenario = new Dictionary<string, List<(string Test, string File, int Line, string Reader)>>(StringComparer.Ordinal);
@@ -516,16 +559,28 @@ internal static class ScreenChecks
     }
 
     /// <summary>The reader of the route that marks the screen, or TypeScript when none does.</summary>
+    /// <param name="model">The loaded project model that holds each computed screen.</param>
+    /// <param name="screen">The screen record whose marking route reader is wanted.</param>
+    /// <returns>The reader of the first computed screen for the record, or the TypeScript reader when none exists.</returns>
     private static string ReaderForScreen(ProjectModel model, Record screen)
     {
-        var route = ReadScreensFor(model, screen.Id).FirstOrDefault();
+        var routes = ReadScreensFor(model, screen.Id);
+        var route = routes.Count > 0 ? routes[0] : null;
 
         return route?.Reader ?? Finding.TypeScriptReader;
     }
 
+    /// <summary>Decides whether findings on the screen carry a qualified reader.</summary>
+    /// <param name="model">The loaded project model that holds the TypeScript qualification state.</param>
+    /// <param name="screen">The screen record whose reader qualification is tested.</param>
+    /// <returns>True when the marking reader is not TypeScript or the TypeScript reads are qualified; otherwise false.</returns>
     private static bool QualifiedForScreen(ProjectModel model, Record screen) =>
         ReaderForScreen(model, screen) != Finding.TypeScriptReader || model.TypeScriptQualified;
 
+    /// <summary>The reader of the computed screen held in the element file, or TypeScript when none matches.</summary>
+    /// <param name="model">The loaded project model that holds each computed screen.</param>
+    /// <param name="element">The marked code element whose file decides the reader.</param>
+    /// <returns>The matching screen reader, or the TypeScript reader when no screen file matches.</returns>
     private static string ReaderForElement(ProjectModel model, MarkedElement element)
     {
         var screen = model.Screens.FirstOrDefault(candidate =>

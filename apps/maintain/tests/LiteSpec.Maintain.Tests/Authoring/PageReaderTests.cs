@@ -16,6 +16,7 @@ public sealed class PageReaderTests
 
     static List<(string Code, int Line)> Diagnose() => Diagnose(_ => { });
 
+    /// <summary>Reader passes a provision heading inside a fenced block.</summary>
     /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "reader passes a provision heading inside a fenced block")]
     public void FencedHeadingPass()
@@ -25,6 +26,7 @@ public sealed class PageReaderTests
         Assert.Empty(found);
     }
 
+    /// <summary>Reader fails a provision heading outside a fenced block.</summary>
     /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "reader fails a provision heading outside a fenced block")]
     public void FencedHeadingFail()
@@ -35,6 +37,7 @@ public sealed class PageReaderTests
         Assert.Contains(found, item => item.Code == "HEADING_ACTION");
     }
 
+    /// <summary>Reader passes a Statement inside a code span.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
     [Fact(DisplayName = "reader passes a Statement inside a code span")]
     public void StatementCodeSpanPass()
@@ -46,6 +49,7 @@ public sealed class PageReaderTests
         Assert.Empty(found);
     }
 
+    /// <summary>Reader fails a second Statement outside a code span.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
     [Fact(DisplayName = "reader fails a second Statement outside a code span")]
     public void StatementCodeSpanFail()
@@ -57,6 +61,7 @@ public sealed class PageReaderTests
         Assert.Contains(found, item => item.Code == "STANDARD_REQUIREMENT_COUNT");
     }
 
+    /// <summary>Reader passes a link inside a code span.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader passes a link inside a code span")]
     public void LinkCodeSpanPass()
@@ -68,6 +73,7 @@ public sealed class PageReaderTests
         Assert.Empty(found);
     }
 
+    /// <summary>Reader fails a link outside a code span.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader fails a link outside a code span")]
     public void LinkCodeSpanFail()
@@ -79,6 +85,7 @@ public sealed class PageReaderTests
         Assert.Contains(found, item => item.Code == "LINK_BROKEN");
     }
 
+    /// <summary>Reader passes a valid table cell link.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader passes a valid table cell link")]
     public void TableLinkPass()
@@ -90,6 +97,7 @@ public sealed class PageReaderTests
         Assert.Empty(found);
     }
 
+    /// <summary>Reader fails a broken table cell link.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader fails a broken table cell link")]
     public void TableLinkFail()
@@ -101,6 +109,7 @@ public sealed class PageReaderTests
         Assert.Contains(found, item => item.Code == "LINK_BROKEN");
     }
 
+    /// <summary>Reader passes a page with one H1.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader passes a page with one H1")]
     public void TwoH1Pass()
@@ -108,6 +117,7 @@ public sealed class PageReaderTests
         Assert.Empty(Diagnose());
     }
 
+    /// <summary>Reader reports two H1s on the second H1 line.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "reader reports two H1s on the second H1 line")]
     public void TwoH1Fail()

@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the value-style check: each broken value reported, each clean value passed.</summary>
 public sealed class LanguageCheckTests
 {
+    /// <summary>Statements Without Period Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Statements_Without_Period_Reported()
@@ -42,11 +43,16 @@ public sealed class LanguageCheckTests
         Assert.All(findings, finding => Assert.Contains("does not end in a period", finding.Message, StringComparison.Ordinal));
     }
 
+    /// <summary>Statement With Lower Case Modal Reported.</summary>
+    /// <param name="modal">The lower-case modal word the case plants in the statement.</param>
+    /// <param name="statement">The requirement statement text that carries the modal word.</param>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Theory]
     [InlineData("should", "A room should stay held for ten minutes.")]
     [InlineData("must", "A hold must last for ten minutes.")]
     [InlineData("may", "The traveller may extend the hold.")]
+    // The InlineData values pair each lower-case modal with its statement.
+    // Modal words in statements use the capitalized controlled form.
     public void Statement_With_Lower_Case_Modal_Reported(string modal, string statement)
     {
         using var temp = Cli.Temp("checks");
@@ -64,6 +70,7 @@ public sealed class LanguageCheckTests
         Assert.Contains(findings, finding => finding.Message.Contains($"'{modal}'", StringComparison.Ordinal));
     }
 
+    /// <summary>Statement Modal Inside Backticks Skipped.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Statement_Modal_Inside_Backticks_Skipped()
@@ -81,6 +88,7 @@ public sealed class LanguageCheckTests
         Assert.DoesNotContain("value-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Step Statement Without Period Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Step_Statement_Without_Period_Reported()
@@ -102,6 +110,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("does not end in a period", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Step Statement Without Actor Opening Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Step_Statement_Without_Actor_Opening_Reported()
@@ -122,6 +131,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("starts with neither 'The' nor an actor", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Step Statements With Actor Openings Pass.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Step_Statements_With_Actor_Openings_Pass()
@@ -144,6 +154,7 @@ public sealed class LanguageCheckTests
         Assert.DoesNotContain("value-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Meaning Without Article Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Meaning_Without_Article_Reported()
@@ -164,6 +175,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("does not start with 'A', 'An' or 'The'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Meaning Over 25 Words Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Meaning_Over_25_Words_Reported()
@@ -184,6 +196,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("over 25 words", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Clean Meaning Passes.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Clean_Meaning_Passes()
@@ -201,6 +214,7 @@ public sealed class LanguageCheckTests
         Assert.DoesNotContain("value-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Rationale Starting With Because Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Rationale_Starting_With_Because_Reported()
@@ -221,6 +235,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has a rationale that starts with 'because'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Because Field Starting With Because Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Because_Field_Starting_With_Because_Reported()
@@ -241,10 +256,15 @@ public sealed class LanguageCheckTests
         Assert.Contains("has an appliesBecause that starts with 'because'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>When Field Starting With When Or If Reported.</summary>
+    /// <param name="condition">The reopenedWhen text the case opens with a condition word.</param>
+    /// <param name="word">The opening condition word the case expects the check to name.</param>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Theory]
     [InlineData("when the hold window changes", "when")]
     [InlineData("if the hold lapses", "if")]
+    // The InlineData values pair each condition text with its opening word.
+    // A when field states the event without an opening condition word.
     public void When_Field_Starting_With_When_Or_If_Reported(string condition, string word)
     {
         using var temp = Cli.Temp("checks");
@@ -262,6 +282,7 @@ public sealed class LanguageCheckTests
         Assert.Contains(findings, finding => finding.Message.Contains($"starts with '{word}'", StringComparison.Ordinal));
     }
 
+    /// <summary>Except Condition Starting With When Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Except_Condition_Starting_With_When_Reported()
@@ -282,6 +303,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has an except condition that starts with 'when'", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Failure With Refusal Code Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Failure_With_Refusal_Code_Reported()
@@ -302,6 +324,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has a failure that contains a refusal code", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Top Level Failure With Refusal Code Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Top_Level_Failure_With_Refusal_Code_Reported()
@@ -322,6 +345,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has a failure that contains a refusal code", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Questions Without Mark Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Questions_Without_Mark_Reported()
@@ -342,6 +366,7 @@ public sealed class LanguageCheckTests
         Assert.All(findings, finding => Assert.Contains("does not end in '?'", finding.Message, StringComparison.Ordinal));
     }
 
+    /// <summary>Clean Question Passes.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Clean_Question_Passes()
@@ -359,6 +384,7 @@ public sealed class LanguageCheckTests
         Assert.DoesNotContain("value-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Title Outside Title Case Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Title_Outside_Title_Case_Reported()
@@ -379,6 +405,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has a title that is not Title Case", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Title Ending With Period Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Title_Ending_With_Period_Reported()
@@ -399,6 +426,7 @@ public sealed class LanguageCheckTests
         Assert.Contains("has a title that ends in a period", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Clean Titles Pass.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Clean_Titles_Pass()
@@ -426,6 +454,7 @@ public sealed class LanguageCheckTests
         Assert.DoesNotContain("value-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Nested Meanings And Conditions Reported.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Nested_Meanings_And_Conditions_Reported()
@@ -450,6 +479,7 @@ public sealed class LanguageCheckTests
         Assert.Equal(5, findings.Count);
     }
 
+    /// <summary>Clean Nested Meaning Passes.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact]
     public void Clean_Nested_Meaning_Passes()

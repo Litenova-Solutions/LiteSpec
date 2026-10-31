@@ -18,12 +18,22 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2015);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the handler loop write analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterOperationAction(AnalyzeLoop, OperationKind.Loop);
 
+    /// <summary>Analyzes the loop.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeLoop(OperationAnalysisContext context)
     {
         var loop = (ILoopOperation)context.Operation;
@@ -54,6 +64,10 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
 
     // Whether the write runs at most once per invocation: a search loop that acts on
     // the first item with work and then leaves, so no batch rolls back together.
+    /// <summary>Returns true when the write is followed by leave; otherwise false.</summary>
+    /// <param name="write">The write operation under inspection.</param>
+    /// <param name="loop">The loop statement under inspection.</param>
+    /// <returns>True when the write is followed by leave; otherwise false.</returns>
     private static bool IsFollowedByLeave(IInvocationOperation write, ILoopOperation loop)
     {
         var child = (IOperation)write;
@@ -75,6 +89,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the leaves condition holds; otherwise false.</summary>
+    /// <param name="operation">The operation under inspection.</param>
+    /// <returns>True when the leaves condition holds; otherwise false.</returns>
     private static bool Leaves(IOperation operation) =>
         operation switch
         {
@@ -84,6 +101,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
             _ => false,
         };
 
+    /// <summary>Collects the writes.</summary>
+    /// <param name="operation">The operation supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="writes">The write operations collected so far.</param>
     private static void CollectWrites(IOperation? operation, List<IInvocationOperation> writes)
     {
         if (operation == null)
@@ -108,6 +128,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the invocation is repository write; otherwise false.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>True when the invocation is repository write; otherwise false.</returns>
     private static bool IsRepositoryWrite(IInvocationOperation invocation)
     {
         if (invocation.TargetMethod.Name is not ("Store" or "Add" or "Update" or "Delete"))
@@ -119,6 +142,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         return receiver != null && receiver.Name.EndsWith("Repository", StringComparison.Ordinal);
     }
 
+    /// <summary>Returns true when the type is command handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command handler; otherwise false.</returns>
     private static bool IsCommandHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -142,6 +168,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns the type.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static INamedTypeSymbol? InnermostType(ISymbol symbol)
     {
         for (var current = symbol; current != null; current = current.ContainingSymbol)
@@ -155,6 +184,9 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns the location.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>The location.</returns>
     private static Location MemberLocation(IInvocationOperation invocation)
     {
         if (invocation.Syntax is InvocationExpressionSyntax syntax)

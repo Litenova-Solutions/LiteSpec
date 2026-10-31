@@ -11,6 +11,8 @@ public sealed partial class ModelCheckSummaryTests
     private static partial System.Text.RegularExpressions.Regex CountLine();
 
     /// <summary>The per-code count lines of one output, in printed order, as code, level and count.</summary>
+    /// <param name="output">The check command output text.</param>
+    /// <returns>The parsed count lines in printed order.</returns>
     static List<(string Code, string Level, int Count)> CountLines(string output)
     {
         var counts = new List<(string, string, int)>();
@@ -27,10 +29,14 @@ public sealed partial class ModelCheckSummaryTests
     }
 
     /// <summary>The output lines without their carriage returns.</summary>
+    /// <param name="output">The check command output text.</param>
+    /// <returns>The output split into lines.</returns>
     static string[] Lines(string output) =>
         output.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
 
     /// <summary>The sort rank of a level: G first, then S, then A.</summary>
+    /// <param name="level">The level letter to rank.</param>
+    /// <returns>The sort rank, lower first.</returns>
     static int Rank(string level) => level switch
     {
         "G" => 0,

@@ -28,9 +28,13 @@ static class BookCommand
     /// <summary>The default editor link template, with its three placeholders.</summary>
     public const string DefaultEditor = "vscode://file/{root}/{path}:{line}";
 
+    /// <summary>The UTF-8 encoding without a byte order mark, used for the written book files.</summary>
     static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
     /// <summary>Runs the command with the arguments after <c>book</c>; returns the exit code.</summary>
+    /// <param name="args">The command arguments after the command name, holding the model, output, root and editor options.</param>
+    /// <returns>The process exit code: 0 when the book is written, 1 on unreadable input or unwritable output, and 2 on a usage error or a missing carried release or lexicon.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The book command is a last-resort command handler that reports any read, release lookup or write failure as an error message and an exit code instead of crashing.")]
     public static int Run(string[] args)
     {
         var parsed = ParseArgs(args);
@@ -173,8 +177,12 @@ static class BookCommand
         }
     }
 
+    /// <summary>The parsed book command arguments: the help flag, the usage error, and the model, output, root and editor values, each null when absent.</summary>
     sealed record Parsed(bool Help, string? Error, string? Model, string? Out, string? Root, string? Editor);
 
+    /// <summary>Parses the book command arguments into their named values and any usage error.</summary>
+    /// <param name="argv">The command arguments after the command name.</param>
+    /// <returns>The parsed arguments, with the help flag or the usage error set when the input calls for it.</returns>
     static Parsed ParseArgs(string[] argv)
     {
         var parsed = CliArgs.Parse(argv, [], ["--model", "--out", "--root", "--editor"]);
@@ -207,6 +215,9 @@ static class BookCommand
     ///     the model's folder when the model sits in a <c>.model</c> folder, else
     ///     the model's folder.
     /// </summary>
+    /// <param name="root">The root option value, or null or empty when the option is absent.</param>
+    /// <param name="model">The path of the model file, whose folder supplies the default root.</param>
+    /// <returns>The absolute consumer root used for source links.</returns>
     static string ResolveRoot(string? root, string model)
     {
         if (root is { Length: > 0 })
@@ -221,10 +232,15 @@ static class BookCommand
     }
 
     /// <summary>One layer's display label from the lexicon, else the layer key itself.</summary>
+    /// <param name="lexicon">The book lexicon that holds the layer labels.</param>
+    /// <param name="key">The layer key whose label is sought.</param>
+    /// <returns>The layer display label from the lexicon, or the layer key itself when the lexicon holds no label for it.</returns>
     static string LayerLabel(BookLexicon lexicon, string key) =>
         lexicon.Layers.TryGetValue(key, out var layer) ? layer.Label : key;
 
     /// <summary>The product id and title, or empty strings when the model holds no product.</summary>
+    /// <param name="store">The model object that holds the records array.</param>
+    /// <returns>The product identifier and title, or empty strings when the model holds no product record.</returns>
     static (string Id, string Title) ProjectOf(JsonObject store)
     {
         foreach (var record in store["records"] as JsonArray ?? [])
@@ -240,6 +256,8 @@ static class BookCommand
     }
 
     /// <summary>The record count per record type.</summary>
+    /// <param name="store">The model object that holds the records array.</param>
+    /// <returns>The record count for each record type present in the model.</returns>
     static Dictionary<string, int> TotalsOf(JsonObject store)
     {
         var totals = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -255,6 +273,9 @@ static class BookCommand
     }
 
     /// <summary>The search rows in identifier order: id, title, type and excerpt each.</summary>
+    /// <param name="index">The model index that holds the raw record objects.</param>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <returns>The search rows in identifier order, each holding identifier, title, type and excerpt.</returns>
     static JsonArray SearchRows(BookIndex index, IReadOnlyDictionary<string, JsonObject> details)
     {
         var rows = new JsonArray();
@@ -277,6 +298,16 @@ static class BookCommand
     ///     totals, layers with their outline shards, the shard map, the search
     ///     shards, the unplaced ids and the generation date.
     /// </summary>
+    /// <param name="store">The model object that holds the records and the test run.</param>
+    /// <param name="outline">The book outline that holds the unplaced identifiers.</param>
+    /// <param name="layers">The layer entries for the manifest, each holding its outline shard keys.</param>
+    /// <param name="shardOf">The shard identifier for each record identifier.</param>
+    /// <param name="searchKeys">The search shard keys in order.</param>
+    /// <param name="root">The absolute consumer root for source links.</param>
+    /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
+    /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
+    /// <param name="generatedOn">The generation timestamp text in UTC.</param>
+    /// <returns>The manifest shard value.</returns>
     static JsonObject ManifestJson(
         JsonObject store,
         BookOutlineResult outline,
@@ -329,6 +360,12 @@ static class BookCommand
     ///     The queue shard value: the review batches keyed by selector with their
     ///     order, the open ballots, the security items and the review settings.
     /// </summary>
+    /// <param name="index">The model index that holds the review settings.</param>
+    /// <param name="root">The absolute consumer root, used to load review settings the index lacks.</param>
+    /// <param name="review">The review data that holds the batches in order.</param>
+    /// <param name="store">The model object that holds the records with their open questions.</param>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <returns>The queue shard value with batches, ballots, security items and review settings.</returns>
     static JsonObject QueueJson(
         BookIndex index,
         string root,
@@ -374,6 +411,8 @@ static class BookCommand
     ///     Every open question with its record id and its index in the record's
     ///     questions, so the client renders ballots without reading every record.
     /// </summary>
+    /// <param name="store">The model object that holds the records with their open questions.</param>
+    /// <returns>Every open question with its record identifier and its index in the record questions.</returns>
     static JsonArray BallotJson(JsonObject store)
     {
         var ballots = new JsonArray();
@@ -416,6 +455,8 @@ static class BookCommand
     ///     The security items the security reviewer reads: cross-tenant access,
     ///     outside calls and personal or sensitive data, in the client's words.
     /// </summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <returns>The security items in identifier order, covering cross-tenant access, outside calls and personal or sensitive data.</returns>
     static JsonArray SecurityJson(IReadOnlyDictionary<string, JsonObject> details)
     {
         var items = new JsonArray();
@@ -493,6 +534,9 @@ static class BookCommand
     }
 
     /// <summary>One outside call in words: the called record's title and the called step, if any.</summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <param name="to">The called record identifier, optionally with a fragment that names the called step.</param>
+    /// <returns>The outside call sentence with the called record title and the called step when a fragment is present.</returns>
     static string CallsText(IReadOnlyDictionary<string, JsonObject> details, string to)
     {
         var hash = to.IndexOf('#');
@@ -508,16 +552,25 @@ static class BookCommand
     }
 
     /// <summary>One record's title for a security sentence, else the id itself.</summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <param name="id">The record identifier whose title is sought.</param>
+    /// <returns>The record title, or the identifier itself when no detail or no title is present.</returns>
     static string TitleOf(IReadOnlyDictionary<string, JsonObject> details, string id) =>
         details.TryGetValue(id, out var detail) && StrProp(detail, "title") is { Length: > 0 } title
             ? title
             : id;
 
     /// <summary>One word with its first letter turned, such as Personal.</summary>
+    /// <param name="text">The word to capitalize, possibly empty.</param>
+    /// <returns>The word with its first letter uppercased, or the empty text unchanged.</returns>
     static string Cap(string text) =>
         text.Length == 0 ? text : char.ToUpperInvariant(text[0]) + text[1..];
 
     /// <summary>The review settings the client reads: the veto window and the security reviewer.</summary>
+    /// <param name="index">The model index that holds the veto window and possibly the security reviewer.</param>
+    /// <param name="root">The absolute consumer root, used to load the security reviewer when the index lacks one.</param>
+    /// <returns>The review settings value with the veto window in days and the security reviewer, or JSON null for the reviewer when neither source names one.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Loading the consumer configuration for the fallback security reviewer must report no failure; any failure leaves the reviewer absent so the book still builds.")]
     static JsonObject ReviewJson(BookIndex index, string root)
     {
         var reviewer = index.SecurityReviewer;
@@ -540,8 +593,14 @@ static class BookCommand
         };
     }
 
+    /// <summary>Reads and parses one JSON file.</summary>
+    /// <param name="path">The path of the JSON file to read.</param>
+    /// <returns>The parsed JSON node, or null when the file holds the JSON null value.</returns>
     static JsonNode? ReadJson(string path) => JsonNode.Parse(File.ReadAllText(path));
 
+    /// <summary>Writes one embedded book asset into the output assets folder.</summary>
+    /// <param name="outDir">The output folder that holds the assets folder.</param>
+    /// <param name="name">The asset file name, which also names the embedded resource suffix.</param>
     static void WriteAsset(string outDir, string name)
     {
         using var stream = typeof(BookCommand).Assembly.GetManifestResourceStream($"LiteSpec.Book.Assets.{name}")
@@ -551,8 +610,13 @@ static class BookCommand
     }
 
     /// <summary>One string property, or null when it is missing or not a string.</summary>
+    /// <param name="obj">The JSON object to read, or null.</param>
+    /// <param name="name">The property name to read.</param>
+    /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
 
     /// <summary>A JSON string, or JSON null when the text is absent.</summary>
+    /// <param name="value">The text to convert, or null.</param>
+    /// <returns>A JSON string node for the text, or null when the text is null.</returns>
     static JsonNode? StringOrNull(string? value) => BookRender.StrNode(value);
 }

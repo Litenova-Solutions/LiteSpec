@@ -43,6 +43,9 @@ public static class MarkReader
         return marks;
     }
 
+    /// <summary>Reads the documentation marks on one declaration.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="marks">The marks to append to.</param>
     private static void ReadDocumentationMarks(MemberDeclarationSyntax member, List<Mark> marks)
     {
         var comments = new List<DocumentationCommentTriviaSyntax>();
@@ -67,6 +70,10 @@ public static class MarkReader
         }
     }
 
+    /// <summary>Reads the marks in one structured documentation comment.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="comment">The documentation comment.</param>
+    /// <param name="marks">The marks to append to.</param>
     private static void ReadStructuredComment(
         MemberDeclarationSyntax member, DocumentationCommentTriviaSyntax comment, List<Mark> marks)
     {
@@ -89,6 +96,11 @@ public static class MarkReader
         }
     }
 
+    /// <summary>Reads one mark from a documentation element.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="verb">The mark verb.</param>
+    /// <param name="element">The documentation element.</param>
+    /// <returns>The mark the element carries.</returns>
     private static Mark XmlMark(MemberDeclarationSyntax member, MarkVerb verb, XmlElementSyntax element)
     {
         if (element.EndTag is null || element.EndTag.IsMissing)
@@ -135,6 +147,9 @@ public static class MarkReader
         return new Mark(text.ToString().Trim(), MarkStyle.Xml, verb, LineOf(member, span), span);
     }
 
+    /// <summary>Reads the marks in the plain comment text of one declaration.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="marks">The marks to append to.</param>
     private static void ReadCommentText(MemberDeclarationSyntax member, List<Mark> marks)
     {
         var text = member.GetLeadingTrivia().ToString();
@@ -197,19 +212,29 @@ public static class MarkReader
         }
     }
 
+    /// <summary>One opening mark tag in comment text: its offset and verb.</summary>
     private sealed class OpenTag
     {
+        /// <summary>Initializes a new instance of the <see cref="OpenTag"/> class.</summary>
+        /// <param name="position">The offset where the tag starts.</param>
+        /// <param name="verb">The verb the tag names.</param>
         public OpenTag(int position, MarkVerb verb)
         {
             Position = position;
             Verb = verb;
         }
 
+        /// <summary>Gets the offset where the tag starts.</summary>
         public int Position { get; }
 
+        /// <summary>Gets the verb the tag names.</summary>
         public MarkVerb Verb { get; }
     }
 
+    /// <summary>Finds the next opening mark tag in comment text.</summary>
+    /// <param name="text">The comment text.</param>
+    /// <param name="index">The offset to start from.</param>
+    /// <returns>The opening tag, or null when the text holds none.</returns>
     private static OpenTag? FindOpenTag(string text, int index)
     {
         while (index < text.Length)
@@ -235,6 +260,11 @@ public static class MarkReader
         return null;
     }
 
+    /// <summary>Whether the value occurs in the text at the offset.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="index">The offset to test.</param>
+    /// <param name="value">The value to match.</param>
+    /// <returns>True when the value occurs at the offset.</returns>
     private static bool StartsAt(string text, int index, string value)
     {
         if (index + value.Length > text.Length)
@@ -253,22 +283,37 @@ public static class MarkReader
         return true;
     }
 
+    /// <summary>Whether the offset ends a tag name.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="index">The offset just past the tag name.</param>
+    /// <returns>True when the offset is a tag boundary.</returns>
     private static bool IsTagBoundary(string text, int index) =>
         index >= text.Length || char.IsWhiteSpace(text[index]) || text[index] == '>' || text[index] == '/';
 
+    /// <summary>One closing mark tag in comment text: where it starts and where it ends.</summary>
     private sealed class CloseTag
     {
+        /// <summary>Initializes a new instance of the <see cref="CloseTag"/> class.</summary>
+        /// <param name="start">The offset where the closing tag starts.</param>
+        /// <param name="end">The offset just past the closing tag.</param>
         public CloseTag(int start, int end)
         {
             Start = start;
             End = end;
         }
 
+        /// <summary>Gets the offset where the closing tag starts.</summary>
         public int Start { get; }
 
+        /// <summary>Gets the offset just past the closing tag.</summary>
         public int End { get; }
     }
 
+    /// <summary>Finds the closing tag for the verb in comment text.</summary>
+    /// <param name="text">The comment text.</param>
+    /// <param name="index">The offset to start from.</param>
+    /// <param name="verb">The verb the closing tag names.</param>
+    /// <returns>The closing tag, or null when the text holds none.</returns>
     private static CloseTag? FindCloseTag(string text, int index, MarkVerb verb)
     {
         var name = verb.ToTagName();
@@ -297,19 +342,30 @@ public static class MarkReader
         return null;
     }
 
+    /// <summary>Tag content with comment markers stripped: its text and where it starts.</summary>
     private sealed class CleanedContent
     {
+        /// <summary>Initializes a new instance of the <see cref="CleanedContent"/> class.</summary>
+        /// <param name="text">The cleaned text.</param>
+        /// <param name="start">The offset where the text starts.</param>
         public CleanedContent(string text, int start)
         {
             Text = text;
             Start = start;
         }
 
+        /// <summary>Gets the cleaned text.</summary>
         public string Text { get; }
 
+        /// <summary>Gets the offset where the text starts.</summary>
         public int Start { get; }
     }
 
+    /// <summary>Strips comment markers from tag content.</summary>
+    /// <param name="text">The comment text.</param>
+    /// <param name="start">The offset where the content starts.</param>
+    /// <param name="end">The offset where the content ends.</param>
+    /// <returns>The cleaned content and where it starts.</returns>
     private static CleanedContent CleanTagContent(string text, int start, int end)
     {
         var cleaned = new StringBuilder();
@@ -374,6 +430,13 @@ public static class MarkReader
             cleaned.ToString(first, last - first), sourceIndex[first]);
     }
 
+    /// <summary>Builds the empty mark a malformed tag in comment text reports.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="baseOffset">The offset where the declaration starts.</param>
+    /// <param name="verb">The mark verb.</param>
+    /// <param name="start">The offset where the tag starts.</param>
+    /// <param name="length">The length the mark span takes.</param>
+    /// <returns>The malformed mark, with an empty record identifier.</returns>
     private static Mark MalformedTextMark(
         MemberDeclarationSyntax member, int baseOffset, MarkVerb verb, int start, int length)
     {
@@ -381,6 +444,9 @@ public static class MarkReader
         return new Mark(string.Empty, MarkStyle.Xml, verb, LineOf(member, span), span);
     }
 
+    /// <summary>Reads the attribute marks on one declaration.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="marks">The marks to append to.</param>
     private static void ReadAttributeMarks(MemberDeclarationSyntax member, List<Mark> marks)
     {
         foreach (var list in member.AttributeLists)
@@ -403,6 +469,11 @@ public static class MarkReader
         }
     }
 
+    /// <summary>Reads one mark from an attribute.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="verb">The mark verb.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <returns>The mark the attribute carries.</returns>
     private static Mark AttributeMark(MemberDeclarationSyntax member, MarkVerb verb, AttributeSyntax attribute)
     {
         var fallback = new Mark(string.Empty, MarkStyle.Attribute, verb, LineOf(member, attribute.Span), attribute.Span);
@@ -427,6 +498,9 @@ public static class MarkReader
         return new Mark(value.Trim(), MarkStyle.Attribute, verb, LineOf(member, span), span);
     }
 
+    /// <summary>Reads the span of a string literal's content, without its quotes.</summary>
+    /// <param name="literal">The string literal.</param>
+    /// <returns>The content span.</returns>
     private static TextSpan LiteralContentSpan(LiteralExpressionSyntax literal)
     {
         var token = literal.Token;
@@ -481,6 +555,10 @@ public static class MarkReader
         return end <= start ? span : new TextSpan(span.Start + start, end - start);
     }
 
+    /// <summary>Reads the 1-based line of a span in the declaration's tree.</summary>
+    /// <param name="member">The type or method declaration.</param>
+    /// <param name="span">The span to locate.</param>
+    /// <returns>The 1-based line where the span starts.</returns>
     private static int LineOf(MemberDeclarationSyntax member, TextSpan span) =>
         member.SyntaxTree.GetLineSpan(span).StartLinePosition.Line + 1;
 }

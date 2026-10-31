@@ -10,6 +10,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the registry's marked-type-to-use-case answer.</summary>
 public sealed class RegistryUseCaseOfTypeTests
 {
+    /// <summary>UseCaseOfType answers the use case of a marked type and null for an unmarked type.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType answers the use case of a marked type and null for an unmarked type")]
     public void UseCaseOfTypeAnswersTheMarkedUseCase()
@@ -44,13 +45,14 @@ public sealed class RegistryUseCaseOfTypeTests
 
         var handler = assembly.GetType("Shop.Spending.SubmitExpenseCommandHandler");
         Assert.NotNull(handler);
-        Assert.Equal("use-case/spending.submit-expense", lookup.Invoke(null, new object[] { handler }));
+        Assert.Equal("use-case/spending.submit-expense", lookup.Invoke(null, [handler]));
 
         var helper = assembly.GetType("Shop.Spending.UnmarkedHelper");
         Assert.NotNull(helper);
-        Assert.Null(lookup.Invoke(null, new object[] { helper }));
+        Assert.Null(lookup.Invoke(null, [helper]));
     }
 
+    /// <summary>UseCaseOfType normalizes the nested-type separator before the lookup.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType normalizes the nested-type separator before the lookup")]
     public void UseCaseOfTypeNormalizesNestedTypeNames()
@@ -84,7 +86,7 @@ public sealed class RegistryUseCaseOfTypeTests
 
         var handler = assembly.GetType("Shop.Spending.ExpenseHandlers+ApproveExpenseCommandHandler");
         Assert.NotNull(handler);
-        Assert.Equal("use-case/spending.approve-expense", lookup.Invoke(null, new object[] { handler }));
+        Assert.Equal("use-case/spending.approve-expense", lookup.Invoke(null, [handler]));
     }
 
     private static Assembly Emit(

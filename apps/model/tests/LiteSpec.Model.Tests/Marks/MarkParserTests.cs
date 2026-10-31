@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests.Marks;
 /// <summary>Tests for the shared mark text parser.</summary>
 public sealed class MarkParserTests
 {
+    /// <summary>Tags read every verb with a trimmed id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Tags read every verb with a trimmed id")]
     public void TagsReadEveryVerb()
@@ -25,6 +26,7 @@ public sealed class MarkParserTests
         Assert.Equal("decision/0002-store-expenses-as-documents", marks[2].RecordId);
     }
 
+    /// <summary>Tags in another case read no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Tags in another case read no marks")]
     public void WrongCaseTagsReadNone()
@@ -32,6 +34,7 @@ public sealed class MarkParserTests
         Assert.Empty(MarkParser.ReadTags("<Implements>use-case/spending.submit-expense</Implements>"));
     }
 
+    /// <summary>An unclosed, empty, or self-closing tag reads no mark.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unclosed, empty, or self-closing tag reads no mark")]
     public void MalformedTagsReadNone()
@@ -42,6 +45,7 @@ public sealed class MarkParserTests
         Assert.Empty(MarkParser.ReadTags("<implements/>"));
     }
 
+    /// <summary>Attributes read every verb with a trimmed id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Attributes read every verb with a trimmed id")]
     public void AttributesReadEveryVerb()
@@ -59,6 +63,7 @@ public sealed class MarkParserTests
         Assert.Equal(MarkVerb.Follows, marks[2].Verb);
     }
 
+    /// <summary>Attributes read through the generated qualifier and the Attribute suffix.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Attributes read through the generated qualifier and the Attribute suffix")]
     public void AttributesReadThroughGeneratedQualifier()
@@ -72,6 +77,7 @@ public sealed class MarkParserTests
         Assert.Equal("scenario/submit-expense.succeeds", marks[1].RecordId);
     }
 
+    /// <summary>Attributes qualified with another namespace read no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Attributes qualified with another namespace read no marks")]
     public void DomainQualifiedAttributesReadNone()
@@ -80,6 +86,7 @@ public sealed class MarkParserTests
         Assert.Empty(MarkParser.ReadAttributes("[global::Spending.Follows(\"decision/0002-store-expenses-as-documents\")]"));
     }
 
+    /// <summary>Attributes read several entries of one list.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Attributes read several entries of one list")]
     public void AttributesReadSeveralEntries()
@@ -91,6 +98,7 @@ public sealed class MarkParserTests
         Assert.Equal("scenario/submit-expense.succeeds", marks[1].RecordId);
     }
 
+    /// <summary>An attribute without a quoted id reads no mark.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute without a quoted id reads no mark")]
     public void MalformedAttributesReadNone()
@@ -101,6 +109,7 @@ public sealed class MarkParserTests
         Assert.Empty(MarkParser.ReadAttributes("[Implements(\"  \")]"));
     }
 
+    /// <summary>Both forms read in source order with their offsets.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Both forms read in source order with their offsets")]
     public void BothFormsReadInOrder()
@@ -116,6 +125,7 @@ public sealed class MarkParserTests
         Assert.Equal(text.IndexOf('<', StringComparison.Ordinal), marks[1].Index);
     }
 
+    /// <summary>A null or empty text reads no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A null or empty text reads no marks")]
     public void NullTextReadsNone()

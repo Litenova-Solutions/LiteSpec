@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Readers;
 /// <summary>Proves the scenario reader takes each test's claims from its proves marks, in either style.</summary>
 public sealed class DotnetScenarioMarkTests
 {
+    /// <summary>Test Claim Xml Links Its Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Xml_Links_Its_Scenario()
@@ -28,6 +29,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(scenario.Claims));
     }
 
+    /// <summary>Test Claim Attribute Links Its Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Attribute_Links_Its_Scenario()
@@ -49,6 +51,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(scenario.Claims));
     }
 
+    /// <summary>Test Claim Names A Rule.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Names_A_Rule()
@@ -70,6 +73,8 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("rule/lending.copy-barcode-unique", Assert.Single(scenario.Claims));
     }
 
+    /// <summary>Test Claim Names A Proof Target.</summary>
+    /// <param name="claim">The record identifier or provision identifier the case claims as its proof target.</param>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("requirement/borrowing.borrow-latency")]
@@ -77,6 +82,7 @@ public sealed class DotnetScenarioMarkTests
     [InlineData("external-system/text-gateway")]
     [InlineData("integration-event/loan-borrowed")]
     [InlineData("litespec/backend/persistence#commit-each-command-pipeline-once")]
+    // The InlineData values name each proof-target claim case.
     public void Test_Claim_Names_A_Proof_Target(string claim)
     {
         using var temp = Cli.Temp("reader-marks");
@@ -96,6 +102,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal(claim, Assert.Single(scenario.Claims));
     }
 
+    /// <summary>Test Without Claims Has No Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Without_Claims_Has_No_Scenario()
@@ -114,6 +121,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Empty(Read(temp.Path).Scenarios);
     }
 
+    /// <summary>Test Method Is Read As A Test Element.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Method_Is_Read_As_A_Test_Element()
@@ -142,6 +150,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
     }
 
+    /// <summary>Proves Without Test Attribute Lands In Stray Marks.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Proves_Without_Test_Attribute_Lands_In_Stray_Marks()

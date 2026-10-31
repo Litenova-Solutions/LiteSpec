@@ -12,6 +12,8 @@ namespace LiteSpec.Model.Checks;
 internal static class LifecycleChecks
 {
     /// <summary>Reports transition-unknown and state-unreached.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
@@ -50,7 +52,9 @@ internal static class LifecycleChecks
     }
 
     /// <summary>The aggregate's state names.</summary>
-    private static IReadOnlySet<string> StateNames(Record aggregate)
+    /// <param name="aggregate">The aggregate record whose declared states are read.</param>
+    /// <returns>The declared state names with ordinal comparison, or an empty set when the aggregate declares no states array.</returns>
+    private static HashSet<string> StateNames(Record aggregate)
     {
         if (aggregate.Raw.ValueKind != JsonValueKind.Object
             || !aggregate.Raw.TryGetProperty(RecordFields.States, out var value)
@@ -69,6 +73,9 @@ internal static class LifecycleChecks
     }
 
     /// <summary>Whether the id names a use case record.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="id">The record identifier under test.</param>
+    /// <returns>True when the identifier resolves to a use case record; otherwise false.</returns>
     private static bool IsUseCase(ProjectModel model, string id) =>
         model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.UseCase;
 }

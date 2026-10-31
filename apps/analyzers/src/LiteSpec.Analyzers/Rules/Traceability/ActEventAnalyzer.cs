@@ -24,8 +24,14 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS5007, Descriptors.LS5008);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>Registers the analysis actions for the act event analyzer rule with the compilation context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state)
     {
@@ -37,6 +43,11 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
         context.RegisterCompilationEndAction(c => Analyze(c, state, collected));
     }
 
+    /// <summary>Collects the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="collected">The marked acts collected so far, in discovery order.</param>
+    /// <param name="collectedLock">The object that guards the collected list while symbols are visited.</param>
     private static void Collect(
         SymbolAnalysisContext context,
         TraceabilityContext state,
@@ -71,7 +82,10 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>Every use-case mark on the method that resolves to a use-case record.</summary>
-    private static IReadOnlyList<string> UseCaseMarks(TraceabilityContext state, IMethodSymbol method)
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="method">The method under inspection.</param>
+    /// <returns>The case marks, in the order this method builds them, or an empty collection when none apply.</returns>
+    private static List<string> UseCaseMarks(TraceabilityContext state, IMethodSymbol method)
     {
         var useCases = new List<string>();
 
@@ -94,7 +108,10 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     ///     The event ids the method raises through the shared extraction, resolved
     ///     through each event type's <c>event/</c> mark.
     /// </summary>
-    private static IReadOnlyList<string> RaisedEventIds(TraceabilityContext state, IMethodSymbol method)
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="method">The method under inspection.</param>
+    /// <returns>The event ids, in the order this method builds them, or an empty collection when none apply.</returns>
+    private static List<string> RaisedEventIds(TraceabilityContext state, IMethodSymbol method)
     {
         var raised = new List<string>();
 
@@ -116,6 +133,10 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
         return raised;
     }
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="collected">The marked acts collected so far, in discovery order.</param>
     private static void Analyze(
         CompilationAnalysisContext context, TraceabilityContext state, List<MarkedAct> collected)
     {
@@ -155,14 +176,21 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>The event ids the use case lists in raises, in record order.</summary>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="useCase">The use-case identifier to resolve.</param>
+    /// <returns>The declared event ids for the use case, or an empty list when the use case names no record.</returns>
     private static IReadOnlyList<string> Raises(TraceabilityContext state, string useCase) =>
         state.Store.Index.ById(useCase)?.Ids("raises") ?? Array.Empty<string>();
 
     /// <summary>The file holding the method, or empty when it sits outside source.</summary>
+    /// <param name="act">The marked act collected from the aggregate method.</param>
+    /// <returns>The path as text.</returns>
     private static string LocationPath(MarkedAct act) =>
         act.Method.Locations[0].SourceTree?.FilePath ?? string.Empty;
 
     /// <summary>The 0-based line holding the method, or 0 when it sits outside source.</summary>
+    /// <param name="act">The marked act collected from the aggregate method.</param>
+    /// <returns>The line.</returns>
     private static int LocationLine(MarkedAct act)
     {
         var location = act.Method.Locations[0];
@@ -172,8 +200,13 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
             : location.SourceTree.GetLineSpan(location.SourceSpan).StartLinePosition.Line;
     }
 
+    /// <summary>Holds the marked act data the act event analyzer code works with.</summary>
     private sealed class MarkedAct
     {
+        /// <summary>Initializes a new instance of the <see cref="MarkedAct"/> class.</summary>
+        /// <param name="method">The method under inspection.</param>
+        /// <param name="useCases">The use-case identifiers collected so far.</param>
+        /// <param name="raised">The raised event identifiers collected so far.</param>
         public MarkedAct(IMethodSymbol method, IReadOnlyList<string> useCases, IReadOnlyList<string> raised)
         {
             Method = method;
@@ -181,10 +214,13 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
             Raised = raised;
         }
 
+        /// <summary>Gets the method for the marked act.</summary>
         public IMethodSymbol Method { get; }
 
+        /// <summary>Gets the use cases for the marked act.</summary>
         public IReadOnlyList<string> UseCases { get; }
 
+        /// <summary>Gets the raised for the marked act.</summary>
         public IReadOnlyList<string> Raised { get; }
     }
 }

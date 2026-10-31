@@ -106,10 +106,17 @@ public static class RecordFiles
         return records;
     }
 
+    /// <summary>Reads one optional string field from a JSON object.</summary>
+    /// <param name="node">The JSON object.</param>
+    /// <param name="name">The field name.</param>
+    /// <returns>The field text, or null when the object holds no such string field.</returns>
     private static string? StringOf(JsonText node, string name) =>
         node.TryGetProperty(name, out var value) ? value.GetString() : null;
 
     /// <summary>The 1-based line where the needle first occurs, or 1.</summary>
+    /// <param name="text">The file text.</param>
+    /// <param name="needle">The text to locate.</param>
+    /// <returns>The 1-based line of the first occurrence, or 1 when it occurs nowhere.</returns>
     private static int LineOf(string text, string needle)
     {
         var at = text.IndexOf(needle, StringComparison.Ordinal);

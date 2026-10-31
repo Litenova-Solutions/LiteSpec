@@ -226,12 +226,12 @@ static class AggregateCallReader
 
     /// <summary>The aggregate a repository interface serves, or null when it names none.</summary>
     /// <param name="face">The repository interface name.</param>
-    /// <returns>The aggregate a repository interface serves, or null when it names none.</returns>
+    /// <returns>The interface name without its leading I and trailing Repository, or null when it does not end with Repository.</returns>
     public static string? RepositoryAggregateName(string face)
     {
         var type = face;
 
-        if (type.StartsWith("I", StringComparison.Ordinal) && type.Length > 1 && char.IsUpper(type[1]))
+        if (type.StartsWith('I') && type.Length > 1 && char.IsUpper(type[1]))
         {
             type = type[1..];
         }

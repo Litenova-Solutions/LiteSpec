@@ -91,6 +91,10 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
     ///     <c>use-case/</c> id a handler in the technical class's folder carries
     ///     that resolves to a use-case record, in identifier order.
     /// </summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="cancellationToken">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the use cases.</returns>
     private static async Task<IReadOnlyList<IRecordFacts>> SiblingUseCasesAsync(
         Document document, TraceabilityFix fix, System.Threading.CancellationToken cancellationToken)
     {
@@ -167,6 +171,9 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
         return records;
     }
 
+    /// <summary>Collects the use cases.</summary>
+    /// <param name="member">The member declaration under inspection.</param>
+    /// <param name="ids">The identifiers collected so far, without duplicates.</param>
     private static void CollectUseCases(MemberDeclarationSyntax member, HashSet<string> ids)
     {
         foreach (var mark in MarkReader.Read(member))
@@ -181,6 +188,8 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The folder holding the file, with forward slashes: empty for the root.</summary>
+    /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
+    /// <returns>The folder of the file path.</returns>
     private static string FolderOf(string? filePath)
     {
         if (filePath is null || filePath.Length == 0)
@@ -194,6 +203,14 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
         return slash < 0 ? string.Empty : normalized.Substring(0, slash);
     }
 
+    /// <summary>Returns the mark.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="verb">The mark verb the edit writes, such as implements or follows.</param>
+    /// <param name="style">The mark style the project declares, which selects the tag or attribute form.</param>
+    /// <param name="recordId">The record identifier the mark names, spelled as the record states it.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the mark.</returns>
     private static async Task<Solution> AddMarkAsync(
         Document document,
         Diagnostic diagnostic,

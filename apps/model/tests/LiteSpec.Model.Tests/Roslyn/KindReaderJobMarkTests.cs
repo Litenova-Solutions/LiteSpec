@@ -10,6 +10,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests that a plain class carrying a job mark is a job host, from syntax and from symbols.</summary>
 public sealed class KindReaderJobMarkTests
 {
+    /// <summary>A marked plain class in Application, Infrastructure, or Worker is a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked plain class in Application, Infrastructure, or Worker is a job")]
     public void MarkedPlainClassIsAJob()
@@ -29,6 +30,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Worker"));
     }
 
+    /// <summary>A marked class without a job name is a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class without a job name is a job")]
     public void MarkedClassWithoutJobNameIsAJob()
@@ -46,6 +48,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <summary>The same class unmarked is technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The same class unmarked is technical")]
     public void UnmarkedPlainClassIsTechnical()
@@ -62,6 +65,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <summary>A marked class in Domain is not a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class in Domain is not a job")]
     public void MarkedClassInDomainIsNotAJob()
@@ -79,6 +83,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Domain"));
     }
 
+    /// <summary>A marked plain class in Application, Infrastructure, or Worker is a job from its symbol.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked plain class in Application, Infrastructure, or Worker is a job from its symbol")]
     public void MarkedPlainClassIsAJobFromSymbol()
@@ -99,6 +104,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Worker"));
     }
 
+    /// <summary>The same class unmarked is technical from its symbol.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The same class unmarked is technical from its symbol")]
     public void UnmarkedPlainClassIsTechnicalFromSymbol()
@@ -116,6 +122,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <summary>A marked class in Domain is not a job from its symbol.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class in Domain is not a job from its symbol")]
     public void MarkedClassInDomainIsNotAJobFromSymbol()
@@ -134,6 +141,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Domain"));
     }
 
+    /// <summary>Syntax and symbol overloads agree on a marked job host.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on a marked job host")]
     public void SyntaxAndSymbolAgreeOnMarkedJob()
@@ -150,9 +158,9 @@ public sealed class KindReaderJobMarkTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "ChargeDuesJob");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.Job, KindReader.KindOf(node, KindContext.Empty, "Shop.Infrastructure"));

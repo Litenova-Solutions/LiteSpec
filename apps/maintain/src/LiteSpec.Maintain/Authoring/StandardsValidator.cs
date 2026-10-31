@@ -148,6 +148,7 @@ internal static class StandardsValidator
     /// <param name="root">The repository root.</param>
     /// <param name="releasedIds">The released provision identifiers, or null.</param>
     /// <returns>The validation result.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Validate reports an unreadable repository root or input walk as a result error instead of crashing the validation run on malformed repository input.")]
     internal static StandardsResult Validate(string root, HashSet<string>? releasedIds)
     {
         var resolved = Path.GetFullPath(root.Length == 0 ? "." : root);
@@ -283,6 +284,7 @@ internal static class StandardsValidator
     /// </summary>
     /// <param name="args">The command arguments.</param>
     /// <returns>The exit code.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the validate command handler; it prints any failure to resolve the repository root and returns exit code 2 instead of crashing.")]
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, ["--warnings"], ["--root", "--format"]);

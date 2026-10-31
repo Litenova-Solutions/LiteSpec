@@ -28,6 +28,8 @@ internal static class DependencyChecks
     ///     Runs admission-invalid, which always runs, and the three bill checks, which stay
     ///     silent when the project names no bill of materials in paths.sbom.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every decision record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     public static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckAdmissionsComplete(model, findings);
@@ -92,6 +94,8 @@ internal static class DependencyChecks
     /// <summary>
     ///     Every admission: the admits entries of the technical decisions that are not retired.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every technical decision record.</param>
+    /// <returns>Each admitted package with its ecosystem, name and admitted license where one is named.</returns>
     private static List<Admission> AdmissionsOf(ProjectModel model)
     {
         var admissions = new List<Admission>();
@@ -143,6 +147,9 @@ internal static class DependencyChecks
     ///     The admission naming the package, or null when none does. NuGet names compare
     ///     case-insensitively, npm names case-sensitively.
     /// </summary>
+    /// <param name="admissions">The admitted packages read from the technical decisions.</param>
+    /// <param name="package">The shipped direct package whose admission is wanted.</param>
+    /// <returns>The admission naming the package, or null when none does.</returns>
     private static Admission? AdmissionFor(List<Admission> admissions, DirectPackage package)
     {
         foreach (var admission in admissions)
@@ -166,6 +173,9 @@ internal static class DependencyChecks
     }
 
     /// <summary>The manifest pin for the package, or null when the manifest pins no such package.</summary>
+    /// <param name="pins">The manifest pins by ecosystem and package name.</param>
+    /// <param name="package">The shipped direct package whose pin is wanted.</param>
+    /// <returns>The pinned version text, or null when the manifest pins no such package.</returns>
     private static string? PinOf(ManifestPins pins, DirectPackage package)
     {
         if (package.Ecosystem.Equals("nuget", StringComparison.OrdinalIgnoreCase)
@@ -187,6 +197,10 @@ internal static class DependencyChecks
     ///     Whether the shipped license is accepted: it equals the license the admission names,
     ///     or every identifier in the SPDX expression is accepted.
     /// </summary>
+    /// <param name="accepted">The license identifiers the project accepts explicitly.</param>
+    /// <param name="admitsLicense">The license the admission names, or null when it names none.</param>
+    /// <param name="shipped">The license expression the shipped package carries.</param>
+    /// <returns>True when the shipped license equals the admitted license or each identifier in its SPDX expression is accepted; otherwise false.</returns>
     private static bool LicenseAccepted(IReadOnlySet<string> accepted, string? admitsLicense, string shipped)
     {
         if (shipped.Length == 0)
@@ -208,6 +222,8 @@ internal static class DependencyChecks
     }
 
     /// <summary>Reports every admits entry missing any of its six facts.</summary>
+    /// <param name="model">The loaded project model that holds every technical decision record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAdmissionsComplete(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -253,16 +269,23 @@ internal static class DependencyChecks
     }
 
     /// <summary>Whether the entry names the fact with a non-blank string.</summary>
+    /// <param name="entry">The admits entry under inspection.</param>
+    /// <param name="fact">The fact name whose presence is tested.</param>
+    /// <returns>True when the entry names the fact with a non-blank string; otherwise false.</returns>
     private static bool HasText(JsonElement entry, string fact) =>
         entry.TryGetProperty(fact, out var value)
         && value.ValueKind == JsonValueKind.String
         && !string.IsNullOrWhiteSpace(value.GetString());
 
     /// <summary>The version as the message names it.</summary>
+    /// <param name="version">The package version text, empty when the bill of materials names none.</param>
+    /// <returns>The version in quotes, or the words no version when empty.</returns>
     private static string VersionText(string version) =>
         version.Length > 0 ? $"'{version}'" : "no version";
 
     /// <summary>The license as the message names it.</summary>
+    /// <param name="license">The package license text, empty when the bill of materials names none.</param>
+    /// <returns>The license in quotes, or the words no license when empty.</returns>
     private static string LicenseText(string license) =>
         license.Length > 0 ? $"'{license}'" : "no license";
 }

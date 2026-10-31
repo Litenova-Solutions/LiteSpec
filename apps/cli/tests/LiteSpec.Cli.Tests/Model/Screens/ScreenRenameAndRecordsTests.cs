@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Screens;
 /// <summary>Proves per-frontend records unions and the screen rename.</summary>
 public sealed class ScreenRenameAndRecordsTests
 {
+    /// <summary>Records Unions Hold Only The Frontends Own Entry Points.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Records_Unions_Hold_Only_The_Frontends_Own_Entry_Points()
@@ -24,6 +25,7 @@ public sealed class ScreenRenameAndRecordsTests
         Assert.Equal(["screen/admin.loans"], FrontendRecords.ScreenIds(model, admin));
     }
 
+    /// <summary>A Frontend Naming Its Entry Point Is Read Through It Before Any Screen Exists.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void A_Frontend_Naming_Its_Entry_Point_Is_Read_Through_It_Before_Any_Screen_Exists()
@@ -51,6 +53,7 @@ public sealed class ScreenRenameAndRecordsTests
         Assert.Equal(["entry-point/admin"], FrontendRecords.EntryPointsOf(model, admin));
     }
 
+    /// <summary>Rename Screen Rewrites Its Record Route Mark And Browser Annotation.</summary>
     /// <proves>litespec/core/maintaining#replace-every-citation-on-a-rename</proves>
     [Fact]
     public void Rename_Screen_Rewrites_Its_Record_Route_Mark_And_Browser_Annotation()
@@ -92,6 +95,7 @@ public sealed class ScreenRenameAndRecordsTests
         Assert.Contains("screen/library-app.loan-list", File.ReadAllText(Path.Combine(screens, "library-app.loan-list.md")));
     }
 
+    /// <summary>Rename Scenario Rewrites A Browser Tests Proves Call.</summary>
     /// <proves>litespec/core/maintaining#replace-every-citation-on-a-rename</proves>
     [Fact]
     public void Rename_Scenario_Rewrites_A_Browser_Tests_Proves_Call()

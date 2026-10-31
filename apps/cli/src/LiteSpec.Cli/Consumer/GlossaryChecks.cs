@@ -22,6 +22,7 @@ static class GlossaryChecks
     ///     rejected synonyms and mannered terms, and summarizes the outcome.
     /// </summary>
     /// <param name="run">The state of the run.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The glossary reader must report an unreadable glossary file or glossary scan pattern as a finding and continue the run instead of crashing on any input.")]
     public static void CheckGlossaryAndProse(ConsumerRun run)
     {
         var pagesWatch = System.Diagnostics.Stopwatch.StartNew();

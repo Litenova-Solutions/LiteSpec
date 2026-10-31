@@ -6,6 +6,9 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the statement wording check: each vague word reported, and code in backticks skipped.</summary>
 public sealed class StatementWordingCheckTests
 {
+    /// <summary>Each Vague Word Reported In A Statement.</summary>
+    /// <param name="word">The vague wording the case plants in the statement.</param>
+    /// <param name="statement">The behavior statement text that carries the vague wording.</param>
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Theory]
     [InlineData("handle", "The clerk will handle the request by hand.")]
@@ -22,6 +25,8 @@ public sealed class StatementWordingCheckTests
     [InlineData("properly", "The clerk scans the copy properly.")]
     [InlineData("as needed", "The clerk reorders shelves as needed.")]
     [InlineData("and so on", "The clerk counts copies, holds, and so on.")]
+    // The InlineData values pair each vague word with its statement.
+    // Each statement holds its vague word outside backticks, so the check reports it.
     public void Each_Vague_Word_Reported_In_A_Statement(string word, string statement)
     {
         using var temp = Cli.Temp("checks");
@@ -39,6 +44,7 @@ public sealed class StatementWordingCheckTests
         Assert.Contains(findings, finding => finding.Message.Contains($"'{word}'", StringComparison.Ordinal));
     }
 
+    /// <summary>Vague Word Inside Backticks Skipped.</summary>
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Vague_Word_Inside_Backticks_Skipped()
@@ -56,6 +62,7 @@ public sealed class StatementWordingCheckTests
         Assert.DoesNotContain("statement-word-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Vague Word Inside A Hyphenated Identifier Skipped.</summary>
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Vague_Word_Inside_A_Hyphenated_Identifier_Skipped()
@@ -73,6 +80,7 @@ public sealed class StatementWordingCheckTests
         Assert.DoesNotContain("statement-word-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Scenario Steps And Result Meaning Reported.</summary>
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Scenario_Steps_And_Result_Meaning_Reported()

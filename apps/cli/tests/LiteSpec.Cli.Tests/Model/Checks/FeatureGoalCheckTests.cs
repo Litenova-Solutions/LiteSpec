@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the feature goal check against hand-built models.</summary>
 public sealed class FeatureGoalCheckTests
 {
+    /// <summary>Planned Feature With Advances Passes.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Planned_Feature_With_Advances_Passes()
@@ -18,6 +19,7 @@ public sealed class FeatureGoalCheckTests
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Planned Feature Without Advances Reports At Tier A.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Planned_Feature_Without_Advances_Reports_At_Tier_A()
@@ -33,6 +35,7 @@ public sealed class FeatureGoalCheckTests
         Assert.Equal("feature/hold-requests", finding.Subject);
     }
 
+    /// <summary>Tier1 Feature Without Advances Reports At Tier G.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Tier1_Feature_Without_Advances_Reports_At_Tier_G()
@@ -48,6 +51,7 @@ public sealed class FeatureGoalCheckTests
         Assert.Equal("feature/hold-requests", finding.Subject);
     }
 
+    /// <summary>Refused Feature Without Advances Passes.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Refused_Feature_Without_Advances_Passes()
@@ -60,6 +64,7 @@ public sealed class FeatureGoalCheckTests
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Feature Without Advances Passes.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Retired_Feature_Without_Advances_Passes()
@@ -72,6 +77,7 @@ public sealed class FeatureGoalCheckTests
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Feature Carrying Serves Reports Invalid Field.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
     public void Feature_Carrying_Serves_Reports_Invalid_Field()

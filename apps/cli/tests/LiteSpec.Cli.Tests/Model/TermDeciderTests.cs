@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the builder reads decider and decideBy on glossary terms, so a draft term carrying both raises nothing.</summary>
 public sealed class TermDeciderTests
 {
+    /// <summary>Draft Term With Decider And DecideBy Raises Nothing.</summary>
     /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
     [Fact]
     public void Draft_Term_With_Decider_And_DecideBy_Raises_Nothing()
@@ -21,6 +22,7 @@ public sealed class TermDeciderTests
         Assert.DoesNotContain(findings, finding => finding.Code == "decider-missing");
     }
 
+    /// <summary>Draft Term Without Decider Reports.</summary>
     /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
     [Fact]
     public void Draft_Term_Without_Decider_Reports()

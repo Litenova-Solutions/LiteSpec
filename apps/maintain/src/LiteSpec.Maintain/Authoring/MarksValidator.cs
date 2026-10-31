@@ -137,7 +137,7 @@ internal sealed class MarksValidator
     /// <summary>Collects the C# source files under a folder.</summary>
     /// <param name="folder">The folder to collect from.</param>
     /// <param name="files">The collected files.</param>
-    private void CollectSources(string folder, List<string> files)
+    private static void CollectSources(string folder, List<string> files)
     {
         foreach (var entry in Directory.GetFileSystemEntries(folder).OrderBy(name => name, StringComparer.Ordinal))
         {
@@ -169,7 +169,7 @@ internal sealed class MarksValidator
     /// <summary>Lists the top-level classes of a syntax tree.</summary>
     /// <param name="tree">The syntax tree.</param>
     /// <returns>The top-level classes.</returns>
-    private List<ClassDeclarationSyntax> TopLevelClasses(SyntaxTree tree) =>
+    private static List<ClassDeclarationSyntax> TopLevelClasses(SyntaxTree tree) =>
         tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
             .Where(node => node.Parent is BaseNamespaceDeclarationSyntax or CompilationUnitSyntax)
             .ToList();
@@ -177,7 +177,7 @@ internal sealed class MarksValidator
     /// <summary>Lists the members of a syntax tree that can carry a mark.</summary>
     /// <param name="tree">The syntax tree.</param>
     /// <returns>The markable members.</returns>
-    private IEnumerable<MemberDeclarationSyntax> MarkedMembers(SyntaxTree tree) =>
+    private static IEnumerable<MemberDeclarationSyntax> MarkedMembers(SyntaxTree tree) =>
         tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>()
             .Where(node => node is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or MethodDeclarationSyntax);
 
@@ -185,7 +185,7 @@ internal sealed class MarksValidator
     /// <summary>Computes the namespace-qualified key of a class.</summary>
     /// <param name="node">The class declaration.</param>
     /// <returns>The class key.</returns>
-    private string ClassKey(ClassDeclarationSyntax node)
+    private static string ClassKey(ClassDeclarationSyntax node)
     {
         var namespaces = node.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().Reverse().Select(current => current.Name.ToString());
         return string.Join(".", namespaces.Append(node.Identifier.Text));
@@ -194,13 +194,13 @@ internal sealed class MarksValidator
     /// <summary>Reports whether a class carries a follows mark.</summary>
     /// <param name="node">The class declaration.</param>
     /// <returns>True when the class carries a follows mark.</returns>
-    private bool HasFollowsMark(ClassDeclarationSyntax node) =>
+    private static bool HasFollowsMark(ClassDeclarationSyntax node) =>
         MarkReader.Read(node).Any(mark => mark.Verb == MarkVerb.Follows);
 
     /// <summary>Reports whether a class carries a GeneratedCode attribute.</summary>
     /// <param name="node">The class declaration.</param>
     /// <returns>True when the class is generated code.</returns>
-    private bool HasGeneratedCode(ClassDeclarationSyntax node)
+    private static bool HasGeneratedCode(ClassDeclarationSyntax node)
     {
         foreach (var attribute in node.AttributeLists.SelectMany(list => list.Attributes))
         {

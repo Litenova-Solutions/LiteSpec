@@ -18,11 +18,21 @@ public sealed class FileTypeNameAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS3003);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None && layer != Layer.Test;
 
+    /// <summary>
+    ///     Registers the analysis actions for the file type name analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSyntaxTreeAction(Analyze);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SyntaxTreeAnalysisContext context)
     {
         var fileName = Path.GetFileNameWithoutExtension(context.Tree.FilePath);
@@ -88,12 +98,23 @@ public sealed class FileTypeNameAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the node is top level; otherwise false.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <returns>True when the node is top level; otherwise false.</returns>
     private static bool IsTopLevel(SyntaxNode node) =>
         node.Parent is CompilationUnitSyntax || node.Parent is BaseNamespaceDeclarationSyntax;
 
+    /// <summary>Counts the int.</summary>
+    /// <param name="parameters">The parameters supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>The int.</returns>
     private static int Count(TypeParameterListSyntax? parameters) =>
         parameters is null ? 0 : parameters.Parameters.Count;
 
+    /// <summary>Returns true when the already-seen condition holds; otherwise false.</summary>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <param name="name">The name to convert or match.</param>
+    /// <param name="arity">The generic arity of the type name.</param>
+    /// <returns>True when the already-seen condition holds; otherwise false.</returns>
     private static bool AlreadySeen(List<(string Name, int Arity, Location Location)> found, string name, int arity)
     {
         foreach (var seen in found)

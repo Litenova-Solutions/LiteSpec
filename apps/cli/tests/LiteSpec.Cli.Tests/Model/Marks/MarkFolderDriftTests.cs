@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves the backend mark-to-folder check and the per-language mark style check.</summary>
 public sealed class MarkFolderDriftTests
 {
+    /// <summary>Handler In Another Module Folder Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Handler_In_Another_Module_Folder_Reports_Mark_Folder_Drift()
@@ -27,6 +28,7 @@ public sealed class MarkFolderDriftTests
         Assert.EndsWith(".", finding.Message);
     }
 
+    /// <summary>Handler Marking Another Use Case In Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Handler_Marking_Another_Use_Case_In_Its_Module_Reports_Mark_Folder_Drift()
@@ -45,6 +47,7 @@ public sealed class MarkFolderDriftTests
         Assert.Equal("use-case/booking.release-hold", finding.Subject);
     }
 
+    /// <summary>Handler In Its Module And Use Case Folder Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Handler_In_Its_Module_And_Use_Case_Folder_Reports_No_Mark_Folder_Drift()
@@ -57,6 +60,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Endpoint Under Endpoints Folder Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Endpoint_Under_Endpoints_Folder_Reports_No_Mark_Folder_Drift()
@@ -69,6 +73,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Aggregate Root Outside Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Aggregate_Root_Outside_Its_Module_Reports_Mark_Folder_Drift()
@@ -87,6 +92,7 @@ public sealed class MarkFolderDriftTests
         Assert.Equal("aggregate/billing.invoice", finding.Subject);
     }
 
+    /// <summary>Job Outside Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Job_Outside_Its_Module_Reports_Mark_Folder_Drift()
@@ -105,6 +111,7 @@ public sealed class MarkFolderDriftTests
         Assert.Equal("job/billing.send-reminders", finding.Subject);
     }
 
+    /// <summary>Element Outside Layer Roots Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Element_Outside_Layer_Roots_Reports_No_Mark_Folder_Drift()
@@ -117,6 +124,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Element Directly In Layer Root Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Element_Directly_In_Layer_Root_Reports_No_Mark_Folder_Drift()
@@ -129,6 +137,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Mark Naming No Record Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Mark_Naming_No_Record_Reports_No_Mark_Folder_Drift()
@@ -141,6 +150,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Test Element Outside Its Module Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Test_Element_Outside_Its_Module_Reports_No_Mark_Folder_Drift()
@@ -157,6 +167,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Element Under Provider Plumbing Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Element_Under_Provider_Plumbing_Reports_No_Mark_Folder_Drift()
@@ -169,6 +180,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Element Under Cross Module Contracts Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Element_Under_Cross_Module_Contracts_Reports_No_Mark_Folder_Drift()
@@ -181,6 +193,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Element Under Shared Kernel Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
     [Fact]
     public void Element_Under_Shared_Kernel_Reports_No_Mark_Folder_Drift()
@@ -193,6 +206,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
+    /// <summary>Frontend Mark In Undeclared Style Reports No Mark Style Invalid.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Frontend_Mark_In_Undeclared_Style_Reports_No_Mark_Style_Invalid()
@@ -215,6 +229,10 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>A model with layer roots and the records the drift cases mark.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <param name="marks">The mark style the model declares.</param>
+    /// <param name="dotnetExtra">Extra .NET source appended to the marked file, or null for none.</param>
+    /// <returns>The project model holding the records.</returns>
     static ProjectModel DriftModel(string root, string marks = "xml", string? dotnetExtra = null)
     {
         var dotnet = """
@@ -245,10 +263,20 @@ public sealed class MarkFolderDriftTests
     }
 
     /// <summary>One backend element carrying one mark.</summary>
+    /// <param name="kind">The code element kind.</param>
+    /// <param name="class">The class name carrying the mark.</param>
+    /// <param name="file">The file the element sits in.</param>
+    /// <param name="recordId">The record id the mark names.</param>
+    /// <param name="style">The mark style to write.</param>
+    /// <returns>The marked code element.</returns>
     static MarkedElement Element(CodeKind kind, string @class, string file, string recordId, MarkStyle style = MarkStyle.Xml) =>
         new(kind, @class, null, file, 3, [new CodeMark(recordId, style, MarkVerb.Implements, file, 1)], InTests: false);
 
     /// <summary>One file under a layer root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="layer">The layer folder name under the root.</param>
+    /// <param name="segments">The path segments under the layer folder.</param>
+    /// <returns>The full path to the file.</returns>
     static string LayerFile(string root, string layer, params string[] segments)
     {
         var parts = new List<string> { root, "apps", "api", "src", "Library." + layer };

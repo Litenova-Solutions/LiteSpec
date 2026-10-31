@@ -63,6 +63,10 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     ///     The span of the marked type a diagnostic belongs to: LS5005 sits on the hand-written
     ///     member inside the type, LS5006 on the type itself.
     /// </summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the span.</returns>
     private static async Task<Microsoft.CodeAnalysis.Text.TextSpan> ElementSpanAsync(
         Document document, Diagnostic diagnostic, System.Threading.CancellationToken token)
     {
@@ -79,6 +83,12 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         return type is null ? span : type.Identifier.Span;
     }
 
+    /// <summary>Registers the drift fix.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
     private static void RegisterDriftFix(
         CodeFixContext context, Diagnostic diagnostic, TraceabilityFix fix, SyntaxNode root, string memberName)
     {
@@ -100,6 +110,11 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
             diagnostic);
     }
 
+    /// <summary>Registers the equal fix.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
     private static void RegisterEqualFix(
         CodeFixContext context,
         Diagnostic diagnostic,
@@ -127,6 +142,11 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         }
     }
 
+    /// <summary>Returns the solution.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the solution.</returns>
     private static async Task<Solution> DeleteAsync(
         Document document, Diagnostic diagnostic, System.Threading.CancellationToken token)
     {
@@ -143,6 +163,12 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         return document.WithText(MarkEdits.DeleteMember(text, member, diagnostic.Location.SourceSpan)).Project.Solution;
     }
 
+    /// <summary>Returns the equal.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the equal.</returns>
     private static async Task<Solution> DeleteEqualAsync(
         Document document, Diagnostic diagnostic, string memberName, System.Threading.CancellationToken token)
     {
@@ -169,6 +195,9 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The field or property declaration holding the span, or null.</summary>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="span">The source span the diagnostic covers.</param>
+    /// <returns>The member, or null when none applies.</returns>
     private static MemberDeclarationSyntax? ValueMember(SyntaxNode root, Microsoft.CodeAnalysis.Text.TextSpan span)
     {
         var node = root.FindNode(span, getInnermostNodeForTie: true);
@@ -182,6 +211,8 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The runtime value member of the kind: Classification on events, Code on rule exceptions.</summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <returns>The name as text, or null when none applies.</returns>
     private static string? MemberName(CodeKind kind)
     {
         if (kind == CodeKind.DomainEvent)
@@ -201,6 +232,9 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     ///     The value the record states: the event id, or the rule's refusal
     ///     result code. Null when no mark resolves to the expected record.
     /// </summary>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
+    /// <returns>The value as text, or null when none applies.</returns>
     private static string? ExpectedValue(TraceabilityFix fix, string memberName)
     {
         var recordType = memberName == "Classification" ? "event" : "rule";
@@ -218,6 +252,10 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         return null;
     }
 
+    /// <summary>Returns the code.</summary>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="ruleId">The rule identifier whose refusal code the value must match.</param>
+    /// <returns>The code as text, or null when none applies.</returns>
     private static string? RefusalCode(TraceabilityFix fix, string ruleId)
     {
         var rule = fix.Store.Index.ById(ruleId);
@@ -238,6 +276,9 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The string literal the member declares under the name, or null.</summary>
+    /// <param name="member">The member declaration under inspection.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
+    /// <returns>The literal as text, or null when none applies.</returns>
     private static string? MemberLiteral(MemberDeclarationSyntax member, string memberName)
     {
         if (member is FieldDeclarationSyntax field)

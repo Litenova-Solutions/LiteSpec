@@ -21,6 +21,13 @@ internal static partial class Verify
     private static readonly ImmutableArray<MetadataReference> References = LoadReferences();
 
     /// <summary>Asserts the analyzer reports exactly the marked spans in one file.</summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="source">The C# source text to run the analyzer over.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         string source,
         string assemblyName = "Shop.Domain",
@@ -35,6 +42,13 @@ internal static partial class Verify
     ///     <paramref name="documentationFile"/> false parses as a build without a documentation
     ///     file does, where <c>///</c> lines are ordinary comments.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         string assemblyName = "Shop.Domain",
@@ -49,6 +63,15 @@ internal static partial class Verify
     ///     in reach: the project file and the record pages. <paramref name="editorconfig"/>
     ///     carries <c>dotnet_diagnostic</c> severity lines the analyzer config answers.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task AnalyzerWithRecordsAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
@@ -103,6 +126,17 @@ internal static partial class Verify
     ///     diagnostic in the source, the fix action titled <paramref name="actionTitle"/>
     ///     (or the only action), applied once.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <typeparam name="TFix">The code fix provider under test.</typeparam>
+    /// <param name="source">The C# source text to run the analyzer over.</param>
+    /// <param name="fixedSource">The expected source text after the fix applies.</param>
+    /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="expectedActionCount">The number of fix actions the provider must offer, or null to skip the count.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task CodeFixAsync<TAnalyzer, TFix>(
         string source,
         string fixedSource,
@@ -122,6 +156,17 @@ internal static partial class Verify
     ///     Asserts the code fix turns the sources into the fixed sources, applying the
     ///     titled action (or the only action) to the first diagnostic.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <typeparam name="TFix">The code fix provider under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="fixedFiles">The expected files after the fix applies, each with its path and text.</param>
+    /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="expectedActionCount">The number of fix actions the provider must offer, or null to skip the count.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task CodeFixFilesAsync<TAnalyzer, TFix>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> fixedFiles,
@@ -190,6 +235,15 @@ internal static partial class Verify
     ///     compilation has no errors with the generator running: the target relies on
     ///     the generated attribute, with no stub in the test source.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <typeparam name="TFix">The code fix provider under test.</typeparam>
+    /// <param name="source">The C# source text to run the analyzer over.</param>
+    /// <param name="fixedSource">The expected source text after the fix applies.</param>
+    /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task CodeFixWithGeneratorAsync<TAnalyzer, TFix>(
         string source,
         string fixedSource,
@@ -218,6 +272,13 @@ internal static partial class Verify
     }
 
     /// <summary>Reads the fix action titles in the order the provider offers them.</summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <typeparam name="TFix">The code fix provider under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <returns>A task whose result lists the fix action titles in the order the provider offers them.</returns>
     public static async Task<IReadOnlyList<string>> CodeFixActionTitlesAsync<TAnalyzer, TFix>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
@@ -257,6 +318,16 @@ internal static partial class Verify
     ///     Asserts Fix All turns the sources into the fixed sources across the solution,
     ///     applying the fix with the equivalence key.
     /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <typeparam name="TFix">The code fix provider under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="fixedFiles">The expected files after the fix applies, each with its path and text.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="equivalenceKey">The equivalence key that groups the fix under Fix All.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task CodeFixAllAsync<TAnalyzer, TFix>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> fixedFiles,
@@ -410,6 +481,7 @@ internal static partial class Verify
     private static partial Regex Markup();
 
     /// <summary>The running .NET's own assemblies, enough to compile any BCL-only test source.</summary>
+    /// <returns>The metadata references of the running .NET assemblies.</returns>
     private static ImmutableArray<MetadataReference> LoadReferences()
     {
         var paths = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
@@ -424,6 +496,8 @@ internal static partial class Verify
     ///     The rule severities an .editorconfig sets, as the compiler applies them to every reported
     ///     diagnostic, whatever severity the analyzer reported it with.
     /// </summary>
+    /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
+    /// <returns>The diagnostic severities by identifier.</returns>
     private static ImmutableDictionary<string, ReportDiagnostic> CompilerSeverities(string? editorconfig)
     {
         var severities = ImmutableDictionary.CreateBuilder<string, ReportDiagnostic>(StringComparer.OrdinalIgnoreCase);

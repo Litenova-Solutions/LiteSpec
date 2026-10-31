@@ -8,55 +8,57 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class Record : IRecordFacts
 {
-    /// <summary>The record type, kebab-case.</summary>
+    /// <summary>Gets the record type, kebab-case.</summary>
     public string Type { get; init; } = "";
 
-    /// <summary>The identifier.</summary>
+    /// <summary>Gets the identifier.</summary>
     public string Id { get; init; } = "";
 
-    /// <summary>The display title.</summary>
+    /// <summary>Gets the display title.</summary>
     public string Title { get; init; } = "";
 
-    /// <summary>The resolved owner: the entry's own, else its page's.</summary>
+    /// <summary>Gets the resolved owner: the entry's own, else its page's.</summary>
     public string? Owner { get; init; }
 
-    /// <summary>The resolved status: the entry's own, else its page's.</summary>
+    /// <summary>Gets the resolved status: the entry's own, else its page's.</summary>
     public string? Status { get; init; }
 
-    /// <summary>The resolved decider.</summary>
+    /// <summary>Gets the resolved decider.</summary>
     public string? Decider { get; init; }
 
-    /// <summary>The resolved decide-by date.</summary>
+    /// <summary>Gets the resolved decide-by date.</summary>
     public string? DecideBy { get; init; }
 
-    /// <summary>Who approved or reviewed the record: an owner name, or auto (veto window).</summary>
+    /// <summary>Gets who approved or reviewed the record: an owner name, or auto (veto window).</summary>
     public string? ApprovedBy { get; init; }
 
-    /// <summary>The date the record was approved or reviewed.</summary>
+    /// <summary>Gets the date the record was approved or reviewed.</summary>
     public string? ApprovedOn { get; init; }
 
-    /// <summary>The semantic hash the approval covers, written by the builder.</summary>
+    /// <summary>Gets the semantic hash the approval covers, written by the builder.</summary>
     public string? ApprovedHash { get; init; }
 
-    /// <summary>Whether the builder derived the record rather than reading it from a page.</summary>
+    /// <summary>Gets a value indicating whether whether the builder derived the record rather than reading it from a page.</summary>
     public bool Derived { get; init; }
 
-    /// <summary>The absolute file path.</summary>
+    /// <summary>Gets the absolute file path.</summary>
     public string File { get; init; } = "";
 
-    /// <summary>The 1-based line.</summary>
+    /// <summary>Gets the 1-based line.</summary>
     public int Line { get; init; }
 
-    /// <summary>Whether the record is an entry rather than a page.</summary>
+    /// <summary>Gets a value indicating whether whether the record is an entry rather than a page.</summary>
     public bool IsEntry { get; init; }
 
-    /// <summary>The carrying page's record id, for an entry.</summary>
+    /// <summary>Gets the carrying page's record id, for an entry.</summary>
     public string? PageId { get; init; }
 
-    /// <summary>The raw fields as written.</summary>
+    /// <summary>Gets the raw fields as written.</summary>
     public JsonElement Raw { get; init; }
 
     /// <summary>Reads one optional string field.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The field string value, or null when the field is missing or not a string.</returns>
     public string? Field(string name) =>
         Raw.ValueKind == JsonValueKind.Object
         && Raw.TryGetProperty(name, out var value)
@@ -65,6 +67,8 @@ sealed class Record : IRecordFacts
             : null;
 
     /// <summary>Reads one string array field.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The string entries of the array field, or an empty list when the field is missing or not an array.</returns>
     public IReadOnlyList<string> Strings(string name)
     {
         if (Raw.ValueKind != JsonValueKind.Object
@@ -86,6 +90,8 @@ sealed class Record : IRecordFacts
     ///     Reads the targets of one edge verb (runs, sends, emits, calls): the entries of
     ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
     /// </summary>
+    /// <param name="verb">The edge verb to read: runs, sends, emits or calls.</param>
+    /// <returns>The target ids the verb names, from effects entries then a same-named field.</returns>
     public IReadOnlyList<string> EdgeIds(string verb)
     {
         var ids = new List<string>();
@@ -112,6 +118,8 @@ sealed class Record : IRecordFacts
     }
 
     /// <summary>Reads one field that holds one id or an array of ids.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The single id or the array of ids the field holds, or an empty list when it holds neither.</returns>
     public IReadOnlyList<string> Ids(string name)
     {
         if (Raw.ValueKind != JsonValueKind.Object || !Raw.TryGetProperty(name, out var value))
@@ -138,6 +146,7 @@ sealed class Record : IRecordFacts
     }
 
     /// <summary>The journey's step targets: journey/name#step for each step carrying an id.</summary>
+    /// <returns>The step targets of the journey, or an empty list for any other record type.</returns>
     public IReadOnlyList<string> StepIds()
     {
         if (Type != RecordTypes.Journey
@@ -165,6 +174,8 @@ sealed class Record : IRecordFacts
     }
 
     /// <summary>Whether the record carries the field.</summary>
+    /// <param name="name">The field name to test for.</param>
+    /// <returns>True when the record carries a field of that name.</returns>
     public bool Has(string name) =>
         Raw.ValueKind == JsonValueKind.Object && Raw.TryGetProperty(name, out _);
 }

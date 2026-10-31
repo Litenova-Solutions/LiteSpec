@@ -7,6 +7,8 @@ namespace LiteSpec.Model.Checks;
 internal static class TermLookalikeChecks
 {
     /// <summary>Reports term-clash.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var pair in TermLookalikes.FindPairs(model))
@@ -21,6 +23,8 @@ internal static class TermLookalikeChecks
     }
 
     /// <summary>The B8 finding message for one pair, starting with the second term and its holder.</summary>
+    /// <param name="pair">The two lookalike term occurrences whose clash is described.</param>
+    /// <returns>The finding message that names both spellings and the records that hold them.</returns>
     private static string LookalikeMessage(LookalikePair pair) => pair.Kind switch
     {
         "spelling" => $"Term '{pair.Second.Seen}' holds '{pair.Second.Form}' which mixes British and American spelling with '{pair.First.Form}' in '{pair.First.Seen}'.",

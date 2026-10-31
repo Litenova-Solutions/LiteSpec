@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for reading one syntax tree in a single pass.</summary>
 public sealed class MarkFactsTests
 {
+    /// <summary>One pass collects every marked or markable type.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects every marked or markable type")]
     public void OnePassCollectsMarkedAndMarkableTypes()
@@ -42,9 +43,10 @@ public sealed class MarkFactsTests
         Assert.All(elements, element => Assert.True(element.IsType));
         Assert.Equal(new[] { 2, 4, 7 }, elements.Select(element => element.Line).ToArray());
         Assert.All(elements, element =>
-            Assert.Equal(element.Name, tree.GetText().ToString(element.Span)));
+            Assert.Equal(element.Name, tree.GetText(TestContext.Current.CancellationToken).ToString(element.Span)));
     }
 
+    /// <summary>One pass collects marked and markable methods.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects marked and markable methods")]
     public void OnePassCollectsMethods()
@@ -72,7 +74,7 @@ public sealed class MarkFactsTests
             new[] { "Expense", "Submit", "Submits" },
             elements.Select(element => element.Name).ToArray());
         Assert.Equal(
-            new CodeKind?[] { CodeKind.AggregateRoot, CodeKind.AggregateMethod, CodeKind.Test },
+            [CodeKind.AggregateRoot, CodeKind.AggregateMethod, CodeKind.Test],
             elements.Select(element => element.Kind).ToArray());
         Assert.Equal(new[] { true, false, false }, elements.Select(element => element.IsType).ToArray());
         Assert.Empty(elements[0].Marks);
@@ -80,6 +82,7 @@ public sealed class MarkFactsTests
         Assert.Single(elements[2].Marks);
     }
 
+    /// <summary>One pass collects a marked method of no known kind.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects a marked method of no known kind")]
     public void OnePassCollectsMarkedMethodOfNoKnownKind()
@@ -100,6 +103,7 @@ public sealed class MarkFactsTests
         Assert.Equal("use-case/spending.submit-expense", Assert.Single(element.Marks).RecordId);
     }
 
+    /// <summary>A tree without declarations reads no elements.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tree without declarations reads no elements")]
     public void EmptyTreeReadsNone()

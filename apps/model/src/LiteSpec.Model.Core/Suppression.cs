@@ -86,6 +86,9 @@ public static class Suppression
     /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
+        /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
+        /// <param name="exception">The exception record.</param>
+        /// <param name="codesOfProvision">The finding codes a provision governs, by provision id.</param>
         public LiveException(IRecordFacts exception, Func<string, IReadOnlyList<string>>? codesOfProvision)
         {
             Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
@@ -106,10 +109,13 @@ public static class Suppression
             }
         }
 
+        /// <summary>Gets the subjects the exception holds.</summary>
         public HashSet<string> Subjects { get; }
 
+        /// <summary>Gets the path patterns the exception holds.</summary>
         public IReadOnlyList<string> Paths { get; }
 
+        /// <summary>Gets the finding codes the exception holds.</summary>
         public HashSet<string> Codes { get; }
     }
 
@@ -118,6 +124,9 @@ public static class Suppression
     ///     <c>**</c> spans folders, <c>*</c> and <c>?</c> stay inside one segment,
     ///     and a trailing slash holds the whole folder.
     /// </summary>
+    /// <param name="pattern">The glob pattern.</param>
+    /// <param name="path">The forward-slash path from the project root.</param>
+    /// <returns>True when the glob matches the path.</returns>
     private static bool GlobMatches(string pattern, string path)
     {
         var glob = pattern.Replace('\\', '/');
@@ -133,13 +142,18 @@ public static class Suppression
         }
 
         return GlobSegments(
-            glob.Split(new char[] { '/' }, StringSplitOptions.None),
+            glob.Split(['/'], StringSplitOptions.None),
             0,
-            path.Split(new char[] { '/' }, StringSplitOptions.None),
+            path.Split(['/'], StringSplitOptions.None),
             0);
     }
 
     /// <summary>Whether the trailing pattern segments match the trailing path segments.</summary>
+    /// <param name="pattern">The glob segments.</param>
+    /// <param name="nextPattern">The next glob segment to match.</param>
+    /// <param name="path">The path segments.</param>
+    /// <param name="nextPath">The next path segment to match.</param>
+    /// <returns>True when the trailing segments match.</returns>
     private static bool GlobSegments(string[] pattern, int nextPattern, string[] path, int nextPath)
     {
         while (nextPattern < pattern.Length && nextPath <= path.Length)
@@ -175,6 +189,9 @@ public static class Suppression
     }
 
     /// <summary>Whether the segment pattern matches the path segment: <c>*</c> spans, <c>?</c> takes one.</summary>
+    /// <param name="pattern">The segment pattern.</param>
+    /// <param name="text">The path segment.</param>
+    /// <returns>True when the pattern matches the segment.</returns>
     private static bool GlobSegment(string pattern, string text)
     {
         var nextPattern = 0;
@@ -217,6 +234,9 @@ public static class Suppression
     }
 
     /// <summary>A finding's file as a forward-slash path from the project root.</summary>
+    /// <param name="root">The project root.</param>
+    /// <param name="path">The finding's file path.</param>
+    /// <returns>The forward-slash path from the project root.</returns>
     private static string RootRelative(string root, string path)
     {
         var relative = Path.IsPathRooted(path) ? RelativeTo(root, path) : path;
@@ -228,6 +248,9 @@ public static class Suppression
     ///     The path from one folder to another, with forward slashes: dot when both name
     ///     the same folder, the path itself when they share no root.
     /// </summary>
+    /// <param name="root">The folder to read from.</param>
+    /// <param name="path">The path to read.</param>
+    /// <returns>The path from the root folder, with forward slashes.</returns>
     private static string RelativeTo(string root, string path)
     {
         var comparison = Path.DirectorySeparatorChar == '\\'
@@ -241,8 +264,8 @@ public static class Suppression
             return path;
         }
 
-        var fromSegments = from.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-        var toSegments = to.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        var fromSegments = from.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+        var toSegments = to.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
         var common = 0;
 
         while (common < fromSegments.Length
@@ -268,11 +291,13 @@ public static class Suppression
     }
 
     /// <summary>The root two paths must share: a drive, a UNC share, or the filesystem root.</summary>
+    /// <param name="value">The path to read.</param>
+    /// <returns>The root the path starts from.</returns>
     private static string RootName(string value)
     {
         if (value.StartsWith("//", StringComparison.Ordinal))
         {
-            var segments = value.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = value.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
             return segments.Length >= 2
                 ? "//" + segments[0] + "/" + segments[1]
@@ -288,6 +313,10 @@ public static class Suppression
     }
 
     // Record dates are ISO 8601, so they parse the same under every culture.
+    /// <summary>Tries to read an ISO date.</summary>
+    /// <param name="text">The date text.</param>
+    /// <param name="date">The date read, when one reads.</param>
+    /// <returns>True when the text is an ISO date.</returns>
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 }

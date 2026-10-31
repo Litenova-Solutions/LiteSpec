@@ -15,12 +15,22 @@ public sealed class EventHandlerFolderAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2008);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the event handler folder analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSymbolAction(Analyze, SymbolKind.NamedType);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -44,6 +54,11 @@ public sealed class EventHandlerFolderAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Attempts to get single fact and returns true when it succeeds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="handled">The handled event type the check resolved.</param>
+    /// <param name="fact">The domain fact the handler handles.</param>
+    /// <returns>True when the attempt succeeds; otherwise false.</returns>
     private static bool TryGetSingleFact(INamedTypeSymbol type, out INamedTypeSymbol handled, out string fact)
     {
         handled = null!;

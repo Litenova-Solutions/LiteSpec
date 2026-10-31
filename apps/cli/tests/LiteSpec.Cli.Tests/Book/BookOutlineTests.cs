@@ -116,11 +116,11 @@ public sealed class BookOutlineTests
 
         var first = Find(outline.Layers, "problem/slow-queues");
         Assert.NotNull(first);
-        Assert.True(first!.Children.Any(child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal)));
+        Assert.Contains(first!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
 
         var second = Find(outline.Layers, "problem/lost-copies");
         Assert.NotNull(second);
-        Assert.False(second!.Children.Any(child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal)));
+        Assert.DoesNotContain(second!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
     }
 
     /// <summary>Records with no parent land only in Unplaced, with no outline node and no invented group.</summary>
@@ -206,7 +206,7 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("requirement/borrowing.max-wait", outline.Unplaced);
         var topic = Find(outline.Layers, "topic/borrowing");
         Assert.NotNull(topic);
-        Assert.True(topic!.Children.Any(child => string.Equals(child.Id, "requirement/borrowing.max-wait", StringComparison.Ordinal)));
+        Assert.Contains(topic!.Children, child => string.Equals(child.Id, "requirement/borrowing.max-wait", StringComparison.Ordinal));
 
         var missing = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -243,7 +243,7 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("scenario/borrow-copy.borrowing-succeeds", placed.Unplaced);
         var result = Find(placed.Layers, "result/borrow-copy.borrowed");
         Assert.NotNull(result);
-        Assert.True(result!.Children.Any(child => string.Equals(child.Id, "scenario/borrow-copy.borrowing-succeeds", StringComparison.Ordinal)));
+        Assert.Contains(result!.Children, child => string.Equals(child.Id, "scenario/borrow-copy.borrowing-succeeds", StringComparison.Ordinal));
 
         var missing = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -450,7 +450,7 @@ public sealed class BookOutlineTests
         var outline = BookOutline.Build(model);
         var loan = Find(outline.Layers, "aggregate/lending.loan");
         Assert.NotNull(loan);
-        Assert.True(loan!.Children.Any(child => string.Equals(child.Id, "use-case/lending.borrow-copy", StringComparison.Ordinal)));
+        Assert.Contains(loan!.Children, child => string.Equals(child.Id, "use-case/lending.borrow-copy", StringComparison.Ordinal));
     }
 
     /// <summary>A reaction and a job parent their module by identifier home and sort with the module children.</summary>
@@ -720,7 +720,7 @@ public sealed class BookOutlineTests
         for (var index = header + 2; index < lines.Length; index++)
         {
             var line = lines[index].Trim();
-            if (!line.StartsWith("|", StringComparison.Ordinal))
+            if (!line.StartsWith('|'))
             {
                 break;
             }

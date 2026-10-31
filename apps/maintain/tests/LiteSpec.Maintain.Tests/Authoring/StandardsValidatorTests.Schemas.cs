@@ -15,6 +15,7 @@ public sealed partial class StandardsValidatorTests
         "\"properties\":{\"id\":{\"type\":\"string\"},\"criterion\":{\"type\":\"string\"},\"reviewBy\":{\"type\":\"string\"}}}" +
         "]}}}}";
 
+    /// <summary>Schema id naming another home or release.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema id naming another home or release")]
     public void SchemaIdNamingAnotherRelease() => Check(
@@ -25,6 +26,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_ID"]);
 
+    /// <summary>Schema id naming the published home and release.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema id naming the published home and release")]
     public void SchemaIdNamingThePublishedRelease()
@@ -39,6 +41,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "SCHEMA_ID");
     }
 
+    /// <summary>Schema file that does not parse.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema file that does not parse")]
     public void SchemaFileThatDoesNotParse() => Check(
@@ -49,6 +52,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_JSON"]);
 
+    /// <summary>Schema with no $id.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema with no $id")]
     public void SchemaWithNoId() => Check(
@@ -59,6 +63,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_ID"]);
 
+    /// <summary>Invalid schema consumer.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "invalid schema consumer")]
     public void InvalidSchemaConsumer() => Check(
@@ -69,6 +74,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Unsupported schema keyword.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword")]
     public void UnsupportedSchemaKeyword() => Check(
@@ -79,6 +85,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <summary>Unsupported schema keyword inside a branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword inside a branch")]
     public void UnsupportedSchemaKeywordInBranch() => Check(
@@ -89,6 +96,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <summary>Unsupported schema keyword inside propertyNames.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword inside propertyNames")]
     public void UnsupportedSchemaKeywordInPropertyNames() => Check(
@@ -99,6 +107,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <summary>Schema upper bound.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema upper bound")]
     public void SchemaUpperBound() => Check(
@@ -109,6 +118,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema anyOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema anyOf branch")]
     public void SchemaAnyOfBranch() => Check(
@@ -119,6 +129,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema dependent property.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema dependent property")]
     public void SchemaDependentProperty() => Check(
@@ -129,6 +140,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema property name shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema property name shape")]
     public void SchemaPropertyNameShape() => Check(
@@ -139,6 +151,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema pattern properties.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema pattern properties")]
     public void SchemaPatternProperties() => Check(
@@ -149,6 +162,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema array bounds.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema array bounds")]
     public void SchemaArrayBounds() => Check(
@@ -159,6 +173,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Schema JSON.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema JSON")]
     public void SchemaJson() => Check(
@@ -169,6 +184,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_JSON"]);
 
+    /// <summary>Project template carrying a removed overrides entry.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "project template carrying a removed overrides entry")]
     public void ProjectTemplateWithRemovedOverrides() => Check(
@@ -179,6 +195,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Value matches no oneOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "value matches no oneOf branch")]
     public void ValueMatchesNoOneOfBranch() => Check(
@@ -189,6 +206,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <summary>Value matches exactly one oneOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "value matches exactly one oneOf branch")]
     public void ValueMatchesOneOneOfBranch() => Check(
@@ -199,6 +217,7 @@ public sealed partial class StandardsValidatorTests
         },
         [], ["SCHEMA_INVALID"]);
 
+    /// <summary>Template index names a missing file.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index names a missing file")]
     public void TemplateIndexNamesMissingFile() => Check(
@@ -209,6 +228,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_INDEX_PATH"]);
 
+    /// <summary>Template index omits a tracked template.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index omits a tracked template")]
     public void TemplateIndexOmitsTemplate() => Check(
@@ -220,6 +240,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_INDEX_PATH"]);
 
+    /// <summary>Template index resolves every row.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index resolves every row")]
     public void TemplateIndexResolvesEveryRow() => Check(
@@ -230,6 +251,7 @@ public sealed partial class StandardsValidatorTests
         },
         [], ["TEMPLATE_INDEX_PATH"]);
 
+    /// <summary>Field name carrying two shapes.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "field name carrying two shapes")]
     public void FieldNameCarryingTwoShapes() => Check(
@@ -243,6 +265,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Date field without a By or On name.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "date field without a By or On name")]
     public void DateFieldWithoutByOrOnName() => Check(
@@ -255,6 +278,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Deadline name holding a plain string.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "deadline name holding a plain string")]
     public void DeadlineNameHoldingPlainString() => Check(
@@ -267,6 +291,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Record-type noun holding a list under its singular name.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "record-type noun holding a list under its singular name")]
     public void RecordTypeNounHoldingListUnderSingularName() => Check(
@@ -280,6 +305,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Link verb holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "link verb holding prose")]
     public void LinkVerbHoldingProse() => Check(
@@ -292,6 +318,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Binds holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "binds holding prose")]
     public void BindsHoldingProse() => Check(
@@ -304,6 +331,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>By name without a participle stem.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "By name without a participle stem")]
     public void ByNameWithoutParticipleStem() => Check(
@@ -316,6 +344,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Closed-set noun holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "closed-set noun holding prose")]
     public void ClosedSetNounHoldingProse() => Check(
@@ -328,6 +357,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Prose noun holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "prose noun holding a boolean")]
     public void ProseNounHoldingBoolean() => Check(
@@ -339,6 +369,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>When condition holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "When condition holding a boolean")]
     public void WhenConditionHoldingBoolean() => Check(
@@ -350,6 +381,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Because reason holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "Because reason holding a boolean")]
     public void BecauseReasonHoldingBoolean() => Check(
@@ -361,6 +393,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Recorded date without a past verb stem.</summary>
     /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
     [Fact(DisplayName = "recorded date without a past verb stem")]
     public void RecordedDateWithoutPastVerbStem() => Check(
@@ -373,6 +406,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Lapse date stating what its date does.</summary>
     /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
     [Fact(DisplayName = "lapse date stating what its date does")]
     public void LapseDateStatingWhatItsDateDoes() => Check(
@@ -385,6 +419,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Boolean with an is prefix.</summary>
     /// <proves>litespec/core/language#name-a-boolean-as-a-predicate</proves>
     [Fact(DisplayName = "boolean with an is prefix")]
     public void BooleanWithIsPrefix() => Check(
@@ -396,6 +431,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <summary>Mode objects sharing one shape across pages.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "mode objects sharing one shape across pages")]
     public void ModeObjectsSharingOneShapeAcrossPages() => Check(
@@ -410,6 +446,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Reaction, job and saga fields sharing their word classes.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "reaction, job and saga fields sharing their word classes")]
     public void ReactionJobAndSagaFieldsSharingWordClasses() => Check(
@@ -428,6 +465,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Shipped schemas carry consistent field names.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "shipped schemas carry consistent field names")]
     public void ShippedSchemasCarryConsistentFieldNames()
@@ -462,6 +500,7 @@ public sealed partial class StandardsValidatorTests
     static string TemplatePage(string frontmatter) =>
         "---\n" + frontmatter + "\n---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
 
+    /// <summary>Consumer template carrying only placeholders.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying only placeholders")]
     public void ConsumerTemplateWithPlaceholders() => Check(
@@ -474,6 +513,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template breaking its record shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template breaking its record shape")]
     public void ConsumerTemplateBreakingItsShape() => Check(
@@ -486,6 +526,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_SCHEMA"]);
 
+    /// <summary>Consumer template with invalid frontmatter.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template with invalid frontmatter")]
     public void ConsumerTemplateWithInvalidFrontmatter() => Check(
@@ -496,6 +537,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_SCHEMA"]);
 
+    /// <summary>Consumer template with an unknown record type.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template with an unknown record type")]
     public void ConsumerTemplateWithUnknownType() => Check(
@@ -506,6 +548,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_SCHEMA"]);
 
+    /// <summary>Consumer template dropping a removable placeholder.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template dropping a removable placeholder")]
     public void ConsumerTemplateDroppingRemovablePlaceholder() => Check(
@@ -529,6 +572,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template reading an enum under its shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template reading an enum under its shape")]
     public void ConsumerTemplateReadingEnumUnderItsShape() => Check(
@@ -551,6 +595,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying a placeholder for a non-string field.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying a placeholder for a non-string field")]
     public void ConsumerTemplateWithNonStringPlaceholder() => Check(
@@ -572,6 +617,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying a mode object.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying a mode object")]
     public void ConsumerTemplateCarryingModeObject() => Check(
@@ -596,6 +642,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying a reaction identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying a reaction identifier")]
     public void ConsumerTemplateWithReactionId() => Check(
@@ -618,6 +665,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying a job identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying a job identifier")]
     public void ConsumerTemplateWithJobId() => Check(
@@ -639,6 +687,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying an exception identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying an exception identifier")]
     public void ConsumerTemplateWithExceptionId() => Check(
@@ -666,6 +715,7 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>Consumer template carrying no record type.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "consumer template carrying no record type")]
     public void ConsumerTemplateWithoutRecordType() => Check(

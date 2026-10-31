@@ -84,6 +84,10 @@ public sealed class JobGuardCheckTests
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
+    /// <param name="model">The model to run the check against.</param>
+    /// <param name="code">The finding code to look for.</param>
+    /// <param name="text">The text the finding message must contain.</param>
+    /// <returns>True when a finding carries the code and the text.</returns>
     static bool Reports(ProjectModel model, string code, string text) =>
         Checker.Check(model).Findings.Any(finding =>
             finding.Code == code && finding.Message.Contains(text, StringComparison.Ordinal));

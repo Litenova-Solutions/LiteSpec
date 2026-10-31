@@ -7,6 +7,8 @@ namespace LiteSpec.Tests.Model;
 public sealed class ModelStagedTests
 {
     /// <summary>Copies a broken overlay over the prepared fixture, like the shared fixture does.</summary>
+    /// <param name="target">The prepared fixture folder to copy over.</param>
+    /// <param name="overlayName">The overlay folder name under the fixtures.</param>
     static void ApplyOverlay(string target, string overlayName)
     {
         var overlay = Cli.Fixture($"Model/broken/{overlayName}");
@@ -28,6 +30,9 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>Runs git in the folder and returns its standard output, throwing when it fails.</summary>
+    /// <param name="workdir">The folder to run git in.</param>
+    /// <param name="args">The git arguments.</param>
+    /// <returns>The git standard output.</returns>
     static string RunGit(string workdir, params string[] args)
     {
         var start = new ProcessStartInfo("git")
@@ -62,6 +67,7 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>Commits the whole fixture so the index starts clean.</summary>
+    /// <param name="path">The fixture folder to commit.</param>
     static void CommitAll(string path)
     {
         RunGit(path, "-c", "init.defaultBranch=main", "init");
@@ -72,6 +78,8 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>Commits the working tree on top of the fixture commit.</summary>
+    /// <param name="path">The fixture folder to commit.</param>
+    /// <param name="message">The commit message.</param>
     static void CommitWork(string path, string message)
     {
         RunGit(path, "add", "-A");
@@ -81,6 +89,9 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>Reads one finding's outcome and reason from the check JSON.</summary>
+    /// <param name="stdout">The check command JSON output.</param>
+    /// <param name="code">The finding code to read.</param>
+    /// <returns>The finding outcome and reason, each null when absent.</returns>
     static (string? Outcome, string? Reason) OutcomeOf(string stdout, string code)
     {
         using var document = System.Text.Json.JsonDocument.Parse(stdout);

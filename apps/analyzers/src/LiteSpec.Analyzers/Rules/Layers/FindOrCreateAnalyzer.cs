@@ -19,12 +19,22 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2014);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the find or create analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterOperationBlockAction(AnalyzeBlock);
 
+    /// <summary>Analyzes the block.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeBlock(OperationBlockAnalysisContext context)
     {
         if (context.OwningSymbol is not IMethodSymbol method)
@@ -87,6 +97,9 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     }
 
     // The type a repository find returned, when the value is that find, awaited or converted.
+    /// <summary>Returns the type.</summary>
+    /// <param name="value">The value to convert or test.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static ITypeSymbol? FoundType(IOperation value)
     {
         var inner = Strip(value);
@@ -96,6 +109,11 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     // Whether the creation runs only where a find of the created type came back empty: on the null
     // side of a test of the found value, after a branch that leaves when it was found, or as the
     // fallback of a coalesce.
+    /// <summary>Returns true when the on-absent-path condition holds; otherwise false.</summary>
+    /// <param name="creation">The object creation operation under inspection.</param>
+    /// <param name="created">The created this operation works with.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <returns>True when the on-absent-path condition holds; otherwise false.</returns>
     private static bool OnAbsentPath(IOperation creation, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
     {
         // A creation gated by an independent policy switch runs only in one policy arm,
@@ -156,6 +174,11 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the inside-unrelated-switch condition holds; otherwise false.</summary>
+    /// <param name="creation">The object creation operation under inspection.</param>
+    /// <param name="created">The created this operation works with.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <returns>True when the inside-unrelated-switch condition holds; otherwise false.</returns>
     private static bool InsideUnrelatedSwitch(IOperation creation, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
     {
         for (var parent = creation.Parent; parent != null; parent = parent.Parent)
@@ -173,6 +196,12 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     }
 
     // Whether taking the given branch of the condition means the found value is absent.
+    /// <summary>Returns true when the holds condition holds; otherwise false.</summary>
+    /// <param name="condition">The condition expression under inspection.</param>
+    /// <param name="created">The created this operation works with.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <param name="whenTrue">The branch taken when the condition holds.</param>
+    /// <returns>True when the holds condition holds; otherwise false.</returns>
     private static bool Holds(
         IOperation condition,
         ITypeSymbol created,
@@ -208,6 +237,11 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
 
     // True when the condition is true exactly when the found value is null, false when it is true
     // exactly when the value is present, and null when it tests no found value.
+    /// <summary>Returns the test.</summary>
+    /// <param name="condition">The condition expression under inspection.</param>
+    /// <param name="created">The created this operation works with.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <returns>The test, or null when none applies.</returns>
     private static bool? NullTest(IOperation condition, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
     {
         switch (condition)
@@ -232,6 +266,9 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns the matches null.</summary>
+    /// <param name="pattern">The pattern text to match against.</param>
+    /// <returns>The matches null, or null when none applies.</returns>
     private static bool? PatternMatchesNull(IPatternOperation pattern) =>
         pattern switch
         {
@@ -241,6 +278,11 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
             _ => null,
         };
 
+    /// <summary>Returns true when the refers-to-found condition holds; otherwise false.</summary>
+    /// <param name="value">The value to convert or test.</param>
+    /// <param name="created">The created this operation works with.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <returns>True when the refers-to-found condition holds; otherwise false.</returns>
     private static bool RefersToFound(IOperation value, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
     {
         var inner = Strip(value);
@@ -256,6 +298,9 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     }
 
     // Whether a branch always leaves the method or the loop around it.
+    /// <summary>Returns true when the leaves condition holds; otherwise false.</summary>
+    /// <param name="branch">The branch under inspection.</param>
+    /// <returns>True when the leaves condition holds; otherwise false.</returns>
     private static bool Leaves(IOperation branch) =>
         branch switch
         {
@@ -265,9 +310,15 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
             _ => false,
         };
 
+    /// <summary>Returns true when the operation is null; otherwise false.</summary>
+    /// <param name="operation">The operation under inspection.</param>
+    /// <returns>True when the operation is null; otherwise false.</returns>
     private static bool IsNull(IOperation operation) =>
         Strip(operation) is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } };
 
+    /// <summary>Returns the i operation.</summary>
+    /// <param name="operation">The operation under inspection.</param>
+    /// <returns>The i operation.</returns>
     private static IOperation Strip(IOperation operation)
     {
         while (true)
@@ -289,6 +340,10 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the invocation is repository find; otherwise false.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <returns>True when the invocation is repository find; otherwise false.</returns>
     private static bool IsRepositoryFind(IInvocationOperation invocation, out ITypeSymbol found)
     {
         found = invocation.TargetMethod.ReturnType;
@@ -307,8 +362,14 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         return !IsVoid(found);
     }
 
+    /// <summary>Returns true when the type is void; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is void; otherwise false.</returns>
     private static bool IsVoid(ITypeSymbol type) => type.SpecialType == SpecialType.System_Void;
 
+    /// <summary>Returns the i type symbol.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The i type symbol.</returns>
     private static ITypeSymbol Unwrap(ITypeSymbol type)
     {
         while (type is INamedTypeSymbol named && named.TypeArguments.Length == 1)
@@ -331,6 +392,9 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         return type;
     }
 
+    /// <summary>Returns true when the in-system condition holds; otherwise false.</summary>
+    /// <param name="space">The space supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>True when the in-system condition holds; otherwise false.</returns>
     private static bool InSystem(INamespaceSymbol? space)
     {
         var name = space?.ToDisplayString();
@@ -339,6 +403,9 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
                 || name.StartsWith("System.", StringComparison.Ordinal));
     }
 
+    /// <summary>Returns true when the type is command handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command handler; otherwise false.</returns>
     private static bool IsCommandHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -362,11 +429,17 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns the location.</summary>
+    /// <param name="creation">The object creation operation under inspection.</param>
+    /// <returns>The location.</returns>
     private static Location CreationLocation(IObjectCreationOperation creation) =>
         creation.Syntax is ObjectCreationExpressionSyntax syntax && syntax.Type != null
             ? syntax.Type.GetLocation()
             : creation.Syntax.GetLocation();
 
+    /// <summary>Returns the location.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>The location.</returns>
     private static Location MemberLocation(IInvocationOperation invocation)
     {
         if (invocation.Syntax is InvocationExpressionSyntax syntax)

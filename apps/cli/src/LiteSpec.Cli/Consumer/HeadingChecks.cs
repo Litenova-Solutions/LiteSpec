@@ -54,7 +54,7 @@ static class HeadingChecks
 
             if (item.index > 0 && item.index < tokens.Count - 1 && TitleSmallWords.Contains(item.token.ToLowerInvariant()))
             {
-                return item.token == item.token.ToLowerInvariant();
+                return !item.token.Any(character => character is >= 'A' and <= 'Z');
             }
 
             return TitleCapital.IsMatch(item.token);

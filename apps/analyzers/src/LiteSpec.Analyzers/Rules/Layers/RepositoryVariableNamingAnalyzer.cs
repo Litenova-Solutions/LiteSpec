@@ -17,9 +17,17 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2010);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the repository variable naming analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         context.RegisterSymbolAction(AnalyzeParameter, SymbolKind.Parameter);
@@ -27,6 +35,8 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
         context.RegisterOperationAction(AnalyzeDeclarator, OperationKind.VariableDeclarator);
     }
 
+    /// <summary>Analyzes the parameter.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeParameter(SymbolAnalysisContext context)
     {
         var parameter = (IParameterSymbol)context.Symbol;
@@ -51,6 +61,8 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the field.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeField(SymbolAnalysisContext context)
     {
         var field = (IFieldSymbol)context.Symbol;
@@ -76,6 +88,8 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the declarator.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeDeclarator(OperationAnalysisContext context)
     {
         var declarator = (IVariableDeclaratorOperation)context.Operation;
@@ -97,6 +111,10 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Attempts to get expected name and returns true when it succeeds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="expected">The value the record states.</param>
+    /// <returns>True when the attempt succeeds; otherwise false.</returns>
     private static bool TryGetExpectedName(ITypeSymbol type, out string expected)
     {
         expected = string.Empty;

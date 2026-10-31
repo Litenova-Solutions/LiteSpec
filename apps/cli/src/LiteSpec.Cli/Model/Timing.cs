@@ -8,9 +8,11 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class Timing
 {
+    /// <summary>Whether timing output is on, read once from the LITESPEC_TIMING environment variable.</summary>
     static readonly bool enabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LITESPEC_TIMING"));
 
     /// <summary>Writes one timing line when timing is on.</summary>
+    /// <param name="line">The formatted timing line to write to standard error.</param>
     public static void Report(string line)
     {
         if (enabled)

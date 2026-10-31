@@ -12,6 +12,8 @@ namespace LiteSpec.Tests.Consumer;
 public sealed class PermissionScopeTests
 {
     /// <summary>The output lines that start with <c>  - </c>, without the prefix.</summary>
+    /// <param name="result">The completed consumer run.</param>
+    /// <returns>The problem lines without the bullet prefix.</returns>
     static List<string> Problems(CliResult result) => result.Output
         .Split('\n')
         .Where(line => line.StartsWith("  - ", StringComparison.Ordinal))
@@ -19,6 +21,7 @@ public sealed class PermissionScopeTests
         .ToList();
 
     /// <summary>Asserts a clean run: no problems and exit 0.</summary>
+    /// <param name="result">The completed consumer run.</param>
     static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
@@ -27,6 +30,8 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>Asserts a failing run: exit 1 with some problem carrying the expectation.</summary>
+    /// <param name="result">The completed consumer run.</param>
+    /// <param name="expected">The text one problem line must contain.</param>
     static void AssertProblem(CliResult result, string expected)
     {
         var problems = Problems(result);
@@ -43,6 +48,7 @@ public sealed class PermissionScopeTests
     static JsonObject FirstPermission(JsonObject meta) =>
         (JsonObject)((JsonArray)meta["records"]!)[0]!;
 
+    /// <summary>Permission entry with its scope.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with its scope")]
     public void PermissionEntryWithItsScope()
@@ -55,6 +61,7 @@ public sealed class PermissionScopeTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Permission entry with its scope and group.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with its scope and group")]
     public void PermissionEntryWithItsScopeAndGroup()
@@ -71,6 +78,7 @@ public sealed class PermissionScopeTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Permission entry without its scope.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry without its scope")]
     public void PermissionEntryWithoutItsScope()
@@ -83,6 +91,7 @@ public sealed class PermissionScopeTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
     }
 
+    /// <summary>Permission entry with an unknown property.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]
     public void PermissionEntryWithAnUnknownProperty()

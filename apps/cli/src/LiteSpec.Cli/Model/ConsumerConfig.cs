@@ -3,206 +3,181 @@ using System.Text.Json;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One browser frontend the consumer declares.
-/// </summary>
-/// <param name="Name">The declared name.</param>
-/// <param name="Path">The absolute path.</param>
-/// <param name="Platform">The declared platform.</param>
-sealed record FrontendConfig(
-    string Name,
-    string Path,
-    string Platform,
-    string? RefusalDictionary = null,
-    string? RouteSuite = null,
-    string? VisualGoldens = null,
-    string? EntryPoint = null)
-{
-    /// <summary>The routes root the reader reads.</summary>
-    public string RoutesRoot => System.IO.Path.Combine(Path, "src", "routes");
-
-    /// <summary>The use-case modules root the reader reads.</summary>
-    public string ModulesRoot => Platform == "react"
-        ? System.IO.Path.Combine(Path, "src", "modules")
-        : System.IO.Path.Combine(Path, "src", "lib", "modules");
-
-    /// <summary>The frame folder holding the generated records file.</summary>
-    public string FrameRoot => Platform == "react"
-        ? System.IO.Path.Combine(Path, "src", "app")
-        : System.IO.Path.Combine(Path, "src", "lib", "app");
-}
-
-/// <summary>
 ///     What the model builder reads from the consumer's declaration.
 /// </summary>
 /// <follows>litespec/core/model#declare-size-stacks-and-optional-types</follows>
 sealed class ConsumerConfig
 {
+    /// <summary>Initializes a new instance of the <see cref="ConsumerConfig" /> class for one consumer root.</summary>
+    /// <param name="root">The absolute consumer root the declaration is read from.</param>
     private ConsumerConfig(string root) => Root = root;
 
-    /// <summary>The consumer root.</summary>
+    /// <summary>Gets the consumer root.</summary>
     public string Root { get; }
 
-    /// <summary>Configuration problems found while loading, such as a declared stack root with no folder.</summary>
+    /// <summary>Gets configuration problems found while loading, such as a declared stack root with no folder.</summary>
     public IReadOnlyList<Finding> Problems { get; private set; } = [];
 
-    /// <summary>Where written records live.</summary>
+    /// <summary>Gets where written records live.</summary>
     public IReadOnlyList<string> RecordRoots { get; private set; } = [];
 
-    /// <summary>The glossary.</summary>
+    /// <summary>Gets the glossary.</summary>
     public string GlossaryPath { get; private set; } = "";
 
-    /// <summary>Where behavior records live.</summary>
+    /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
-    /// <summary>Days before a tier-3 draft question auto-approves.</summary>
+    /// <summary>Gets days before a tier-3 draft question auto-approves.</summary>
     public int VetoWindowDays { get; private set; } = 7;
 
-    /// <summary>The share of a tier-3 batch that batch approval samples, from the lowest semantic hashes.</summary>
+    /// <summary>Gets the share of a tier-3 batch that batch approval samples, from the lowest semantic hashes.</summary>
     public double SampleShare { get; private set; } = 0.1;
 
-    /// <summary>The owner reviewing access, outside calls and personal-data flows.</summary>
+    /// <summary>Gets the owner reviewing access, outside calls and personal-data flows.</summary>
     public string? SecurityReviewer { get; private set; }
 
-    /// <summary>The decision whose approval ends transcription mode.</summary>
+    /// <summary>Gets the decision whose approval ends transcription mode.</summary>
     public string? TranscriptionEndsWith { get; private set; }
 
-    /// <summary>The refusal code the derived forbidden result carries.</summary>
+    /// <summary>Gets the refusal code the derived forbidden result carries.</summary>
     public string ForbiddenCode { get; private set; } = "authorization.forbidden";
 
-    /// <summary>The refusal code the derived invalid-input result carries.</summary>
+    /// <summary>Gets the refusal code the derived invalid-input result carries.</summary>
     public string InvalidInputCode { get; private set; } = "request.validation-failed";
 
-    /// <summary>The HTTP status each refusal code answers with, by refusal code.</summary>
+    /// <summary>Gets the HTTP status each refusal code answers with, by refusal code.</summary>
     public IReadOnlyDictionary<string, int> RefusalStatuses { get; private set; } =
         new Dictionary<string, int>(StringComparer.Ordinal);
 
-    /// <summary>The refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
+    /// <summary>Gets the refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
     public IReadOnlyList<string> RefusalPrefixes { get; private set; } = [];
 
     /// <summary>
-    ///     The refusal codes the project composes at run time from a key, each a template with one <c>{key}</c>
+    ///     Gets the refusal codes the project composes at run time from a key, each a template with one <c>{key}</c>
     ///     placeholder, such as the conflict a commit answers for a lost uniqueness key.
     /// </summary>
     public IReadOnlyList<string> RefusalComposed { get; private set; } = [];
 
-    /// <summary>The client refusal vocabulary translated to declared codes, by client code.</summary>
+    /// <summary>Gets the client refusal vocabulary translated to declared codes, by client code.</summary>
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>The domain verbs the project adds to the baseline vocabulary.</summary>
+    /// <summary>Gets the domain verbs the project adds to the baseline vocabulary.</summary>
     public IReadOnlyList<string> Verbs { get; private set; } = [];
 
-    /// <summary>Multi-word verbs counted as one use-case opening.</summary>
+    /// <summary>Gets multi-word verbs counted as one use-case opening.</summary>
     public IReadOnlyList<string> PhrasalVerbs { get; private set; } = [];
 
-    /// <summary>The project verbs that name a query, beside the baseline reading verbs.</summary>
+    /// <summary>Gets the project verbs that name a query, beside the baseline reading verbs.</summary>
     public IReadOnlyList<string> QueryVerbs { get; private set; } = [];
 
-    /// <summary>Retired synonyms mapped to their replacement verb, by synonym, beside the baseline ones.</summary>
+    /// <summary>Gets retired synonyms mapped to their replacement verb, by synonym, beside the baseline ones.</summary>
     public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Lookalike pairs the term-clash check skips, each as "a|b".</summary>
+    /// <summary>Gets lookalike pairs the term-clash check skips, each as "a|b".</summary>
     public IReadOnlyList<string> LookalikeIgnore { get; private set; } = [];
 
-    /// <summary>The past tense of project domain verbs, by verb, beside the baseline table.</summary>
+    /// <summary>Gets the past tense of project domain verbs, by verb, beside the baseline table.</summary>
     public IReadOnlyDictionary<string, string> PastTense { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Whether the declaration names a use-case verb vocabulary.</summary>
+    /// <summary>Gets a value indicating whether whether the declaration names a use-case verb vocabulary.</summary>
     public bool HasVocabulary { get; private set; }
 
-    /// <summary>The backend layers.</summary>
+    /// <summary>Gets the backend layers.</summary>
     public string ApplicationRoot { get; private set; } = "";
 
-    /// <summary>The domain layer.</summary>
+    /// <summary>Gets the domain layer.</summary>
     public string DomainRoot { get; private set; } = "";
 
-    /// <summary>The HTTP layer.</summary>
+    /// <summary>Gets the HTTP layer.</summary>
     public string WebApiRoot { get; private set; } = "";
 
-    /// <summary>The adapters.</summary>
+    /// <summary>Gets the adapters.</summary>
     public string InfrastructureRoot { get; private set; } = "";
 
-    /// <summary>The background worker.</summary>
+    /// <summary>Gets the background worker.</summary>
     public string WorkerRoot { get; private set; } = "";
 
-    /// <summary>The declared shared-kernel folder, or empty when the project declares none.</summary>
+    /// <summary>Gets the declared shared-kernel folder, or empty when the project declares none.</summary>
     public string SharedKernel { get; private set; } = "";
 
-    /// <summary>Where tests live.</summary>
+    /// <summary>Gets where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
 
-    /// <summary>The alert rule files or folders, from <c>paths.alerts</c>.</summary>
+    /// <summary>Gets the alert rule files or folders, from <c>paths.alerts</c>.</summary>
     public IReadOnlyList<string> Alerts { get; private set; } = [];
 
-    /// <summary>The deployment, proxy, host and CI workflow files or folders, from <c>paths.operations</c>.</summary>
+    /// <summary>Gets the deployment, proxy, host and CI workflow files or folders, from <c>paths.operations</c>.</summary>
     public IReadOnlyList<string> Operations { get; private set; } = [];
 
-    /// <summary>Where drill and harness check results live, from <c>paths.checkResults</c>.</summary>
+    /// <summary>Gets where drill and harness check results live, from <c>paths.checkResults</c>.</summary>
     public string CheckResultsDir { get; private set; } = "";
 
-    /// <summary>The bill of materials files or folders, from <c>paths.sbom</c>.</summary>
+    /// <summary>Gets the bill of materials files or folders, from <c>paths.sbom</c>.</summary>
     public IReadOnlyList<string> Sboms { get; private set; } = [];
 
-    /// <summary>The template store file, from <c>stackConfig.dotnet.templateStore</c>, or empty.</summary>
+    /// <summary>Gets the template store file, from <c>stackConfig.dotnet.templateStore</c>, or empty.</summary>
     public string TemplateStore { get; private set; } = "";
 
-    /// <summary>The licenses the project accepts, as SPDX identifiers, from <c>dependencies.licenses</c>.</summary>
+    /// <summary>Gets the licenses the project accepts, as SPDX identifiers, from <c>dependencies.licenses</c>.</summary>
     public IReadOnlySet<string> AcceptedLicenses { get; private set; } = new HashSet<string>(StringComparer.Ordinal);
 
-    /// <summary>The declared frontends.</summary>
+    /// <summary>Gets the declared frontends.</summary>
     public IReadOnlyList<FrontendConfig> Frontends { get; private set; } = [];
 
-    /// <summary>The generated client's sources.</summary>
+    /// <summary>Gets the generated client's sources.</summary>
     public string ApiClientSrc { get; private set; } = "";
 
-    /// <summary>Where test result files live.</summary>
+    /// <summary>Gets where test result files live.</summary>
     public string TestResultsDir { get; private set; } = "";
 
-    /// <summary>The committed OpenAPI document, or null when the project names none.</summary>
+    /// <summary>Gets the committed OpenAPI document, or null when the project names none.</summary>
     public string? ContractPath { get; private set; }
 
-    /// <summary>The project size: small or large.</summary>
+    /// <summary>Gets the project size: small or large.</summary>
     public string Size { get; private set; } = "large";
 
-    /// <summary>The project shape: server or client-only.</summary>
+    /// <summary>Gets the project shape: server or client-only.</summary>
     public string Shape { get; private set; } = "server";
 
-    /// <summary>The stacks the project names in <c>litespec.project.json</c>.</summary>
+    /// <summary>Gets the stacks the project names in <c>litespec.project.json</c>.</summary>
     public IReadOnlyList<string> Stacks { get; private set; } = [];
 
-    /// <summary>The extension ids the project selects in <c>selectedExtensions</c>.</summary>
+    /// <summary>Gets the extension ids the project selects in <c>selectedExtensions</c>.</summary>
     public IReadOnlyList<string> Extensions { get; private set; } = [];
 
-    /// <summary>The mark style the project declares.</summary>
+    /// <summary>Gets the mark style the project declares.</summary>
     public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
 
-    /// <summary>Whether the CI environment variable is set, so reader-missing blocks.</summary>
+    /// <summary>Gets a value indicating whether whether the CI environment variable is set, so reader-missing blocks.</summary>
     public bool IsContinuousIntegration { get; private set; }
 
-    /// <summary>The closed owner list.</summary>
+    /// <summary>Gets the closed owner list.</summary>
     public IReadOnlyList<string> Owners { get; private set; } = [];
 
-    /// <summary>The CODEOWNERS handles each owner name maps to, by owner name.</summary>
+    /// <summary>Gets the CODEOWNERS handles each owner name maps to, by owner name.</summary>
     public IReadOnlyDictionary<string, IReadOnlyList<string>> OwnerCodeowners { get; private set; } =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
 
-    /// <summary>Whether the declaration names an owner list.</summary>
+    /// <summary>Gets a value indicating whether whether the declaration names an owner list.</summary>
     public bool HasOwners { get; private set; }
 
-    /// <summary>The optional types the project records.</summary>
+    /// <summary>Gets the optional types the project records.</summary>
     public IReadOnlyList<string> OptionalTypes { get; private set; } = [];
 
-    /// <summary>The steps classes whose when steps run a job, such as one that moves a simulated clock.</summary>
+    /// <summary>Gets the steps classes whose when steps run a job, such as one that moves a simulated clock.</summary>
     public IReadOnlyList<string> JobTriggerSteps { get; private set; } = [];
 
-    /// <summary>The steps classes whose then steps state only that a request succeeded or was refused.</summary>
+    /// <summary>Gets the steps classes whose then steps state only that a request succeeded or was refused.</summary>
     public IReadOnlyList<string> OutcomeOnlySteps { get; private set; } = [];
 
     /// <summary>
     ///     Reads the declaration, falling back to the documented defaults.
     /// </summary>
+    /// <param name="root">The consumer root holding the declaration file.</param>
+    /// <returns>The loaded configuration, with defaults for anything the declaration omits.</returns>
     public static ConsumerConfig Load(string root)
     {
         var config = new ConsumerConfig(Path.GetFullPath(root));
@@ -487,24 +462,34 @@ sealed class ConsumerConfig
     /// <summary>
     ///     A path written with forward slashes, relative to the root.
     /// </summary>
+    /// <param name="absolute">The absolute path to make relative.</param>
+    /// <returns>The path relative to the root, with forward slashes.</returns>
     public string Relative(string absolute) =>
         Path.GetRelativePath(Root, absolute).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>
     ///     The owner itself plus the CODEOWNERS handles its project owners entry lists.
     /// </summary>
+    /// <param name="owner">The owner name to expand.</param>
+    /// <returns>The owner followed by its CODEOWNERS handles, or the owner alone when it maps to none.</returns>
     public IReadOnlyList<string> CandidatesFor(string owner) =>
         OwnerCodeowners.TryGetValue(owner, out var handles)
             ? [owner, .. handles]
             : [owner];
 
+    /// <summary>Reads a string array field, keeping only its string entries.</summary>
+    /// <param name="owner">The JSON object holding the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <returns>The string entries of the field, or an empty list when the field is missing or not an array.</returns>
     private static IReadOnlyList<string> ReadNames(JsonElement owner, string field) =>
         owner.TryGetProperty(field, out var names) && names.ValueKind == JsonValueKind.Array
             ? [.. names.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)]
             : [];
 
     /// <summary>The refusal statuses table: each declared code with the HTTP status it answers with.</summary>
-    private static IReadOnlyDictionary<string, int> ReadStatuses(JsonElement refusals)
+    /// <param name="refusals">The refusals object holding the statuses table.</param>
+    /// <returns>The HTTP status for each declared refusal code.</returns>
+    private static Dictionary<string, int> ReadStatuses(JsonElement refusals)
     {
         var statuses = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -528,7 +513,9 @@ sealed class ConsumerConfig
     }
 
     /// <summary>The refusal code map: each client code with the declared code it translates to.</summary>
-    private static IReadOnlyDictionary<string, string> ReadAliases(JsonElement refusals)
+    /// <param name="refusals">The refusals object holding the aliases table.</param>
+    /// <returns>The declared code for each client code.</returns>
+    private static Dictionary<string, string> ReadAliases(JsonElement refusals)
     {
         var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -551,7 +538,9 @@ sealed class ConsumerConfig
     }
 
     /// <summary>The past-tense map: each project domain verb with its past tense.</summary>
-    private static IReadOnlyDictionary<string, string> ReadPastTense(JsonElement vocabulary)
+    /// <param name="vocabulary">The vocabulary object holding the pastTense table.</param>
+    /// <returns>The past tense for each project domain verb.</returns>
+    private static Dictionary<string, string> ReadPastTense(JsonElement vocabulary)
     {
         var past = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -574,7 +563,9 @@ sealed class ConsumerConfig
     }
 
     /// <summary>The retired verb map: each retired synonym with its replacement verb.</summary>
-    private static IReadOnlyDictionary<string, string> ReadRetired(JsonElement vocabulary)
+    /// <param name="vocabulary">The vocabulary object holding the retired table.</param>
+    /// <returns>The replacement verb for each retired synonym.</returns>
+    private static Dictionary<string, string> ReadRetired(JsonElement vocabulary)
     {
         var retired = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -596,6 +587,9 @@ sealed class ConsumerConfig
         return retired;
     }
 
+    /// <summary>Reads the CODEOWNERS handles one owner entry lists.</summary>
+    /// <param name="entry">The owner entry, a name string or an object with a codeowners array.</param>
+    /// <returns>The distinct non-empty handles the entry lists, or an empty list for a plain name entry.</returns>
     private static IReadOnlyList<string> ReadHandles(JsonElement entry) =>
         entry.ValueKind == JsonValueKind.Object
         && entry.TryGetProperty("codeowners", out var handles)
@@ -607,6 +601,11 @@ sealed class ConsumerConfig
                 .Distinct(StringComparer.Ordinal)]
             : [];
 
+    /// <summary>Reads one string field of the paths object, with a fallback.</summary>
+    /// <param name="paths">The paths object, or null when the declaration names none.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <param name="fallback">The value used when the field is missing or empty.</param>
+    /// <returns>The field string, or the fallback.</returns>
     private static string ReadString(JsonElement? paths, string field, string fallback) =>
         paths is not null
         && paths.Value.TryGetProperty(field, out var value)
@@ -615,6 +614,12 @@ sealed class ConsumerConfig
             ? text
             : fallback;
 
+    /// <summary>Reads a roots field: one path or an array of paths, resolved against the root.</summary>
+    /// <param name="root">The consumer root the paths resolve against.</param>
+    /// <param name="paths">The paths object, or null when the declaration names none.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <param name="fallback">The relative suffixes used when the field is missing.</param>
+    /// <returns>The resolved absolute roots, or the resolved fallback suffixes.</returns>
     private static IReadOnlyList<string> ReadRoots(
         string root, JsonElement? paths, string field, string[] fallback)
     {
@@ -639,7 +644,11 @@ sealed class ConsumerConfig
         return [.. fallback.Select(suffix => Combine(root, suffix))];
     }
 
-    private static IReadOnlyList<FrontendConfig> ReadFrontends(string root, JsonElement? paths)
+    /// <summary>Reads the declared frontends from the paths object.</summary>
+    /// <param name="root">The consumer root the frontend paths resolve against.</param>
+    /// <param name="paths">The paths object, or null when the declaration names none.</param>
+    /// <returns>The declared frontends in declaration order, or an empty list when none are declared.</returns>
+    private static List<FrontendConfig> ReadFrontends(string root, JsonElement? paths)
     {
         if (paths is null
             || !paths.Value.TryGetProperty("frontends", out var frontends)
@@ -680,12 +689,19 @@ sealed class ConsumerConfig
         return found;
     }
 
+    /// <summary>Combines a root with a forward-slash relative path into an absolute path.</summary>
+    /// <param name="root">The absolute root.</param>
+    /// <param name="relative">The relative path, written with forward slashes.</param>
+    /// <returns>The absolute combined path.</returns>
     private static string Combine(string root, string relative) =>
         Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
 
     /// <summary>
     ///     Resolves one path, expanding a single segment wildcard to the first match.
     /// </summary>
+    /// <param name="root">The absolute root the pattern resolves against.</param>
+    /// <param name="pattern">The path pattern, with at most one wildcard per segment.</param>
+    /// <returns>The resolved absolute path, with an unmatched wildcard segment emptied.</returns>
     private static string Resolve(string root, string pattern)
     {
         if (!pattern.Contains('*'))

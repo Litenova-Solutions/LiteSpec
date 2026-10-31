@@ -112,6 +112,8 @@ public sealed class BookTruthTests
     }
 
     /// <summary>The review fixture with one open and one known finding on records the fixture holds.</summary>
+    /// <param name="temp">The temporary folder holding the fixture consumer.</param>
+    /// <returns>The model JSON text with the embedded findings.</returns>
     internal static string ModelWithEmbeddedFindings(TempFolder temp) =>
         WriteReviewModel(temp, root =>
         {

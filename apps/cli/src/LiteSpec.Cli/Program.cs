@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using LiteSpec;
 using LiteSpec.Authoring;
 using LiteSpec.Book;
@@ -68,68 +67,4 @@ int Unknown(string command)
     Console.Error.WriteLine($"Unknown command '{command}'.");
     Console.Error.WriteLine(usage);
     return 2;
-}
-
-namespace LiteSpec
-{
-    /// <summary>
-    ///     The last-resort handler for an unexpected exception in a command:
-    ///     one line and exit code 1, never a stack trace.
-    /// </summary>
-    /// <follows>litespec/core/release#report-verification-exactly</follows>
-    internal static class LastResort
-    {
-        /// <summary>Runs <paramref name="command"/> and converts an unexpected exception.</summary>
-        public static int Run(Func<int> command, string[] args) =>
-            Run(command, WantsJson(args), Console.Out, Console.Error);
-
-        /// <summary>Runs <paramref name="command"/> and converts an unexpected exception.</summary>
-        public static int Run(Func<int> command, bool json, TextWriter stdout, TextWriter stderr)
-        {
-            try
-            {
-                return command();
-            }
-            catch (Exception exception)
-            {
-                return Report(exception, json, stdout, stderr);
-            }
-        }
-
-        /// <summary>Writes the failure for <paramref name="exception"/> and returns exit code 1.</summary>
-        public static int Report(Exception exception, bool json, TextWriter stdout, TextWriter stderr)
-        {
-            if (json)
-            {
-                stdout.WriteLine(new JsonObject { ["error"] = exception.Message }.ToJsonString());
-            }
-            else
-            {
-                stderr.WriteLine($"Failed: {exception.Message}");
-            }
-
-            return 1;
-        }
-
-        /// <summary>True when the arguments ask for <c>--format json</c>.</summary>
-        public static bool WantsJson(string[] args)
-        {
-            for (var index = 0; index < args.Length; index++)
-            {
-                if (string.Equals(args[index], "--format=json", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-
-                if (string.Equals(args[index], "--format", StringComparison.Ordinal)
-                    && index + 1 < args.Length
-                    && string.Equals(args[index + 1], "json", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
 }

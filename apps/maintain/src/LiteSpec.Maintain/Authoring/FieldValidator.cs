@@ -90,7 +90,15 @@ internal sealed class FieldValidator
             {
                 schema = JsonNode.Parse(TrimBom(ReadText(file)));
             }
-            catch (Exception)
+            catch (System.Text.Json.JsonException)
+            {
+                continue;
+            }
+            catch (IOException)
+            {
+                continue;
+            }
+            catch (UnauthorizedAccessException)
             {
                 continue;
             }
@@ -310,7 +318,7 @@ internal sealed class FieldValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="name">The definition name.</param>
     /// <returns>True when the definition is in scope.</returns>
-    private bool IsFieldNamingScope(string relative, string name) =>
+    private static bool IsFieldNamingScope(string relative, string name) =>
         name.EndsWith("Page", StringComparison.Ordinal)
         || FieldNamingEntries.Contains(name)
         || (relative == "schemas/glossary.schema.json" && name == "term");
@@ -318,13 +326,13 @@ internal sealed class FieldValidator
     /// <summary>Reports whether a field name ends in By or On.</summary>
     /// <param name="field">The field name.</param>
     /// <returns>True when the name ends in By or On.</returns>
-    private bool EndsByOrOn(string field) =>
+    private static bool EndsByOrOn(string field) =>
         field.EndsWith("By", StringComparison.Ordinal) || field.EndsWith("On", StringComparison.Ordinal);
 
     /// <summary>Reads the definition name a field schema references, or null when it references none.</summary>
     /// <param name="node">The field schema.</param>
     /// <returns>The referenced definition name, or null.</returns>
-    private string? FieldRefTarget(JsonNode? node)
+    private static string? FieldRefTarget(JsonNode? node)
     {
         const string prefix = "#/$defs/";
         var reference = node is JsonObject obj ? JsonString(obj["$ref"]) : null;
@@ -339,7 +347,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>The JSON kind, or null.</returns>
-    private string? FieldShape(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    private static string? FieldShape(JsonNode? node, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -411,7 +419,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>True when every branch resolves to the definition.</returns>
-    private bool ResolvesToDef(JsonNode? node, string defName, JsonObject defs, HashSet<string> visited)
+    private static bool ResolvesToDef(JsonNode? node, string defName, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -458,7 +466,7 @@ internal sealed class FieldValidator
     /// <param name="noun">The record type noun.</param>
     /// <param name="idDefs">The identifier definition names.</param>
     /// <returns>The identifier definitions of the record type.</returns>
-    private HashSet<string> TypeIdsFor(string noun, HashSet<string> idDefs) =>
+    private static HashSet<string> TypeIdsFor(string noun, HashSet<string> idDefs) =>
         idDefs.Where(name => name.EndsWith(noun + "Id", StringComparison.OrdinalIgnoreCase)).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>Reports whether a field schema reaches one of a record type's identifier definitions.</summary>
@@ -467,7 +475,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>True when every branch reaches an identifier definition.</returns>
-    private bool ReachesTypeId(JsonNode? node, HashSet<string> typeIds, JsonObject defs, HashSet<string> visited)
+    private static bool ReachesTypeId(JsonNode? node, HashSet<string> typeIds, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -516,7 +524,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>True when every branch reaches an identifier definition.</returns>
-    private bool ReachesAnyId(JsonNode? node, HashSet<string> idDefs, JsonObject defs, HashSet<string> visited)
+    private static bool ReachesAnyId(JsonNode? node, HashSet<string> idDefs, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -565,7 +573,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>True when the schema resolves to an ISO date.</returns>
-    private bool ResolvesToIsoDate(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    private static bool ResolvesToIsoDate(JsonNode? node, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -609,7 +617,7 @@ internal sealed class FieldValidator
     /// <summary>Reports whether a pattern spells a year-month-day date inline.</summary>
     /// <param name="pattern">The pattern text.</param>
     /// <returns>True when the pattern spells a date.</returns>
-    private bool IsInlineDatePattern(string? pattern) =>
+    private static bool IsInlineDatePattern(string? pattern) =>
         pattern is not null
         && (pattern.Contains("[0-9]{4}-[0-9]{2}-[0-9]{2}", StringComparison.Ordinal)
             || pattern.Contains(@"\d{4}-\d{2}-\d{2}", StringComparison.Ordinal));
@@ -619,7 +627,7 @@ internal sealed class FieldValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>True when every branch holds an enum.</returns>
-    private bool HoldsEnum(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    private static bool HoldsEnum(JsonNode? node, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
         {
@@ -659,7 +667,7 @@ internal sealed class FieldValidator
     /// <param name="node">The field schema.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <returns>True when the array items are strings.</returns>
-    private bool ArrayItemsAreStrings(JsonNode? node, JsonObject defs)
+    private static bool ArrayItemsAreStrings(JsonNode? node, JsonObject defs)
     {
         const string prefix = "#/$defs/";
         var current = node as JsonObject;
@@ -680,7 +688,7 @@ internal sealed class FieldValidator
     /// <summary>Reports whether a stem reads as a participle.</summary>
     /// <param name="stem">The name stem.</param>
     /// <returns>True when the stem is a participle.</returns>
-    private bool IsParticipleStem(string stem) =>
+    private static bool IsParticipleStem(string stem) =>
         stem.EndsWith("ed", StringComparison.Ordinal)
         || stem.EndsWith("en", StringComparison.Ordinal)
         || IrregularParticiples.Contains(stem);
@@ -688,13 +696,13 @@ internal sealed class FieldValidator
     /// <summary>Reports whether a stem reads as a past-tense verb.</summary>
     /// <param name="stem">The name stem.</param>
     /// <returns>True when the stem is a past-tense verb.</returns>
-    private bool IsPastVerbStem(string stem) =>
+    private static bool IsPastVerbStem(string stem) =>
         stem.EndsWith("ed", StringComparison.Ordinal) || stem == "read";
 
     /// <summary>Reports whether a field name starts with an is or has prefix.</summary>
     /// <param name="field">The field name.</param>
     /// <returns>True when the name carries the prefix.</returns>
-    private bool HasIsHasPrefix(string field) =>
+    private static bool HasIsHasPrefix(string field) =>
         (field.StartsWith("is", StringComparison.Ordinal) && field.Length > 2 && char.IsUpper(field[2]))
         || (field.StartsWith("has", StringComparison.Ordinal) && field.Length > 3 && char.IsUpper(field[3]));
 }

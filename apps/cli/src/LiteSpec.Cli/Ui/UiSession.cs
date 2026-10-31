@@ -71,7 +71,7 @@ sealed class UiSession
         var projectFile = Path.Combine(Root, "litespec.project.json");
         if (!File.Exists(projectFile))
         {
-            return new UiReport(2, new[] { $"No litespec.project.json at {Root}" }, Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
+            return new UiReport(2, [$"No litespec.project.json at {Root}"], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
         }
 
         var project = ReadJson(projectFile, "litespec.project.json");
@@ -420,6 +420,7 @@ sealed class UiSession
     /// </summary>
     /// <param name="project">The parsed project record.</param>
     /// <returns>The platform name.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "LockPlatform reads an optional source lock and assumes React on any read or parse failure, so an unreadable lock selects the React baseline instead of crashing validation.")]
     string LockPlatform(JsonNode? project)
     {
         var sourceLock = JsonRead.Chain(project, "paths", "uiPackage", "sourceLock");
@@ -528,6 +529,7 @@ sealed class UiSession
     /// <param name="file">The file to read.</param>
     /// <param name="label">The label the problem names.</param>
     /// <returns>The parsed JSON value, or null.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadJson records any read or parse failure of the file as a problem and returns null, so malformed consumer input reports instead of crashing validation.")]
     public JsonNode? ReadJson(string file, string label)
     {
         try
@@ -667,6 +669,7 @@ sealed class UiSession
     /// <param name="label">The label the problems name.</param>
     /// <param name="provisionId">The provision the problems cite.</param>
     /// <returns>True when the value is valid.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SchemaCheck records any failure of the local schema evaluator as a problem for the value, so an unsupported schema or malformed value reports instead of crashing validation.")]
     public bool SchemaCheck(string schemaName, JsonNode? value, string label, string provisionId)
     {
         var file = LiteSpecHome.PathTo($"schemas/{schemaName}");

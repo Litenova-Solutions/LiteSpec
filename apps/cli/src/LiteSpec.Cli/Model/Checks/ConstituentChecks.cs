@@ -7,6 +7,8 @@ namespace LiteSpec.Model.Checks;
 internal static class ConstituentChecks
 {
     /// <summary>Runs the constituent check.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var orphan in Constituents.Orphans(model))
@@ -24,6 +26,9 @@ internal static class ConstituentChecks
     ///     The folder a constituent finding shows: the type's folder relative to the consumer root,
     ///     with forward slashes. A type at the root shows <c>.</c>.
     /// </summary>
+    /// <param name="model">The loaded project model that supplies the consumer root for the relative path.</param>
+    /// <param name="file">The full path of the source file whose folder is shown.</param>
+    /// <returns>The folder relative to the consumer root with forward slashes, or a dot for a file at the root.</returns>
     private static string FolderShown(ProjectModel model, string file)
     {
         var folder = Path.GetDirectoryName(file);

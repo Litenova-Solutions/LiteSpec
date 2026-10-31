@@ -30,6 +30,8 @@ static partial class RenameCommand
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
+    /// <param name="args">The command arguments after the command name, holding the old and new identifiers and the options.</param>
+    /// <returns>The process exit code: 0 when the rename completes, 1 when the run fails after the checks pass, and 2 on invalid input, an unknown old identifier or a taken new identifier.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, [], ["--root"], maxPositionals: 2);
@@ -214,6 +216,8 @@ static partial class RenameCommand
     }
 
     /// <summary>Whether the extension holds code marks rather than record citations.</summary>
+    /// <param name="extension">The file extension including the dot, in any casing.</param>
+    /// <returns>True when the extension marks a code file that holds marks rather than citations; otherwise false.</returns>
     static bool IsCodeFile(string extension) =>
         extension.Equals(".cs", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".razor", StringComparison.OrdinalIgnoreCase)
@@ -227,6 +231,12 @@ static partial class RenameCommand
     ///     Rewrites the identifier inside marks only: doc tags and attributes in C#,
     ///     frontend constants in TypeScript. Any other string is left alone.
     /// </summary>
+    /// <param name="text">The code file text to rewrite.</param>
+    /// <param name="oldId">The identifier to replace inside marks.</param>
+    /// <param name="newId">The identifier that replaces the old one inside marks.</param>
+    /// <param name="extension">The file extension including the dot, which selects the mark forms to rewrite.</param>
+    /// <param name="count">The number of marks rewritten.</param>
+    /// <returns>The text with the identifier rewritten inside marks only, unchanged when it holds no citation.</returns>
     static string ReplaceMarks(string text, string oldId, string newId, string extension, out int count)
     {
         count = 0;
@@ -259,6 +269,12 @@ static partial class RenameCommand
     }
 
     /// <summary>Rewrites the identifier inside each match of the pattern, counting the rewrites.</summary>
+    /// <param name="text">The code file text to rewrite.</param>
+    /// <param name="pattern">The regular expression that matches one mark form.</param>
+    /// <param name="oldId">The identifier to replace inside each match.</param>
+    /// <param name="newId">The identifier that replaces the old one inside each match.</param>
+    /// <param name="count">The running rewrite count, increased by the number of matches.</param>
+    /// <returns>The text with the identifier rewritten inside each match of the pattern.</returns>
     static string ReplacePattern(string text, string pattern, string oldId, string newId, ref int count)
     {
         var found = 0;
@@ -280,6 +296,10 @@ static partial class RenameCommand
     ///     Points every relative Markdown link at the page's new place: links from other pages to the
     ///     moved file or folder, and the moved page's own links when it changed folder.
     /// </summary>
+    /// <param name="root">The absolute path of the consumer root to scan for Markdown pages.</param>
+    /// <param name="from">The previous absolute path of the moved page or folder.</param>
+    /// <param name="to">The current absolute path of the moved page or folder.</param>
+    /// <returns>The number of relative Markdown links rewritten to point at the new place.</returns>
     static int RewriteLinks(string root, string from, string to)
     {
         var fromFull = Path.GetFullPath(from);
@@ -337,11 +357,18 @@ static partial class RenameCommand
     }
 
     /// <summary>Whether the path is the root itself or sits inside it.</summary>
+    /// <param name="path">The absolute path to test.</param>
+    /// <param name="root">The absolute path of the folder that may hold the path.</param>
+    /// <returns>True when the path equals the root or sits inside it, ignoring casing; otherwise false.</returns>
     static bool Under(string path, string root) =>
         string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
         || path.StartsWith(root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>The path with its leading root swapped for another.</summary>
+    /// <param name="path">The absolute path whose leading root is swapped.</param>
+    /// <param name="root">The leading root to remove from the path.</param>
+    /// <param name="replacement">The root that takes the place of the removed root.</param>
+    /// <returns>The path with its leading root replaced by the replacement root.</returns>
     static string Remap(string path, string root, string replacement) =>
         replacement + path[root.Length..];
 
@@ -352,6 +379,11 @@ static partial class RenameCommand
     ///     Splits a full record identifier into its type, home, and name, following
     ///     the record identifier grammar.
     /// </summary>
+    /// <param name="full">The full candidate record identifier.</param>
+    /// <param name="type">When the result is true, the record type segment; otherwise an empty string.</param>
+    /// <param name="home">When the result is true, the home segment, or null for a type without a home.</param>
+    /// <param name="name">When the result is true, the name segment; otherwise an empty string.</param>
+    /// <returns>True when the text is a grammatically valid identifier of a known record type; otherwise false.</returns>
     static bool TryRecordId(string full, out string type, out string? home, out string name)
     {
         type = "";
@@ -380,6 +412,13 @@ static partial class RenameCommand
     ///     an aggregate moves with its folder; any other page moves as one file.
     ///     Returns null when the page stays where it is.
     /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
+    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
+    /// <param name="newName">The identifier name after the rename.</param>
+    /// <param name="oldFile">The current absolute path of the page.</param>
+    /// <returns>The move outcome, or null when the page stays at its current path.</returns>
     static Move? MovePage(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {

@@ -2,30 +2,26 @@ using System.Diagnostics;
 
 namespace LiteSpec.Tests.Support;
 
-/// <summary>The exit code and the two output streams of one CLI run.</summary>
-/// <param name="Status">The exit code.</param>
-/// <param name="Stdout">Everything written to standard output.</param>
-/// <param name="Stderr">Everything written to standard error.</param>
-sealed record CliResult(int Status, string Stdout, string Stderr)
-{
-    /// <summary>Both streams, standard output first.</summary>
-    public string Output => Stdout + Stderr;
-}
-
 /// <summary>
 ///     Runs the built <c>litespec</c> CLI as its own process, the way a consumer
 ///     runs it, so a case proves the exit code and the printed text together.
 /// </summary>
 static class Cli
 {
-    /// <summary>The LiteSpec repository root, found above the test binary.</summary>
+    /// <summary>Gets the LiteSpec repository root, found above the test binary.</summary>
     public static string Repository { get; } = FindRepository();
 
     /// <summary>A folder under the test fixtures, from forward-slash segments.</summary>
+    /// <param name="relative">The fixture path with forward-slash segments.</param>
+    /// <returns>The full path to the fixture folder.</returns>
     public static string Fixture(string relative) =>
         Path.Combine(Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Fixtures", relative.Replace('/', Path.DirectorySeparatorChar));
 
     /// <summary>Runs <c>litespec</c> with the arguments, in the working directory when one is given.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <param name="workingDirectory">The working directory, or null for the repository root.</param>
+    /// <param name="environment">Extra environment variables, or null for none.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public static CliResult Run(IEnumerable<string> args, string? workingDirectory = null, IDictionary<string, string>? environment = null)
     {
         var start = new ProcessStartInfo("dotnet")
@@ -64,9 +60,13 @@ static class Cli
     }
 
     /// <summary>Runs <c>litespec</c> with the arguments.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
     public static CliResult Run(params string[] args) => Run((IEnumerable<string>)args);
 
     /// <summary>A fresh, empty temporary folder that the caller deletes.</summary>
+    /// <param name="prefix">The prefix in the temporary folder name.</param>
+    /// <returns>The fresh temporary folder.</returns>
     public static TempFolder Temp(string prefix) => new(prefix);
 
     static string FindRepository()
@@ -80,34 +80,5 @@ static class Cli
         }
 
         throw new InvalidOperationException("The test binary sits outside a LiteSpec checkout.");
-    }
-}
-
-/// <summary>A temporary folder deleted on dispose, unless KEEP_FIXTURE is set.</summary>
-sealed class TempFolder : IDisposable
-{
-    public TempFolder(string prefix)
-    {
-        Path = Directory.CreateTempSubdirectory($"litespec-{prefix}-").FullName;
-    }
-
-    /// <summary>The folder's full path.</summary>
-    public string Path { get; }
-
-    public void Dispose()
-    {
-        if (Environment.GetEnvironmentVariable("KEEP_FIXTURE") is null)
-        {
-            try
-            {
-                Directory.Delete(Path, recursive: true);
-            }
-            catch (IOException)
-            {
-            }
-            catch (UnauthorizedAccessException)
-            {
-            }
-        }
     }
 }

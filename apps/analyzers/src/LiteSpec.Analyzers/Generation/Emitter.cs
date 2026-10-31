@@ -176,7 +176,7 @@ internal static class Emitter
     private static string? PascalName(string name)
     {
         var built = new StringBuilder();
-        var words = name.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = name.Split(['-'], StringSplitOptions.RemoveEmptyEntries);
 
         foreach (var word in words)
         {
@@ -214,6 +214,9 @@ internal static class Emitter
         return text;
     }
 
+    /// <summary>Returns the by full name.</summary>
+    /// <param name="types">The types collected so far, in discovery order.</param>
+    /// <returns>The by full name, in the order this method builds them, or an empty collection when none apply.</returns>
     private static List<MarkedType> OrderedByFullName(ImmutableArray<MarkedType> types)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -232,6 +235,10 @@ internal static class Emitter
         return ordered;
     }
 
+    /// <summary>Returns the with prefix.</summary>
+    /// <param name="ids">The identifiers collected so far, without duplicates.</param>
+    /// <param name="prefix">The text written before each generated entry.</param>
+    /// <returns>The with prefix as text, or null when none applies.</returns>
     private static string? FirstWithPrefix(ImmutableArray<string> ids, string prefix)
     {
         foreach (var id in ids)
@@ -245,9 +252,18 @@ internal static class Emitter
         return null;
     }
 
+    /// <summary>Returns the name.</summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The name as text.</returns>
     private static string HintName(string kind, MarkedType type) =>
         kind + "." + type.FullName.Replace('`', '_') + ".g.cs";
 
+    /// <summary>Emits the registry.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="types">The types collected so far, in discovery order.</param>
+    /// <param name="grants">The access grants read from the record pages, by use-case identifier.</param>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
     private static void EmitRegistry(
         SourceProductionContext context,
         List<MarkedType> types,
@@ -328,7 +344,7 @@ internal static class Emitter
     /// <summary>One handler claiming a message for its use case.</summary>
     private sealed class MessageClaim
     {
-        /// <summary>Creates a message claim.</summary>
+        /// <summary>Initializes a new instance of the <see cref="MessageClaim"/> class.Creates a message claim.</summary>
         /// <param name="handler">The handler's full name.</param>
         /// <param name="useCase">The handler's use case.</param>
         public MessageClaim(string handler, string useCase)
@@ -337,17 +353,17 @@ internal static class Emitter
             UseCase = useCase;
         }
 
-        /// <summary>The handler's full name.</summary>
+        /// <summary>Gets the handler's full name.</summary>
         public string Handler { get; }
 
-        /// <summary>The handler's use case.</summary>
+        /// <summary>Gets the handler's use case.</summary>
         public string UseCase { get; }
     }
 
     /// <summary>One message type with the use case its marked handler serves.</summary>
     private sealed class MessageUseCase
     {
-        /// <summary>Creates a message entry.</summary>
+        /// <summary>Initializes a new instance of the <see cref="MessageUseCase"/> class.Creates a message entry.</summary>
         /// <param name="message">The fully qualified message name.</param>
         /// <param name="useCase">The handler's use case.</param>
         public MessageUseCase(string message, string useCase)
@@ -356,10 +372,10 @@ internal static class Emitter
             UseCase = useCase;
         }
 
-        /// <summary>The fully qualified message name.</summary>
+        /// <summary>Gets the fully qualified message name.</summary>
         public string Message { get; }
 
-        /// <summary>The handler's use case.</summary>
+        /// <summary>Gets the handler's use case.</summary>
         public string UseCase { get; }
     }
 
@@ -405,7 +421,7 @@ internal static class Emitter
     /// <summary>One operation name with the use case its marked endpoint serves.</summary>
     private sealed class OperationUseCase
     {
-        /// <summary>Creates an operation entry.</summary>
+        /// <summary>Initializes a new instance of the <see cref="OperationUseCase"/> class.Creates an operation entry.</summary>
         /// <param name="operation">The PascalCase use-case name.</param>
         /// <param name="useCase">The endpoint's use case.</param>
         public OperationUseCase(string operation, string useCase)
@@ -414,13 +430,16 @@ internal static class Emitter
             UseCase = useCase;
         }
 
-        /// <summary>The PascalCase use-case name.</summary>
+        /// <summary>Gets the PascalCase use-case name.</summary>
         public string Operation { get; }
 
-        /// <summary>The endpoint's use case.</summary>
+        /// <summary>Gets the endpoint's use case.</summary>
         public string UseCase { get; }
     }
 
+    /// <summary>Emits the permissions.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="records">The record model the generator reads the declared values from.</param>
     private static void EmitPermissions(SourceProductionContext context, RecordModel records)
     {
         var named = new List<NamedPermission>();
@@ -527,7 +546,7 @@ internal static class Emitter
     /// <summary>One permission with its constant name and whether it only reads.</summary>
     private sealed class NamedPermission
     {
-        /// <summary>Creates a named permission.</summary>
+        /// <summary>Initializes a new instance of the <see cref="NamedPermission"/> class.Creates a named permission.</summary>
         /// <param name="name">The constant name.</param>
         /// <param name="facts">The facts the generated entry carries.</param>
         /// <param name="reads">Whether the permission only reads.</param>
@@ -538,16 +557,19 @@ internal static class Emitter
             Reads = reads;
         }
 
-        /// <summary>The constant name.</summary>
+        /// <summary>Gets the constant name.</summary>
         public string Name { get; }
 
-        /// <summary>The facts the generated entry carries.</summary>
+        /// <summary>Gets the facts the generated entry carries.</summary>
         public PermissionFacts Facts { get; }
 
-        /// <summary>Whether the permission only reads.</summary>
+        /// <summary>Gets a value indicating whether whether the permission only reads.</summary>
         public bool Reads { get; }
     }
 
+    /// <summary>Emits the roles.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="records">The record model the generator reads the declared values from.</param>
     private static void EmitRoles(SourceProductionContext context, RecordModel records)
     {
         var named = new List<NamedRole>();
@@ -627,7 +649,7 @@ internal static class Emitter
     /// <summary>One role with its constant name.</summary>
     private sealed class NamedRole
     {
-        /// <summary>Creates a named role.</summary>
+        /// <summary>Initializes a new instance of the <see cref="NamedRole"/> class.Creates a named role.</summary>
         /// <param name="name">The constant name.</param>
         /// <param name="facts">The facts the generated entry carries.</param>
         public NamedRole(string name, RoleFacts facts)
@@ -636,13 +658,16 @@ internal static class Emitter
             Facts = facts;
         }
 
-        /// <summary>The constant name.</summary>
+        /// <summary>Gets the constant name.</summary>
         public string Name { get; }
 
-        /// <summary>The facts the generated entry carries.</summary>
+        /// <summary>Gets the facts the generated entry carries.</summary>
         public RoleFacts Facts { get; }
     }
 
+    /// <summary>Returns the attribute declaration text, in the xUnit form when requested.</summary>
+    /// <param name="xunit">Whether the generated test attributes use the xUnit form instead of the baseline form.</param>
+    /// <returns>The attribute declaration text.</returns>
     private static string AttributesText(bool xunit)
     {
         var text = new StringBuilder();
@@ -722,6 +747,10 @@ internal static class Emitter
         return text.ToString();
     }
 
+    /// <summary>Returns the generated partial declaration text for the marked event.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="eventId">The event identifier to resolve.</param>
+    /// <returns>The partial declaration text for the event.</returns>
     private static string EventText(MarkedType type, string eventId)
     {
         var text = new StringBuilder();
@@ -735,6 +764,10 @@ internal static class Emitter
             "public const string Classification = \"" + Escape(eventId) + "\";")).ToString();
     }
 
+    /// <summary>Returns the generated partial declaration text for the marked exception.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="code">The finding code that names the outcome, such as mark-missing.</param>
+    /// <returns>The partial declaration text for the exception.</returns>
     private static string ExceptionText(MarkedType type, string code)
     {
         var text = new StringBuilder();
@@ -749,6 +782,10 @@ internal static class Emitter
         return text.Append(PartialText(type, member)).ToString();
     }
 
+    /// <summary>Returns the generated text that adds the runtime value to the marked type.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="member">The member declaration under inspection.</param>
+    /// <returns>The generated runtime value text.</returns>
     private static string PartialText(MarkedType type, string member)
     {
         var text = new StringBuilder();
@@ -787,6 +824,13 @@ internal static class Emitter
         return text.ToString();
     }
 
+    /// <summary>Returns the generated assembly registry text for the marked types.</summary>
+    /// <param name="types">The types collected so far, in discovery order.</param>
+    /// <param name="grants">The access grants read from the record pages, by use-case identifier.</param>
+    /// <param name="messages">The use cases whose message the registry maps, in record order.</param>
+    /// <param name="operations">The use cases whose operation the registry maps, in record order.</param>
+    /// <param name="webApi">Whether the application has a WebApi project that hosts endpoints.</param>
+    /// <returns>The assembly registry text.</returns>
     private static string RegistryText(
         List<MarkedType> types,
         Dictionary<string, string> grants,
@@ -945,6 +989,9 @@ internal static class Emitter
         return text.ToString();
     }
 
+    /// <summary>Returns the generated permission registry text.</summary>
+    /// <param name="named">The named entries to write, in record order.</param>
+    /// <returns>The permission registry text.</returns>
     private static string PermissionsText(List<NamedPermission> named)
     {
         var text = new StringBuilder();
@@ -997,6 +1044,9 @@ internal static class Emitter
         return text.ToString();
     }
 
+    /// <summary>Returns the entry text.</summary>
+    /// <param name="permission">The permission entry to write.</param>
+    /// <returns>The entry text as text.</returns>
     private static string PermissionEntryText(NamedPermission permission)
     {
         var risks = new StringBuilder();
@@ -1019,6 +1069,9 @@ internal static class Emitter
             + (risks.Length > 0 ? risks.ToString() + " " : string.Empty) + "})";
     }
 
+    /// <summary>Returns the generated role registry text.</summary>
+    /// <param name="named">The named entries to write, in record order.</param>
+    /// <returns>The role registry text.</returns>
     private static string RolesText(List<NamedRole> named)
     {
         var text = new StringBuilder();
@@ -1071,6 +1124,9 @@ internal static class Emitter
         return text.ToString();
     }
 
+    /// <summary>Returns the entry text.</summary>
+    /// <param name="role">The role entry to write.</param>
+    /// <returns>The entry text as text.</returns>
     private static string RoleEntryText(NamedRole role)
     {
         var allows = new StringBuilder();
@@ -1091,9 +1147,15 @@ internal static class Emitter
             + (allows.Length > 0 ? allows.ToString() + " " : string.Empty) + "})";
     }
 
+    /// <summary>Escapes the value for use inside a generated string literal.</summary>
+    /// <param name="value">The value to convert or test.</param>
+    /// <returns>The string as text.</returns>
     private static string Escape(string value) =>
         value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
+    /// <summary>Returns true when the character is ascii letter or digit; otherwise false.</summary>
+    /// <param name="character">The character to convert.</param>
+    /// <returns>True when the character is ascii letter or digit; otherwise false.</returns>
     private static bool IsAsciiLetterOrDigit(char character) =>
         (character >= 'a' && character <= 'z')
         || (character >= 'A' && character <= 'Z')

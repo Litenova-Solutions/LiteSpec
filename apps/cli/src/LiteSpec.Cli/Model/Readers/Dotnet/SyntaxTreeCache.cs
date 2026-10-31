@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -56,7 +57,7 @@ static class SyntaxTreeCache
                 {
                     local.Add(new Finding(
                         "reader-missing",
-                        $"Backend source file '{file}' could not be parsed: {parseError.GetMessage()}",
+                        $"Backend source file '{file}' could not be parsed: {parseError.GetMessage(CultureInfo.InvariantCulture)}",
                         file,
                         1,
                         null)

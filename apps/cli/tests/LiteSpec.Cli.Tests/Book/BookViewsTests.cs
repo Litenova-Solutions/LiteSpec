@@ -813,11 +813,17 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>
+    /// <param name="type">The record type to classify, or null when the node has no type.</param>
+    /// <returns>True when the type starts its own outline layer.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook"
             or "integration-event" or "exception" or "term";
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
+    /// <param name="links">The lexicon link rows to search.</param>
+    /// <param name="field">The link field whose phrases are read.</param>
+    /// <param name="carrier">The carrier type whose row is read.</param>
+    /// <returns>The forward and inverse phrases, each null when the row omits it.</returns>
     static (string? Forward, string? Inverse) Phrases(JsonArray links, string field, string carrier)
     {
         var row = links.OfType<JsonObject>().First(link =>
@@ -891,6 +897,8 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The nearest enclosing record ancestor per record id, walking through groups.</summary>
+    /// <param name="tops">The outline top nodes to walk.</param>
+    /// <returns>The nearest record ancestor id per node id, null for top nodes.</returns>
     static Dictionary<string, string?> AncestorsOf(List<JsonObject> tops)
     {
         var ancestors = new Dictionary<string, string?>(StringComparer.Ordinal);
@@ -950,6 +958,8 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The exact outline parent per node id, for every kind of node.</summary>
+    /// <param name="tops">The outline top nodes to walk.</param>
+    /// <returns>The parent node id per node id, null for top nodes.</returns>
     static Dictionary<string, string?> ParentsOf(List<JsonObject> tops)
     {
         var parents = new Dictionary<string, string?>(StringComparer.Ordinal);

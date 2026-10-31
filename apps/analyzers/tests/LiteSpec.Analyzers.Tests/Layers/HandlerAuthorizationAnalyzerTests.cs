@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2012, the handler authorization rule.</summary>
 public sealed class HandlerAuthorizationAnalyzerTests
 {
+    /// <summary>LS2012 reports a command handler throwing a forbidden exception.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a command handler throwing a forbidden exception")]
     public Task ReportsACommandHandlerThrowingForbidden() =>
@@ -27,6 +29,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 reports a query handler throwing an unauthorized exception.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a query handler throwing an unauthorized exception")]
     public Task ReportsAQueryHandlerThrowingUnauthorized() =>
@@ -53,6 +57,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 reports a handler throwing an access denied exception.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a handler throwing an access denied exception")]
     public Task ReportsAHandlerThrowingAccessDenied() =>
@@ -74,6 +80,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 reports a forbidden exception thrown through a local.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a forbidden exception thrown through a local")]
     public Task ReportsAForbiddenExceptionThrownThroughALocal() =>
@@ -96,6 +104,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 accepts a handler throwing a domain refusal.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a handler throwing a domain refusal")]
     public Task AcceptsAHandlerThrowingADomainRefusal() =>
@@ -117,6 +127,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 accepts a throw in an event handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a throw in an event handler")]
     public Task AcceptsAThrowInAnEventHandler() =>
@@ -140,6 +152,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 accepts a rethrow.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a rethrow")]
     public Task AcceptsARethrow() =>
@@ -166,6 +180,8 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2012 stays silent outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>

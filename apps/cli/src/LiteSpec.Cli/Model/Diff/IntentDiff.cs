@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Diff;
 /// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 sealed class IntentDiff
 {
-    /// <summary>Creates the intent diff between two models.</summary>
+    /// <summary>Initializes a new instance of the <see cref="IntentDiff"/> class.Creates the intent diff between two models.</summary>
     /// <param name="baseLabel">The base name, as the caller passed it.</param>
     /// <param name="headLabel">The head name, as the caller passed it.</param>
     /// <param name="changes">Every change, in review order.</param>
@@ -39,7 +39,7 @@ sealed class IntentDiff
 
     /// <summary>The changes one view shows, in review order.</summary>
     /// <param name="view">The view to show.</param>
-    /// <returns>The changes one view shows, in review order.</returns>
+    /// <returns>Only the changes whose view matches, kept in review order.</returns>
     public IReadOnlyList<IntentChange> ChangesIn(DiffView view) =>
         view == DiffView.Both
             ? Changes
@@ -47,7 +47,7 @@ sealed class IntentDiff
 
     /// <summary>How many changes in one view break approved intent.</summary>
     /// <param name="view">The view to count.</param>
-    /// <returns>How many changes in one view break approved intent.</returns>
+    /// <returns>The number of entries in that view whose Breaking flag is set.</returns>
     public int BreakingCountIn(DiffView view) => ChangesIn(view).Count(change => change.Breaking);
 
     /// <summary>Gets how many changes break approved intent.</summary>
@@ -64,7 +64,7 @@ sealed class IntentDiff
 
     /// <summary>The family a record type belongs to.</summary>
     /// <param name="type">The record type.</param>
-    /// <returns>The family a record type belongs to.</returns>
+    /// <returns>Goals-requirements, domain, access, or operations, according to the record type.</returns>
     public static string FamilyOf(string type) => type switch
     {
         "product" or "goal" or "problem" or "feature" or "topic" or "constraint"
@@ -104,7 +104,7 @@ sealed class IntentDiff
 
     /// <summary>The display name of a family.</summary>
     /// <param name="family">The family.</param>
-    /// <returns>The display name of a family.</returns>
+    /// <returns>Goals and requirements, Domain, Access, or Operations.</returns>
     public static string FamilyName(string family) => family switch
     {
         "goals-requirements" => "Goals and requirements",
@@ -115,7 +115,7 @@ sealed class IntentDiff
 
     /// <summary>The review order of a family.</summary>
     /// <param name="family">The family.</param>
-    /// <returns>The review order of a family.</returns>
+    /// <returns>Zero for goals-requirements, then domain, access, and operations in that order.</returns>
     public static int FamilyOrder(string family) => family switch
     {
         "goals-requirements" => 0,

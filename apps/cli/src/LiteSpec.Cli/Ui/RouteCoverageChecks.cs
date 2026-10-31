@@ -85,7 +85,7 @@ sealed class RouteCoverageChecks
     /// <returns>True when a segment is router-ignored.</returns>
     static bool IgnoredRouteSegment(string relative) =>
         relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Any(part => part.StartsWith("-", StringComparison.Ordinal));
+            .Any(part => part.StartsWith('-'));
 
     // The route suite is one specification per frontend that visits every
     // route the route tree discovers. Every browser verification row names

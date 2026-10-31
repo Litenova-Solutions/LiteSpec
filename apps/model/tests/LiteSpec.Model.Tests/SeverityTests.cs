@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class SeverityTests
 {
     /// <summary>A finding about a retired record stays silent, whatever its tier.</summary>
+    /// <param name="code">The finding code under test.</param>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Theory]
     [InlineData("record-invalid")]
@@ -53,6 +54,8 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding reports under an unqualified reader, and blocks under a qualified one.</summary>
+    /// <param name="readerQualified">Whether the reader is qualified for the finding.</param>
+    /// <param name="outcome">The expected severity outcome.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData(true, Outcome.Blocking)]
@@ -66,6 +69,8 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding with no subject follows its tier: it blocks under a qualified reader.</summary>
+    /// <param name="readerQualified">Whether the reader is qualified for the finding.</param>
+    /// <param name="outcome">The expected severity outcome.</param>
     /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Theory]
     [InlineData(true, Outcome.Blocking)]
@@ -79,6 +84,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A live G finding blocks under any reader.</summary>
+    /// <param name="readerQualified">Whether the reader is qualified for the finding.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData(true)]

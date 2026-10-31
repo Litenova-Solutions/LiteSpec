@@ -55,6 +55,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>Each new Intent finding code carries its contracted tier.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData("requirement-cites-missing", "A")]
@@ -82,6 +84,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData("reaction-name-invalid", "G")]
@@ -98,6 +102,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>Each new Proof and Governance finding code carries its contracted tier.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData("exception-expired", "G")]
@@ -131,6 +137,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>Every literal a checker passes as a finding code, across the CLI and model sources.</summary>
+    /// <param name="repository">The path of the repository root.</param>
+    /// <returns>The emitted finding codes in ordinal order.</returns>
     static IReadOnlyList<string> EmittedCodes(string repository)
     {
         var found = new SortedSet<string>(StringComparer.Ordinal);
@@ -161,6 +169,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>The codes in the Checker's exception set, read from its source.</summary>
+    /// <param name="checkerSource">The source text of the checker to scan.</param>
+    /// <returns>The finding codes in the checker exception set.</returns>
     static IReadOnlyList<string> CheckerCodes(string checkerSource)
     {
         var start = checkerSource.IndexOf("Codes = new", StringComparison.Ordinal);
@@ -184,6 +194,8 @@ public sealed class FindingCodesTests
     }
 
     /// <summary>Whether the code ends with one of the twelve problem words, or is the D37 proof code.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <returns>True when the code follows the subject-problem grammar; otherwise false.</returns>
     static bool FollowsGrammar(string code)
     {
         // D37 names use-case-unverified explicitly; it negates the D38 proof word verified.
@@ -197,7 +209,7 @@ public sealed class FindingCodesTests
         return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
     }
 
-    /// <summary>The twelve problem words of the finding-code grammar.</summary>
+    /// <summary>Gets the twelve problem words of the finding-code grammar.</summary>
     static HashSet<string> ProblemWords { get; } = new(StringComparer.Ordinal)
     {
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
@@ -205,6 +217,7 @@ public sealed class FindingCodesTests
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>
+    /// <returns>The path of the repository root.</returns>
     static string FindRepository()
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)

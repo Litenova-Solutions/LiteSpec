@@ -32,9 +32,10 @@ static class UiValidator
     /// <summary>Runs the <c>litespec ui</c> command; returns the exit code.</summary>
     /// <param name="args">The command arguments after <c>ui</c>.</param>
     /// <returns>The exit code: 0 no problem, 1 at least one problem, 2 usage error.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the ui command handler: every failure of the validation run goes through the last-resort reporter as an error and an exit code instead of crashing.")]
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, Array.Empty<string>(), new[] { "--root", "--format" });
+        var parsed = CliArgs.Parse(args, Array.Empty<string>(), ["--root", "--format"]);
         if (parsed.Help)
         {
             Console.WriteLine(Usage);

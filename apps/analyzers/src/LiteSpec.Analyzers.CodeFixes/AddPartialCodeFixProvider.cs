@@ -48,6 +48,11 @@ public sealed class AddPartialCodeFixProvider : CodeFixProvider
             diagnostic);
     }
 
+    /// <summary>Returns the partial.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the partial.</returns>
     private static async Task<Solution> AddPartialAsync(
         Document document, Diagnostic diagnostic, System.Threading.CancellationToken token)
     {

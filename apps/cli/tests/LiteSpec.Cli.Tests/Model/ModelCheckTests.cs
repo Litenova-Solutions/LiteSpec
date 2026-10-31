@@ -67,7 +67,7 @@ public sealed class ModelCheckTests
         "write-undeclared",
     ];
 
-    /// <summary>The finding codes as theory rows, one row per broken overlay.</summary>
+    /// <summary>Gets the finding codes as theory rows, one row per broken overlay.</summary>
     public static TheoryData<string> FindingCodeData
     {
         get
@@ -103,9 +103,11 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Broken overlay '&lt;code&gt;' exits 1 with its finding code in the output.</summary>
+    /// <param name="code">The finding code the broken-overlay case expects in the output.</param>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Theory]
     [MemberData(nameof(FindingCodeData))]
+    // The MemberData values name each broken-overlay finding code case.
     public void Broken_Overlay_Exits_1(string code)
     {
         using var fixture = ModelFixture.Prepare("large", code);
@@ -163,6 +165,12 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Writes an approved exception covering the codes on the subjects.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="id">The exception record id.</param>
+    /// <param name="title">The exception page title.</param>
+    /// <param name="covers">The finding codes the exception covers.</param>
+    /// <param name="subject">The record ids the exception applies to.</param>
+    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
     static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var folder = Path.Combine(root, "docs", "governance", "exceptions");

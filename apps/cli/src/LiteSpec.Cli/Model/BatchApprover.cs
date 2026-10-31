@@ -2,37 +2,37 @@ using System.Globalization;
 
 namespace LiteSpec.Model;
 
-/// <summary>One record's approval in a batch: what changes and what it carries.</summary>
-/// <param name="Record">The batch record.</param>
-/// <param name="Action">The action: promoted, re-stamped, or held.</param>
-/// <param name="TargetStatus">The status the record holds after the batch.</param>
-/// <param name="Hash">The semantic hash at approval time.</param>
-/// <param name="Tier">The approval tier.</param>
-/// <param name="Scenarios">The scenario evidence.</param>
-/// <param name="Findings">The count of open findings about the record.</param>
-/// <param name="HeldGuards">The guards holding the record, empty unless a module and type batch held it.</param>
-sealed record BatchAction(
-    Record Record,
-    string Action,
-    string TargetStatus,
-    string Hash,
-    int Tier,
-    ReviewScenarios Scenarios,
-    int Findings,
-    IReadOnlyList<string> HeldGuards);
 
-/// <summary>One batch plan: the ordered approvals, the left-out records, the guard failures, and the sample.</summary>
-/// <param name="Batch">The queued batch.</param>
-/// <param name="Ordered">Every batch record in approval order, held records included.</param>
-/// <param name="LeftOut">The tier 1 records a module and type batch leaves out.</param>
-/// <param name="Failures">The guard failures, each naming its record and guard.</param>
-/// <param name="Sample">The sampled tier 3 ids.</param>
-sealed record BatchPlan(
-    ReviewBatch Batch,
-    IReadOnlyList<BatchAction> Ordered,
-    IReadOnlyList<Record> LeftOut,
-    IReadOnlyList<(string Id, string Guard)> Failures,
-    IReadOnlyList<string> Sample);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /// <summary>
 ///     Batch approval: promotes each draft in one batch, re-stamps each reopened record,
@@ -43,6 +43,9 @@ sealed record BatchPlan(
 static class BatchApprover
 {
     /// <summary>Finds the batch the selector names, or null.</summary>
+    /// <param name="batches">The queued batches to search.</param>
+    /// <param name="selector">The batch selector to match exactly.</param>
+    /// <returns>The batch the selector names, or null when none matches.</returns>
     public static ReviewBatch? Find(IReadOnlyList<ReviewBatch> batches, string selector) =>
         batches.FirstOrDefault(batch =>
             string.Equals(batch.Selector, selector, StringComparison.Ordinal));
@@ -54,6 +57,14 @@ static class BatchApprover
     ///     only when no approver is named or no record passes; any other batch fails whole
     ///     when one guard fails.
     /// </summary>
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="batch">The queued batch to plan.</param>
+    /// <param name="by">The approver name, or null when none is named.</param>
+    /// <param name="secondReviewer">The second reviewer name for tier 1, or null when none is named.</param>
+    /// <param name="reviewReport">The review report path for an agent second reviewer, or null.</param>
+    /// <param name="findings">The open finding count per record, or null to compute it from the model.</param>
+    /// <param name="on">The approval date, or null where the plan does not stamp.</param>
+    /// <returns>The batch plan with its ordered actions, left-out records, guard failures and sample.</returns>
     public static BatchPlan Plan(
         ProjectModel model,
         ReviewBatch batch,
@@ -115,6 +126,9 @@ static class BatchApprover
     ///     Holds each changed record the record guards fail: it keeps its status, gets no
     ///     stamp, and carries its guards, so one blocked record holds back only itself.
     /// </summary>
+    /// <param name="ordered">The batch actions in approval order.</param>
+    /// <param name="recordFailures">The record guard failures, each naming its record and guard.</param>
+    /// <returns>The actions with each guard-failed changed record held, in the same order.</returns>
     static List<BatchAction> HoldFailed(
         IReadOnlyList<BatchAction> ordered, IReadOnlyList<(string Id, string Guard)> recordFailures)
     {
@@ -139,6 +153,9 @@ static class BatchApprover
     }
 
     /// <summary>Every record the batch approval covers, held records included.</summary>
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="batch">The queued batch whose members are wanted.</param>
+    /// <returns>Every record the batch covers, in batch order before approval sorting.</returns>
     static List<Record> MembersOf(ProjectModel model, ReviewBatch batch)
     {
         if (batch.Kind == RecordTypes.UseCase
@@ -205,6 +222,9 @@ static class BatchApprover
     }
 
     /// <summary>Whether a reaction or job page carries the scenario, so its own batch holds it.</summary>
+    /// <param name="model">The built project model holding the pages.</param>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when the record is a scenario on a reaction or job page.</returns>
     static bool OnReactionOrJobPage(ProjectModel model, Record record) =>
         record.Type == RecordTypes.Scenario
         && record.PageId is not null
@@ -212,6 +232,9 @@ static class BatchApprover
         && page.Type is RecordTypes.Reaction or RecordTypes.Job;
 
     /// <summary>Whether a use case, reaction or job batch claims the record: a use case result or scenario, or a scenario on a reaction or job page.</summary>
+    /// <param name="model">The built project model holding the use cases.</param>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when a use case, reaction or job batch claims the record.</returns>
     static bool ClaimedByUseCase(ProjectModel model, Record record)
     {
         if (OnReactionOrJobPage(model, record))
@@ -226,6 +249,10 @@ static class BatchApprover
     }
 
     /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The batch member to describe.</param>
+    /// <param name="findings">The open finding count per record.</param>
+    /// <returns>The batch action describing the member approval.</returns>
     static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)
     {
         var action = record.Status == RecordStatuses.Draft
@@ -251,7 +278,13 @@ static class BatchApprover
     ///     carries a named owner approver, and every tier 1 record a second reading.
     ///     A batch guard fails the whole batch, whatever its kind.
     /// </summary>
-    static IReadOnlyList<(string Id, string Guard)> BatchGuards(
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="changed">The actions the batch changes, in approval order.</param>
+    /// <param name="by">The approver name, or null when none is named.</param>
+    /// <param name="secondReviewer">The second reviewer name for tier 1, or null when none is named.</param>
+    /// <param name="reviewReport">The review report path for an agent second reviewer, or null.</param>
+    /// <returns>The batch guard failures, each naming its record and guard.</returns>
+    static List<(string Id, string Guard)> BatchGuards(
         ProjectModel model,
         IReadOnlyList<BatchAction> changed,
         string? by,
@@ -287,7 +320,12 @@ static class BatchApprover
     ///     record stays draft behind what it rests on. Guards gate what the batch
     ///     changes, so records held from an earlier act carry none.
     /// </summary>
-    static IReadOnlyList<(string Id, string Guard)> RecordGuards(
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="changed">The actions the batch changes, in approval order.</param>
+    /// <param name="approvals">Every record the batch approves, held records included.</param>
+    /// <param name="today">The current date, for open-question expiry.</param>
+    /// <returns>The record guard failures, each naming its record and guard.</returns>
+    static List<(string Id, string Guard)> RecordGuards(
         ProjectModel model,
         IReadOnlyList<BatchAction> changed,
         IReadOnlyList<Record> approvals,
@@ -328,6 +366,9 @@ static class BatchApprover
     }
 
     /// <summary>The named-approver guard: every batch needs a person from the owners list.</summary>
+    /// <param name="model">The built project model holding the owners list.</param>
+    /// <param name="by">The approver name, or null when none is named.</param>
+    /// <returns>The guard failure text, or null when the approver is a named project owner.</returns>
     static string? ApproverGuard(ProjectModel model, string? by)
     {
         if (by is not { Length: > 0 })
@@ -349,6 +390,11 @@ static class BatchApprover
     ///     The second-reviewer guard: tier 1 needs another reading beside the approver,
     ///     except on a project whose owners list holds one name.
     /// </summary>
+    /// <param name="model">The built project model holding the owners list.</param>
+    /// <param name="by">The approver name, or null when none is named.</param>
+    /// <param name="secondReviewer">The second reviewer name, or null when none is named.</param>
+    /// <param name="reviewReport">The review report path for an agent second reviewer, or null.</param>
+    /// <returns>The guard failure text, or null when the second reading is in place.</returns>
     static string? ReviewerGuard(ProjectModel model, string? by, string? secondReviewer, string? reviewReport)
     {
         if (model.Config.Owners.Count == 1)
@@ -379,7 +425,10 @@ static class BatchApprover
     ///     Each record's effective status after the batch: the approvals hold their target
     ///     status, and every other record keeps its own.
     /// </summary>
-    static IReadOnlyDictionary<string, string> SimulatedStatus(
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="approvals">Every record the batch approves, held records included.</param>
+    /// <returns>The effective status of each record after the batch.</returns>
+    static Dictionary<string, string> SimulatedStatus(
         ProjectModel model, IReadOnlyList<Record> approvals)
     {
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -406,8 +455,12 @@ static class BatchApprover
     }
 
     /// <summary>The use case holding a result or scenario in the overlaid records.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="byId">The overlaid records by id.</param>
+    /// <param name="record">The overlaid record whose holder is wanted.</param>
+    /// <returns>The overlaid use case holding the record, or null when none holds it.</returns>
     static IRecordFacts? UseCaseHolder(
-        ProjectModel model, IReadOnlyDictionary<string, IRecordFacts> byId, IRecordFacts record)
+        ProjectModel model, Dictionary<string, IRecordFacts> byId, IRecordFacts record)
     {
         if (!model.ById.TryGetValue(record.Id, out var original))
         {
@@ -433,13 +486,25 @@ static class BatchApprover
     /// <summary>One record with its status replaced, for the simulated effective status.</summary>
     sealed class StatusOverlay(IRecordFacts inner, string? status) : IRecordFacts
     {
+        /// <summary>Gets the record type of the wrapped record.</summary>
         public string Type => inner.Type;
+        /// <summary>Gets the record id of the wrapped record.</summary>
         public string Id => inner.Id;
+        /// <summary>Gets the display title of the wrapped record.</summary>
         public string Title => inner.Title;
+        /// <summary>Gets the simulated status that replaces the wrapped record status.</summary>
         public string? Status => status;
+        /// <summary>Gets the absolute file path of the wrapped record.</summary>
         public string File => inner.File;
+        /// <summary>Gets the 1-based line of the wrapped record.</summary>
         public int Line => inner.Line;
+        /// <summary>Reads one optional string field of the wrapped record.</summary>
+        /// <param name="name">The field name to read.</param>
+        /// <returns>The field string value of the wrapped record, or null when it holds none.</returns>
         public string? Field(string name) => inner.Field(name);
+        /// <summary>Reads one id field of the wrapped record.</summary>
+        /// <param name="name">The field name to read.</param>
+        /// <returns>The ids the field of the wrapped record holds.</returns>
         public IReadOnlyList<string> Ids(string name) => inner.Ids(name);
     }
 
@@ -452,7 +517,11 @@ static class BatchApprover
     ///     own status: a transcribed record is reviewed only once its Intent parent stands.
     /// </summary>
     /// <follows>litespec/core/model#hold-transcribed-records-in-draft</follows>
-    static string? TranscribedHold(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record) =>
+    /// <param name="model">The built project model holding the journeys.</param>
+    /// <param name="simulated">The effective status of each record after the batch.</param>
+    /// <param name="record">The record to test.</param>
+    /// <returns>The draft journey holding the record, or null when no served journey is draft.</returns>
+    static string? TranscribedHold(ProjectModel model, Dictionary<string, string> simulated, Record record) =>
         record.Field(RecordFields.Provenance) != "transcribed"
             ? null
             : record.Ids(RecordFields.Serves)
@@ -462,7 +531,12 @@ static class BatchApprover
                 .OrderBy(id => id, StringComparer.Ordinal)
                 .FirstOrDefault();
 
-    static string? RestedOn(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record)
+    /// <summary>Finds one draft record the record rests on, in decision, requirement, journey and holder order.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="simulated">The effective status of each record after the batch.</param>
+    /// <param name="record">The record whose draft parent is wanted.</param>
+    /// <returns>The id of one draft parent, or null when the record rests on no draft.</returns>
+    static string? RestedOn(ProjectModel model, Dictionary<string, string> simulated, Record record)
     {
         string? DraftParent(IEnumerable<string> ids) => ids
             .Where(id => simulated.TryGetValue(id, out var status) && status == RecordStatuses.Draft)
@@ -505,6 +579,10 @@ static class BatchApprover
     ///     Draws the tier 3 sample: the records with the lowest semantic hashes read as
     ///     hexadecimal numbers, the project's share rounded up, at least one.
     /// </summary>
+    /// <param name="model">The built project model the records belong to, for their semantic hashes.</param>
+    /// <param name="tier3">The changed tier 3 records to sample from.</param>
+    /// <param name="share">The share of the tier 3 records to sample, rounded up to at least one.</param>
+    /// <returns>The sampled record ids in ordinal order.</returns>
     public static IReadOnlyList<string> Sample(
         ProjectModel model, IReadOnlyList<Record> tier3, double share) =>
         tier3
@@ -517,6 +595,8 @@ static class BatchApprover
             .ToList();
 
     /// <summary>Reads a semantic hash as a hexadecimal number.</summary>
+    /// <param name="hash">The semantic hash text to parse.</param>
+    /// <returns>The hash as a number, or the largest value when the text does not parse.</returns>
     static ulong HashValue(string hash) =>
         ulong.TryParse(hash, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value)
             ? value
@@ -526,10 +606,17 @@ static class BatchApprover
     ///     Writes the batch manifest under the docs proof folder, appending -2, -3 and so
     ///     on while a manifest of that name exists. Returns the manifest path.
     /// </summary>
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="plan">The batch plan to write as the manifest.</param>
+    /// <param name="by">The approver name written into the manifest.</param>
+    /// <param name="secondReviewer">The second reviewer name written into the manifest, or null.</param>
+    /// <param name="reviewReport">The review report path written into the manifest, or null.</param>
+    /// <param name="on">The approval date written into the manifest and its file name.</param>
+    /// <returns>The manifest path written.</returns>
     public static string WriteManifest(
         ProjectModel model, BatchPlan plan, string by, string? secondReviewer, string? reviewReport, string on)
     {
-        var docs = model.Config.RecordRoots.FirstOrDefault() ?? Path.Combine(model.Config.Root, "docs");
+        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, "docs");
         var folder = Path.Combine(docs, "proof", "approvals");
 
         Directory.CreateDirectory(folder);
@@ -587,6 +674,10 @@ static class BatchApprover
     ///     effective status is recomputed, so a later batch in the same run sees
     ///     the promotion without a rebuild from disk.
     /// </summary>
+    /// <param name="model">The built project model to update in place.</param>
+    /// <param name="plan">The applied batch plan.</param>
+    /// <param name="by">The approver name to store, or null to fall back to each record decider or owner.</param>
+    /// <param name="on">The approval date to store.</param>
     public static void Apply(ProjectModel model, BatchPlan plan, string? by, string on)
     {
         foreach (var action in plan.Ordered.Where(entry => entry.Action is "promoted" or "re-stamped"))
@@ -656,6 +747,9 @@ static class BatchApprover
     }
 
     /// <summary>Prints the dry run: the plan, the left-out records, the failures, and the sample.</summary>
+    /// <param name="plan">The batch plan to print.</param>
+    /// <param name="share">The sample share printed in the sample line.</param>
+    /// <returns>The dry run text, lines joined with LF.</returns>
     public static string DryRun(BatchPlan plan, double share)
     {
         var lines = new List<string>();
@@ -700,6 +794,9 @@ static class BatchApprover
     }
 
     /// <summary>Prints the sample: its size against the tier 3 approvals, and its ids.</summary>
+    /// <param name="plan">The batch plan whose sample is printed.</param>
+    /// <param name="share">The sample share printed in the line.</param>
+    /// <returns>The sample line naming its size and ids.</returns>
     static string SampleLine(BatchPlan plan, double share)
     {
         var tier3 = plan.Ordered.Count(action =>

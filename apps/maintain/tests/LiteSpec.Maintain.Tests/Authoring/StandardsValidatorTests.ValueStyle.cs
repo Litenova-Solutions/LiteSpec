@@ -9,6 +9,7 @@ public sealed partial class StandardsValidatorTests
     static void WriteExample(string root, string name, string frontmatter) =>
         StandardsFixture.Write(root, $"examples/sample/docs/{name}", TemplatePage(frontmatter));
 
+    /// <summary>Goal statement without a period.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "goal statement without a period")]
     public void GoalStatementWithoutPeriod() => Check(
@@ -17,6 +18,7 @@ public sealed partial class StandardsValidatorTests
             "\"statement\":\"Every expense is decided within five days\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Requirement statement holding a modal word.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "requirement statement holding a modal word")]
     public void RequirementStatementHoldingModalWord() => Check(
@@ -28,6 +30,7 @@ public sealed partial class StandardsValidatorTests
             "\"rationale\":\"Late decisions stall payouts.\"}]}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Step statement without an actor start or a period.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "step statement without an actor start or a period")]
     public void StepStatementWithoutActorStartOrPeriod() => Check(
@@ -36,6 +39,7 @@ public sealed partial class StandardsValidatorTests
             "\"steps\":[{\"id\":\"s1\",\"statement\":\"submits the expense\"}]}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Setting meaning without an article.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "setting meaning without an article")]
     public void SettingMeaningWithoutArticle() => Check(
@@ -44,6 +48,7 @@ public sealed partial class StandardsValidatorTests
             "\"meaning\":\"Confirmed reservation of one room.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Setting meaning over twenty-five words.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "setting meaning over twenty-five words")]
     public void SettingMeaningOverTwentyFiveWords() => Check(
@@ -52,6 +57,7 @@ public sealed partial class StandardsValidatorTests
             "\"meaning\":\"A room hold window policy expense claim audit trail queue batch export import sync retry delay cache lock stamp seal tag chip card pass key badge.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Rationale starting with because.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "rationale starting with because")]
     public void RationaleStartingWithBecause() => Check(
@@ -63,6 +69,7 @@ public sealed partial class StandardsValidatorTests
             "\"rationale\":\"Because late decisions stall payouts.\"}]}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Because reason starting with because.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "Because reason starting with because")]
     public void BecauseReasonStartingWithBecause() => Check(
@@ -71,6 +78,7 @@ public sealed partial class StandardsValidatorTests
             "\"appliesBecause\":\"Because partners keep the no-show risk.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Mode object reason starting with because.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "mode object reason starting with because")]
     public void ModeObjectReasonStartingWithBecause() => Check(
@@ -79,6 +87,7 @@ public sealed partial class StandardsValidatorTests
             "\"paging\":{\"mode\":\"none\",\"reason\":\"Because it returns one object.\"}}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Mode objects carrying bare clauses.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "mode objects carrying bare clauses")]
     public void ModeObjectsCarryingBareClauses() => Check(
@@ -88,6 +97,7 @@ public sealed partial class StandardsValidatorTests
             "\"freshness\":{\"mode\":\"bounded\",\"within\":\"PT5M\"}}"),
         []);
 
+    /// <summary>When condition starting with when.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "When condition starting with when")]
     public void WhenConditionStartingWithWhen() => Check(
@@ -96,6 +106,7 @@ public sealed partial class StandardsValidatorTests
             "\"finishedWhen\":\"When the employee holds the reimbursement.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Except condition starting with if.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "except condition starting with if")]
     public void ExceptConditionStartingWithIf() => Check(
@@ -108,6 +119,7 @@ public sealed partial class StandardsValidatorTests
             "\"except\":[{\"condition\":\"If the expense waits past Friday.\"}]}]}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Failure holding a refusal code.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "failure holding a refusal code")]
     public void FailureHoldingRefusalCode() => Check(
@@ -116,6 +128,7 @@ public sealed partial class StandardsValidatorTests
             "\"failure\":\"The call fails with spending.receipt-missing.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Question without a question mark.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "question without a question mark")]
     public void QuestionWithoutQuestionMark() => Check(
@@ -124,6 +137,7 @@ public sealed partial class StandardsValidatorTests
             "\"question\":\"How fast are expenses decided\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Title starting lower case with a final period.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "title starting lower case with a final period")]
     public void TitleStartingLowerCaseWithFinalPeriod() => Check(
@@ -132,6 +146,7 @@ public sealed partial class StandardsValidatorTests
             "\"statement\":\"Every expense is decided within five days.\"}"),
         ["VALUE_STYLE"]);
 
+    /// <summary>Template placeholders skip the value style.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "template placeholders skip the value style")]
     public void TemplatePlaceholdersSkipValueStyle() => Check(
@@ -140,6 +155,7 @@ public sealed partial class StandardsValidatorTests
             "\"statement\":\"<The measurable outcome in one sentence>\"}"),
         []);
 
+    /// <summary>Shipped templates and examples carry the value style.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "shipped templates and examples carry the value style")]
     public void ShippedTemplatesAndExamplesCarryValueStyle()

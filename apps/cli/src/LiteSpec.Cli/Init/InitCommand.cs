@@ -46,6 +46,8 @@ static class InitCommand
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
+    /// <param name="args">The arguments after the init command name, holding the preset, size, root and project name options.</param>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, and 2 when the project file exists or an option is invalid.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, [], ["--preset", "--size", "--root", "--name"]);
@@ -307,6 +309,12 @@ static class InitCommand
     }
 
     /// <summary>Fills the LiteSpec block of a fresh agent context with the new project's selection.</summary>
+    /// <param name="text">The agent context template text with placeholders for the project selection.</param>
+    /// <param name="version">The LiteSpec release version the new project records.</param>
+    /// <param name="size">The project size, small or large.</param>
+    /// <param name="shape">The project shape, server or client-only.</param>
+    /// <param name="stacks">The stack identifiers the preset selects, in list order.</param>
+    /// <returns>The template text with each selection placeholder replaced by its value.</returns>
     static string FillAgents(string text, string version, string size, string shape, IReadOnlyList<string> stacks) =>
         text.Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
@@ -315,6 +323,8 @@ static class InitCommand
             .Replace("__SELECTION_KEY__", $"{shape}.{string.Join(".", stacks)}", StringComparison.Ordinal);
 
     /// <summary>The stacks as prose, the way the selection page joins them: none, one, or joined with commas and and.</summary>
+    /// <param name="items">The stack names to join as prose.</param>
+    /// <returns>The prose form of the list: none for an empty list, the single name alone, two names joined with and, or a comma list ending with and.</returns>
     static string JoinList(IReadOnlyList<string> items) => items.Count switch
     {
         0 => "none",
@@ -324,6 +334,8 @@ static class InitCommand
     };
 
     /// <summary>The local tool manifest pinning the LiteSpec.Cli tool at the release.</summary>
+    /// <param name="version">The LiteSpec release version to pin in the tool manifest.</param>
+    /// <returns>The dotnet-tools manifest JSON text pinning the LiteSpec.Cli tool at that version.</returns>
     static string ToolManifest(string version) => $$"""
         {
           "version": 1,
@@ -337,11 +349,16 @@ static class InitCommand
         }
         """ + "\n";
 
-    /// <summary>Replaces a placeholder inside every string value of the document.</summary>
     /// <summary>The project name as an npm package scope: lowercase, with runs of other characters as one hyphen.</summary>
+    /// <param name="name">The project name to convert into a package scope.</param>
+    /// <returns>The lowercase kebab-case scope form of the name.</returns>
     static string PackageScope(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9._-]+", "-").Trim('-');
 
+    /// <summary>Replaces a placeholder inside every string value of the document.</summary>
+    /// <param name="node">The JSON node whose string values are rewritten in place, or null when the subtree holds no value.</param>
+    /// <param name="placeholder">The placeholder text to replace in each string value.</param>
+    /// <param name="value">The replacement text for the placeholder.</param>
     static void Fill(JsonNode? node, string placeholder, string value)
     {
         switch (node)
@@ -378,6 +395,8 @@ static class InitCommand
     }
 
     /// <summary>Every template placeholder, such as <c>__OWNER__</c>, still in the document.</summary>
+    /// <param name="node">The document node to scan, or null when the document holds no value.</param>
+    /// <returns>Every placeholder token still present in the document string values.</returns>
     public static IEnumerable<string> Placeholders(JsonNode? node) => node switch
     {
         JsonObject jsonObject => jsonObject.SelectMany(entry => Placeholders(entry.Value)),
@@ -386,5 +405,6 @@ static class InitCommand
         _ => [],
     };
 
+    /// <summary>The pattern matching a template placeholder token such as <c>__OWNER__</c>.</summary>
     static readonly System.Text.RegularExpressions.Regex PlaceholderPattern = new(@"__[A-Z][A-Z0-9_]*?__");
 }

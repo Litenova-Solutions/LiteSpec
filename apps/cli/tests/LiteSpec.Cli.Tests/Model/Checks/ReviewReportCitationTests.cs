@@ -5,6 +5,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a batch review report's citations are history, while a page's are checked.</summary>
 public sealed class ReviewReportCitationTests
 {
+    /// <summary>A Review Report Citing A Removed Scenario Reports Nothing.</summary>
     /// <proves>litespec/core/release#write-a-manifest-for-every-batch-approval</proves>
     [Fact]
     public void A_Review_Report_Citing_A_Removed_Scenario_Reports_Nothing()
@@ -21,6 +22,7 @@ public sealed class ReviewReportCitationTests
         Assert.DoesNotContain("scenario/borrow-copy.gone-since-the-review", result.Output);
     }
 
+    /// <summary>A Page Citing A Removed Scenario Reports It.</summary>
     /// <proves>litespec/core/release#write-a-manifest-for-every-batch-approval</proves>
     [Fact]
     public void A_Page_Citing_A_Removed_Scenario_Reports_It()

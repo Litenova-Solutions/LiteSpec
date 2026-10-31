@@ -9,6 +9,8 @@ namespace LiteSpec.Model;
 static partial class Renderer
 {
     /// <summary>Renders every known region, returning the changed files.</summary>
+    /// <param name="model">The built project model the regions render from.</param>
+    /// <returns>The pages rewritten, relative to the root, in read order.</returns>
     public static IReadOnlyList<string> Render(ProjectModel model)
     {
         var changed = new List<string>();
@@ -59,9 +61,16 @@ static partial class Renderer
     public sealed record RegionFence(string Name, int Index);
 
     /// <summary>Every generated-region fence the text carries.</summary>
+    /// <param name="text">The page text to scan.</param>
+    /// <returns>Every fence in text order, with its offset.</returns>
     public static IReadOnlyList<RegionFence> Regions(string text) =>
         [.. Region().Matches(text).Select(match => new RegionFence(match.Groups["name"].Value, match.Index))];
 
+    /// <summary>The rendered content of one region on one page.</summary>
+    /// <param name="model">The built project model the region renders from.</param>
+    /// <param name="file">The page the region sits on.</param>
+    /// <param name="name">The region name inside its fence.</param>
+    /// <returns>The region content, or null when the name names no known region.</returns>
     private static string? ContentFor(ProjectModel model, string file, string name) =>
         name switch
         {
@@ -87,6 +96,9 @@ static partial class Renderer
             _ => null,
         };
 
+    /// <summary>Renders the glossary table of terms, meanings and translations.</summary>
+    /// <param name="model">The built project model holding the terms.</param>
+    /// <returns>The glossary table as Markdown lines.</returns>
     private static string Glossary(ProjectModel model)
     {
         var lines = new List<string>
@@ -115,6 +127,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the coverage table of use cases with their status marks.</summary>
+    /// <param name="model">The built project model holding the use cases and statuses.</param>
+    /// <returns>The coverage table as Markdown lines.</returns>
     private static string UseCaseCoverage(ProjectModel model)
     {
         var lines = new List<string>
@@ -137,6 +152,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the table of organization actors and what data they hold.</summary>
+    /// <param name="model">The built project model holding the actors.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The sub-processor table as Markdown lines.</returns>
     private static string SubProcessors(ProjectModel model, string file)
     {
         var lines = new List<string>
@@ -157,6 +176,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the index list of runbooks with their triggers.</summary>
+    /// <param name="model">The built project model holding the runbooks.</param>
+    /// <param name="file">The page the list sits on, for relative links.</param>
+    /// <returns>The runbook index as Markdown lines.</returns>
     private static string RunbookIndex(ProjectModel model, string file)
     {
         var lines = new List<string>();
@@ -173,6 +196,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders rules grouped by the aggregate they govern, with unplaced rules last.</summary>
+    /// <param name="model">The built project model holding the rules and aggregates.</param>
+    /// <returns>The rule map as Markdown lines.</returns>
     private static string RuleMap(ProjectModel model)
     {
         var lines = new List<string>();
@@ -229,6 +255,11 @@ static partial class Renderer
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Tests whether a rule governs an aggregate directly, through a use case, or by home.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="rule">The rule to test.</param>
+    /// <param name="record">The aggregate to test.</param>
+    /// <returns>True when the rule governs the aggregate.</returns>
     private static bool Governs(ProjectModel model, Record rule, Record record)
     {
         foreach (var target in rule.Ids(RecordFields.Governs))
@@ -252,6 +283,9 @@ static partial class Renderer
             && home == name;
     }
 
+    /// <summary>Renders links to the sibling month pages of an operations log.</summary>
+    /// <param name="file">The operations log page the list sits on.</param>
+    /// <returns>The month link list as Markdown lines.</returns>
     private static string OperationsLog(string file)
     {
         var folder = Path.GetDirectoryName(file)!;
@@ -269,6 +303,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the open modeling questions of every aggregate page.</summary>
+    /// <param name="model">The built project model holding the pages.</param>
+    /// <returns>The questions sections with their aggregate headings, as Markdown lines.</returns>
     private static string OpenQuestions(ProjectModel model)
     {
         var lines = new List<string>();
@@ -293,6 +330,9 @@ static partial class Renderer
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Extracts the open modeling questions section from one page body.</summary>
+    /// <param name="body">The page body to search.</param>
+    /// <returns>The section text, or null when the page holds no section or the section says none.</returns>
     private static string? QuestionsSection(string body)
     {
         var lines = body.Split('\n');
@@ -333,6 +373,10 @@ static partial class Renderer
             : text;
     }
 
+    /// <summary>Renders the list of journeys with links and finish conditions.</summary>
+    /// <param name="model">The built project model holding the journeys.</param>
+    /// <param name="file">The page the list sits on, for relative links.</param>
+    /// <returns>The journey list as Markdown lines.</returns>
     private static string Journeys(ProjectModel model, string file)
     {
         var lines = new List<string>();
@@ -349,6 +393,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the table of exceptions and the findings each one covers.</summary>
+    /// <param name="model">The built project model holding the exceptions.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The exception table as Markdown lines.</returns>
     private static string Exceptions(ProjectModel model, string file)
     {
         var lines = new List<string>
@@ -370,6 +418,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the census list of headline project counts.</summary>
+    /// <param name="model">The built project model to count.</param>
+    /// <returns>The census list as Markdown lines.</returns>
     private static string Census(ProjectModel model)
     {
         var lines = new List<string>
@@ -389,6 +440,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders aggregates grouped under their modules, with their use cases.</summary>
+    /// <param name="model">The built project model holding the modules and aggregates.</param>
+    /// <returns>The aggregate map as Markdown lines.</returns>
     private static string AggregateMap(ProjectModel model)
     {
         var lines = new List<string>();
@@ -431,6 +485,9 @@ static partial class Renderer
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Renders the register of use cases that need auditing or carry an authorization refusal.</summary>
+    /// <param name="model">The built project model holding the use cases and results.</param>
+    /// <returns>The audit register table as Markdown lines.</returns>
     private static string AuditRegister(ProjectModel model)
     {
         var lines = new List<string>
@@ -465,6 +522,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the inventory of alert rules with their linked records.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The alert inventory table as Markdown lines.</returns>
     private static string AlertInventory(ProjectModel model, string file)
     {
         var lines = new List<string>
@@ -489,10 +550,18 @@ static partial class Renderer
     }
 
     /// <summary>One rule label, or empty when the rule carries no value for the key.</summary>
+    /// <param name="rule">The alert rule to read a label from.</param>
+    /// <param name="key">The label key to read.</param>
+    /// <returns>The label value, or empty when the rule carries no value for the key.</returns>
     private static string RuleLabel(Readers.Operations.AlertRule rule, string key) =>
         rule.Labels.TryGetValue(key, out var value) ? value : "";
 
     /// <summary>One inventory record cell: a link when the id resolves, a code span when not, empty when missing.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The page the cell sits on, for the relative link.</param>
+    /// <param name="id">The record id the cell names.</param>
+    /// <param name="type">The record type the id must resolve to for a link.</param>
+    /// <returns>A linked code span when the id resolves to that type, a bare code span otherwise, or empty for no id.</returns>
     private static string RecordCell(ProjectModel model, string file, string id, string type) =>
         id.Length == 0
             ? ""
@@ -500,15 +569,25 @@ static partial class Renderer
                 ? $"[`{id}`]({RelativeLink(file, record.File)})"
                 : $"`{id}`";
 
+    /// <summary>Reads the raw holds value an actor declares.</summary>
+    /// <param name="actor">The actor record to read.</param>
+    /// <returns>The holds element, or a default element when the actor declares none.</returns>
     private static System.Text.Json.JsonElement Holds(Record actor) =>
         actor.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
         && actor.Raw.TryGetProperty(RecordFields.Holds, out var holds)
             ? holds
             : default;
 
+    /// <summary>Builds the link target from one page to another file.</summary>
+    /// <param name="from">The page the link sits on.</param>
+    /// <param name="to">The file the link points at.</param>
+    /// <returns>The relative path from the page folder to the target, with forward slashes.</returns>
     private static string RelativeLink(string from, string to) =>
         Path.GetRelativePath(Path.GetDirectoryName(from)!, to).Replace(Path.DirectorySeparatorChar, '/');
 
+    /// <summary>Renders record counts by type with use-case progress lines.</summary>
+    /// <param name="model">The built project model to count.</param>
+    /// <returns>The count list as Markdown lines.</returns>
     private static string Counts(ProjectModel model)
     {
         var lines = new List<string>();
@@ -529,6 +608,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders decisions that decide records on the page, with their approval state.</summary>
+    /// <param name="model">The built project model holding the decisions.</param>
+    /// <param name="file">The page whose carried records scope the table.</param>
+    /// <returns>The decision history table as Markdown lines.</returns>
     private static string History(ProjectModel model, string file)
     {
         var carried = model.Records
@@ -553,6 +636,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the lifecycle transitions held by the aggregate on the page.</summary>
+    /// <param name="model">The built project model holding the aggregates.</param>
+    /// <param name="file">The aggregate page the table sits on.</param>
+    /// <returns>The transitions table as Markdown lines, or None when the aggregate holds none.</returns>
     private static string Transitions(ProjectModel model, string file)
     {
         var aggregate = model.Records
@@ -581,6 +668,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the data fields held by the aggregate on the page.</summary>
+    /// <param name="model">The built project model holding the aggregates.</param>
+    /// <param name="file">The aggregate page the table sits on.</param>
+    /// <returns>The data table as Markdown lines, or None when the aggregate holds none.</returns>
     private static string Data(ProjectModel model, string file)
     {
         var aggregate = model.Records
@@ -609,6 +700,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders every data class with its retention basis, period and enforcement.</summary>
+    /// <param name="model">The built project model holding the aggregates.</param>
+    /// <returns>The retention schedule table as Markdown lines, or None when no data class exists.</returns>
     private static string RetentionSchedule(ProjectModel model)
     {
         var rows = new List<(string Class, string Aggregate, string Classification, string Purpose, string Basis, string Period, string EnforcedBy)>();
@@ -650,6 +744,8 @@ static partial class Renderer
     }
 
     /// <summary>One period as readers see it: a duration as written, or none with its reason.</summary>
+    /// <param name="entry">The data class entry carrying the period.</param>
+    /// <returns>The period as written, its mode with any reason, or empty when it declares none.</returns>
     private static string PeriodText(System.Text.Json.JsonElement entry)
     {
         if (!entry.TryGetProperty(RecordFields.Period, out var period))
@@ -676,7 +772,10 @@ static partial class Renderer
     }
 
     /// <summary>One array field as its object entries, or empty when the field is missing or no array.</summary>
-    private static IReadOnlyList<System.Text.Json.JsonElement> ArrayField(Record record, string name) =>
+    /// <param name="record">The record to read the array field from.</param>
+    /// <param name="name">The array field name.</param>
+    /// <returns>The object entries of the array field, or an empty list when the field is missing or no array.</returns>
+    private static List<System.Text.Json.JsonElement> ArrayField(Record record, string name) =>
         record.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
         && record.Raw.TryGetProperty(name, out var value)
         && value.ValueKind == System.Text.Json.JsonValueKind.Array
@@ -684,6 +783,9 @@ static partial class Renderer
             : [];
 
     /// <summary>One string property of an element, or null when missing or no string.</summary>
+    /// <param name="element">The element to read.</param>
+    /// <param name="name">The property name to read.</param>
+    /// <returns>The property string value, or null when the property is missing or not a string.</returns>
     private static string? Str(System.Text.Json.JsonElement element, string name) =>
         element.ValueKind == System.Text.Json.JsonValueKind.Object
         && element.TryGetProperty(name, out var value)
@@ -691,6 +793,10 @@ static partial class Renderer
             ? value.GetString()
             : null;
 
+    /// <summary>Renders requirements citing the constraint on the page.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The constraint page the list sits on.</param>
+    /// <returns>Linked citing requirements, or None when nothing cites the constraint.</returns>
     private static string WhatItRequires(ProjectModel model, string file)
     {
         var constraint = model.Records
@@ -724,6 +830,9 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Escapes one cell for a Markdown table row.</summary>
+    /// <param name="text">The cell text to escape.</param>
+    /// <returns>The text with bars escaped and line breaks flattened to spaces.</returns>
     private static string Cell(string text) => text.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal).Replace("\r", "", StringComparison.Ordinal);
 
     [GeneratedRegex(@"<!-- generated:(?<name>[A-Za-z0-9-]+) -->(?<body>.*?)<!-- /generated:\k<name> -->", RegexOptions.Singleline)]

@@ -11,6 +11,9 @@ namespace LiteSpec.Model.Readers.Measures;
 static class K6ResultReader
 {
     /// <summary>Reads the thresholds of a k6 summary object.</summary>
+    /// <param name="root">The root element of the parsed document.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>One measure result per threshold in the summary.</returns>
     public static List<MeasureResult> Parse(JsonElement root, string file)
     {
         var measures = new List<MeasureResult>();
@@ -56,6 +59,9 @@ static class K6ResultReader
     ///     names, such as <c>p(95)</c> in <c>p(95)&lt;200</c>. Null when the file
     ///     holds no such entry.
     /// </summary>
+    /// <param name="values">The values object of the k6 summary, or null when it states none.</param>
+    /// <param name="expression">The threshold expression whose left side names the measured value.</param>
+    /// <returns>The measured value text, or null when the values state no entry the expression names.</returns>
     private static string? Actual(JsonElement? values, string expression)
     {
         if (values is null)

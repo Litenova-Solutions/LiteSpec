@@ -33,7 +33,7 @@ static class DotnetNames
 
     /// <summary>The namespace holding the declaration, or empty in the global namespace.</summary>
     /// <param name="declared">The type declaration.</param>
-    /// <returns>The namespace holding the declaration, or empty in the global namespace.</returns>
+    /// <returns>The dotted namespace name declared around the type, or an empty string in the global namespace.</returns>
     public static string NamespaceOf(TypeDeclarationSyntax declared)
     {
         for (var node = declared.Parent; node is not null; node = node.Parent)
@@ -49,7 +49,7 @@ static class DotnetNames
 
     /// <summary>The simple type name without generics or qualification.</summary>
     /// <param name="type">The type name as written.</param>
-    /// <returns>The simple type name without generics or qualification.</returns>
+    /// <returns>The text after the last dot of the kind name, or the whole kind name when it has no dot.</returns>
     public static string SimpleName(string type)
     {
         var kind = KindOf(type);

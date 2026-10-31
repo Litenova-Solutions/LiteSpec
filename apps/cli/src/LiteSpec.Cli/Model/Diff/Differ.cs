@@ -9,31 +9,31 @@ namespace LiteSpec.Model.Diff;
 /// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 static class Differ
 {
-    /// <summary>The breaking reason for a narrowed requirement.</summary>
+    /// <summary>Gets the breaking reason for a narrowed requirement.</summary>
     /// <returns>The breaking reason for a narrowed requirement.</returns>
     internal static BreakingReason RequirementNarrowed => Reason("requirement-narrowed");
 
-    /// <summary>The breaking reason for a changed quality measure.</summary>
+    /// <summary>Gets the breaking reason for a changed quality measure.</summary>
     /// <returns>The breaking reason for a changed quality measure.</returns>
     internal static BreakingReason QualityMeasureChanged => Reason("quality-measure-changed");
 
-    /// <summary>The breaking reason for a weakened rule.</summary>
+    /// <summary>Gets the breaking reason for a weakened rule.</summary>
     /// <returns>The breaking reason for a weakened rule.</returns>
     internal static BreakingReason RuleWeakened => Reason("rule-weakened");
 
-    /// <summary>The breaking reason for a changed result outcome.</summary>
+    /// <summary>Gets the breaking reason for a changed result outcome.</summary>
     /// <returns>The breaking reason for a changed result outcome.</returns>
     internal static BreakingReason ResultOutcomeChanged => Reason("result-outcome-changed");
 
-    /// <summary>The breaking reason for a changed refusal meaning.</summary>
+    /// <summary>Gets the breaking reason for a changed refusal meaning.</summary>
     /// <returns>The breaking reason for a changed refusal meaning.</returns>
     internal static BreakingReason RefusalMeaningChanged => Reason("refusal-meaning-changed");
 
-    /// <summary>The breaking reason for a removed state.</summary>
+    /// <summary>Gets the breaking reason for a removed state.</summary>
     /// <returns>The breaking reason for a removed state.</returns>
     internal static BreakingReason StateRemoved => Reason("state-removed");
 
-    /// <summary>The breaking reason for a removed transition.</summary>
+    /// <summary>Gets the breaking reason for a removed transition.</summary>
     /// <returns>The breaking reason for a removed transition.</returns>
     internal static BreakingReason TransitionRemoved => Reason("transition-removed");
 
@@ -214,7 +214,7 @@ static class Differ
         }
 
         if (record.Type == RecordTypes.Scenario
-            && record.Ids(RecordFields.Result).FirstOrDefault() is { } resultId
+            && record.Ids(RecordFields.Result) is [var resultId, ..]
             && addedIds.Contains(resultId)
             && headModel.ById.TryGetValue(resultId, out var result)
             && result.Field(RecordFields.Outcome) == "refusal")
@@ -485,6 +485,9 @@ static class Differ
         return record.Status is null or RecordStatuses.Approved or RecordStatuses.Reviewed;
     }
 
+    /// <summary>The breaking reason for a code, pairing the stable code with the message reviewers read.</summary>
+    /// <param name="code">The breaking reason code, such as requirement-removed.</param>
+    /// <returns>A reason holding the code and the message for that code.</returns>
     static BreakingReason Reason(string code) => new(code, code switch
     {
         "requirement-removed" => "An approved requirement no longer exists.",

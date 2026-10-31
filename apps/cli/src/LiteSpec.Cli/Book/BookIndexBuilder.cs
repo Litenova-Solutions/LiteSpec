@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 
 namespace LiteSpec.Book;
@@ -55,7 +56,7 @@ static class BookIndexBuilder
             IEnumerable<(string Field, JsonNode? Targets)> entries = record["links"] switch
             {
                 JsonObject linkMap => linkMap.Select(pair => (pair.Key, pair.Value)),
-                JsonArray linkList => linkList.Select((targets, position) => (position.ToString(), targets)),
+                JsonArray linkList => linkList.Select((targets, position) => (position.ToString(CultureInfo.InvariantCulture), targets)),
                 _ => [],
             };
             foreach (var (field, targets) in entries)

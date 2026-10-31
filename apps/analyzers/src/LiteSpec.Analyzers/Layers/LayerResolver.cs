@@ -14,6 +14,10 @@ internal static class LayerResolver
     /// <summary>The analyzer config key the package's build props make visible.</summary>
     public const string PropertyKey = "build_property.LiteSpecLayer";
 
+    /// <summary>Returns the layer.</summary>
+    /// <param name="compilation">The compilation whose types and references the check reads.</param>
+    /// <param name="options">The analyzer options carrying the additional files.</param>
+    /// <returns>The layer.</returns>
     public static Layer Resolve(Compilation compilation, AnalyzerOptions options)
     {
         if (options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(PropertyKey, out var declared)
@@ -26,6 +30,8 @@ internal static class LayerResolver
     }
 
     /// <summary>Reads a declared layer name; an unknown name opts the project out.</summary>
+    /// <param name="value">The declared layer name text, with or without dots.</param>
+    /// <returns>The layer.</returns>
     public static Layer Parse(string value)
     {
         switch (value.Replace(".", string.Empty).ToUpperInvariant())
@@ -43,6 +49,8 @@ internal static class LayerResolver
     }
 
     /// <summary>Reads the layer from the last segments of an assembly name.</summary>
+    /// <param name="assemblyName">The assembly name that names the application project, or null when it has none.</param>
+    /// <returns>The layer named by the last assembly name segments, or None when none names one.</returns>
     public static Layer FromAssemblyName(string assemblyName)
     {
         if (EndsWithSegment(assemblyName, "Tests") || EndsWithSegment(assemblyName, "Test")) return Layer.Test;
@@ -55,6 +63,10 @@ internal static class LayerResolver
         return Layer.None;
     }
 
+    /// <summary>Returns true when the ends-with-segment condition holds; otherwise false.</summary>
+    /// <param name="name">The name to convert or match.</param>
+    /// <param name="suffix">The final segment the name must end with.</param>
+    /// <returns>True when the ends-with-segment condition holds; otherwise false.</returns>
     private static bool EndsWithSegment(string name, string suffix) =>
         name.Equals(suffix, StringComparison.Ordinal)
         || name.EndsWith("." + suffix, StringComparison.Ordinal);

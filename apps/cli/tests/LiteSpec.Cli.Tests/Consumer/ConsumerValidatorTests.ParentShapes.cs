@@ -2,8 +2,10 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the allowed shapes of records on a parent page.</summary>
 public sealed partial class ConsumerValidatorTests
 {
+    /// <summary>Journey carrying its steps and goal serves.</summary>
     /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
     [Fact(DisplayName = "journey carrying its steps and goal serves")]
     public void JourneyCarryingItsStepsAndGoalServes()
@@ -18,6 +20,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Journey carrying the retired goal sentence.</summary>
     /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
     [Fact(DisplayName = "journey carrying the retired goal sentence")]
     public void JourneyCarryingTheRetiredGoalSentence()
@@ -32,6 +35,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'goal'");
     }
 
+    /// <summary>Feature carrying its lifecycle and advances.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact(DisplayName = "feature carrying its lifecycle and advances")]
     public void FeatureCarryingItsLifecycleAndAdvances()
@@ -46,6 +50,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Feature carrying the retired state field.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact(DisplayName = "feature carrying the retired state field")]
     public void FeatureCarryingTheRetiredStateField()
@@ -60,6 +65,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 
+    /// <summary>Scenario ending in a derived generic refusal.</summary>
     /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact(DisplayName = "scenario ending in a derived generic refusal")]
     public void ScenarioEndingInADerivedGenericRefusal()
@@ -69,6 +75,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Scenario ending in a module-prefixed derived refusal.</summary>
     /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact(DisplayName = "scenario ending in a module-prefixed derived refusal")]
     public void ScenarioEndingInAModulePrefixedDerivedRefusal()
@@ -79,6 +86,8 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Appends a scenario entry ending in the result id to the use case page.</summary>
+    /// <param name="meta">The use-case page frontmatter to append the scenario to.</param>
+    /// <param name="result">The result id the appended scenario ends in.</param>
     static void ScenarioResult(JsonObject meta, string result)
     {
         var entry = (JsonObject)ConsumerFixture.Meta("""{"type":"scenario","id":"scenario/cancel-order.canceling-after-shipment-is-refused","title":"Canceling After Shipment Is Refused","given":"The shipment already left the shop.","when":"The customer asks to cancel the claim.","then":"The cancel is refused.","result":"result/cancel-order.forbidden"}""");

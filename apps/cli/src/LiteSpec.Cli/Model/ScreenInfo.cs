@@ -1,11 +1,5 @@
 namespace LiteSpec.Model;
 
-/// <summary>One generated operation: its name, method and path.</summary>
-sealed record GeneratedOperation(string Name, string Method, string Path);
-
-/// <summary>One screen call: the operation a screen called and the use case it reaches.</summary>
-sealed record ScreenCall(string Operation, string UseCase);
-
 /// <summary>One read route: its address, file, operations, use cases and paired calls.</summary>
 sealed record ScreenInfo(
     string Frontend,
@@ -18,7 +12,7 @@ sealed record ScreenInfo(
     int Line = 1)
 {
     /// <summary>
-    ///     The paired calls: each operation with the use case it reaches, as the
+    ///     Gets the paired calls: each operation with the use case it reaches, as the
     ///     reader resolved it. Empty when the pairing is unknown, so a use case
     ///     listed only in <see cref="UseCases" /> keeps an empty operation.
     /// </summary>
@@ -28,6 +22,7 @@ sealed record ScreenInfo(
     ///     Every calls link this screen makes: one per paired call, plus one
     ///     with an empty operation per use case no paired call reaches.
     /// </summary>
+    /// <returns>The deduplicated paired calls, followed by one empty-operation call per unpaired use case.</returns>
     public IReadOnlyList<ScreenCall> PairedCalls()
     {
         var emitted = new HashSet<(string Operation, string UseCase)>();
@@ -59,32 +54,4 @@ sealed record ScreenInfo(
 
         return result;
     }
-}
-
-/// <summary>One browser test and what it proves, reaches and asserts.</summary>
-sealed record BrowserTestInfo(
-    string Frontend,
-    string Title,
-    string File,
-    int Line,
-    IReadOnlyList<string> Proves,
-    string? Journey,
-    IReadOnlyList<string> Gotos,
-    IReadOnlyList<string> Codes,
-    IReadOnlyList<string> Texts,
-    string Reader = Finding.TypeScriptReader);
-
-/// <summary>What the screen read found: route screens and file comments.</summary>
-sealed record ScreenRead(
-    IReadOnlyList<ScreenInfo> Screens,
-    IReadOnlyList<CodeComment> Comments)
-{
-    /// <summary>The browser tests every frontend reader found.</summary>
-    public IReadOnlyList<BrowserTestInfo> BrowserTests { get; init; } = [];
-
-    /// <summary>Findings the readers themselves produced, such as <c>reader-missing</c>.</summary>
-    public IReadOnlyList<Finding> Findings { get; init; } = [];
-
-    /// <summary>Whether the TypeScript reader's handshake matched, so it is qualified.</summary>
-    public bool TypeScriptQualified { get; init; }
 }

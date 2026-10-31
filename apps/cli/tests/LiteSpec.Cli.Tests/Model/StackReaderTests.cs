@@ -8,6 +8,11 @@ namespace LiteSpec.Tests.Model;
 public sealed class StackReaderTests
 {
     /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
+    /// <param name="fixture">The fixture size name the case builds, small or large.</param>
+    /// <param name="records">The record count the case expects the build to print.</param>
+    /// <param name="handlers">The handler count the case expects the build to print.</param>
+    /// <param name="screens">The screen count the case expects the build to print.</param>
+    /// <param name="scenarios">The scenario count the case expects the build to print.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small", 72, 7, 0, 0)]
@@ -41,6 +46,7 @@ public sealed class StackReaderTests
     }
 
     /// <summary>Clean fixtures write no test run: neither holds a result file.</summary>
+    /// <param name="fixture">The fixture size name the case builds without a result file.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small")]

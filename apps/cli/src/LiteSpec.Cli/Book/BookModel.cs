@@ -25,7 +25,7 @@ static class BookModel
     ];
 
     /// <summary>Gets the display label of every record type, singular and plural.</summary>
-    static IReadOnlyDictionary<string, (string One, string Many)> TypeLabels { get; } =
+    static Dictionary<string, (string One, string Many)> TypeLabels { get; } =
         new Dictionary<string, (string One, string Many)>(StringComparer.Ordinal)
         {
             ["product"] = ("Product", "Product"),

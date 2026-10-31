@@ -17,6 +17,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>Both mark styles read.</summary>
+    /// <param name="marks">The mark style name the project file declares.</param>
+    /// <param name="style">The mark style the declared name must read as.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
     [InlineData("xml", MarkStyle.Xml)]
@@ -43,6 +45,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>A wrong shape is an error naming the field, never a silent default.</summary>
+    /// <param name="text">The project file text under test.</param>
+    /// <param name="message">The expected error message.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
     [InlineData("{\"marks\": 5}", "litespec.project.json: marks must be \"xml\" or \"attribute\".")]
@@ -54,6 +58,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>Text that is no JSON and JSON that is no object are errors naming the file.</summary>
+    /// <param name="text">The project file text under test.</param>
+    /// <param name="message">The expected error message.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
     [InlineData("{\"marks\": ", "litespec.project.json: invalid JSON on line 1: expected a value.")]

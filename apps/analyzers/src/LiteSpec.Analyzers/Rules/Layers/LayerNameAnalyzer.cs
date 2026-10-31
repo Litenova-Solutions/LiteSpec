@@ -45,6 +45,9 @@ public sealed class LayerNameAnalyzer : DiagnosticAnalyzer
         });
     }
 
+    /// <summary>Returns true when the value is opt out; otherwise false.</summary>
+    /// <param name="value">The value to convert or test.</param>
+    /// <returns>True when the value is opt out; otherwise false.</returns>
     private static bool IsOptOut(string value) =>
-        value.Replace(".", string.Empty).ToUpperInvariant() == "NONE";
+        string.Equals(value.Replace(".", string.Empty), "NONE", System.StringComparison.OrdinalIgnoreCase);
 }

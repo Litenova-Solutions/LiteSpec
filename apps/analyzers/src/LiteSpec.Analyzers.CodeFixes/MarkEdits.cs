@@ -155,6 +155,10 @@ internal static class MarkEdits
             TextSpan.FromBounds(first.Start, last.EndIncludingLineBreak), string.Empty));
     }
 
+    /// <summary>Returns the removal.</summary>
+    /// <param name="field">The field declaration that carries the hand-written value.</param>
+    /// <param name="variable">The variable declarator that carries the hand-written value.</param>
+    /// <returns>The removal.</returns>
     private static TextSpan DeclaratorRemoval(FieldDeclarationSyntax field, VariableDeclaratorSyntax variable)
     {
         var variables = field.Declaration.Variables;
@@ -168,6 +172,11 @@ internal static class MarkEdits
         return TextSpan.FromBounds(variable.Span.Start, variables[index + 1].Span.Start);
     }
 
+    /// <summary>Returns true when the line-holds-other-code condition holds; otherwise false.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <param name="line">The source line under inspection.</param>
+    /// <param name="keep">The span of the line that stays when the rest is removed.</param>
+    /// <returns>True when the line-holds-other-code condition holds; otherwise false.</returns>
     private static bool LineHoldsOtherCode(SourceText text, TextLine line, TextSpan keep)
     {
         var content = line.ToString();
@@ -180,6 +189,10 @@ internal static class MarkEdits
     }
 
     /// <summary>Removes the documentation tag around the span: its line when the tag owns it, else the tag alone.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <param name="span">The source span the diagnostic covers.</param>
+    /// <param name="verb">The mark verb the edit writes, such as implements or follows.</param>
+    /// <returns>The xml tag.</returns>
     private static SourceText RemoveXmlTag(SourceText text, TextSpan span, MarkVerb verb)
     {
         var whole = text.ToString();
@@ -219,6 +232,10 @@ internal static class MarkEdits
     ///     The span removing the attribute holding the mark: its whole line when
     ///     the list owns it, else the attribute with one adjacent comma or space.
     /// </summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="span">The source span the diagnostic covers.</param>
+    /// <returns>The attribute span, or null when none applies.</returns>
     private static TextSpan? RemoveAttributeSpan(
         SourceText text, SyntaxNode root, TextSpan span)
     {
@@ -271,6 +288,9 @@ internal static class MarkEdits
         return list.Span;
     }
 
+    /// <summary>Returns the indent of the line.</summary>
+    /// <param name="line">The source line under inspection.</param>
+    /// <returns>The indent of the line.</returns>
     private static string IndentOf(string line)
     {
         var length = 0;
@@ -283,6 +303,9 @@ internal static class MarkEdits
         return line.Substring(0, length);
     }
 
+    /// <summary>Returns the newline of the text.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>The newline of the text.</returns>
     private static string NewlineOf(SourceText text) =>
         text.ToString().IndexOf("\r\n", StringComparison.Ordinal) >= 0 ? "\r\n" : "\n";
 }

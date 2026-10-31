@@ -9,6 +9,7 @@ namespace LiteSpec.Tests.Model;
 /// </summary>
 public sealed class ReactScreenTests
 {
+    /// <summary>React Route Files Become Screens At Their Visible Address.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void React_Route_Files_Become_Screens_At_Their_Visible_Address()
@@ -24,6 +25,7 @@ public sealed class ReactScreenTests
         Assert.Contains(screens, screen => (string?)screen["file"] == "apps/console/src/routes/_console/loans/index.tsx");
     }
 
+    /// <summary>Root Lazy And Ignored Route Files Declare No Screen Of Their Own.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Root_Lazy_And_Ignored_Route_Files_Declare_No_Screen_Of_Their_Own()

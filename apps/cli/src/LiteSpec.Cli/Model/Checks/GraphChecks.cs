@@ -15,6 +15,8 @@ namespace LiteSpec.Model.Checks;
 internal static class GraphChecks
 {
     /// <summary>Reports a use case, reaction, job, notification or setting naming neither serves nor fulfills.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunOrphaned(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
@@ -33,6 +35,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a journey step served by no use case, reaction or job.</summary>
+    /// <param name="model">The loaded project model that holds every journey and serving record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunStepUnserved(ProjectModel model, List<Finding> findings)
     {
         var served = model.Records
@@ -53,6 +57,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an effect loop with no stated end.</summary>
+    /// <param name="model">The loaded project model that holds every record and its effect edges.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunEffectLoop(ProjectModel model, List<Finding> findings)
     {
         var graph = EffectGraph(model);
@@ -71,6 +77,8 @@ internal static class GraphChecks
     ///     The declared effect edges: use-case effects and raises, reaction triggers
     ///     reversed into event edges with the reaction effects, and job effects.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every record and its effect edges.</param>
+    /// <returns>The effect graph by source identifier, with each target list in ordinal order.</returns>
     private static Dictionary<string, List<string>> EffectGraph(ProjectModel model)
     {
         var graph = new Dictionary<string, List<string>>(StringComparer.Ordinal);
@@ -154,6 +162,14 @@ internal static class GraphChecks
         return graph;
     }
 
+    /// <summary>Walks the effect graph depth-first from one node, reporting each loop back to the start.</summary>
+    /// <param name="model">The loaded project model that resolves each record in a found loop.</param>
+    /// <param name="graph">The effect graph by source identifier.</param>
+    /// <param name="current">The node the walk stands on.</param>
+    /// <param name="path">The nodes on the current walk, starting with the start node.</param>
+    /// <param name="inPath">The nodes on the current walk, for constant-time membership.</param>
+    /// <param name="reported">The loop keys already reported, so each loop reports once.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void WalkLoop(
         ProjectModel model,
         Dictionary<string, List<string>> graph,
@@ -174,9 +190,8 @@ internal static class GraphChecks
             {
                 ReportLoop(model, path, reported, findings);
             }
-            else if (!inPath.Contains(next))
+            else if (inPath.Add(next))
             {
-                inPath.Add(next);
                 path.Add(next);
                 WalkLoop(model, graph, next, path, inPath, reported, findings);
                 path.RemoveAt(path.Count - 1);
@@ -185,6 +200,11 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Reports one found effect loop once, unless a domain event and a skipping reaction exempt it.</summary>
+    /// <param name="model">The loaded project model that resolves each record in the loop.</param>
+    /// <param name="path">The nodes on the walk that closes the loop.</param>
+    /// <param name="reported">The loop keys already reported, so each loop reports once.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportLoop(
         ProjectModel model, List<string> path, HashSet<string> reported, List<Finding> findings)
     {
@@ -208,6 +228,9 @@ internal static class GraphChecks
     ///     Whether the loop is allowed: it passes through a domain event, and a
     ///     reaction in the loop states its skip condition as the end condition.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves each record in the loop.</param>
+    /// <param name="rotated">The loop nodes in canonical order, starting at the smallest identifier.</param>
+    /// <returns>True when the loop passes through a domain event and a reaction that states its skip condition; otherwise false.</returns>
     private static bool LoopExempt(ProjectModel model, IReadOnlyList<string> rotated) =>
         rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.Event)
         && rotated.Any(id => model.ById.TryGetValue(id, out var record)
@@ -215,10 +238,14 @@ internal static class GraphChecks
             && record.Field(RecordFields.SkippedWhen) is { Length: > 0 });
 
     /// <summary>The reaction event triggers: the events its triggeredBy names, one id or a list.</summary>
-    private static IReadOnlyList<string> ReactionEventTriggers(Record record) =>
+    /// <param name="record">The reaction record whose triggeredBy field is read.</param>
+    /// <returns>The triggering event identifiers the reaction names.</returns>
+    private static List<string> ReactionEventTriggers(Record record) =>
         record.Ids(RecordFields.TriggeredBy).Where(id => id.Length > 0).ToList();
 
     /// <summary>Reports a use case with a consistency mode outside atomic, per-record or compensated, or changing aggregates atomically with no cites rule.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunConsistency(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
@@ -246,6 +273,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an atomic use case whose changes differ from its atomicity rule's binds.</summary>
+    /// <param name="model">The loaded project model that holds every use case and rule record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunAtomicGroupDrift(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
@@ -281,6 +310,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an atomic group binding more than four aggregates, a saga candidate.</summary>
+    /// <param name="model">The loaded project model that holds every use case and rule record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunAtomicGroupInvalid(ProjectModel model, List<Finding> findings)
     {
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "atomicity"))
@@ -310,6 +341,8 @@ internal static class GraphChecks
     }
 
     /// <summary>The consistency cites rule ids of the use case.</summary>
+    /// <param name="useCase">The use case record whose consistency cites are read.</param>
+    /// <returns>The cited rule identifiers as a single value or an array, or an empty list when it cites none.</returns>
     private static IReadOnlyList<string> ConsistencyCites(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
@@ -338,6 +371,9 @@ internal static class GraphChecks
         return [];
     }
 
+    /// <summary>The consistency mode a use case declares, as an object field or a leading word.</summary>
+    /// <param name="useCase">The use case record whose consistency field is read.</param>
+    /// <returns>The declared mode text, or null when the use case declares no consistency.</returns>
     private static string? ConsistencyMode(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
@@ -362,6 +398,9 @@ internal static class GraphChecks
         return null;
     }
 
+    /// <summary>Counts the consistency cites of a use case across its string and array forms.</summary>
+    /// <param name="useCase">The use case record whose consistency cites are counted.</param>
+    /// <returns>The number of cited rules, or zero when it cites none.</returns>
     private static int CitesCount(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
@@ -381,6 +420,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a query use case declaring no output in include groups.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunQueryOutput(ProjectModel model, List<Finding> findings)
     {
         foreach (var query in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query"))
@@ -392,6 +433,9 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Decides whether a query declares output in include groups.</summary>
+    /// <param name="query">The query use case record whose output field is inspected.</param>
+    /// <returns>True when the output holds a non-empty include object; otherwise false.</returns>
     private static bool HasIncludeGroups(Record query) =>
         query.Raw.ValueKind == JsonValueKind.Object
         && query.Raw.TryGetProperty(RecordFields.Output, out var output)
@@ -401,6 +445,8 @@ internal static class GraphChecks
         && include.EnumerateObject().Any();
 
     /// <summary>Reports a query use case declaring no paging.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunPaging(ProjectModel model, List<Finding> findings)
     {
         foreach (var query in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query"))
@@ -414,6 +460,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a query widening a group through a cited record that is no approved requirement.</summary>
+    /// <param name="model">The loaded project model that holds every use case record and each cited target.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunWidening(ProjectModel model, List<Finding> findings)
     {
         foreach (var query in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query"))
@@ -447,13 +495,18 @@ internal static class GraphChecks
     }
 
     /// <summary>Whether the record stands approved: by effective status, else by status.</summary>
+    /// <param name="model">The loaded project model that holds the effective status of each record.</param>
+    /// <param name="record">The record whose approval is tested.</param>
+    /// <returns>True when the effective status, else the written status, stands approved; otherwise false.</returns>
     private static bool LiveApproved(ProjectModel model, Record record) =>
         model.EffectiveStatus.TryGetValue(record.Id, out var effective)
             ? effective == RecordStatuses.Approved
             : record.Status == RecordStatuses.Approved;
 
     /// <summary>The aggregate data classes, in array or map form.</summary>
-    private static IReadOnlyList<DataClassPosition> DataClassesOf(Record aggregate)
+    /// <param name="aggregate">The aggregate record whose data classes field is read.</param>
+    /// <returns>Each declared data class position, or an empty list when the aggregate declares none.</returns>
+    private static List<DataClassPosition> DataClassesOf(Record aggregate)
     {
         if (aggregate.Raw.ValueKind != JsonValueKind.Object
             || !aggregate.Raw.TryGetProperty(RecordFields.DataClasses, out var classes))
@@ -488,6 +541,10 @@ internal static class GraphChecks
         return found;
     }
 
+    /// <summary>Reads one data class position from its JSON object form.</summary>
+    /// <param name="name">The data class name as declared.</param>
+    /// <param name="element">The JSON object that holds the class position fields.</param>
+    /// <returns>The data class position with each declared field read.</returns>
     private static DataClassPosition ReadClass(string name, JsonElement element) => new(
         name,
         Str(element, RecordFields.Classification) ?? "",
@@ -498,7 +555,10 @@ internal static class GraphChecks
         LinkStrings(element, RecordFields.Fields),
         ExceptionsOf(element));
 
-    private static IReadOnlyList<DataClassException> ExceptionsOf(JsonElement element)
+    /// <summary>Reads the field exceptions of one data class object.</summary>
+    /// <param name="element">The JSON object that holds the exceptions array.</param>
+    /// <returns>Each field exception with its erasure position, or an empty list when it declares none.</returns>
+    private static List<DataClassException> ExceptionsOf(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object
             || !element.TryGetProperty(RecordFields.Exceptions, out var exceptions)
@@ -527,6 +587,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an aggregate data class or field holding personal data with no erasure position.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunErasure(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
@@ -559,17 +621,26 @@ internal static class GraphChecks
     ///     Whether a declared erasure position covers the field: its own exception,
     ///     a class listing it, or any class where no class lists fields.
     /// </summary>
+    /// <param name="classes">The data class positions declared on the aggregate.</param>
+    /// <param name="listed">Whether any class lists its fields explicitly.</param>
+    /// <param name="field">The data field name under test.</param>
+    /// <returns>True when an exception, a listing class, or an unlisted class erasure covers the field; otherwise false.</returns>
     private static bool FieldCovered(IReadOnlyList<DataClassPosition> classes, bool listed, string field) =>
         classes.Any(position => position.Exceptions.Any(exception =>
             exception.Field == field && exception.OnErasure is { Length: > 0 }))
         || classes.Any(position => position is { OnErasure: { Length: > 0 } }
             && (!listed || position.Fields.Contains(field, StringComparer.Ordinal)));
 
+    /// <summary>Decides whether a data classification holds personal data.</summary>
+    /// <param name="classification">The classification text as declared.</param>
+    /// <returns>True for the personal and sensitive classifications, ignoring case; otherwise false.</returns>
     private static bool Personal(string classification) =>
         classification.Equals("personal", StringComparison.OrdinalIgnoreCase)
         || classification.Equals("sensitive", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Reports an aggregate data class or field with no enforcedBy.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRetention(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
@@ -595,6 +666,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an aggregate whose risk stands accepted by no Intent record.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record and each acceptance target.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRiskAcceptance(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
@@ -619,12 +692,21 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Decides whether an erasure position keeps the data in a form that needs acceptance.</summary>
+    /// <param name="onErasure">The erasure position text, or null when none is declared.</param>
+    /// <returns>True for retain, exempt and pseudonymize, ignoring case; otherwise false.</returns>
     private static bool Kept(string? onErasure) =>
         onErasure is not null
         && (onErasure.Equals("retain", StringComparison.OrdinalIgnoreCase)
             || onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase)
             || onErasure.Equals("pseudonymize", StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>Reports kept personal data whose acceptance names no Intent record.</summary>
+    /// <param name="model">The loaded project model that resolves each acceptedBy target.</param>
+    /// <param name="aggregate">The aggregate record the finding is placed on.</param>
+    /// <param name="acceptedBy">The acceptance identifiers the position declares.</param>
+    /// <param name="stem">The finding message opening that names the kept data.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAcceptedBy(
         ProjectModel model,
         Record aggregate,
@@ -654,6 +736,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an exempt aggregate with no reviewBy date or past it.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunExemption(ProjectModel model, List<Finding> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -678,9 +762,18 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Decides whether an erasure position exempts the data from erasure.</summary>
+    /// <param name="onErasure">The erasure position text, or null when none is declared.</param>
+    /// <returns>True for the exempt position, ignoring case; otherwise false.</returns>
     private static bool Exempt(string? onErasure) =>
         onErasure is not null && onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>Reports exempt data whose review date is missing or stands in the past.</summary>
+    /// <param name="aggregate">The aggregate record the finding is placed on.</param>
+    /// <param name="reviewBy">The review date text as declared, or null when none is declared.</param>
+    /// <param name="stem">The finding message opening that names the exempt data.</param>
+    /// <param name="today">The current date the review date is aged against.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckReviewBy(
         Record aggregate, string? reviewBy, string stem, DateOnly today, List<Finding> findings)
     {
@@ -695,6 +788,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a setting that sets a default with no requirement behind it.</summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunSettingDefault(ProjectModel model, List<Finding> findings)
     {
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
@@ -711,6 +806,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a reservation rule with no releasedBy, or naming never with no reason.</summary>
+    /// <param name="model">The loaded project model that holds every rule record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReservation(ProjectModel model, List<Finding> findings)
     {
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "reservation"))
@@ -751,6 +848,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a notification sent by no reaction, job or use case.</summary>
+    /// <param name="model">The loaded project model that holds every notification and holder record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunNotificationSender(ProjectModel model, List<Finding> findings)
     {
         var sent = new HashSet<string>(StringComparer.Ordinal);
@@ -777,6 +876,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a requirement naming an except with no fallback, or a fallback carrying its own except.</summary>
+    /// <param name="model">The loaded project model that holds every requirement record and fallback target.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunExceptFallback(ProjectModel model, List<Finding> findings)
     {
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
@@ -809,6 +910,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an approved record whose fields differ from its approvedHash.</summary>
+    /// <param name="model">The loaded project model that holds every record and its approval hash.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunApproval(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
@@ -826,6 +929,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports transcription-status-invalid and transcription-expired.</summary>
+    /// <param name="model">The loaded project model that holds every record and the adoption end state.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTranscribed(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
@@ -870,6 +975,9 @@ internal static class GraphChecks
     }
 
     /// <summary>Whether the fulfills or serves parent stands approved or reviewed.</summary>
+    /// <param name="model">The loaded project model that holds the effective status of each record.</param>
+    /// <param name="parent">The parent identifier, with any step fragment kept.</param>
+    /// <returns>True when the parent stands approved or reviewed by effective or written status; otherwise false.</returns>
     private static bool ParentApproved(ProjectModel model, string parent)
     {
         var baseId = Identifiers.BaseId(parent);
@@ -885,6 +993,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a manual job with no guard.</summary>
+    /// <param name="model">The loaded project model that holds every job record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunJobGuard(ProjectModel model, List<Finding> findings)
     {
         foreach (var job in model.Records.Where(record => record.Type == RecordTypes.Job && record.Field(RecordFields.Kind) == "manual"))
@@ -896,6 +1006,10 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Decides whether a record field carries a present value in its JSON form.</summary>
+    /// <param name="record">The record whose field is tested.</param>
+    /// <param name="field">The field name under test.</param>
+    /// <returns>True when the field holds a non-empty string, a non-empty array, or any other value; otherwise false.</returns>
     private static bool FieldPresent(Record record, string field)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -914,6 +1028,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports schedule-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every job record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunSchedule(ProjectModel model, List<Finding> findings)
     {
         foreach (var job in model.Records.Where(record => record.Type == RecordTypes.Job))
@@ -935,6 +1051,9 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Decides whether a job carries a schedule a tool can read.</summary>
+    /// <param name="job">The job record whose schedule field is inspected.</param>
+    /// <returns>True when the schedule object names an interval, a cron form, or startup; otherwise false.</returns>
     private static bool StructuredSchedule(Record job) =>
         job.Raw.ValueKind == JsonValueKind.Object
         && job.Raw.TryGetProperty(RecordFields.Schedule, out var schedule)
@@ -942,6 +1061,8 @@ internal static class GraphChecks
         && (Str(schedule, RecordFields.Every) is { Length: > 0 } || Str(schedule, RecordFields.Cron) is { Length: > 0 } || Str(schedule, RecordFields.At) == "startup");
 
     /// <summary>Reports prose-missing.</summary>
+    /// <param name="model">The loaded project model that holds every use case record and page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunProse(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records
@@ -973,6 +1094,9 @@ internal static class GraphChecks
     ///     than one aggregate, refuses beyond the generic refusals, carries risk,
     ///     or runs inline effects.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every result record.</param>
+    /// <param name="useCase">The use case record whose weight is judged.</param>
+    /// <returns>True when the use case changes several aggregates, carries risk, runs inline effects, or refuses in writing; otherwise false.</returns>
     private static bool Significant(ProjectModel model, Record useCase)
     {
         if (useCase.Ids(RecordFields.Changes).Count > 1 || HasRisk(useCase))
@@ -999,6 +1123,10 @@ internal static class GraphChecks
             && home == name);
     }
 
+    /// <summary>Decides whether a page body carries a section with the given heading outside fenced code.</summary>
+    /// <param name="body">The page body text.</param>
+    /// <param name="heading">The section heading text wanted.</param>
+    /// <returns>True when a heading line names the section; otherwise false.</returns>
     private static bool HasSection(string body, string heading)
     {
         var inFence = false;
@@ -1022,6 +1150,10 @@ internal static class GraphChecks
         return false;
     }
 
+    /// <summary>Decides whether one line is a heading with the given text.</summary>
+    /// <param name="line">The body line under test.</param>
+    /// <param name="heading">The heading text wanted, compared without case.</param>
+    /// <returns>True when the line is a heading that names the text; otherwise false.</returns>
     private static bool SectionNamed(string line, string heading)
     {
         var trimmed = line.Trim();
@@ -1049,6 +1181,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Runs the many-aggregates check.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunManyAggregates(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record =>
@@ -1062,6 +1196,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports question-expired.</summary>
+    /// <param name="model">The loaded project model that holds every record and its questions.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunQuestionAged(ProjectModel model, List<Finding> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -1095,6 +1231,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports reaction-trigger-unknown.</summary>
+    /// <param name="model">The loaded project model that holds every reaction record and event.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReactionTrigger(ProjectModel model, List<Finding> findings)
     {
         foreach (var reaction in model.Records.Where(record => record.Type == RecordTypes.Reaction))
@@ -1124,6 +1262,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a saga step, compensation, exit or driver that names no written record.</summary>
+    /// <param name="model">The loaded project model that holds every saga aggregate and its targets.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunSaga(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate && record.Field(RecordFields.Kind) == "saga"))
@@ -1171,7 +1311,9 @@ internal static class GraphChecks
     }
 
     /// <summary>The saga steps: objects in its steps array.</summary>
-    private static IReadOnlyList<JsonElement> SagaSteps(Record aggregate)
+    /// <param name="aggregate">The saga aggregate record whose steps array is read.</param>
+    /// <returns>The step objects in written order, or an empty list when the saga holds no steps array.</returns>
+    private static List<JsonElement> SagaSteps(Record aggregate)
     {
         if (aggregate.Raw.ValueKind == JsonValueKind.Object
             && aggregate.Raw.TryGetProperty(RecordFields.Steps, out var steps)
@@ -1184,7 +1326,9 @@ internal static class GraphChecks
     }
 
     /// <summary>The saga exits: objects in its exits array.</summary>
-    private static IReadOnlyList<JsonElement> SagaExits(Record aggregate)
+    /// <param name="aggregate">The saga aggregate record whose exits array is read.</param>
+    /// <returns>The exit objects in written order, or an empty list when the saga holds no exits array.</returns>
+    private static List<JsonElement> SagaExits(Record aggregate)
     {
         if (aggregate.Raw.ValueKind == JsonValueKind.Object
             && aggregate.Raw.TryGetProperty(RecordFields.Exits, out var exits)
@@ -1197,6 +1341,11 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a step compensation outside its none or use-case shape.</summary>
+    /// <param name="model">The loaded project model that resolves the compensating use case.</param>
+    /// <param name="aggregate">The saga aggregate record the finding is placed on.</param>
+    /// <param name="id">The step identifier quoted in each finding.</param>
+    /// <param name="compensation">The step compensation value under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSagaCompensation(ProjectModel model, Record aggregate, string id, JsonElement compensation, List<Finding> findings)
     {
         if (compensation.ValueKind != JsonValueKind.Object
@@ -1238,6 +1387,9 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a saga driver naming no job, reaction or person runbook.</summary>
+    /// <param name="model">The loaded project model that resolves the driver and runbook targets.</param>
+    /// <param name="aggregate">The saga aggregate record whose drivenBy field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSagaDriver(ProjectModel model, Record aggregate, List<Finding> findings)
     {
         if (aggregate.Raw.ValueKind != JsonValueKind.Object
@@ -1311,6 +1463,8 @@ internal static class GraphChecks
     };
 
     /// <summary>Reports a use-case input or integration-event payload field outside its typed shape.</summary>
+    /// <param name="model">The loaded project model that holds every use case and integration event record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTypedInputs(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
@@ -1334,6 +1488,11 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports one contract field holding no type, no required, or a dangling of.</summary>
+    /// <param name="model">The loaded project model that resolves each id field target.</param>
+    /// <param name="record">The use case or integration event record whose contract fields are judged.</param>
+    /// <param name="array">The contract array field name, input or payload.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckContractFields(ProjectModel model, Record record, string array, string label, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -1376,6 +1535,14 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports an of that names no record for an id, or no choices for a choice.</summary>
+    /// <param name="model">The loaded project model that resolves the id field target.</param>
+    /// <param name="record">The record that holds the contract field.</param>
+    /// <param name="label">The record kind description that opens each finding.</param>
+    /// <param name="array">The contract array field name, input or payload.</param>
+    /// <param name="name">The contract field name quoted in each finding.</param>
+    /// <param name="type">The contract field type that decides the of shape.</param>
+    /// <param name="entry">The contract field object whose of value is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckContractOf(ProjectModel model, Record record, string label, string array, string name, string type, JsonElement entry, List<Finding> findings)
     {
         var has = entry.TryGetProperty(RecordFields.Of, out var of);
@@ -1413,6 +1580,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports a scenario exercise naming no rule.</summary>
+    /// <param name="model">The loaded project model that holds every scenario record and rule.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunExercises(ProjectModel model, List<Finding> findings)
     {
         foreach (var scenario in model.Records.Where(record => record.Type == RecordTypes.Scenario))
@@ -1438,6 +1607,8 @@ internal static class GraphChecks
     };
 
     /// <summary>Reports a door stating an auth outside its six values.</summary>
+    /// <param name="model">The loaded project model that holds every entry point record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunDoors(ProjectModel model, List<Finding> findings)
     {
         foreach (var point in model.Records.Where(record => record.Type == RecordTypes.EntryPoint))
@@ -1453,12 +1624,17 @@ internal static class GraphChecks
     }
 
     /// <summary>The one target an effect entry names, across its four verbs.</summary>
+    /// <param name="entry">The effect entry whose target is read.</param>
+    /// <returns>The first non-empty target across the four edge verbs, or null when the entry names none.</returns>
     private static string? EffectTarget(JsonElement entry) =>
         (Str(entry, RecordFields.Runs) ?? Str(entry, RecordFields.Sends) ?? Str(entry, RecordFields.Emits) ?? Str(entry, RecordFields.Calls)) is { Length: > 0 } target
             ? target
             : null;
 
     /// <summary>One field holding one id or an array of ids, read from any element.</summary>
+    /// <param name="element">The JSON object that holds the field.</param>
+    /// <param name="name">The field name whose identifiers are read.</param>
+    /// <returns>The single identifier or the array identifiers, or an empty list when the field is absent or misshaped.</returns>
     private static IReadOnlyList<string> LinkStrings(JsonElement element, string name)
     {
         if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
@@ -1485,6 +1661,8 @@ internal static class GraphChecks
     }
 
     /// <summary>Reports table-drift.</summary>
+    /// <param name="model">The loaded project model that holds every aggregate record and page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunTableDrift(ProjectModel model, List<Finding> findings)
     {
         foreach (var aggregate in model.Records
@@ -1507,6 +1685,10 @@ internal static class GraphChecks
         CheckRetentionDrift(model, findings);
     }
 
+    /// <summary>Reports an aggregate whose written transitions table differs from its frontmatter transitions.</summary>
+    /// <param name="aggregate">The aggregate record whose transitions are compared.</param>
+    /// <param name="tables">The Markdown tables read from the aggregate page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTransitionsDrift(Record aggregate, IReadOnlyList<BodyTable> tables, List<Finding> findings)
     {
         var written = TransitionsOf(aggregate)
@@ -1569,6 +1751,10 @@ internal static class GraphChecks
         }
     }
 
+    /// <summary>Reports an aggregate whose written data table differs from its frontmatter data rows.</summary>
+    /// <param name="aggregate">The aggregate record whose data rows are compared.</param>
+    /// <param name="tables">The Markdown tables read from the aggregate page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckDataDrift(Record aggregate, IReadOnlyList<BodyTable> tables, List<Finding> findings)
     {
         var written = DataRowsOf(aggregate).Order(StringComparer.Ordinal).ToList();
@@ -1608,7 +1794,9 @@ internal static class GraphChecks
     }
 
     /// <summary>The aggregate's data rows with meaning and classification; partial entries are left to the shape check.</summary>
-    private static IReadOnlyList<string> DataRowsOf(Record aggregate)
+    /// <param name="aggregate">The aggregate record whose data array is read.</param>
+    /// <returns>Each complete data row key with name, meaning and classification.</returns>
+    private static List<string> DataRowsOf(Record aggregate)
     {
         if (aggregate.Raw.ValueKind != JsonValueKind.Object
             || !aggregate.Raw.TryGetProperty(RecordFields.Data, out var value)
@@ -1637,6 +1825,12 @@ internal static class GraphChecks
         return found;
     }
 
+    /// <summary>The retention table columns in written order, projected from each schedule row.</summary>
+    private static readonly string[] RetentionColumns = ["dataclass", "covers", "basis", "period", "enforcedby"];
+
+    /// <summary>Reports each retention schedule whose written table differs from its frontmatter rows.</summary>
+    /// <param name="model">The loaded project model that holds each page body.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRetentionDrift(ProjectModel model, List<Finding> findings)
     {
         foreach (var page in model.Bodies.OrderBy(body => body.File, StringComparer.Ordinal))
@@ -1659,7 +1853,7 @@ internal static class GraphChecks
                 continue;
             }
 
-            var columns = new[] { "dataclass", "covers", "basis", "period", "enforcedby" }
+            var columns = RetentionColumns
                 .Where(column => BodyColumn(table.Headers, column) >= 0)
                 .ToList();
             var written = RetentionRowsOf(page.File, columns);
@@ -1684,7 +1878,10 @@ internal static class GraphChecks
     }
 
     /// <summary>The retention-schedule rows of the file, projected onto the table columns; null when the file holds no schedule.</summary>
-    private static IReadOnlyList<string>? RetentionRowsOf(string file, IReadOnlyList<string> columns)
+    /// <param name="file">The retention schedule file whose frontmatter rows are read.</param>
+    /// <param name="columns">The table columns each row is projected onto.</param>
+    /// <returns>The row keys in ordinal order, or null when the file holds no retention schedule.</returns>
+    private static List<string>? RetentionRowsOf(string file, IReadOnlyList<string> columns)
     {
         if (!File.Exists(file))
         {
@@ -1734,6 +1931,9 @@ internal static class GraphChecks
     }
 
     /// <summary>One retention row field as the table states it: covers as sorted ids, the rest as written.</summary>
+    /// <param name="entry">The retention schedule row object.</param>
+    /// <param name="column">The table column whose field value is wanted.</param>
+    /// <returns>The field text as the table states it, or an empty string when the row holds none.</returns>
     private static string RetentionField(JsonElement entry, string column)
     {
         if (column == "covers"
@@ -1756,6 +1956,10 @@ internal static class GraphChecks
     }
 
     /// <summary>One retention table cell as the frontmatter states it: covers split and sorted, the rest trimmed.</summary>
+    /// <param name="table">The retention table whose headers locate the column.</param>
+    /// <param name="cells">The table row cells in column order.</param>
+    /// <param name="column">The table column whose cell value is wanted.</param>
+    /// <returns>The cell text as the frontmatter states it.</returns>
     private static string RetentionCell(BodyTable table, IReadOnlyList<string> cells, string column)
     {
         var text = CleanBodyCell(BodyCell(cells, BodyColumn(table.Headers, column)), false);
@@ -1772,11 +1976,15 @@ internal static class GraphChecks
     }
 
     /// <summary>One retention row key; empty when the row names no data class.</summary>
-    private static string RetentionKey(IReadOnlyList<string> fields) =>
+    /// <param name="fields">The projected row fields in column order.</param>
+    /// <returns>The joined row key, or an empty string when the row names no data class.</returns>
+    private static string RetentionKey(List<string> fields) =>
         fields.Count > 0 && fields[0].Length > 0 ? string.Join("\0", fields) : "";
 
     /// <summary>Every Markdown table outside fenced code.</summary>
-    private static IReadOnlyList<BodyTable> BodyTables(string body)
+    /// <param name="body">The page body text.</param>
+    /// <returns>Each Markdown table with its headers, rows and start line.</returns>
+    private static List<BodyTable> BodyTables(string body)
     {
         var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         var tables = new List<BodyTable>();
@@ -1837,8 +2045,12 @@ internal static class GraphChecks
         return tables;
     }
 
+    /// <summary>Matches the delimiter row that separates a Markdown table header from its rows.</summary>
     private static readonly Regex TableDelimiter = new(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$", RegexOptions.Compiled);
 
+    /// <summary>Reads the heading text of one trimmed body line.</summary>
+    /// <param name="trimmed">The body line with surrounding whitespace removed.</param>
+    /// <returns>The heading text without its marks, or null when the line is no heading.</returns>
     private static string? BodyHeading(string trimmed)
     {
         if (!trimmed.StartsWith('#'))
@@ -1861,13 +2073,20 @@ internal static class GraphChecks
         return trimmed[hashes..].Trim().TrimEnd('#').Trim();
     }
 
-    private static IReadOnlyList<string> BodyCells(string line)
+    /// <summary>Splits one Markdown table line into its trimmed cells.</summary>
+    /// <param name="line">The table header or row line.</param>
+    /// <returns>The trimmed cell texts, or an empty list for a line holding one empty cell.</returns>
+    private static List<string> BodyCells(string line)
     {
         var cells = line.Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToList();
 
         return cells is [{ Length: 0 }] ? [] : cells;
     }
 
+    /// <summary>Locates one column in a table header row.</summary>
+    /// <param name="headers">The table header cell texts.</param>
+    /// <param name="target">The normalized column name wanted.</param>
+    /// <returns>The zero-based column index, or minus one when the table holds no such column.</returns>
     private static int BodyColumn(IReadOnlyList<string> headers, string target)
     {
         for (var index = 0; index < headers.Count; index++)
@@ -1882,13 +2101,22 @@ internal static class GraphChecks
     }
 
     /// <summary>Headers compare case-insensitively, ignoring spaces, dashes and underscores.</summary>
+    /// <param name="value">The header text as written.</param>
+    /// <returns>The header with spaces, dashes, underscores and tabs removed, in lowercase.</returns>
     private static string BodyNorm(string value) =>
         value.Replace(" ", "").Replace("-", "").Replace("_", "").Replace("\t", "").ToLowerInvariant();
 
+    /// <summary>Reads one cell of a table row, tolerating short rows.</summary>
+    /// <param name="cells">The table row cells in column order.</param>
+    /// <param name="index">The zero-based column index wanted.</param>
+    /// <returns>The cell text, or an empty string when the row holds no such cell.</returns>
     private static string BodyCell(IReadOnlyList<string> cells, int index) =>
         index < cells.Count ? cells[index] : "";
 
     /// <summary>Trimmed text: code ticks stripped, a lone link reduced to its label, or its target for an id.</summary>
+    /// <param name="cell">The table cell text as written.</param>
+    /// <param name="preferTarget">Whether a link cell states its target instead of its label.</param>
+    /// <returns>The trimmed cell text with code ticks stripped and any link reduced as stated.</returns>
     private static string CleanBodyCell(string cell, bool preferTarget)
     {
         var text = cell.Trim();
@@ -1911,6 +2139,9 @@ internal static class GraphChecks
         return text;
     }
 
+    /// <summary>Splits one Markdown link that spans the whole cell into label and target.</summary>
+    /// <param name="text">The cell text under test.</param>
+    /// <returns>The link label and target, or null when the text is no single whole-cell link.</returns>
     private static (string Label, string Target)? BodyLinkOf(string text)
     {
         if (!text.StartsWith('['))
@@ -1938,6 +2169,9 @@ internal static class GraphChecks
         return (text[1..labelEnd], space < 0 ? target : target[..space]);
     }
 
+    /// <summary>Decides whether a table cell states no value.</summary>
+    /// <param name="text">The cleaned cell text under test.</param>
+    /// <returns>True when the cell is empty or states a dash or a none form; otherwise false.</returns>
     private static bool BodyCellEmpty(string text) =>
         text.Length == 0
         || text is "-" or "--"

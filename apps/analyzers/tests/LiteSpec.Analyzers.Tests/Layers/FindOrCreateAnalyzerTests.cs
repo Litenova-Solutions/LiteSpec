@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2014, the find or create rule.</summary>
 public sealed class FindOrCreateAnalyzerTests
 {
+    /// <summary>LS2014 reports a static factory where the find came back empty.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a static factory where the find came back empty")]
     public Task ReportsAStaticFactoryAfterAFind() =>
@@ -41,6 +43,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 reports a constructor as the fallback of an async find.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a constructor as the fallback of an async find")]
     public Task ReportsAConstructorAfterAnAsyncFind() =>
@@ -73,6 +77,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 reports a creation after a branch that leaves when the record was found.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a creation after a branch that leaves when the record was found")]
     public Task ReportsACreationAfterALeavingFoundBranch() =>
@@ -112,6 +118,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 reports a coalescing assignment of a found record.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a coalescing assignment of a found record")]
     public Task ReportsACoalescingAssignment() =>
@@ -144,6 +152,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a creation after refusing a missing record.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a creation after refusing a missing record")]
     public Task AcceptsACreationAfterRefusingAMissingRecord() =>
@@ -185,6 +195,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a creation that reads another record of its type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a creation that reads another record of its type")]
     public Task AcceptsACreationReadingAnotherRecordOfItsType() =>
@@ -215,6 +227,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a handler that only finds.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a handler that only finds")]
     public Task AcceptsAHandlerThatOnlyFinds() =>
@@ -244,6 +258,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a handler that only creates.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a handler that only creates")]
     public Task AcceptsAHandlerThatOnlyCreates() =>
@@ -270,6 +286,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a find and a creation of another type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find and a creation of another type")]
     public Task AcceptsAFindAndACreationOfAnotherType() =>
@@ -305,6 +323,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a find and a creation in different methods.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find and a creation in different methods")]
     public Task AcceptsAFindAndACreationInDifferentMethods() =>
@@ -339,6 +359,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a find or create in a query handler.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find or create in a query handler")]
     public Task AcceptsAFindOrCreateInAQueryHandler() =>
@@ -371,6 +393,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 accepts a policy-switch creation after an idempotent replay.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a policy-switch creation after an idempotent replay")]
     public Task AcceptsAPolicySwitchCreationAfterAnIdempotentReplay() =>
@@ -413,6 +437,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 reports a constructor after a leaving found branch.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a constructor after a leaving found branch")]
     public Task ReportsAConstructorAfterALeavingFoundBranch() =>
@@ -450,6 +476,8 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2014 stays silent outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>

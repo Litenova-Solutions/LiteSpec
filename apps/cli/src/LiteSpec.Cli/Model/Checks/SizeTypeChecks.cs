@@ -13,6 +13,8 @@ namespace LiteSpec.Model.Checks;
 internal static class SizeTypeChecks
 {
     /// <summary>Reports size-type-missing and product-count-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var declaration = Path.Combine(model.Config.Root, "litespec.project.json");

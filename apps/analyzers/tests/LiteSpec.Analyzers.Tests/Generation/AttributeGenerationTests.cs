@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated mark attributes.</summary>
 public sealed class AttributeGenerationTests
 {
+    /// <summary>The attribute style generates the Follows attribute.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "The attribute style generates the Follows attribute")]
     public void AttributeStyleGeneratesFollows()
@@ -22,6 +23,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>The attribute style generates the Implements and Proves attributes.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "The attribute style generates the Implements and Proves attributes")]
     public void AttributeStyleGeneratesTheAttributes()
@@ -40,6 +42,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>The xml style generates no attribute types.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "The xml style generates no attribute types")]
     public void XmlStyleGeneratesNoAttributes()
@@ -52,6 +55,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>No project file generates nothing.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "No project file generates nothing")]
     public void NoProjectFileGeneratesNothing()
@@ -64,6 +68,7 @@ public sealed class AttributeGenerationTests
         Assert.Empty(run.ReportedDiagnostics);
     }
 
+    /// <summary>Proves implements the xUnit v3 trait attribute when xUnit v3 is referenced.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Proves implements the xUnit v3 trait attribute when xUnit v3 is referenced")]
     public void XunitReferenceAddsTheTrait()
@@ -80,6 +85,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Proves stays a plain attribute without xUnit v3.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Proves stays a plain attribute without xUnit v3")]
     public void XunitAbsentKeepsAPlainAttribute()
@@ -93,6 +99,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Attribute marks generate values from the generated attributes.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "Attribute marks generate values from the generated attributes")]
     public void AttributeMarksGenerateValues()
@@ -115,6 +122,7 @@ public sealed class AttributeGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A project file with no record pages generates nothing.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact(DisplayName = "A project file with no record pages generates nothing")]
     public void NoRecordPagesGeneratesNothing()

@@ -96,6 +96,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>Flips the list-loans page to a draft with its decider and decide-by date.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void DraftListLoans(string root)
     {
         var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.md");
@@ -112,6 +113,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>Leaves the list-loans page reviewed, restoring it when a draft is found.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void EnsureReviewedListLoans(string root)
     {
         var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.md");
@@ -131,6 +133,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>Leaves the fixture with only a web stack, so no .NET reader runs.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
     static void SetOnlyWebStacks(string root)
     {
         var file = Path.Combine(root, "litespec.project.json");
@@ -140,6 +143,8 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>Writes an unknown marks value into the fixture's project file.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="value">The marks value to write.</param>
     static void BreakMarks(string root, string value)
     {
         var file = Path.Combine(root, "litespec.project.json");
@@ -149,6 +154,9 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>Reads one finding's outcome and reason from the check JSON.</summary>
+    /// <param name="stdout">The check command JSON output.</param>
+    /// <param name="code">The finding code to read.</param>
+    /// <returns>The finding outcome and reason, each null when absent.</returns>
     static (string? Outcome, string? Reason) OutcomeOf(string stdout, string code)
     {
         using var document = JsonDocument.Parse(stdout);

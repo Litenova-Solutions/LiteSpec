@@ -12,6 +12,7 @@ namespace LiteSpec;
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class CliJson
 {
+    /// <summary>The serializer options every command uses.</summary>
     public static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
@@ -21,12 +22,19 @@ public static class CliJson
     };
 
     /// <summary>Serializes a value with <see cref="Options"/>.</summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="value">The value to serialize.</param>
+    /// <returns>The JSON text.</returns>
     public static string Serialize<T>(T value) => JsonSerializer.Serialize(value, Options);
 
     /// <summary>Writes a value to standard output with <see cref="Options"/>.</summary>
+    /// <typeparam name="T">The value type.</typeparam>
+    /// <param name="value">The value to write.</param>
     public static void Write<T>(T value) => Console.WriteLine(Serialize(value));
 
     /// <summary>Reads a JSON file, or returns null when it is missing or not JSON.</summary>
+    /// <param name="file">The file to read.</param>
+    /// <returns>The JSON value, or null when the file is missing or not JSON.</returns>
     public static JsonNode? TryRead(string file)
     {
         try

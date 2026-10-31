@@ -6,6 +6,9 @@ namespace LiteSpec.Model.Tests.Marks;
 /// <summary>Tests for the per-kind mark rules and the mark finding table.</summary>
 public sealed class MarkRulesTests
 {
+    /// <summary>RecordTypes names the expected record types for every kind.</summary>
+    /// <param name="kind">The code kind under test.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "RecordTypes names the expected record types for every kind")]
     [InlineData(CodeKind.AggregateRoot, "aggregate")]
@@ -28,6 +31,9 @@ public sealed class MarkRulesTests
         Assert.Equal(expected.Split(','), types);
     }
 
+    /// <summary>TakesExactlyOne matches the expected count for every kind.</summary>
+    /// <param name="kind">The code kind under test.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "TakesExactlyOne matches the expected count for every kind")]
     [InlineData(CodeKind.AggregateRoot, true)]
@@ -46,6 +52,9 @@ public sealed class MarkRulesTests
     public void TakesExactlyOneMatchesExpectedCount(CodeKind kind, bool expected) =>
         Assert.Equal(expected, MarkRules.TakesExactlyOne(kind));
 
+    /// <summary>Verb is Proves for tests and Implements otherwise, including technical classes.</summary>
+    /// <param name="kind">The code kind under test.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "Verb is Proves for tests and Implements otherwise, including technical classes")]
     [InlineData(CodeKind.AggregateRoot, MarkVerb.Implements)]
@@ -64,11 +73,13 @@ public sealed class MarkRulesTests
     public void VerbMatchesExpectedVerb(CodeKind kind, MarkVerb expected) =>
         Assert.Equal(expected, MarkRules.Verb(kind));
 
+    /// <summary>RecordTypes rejects an unknown kind.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "RecordTypes rejects an unknown kind")]
     public void RecordTypesRejectsUnknownKind() =>
         Assert.Throws<ArgumentOutOfRangeException>(() => MarkRules.RecordTypes((CodeKind)99));
 
+    /// <summary>Accepts takes an identifier of the kind's type.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Accepts takes an identifier of the kind's type")]
     public void AcceptsTakesMatchingIdentifier()
@@ -102,11 +113,13 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
     }
 
+    /// <summary>FollowsRecordTypes names the provision namespace, decision and exception.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and exception")]
     public void FollowsRecordTypesNamesExpectedTypes() =>
-        Assert.Equal(new[] { "litespec", "decision", "exception" }, MarkRules.FollowsRecordTypes);
+        Assert.Equal(["litespec", "decision", "exception"], MarkRules.FollowsRecordTypes);
 
+    /// <summary>AcceptsFollows takes a provision, decision or exception and rejects a Behavior record.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "AcceptsFollows takes a provision, decision or exception and rejects a Behavior record")]
     public void AcceptsFollowsTakesChoices()
@@ -119,6 +132,7 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.AcceptsFollows("decision"));
     }
 
+    /// <summary>TakesVerb takes implements or follows for technical classes and one verb otherwise.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "TakesVerb takes implements or follows for technical classes and one verb otherwise")]
     public void TakesVerbTakesEitherVerbForTechnical()
@@ -132,6 +146,7 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.TakesVerb(CodeKind.Test, MarkVerb.Implements));
     }
 
+    /// <summary>Accepts rejects another type, an empty name, and a prefix without a slash.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Accepts rejects another type, an empty name, and a prefix without a slash")]
     public void AcceptsRejectsOtherTypes()
@@ -142,12 +157,12 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.Accepts(CodeKind.Handler, "use-casex/spending.submit-expense"));
     }
 
+    /// <summary>FindingCodes lists the eight mark findings in rule order.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "FindingCodes lists the eight mark findings in rule order")]
     public void FindingCodesListsMarkFindings() =>
         Assert.Equal(
-            new[]
-            {
+            [
                 "mark-missing",
                 "mark-unknown",
                 "mark-count-invalid",
@@ -156,9 +171,12 @@ public sealed class MarkRulesTests
                 "partial-missing",
                 "act-event-undeclared",
                 "act-event-unimplemented",
-            },
+            ],
             MarkRules.FindingCodes);
 
+    /// <summary>RuleId prints the analyzer rule for every mark finding.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "RuleId prints the analyzer rule for every mark finding")]
     [InlineData("mark-missing", "LS5001")]
@@ -172,11 +190,14 @@ public sealed class MarkRulesTests
     public void RuleIdPrintsExpectedRule(string code, string expected) =>
         Assert.Equal(expected, MarkRules.RuleId(code));
 
+    /// <summary>RuleId rejects an unknown code.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "RuleId rejects an unknown code")]
     public void RuleIdRejectsUnknownCode() =>
         Assert.Throws<ArgumentException>(() => MarkRules.RuleId("no-such-finding"));
 
+    /// <summary>Tier holds S for every mark finding.</summary>
+    /// <param name="code">The finding code under test.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "Tier holds S for every mark finding")]
     [InlineData("mark-missing")]
@@ -190,6 +211,7 @@ public sealed class MarkRulesTests
     public void TierHoldsSForMarkFindings(string code) =>
         Assert.Equal("S", MarkRules.Tier(code));
 
+    /// <summary>Tier rejects an unknown code.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Tier rejects an unknown code")]
     public void TierRejectsUnknownCode() =>

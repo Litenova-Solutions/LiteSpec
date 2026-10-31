@@ -16,8 +16,16 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1005, Descriptors.LS1006);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the domain exception analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var compilation = context.Compilation;
@@ -33,6 +41,9 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
             OperationKind.Throw);
     }
 
+    /// <summary>Analyzes the type.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="exceptionType">The exception type supplied for the check, or null when the compilation does not provide it.</param>
     private static void AnalyzeType(SymbolAnalysisContext context, INamedTypeSymbol? exceptionType)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -52,6 +63,11 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the throw.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="exceptionType">The exception type supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="argumentExceptionType">The argument exception type supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="unreachableExceptionType">The unreachable exception type supplied for the check, or null when the compilation does not provide it.</param>
     private static void AnalyzeThrow(
         OperationAnalysisContext context,
         INamedTypeSymbol? exceptionType,
@@ -67,6 +83,12 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         CheckThrown(thrown, context, exceptionType, argumentExceptionType, unreachableExceptionType);
     }
 
+    /// <summary>Checks the thrown.</summary>
+    /// <param name="thrown">The thrown exception type under inspection.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="exceptionType">The exception type supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="argumentExceptionType">The argument exception type supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="unreachableExceptionType">The unreachable exception type supplied for the check, or null when the compilation does not provide it.</param>
     private static void CheckThrown(
         IOperation thrown,
         OperationAnalysisContext context,
@@ -133,6 +155,10 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS1005, thrown.Syntax.GetLocation(), thrownType.Name));
     }
 
+    /// <summary>Returns true when the start has domain exception ancestor; otherwise false.</summary>
+    /// <param name="start">The start supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="exceptionType">The exception type this operation works with.</param>
+    /// <returns>True when the start has domain exception ancestor; otherwise false.</returns>
     private static bool HasDomainExceptionAncestor(INamedTypeSymbol? start, INamedTypeSymbol exceptionType)
     {
         for (var current = start; current is not null; current = current.BaseType)
@@ -146,6 +172,10 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the derives-from-or-equals condition holds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="baseType">The base type supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>True when the derives-from-or-equals condition holds; otherwise false.</returns>
     private static bool DerivesFromOrEquals(ITypeSymbol? type, INamedTypeSymbol? baseType)
     {
         if (type is null || baseType is null)

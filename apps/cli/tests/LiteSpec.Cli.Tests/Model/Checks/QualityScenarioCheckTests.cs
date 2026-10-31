@@ -6,6 +6,8 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a quality requirement states its scenario, and a technical decision fulfills it.</summary>
 public sealed class QualityScenarioCheckTests
 {
+    /// <summary>Quality Requirement Missing Field Reports Record Shape.</summary>
+    /// <param name="field">The quality scenario field the case omits from the requirement.</param>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Theory]
     [InlineData("stimulus")]
@@ -13,6 +15,7 @@ public sealed class QualityScenarioCheckTests
     [InlineData("response")]
     [InlineData("measure")]
     [InlineData("dueBy")]
+    // The InlineData values name each omitted scenario field case.
     public void Quality_Requirement_Missing_Field_Reports_Record_Shape(string field)
     {
         using var temp = Cli.Temp("checks");
@@ -23,6 +26,7 @@ public sealed class QualityScenarioCheckTests
         Assert.True(Reports(model, "record-invalid", $"has no {field}"));
     }
 
+    /// <summary>Quality Requirement With Scenario Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
     public void Quality_Requirement_With_Scenario_Passes_Shape()
@@ -35,6 +39,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Functional Requirement Without Scenario Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
     public void Functional_Requirement_Without_Scenario_Passes_Shape()
@@ -47,6 +52,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Quality Requirement Served Only By Technical Decision Is Fulfilled.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Quality_Requirement_Served_Only_By_Technical_Decision_Is_Fulfilled()
@@ -61,6 +67,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Quality Requirement With No Serving Decision Reports Unfulfilled.</summary>
     /// <proves>litespec/core/layers#add-behavior-detail-when-specifying-intent</proves>
     [Fact]
     public void Quality_Requirement_With_No_Serving_Decision_Reports_Unfulfilled()
@@ -73,6 +80,7 @@ public sealed class QualityScenarioCheckTests
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Quality Requirement Named Only By Product Decision Stays Unfulfilled.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Quality_Requirement_Named_Only_By_Product_Decision_Stays_Unfulfilled()
@@ -88,6 +96,8 @@ public sealed class QualityScenarioCheckTests
     }
 
     /// <summary>A quality requirement carrying every scenario field except the missing ones, as a draft.</summary>
+    /// <param name="missing">The scenario fields to omit from the requirement.</param>
+    /// <returns>The requirement frontmatter JSON.</returns>
     static string QualityJson(params string[] missing)
     {
         var fields = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -111,14 +121,22 @@ public sealed class QualityScenarioCheckTests
     }
 
     /// <summary>A decision file under the implementation decisions folder, so the check reads it as technical.</summary>
+    /// <param name="config">The consumer config carrying the root folder.</param>
+    /// <returns>The full path to the decision file.</returns>
     static string TechnicalDecisionFile(ConsumerConfig config) =>
         Path.Combine(config.Root, "docs", "implementation", "decisions", "0002-store-orders-as-documents.md");
 
     /// <summary>A decision file outside the implementation decisions folder, so the check reads it as a product decision.</summary>
+    /// <param name="config">The consumer config carrying the root folder.</param>
+    /// <returns>The full path to the decision file.</returns>
     static string ProductDecisionFile(ConsumerConfig config) =>
         Path.Combine(config.Root, "docs", "product", "decisions", "0001-checkout-target.md");
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
+    /// <param name="model">The model to run the check against.</param>
+    /// <param name="code">The finding code to look for.</param>
+    /// <param name="text">The text the finding message must contain.</param>
+    /// <returns>True when a finding carries the code and the text.</returns>
     static bool Reports(ProjectModel model, string code, string text) =>
         Checker.Check(model).Findings.Any(finding =>
             finding.Code == code && finding.Message.Contains(text, StringComparison.Ordinal));

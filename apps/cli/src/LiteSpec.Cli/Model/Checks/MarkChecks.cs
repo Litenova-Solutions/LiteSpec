@@ -17,6 +17,8 @@ namespace LiteSpec.Model.Checks;
 internal static class MarkChecks
 {
     /// <summary>Runs the mark checks.</summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckMarkPresence(model, findings);
@@ -33,6 +35,9 @@ internal static class MarkChecks
         CheckUseCaseReached(model, findings);
     }
 
+    /// <summary>Reports each code element that carries no mark its kind takes.</summary>
+    /// <param name="model">The loaded project model that holds each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckMarkPresence(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements)
@@ -44,6 +49,9 @@ internal static class MarkChecks
         }
     }
 
+    /// <summary>Reports each mark that names no record of the kind it takes, uses the wrong style or verb, or breaks its kind count.</summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckMarkLinks(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements)
@@ -90,6 +98,8 @@ internal static class MarkChecks
     ///     declares, so its style is compared within its own language, never against
     ///     the declaration.
     /// </summary>
+    /// <param name="kind">The scanned code element kind.</param>
+    /// <returns>True for the C sharp element kinds whose mark style follows the project declaration; otherwise false.</returns>
     private static bool UsesDeclaredStyle(CodeKind kind) =>
         kind is not (CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest);
 
@@ -101,6 +111,8 @@ internal static class MarkChecks
     ///     record of another type, or a record its kind does not take is
     ///     <c>mark-unknown</c>, not drift.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckMarkFolderDrift(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements)
@@ -169,6 +181,9 @@ internal static class MarkChecks
     ///     <c>Endpoints</c> folder is skipped, so the first segment is the module folder
     ///     and the last is the file name.
     /// </summary>
+    /// <param name="config">The project configuration that holds each layer root and the shared kernel path.</param>
+    /// <param name="file">The full path of the file whose segments are wanted.</param>
+    /// <returns>The path segments under the layer root with the module first, or null when the file sits outside the module layout.</returns>
     private static string[]? ModuleSegments(ConsumerConfig config, string file)
     {
         if (config.SharedKernel.Length > 0 && IsUnder(config.SharedKernel, file))
@@ -220,10 +235,15 @@ internal static class MarkChecks
     ///     aggregate and use case, or the second of a flat module and use case. Null when
     ///     the file sits directly in its module folder, where no use-case folder names it.
     /// </summary>
+    /// <param name="segments">The file path segments with the module folder first and the file name last.</param>
+    /// <returns>The use case folder segment, or null when the file sits directly in its module folder.</returns>
     private static string? UseCaseFolderOf(string[] segments) =>
         segments.Length >= 4 ? segments[2] : segments.Length == 3 ? segments[1] : null;
 
     /// <summary>Whether a folder name and a record name spell one name: case, hyphens and underscores ignored.</summary>
+    /// <param name="folder">The folder name as written on disk.</param>
+    /// <param name="name">The record name segment taken from the identifier.</param>
+    /// <returns>True when both names agree with case, hyphens and underscores ignored; otherwise false.</returns>
     private static bool SameName(string folder, string name)
     {
         var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
@@ -232,6 +252,10 @@ internal static class MarkChecks
         return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Decides whether a file sits under a root folder rather than at or outside it.</summary>
+    /// <param name="root">The root folder path, empty when the layer is not configured.</param>
+    /// <param name="file">The full path of the file under test.</param>
+    /// <returns>True when the file path resolves beneath the root; otherwise false.</returns>
     private static bool IsUnder(string root, string file)
     {
         if (root.Length == 0)
@@ -252,6 +276,10 @@ internal static class MarkChecks
     ///     technical decision, an external system, an integration event, or a
     ///     provision of the carried release.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves the marked record.</param>
+    /// <param name="element">The marked code element that carries the mark.</param>
+    /// <param name="mark">The implements or proves mark under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckServesMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
     {
         var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
@@ -296,6 +324,10 @@ internal static class MarkChecks
     ///     provision of the carried release on an applied page, or a decision or
     ///     exception that is not retired.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves the followed record.</param>
+    /// <param name="element">The marked code element that carries the mark.</param>
+    /// <param name="mark">The follows mark under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFollowsMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
     {
         var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
@@ -339,6 +371,11 @@ internal static class MarkChecks
     ///     of any kind, or a <c>proves</c> mark on a test. It names a provision of
     ///     the carried release, on a page the project's stacks and extensions apply.
     /// </summary>
+    /// <param name="model">The loaded project model that holds the admitted provisions and applied pages.</param>
+    /// <param name="element">The marked code element that carries the mark.</param>
+    /// <param name="mark">The mark that names the provision.</param>
+    /// <param name="verb">The mark verb shown in the finding message.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckProvisionMark(ProjectModel model, MarkedElement element, CodeMark mark, string verb, List<Finding> findings)
     {
         var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
@@ -361,6 +398,8 @@ internal static class MarkChecks
     ///     private helper, or an unrecognized class carrying a mark, or a proves mark
     ///     on a method with no test attribute. A <c>follows</c> mark is never stray.
     /// </summary>
+    /// <param name="model">The loaded project model that holds each stray mark read from the code.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckStrayMarks(ProjectModel model, List<Finding> findings)
     {
         foreach (var stray in model.Code.StrayMarks)
@@ -384,6 +423,8 @@ internal static class MarkChecks
     ///     the project's implementation decisions folder that no <c>follows</c> mark
     ///     names. Retired decisions need no follower.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every decision record and each follows mark.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckDecisionsFollowed(ProjectModel model, List<Finding> findings)
     {
         var followed = new HashSet<string>(StringComparer.Ordinal);
@@ -433,6 +474,9 @@ internal static class MarkChecks
     }
 
     /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
+    /// <param name="config">The project configuration that holds each record root.</param>
+    /// <param name="file">The full path of the file under test.</param>
+    /// <returns>True when the file sits under an implementation decisions folder of a record root; otherwise false.</returns>
     internal static bool UnderImplementationDecisions(ConsumerConfig config, string file)
     {
         var comparison = Path.DirectorySeparatorChar == '\\'
@@ -452,6 +496,9 @@ internal static class MarkChecks
         return false;
     }
 
+    /// <summary>Reports each domain event classification or rule exception code that differs from its record.</summary>
+    /// <param name="model">The loaded project model that resolves each marked record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRuntimeValueDrift(ProjectModel model, List<Finding> findings)
     {
         foreach (var element in model.Code.Elements)
@@ -491,9 +538,15 @@ internal static class MarkChecks
     }
 
     /// <summary>The refusal code of the rule through the shared rule over the model.</summary>
+    /// <param name="model">The loaded project model that resolves the result records the rule refusal names.</param>
+    /// <param name="rule">The rule record whose refusal code is wanted.</param>
+    /// <returns>The refusal code the rule states, or null when it states none.</returns>
     private static string? RefusalCodeOf(ProjectModel model, Record rule) =>
         RefusalCode.Of(rule, id => model.ById.TryGetValue(id, out var result) ? result : null);
 
+    /// <summary>Reports each guarded use case whose handler calls no aggregate method marked with the use case.</summary>
+    /// <param name="model">The loaded project model that holds each handler and aggregate method.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseActCalled(ProjectModel model, List<Finding> findings)
     {
         var roots = model.Code.Elements
@@ -535,6 +588,9 @@ internal static class MarkChecks
     ///     <c>store</c>. An aggregate with no declared kind is an entity; a
     ///     pass running other commands lists nothing in <c>changes</c>.
     /// </summary>
+    /// <param name="model">The loaded project model that resolves each changed aggregate.</param>
+    /// <param name="useCase">The use case record whose changes field is inspected.</param>
+    /// <returns>True when the use case changes an aggregate that is no store; otherwise false.</returns>
     private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
         useCase.Ids(RecordFields.Changes).Any(id =>
             !model.ById.TryGetValue(id, out var changed)
@@ -547,6 +603,11 @@ internal static class MarkChecks
     ///     type is a static call on that root; any other receiver is a held root whose
     ///     type the call does not name, so the method match stands on its own.
     /// </summary>
+    /// <param name="model">The loaded project model that holds each aggregate method.</param>
+    /// <param name="roots">The aggregate root class names known to the code scan.</param>
+    /// <param name="call">The aggregate call made by the handler.</param>
+    /// <param name="useCase">The use case identifier the called method must carry.</param>
+    /// <returns>True when a method matching the call is marked with the use case; otherwise false.</returns>
     private static bool ActCarries(ProjectModel model, HashSet<string> roots, CodeCall call, string useCase)
     {
         foreach (var method in model.Code.AggregateMethods)
@@ -566,6 +627,9 @@ internal static class MarkChecks
         return false;
     }
 
+    /// <summary>Reports each event a marked act raises that its use case omits, and each listed event no marked act raises.</summary>
+    /// <param name="model">The loaded project model that holds each use case and aggregate method.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckActEvents(ProjectModel model, List<Finding> findings)
     {
         var eventsByClass = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -609,7 +673,10 @@ internal static class MarkChecks
     }
 
     /// <summary>The event ids the method raises: its raised classes resolved through marked events.</summary>
-    private static IReadOnlyList<string> RaisedIds(Dictionary<string, string> eventsByClass, AggregateMethod method)
+    /// <param name="eventsByClass">The event record identifier of each marked domain event class.</param>
+    /// <param name="method">The aggregate method whose raised classes are resolved.</param>
+    /// <returns>The raised event identifiers without duplicates, in raise order.</returns>
+    private static List<string> RaisedIds(Dictionary<string, string> eventsByClass, AggregateMethod method)
     {
         var ids = new List<string>();
 
@@ -624,6 +691,9 @@ internal static class MarkChecks
         return ids;
     }
 
+    /// <summary>Reports each aggregate, reaction, job or external system record that no code element marks.</summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRecordsImplemented(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -676,6 +746,9 @@ internal static class MarkChecks
         }
     }
 
+    /// <summary>Reports each browser or API use case that no endpoint element marks.</summary>
+    /// <param name="model">The loaded project model that holds every use case and each endpoint element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseExposed(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records)
@@ -700,6 +773,9 @@ internal static class MarkChecks
         }
     }
 
+    /// <summary>Reports each declared effect edge of a use case, reaction or job that no handler or host dispatch takes.</summary>
+    /// <param name="model">The loaded project model that holds every behavior record and each scanned dispatch.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckEffectsImplemented(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -753,6 +829,9 @@ internal static class MarkChecks
         }
     }
 
+    /// <summary>Reports each browser or device use case that no screen calls on a frontend serving its entry point.</summary>
+    /// <param name="model">The loaded project model that holds every use case, screen and frontend.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUseCaseReached(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records)
@@ -812,10 +891,14 @@ internal static class MarkChecks
     }
 
     /// <summary>The stray element a mark finding names: its method, or its type.</summary>
+    /// <param name="stray">The stray mark holder read from a method or a type.</param>
+    /// <returns>The method name with its type, or the type name alone when no member is marked.</returns>
     private static string StrayName(StrayMark stray) =>
         stray.Member is { Length: > 0 } member ? $"Method '{stray.Class}.{member}'" : $"Type '{stray.Class}'";
 
     /// <summary>The record types a mark on the kind may name, in plain words.</summary>
+    /// <param name="kind">The scanned code element kind.</param>
+    /// <returns>The record types a mark on the kind may name, joined as alternatives.</returns>
     private static string ExpectedTypes(CodeKind kind) =>
         string.Join(" or ", MarkRules.RecordTypes(kind));
 }

@@ -2,37 +2,6 @@ using System.Text.Json;
 
 namespace LiteSpec.Model;
 
-/// <summary>One computed implements link: code to a record.</summary>
-sealed record ImplementsLink(string Path, string To, string Kind);
-
-/// <summary>One computed follows link: code to the provision, decision or exception that shapes it.</summary>
-sealed record FollowsLink(string Path, string To, string Kind);
-
-/// <summary>One computed calls link: a screen to a use case.</summary>
-sealed record CallsLink(string Screen, string To, string Operation);
-
-/// <summary>One computed proves link: a test to the record it claims.</summary>
-sealed record ProvesLink(string Scenario, string Claim, bool Confirmed, bool? Passing, bool Indirect);
-
-/// <summary>One use case's computed status.</summary>
-sealed record UseCaseStatus(bool Implemented, bool Verified);
-
-/// <summary>
-///     One requirement's computed status: verified when everything fulfilling it is verified,
-///     and, for a measured requirement, when its measure has a passing check.
-///     <see cref="MeasurePassed"/> is null for a requirement with no measure or no result yet.
-/// </summary>
-sealed record RequirementStatus(bool Verified, bool? MeasurePassed);
-
-/// <summary>One code location no scenario test reaches, read from scenario-only coverage.</summary>
-sealed record CoverageGap(string File, int Line, string Member);
-
-/// <summary>One result of a measured check, read from a k6, Lighthouse CI or ZAP result file.</summary>
-sealed record MeasureResult(string Tool, string Check, bool Passed, string? Value, string Source);
-
-/// <summary>One screen operation that resolves to no backend endpoint.</summary>
-sealed record UnmatchedCall(string Screen, string Operation, string File);
-
 /// <summary>
 ///     The project model: written records, read code, screens, tests, the test run,
 ///     computed links and per use case status.
@@ -40,99 +9,117 @@ sealed record UnmatchedCall(string Screen, string Operation, string File);
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class ProjectModel
 {
+    /// <summary>Gets the consumer configuration the model was built from.</summary>
     public ConsumerConfig Config { get; init; } = null!;
+    /// <summary>Gets the problems found while building the model, such as files that do not parse.</summary>
     public List<Finding> Problems { get; } = [];
 
-    /// <summary>The check findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    /// <summary>Gets or sets the check findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
     public IReadOnlyList<object>? FindingsJson { get; set; }
 
-    /// <summary>The known findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    /// <summary>Gets or sets the known findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
     public IReadOnlyList<object>? KnownJson { get; set; }
+    /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
+    /// <summary>Gets the prose body of each record page, for the book and the model JSON.</summary>
     public List<PageBody> Bodies { get; } = [];
+    /// <summary>Gets or sets the ids of the LiteSpec provisions in the carried release.</summary>
     public IReadOnlySet<string> Provisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
 
     /// <summary>
-    ///     The standard pages the project's stacks and extensions apply, as
+    ///     Gets or sets the standard pages the project's stacks and extensions apply, as
     ///     <c>docs/...</c> relative paths. Empty when the carried release cannot
     ///     be read, so a provision check falls back to existence only.
     /// </summary>
     public IReadOnlySet<string> AppliedPages { get; set; } = new HashSet<string>(StringComparer.Ordinal);
+    /// <summary>Gets or sets what the backend source says: handlers, events and marked elements.</summary>
     public CodeModel Code { get; set; } = new();
+    /// <summary>Gets the route screens the frontend readers found.</summary>
     public List<ScreenInfo> Screens { get; } = [];
+    /// <summary>Gets the acceptance scenarios the test readers found.</summary>
     public List<ScenarioInfo> Tests { get; } = [];
 
-    /// <summary>The browser tests every frontend reader found.</summary>
+    /// <summary>Gets the browser tests every frontend reader found.</summary>
     public List<BrowserTestInfo> BrowserTests { get; } = [];
 
-    /// <summary>Whether the TypeScript reader's handshake matched, so it is qualified.</summary>
+    /// <summary>Gets or sets a value indicating whether whether the TypeScript reader's handshake matched, so it is qualified.</summary>
     public bool TypeScriptQualified { get; set; }
 
-    /// <summary>The journey steps a passing test exercised, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    /// <summary>Gets the journey steps a passing test exercised, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
     public SortedSet<string> ExercisedSteps { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>The generated-client operations each steps method calls, keyed by class and method.</summary>
+    /// <summary>Gets or sets the generated-client operations each steps method calls, keyed by class and method.</summary>
     public IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls { get; set; } =
         new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
-    /// <summary>What each steps method requests and asserts, keyed by class and method.</summary>
+    /// <summary>Gets or sets what each steps method requests and asserts, keyed by class and method.</summary>
     public IReadOnlyDictionary<string, StepFacts> StepFacts { get; set; } =
         new Dictionary<string, StepFacts>(StringComparer.Ordinal);
 
-    /// <summary>The probe tables of steps classes: per class, each argument key mapped to the route it requests.</summary>
+    /// <summary>Gets or sets the probe tables of steps classes: per class, each argument key mapped to the route it requests.</summary>
     public IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> ProbeRoutes { get; set; } =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
+    /// <summary>Gets the comments in the test files.</summary>
     public List<CodeComment> TestComments { get; } = [];
+    /// <summary>Gets the comments in the screen source files.</summary>
     public List<CodeComment> ScreenComments { get; } = [];
+    /// <summary>Gets or sets the latest test run read from the result files, or null when none was read.</summary>
     public TestRun? TestRun { get; set; }
+    /// <summary>Gets the computed implements links from code elements to records.</summary>
     public List<ImplementsLink> Implements { get; } = [];
+    /// <summary>Gets the computed follows links from code elements to the provisions, decisions or exceptions that shape them.</summary>
     public List<FollowsLink> Follows { get; } = [];
+    /// <summary>Gets the computed calls links from screens to use cases.</summary>
     public List<CallsLink> Calls { get; } = [];
+    /// <summary>Gets the computed proves links from tests to the records they claim.</summary>
     public List<ProvesLink> Proves { get; } = [];
+    /// <summary>Gets the computed implemented and verified status of each use case, by use-case id.</summary>
     public Dictionary<string, UseCaseStatus> Status { get; } = new(StringComparer.Ordinal);
+    /// <summary>Gets the effective status of each record, by id, after holder and page inheritance.</summary>
     public Dictionary<string, string> EffectiveStatus { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Refusal codes by the class whose literal carries them.</summary>
+    /// <summary>Gets refusal codes by the class whose literal carries them.</summary>
     public Dictionary<string, HashSet<string>> RefusalCodes { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Per requirement, by id: verified from what fulfills it and from its measure.</summary>
+    /// <summary>Gets per requirement, by id: verified from what fulfills it and from its measure.</summary>
     public Dictionary<string, RequirementStatus> RequirementStatus { get; } = new(StringComparer.Ordinal);
-    /// <summary>Per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
+    /// <summary>Gets per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
     public Dictionary<string, bool> Tested { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>The scenarios whose passing proof is stale: the scenario changed after the run first passed it.</summary>
+    /// <summary>Gets the scenarios whose passing proof is stale: the scenario changed after the run first passed it.</summary>
     public SortedSet<string> Stale { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>The semantic hash each scenario had when a run first passed its proof.</summary>
+    /// <summary>Gets or sets the semantic hash each scenario had when a run first passed its proof.</summary>
     public ProofLedger Ledger { get; set; } = ProofLedger.Empty();
 
-    /// <summary>Per aggregate, by id: the states some transition leads into, or that start its lifecycle.</summary>
+    /// <summary>Gets per aggregate, by id: the states some transition leads into, or that start its lifecycle.</summary>
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
+    /// <summary>Gets per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
     public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Code no scenario test reaches; empty when no scenario-only coverage file was read.</summary>
+    /// <summary>Gets code no scenario test reaches; empty when no scenario-only coverage file was read.</summary>
     public List<CoverageGap> UnreachedCode { get; } = [];
 
-    /// <summary>Whether a scenario-only coverage file was read, so an empty <see cref="UnreachedCode"/> means something.</summary>
+    /// <summary>Gets or sets a value indicating whether whether a scenario-only coverage file was read, so an empty <see cref="UnreachedCode"/> means something.</summary>
     public bool CoverageRead { get; set; }
 
-    /// <summary>Results of measured checks read from tool result files.</summary>
+    /// <summary>Gets results of measured checks read from tool result files.</summary>
     public List<MeasureResult> Measures { get; } = [];
 
-    /// <summary>Screen operations that resolve to no endpoint.</summary>
+    /// <summary>Gets screen operations that resolve to no endpoint.</summary>
     public List<UnmatchedCall> UnmatchedCalls { get; } = [];
 
-    /// <summary>Records by id.</summary>
+    /// <summary>Gets records by id.</summary>
     public IReadOnlyDictionary<string, Record> ById =>
         _byId ??= Records
             .Where(record => record.Id.Length > 0)
             .GroupBy(record => record.Id, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
+    /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
 
-    /// <summary>Use-case records by the name their identifier ends in, the first one when names repeat.</summary>
+    /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>
     public IReadOnlyDictionary<string, Record> UseCasesByName
     {
         get
@@ -156,9 +143,11 @@ sealed class ProjectModel
         }
     }
 
+    /// <summary>The cached use cases by name index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _useCasesByName;
 
     /// <summary>Writes the model as JSON.</summary>
+    /// <returns>The model serialized as indented JSON.</returns>
     public string ToJson()
     {
         var options = new JsonSerializerOptions { WriteIndented = true, NewLine = "\n" };
@@ -794,6 +783,8 @@ sealed class ProjectModel
     }
 
     /// <summary>The page text the book shows: the body without its H1 title, trimmed.</summary>
+    /// <param name="body">The raw page body, with any line-ending form.</param>
+    /// <returns>The body without its H1 title, trimmed, with LF line endings.</returns>
     private static string PageText(string body)
     {
         var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
@@ -812,6 +803,9 @@ sealed class ProjectModel
         return string.Join('\n', lines[first..]).Trim();
     }
 
+    /// <summary>Tests whether a body line is the H1 title.</summary>
+    /// <param name="line">The body line to test.</param>
+    /// <returns>True when the trimmed line is an H1 heading.</returns>
     private static bool IsTitle(string line)
     {
         var text = line.TrimStart();
@@ -820,6 +814,8 @@ sealed class ProjectModel
     }
 
     /// <summary>Writes the collaborators a reaction or job builds with <c>new</c>.</summary>
+    /// <param name="writer">The JSON writer to write the array into.</param>
+    /// <param name="collaborators">The collaborators to write, or null for an empty array.</param>
     private void WriteCollaborators(Utf8JsonWriter writer, IReadOnlyList<CodeCollaborator>? collaborators)
     {
         writer.WriteStartArray("collaborators");
@@ -837,6 +833,8 @@ sealed class ProjectModel
     }
 
     /// <summary>Writes the repository reads a reaction or job makes inside a loop.</summary>
+    /// <param name="writer">The JSON writer to write the array into.</param>
+    /// <param name="reads">The loop reads to write, or null for an empty array.</param>
     private void WriteLoopReads(Utf8JsonWriter writer, IReadOnlyList<CodeLoopRead>? reads)
     {
         writer.WriteStartArray("loopReads");
@@ -854,6 +852,10 @@ sealed class ProjectModel
         writer.WriteEndArray();
     }
 
+    /// <summary>Writes one string property, or a JSON null when the value is null.</summary>
+    /// <param name="writer">The JSON writer to write the property into.</param>
+    /// <param name="name">The property name.</param>
+    /// <param name="value">The property value, or null.</param>
     private static void WriteNullable(Utf8JsonWriter writer, string name, string? value)
     {
         if (value is null)

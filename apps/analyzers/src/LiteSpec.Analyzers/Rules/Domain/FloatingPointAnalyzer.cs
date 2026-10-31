@@ -16,8 +16,16 @@ public sealed class FloatingPointAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1008);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the floating point analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSyntaxNodeAction(
             Analyze,
@@ -34,6 +42,8 @@ public sealed class FloatingPointAnalyzer : LayerAnalyzer
             SyntaxKind.DeclarationExpression,
             SyntaxKind.DeclarationPattern);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         var target = Target(context.Node);
@@ -45,6 +55,9 @@ public sealed class FloatingPointAnalyzer : LayerAnalyzer
         ReportFloatingPoint(target.Type, name, context);
     }
 
+    /// <summary>Returns the declared type syntax and name the node introduces.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <returns>The type syntax and name pair, with both parts null when the node declares neither.</returns>
     private static (TypeSyntax? Type, string? Name) Target(SyntaxNode node)
     {
         switch (node)
@@ -84,11 +97,18 @@ public sealed class FloatingPointAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns the name.</summary>
+    /// <param name="designation">The designation whose name the check reads.</param>
+    /// <returns>The name as text, or null when none applies.</returns>
     private static string? DesignationName(VariableDesignationSyntax designation) =>
         designation is SingleVariableDesignationSyntax single
             ? single.Identifier.ValueText
             : null;
 
+    /// <summary>Reports the floating point.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="name">The name to convert or match.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void ReportFloatingPoint(TypeSyntax type, string name, SyntaxNodeAnalysisContext context)
     {
         if (IsFloatingPoint(type, context))
@@ -106,6 +126,10 @@ public sealed class FloatingPointAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the node is floating point; otherwise false.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <returns>True when the node is floating point; otherwise false.</returns>
     private static bool IsFloatingPoint(TypeSyntax node, SyntaxNodeAnalysisContext context)
     {
         if (node is IdentifierNameSyntax identifier && identifier.IsVar)

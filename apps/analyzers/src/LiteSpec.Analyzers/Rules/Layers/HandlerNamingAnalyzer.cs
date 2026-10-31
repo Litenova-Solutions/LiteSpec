@@ -15,12 +15,22 @@ public sealed class HandlerNamingAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2005);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the handler naming analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSymbolAction(Analyze, SymbolKind.NamedType);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -42,6 +52,11 @@ public sealed class HandlerNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Checks the suffix.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="contract">The interface contract under inspection.</param>
+    /// <param name="suffix">The suffix the name must carry or lose.</param>
     private static void CheckSuffix(
         SymbolAnalysisContext context, INamedTypeSymbol type, string contract, string suffix)
     {

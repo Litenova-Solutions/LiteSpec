@@ -27,6 +27,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
     /// <returns>The code model.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Read is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
     public CodeModel Read(ConsumerConfig config, Action<string>? onParsed) =>
         ReadWithProblems(config, onParsed).Code;
 
@@ -38,13 +39,14 @@ sealed class DotnetBackendReader : IBackendReader
     /// <summary>Reads every configured source root, with one problem per file that could not be read or parsed.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>The code model and the reader problems.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "ReadWithProblems is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
     public BackendRead ReadWithProblems(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
 
     /// <summary>Reads every configured source root, with its problems and a parse callback.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
     /// <returns>The code model and the reader problems.</returns>
-    private BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
+    private static BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
     {
         var model = new CodeModel();
 

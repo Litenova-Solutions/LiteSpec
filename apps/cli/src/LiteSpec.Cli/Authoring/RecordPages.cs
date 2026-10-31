@@ -35,6 +35,7 @@ static class RecordPages
         ["term"] = "the glossary",
     };
 
+    /// <summary>Folder names the citation walk skips, covering build output, installed packages and tool state.</summary>
     private static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
     {
         "bin", "obj", "TestResults", "node_modules", ".git", ".model",
@@ -48,8 +49,10 @@ static class RecordPages
     };
 
     /// <summary>The documentation root new pages are written under.</summary>
+    /// <param name="config">The consumer configuration that holds the record roots.</param>
+    /// <returns>The first configured record root, or the docs folder under the consumer root when none is configured.</returns>
     public static string DocsRoot(ConsumerConfig config) =>
-        config.RecordRoots.FirstOrDefault() ?? Path.Combine(config.Root, "docs");
+        config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, "docs");
 
     /// <summary>
     ///     The absolute path of the page a record owns. A use-case page starts
@@ -57,6 +60,11 @@ static class RecordPages
     ///     its aggregate once the use case names one. A topic page starts
     ///     directly under <c>intent/</c>; the author moves it into its area folder.
     /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="home">The identifier home segment, such as the module name, or null for a type without a home.</param>
+    /// <param name="name">The identifier name segment, which becomes the file name for most types.</param>
+    /// <returns>The absolute path where a page of the type starts.</returns>
     public static string PagePath(ConsumerConfig config, string type, string? home, string name)
     {
         var docs = DocsRoot(config);
@@ -97,6 +105,13 @@ static class RecordPages
     ///     folder and takes the new file name, so a use case beside its aggregate
     ///     is not dragged back under <c>reads/</c> by its own rename.
     /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
+    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
+    /// <param name="newName">The identifier name after the rename.</param>
+    /// <param name="oldFile">The current absolute path of the page.</param>
+    /// <returns>The absolute path the page moves to, or null when the page stays at its current path.</returns>
     public static string? RenameTarget(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
@@ -129,6 +144,9 @@ static class RecordPages
     }
 
     /// <summary>Whether a decision page sits under the implementation decisions folder.</summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="file">The absolute path of the decision page.</param>
+    /// <returns>True when the page sits under the implementation decisions folder; otherwise false.</returns>
     static bool IsTechnicalDecision(ConsumerConfig config, string file) =>
         file.StartsWith(Path.Combine(DocsRoot(config), "implementation", "decisions") + Path.DirectorySeparatorChar, StringComparison.Ordinal);
 
@@ -136,6 +154,11 @@ static class RecordPages
     ///     The folder a renamed module or aggregate page moves to. The folder moves
     ///     whole, so the use cases beside a renamed aggregate move with it.
     /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type that owns the folder, either module or aggregate.</param>
+    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
+    /// <param name="newName">The identifier name after the rename.</param>
+    /// <returns>The absolute path of the folder the page moves to after the rename.</returns>
     public static string RenameFolderTarget(ConsumerConfig config, string type, string? newHome, string newName) =>
         Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
 
@@ -143,6 +166,12 @@ static class RecordPages
     ///     Whether the renamed page keeps its folder: the home is unchanged and the
     ///     folder sits inside that home's module area.
     /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
+    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
+    /// <param name="folder">The folder that currently holds the page.</param>
+    /// <returns>True when the home is unchanged and the folder sits inside that home module area; otherwise false.</returns>
     static bool StaysInFolder(ConsumerConfig config, string type, string? oldHome, string? newHome, string folder)
     {
         if (type is "module" or "aggregate"
@@ -161,6 +190,11 @@ static class RecordPages
     ///     The grammar error in an identifier's home and name, or null when both
     ///     follow the record identifier grammar.
     /// </summary>
+    /// <param name="type">The record type segment of the identifier.</param>
+    /// <param name="home">The identifier home segment, or null when the identifier carries no home.</param>
+    /// <param name="name">The identifier name segment.</param>
+    /// <param name="full">The full identifier text, used in the error message.</param>
+    /// <returns>The grammar error message, or null when the home and name follow the identifier grammar.</returns>
     public static string? GrammarError(string type, string? home, string name, string full)
     {
         if (RecordTypes.WithHome.Contains(type) && home is null)
@@ -193,6 +227,11 @@ static class RecordPages
     ///     <paramref name="newId"/>. A match inside a longer identifier is left
     ///     alone; a journey step keeps its fragment.
     /// </summary>
+    /// <param name="text">The file text to rewrite.</param>
+    /// <param name="oldId">The identifier to replace.</param>
+    /// <param name="newId">The identifier that replaces each standalone citation.</param>
+    /// <param name="count">The number of citations rewritten.</param>
+    /// <returns>The text with every standalone citation of the old identifier rewritten as the new identifier.</returns>
     public static string ReplaceCitations(string text, string oldId, string newId, out int count)
     {
         count = 0;
@@ -236,6 +275,8 @@ static class RecordPages
     }
 
     /// <summary>Whether the character continues an identifier.</summary>
+    /// <param name="value">The character beside a candidate citation.</param>
+    /// <returns>True when the character continues an identifier, covering letters, digits, underscore, hyphen and dot; otherwise false.</returns>
     static bool IsIdChar(char value) =>
         char.IsAsciiLetterOrDigit(value) || value is '_' or '-' or '.';
 
@@ -244,6 +285,8 @@ static class RecordPages
     ///     JSON, and the source and test files whose anchor and proof tags cite records. Build output,
     ///     installed packages, and hidden folders are left out.
     /// </summary>
+    /// <param name="root">The absolute path of the folder to walk, typically the consumer root.</param>
+    /// <returns>Every citing file under the root in ordinal path order, or an empty list when the root does not exist.</returns>
     public static IReadOnlyList<string> ProjectFiles(string root)
     {
         var found = new List<string>();
@@ -258,6 +301,9 @@ static class RecordPages
         return found;
     }
 
+    /// <summary>Collects the citing files in one folder and recurses into its non-skipped subfolders.</summary>
+    /// <param name="directory">The absolute path of the folder to walk.</param>
+    /// <param name="found">The list that receives each citing file path found.</param>
     static void Walk(string directory, List<string> found)
     {
         foreach (var file in Directory.EnumerateFiles(directory))

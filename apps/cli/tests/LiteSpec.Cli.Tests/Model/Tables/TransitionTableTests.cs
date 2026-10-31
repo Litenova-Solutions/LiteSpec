@@ -144,6 +144,8 @@ public sealed class TransitionTableTests
     ///     Re-stamps the loan aggregate's approval hash over its frontmatter plus the
     ///     transitions the appended table merges in, so the check reads only the table.
     /// </summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="transitions">The transition table rows to merge into the aggregate.</param>
     static void RestampAggregate(string root, string transitions)
     {
         var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "README.md");

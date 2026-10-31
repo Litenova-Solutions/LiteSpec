@@ -6,6 +6,8 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves only Behavior records fulfil a requirement.</summary>
 public sealed class FulfillmentTests
 {
+    /// <summary>Behavior Fulfiller Passes.</summary>
+    /// <param name="type">The Behavior record type the case uses as the requirement fulfiller.</param>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Theory]
     [InlineData("rule")]
@@ -14,6 +16,7 @@ public sealed class FulfillmentTests
     [InlineData("job")]
     [InlineData("notification")]
     [InlineData("setting")]
+    // The InlineData values name each Behavior record type case.
     public void Behavior_Fulfiller_Passes(string type)
     {
         using var temp = Cli.Temp("checks");
@@ -25,6 +28,7 @@ public sealed class FulfillmentTests
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Journey Alone Reports Unfulfilled.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
     public void Journey_Alone_Reports_Unfulfilled()
@@ -38,6 +42,7 @@ public sealed class FulfillmentTests
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>No Fulfiller Reports Unfulfilled.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
     public void No_Fulfiller_Reports_Unfulfilled()
@@ -50,6 +55,7 @@ public sealed class FulfillmentTests
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Message Names The Six Types.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
     public void Message_Names_The_Six_Types()
@@ -64,6 +70,7 @@ public sealed class FulfillmentTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Retired Requirement Passes.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
     public void Retired_Requirement_Passes()
@@ -76,6 +83,7 @@ public sealed class FulfillmentTests
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Undelivered Feature Passes.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
     public void Undelivered_Feature_Passes()
@@ -90,6 +98,8 @@ public sealed class FulfillmentTests
     }
 
     /// <summary>A fulfiller id of the type, in identifier form.</summary>
+    /// <param name="type">The fulfiller record type.</param>
+    /// <returns>The record id for a fulfiller of the type.</returns>
     static string FulfillerId(string type) => type switch
     {
         "rule" => "rule/borrowing.max-active-loans",

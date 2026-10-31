@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for reading marks in both styles from syntax.</summary>
 public sealed class MarkReaderTests
 {
+    /// <summary>Both styles read the same id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Both styles read the same id")]
     public void BothStylesReadTheSameId()
@@ -31,6 +32,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkVerb.Implements, fromAttribute.Verb);
     }
 
+    /// <summary>Proves marks read the scenario in both styles.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Proves marks read the scenario in both styles")]
     public void ProvesMarksReadTheScenario()
@@ -59,6 +61,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkVerb.Proves, fromAttribute.Verb);
     }
 
+    /// <summary>A tag split over lines reads the id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tag split over lines reads the id")]
     public void TagSplitOverLinesReadsTheId()
@@ -75,6 +78,7 @@ public sealed class MarkReaderTests
         Assert.Equal("use-case/spending.submit-expense", mark.RecordId);
     }
 
+    /// <summary>A tag split over lines reads the id without documentation mode.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tag split over lines reads the id without documentation mode")]
     public void TagSplitOverLinesReadsTheIdWithoutDocumentationMode()
@@ -92,6 +96,7 @@ public sealed class MarkReaderTests
         Assert.Equal("use-case/spending.submit-expense", mark.RecordId);
     }
 
+    /// <summary>A tree parsed without documentation mode reads marks from comment text.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tree parsed without documentation mode reads marks from comment text")]
     public void TreeWithoutDocumentationModeReadsMarks()
@@ -108,6 +113,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkStyle.Xml, mark.Style);
     }
 
+    /// <summary>Two marks on one method read in order.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Two marks on one method read in order")]
     public void TwoMarksOnOneMethodReadInOrder()
@@ -128,6 +134,7 @@ public sealed class MarkReaderTests
         Assert.Equal("scenario/submit-expense.submitting-twice-fails", marks[1].RecordId);
     }
 
+    /// <summary>An attribute with a qualified name reads the id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute with a qualified name reads the id")]
     public void QualifiedAttributeReadsTheId()
@@ -148,6 +155,7 @@ public sealed class MarkReaderTests
         Assert.Equal("use-case/spending.submit-expense", fromGlobal.RecordId);
     }
 
+    /// <summary>An attribute with the Attribute suffix reads the id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute with the Attribute suffix reads the id")]
     public void AttributeSuffixReadsTheId()
@@ -163,6 +171,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkStyle.Attribute, mark.Style);
     }
 
+    /// <summary>An attribute qualified with another namespace reads no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute qualified with another namespace reads no marks")]
     public void DomainQualifiedAttributeReadsNone()
@@ -189,6 +198,7 @@ public sealed class MarkReaderTests
         }
     }
 
+    /// <summary>An unclosed tag reads as a mark with an empty id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unclosed tag reads as a mark with an empty id")]
     public void UnclosedTagReadsAsEmptyMark()
@@ -206,6 +216,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkVerb.Implements, mark.Verb);
     }
 
+    /// <summary>An empty tag reads as a mark with an empty id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An empty tag reads as a mark with an empty id")]
     public void EmptyTagReadsAsEmptyMark()
@@ -235,6 +246,7 @@ public sealed class MarkReaderTests
         }
     }
 
+    /// <summary>A member without marks reads no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A member without marks reads no marks")]
     public void MemberWithoutMarksReadsNone()
@@ -247,6 +259,7 @@ public sealed class MarkReaderTests
         Assert.Empty(MarkReader.Read(member));
     }
 
+    /// <summary>A tag in another case reads no marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tag in another case reads no marks")]
     public void WrongCaseTagReadsNone()
@@ -259,6 +272,7 @@ public sealed class MarkReaderTests
         Assert.Empty(MarkReader.Read(member));
     }
 
+    /// <summary>A plain comment tag is ignored when documentation is present.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A plain comment tag is ignored when documentation is present")]
     public void PlainCommentTagIgnoredWithDocumentation()
@@ -272,6 +286,7 @@ public sealed class MarkReaderTests
         Assert.Empty(MarkReader.Read(member));
     }
 
+    /// <summary>An attribute with a const reference reads as a mark with an empty id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute with a const reference reads as a mark with an empty id")]
     public void ConstReferenceAttributeReadsAsEmptyMark()
@@ -293,6 +308,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkStyle.Attribute, mark.Style);
     }
 
+    /// <summary>An attribute without a string literal reads as a mark with an empty id.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute without a string literal reads as a mark with an empty id")]
     public void NonLiteralAttributeReadsAsEmptyMark()
@@ -321,6 +337,7 @@ public sealed class MarkReaderTests
         }
     }
 
+    /// <summary>Whitespace inside a mark is trimmed.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Whitespace inside a mark is trimmed")]
     public void WhitespaceInsideMarkIsTrimmed()
@@ -338,6 +355,7 @@ public sealed class MarkReaderTests
         Assert.Equal("use-case/spending.submit-expense", Assert.Single(MarkReader.Read(attribute)).RecordId);
     }
 
+    /// <summary>A mark reports its 1-based line and identifier span.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A mark reports its 1-based line and identifier span")]
     public void MarkReportsLineAndSpan()
@@ -353,9 +371,10 @@ public sealed class MarkReaderTests
         var mark = Assert.Single(MarkReader.Read(member));
 
         Assert.Equal(3, mark.Line);
-        Assert.Equal("use-case/spending.submit-expense", tree.GetText().ToString(mark.Span));
+        Assert.Equal("use-case/spending.submit-expense", tree.GetText(TestContext.Current.CancellationToken).ToString(mark.Span));
     }
 
+    /// <summary>An attribute mark reports its literal span.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An attribute mark reports its literal span")]
     public void AttributeMarkReportsLiteralSpan()
@@ -369,9 +388,10 @@ public sealed class MarkReaderTests
         var mark = Assert.Single(MarkReader.Read(member));
 
         Assert.Equal(1, mark.Line);
-        Assert.Equal("use-case/spending.submit-expense", tree.GetText().ToString(mark.Span));
+        Assert.Equal("use-case/spending.submit-expense", tree.GetText(TestContext.Current.CancellationToken).ToString(mark.Span));
     }
 
+    /// <summary>Follows marks read the choice in both styles.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Follows marks read the choice in both styles")]
     public void FollowsMarksReadTheChoice()
@@ -403,6 +423,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkVerb.Follows, fromSuffixed.Verb);
     }
 
+    /// <summary>Follows marks read from comment text without documentation mode.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Follows marks read from comment text without documentation mode")]
     public void FollowsMarksReadWithoutDocumentationMode()
@@ -420,6 +441,7 @@ public sealed class MarkReaderTests
         Assert.Equal(MarkStyle.Xml, mark.Style);
     }
 
+    /// <summary>Follows marks read beside implements marks in order.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "Follows marks read beside implements marks in order")]
     public void FollowsMarksReadBesideImplements()
@@ -439,6 +461,7 @@ public sealed class MarkReaderTests
         Assert.Equal("litespec/backend/persistence#commit-each-command-pipeline-once", marks[1].RecordId);
     }
 
+    /// <summary>An empty follows tag reads as a mark with an empty id.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "An empty follows tag reads as a mark with an empty id")]
     public void EmptyFollowsTagReadsAsEmptyMark()

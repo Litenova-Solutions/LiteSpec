@@ -1,3 +1,4 @@
+using System.Globalization;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,9 +15,14 @@ namespace LiteSpec.Model.Readers.Dotnet;
 sealed class DotnetScenarioReader : IScenarioReader
 {
     /// <summary>Reads every scenario, test method and comment under the test roots.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The test read holding every scenario, test method, and comment under the test roots.</returns>
     public TestRead Read(ConsumerConfig config) => ReadWithProblems(config).Tests;
 
     /// <summary>Reads every scenario under the test roots, with one problem per file that could not be read or parsed.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The scenarios together with one problem per file that could not be read or parsed.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "ReadWithProblems is the reader entry point that consumers and tests call through a DotnetScenarioReader instance; making it static would break those instance calls without changing behaviour.")]
     public ScenarioRead ReadWithProblems(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -91,8 +97,23 @@ sealed class DotnetScenarioReader : IScenarioReader
     }
 
     /// <summary>Reads scenarios through the scenario reader interface, with their problems.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The scenarios together with one problem per file that could not be read or parsed.</returns>
     ScenarioRead IScenarioReader.Read(ConsumerConfig config) => ReadWithProblems(config);
 
+    /// <summary>
+    ///     Reads one test source file into the shared collections, reporting one problem when the file cannot
+    ///     be read or parsed.
+    /// </summary>
+    /// <param name="file">The source file path to read.</param>
+    /// <param name="scenarios">The scenarios collected so far, added to in place.</param>
+    /// <param name="comments">The code comments collected so far, added to in place.</param>
+    /// <param name="elements">The marked elements collected so far, added to in place.</param>
+    /// <param name="strays">The stray marks collected so far, added to in place.</param>
+    /// <param name="problems">The problems collected so far, added to in place.</param>
+    /// <param name="stepCalls">The step calls by steps class, shared across files.</param>
+    /// <param name="probes">The probe tables by steps class, shared across files.</param>
+    /// <param name="stepFacts">The step facts by steps class, shared across files.</param>
     private static void ReadFile(
         string file,
         List<ScenarioInfo> scenarios,
@@ -133,7 +154,7 @@ sealed class DotnetScenarioReader : IScenarioReader
         {
             problems.Add(new Finding(
                 "reader-missing",
-                $"Test source file '{file}' could not be parsed: {parseError.GetMessage()}",
+                $"Test source file '{file}' could not be parsed: {parseError.GetMessage(CultureInfo.InvariantCulture)}",
                 file,
                 1,
                 null)
@@ -387,6 +408,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     joined with dots, and its method. Test runs are matched on this name,
     ///     so a renamed test matches nothing instead of another test's method.
     /// </summary>
+    /// <param name="method">The test method declaration whose fully qualified name is built.</param>
+    /// <returns>The dotted name built from the namespace, the containing types, and the method name.</returns>
     private static string FullNameOf(MethodDeclarationSyntax method)
     {
         var space = method.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "";
@@ -401,6 +424,9 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     passed to an assertion call. A code mentioned anywhere else, such as in
     ///     setup or in an unused helper, proves no refusal.
     /// </summary>
+    /// <param name="thenBodies">The syntax bodies of the test's then steps.</param>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <returns>The refusal codes asserted through then steps and assertion calls.</returns>
     private static List<string> AssertedCodes(IReadOnlyList<SyntaxNode> thenBodies, IReadOnlyList<SyntaxNode> reached)
     {
         var asserted = new SortedSet<string>(StringComparer.Ordinal);
@@ -437,6 +463,11 @@ sealed class DotnetScenarioReader : IScenarioReader
         @"(?<![A-Z0-9_])[A-Z][A-Z0-9]*(_[A-Z0-9]+)+(?![A-Z0-9_])",
         System.Text.RegularExpressions.RegexOptions.Compiled);
 
+    /// <summary>
+    ///     Adds every refusal code and client code the string literal token states to the asserted set.
+    /// </summary>
+    /// <param name="token">The syntax token whose text is searched for refusal codes.</param>
+    /// <param name="asserted">The asserted codes collected so far, added to in place.</param>
     private static void AddCodes(SyntaxToken token, SortedSet<string> asserted)
     {
         if (token.IsKind(SyntaxKind.StringLiteralToken) && token.Value is string text)
@@ -459,6 +490,10 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     <c>StatusCodes</c> constant named there. A status mentioned anywhere else, such
     ///     as in setup, proves no refusal.
     /// </summary>
+    /// <param name="stepStatuses">The HTTP statuses the test's steps state directly.</param>
+    /// <param name="thenBodies">The syntax bodies of the test's then steps.</param>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <returns>The HTTP status codes asserted through then steps and assertion calls.</returns>
     private static List<int> AssertedStatuses(
         IReadOnlyList<int> stepStatuses,
         IReadOnlyList<SyntaxNode> thenBodies,
@@ -513,6 +548,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     The HTTP status a member access names: an <c>HttpStatusCode</c> member, or a
     ///     <c>StatusCodes.StatusXXX</c> constant. Null when the access names neither.
     /// </summary>
+    /// <param name="access">The member access expression that may name an HttpStatusCode or StatusCodes constant.</param>
+    /// <returns>The status code the member names, or null when it names neither form.</returns>
     private static int? StatusOf(MemberAccessExpressionSyntax access)
     {
         var receiver = access.Expression.ToString();
@@ -546,6 +583,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     <c>GetRequiredService</c>, <c>GetService</c> and <c>GetKeyedService</c>, or the
     ///     <c>typeof</c> a non-generic <c>GetService</c> call carries.
     /// </summary>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <returns>The simple names of the service types the test resolves.</returns>
     private static HashSet<string> ResolvedServices(IReadOnlyList<SyntaxNode> reached)
     {
         var resolved = new HashSet<string>(StringComparer.Ordinal);
@@ -587,6 +626,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     The static calls the test body makes: each <c>Type.Method</c> invocation on a
     ///     type-like receiver, so a call onto an aggregate type counts for the test.
     /// </summary>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <returns>One Type.Method entry per static call the test makes.</returns>
     private static HashSet<string> StaticCalls(IReadOnlyList<SyntaxNode> reached)
     {
         var calls = new HashSet<string>(StringComparer.Ordinal);
@@ -608,6 +649,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     }
 
     /// <summary>The rightmost name of a call receiver: the type for a static call.</summary>
+    /// <param name="expression">The receiver expression whose rightmost name is wanted.</param>
+    /// <returns>The rightmost name of the receiver, or null when the expression has no name.</returns>
     private static string? ReceiverName(ExpressionSyntax expression) => expression switch
     {
         IdentifierNameSyntax plain => plain.Identifier.ValueText,
@@ -617,6 +660,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     };
 
     /// <summary>The type arguments a call name carries, or none when it carries no list.</summary>
+    /// <param name="name">The call name that may carry a type argument list.</param>
+    /// <returns>The type argument syntax nodes, or an empty list when the name carries none.</returns>
     private static List<TypeSyntax> TypeArguments(SimpleNameSyntax name) =>
         name is GenericNameSyntax generic
             ? [.. generic.TypeArgumentList.Arguments]
@@ -627,6 +672,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     a helper declared in the same file. Assertion presence in other files, such
     ///     as inside a steps class, is the analyzer's check, not the reader's.
     /// </summary>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <returns>True when an assertion call is reached; otherwise false.</returns>
     private static bool HasAssertion(IReadOnlyList<SyntaxNode> reached) =>
         reached.Any(node => node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().Any(AssertsThrough));
 
@@ -636,6 +683,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     <c>ClassicAssert</c>, or a call chained onto an assertion such as
     ///     <c>value.Should().Be(expected)</c>.
     /// </summary>
+    /// <param name="invocation">The invocation to test for an assertion call.</param>
+    /// <returns>True when the invocation asserts directly or chains onto an assertion; otherwise false.</returns>
     private static bool AssertsThrough(InvocationExpressionSyntax invocation)
     {
         if (IsAssertion(invocation))
@@ -648,6 +697,9 @@ sealed class DotnetScenarioReader : IScenarioReader
             && IsAssertion(inner);
     }
 
+    /// <summary>Whether the invocation is an assertion entry point, by the name it calls.</summary>
+    /// <param name="invocation">The invocation to test for an assertion entry point.</param>
+    /// <returns>True when the invoked name is an assertion entry point; otherwise false.</returns>
     private static bool IsAssertion(InvocationExpressionSyntax invocation)
     {
         var name = invocation.Expression switch
@@ -672,6 +724,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     }
 
     /// <summary>The constructed type's simple name, without arguments or qualification.</summary>
+    /// <param name="type">The type syntax whose simple name is read.</param>
+    /// <returns>The simple name text, without arguments or qualification.</returns>
     private static string TypeName(TypeSyntax type) => type switch
     {
         GenericNameSyntax generic => generic.Identifier.ValueText,
@@ -687,6 +741,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     holder, so <c>new OrderLineFulfillmentType.Membership(...)</c> never reads as
     ///     constructing the <c>Membership</c> aggregate.
     /// </summary>
+    /// <param name="type">The type syntax whose dotted name is read.</param>
+    /// <returns>The dotted name text, keeping a nested type holder and dropping arguments.</returns>
     private static string QualifiedName(TypeSyntax type) => type switch
     {
         GenericNameSyntax generic => generic.Identifier.ValueText,
@@ -701,6 +757,9 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     The test's own body and the body of every method declared in the same file that it calls,
     ///     directly or through a member access, followed transitively.
     /// </summary>
+    /// <param name="scope">The node whose own body and called helpers are collected.</param>
+    /// <param name="root">The file root that declares the helpers.</param>
+    /// <returns>The scope body together with the bodies of same-file methods it calls, followed transitively.</returns>
     private static List<SyntaxNode> ReachedInFile(SyntaxNode scope, SyntaxNode root)
     {
         var declared = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
@@ -742,6 +801,16 @@ sealed class DotnetScenarioReader : IScenarioReader
         return reached;
     }
 
+    /// <summary>
+    ///     Records the step a step lambda invokes, and for a then step also records its body and any HTTP
+    ///     status it states.
+    /// </summary>
+    /// <param name="phase">The step phase: given, when, or then.</param>
+    /// <param name="lambdaBody">The body of the step lambda, holding the step invocation.</param>
+    /// <param name="types">The member types of the containing type, by member name.</param>
+    /// <param name="steps">The scenario steps collected so far, added to in place.</param>
+    /// <param name="statuses">The asserted HTTP statuses collected so far, added to in place.</param>
+    /// <param name="thenBodies">The syntax bodies of the test's then steps.</param>
     private static void AddStep(
         string phase,
         CSharpSyntaxNode lambdaBody,
@@ -776,6 +845,11 @@ sealed class DotnetScenarioReader : IScenarioReader
         }
     }
 
+    /// <summary>The scenario step for an invocation, with its string literal arguments.</summary>
+    /// <param name="phase">The step phase: given, when, or then.</param>
+    /// <param name="invocation">The invocation expression to inspect.</param>
+    /// <param name="types">The member types of the containing type, by member name.</param>
+    /// <returns>The step together with its string literal arguments.</returns>
     private static ScenarioStep ReadStep(
         string phase,
         InvocationExpressionSyntax invocation,
@@ -789,6 +863,11 @@ sealed class DotnetScenarioReader : IScenarioReader
                 .Select(literal => literal.Token.ValueText)],
         };
 
+    /// <summary>The scenario step for an invocation: its phase, steps class, member type, and method name.</summary>
+    /// <param name="phase">The step phase: given, when, or then.</param>
+    /// <param name="invocation">The invocation expression to inspect.</param>
+    /// <param name="types">The member types of the containing type, by member name.</param>
+    /// <returns>The step naming its steps class, member type, and method.</returns>
     private static ScenarioStep StepOf(
         string phase,
         InvocationExpressionSyntax invocation,
@@ -834,6 +913,9 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     of the same file it calls, or in its class's constants, with each interpolation hole read as one
     ///     path parameter.
     /// </summary>
+    /// <param name="reached">The syntax nodes the test reaches in its own file, including helpers it calls.</param>
+    /// <param name="containing">The containing type whose constants are read, or null when there is none.</param>
+    /// <returns>The request paths, with each interpolation hole written as one path parameter.</returns>
     private static List<string> RoutesIn(IReadOnlyList<SyntaxNode> reached, TypeDeclarationSyntax? containing)
     {
         var routes = new SortedSet<string>(StringComparer.Ordinal);
@@ -869,6 +951,8 @@ sealed class DotnetScenarioReader : IScenarioReader
     ///     A probe step looks its argument up in the table and requests that route, so the key a scenario
     ///     passes names the endpoint it reaches.
     /// </summary>
+    /// <param name="type">The steps class declaration whose fields are read.</param>
+    /// <returns>The probe entries by key; empty when the class declares no probe table.</returns>
     private static Dictionary<string, string> ProbeTable(ClassDeclarationSyntax type)
     {
         var table = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -917,6 +1001,9 @@ sealed class DotnetScenarioReader : IScenarioReader
         return table;
     }
 
+    /// <summary>The declared type text of every property and field of the containing type, by member name.</summary>
+    /// <param name="containing">The type declaration whose properties and fields are mapped.</param>
+    /// <returns>The member names by their declared type text.</returns>
     private static Dictionary<string, string> MemberTypes(TypeDeclarationSyntax containing)
     {
         var types = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -937,6 +1024,9 @@ sealed class DotnetScenarioReader : IScenarioReader
         return types;
     }
 
+    /// <summary>The name an invocation calls, or null when its expression names none.</summary>
+    /// <param name="invocation">The invocation whose called name is wanted.</param>
+    /// <returns>The called method name, or null when the invocation names none.</returns>
     private static string? CalledName(InvocationExpressionSyntax invocation) =>
         invocation.Expression switch
         {

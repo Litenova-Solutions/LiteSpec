@@ -3,6 +3,7 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Controlled-prose cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests
 {
+    /// <summary>Non-ASCII prose.</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose")]
     public void NonAsciiProse() => Check(
@@ -23,44 +24,54 @@ public sealed partial class StandardsValidatorTests
             ["PROSE_NON_ASCII"]);
     }
 
+    /// <summary>Non-ASCII prose U+00A0 (a plain space).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+00A0 (a plain space)")]
     public void NonAscii00A0() => CheckNonAsciiCodepoint("00A0");
 
+    /// <summary>Non-ASCII prose U+2018 (a straight apostrophe).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+2018 (a straight apostrophe)")]
     public void NonAscii2018() => CheckNonAsciiCodepoint("2018");
 
+    /// <summary>Non-ASCII prose U+2019 (a straight apostrophe).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+2019 (a straight apostrophe)")]
     public void NonAscii2019() => CheckNonAsciiCodepoint("2019");
 
+    /// <summary>Non-ASCII prose U+201C (a straight quotation mark).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+201C (a straight quotation mark)")]
     public void NonAscii201C() => CheckNonAsciiCodepoint("201C");
 
+    /// <summary>Non-ASCII prose U+201D (a straight quotation mark).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+201D (a straight quotation mark)")]
     public void NonAscii201D() => CheckNonAsciiCodepoint("201D");
 
+    /// <summary>Non-ASCII prose U+2013 (a hyphen).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+2013 (a hyphen)")]
     public void NonAscii2013() => CheckNonAsciiCodepoint("2013");
 
+    /// <summary>Non-ASCII prose U+2026 (three full stops).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+2026 (three full stops)")]
     public void NonAscii2026() => CheckNonAsciiCodepoint("2026");
 
+    /// <summary>Non-ASCII prose U+00B7 (a hyphen).</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "non-ASCII prose U+00B7 (a hyphen)")]
     public void NonAscii00B7() => CheckNonAsciiCodepoint("00B7");
 
+    /// <summary>Rejection table exempts its refused word and its reason.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "rejection table exempts its refused word and its reason")]
     public void RejectionTableExempt() => Check(
         root => StandardsFixture.Write(root, "docs/reference/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReferencePage, "## Notes", "## Notes\n\n| Rejected | Use instead | Reason |\n|:---|:---|:---|\n| client | customer | The glossary defines client as the program that calls the public API, which a person placing an order never is at all. |\n")),
         []);
 
+    /// <summary>Normative guide prose.</summary>
     /// <proves>litespec/core/authoring#restrict-normative-language-to-standards-and-conventions</proves>
     [Fact(DisplayName = "normative guide prose")]
     public void NormativeGuideProse() => Check(

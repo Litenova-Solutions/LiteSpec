@@ -14,6 +14,8 @@ namespace LiteSpec.Authoring;
 static class AppendListEntry
 {
     /// <summary>Runs the append path and returns its exit code.</summary>
+    /// <param name="parsed">The parsed command line, holding the page path, the entry type, the entry name and the options.</param>
+    /// <returns>The process exit code: 0 when the entry is appended, 1 on a read or write failure, and 2 on invalid input.</returns>
     public static int Run(CliArgs parsed)
     {
         if (parsed.Positionals is not [_, var pageArg, var entryType, var name])
@@ -161,6 +163,8 @@ static class AppendListEntry
     }
 
     /// <summary>The page style owning the entry type, or null for an unknown type.</summary>
+    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <returns>The page style that owns the entry type, or null when the type is unknown.</returns>
     static string? PageOf(string entryType) => entryType switch
     {
         "requirement" => "topic",
@@ -171,6 +175,8 @@ static class AppendListEntry
     };
 
     /// <summary>Where the entry type belongs, for the refusal message, or null for an unknown type.</summary>
+    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
     static string? OwnerOf(string entryType) => entryType switch
     {
         "requirement" => "a topic page",
@@ -185,6 +191,10 @@ static class AppendListEntry
     ///     of the same type, else the topic from the file name for a requirement
     ///     or rule, else the parent modules folder for a setting.
     /// </summary>
+    /// <param name="root">The parsed frontmatter object of the list page.</param>
+    /// <param name="entryType">The entry type name whose home is sought.</param>
+    /// <param name="pageFile">The full path of the list page, used when the entries give no home.</param>
+    /// <returns>The home segment for the entry identifier, or null when neither the entries nor the location gives one.</returns>
     static string? HomeOf(JsonElement root, string entryType, string pageFile) =>
         UniformHome(root, entryType) ?? LocationHome(entryType, pageFile);
 
@@ -192,6 +202,9 @@ static class AppendListEntry
     ///     The home every existing entry of the type shares, or null when the
     ///     page holds none or mixes homes.
     /// </summary>
+    /// <param name="root">The parsed frontmatter object of the list page.</param>
+    /// <param name="entryType">The entry type name whose existing entries are examined.</param>
+    /// <returns>The home shared by every existing entry of the type, or null when the page holds none or mixes homes.</returns>
     static string? UniformHome(JsonElement root, string entryType)
     {
         if (root.ValueKind != JsonValueKind.Object
@@ -232,6 +245,9 @@ static class AppendListEntry
     }
 
     /// <summary>The home the page's place gives: the file stem, or the parent modules folder for a setting.</summary>
+    /// <param name="entryType">The entry type name whose home is sought.</param>
+    /// <param name="pageFile">The full path of the list page.</param>
+    /// <returns>For a setting, the module folder name; otherwise the page file stem, or null when the stem is empty.</returns>
     static string? LocationHome(string entryType, string pageFile)
     {
         if (entryType == "setting")
@@ -245,6 +261,8 @@ static class AppendListEntry
     }
 
     /// <summary>The parent modules folder's child holding the page, or null outside one.</summary>
+    /// <param name="pageFile">The full path of the list page.</param>
+    /// <returns>The name of the folder directly under a modules folder that holds the page, or null when the page sits outside one.</returns>
     static string? ModuleOf(string pageFile)
     {
         var parts = Path.GetFullPath(pageFile)
@@ -262,6 +280,10 @@ static class AppendListEntry
     }
 
     /// <summary>The field lines of the new entry, without indentation: every required field with its template placeholder.</summary>
+    /// <param name="entryType">The entry type name, which selects the field template.</param>
+    /// <param name="id">The full identifier of the entry.</param>
+    /// <param name="title">The display title of the entry.</param>
+    /// <returns>The field lines of the entry for its type, without indentation, with template placeholders for the text fields.</returns>
     static IReadOnlyList<string> EntryFields(string entryType, string id, string title) => entryType switch
     {
         "requirement" =>

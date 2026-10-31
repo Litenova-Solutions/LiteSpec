@@ -320,7 +320,7 @@ public sealed class BookEnrichTests
         Assert.Equal("/search", Str(route, "route"));
         Assert.True(HasString(Arr(enriched, "calls"), "use-case/lending.list-loans"));
         var impl = Arr(enriched, "impl");
-        Assert.Equal(1, impl.Count);
+        Assert.Single(impl);
         Assert.Equal("route", Str(impl[0] as JsonObject, "kind"));
         var bare = DetailsOf(NewModel(Record("screen", "screen/library.bare", "Bare")))["screen/library.bare"];
         Assert.Null(bare["route"]);
@@ -378,7 +378,7 @@ public sealed class BookEnrichTests
         var expect = Obj(details["use-case/lending.borrow-copy"], "expect");
         Assert.True(BoolOf(expect["impl"]));
         Assert.True(BoolOf(expect["proof"]));
-        Assert.Equal(1, Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "tests").Count);
+        Assert.Single(Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "tests"));
         var model = NewModel(Record("scenario", "scenario/borrow-copy.demo", "Demo"));
         (model["browserTests"] as JsonArray)!.Add(new JsonObject
         {
@@ -389,7 +389,7 @@ public sealed class BookEnrichTests
             ["proves"] = new JsonArray("scenario/borrow-copy.demo"),
         });
         var browserTests = Arr(DetailsOf(model)["scenario/borrow-copy.demo"], "tests");
-        Assert.Equal(1, browserTests.Count);
+        Assert.Single(browserTests);
         var browser = browserTests[0] as JsonObject ?? new JsonObject();
         Assert.Equal("Search works", Str(browser, "name"));
         Assert.True(BoolOf(browser["browser"]));
@@ -463,12 +463,12 @@ public sealed class BookEnrichTests
         });
         var details = DetailsOf(model);
         var borrowFindings = Arr(details["use-case/lending.borrow-copy"], "findings");
-        Assert.Equal(1, borrowFindings.Count);
+        Assert.Single(borrowFindings);
         var finding = borrowFindings[0] as JsonObject ?? new JsonObject();
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
         Assert.False(BoolOf(finding["known"]));
         var journeyFindings = Arr(details["journey/borrowing"], "findings");
-        Assert.Equal(1, journeyFindings.Count);
+        Assert.Single(journeyFindings);
         Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["known"]));
         Assert.False(details.ContainsKey("use-case/missing.nope"));
     }
@@ -490,7 +490,7 @@ public sealed class BookEnrichTests
         var sections = Obj(DetailsOf(model)["feature/demo"], "sections");
         Assert.Contains("Intro words", Str(sections, "intro") ?? "", StringComparison.Ordinal);
         var items = sections["list"] as JsonArray ?? new JsonArray();
-        Assert.Equal(1, items.Count);
+        Assert.Single(items);
         Assert.Equal("Why Now", Str(items[0] as JsonObject, "h"));
     }
 

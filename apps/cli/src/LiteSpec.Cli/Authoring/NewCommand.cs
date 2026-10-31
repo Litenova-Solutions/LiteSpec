@@ -66,6 +66,8 @@ static partial class NewCommand
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
+    /// <param name="args">The command arguments after the command name, holding the type and identifier or the append form and its options.</param>
+    /// <returns>The process exit code: 0 when the page or entry is written, 1 when no template or repository can be read, and 2 on invalid input or a taken identifier.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result"], maxPositionals: 4);

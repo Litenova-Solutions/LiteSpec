@@ -7,7 +7,7 @@ static class SourceRoots
     /// <summary>The short project name holding the file, or null when it sits under no backend root.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="file">The file path.</param>
-    /// <returns>The short project name holding the file, or null when it sits under no backend root.</returns>
+    /// <returns>The folder name of the matching backend root, or null when the file sits under none of them.</returns>
     public static string? ProjectOf(ConsumerConfig config, string file)
     {
         var abstractions = config.ApplicationRoot + ".Abstractions";

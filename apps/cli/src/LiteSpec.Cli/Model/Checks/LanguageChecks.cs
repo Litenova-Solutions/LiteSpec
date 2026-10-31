@@ -23,21 +23,28 @@ internal static class LanguageChecks
     // The words that stay lowercase inside a Title Case title, unless first or
     // last: articles, coordinating conjunctions, and prepositions of four letters
     // or fewer. Every other word starts with a capital.
+    /// <summary>The words that stay lowercase inside a Title Case title unless first or last.</summary>
     static readonly HashSet<string> TitleSmallWords = new(
         ["a", "an", "the", "and", "but", "for", "nor", "or", "so", "yet",
          "as", "at", "by", "from", "in", "into", "of", "off", "on", "onto",
          "over", "per", "to", "up", "upon", "via", "with"],
         StringComparer.Ordinal);
 
+    /// <summary>Matches one word token of a title, keeping dotted and signed names whole.</summary>
     static readonly Regex TitleToken = new("[A-Za-z0-9][A-Za-z0-9'./+-]*", RegexOptions.Compiled);
 
+    /// <summary>Matches a title token that passes through unchanged: a version number or an all-capitals token.</summary>
     static readonly Regex TitleAtypical = new("^(?:v?\\d|[A-Z0-9.]+$)", RegexOptions.Compiled);
 
+    /// <summary>Matches a camel-case join inside a title token, which marks a code name rather than prose.</summary>
     static readonly Regex TitleCamel = new("[a-z][A-Z]|[A-Z][a-z]+[A-Z]", RegexOptions.Compiled);
 
+    /// <summary>Matches a title token that opens with a capital letter.</summary>
     static readonly Regex TitleCapital = new("^[A-Z]", RegexOptions.Compiled);
 
     /// <summary>Reports value-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var actors = ActorTitles(model);
@@ -64,6 +71,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>The written title of every actor, which opens a journey step beside The.</summary>
+    /// <param name="model">The loaded project model that holds every actor record.</param>
+    /// <returns>The written title of each actor that journey steps may open with.</returns>
     private static HashSet<string> ActorTitles(ProjectModel model)
     {
         var titles = new HashSet<string>(StringComparer.Ordinal);
@@ -82,6 +91,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>The subject title of a record type: the type capitalized with spaces.</summary>
+    /// <param name="type">The record type identifier, or empty for an untyped record.</param>
+    /// <returns>The capitalized prose label for the type, or the generic record label when empty.</returns>
     private static string LanguageLabel(string type)
     {
         if (type.Length == 0)
@@ -95,18 +106,31 @@ internal static class LanguageChecks
     }
 
     /// <summary>Adds a value-invalid finding on the record.</summary>
+    /// <param name="record">The record the finding is placed on.</param>
+    /// <param name="label">The prose label of the record kind that opens the message.</param>
+    /// <param name="subject">The record identifier quoted in the message.</param>
+    /// <param name="detail">The value-style defect the message states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ValueFinding(Record record, string label, string subject, string detail, List<Finding> findings) =>
         findings.Add(new Finding("value-invalid", $"{label} '{subject}' {detail}", record.File, record.Line, SubjectOf(record)));
 
     /// <summary>Adds a value-invalid finding on a journey step.</summary>
+    /// <param name="record">The journey record that holds the step.</param>
+    /// <param name="step">The step identifier quoted in the message.</param>
+    /// <param name="detail">The value-style defect the message states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void StepFinding(Record record, string step, string detail, List<Finding> findings) =>
         findings.Add(new Finding("value-invalid", $"Journey step '{step}' {detail}", record.File, record.Line, step));
 
     /// <summary>The article a field name takes in a finding message.</summary>
+    /// <param name="word">The field name whose opening sound decides the article.</param>
+    /// <returns>An when the word opens with a vowel letter; otherwise a.</returns>
     private static string AOrAn(string word) =>
         word.Length > 0 && "aeiouAEIOU".Contains(word[0]) ? "an" : "a";
 
     /// <summary>Reports a title outside Title Case or ending in a period.</summary>
+    /// <param name="record">The record whose written title is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportTitle(Record record, List<Finding> findings)
     {
         // A missing title is record-invalid; the value style judges only a written one.
@@ -131,6 +155,8 @@ internal static class LanguageChecks
     ///     a small word in the middle, with version numbers, all-capitals tokens,
     ///     camel-case names and dotted names passing through.
     /// </summary>
+    /// <param name="value">The title text under test.</param>
+    /// <returns>True when each word follows the Title Case rule; otherwise false.</returns>
     private static bool TitleCase(string value)
     {
         var tokens = TitleToken.Matches(value).Select(match => match.Value).ToList();
@@ -144,7 +170,7 @@ internal static class LanguageChecks
 
             if (item.index > 0 && item.index < tokens.Count - 1 && TitleSmallWords.Contains(item.token.ToLowerInvariant()))
             {
-                return item.token == item.token.ToLowerInvariant();
+                return !item.token.Any(char.IsUpper);
             }
 
             return TitleCapital.IsMatch(item.token);
@@ -152,6 +178,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a statement missing its period, or holding a lower-case modal.</summary>
+    /// <param name="record">The record whose statement is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportStatement(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.Statement) is not { Length: > 0 } statement)
@@ -180,6 +208,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a meaning outside the definition form.</summary>
+    /// <param name="record">The record whose meaning field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportMeaning(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.Meaning) is not { Length: > 0 } meaning)
@@ -191,6 +221,12 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a meaning that opens outside A, An or The, or runs over 25 words.</summary>
+    /// <param name="record">The record the finding is placed on.</param>
+    /// <param name="label">The prose label of the record kind that opens the message.</param>
+    /// <param name="subject">The record identifier quoted in the message.</param>
+    /// <param name="field">The meaning field description quoted in the message.</param>
+    /// <param name="meaning">The definition text under test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportMeaningText(Record record, string label, string subject, string field, string meaning, List<Finding> findings)
     {
         if (!OpensWithArticle(meaning))
@@ -205,6 +241,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Whether the definition opens with A, An or The as its first word.</summary>
+    /// <param name="meaning">The definition text under test.</param>
+    /// <returns>True when the first word is A, An or The; otherwise false.</returns>
     private static bool OpensWithArticle(string meaning)
     {
         var trimmed = meaning.TrimStart();
@@ -216,6 +254,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a rationale or *Because that opens with because.</summary>
+    /// <param name="record">The record whose reason fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportReasons(Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object)
@@ -240,6 +280,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a *When or condition that opens with when or if.</summary>
+    /// <param name="record">The record whose condition fields are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportConditions(Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object)
@@ -266,6 +308,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a question missing its question mark.</summary>
+    /// <param name="record">The record whose question field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportQuestion(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.Question) is not { Length: > 0 } question)
@@ -280,6 +324,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a failure that carries a refusal code.</summary>
+    /// <param name="record">The record whose failure field is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportFailure(Record record, List<Finding> findings)
     {
         if (record.Field(RecordFields.Failure) is not { Length: > 0 } failure)
@@ -294,6 +340,9 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a journey step whose statement misses its actor opening or period, or whose failure carries a code.</summary>
+    /// <param name="record">The journey record whose steps are judged.</param>
+    /// <param name="actors">The actor titles a step statement may open with.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportSteps(Record record, HashSet<string> actors, List<Finding> findings)
     {
         if (record.Type != RecordTypes.Journey
@@ -334,6 +383,9 @@ internal static class LanguageChecks
     }
 
     /// <summary>Whether the step opens with The or an actor title as its first words.</summary>
+    /// <param name="statement">The step statement under test.</param>
+    /// <param name="actors">The actor titles a step statement may open with.</param>
+    /// <returns>True when the statement opens with The or an actor title as a whole word; otherwise false.</returns>
     private static bool OpensWithActor(string statement, HashSet<string> actors)
     {
         var trimmed = statement.TrimStart();
@@ -349,6 +401,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports an except condition that opens with when or if.</summary>
+    /// <param name="record">The record whose exception entries are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportExcept(Record record, List<Finding> findings)
     {
         foreach (var entry in ExceptEntries(record))
@@ -363,6 +417,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a question entry missing its question mark.</summary>
+    /// <param name="record">The record whose question entries are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportQuestions(Record record, List<Finding> findings)
     {
         foreach (var entry in QuestionEntries(record))
@@ -375,6 +431,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports a nested meaning outside the definition form: a state, data, input, payload or output field meaning.</summary>
+    /// <param name="record">The record whose nested meanings are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportMeanings(Record record, List<Finding> findings)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object)
@@ -390,6 +448,10 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports each meaning in the named array that opens outside A, An or The, or runs over 25 words.</summary>
+    /// <param name="record">The record that holds the named entry array.</param>
+    /// <param name="field">The array field whose entry meanings are judged.</param>
+    /// <param name="kind">The entry kind description quoted in each finding.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportEntryMeanings(Record record, string field, string kind, List<Finding> findings)
     {
         if (!record.Raw.TryGetProperty(field, out var entries) || entries.ValueKind != JsonValueKind.Array)
@@ -415,6 +477,8 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports each output meaning and visibleWhen outside the value style.</summary>
+    /// <param name="record">The record whose output meanings and group conditions are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportOutputMeanings(Record record, List<Finding> findings)
     {
         if (!record.Raw.TryGetProperty(RecordFields.Output, out var output))
@@ -465,6 +529,9 @@ internal static class LanguageChecks
     }
 
     /// <summary>Reports one output field meaning outside the definition form.</summary>
+    /// <param name="record">The record that holds the output field.</param>
+    /// <param name="entry">The output field entry whose meaning is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void ReportOutputField(Record record, JsonElement entry, List<Finding> findings)
     {
         if (entry.ValueKind != JsonValueKind.Object)

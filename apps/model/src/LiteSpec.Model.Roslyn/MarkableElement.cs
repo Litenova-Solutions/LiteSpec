@@ -15,7 +15,7 @@ namespace LiteSpec.Model.Roslyn;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class MarkableElement : IEquatable<MarkableElement>
 {
-    /// <summary>Creates a marked or markable element.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MarkableElement"/> class.Creates a marked or markable element.</summary>
     /// <param name="name">The simple name of the type or method.</param>
     /// <param name="isType">True for a type, false for a method.</param>
     /// <param name="kind">The kind, or null when the element is of no known kind.</param>
@@ -49,22 +49,22 @@ public sealed class MarkableElement : IEquatable<MarkableElement>
         Span = span;
     }
 
-    /// <summary>The simple name of the type or method.</summary>
+    /// <summary>Gets the simple name of the type or method.</summary>
     public string Name { get; }
 
-    /// <summary>True for a type, false for a method.</summary>
+    /// <summary>Gets a value indicating whether true for a type, false for a method.</summary>
     public bool IsType { get; }
 
-    /// <summary>The kind, or null when the element is of no known kind.</summary>
+    /// <summary>Gets the kind, or null when the element is of no known kind.</summary>
     public CodeKind? Kind { get; }
 
-    /// <summary>The marks on the declaration, in source order.</summary>
+    /// <summary>Gets the marks on the declaration, in source order.</summary>
     public IReadOnlyList<Mark> Marks { get; }
 
-    /// <summary>The 1-based line of the declaration name.</summary>
+    /// <summary>Gets the 1-based line of the declaration name.</summary>
     public int Line { get; }
 
-    /// <summary>The span of the declaration name.</summary>
+    /// <summary>Gets the span of the declaration name.</summary>
     public TextSpan Span { get; }
 
     /// <inheritdoc />

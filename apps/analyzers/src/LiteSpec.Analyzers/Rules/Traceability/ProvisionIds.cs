@@ -14,6 +14,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class ProvisionIds
 {
+    /// <summary>Holds the provision identifiers, loaded once from the embedded index on first use.</summary>
     private static readonly Lazy<HashSet<string>> Ids = new Lazy<HashSet<string>>(Load);
 
     /// <summary>Whether the identifier is a provision of the carried release.</summary>
@@ -21,6 +22,8 @@ internal static class ProvisionIds
     /// <returns>True when the embedded index holds the identifier.</returns>
     public static bool Contains(string id) => Ids.Value.Contains(id);
 
+    /// <summary>Loads the provision identifiers from the embedded provisions index.</summary>
+    /// <returns>The provision identifiers of the carried release, or an empty set when the resource is missing.</returns>
     private static HashSet<string> Load()
     {
         var found = new HashSet<string>(StringComparer.Ordinal);

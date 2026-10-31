@@ -33,7 +33,7 @@ sealed class BookLexicon
     /// <summary>Gets the finding codes by code, in finding-code table order.</summary>
     public IReadOnlyDictionary<string, LexiconFinding> Findings { get; }
 
-    /// <summary>Builds the lexicon from its parsed tables.</summary>
+    /// <summary>Initializes a new instance of the <see cref="BookLexicon"/> class.Builds the lexicon from its parsed tables.</summary>
     /// <param name="types">The record types by id.</param>
     /// <param name="layers">The record layers by key.</param>
     /// <param name="links">The link phrases.</param>

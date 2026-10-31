@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a requirement cites its reasons and an applying constraint is cited.</summary>
 public sealed class CitationCheckTests
 {
+    /// <summary>Requirement Without Cites Reports At Tier A.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void Requirement_Without_Cites_Reports_At_Tier_A()
@@ -21,6 +22,7 @@ public sealed class CitationCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Requirement Without Cites And Risk Reports At Tier G.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void Requirement_Without_Cites_And_Risk_Reports_At_Tier_G()
@@ -36,6 +38,7 @@ public sealed class CitationCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Requirement With Cites Passes.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void Requirement_With_Cites_Passes()
@@ -49,6 +52,7 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Requirement Without Cites Passes.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void Retired_Requirement_Without_Cites_Passes()
@@ -61,6 +65,7 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Applying Constraint Without Cites Reports.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
     public void Applying_Constraint_Without_Cites_Reports()
@@ -78,6 +83,7 @@ public sealed class CitationCheckTests
         Assert.Equal("constraint/library-keeps-records", finding.Subject);
     }
 
+    /// <summary>Cited Constraint Passes.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
     public void Cited_Constraint_Passes()
@@ -91,6 +97,7 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
 
+    /// <summary>Constraint Not Applying Passes.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
     public void Constraint_Not_Applying_Passes()
@@ -105,6 +112,7 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Applying Constraint Passes.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
     public void Retired_Applying_Constraint_Passes()

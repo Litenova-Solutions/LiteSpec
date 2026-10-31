@@ -52,6 +52,12 @@ public sealed class ConvertMarkStyleCodeFixProvider : CodeFixProvider
             diagnostic);
     }
 
+    /// <summary>Converts the solution.</summary>
+    /// <param name="document">The document that holds the element being fixed.</param>
+    /// <param name="diagnostic">The diagnostic the fix answers.</param>
+    /// <param name="declared">The mark style the project declares in its settings.</param>
+    /// <param name="token">The token that cancels the operation when the host aborts it.</param>
+    /// <returns>A task whose result is the solution.</returns>
     private static async Task<Solution> ConvertAsync(
         Document document, Diagnostic diagnostic, MarkStyle declared, System.Threading.CancellationToken token)
     {
@@ -89,6 +95,9 @@ public sealed class ConvertMarkStyleCodeFixProvider : CodeFixProvider
     }
 
     /// <summary>The mark holding the diagnostic span, or null.</summary>
+    /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
+    /// <param name="span">The source span the diagnostic covers.</param>
+    /// <returns>The at, or null when none applies.</returns>
     private static Mark? MarkAt(TraceabilityFix fix, Microsoft.CodeAnalysis.Text.TextSpan span)
     {
         foreach (var mark in MarkReader.Read(fix.Member))

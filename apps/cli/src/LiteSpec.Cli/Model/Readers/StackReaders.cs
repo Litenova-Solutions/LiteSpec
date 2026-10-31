@@ -4,59 +4,6 @@ using LiteSpec.Model.Readers.JUnit;
 
 namespace LiteSpec.Model.Readers;
 
-/// <summary>What the backend read found: the code model and the files it could not read.</summary>
-/// <param name="Code">What the backend source says.</param>
-/// <param name="Problems">One <c>reader-missing</c> finding per file the reader could not read or parse.</param>
-sealed record BackendRead(CodeModel Code, IReadOnlyList<Finding> Problems);
-
-/// <summary>What the scenario read found: the test read and the files it could not read.</summary>
-/// <param name="Tests">The scenarios, elements and step facts the test roots declare.</param>
-/// <param name="Problems">One <c>reader-missing</c> finding per file the reader could not read or parse.</param>
-sealed record ScenarioRead(TestRead Tests, IReadOnlyList<Finding> Problems);
-
-/// <summary>Reads the backend source for the configured backend roots.</summary>
-interface IBackendReader
-{
-    /// <summary>Reads handlers, reactions, jobs, events, failure-code literals, comments and endpoint operations.</summary>
-    BackendRead Read(ConsumerConfig config);
-}
-
-/// <summary>Reads the routes of one frontend.</summary>
-interface IFrontendReader
-{
-    /// <summary>Reads the frontend's route screens and file comments.</summary>
-    ScreenRead Read(ConsumerConfig config, CodeModel code);
-}
-
-/// <summary>Reads the acceptance scenarios and what they claim.</summary>
-interface IScenarioReader
-{
-    /// <summary>Reads scenarios with their claimed cases, steps and asserted codes, and file comments.</summary>
-    ScenarioRead Read(ConsumerConfig config);
-}
-
-/// <summary>Reads test outcomes by test name and by fully qualified test name.</summary>
-interface ITestRunReader
-{
-    /// <summary>Reads the run, or null when no result file exists.</summary>
-    TestRun? Read(ConsumerConfig config);
-}
-
-/// <summary>The readers one consumer build reads through.</summary>
-/// <param name="Backend">The backend reader.</param>
-/// <param name="Frontends">One reader per readable frontend.</param>
-/// <param name="Scenarios">The scenario reader.</param>
-/// <param name="TestRuns">The test-run reader, across every supported result format.</param>
-sealed record StackSet(
-    IBackendReader Backend,
-    IReadOnlyList<IFrontendReader> Frontends,
-    IScenarioReader Scenarios,
-    ITestRunReader TestRuns)
-{
-    /// <summary>Reader selection problems, such as a <c>server</c> project with no backend reader.</summary>
-    public IReadOnlyList<Finding> Problems { get; init; } = [];
-}
-
 /// <summary>
 ///     Picks the readers for a consumer: the .NET backend and scenario readers when the
 ///     project names a stack with .NET sources (dotnet, blazor, or android), one frontend
@@ -68,6 +15,8 @@ sealed record StackSet(
 static class StackReaders
 {
     /// <summary>Picks the readers for the consumer.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The reader set chosen for the consumer, with any selection problems.</returns>
     public static StackSet For(ConsumerConfig config)
     {
         var dotnet = config.Stacks.Contains("dotnet", StringComparer.Ordinal)
@@ -117,15 +66,64 @@ static class StackReaders
     /// <summary>Reads no backend: the project names no stack with .NET sources.</summary>
     sealed class EmptyBackendReader : IBackendReader
     {
+        /// <summary>
+        ///     Returns an empty backend read: an empty code model and no problems, because the project names no
+        ///     stack with .NET sources.
+        /// </summary>
+        /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+        /// <returns>An empty backend read: an empty code model and no problems.</returns>
         public BackendRead Read(ConsumerConfig config) => new(new CodeModel(), []);
     }
 
     /// <summary>Reads no scenarios: the project names no stack with .NET tests.</summary>
     sealed class EmptyScenarioReader : IScenarioReader
     {
+        /// <summary>
+        ///     Returns an empty scenario read: no tests and no problems, because the project names no stack with
+        ///     .NET tests.
+        /// </summary>
+        /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+        /// <returns>An empty scenario read: no tests and no problems.</returns>
         public ScenarioRead Read(ConsumerConfig config) =>
             new(
                 new TestRead([], [], new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal)),
                 []);
     }
+}
+
+/// <summary>Reads the backend source for the configured backend roots.</summary>
+interface IBackendReader
+{
+    /// <summary>Reads handlers, reactions, jobs, events, failure-code literals, comments and endpoint operations.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The backend read: the code model and the files it could not read.</returns>
+    BackendRead Read(ConsumerConfig config);
+}
+
+/// <summary>Reads the routes of one frontend.</summary>
+interface IFrontendReader
+{
+    /// <summary>Reads the frontend's route screens and file comments.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="code">The code model the screens are checked against.</param>
+    /// <returns>The screen read of the frontend.</returns>
+    ScreenRead Read(ConsumerConfig config, CodeModel code);
+}
+
+/// <summary>Reads the acceptance scenarios and what they claim.</summary>
+interface IScenarioReader
+{
+    /// <summary>Reads scenarios with their claimed cases, steps and asserted codes, and file comments.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The scenario read: the scenarios and the files it could not read.</returns>
+    ScenarioRead Read(ConsumerConfig config);
+}
+
+/// <summary>Reads test outcomes by test name and by fully qualified test name.</summary>
+interface ITestRunReader
+{
+    /// <summary>Reads the run, or null when no result file exists.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The test run, or null when no result file exists.</returns>
+    TestRun? Read(ConsumerConfig config);
 }

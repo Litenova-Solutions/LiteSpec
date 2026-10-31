@@ -57,7 +57,7 @@ internal sealed partial class ProvisionValidator
     /// <summary>Computes the comparable claim core of a heading or assertion.</summary>
     /// <param name="text">The heading or assertion text.</param>
     /// <returns>The normalized claim.</returns>
-    private string Claim(string text)
+    private static string Claim(string text)
     {
         var normalized = ClaimCleanPattern().Replace(text.ToLowerInvariant().Replace("`", "", StringComparison.Ordinal), " ").Trim();
         return ClaimModalPattern().Replace(normalized, "").Trim();
@@ -187,9 +187,9 @@ internal sealed partial class ProvisionValidator
     /// <summary>Reports whether visible text holds normative vocabulary.</summary>
     /// <param name="visible">The visible text.</param>
     /// <returns>True when the text holds normative vocabulary.</returns>
-    private bool HasNormativeVocabulary(string visible)
+    private static bool HasNormativeVocabulary(string visible)
     {
-        return ModalsPattern().Matches(visible).Count > 0 || OtherNormativePattern().IsMatch(visible);
+        return ModalsPattern().Count(visible) > 0 || OtherNormativePattern().IsMatch(visible);
     }
 
     /// <summary>Checks the Statement assertion of one Standard provision.</summary>
@@ -214,7 +214,7 @@ internal sealed partial class ProvisionValidator
         var assertion = statements[0];
         var statement = assertion.Line["**Statement:**".Length..].Trim();
         var visibleStatement = PageReader.VisibleText(statement);
-        var modalCount = ModalsPattern().Matches(visibleStatement).Count;
+        var modalCount = ModalsPattern().Count(visibleStatement);
         if (modalCount != 1)
         {
             add(relative, assertion.Number, "STANDARD_MODAL_COUNT", $"Statement for '{provision.Id}' has {modalCount} normative modals");
@@ -358,8 +358,8 @@ internal sealed partial class ProvisionValidator
             add(relative, ids[0].Number, "ID_LINE_MISSING", $"ID line for '{provision.Id}' must be the first line after the heading");
         }
 
-        PageReader.TryParseIdLine(ids[0].Line, out var stated);
-        if (!Provisions.IsProvisionId(stated))
+        if (!PageReader.TryParseIdLine(ids[0].Line, out var stated) || !Provisions.IsProvisionId(stated))
+        // The combined condition above also covers a stated id that is no provision identifier.
         {
             add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}', which is not a provision identifier");
         }
@@ -451,8 +451,8 @@ internal sealed partial class ProvisionValidator
                 add(relative, found.Number, "VERIFY_ORDER", $"verification line for '{provision.Id}' must be last among its fields");
             }
 
-            PageReader.TryParseVerificationLine(found.Line, out var labelName, out var evidence);
-            var mark = labelName == "Checked by" ? "checkable" : "guidance";
+            var parsedVerification = PageReader.TryParseVerificationLine(found.Line, out var labelName, out var evidence);
+            var mark = parsedVerification && labelName == "Checked by" ? "checkable" : "guidance";
             if (HasNormativeVocabulary(PageReader.VisibleText(found.Line)))
             {
                 add(relative, found.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");

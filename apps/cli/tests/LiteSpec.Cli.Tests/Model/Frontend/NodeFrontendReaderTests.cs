@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves the Node frontend reader: the protocol round trip, its failures, and the call mapping.</summary>
 public sealed class NodeFrontendReaderTests
 {
+    /// <summary>Reader Returns The Facts Its Response Names.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Reader_Returns_The_Facts_Its_Response_Names()
@@ -36,6 +37,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Equal(["/expenses"], test.Gotos);
     }
 
+    /// <summary>Reader With No Bundle Leaves Empty Facts With The Cause.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Reader_With_No_Bundle_Leaves_Empty_Facts_With_The_Cause()
@@ -52,6 +54,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(web.Modules);
     }
 
+    /// <summary>Reader Exiting Non Zero Names The Exit Code.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Reader_Exiting_Non_Zero_Names_The_Exit_Code()
@@ -75,6 +78,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(web.Routes);
     }
 
+    /// <summary>Reader With A Mismatched Protocol Fails Every Frontend.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Reader_With_A_Mismatched_Protocol_Fails_Every_Frontend()
@@ -91,6 +95,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Contains("protocol 2", web.Failure);
     }
 
+    /// <summary>Reader With Unparseable Output Fails Every Frontend.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Reader_With_Unparseable_Output_Fails_Every_Frontend()
@@ -106,6 +111,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(web.Tests);
     }
 
+    /// <summary>Calls Map A Client Export Through A PascalCase WithName.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Calls_Map_A_Client_Export_Through_A_PascalCase_WithName()
@@ -121,6 +127,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(read.Findings);
     }
 
+    /// <summary>Calls Map Through The Endpoints WithName Operation.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Calls_Map_Through_The_Endpoints_WithName_Operation()
@@ -136,6 +143,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(read.Findings);
     }
 
+    /// <summary>Call Two Endpoints Map To Different Use Cases Is A Diagnostic.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Call_Two_Endpoints_Map_To_Different_Use_Cases_Is_A_Diagnostic()
@@ -155,6 +163,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Contains("different use cases", finding.Message);
     }
 
+    /// <summary>Failed Facts Become One Reader Unavailable Finding.</summary>
     /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Failed_Facts_Become_One_Reader_Unavailable_Finding()

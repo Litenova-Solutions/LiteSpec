@@ -88,6 +88,7 @@ static partial class ModelBuilder
     /// <param name="name">The phase name.</param>
     /// <param name="run">The phase.</param>
     /// <returns>The value the phase produced.</returns>
+    /// <typeparam name="T">The value type the phase produces.</typeparam>
     private static T Timed<T>(string name, Func<T> run)
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -113,7 +114,7 @@ static partial class ModelBuilder
     /// <param name="config">The consumer configuration.</param>
     /// <param name="problems">The problems a failure is reported into.</param>
     /// <returns>The standard pages the project's stacks and extensions apply.</returns>
-    private static IReadOnlySet<string> AppliedPagesOf(ConsumerConfig config, List<Finding> problems)
+    private static HashSet<string> AppliedPagesOf(ConsumerConfig config, List<Finding> problems)
     {
         var home = LiteSpecHome.Root;
 

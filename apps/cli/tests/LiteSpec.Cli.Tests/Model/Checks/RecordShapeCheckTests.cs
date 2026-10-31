@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the record shape checks: the unified edge grammar, the idempotency grammar, the structured failure policy, the renamed fields and the layer status vocabulary.</summary>
 public sealed class RecordShapeCheckTests
 {
+    /// <summary>Reaction Effects Runs Edge Feeds Effect Loop.</summary>
     /// <proves>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</proves>
     [Fact]
     public void Reaction_Effects_Runs_Edge_Feeds_Effect_Loop()
@@ -20,6 +21,7 @@ public sealed class RecordShapeCheckTests
         Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Effects Sends Edge Satisfies Notification Sender.</summary>
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Reaction_Effects_Sends_Edge_Satisfies_Notification_Sender()
@@ -33,6 +35,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job Effects Sends Edge Satisfies Notification Sender.</summary>
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Scheduled_Job_Effects_Sends_Edge_Satisfies_Notification_Sender()
@@ -46,6 +49,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With Top Level Runs Reports Record Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Runs_Reports_Record_Shape()
@@ -58,6 +62,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level runs"));
     }
 
+    /// <summary>Reaction With Top Level Sends Reports Record Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Sends_Reports_Record_Shape()
@@ -70,6 +75,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level sends"));
     }
 
+    /// <summary>Scheduled Job With Top Level Runs Reports Record Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Scheduled_Job_With_Top_Level_Runs_Reports_Record_Shape()
@@ -82,6 +88,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level runs"));
     }
 
+    /// <summary>Reaction Without Effects Reports Record Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Without_Effects_Reports_Record_Shape()
@@ -94,6 +101,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
 
+    /// <summary>Reaction Effects Without Timing Pass Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Effects_Without_Timing_Pass_Shape()
@@ -108,6 +116,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Key Placeholder Naming No Input Field Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Placeholder_Naming_No_Input_Field_Reports()
@@ -121,6 +130,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
+    /// <summary>Key Without Placeholder Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Without_Placeholder_Reports()
@@ -134,6 +144,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
+    /// <summary>Unknown Scope Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Unknown_Scope_Reports()
@@ -146,6 +157,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
 
+    /// <summary>Valid Key And Scope Pass Shape.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Valid_Key_And_Scope_Pass_Shape()
@@ -158,6 +170,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Key Names Event Fields Unchecked.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Reaction_Key_Names_Event_Fields_Unchecked()
@@ -170,6 +183,7 @@ public sealed class RecordShapeCheckTests
         Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }
 
+    /// <summary>Reaction Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Reaction_Prose_OnFailure_Reports()
@@ -182,6 +196,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
+    /// <summary>Scheduled Job Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Scheduled_Job_Prose_OnFailure_Reports()
@@ -194,6 +209,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
+    /// <summary>Missing Mode Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Mode_Reports()
@@ -206,6 +222,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "onFailure with no mode"));
     }
 
+    /// <summary>Unknown Mode Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Unknown_Mode_Reports()
@@ -218,6 +235,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "mode 'give-up' outside retry, skip-and-log, discard"));
     }
 
+    /// <summary>Malformed Retry Delay Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Malformed_Retry_Delay_Reports()
@@ -230,6 +248,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
 
+    /// <summary>Missing InitialDelay Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_InitialDelay_Reports()
@@ -242,6 +261,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "retry initialDelay with no duration"));
     }
 
+    /// <summary>Missing MaxAttempts Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_MaxAttempts_Reports()
@@ -254,6 +274,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
 
+    /// <summary>Missing Retry Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Retry_Reports()
@@ -266,6 +287,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
 
+    /// <summary>Missing Then Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Then_Reports()
@@ -278,6 +300,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "retry with no then"));
     }
 
+    /// <summary>Unknown Then Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Unknown_Then_Reports()
@@ -290,6 +313,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "then 'requeue' outside dead-letter"));
     }
 
+    /// <summary>Structured OnFailure Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Structured_OnFailure_Passes_Shape()
@@ -304,6 +328,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Skip And Log Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Skip_And_Log_Passes_Shape()
@@ -316,6 +341,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Discard Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Discard_Passes_Shape()
@@ -328,6 +354,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Effect Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Prose_OnFailure_Reports()
@@ -340,6 +367,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
     }
 
+    /// <summary>Effect Retry Without Attempts Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Retry_Without_Attempts_Reports()
@@ -352,6 +380,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }
 
+    /// <summary>Effect Structured OnFailure Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Structured_OnFailure_Passes_Shape()
@@ -419,6 +448,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "field-invalid", "neither a record id nor a never object"));
     }
 
+    /// <summary>Goal With DueBy Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
     [Fact]
     public void Goal_With_DueBy_Passes_Shape()
@@ -431,6 +461,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Goal With Only By Reports Record Shape.</summary>
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
     [Fact]
     public void Goal_With_Only_By_Reports_Record_Shape()
@@ -443,6 +474,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no dueBy"));
     }
 
+    /// <summary>Screen With Reviewed Passes Status.</summary>
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
     public void Screen_With_Reviewed_Passes_Status()
@@ -456,6 +488,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Screen With Approved Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
     public void Screen_With_Approved_Reports_Invalid_Field()
@@ -470,6 +503,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "field-invalid", "draft, reviewed or retired"));
     }
 
+    /// <summary>Exception With Approved Passes Status.</summary>
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
     public void Exception_With_Approved_Passes_Status()
@@ -482,6 +516,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Exception With Reviewed Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
     public void Exception_With_Reviewed_Reports_Invalid_Field()
@@ -496,6 +531,10 @@ public sealed class RecordShapeCheckTests
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
+    /// <param name="model">The model to run the check against.</param>
+    /// <param name="code">The finding code to look for.</param>
+    /// <param name="text">The text the finding message must contain.</param>
+    /// <returns>True when a finding carries the code and the text.</returns>
     static bool Reports(ProjectModel model, string code, string text) =>
         Checker.Check(model).Findings.Any(finding =>
             finding.Code == code && finding.Message.Contains(text, StringComparison.Ordinal));

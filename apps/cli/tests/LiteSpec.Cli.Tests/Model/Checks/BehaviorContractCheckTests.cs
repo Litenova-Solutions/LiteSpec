@@ -243,6 +243,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     /// <summary>A saga holding one step entry.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <param name="step">The step entry JSON placed in the saga steps array.</param>
+    /// <returns>The saga record holding the step.</returns>
     static LiteSpec.Model.Record Saga(string root, string step) =>
         TestModel.Record(
             "aggregate",
@@ -251,6 +254,9 @@ public sealed class BehaviorContractCheckTests
             """{"kind": "saga", "states": [{"name": "Open", "meaning": "The saga runs."}], "steps": [""" + step + """], "exits": [{"name": "refunded"}], "drivenBy": {"job": "job/booking.refund-on-cancellation"}}""");
 
     /// <summary>A saga holding one step and the drivenBy entry.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <param name="drivenBy">The drivenBy entry JSON placed on the saga.</param>
+    /// <returns>The saga record holding the entry.</returns>
     static LiteSpec.Model.Record DrivenSaga(string root, string drivenBy) =>
         TestModel.Record(
             "aggregate",
@@ -259,6 +265,10 @@ public sealed class BehaviorContractCheckTests
             """{"kind": "saga", "states": [{"name": "Open", "meaning": "The saga runs."}], "steps": [{"id": "release", "runs": "use-case/booking.release-hold", "compensation": {"mode": "none", "reason": "Nothing was written."}}], "exits": [{"name": "refunded"}], "drivenBy": """ + drivenBy + "}");
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
+    /// <param name="model">The model to run the check against.</param>
+    /// <param name="code">The finding code to look for.</param>
+    /// <param name="text">The text the finding message must contain.</param>
+    /// <returns>True when a finding carries the code and the text.</returns>
     static bool Reports(ProjectModel model, string code, string text) =>
         Checker.Check(model).Findings.Any(finding =>
             finding.Code == code && finding.Message.Contains(text, StringComparison.Ordinal));

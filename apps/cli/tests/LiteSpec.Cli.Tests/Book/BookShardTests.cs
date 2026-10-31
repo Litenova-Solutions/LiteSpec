@@ -12,12 +12,12 @@ public sealed class BookShardTests
     [Fact]
     public void Pack_Splits_Past_The_Target_And_Keeps_Big_Items_Whole()
     {
-        var packs = BookShards.Pack(new[] { "a", "b", "c" }, _ => 100, 256);
+        var packs = BookShards.Pack(["a", "b", "c"], _ => 100, 256);
         Assert.Equal(2, packs.Count);
         Assert.Equal(new[] { "a", "b" }, packs[0].ToList());
         Assert.Equal(new[] { "c" }, packs[1].ToList());
 
-        var big = BookShards.Pack(new[] { "big" }, _ => 600 * 1024, 256 * 1024);
+        var big = BookShards.Pack(["big"], _ => 600 * 1024, 256 * 1024);
         Assert.Single(big);
         Assert.Equal(new[] { "big" }, big[0].ToList());
 

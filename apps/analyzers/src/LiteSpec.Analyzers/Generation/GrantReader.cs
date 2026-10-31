@@ -62,6 +62,10 @@ internal static class GrantReader
         return found;
     }
 
+    /// <summary>Collects the use case.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <param name="found">The grants collected so far, by use-case identifier.</param>
+    /// <param name="seen">The identifiers already collected, used to keep the first occurrence.</param>
     private static void CollectUseCase(
         JsonText node, List<KeyValuePair<string, string>> found, HashSet<string> seen)
     {
@@ -97,6 +101,9 @@ internal static class GrantReader
         }
     }
 
+    /// <summary>Returns the frontmatter block that opens the page text.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>The frontmatter text, or null when the page opens with none.</returns>
     private static string? Frontmatter(string text)
     {
         var lines = text.Split('\n');

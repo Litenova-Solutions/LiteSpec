@@ -13,6 +13,11 @@ namespace LiteSpec.Book;
 static class BookReviewQueue
 {
     /// <summary>Reads the review batches from the book index, in review order.</summary>
+    /// <param name="index">The book index that holds the stored batches or the records to compute from.</param>
+    /// <param name="root">The absolute consumer root, used to rebuild the project model when no batches are stored.</param>
+    /// <param name="findingsFile">The findings node that holds the open findings by subject, or null.</param>
+    /// <param name="today">The current date, against which decide-by dates are judged.</param>
+    /// <returns>The review batches in review order, stored batches when the model carries them and computed batches otherwise.</returns>
     public static IReadOnlyList<BookBatch> Compute(BookIndex index, string root, JsonNode? findingsFile, DateOnly today)
     {
         if (index.StoredBatches is { } stored)
@@ -32,6 +37,8 @@ static class BookReviewQueue
     }
 
     /// <summary>One computed batch as a queue-shard batch: the selector, kind, tier and queued record ids.</summary>
+    /// <param name="batch">The computed review batch from the shared review queue.</param>
+    /// <returns>The queue-shard batch with the record identifiers of the computed batch records.</returns>
     static BookBatch ToBatch(ReviewBatch batch) =>
         new(
             batch.Selector,
@@ -43,7 +50,9 @@ static class BookReviewQueue
             batch.Records.Select(entry => entry.Record.Id).ToList());
 
     /// <summary>The stored batches of a model carrying them, skipping entries that name no selector.</summary>
-    static IReadOnlyList<BookBatch> StoredOf(JsonArray stored)
+    /// <param name="stored">The stored batch entries from the model.</param>
+    /// <returns>The stored batches in model order, skipping entries that name no selector.</returns>
+    static List<BookBatch> StoredOf(JsonArray stored)
     {
         var batches = new List<BookBatch>();
         foreach (var entry in stored.OfType<JsonObject>())
@@ -85,6 +94,10 @@ static class BookReviewQueue
     }
 
     /// <summary>Rebuilds the project model the queue helpers read from the book index.</summary>
+    /// <param name="index">The book index that holds the records, proves links and stale identifiers.</param>
+    /// <param name="root">The absolute consumer root the rebuilt records resolve their files against.</param>
+    /// <returns>The rebuilt project model with its configuration, records, effective statuses, proves links and stale identifiers.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Loading the consumer configuration must not stop the queue rebuild; any failure falls back to a configuration loaded from the temp folder so the batches still compute.")]
     static ProjectModel Rebuild(BookIndex index, string root)
     {
         ConsumerConfig config;
@@ -134,6 +147,9 @@ static class BookReviewQueue
     }
 
     /// <summary>Rebuilds one record from its model.json entry: resolved values on top, raw fields below.</summary>
+    /// <param name="record">The model entry of the record, holding its resolved values and raw fields.</param>
+    /// <param name="root">The absolute consumer root the record file path resolves against.</param>
+    /// <returns>The rebuilt record with its file resolved against the root and its raw fields cloned.</returns>
     static Record FromJson(JsonObject record, string root)
     {
         var fields = record["fields"] as JsonObject ?? new JsonObject();
@@ -162,7 +178,9 @@ static class BookReviewQueue
     }
 
     /// <summary>Counts the open findings recorded in the model by subject record id.</summary>
-    static IReadOnlyDictionary<string, int> FindingsBySubject(JsonNode? findingsFile)
+    /// <param name="findingsFile">The findings node that holds the findings array, or null.</param>
+    /// <returns>The open finding count for each subject record identifier, empty when the node holds no findings.</returns>
+    static Dictionary<string, int> FindingsBySubject(JsonNode? findingsFile)
     {
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);
 

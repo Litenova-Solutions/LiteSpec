@@ -7,6 +7,8 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests for LS5001, the missing mark.</summary>
 public sealed class MarkPresenceTests
 {
+    /// <summary>LS5001 reports a handler without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a handler without a mark")]
     public Task ReportsAHandlerWithoutAMark() =>
@@ -29,6 +31,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a handler with a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts a handler with a mark")]
     public Task AcceptsAHandlerWithAMark() =>
@@ -52,6 +56,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 reports an aggregate root without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports an aggregate root without a mark")]
     public Task ReportsAnAggregateRootWithoutAMark() =>
@@ -70,6 +76,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Aggregate()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5001 reports a state-changing method without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a state-changing method without a mark")]
     public Task ReportsAStateChangingMethodWithoutAMark() =>
@@ -100,6 +108,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5001 ignores a method that raises nothing.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 ignores a method that raises nothing")]
     public Task IgnoresAMethodThatRaisesNothing() =>
@@ -123,6 +133,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Aggregate(), UseCase()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5001 reports a domain event without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a domain event without a mark")]
     public Task ReportsADomainEventWithoutAMark() =>
@@ -137,6 +149,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5001 reports a rule exception without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a rule exception without a mark")]
     public Task ReportsARuleExceptionWithoutAMark() =>
@@ -158,6 +172,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Rule()],
             assemblyName: "Shop.Domain");
 
+    /// <summary>LS5001 reports an endpoint without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports an endpoint without a mark")]
     public Task ReportsAnEndpointWithoutAMark() =>
@@ -174,6 +190,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.WebApi");
 
+    /// <summary>LS5001 reports a job without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a job without a mark")]
     public Task ReportsAJobWithoutAMark() =>
@@ -199,6 +217,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Job()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 reports an event handler without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports an event handler without a mark")]
     public Task ReportsAnEventHandlerWithoutAMark() =>
@@ -217,6 +237,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Reaction()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts an event handler with a reaction mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts an event handler with a reaction mark")]
     public Task AcceptsAnEventHandlerWithAMark() =>
@@ -236,6 +258,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Reaction()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 reports a test without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a test without a mark")]
     public Task ReportsATestWithoutAMark() =>
@@ -258,6 +282,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5001 accepts a test with a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts a test with a mark")]
     public Task AcceptsATestWithAMark() =>
@@ -281,6 +307,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS5001 ignores an unmarked port, recognized only by its mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 ignores an unmarked port, recognized only by its mark")]
     public Task IgnoresAnUnmarkedPort() =>
@@ -296,6 +324,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), ExternalSystem()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts an attribute mark when the project declares attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts an attribute mark when the project declares attribute")]
     public Task AcceptsAnAttributeMark() =>
@@ -324,6 +354,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 stays silent with no project file.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 stays silent with no project file")]
     public Task StaysSilentWithNoProjectFile() =>
@@ -346,6 +378,8 @@ public sealed class MarkPresenceTests
             [],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a qualified attribute mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts a qualified attribute mark")]
     public Task AcceptsAQualifiedAttributeMark() =>
@@ -377,6 +411,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 reports a technical class without a mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 reports a technical class without a mark")]
     public Task ReportsATechnicalClassWithoutAMark() =>
@@ -395,6 +431,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a technical class with a follows mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 accepts a technical class with a follows mark")]
     public Task AcceptsATechnicalClassWithFollows() =>
@@ -414,6 +452,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a technical class with a follows attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 accepts a technical class with a follows attribute")]
     public Task AcceptsATechnicalClassWithFollowsAttribute() =>
@@ -439,6 +479,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(marks: "attribute"), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a technical class carrying only an implements mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 accepts a technical class carrying only an implements mark")]
     public Task AcceptsATechnicalClassWithOnlyImplements() =>
@@ -458,6 +500,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 accepts a technical class with both verbs.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 accepts a technical class with both verbs")]
     public Task AcceptsATechnicalClassWithBothVerbs() =>
@@ -478,6 +522,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Aggregate(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 reports a handler carrying only a follows mark.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports a handler carrying only a follows mark")]
     public Task ReportsAHandlerWithOnlyFollows() =>
@@ -499,6 +545,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 ignores a record, a migration, and a methodless class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 ignores a record, a migration, and a methodless class")]
     public Task IgnoresNonTechnicalShapes() =>
@@ -528,6 +576,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5001 ignores an interface, a generated class, and a nested class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "LS5001 ignores an interface, a generated class, and a nested class")]
     public Task IgnoresInterfaceGeneratedAndNestedShapes() =>

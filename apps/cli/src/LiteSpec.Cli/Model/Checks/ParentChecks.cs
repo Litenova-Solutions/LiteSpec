@@ -14,9 +14,13 @@ internal static class ParentChecks
     };
 
     /// <summary>Whether the record reports a missing identifier home through the parent check.</summary>
+    /// <param name="record">The record whose type decides where a missing home is reported.</param>
+    /// <returns>True when the record type takes its parent from the identifier home; otherwise false.</returns>
     internal static bool ReportsMissingHome(Record record) => HomeParentedTypes.Contains(record.Type);
 
     /// <summary>Reports a record whose required parent is missing, at most one finding per record.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var aggregates = new HashSet<string>(StringComparer.Ordinal);
@@ -77,6 +81,8 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a feature solving no problem, refused or not.</summary>
+    /// <param name="record">The feature record whose solves field is inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFeatureParent(Record record, List<Finding> findings)
     {
         if (record.Ids(RecordFields.Solves).Count == 0)
@@ -89,6 +95,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a requirement whose topic holds no topic record.</summary>
+    /// <param name="model">The loaded project model that resolves the topic record.</param>
+    /// <param name="record">The requirement record whose home names its topic.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRequirementParent(ProjectModel model, Record record, List<Finding> findings)
     {
         // A malformed identifier is identifier-invalid, so the parent check stays silent here.
@@ -107,6 +116,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a journey serving no goal.</summary>
+    /// <param name="model">The loaded project model that resolves each serves target.</param>
+    /// <param name="record">The journey record whose serves field is inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckJourneyParent(ProjectModel model, Record record, List<Finding> findings)
     {
         var serves = record.Ids(RecordFields.Serves);
@@ -139,6 +151,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Whether the serves target names a record or an existing journey step.</summary>
+    /// <param name="model">The loaded project model that resolves the target record and its journey steps.</param>
+    /// <param name="target">The serves identifier under test.</param>
+    /// <returns>True when the target names a record or a step of an existing journey; otherwise false.</returns>
     private static bool ServesResolves(ProjectModel model, string target)
     {
         if (model.ById.ContainsKey(target))
@@ -152,6 +167,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a scenario naming no result, else a use case no record holds.</summary>
+    /// <param name="model">The loaded project model that resolves the use case named by the home.</param>
+    /// <param name="record">The scenario record whose result field and home are inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScenarioParent(ProjectModel model, Record record, List<Finding> findings)
     {
         if (record.Ids(RecordFields.Result).Count == 0)
@@ -182,6 +200,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a screen naming no entry point, else one disagreeing with its home.</summary>
+    /// <param name="model">The loaded project model that resolves each entry point identifier.</param>
+    /// <param name="record">The screen record whose entry point field and home are inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenParent(ProjectModel model, Record record, List<Finding> findings)
     {
         var points = record.Ids(RecordFields.EntryPoint);
@@ -218,6 +239,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a result naming a use case no record holds.</summary>
+    /// <param name="model">The loaded project model that resolves the use case named by the home.</param>
+    /// <param name="record">The result record whose home is inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckResultParent(ProjectModel model, Record record, List<Finding> findings)
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
@@ -239,6 +263,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a module-homed record naming a module no record holds.</summary>
+    /// <param name="model">The loaded project model that resolves the module named by the home.</param>
+    /// <param name="record">The module-homed record whose home is inspected.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckModuleHome(ProjectModel model, Record record, List<Finding> findings)
     {
         var label = record.Type switch
@@ -272,6 +299,10 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports a rule naming a module or aggregate no record holds.</summary>
+    /// <param name="model">The loaded project model that resolves the module named by the home.</param>
+    /// <param name="record">The rule record whose home is inspected.</param>
+    /// <param name="aggregates">The aggregate names held by the project.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRuleHome(ProjectModel model, Record record, HashSet<string> aggregates, List<Finding> findings)
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
@@ -295,6 +326,9 @@ internal static class ParentChecks
     }
 
     /// <summary>Reports an event naming an aggregate no record holds.</summary>
+    /// <param name="record">The event record whose home is inspected.</param>
+    /// <param name="aggregates">The aggregate names held by the project.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckEventHome(Record record, HashSet<string> aggregates, List<Finding> findings)
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
@@ -320,6 +354,8 @@ internal static class ParentChecks
     ///     after its approval: tier A while the record is a draft, tier G once
     ///     approved. The flag stands until the changed record is re-approved.
     /// </summary>
+    /// <param name="model">The loaded project model that holds every record and its approval state.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunParentChanged(ProjectModel model, List<Finding> findings)
     {
         var changed = model.Records

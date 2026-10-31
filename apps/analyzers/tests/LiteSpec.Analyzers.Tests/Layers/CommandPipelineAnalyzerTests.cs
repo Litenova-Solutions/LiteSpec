@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2004, the repository write rule.</summary>
 public sealed class CommandPipelineAnalyzerTests
 {
+    /// <summary>LS2004 accepts a handler calling a repository.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a handler calling a repository")]
     public Task AcceptsAHandlerCallingARepository() =>
@@ -25,6 +27,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>No rule reports a command handler dispatching through the mediator.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "No rule reports a command handler dispatching through the mediator")]
     public Task AcceptsADispatchThroughTheMediator() =>
@@ -48,6 +52,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 reports an IDocumentSession field.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an IDocumentSession field")]
     public Task ReportsASessionField() =>
@@ -68,6 +74,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 reports a DbContext subclass parameter.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a DbContext subclass parameter")]
     public Task ReportsADbContextSubclassParameter() =>
@@ -88,6 +96,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 reports a session property.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session property")]
     public Task ReportsASessionProperty() =>
@@ -108,6 +118,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <summary>LS2004 reports a session local.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session local")]
     public Task ReportsASessionLocal() =>
@@ -133,6 +145,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 reports an invocation through a session receiver.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an invocation through a session receiver")]
     public Task ReportsASessionReceiverInvocation() =>
@@ -160,6 +174,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 accepts a query handler using IDocumentSession.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a query handler using IDocumentSession")]
     public Task AcceptsAQueryHandlerUsingTheSession() =>
@@ -180,6 +196,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2004 stays silent in WebApi.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in WebApi")]
     public Task StaysSilentInWebApi() =>
@@ -200,6 +218,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2004 stays silent in Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in Domain")]
     public Task StaysSilentInDomain() =>
@@ -220,6 +240,8 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """);
 
+    /// <summary>LS2004 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

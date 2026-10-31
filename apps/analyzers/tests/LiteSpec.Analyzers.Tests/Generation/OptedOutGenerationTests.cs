@@ -5,6 +5,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests that an opted-out project gets no generated source and no generator diagnostic.</summary>
 public sealed class OptedOutGenerationTests
 {
+    /// <summary>An explicit None layer generates nothing and reports nothing.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "An explicit None layer generates nothing and reports nothing")]
@@ -21,6 +22,7 @@ public sealed class OptedOutGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unrecognised assembly name generates nothing and reports nothing.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "An unrecognised assembly name generates nothing and reports nothing")]
@@ -36,6 +38,7 @@ public sealed class OptedOutGenerationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unknown declared layer generates nothing and reports nothing from the generator.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "An unknown declared layer generates nothing and reports nothing from the generator")]

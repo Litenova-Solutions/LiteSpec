@@ -14,6 +14,8 @@ namespace LiteSpec.Model.Readers.Measures;
 static class MeasureReader
 {
     /// <summary>Reads every measure result file under the test results and check results folders.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>Every measure result under the test results and check results folders.</returns>
     public static List<MeasureResult> Read(ConsumerConfig config)
     {
         var measures = new List<MeasureResult>();

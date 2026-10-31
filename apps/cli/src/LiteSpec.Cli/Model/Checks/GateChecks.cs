@@ -23,6 +23,8 @@ internal static class GateChecks
     };
 
     /// <summary>Reports approval-invalid, decision-decides-missing, decision-basis-missing, exception-expired and rule-name-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

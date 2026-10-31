@@ -207,6 +207,10 @@ public static class UseCaseVerbs
     public static VerbKind PermissionKindOf(string verb, IReadOnlyList<string> queryVerbs) =>
         PermissionOnly.TryGetValue(verb, out var kind) ? kind : KindOf(verb, queryVerbs);
 
+    /// <summary>Whether the list holds the verb, with ordinal matching.</summary>
+    /// <param name="values">The verbs to test.</param>
+    /// <param name="verb">The verb to find.</param>
+    /// <returns>True when the list holds the verb.</returns>
     private static bool Contains(IReadOnlyList<string> values, string verb)
     {
         foreach (var value in values)

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
@@ -45,7 +46,7 @@ static class ManifestSelectionChecks
             {
                 manifest = run.ReadJson(manifestFile);
             }
-            catch (Exception cause)
+            catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
             {
                 run.FailInput($"litespec.manifest.json: not valid JSON ({cause.Message})");
             }

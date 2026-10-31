@@ -10,6 +10,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests the cross-file name sets, including the transitive handler, job and event contracts.</summary>
 public sealed class KindContextTests
 {
+    /// <summary>The empty context holds no names.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The empty context holds no names")]
     public void EmptyHoldsNoNames()
@@ -25,11 +26,12 @@ public sealed class KindContextTests
         Assert.Empty(KindContext.Empty.TechnicalClasses);
     }
 
+    /// <summary>The three-argument constructor leaves the contract sets empty.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The three-argument constructor leaves the contract sets empty")]
     public void ThreeArgumentsLeaveContractSetsEmpty()
     {
-        var context = new KindContext(new[] { "Expense" }, new string[0], new string[0]);
+        var context = new KindContext(["Expense"], [], []);
 
         Assert.Contains("Expense", context.AggregateRoots);
         Assert.Empty(context.CommandHandlers);
@@ -40,20 +42,21 @@ public sealed class KindContextTests
         Assert.Empty(context.TechnicalClasses);
     }
 
+    /// <summary>The constructor stores every set.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The constructor stores every set")]
     public void ConstructorStoresEverySet()
     {
         var context = new KindContext(
-            new[] { "Expense" },
-            new[] { "ReceiptMissingException" },
-            new[] { "IPayoutPort" },
-            new[] { "BorrowCopyHandlerBase" },
-            new[] { "ListLoansHandlerBase" },
-            new[] { "LoanBorrowedReactionBase" },
-            new[] { "ScanServiceBase" },
-            new[] { "ILoanEvent" },
-            new[] { "CommitStep" });
+            ["Expense"],
+            ["ReceiptMissingException"],
+            ["IPayoutPort"],
+            ["BorrowCopyHandlerBase"],
+            ["ListLoansHandlerBase"],
+            ["LoanBorrowedReactionBase"],
+            ["ScanServiceBase"],
+            ["ILoanEvent"],
+            ["CommitStep"]);
 
         Assert.Contains("Expense", context.AggregateRoots);
         Assert.Contains("ReceiptMissingException", context.DomainExceptions);
@@ -66,23 +69,25 @@ public sealed class KindContextTests
         Assert.Contains("CommitStep", context.TechnicalClasses);
     }
 
+    /// <summary>A null required collection throws.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A null required collection throws")]
     public void NullRequiredCollectionThrows()
     {
-        Assert.Throws<ArgumentNullException>(() => new KindContext(null!, new string[0], new string[0]));
-        Assert.Throws<ArgumentNullException>(() => new KindContext(new string[0], null!, new string[0]));
-        Assert.Throws<ArgumentNullException>(() => new KindContext(new string[0], new string[0], null!));
+        Assert.Throws<ArgumentNullException>(() => new KindContext(null!, [], []));
+        Assert.Throws<ArgumentNullException>(() => new KindContext([], null!, []));
+        Assert.Throws<ArgumentNullException>(() => new KindContext([], [], null!));
     }
 
+    /// <summary>A null contract collection means none are known.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A null contract collection means none are known")]
     public void NullContractCollectionMeansNone()
     {
         var context = new KindContext(
-            new string[0],
-            new string[0],
-            new string[0],
+            [],
+            [],
+            [],
             null,
             null,
             null,
@@ -98,20 +103,22 @@ public sealed class KindContextTests
         Assert.Empty(context.TechnicalClasses);
     }
 
+    /// <summary>Names compare with ordinal case sensitivity.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Names compare with ordinal case sensitivity")]
     public void NamesCompareOrdinal()
     {
         var context = new KindContext(
-            new string[0],
-            new string[0],
-            new string[0],
-            commandHandlers: new[] { "BorrowCopyHandlerBase" });
+            [],
+            [],
+            [],
+            commandHandlers: ["BorrowCopyHandlerBase"]);
 
         Assert.Contains("BorrowCopyHandlerBase", context.CommandHandlers);
         Assert.DoesNotContain("borrowcopyhandlerbase", context.CommandHandlers);
     }
 
+    /// <summary>The symbol overload recognizes a handler through its base class.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The symbol overload recognizes a handler through its base class")]
     public void SymbolsRecognizeHandlerThroughBaseClass()
@@ -130,14 +137,15 @@ public sealed class KindContextTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "BorrowCopyCommandHandler");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(symbol, KindContext.Empty));
     }
 
+    /// <summary>The symbol overload recognizes an event through an intermediate interface.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The symbol overload recognizes an event through an intermediate interface")]
     public void SymbolsRecognizeEventThroughIntermediateInterface()
@@ -152,16 +160,16 @@ public sealed class KindContextTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "LoanBorrowedEvent");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.DomainEvent, KindReader.KindOf(symbol, KindContext.Empty));
 
-        var contract = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var contract = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "ILoanEvent");
-        var contractSymbol = model.GetDeclaredSymbol(contract);
+        var contractSymbol = model.GetDeclaredSymbol(contract, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(contractSymbol);
 
         Assert.Null(KindReader.KindOf(contractSymbol, KindContext.Empty));

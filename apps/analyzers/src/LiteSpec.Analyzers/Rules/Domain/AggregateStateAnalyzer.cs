@@ -16,11 +16,21 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1003, Descriptors.LS1004);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the aggregate state analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterCompilationEndAction(Analyze);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(CompilationAnalysisContext context)
     {
         var types = new List<INamedTypeSymbol>();
@@ -60,6 +70,9 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Collects the types.</summary>
+    /// <param name="space">The namespace that contains the types under inspection.</param>
+    /// <param name="types">The types collected so far, in discovery order.</param>
     private static void CollectTypes(INamespaceSymbol space, List<INamedTypeSymbol> types)
     {
         foreach (var member in space.GetTypeMembers())
@@ -73,6 +86,9 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Collects the type.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="types">The types collected so far, in discovery order.</param>
     private static void CollectType(INamedTypeSymbol type, List<INamedTypeSymbol> types)
     {
         types.Add(type);
@@ -82,6 +98,9 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the type is aggregate; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is aggregate; otherwise false.</returns>
     private static bool IsAggregate(INamedTypeSymbol type)
     {
         if (!IsDeclaredInSource(type) || type.TypeKind != TypeKind.Class || type.IsAbstract)
@@ -101,6 +120,9 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the aggregate has abstract record state; otherwise false.</summary>
+    /// <param name="aggregate">The aggregate type under inspection.</param>
+    /// <returns>True when the aggregate has abstract record state; otherwise false.</returns>
     private static bool HasAbstractRecordState(INamedTypeSymbol aggregate)
     {
         var property = FindStateProperty(aggregate);
@@ -111,6 +133,9 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
             && state.IsAbstract;
     }
 
+    /// <summary>Returns the state property.</summary>
+    /// <param name="aggregate">The aggregate type under inspection.</param>
+    /// <returns>The state property, or null when none applies.</returns>
     private static IPropertySymbol? FindStateProperty(INamedTypeSymbol aggregate)
     {
         for (var current = aggregate; current != null; current = current.BaseType)
@@ -138,6 +163,10 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns the state bases.</summary>
+    /// <param name="types">The types collected so far, in discovery order.</param>
+    /// <param name="aggregates">The aggregate types found in the compilation.</param>
+    /// <returns>The state bases, in the order this method builds them, or an empty collection when none apply.</returns>
     private static HashSet<INamedTypeSymbol> FindStateBases(
         List<INamedTypeSymbol> types, List<INamedTypeSymbol> aggregates)
     {
@@ -177,6 +206,10 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         return bases;
     }
 
+    /// <summary>Returns the case base.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="stateBases">The state base types found for the aggregates.</param>
+    /// <returns>The case base, or null when none applies.</returns>
     private static INamedTypeSymbol? UnsealedCaseBase(INamedTypeSymbol type, HashSet<INamedTypeSymbol> stateBases)
     {
         if (!IsDeclaredInSource(type) || type.TypeKind != TypeKind.Class || type.IsAbstract || type.IsSealed)
@@ -188,5 +221,8 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         return baseType != null && stateBases.Contains(baseType) ? baseType : null;
     }
 
+    /// <summary>Returns true when the type is declared in source; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is declared in source; otherwise false.</returns>
     private static bool IsDeclaredInSource(INamedTypeSymbol type) => type.DeclaringSyntaxReferences.Length != 0;
 }

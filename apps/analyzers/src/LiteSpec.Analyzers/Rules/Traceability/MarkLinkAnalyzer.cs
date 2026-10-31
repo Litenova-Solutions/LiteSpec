@@ -26,8 +26,14 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS5002, Descriptors.LS5003, Descriptors.LS5004);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None;
 
+    /// <summary>Registers the analysis actions for the mark link analyzer rule with the compilation context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state)
     {
@@ -35,6 +41,9 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         context.RegisterSymbolAction(c => AnalyzeMethod(c, state), SymbolKind.Method);
     }
 
+    /// <summary>Analyzes the type.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void AnalyzeType(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -47,6 +56,9 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         Analyze(context, state, type, KindReader.KindOf(type, state.Kinds, state.Project));
     }
 
+    /// <summary>Analyzes the method.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void AnalyzeMethod(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var method = (IMethodSymbol)context.Symbol;
@@ -59,6 +71,11 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         Analyze(context, state, method, KindReader.KindOf(method, state.Kinds));
     }
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
     private static void Analyze(
         SymbolAnalysisContext context, TraceabilityContext state, ISymbol symbol, CodeKind? kind)
     {
@@ -95,6 +112,13 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         }
     }
 
+    /// <summary>Analyzes the mark.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <param name="member">The member declaration under inspection.</param>
+    /// <param name="mark">The mark read from the element.</param>
     private static void AnalyzeMark(
         SymbolAnalysisContext context,
         TraceabilityContext state,
@@ -250,6 +274,11 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
     ///     a provision of the carried release, or a decision or exception that is
     ///     not retired. A <c>follows</c> mark is never stray.
     /// </summary>
+    /// <param name="context">The symbol analysis context that carries the compilation state for this pass.</param>
+    /// <param name="state">The traceability context holding the record store and the carried provision set.</param>
+    /// <param name="symbol">The symbol that carries the follows mark under inspection.</param>
+    /// <param name="mark">The follows mark read from the symbol declaration.</param>
+    /// <param name="location">The source location of the mark, used as the diagnostic position.</param>
     private static void AnalyzeFollowsMark(
         SymbolAnalysisContext context,
         TraceabilityContext state,
@@ -325,6 +354,12 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             "matches no provision, decision, or exception");
     }
 
+    /// <summary>Reports LS5004 when the mark uses a style other than the declared one.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <param name="mark">The mark read from the element.</param>
+    /// <param name="location">The source location the diagnostic reports at.</param>
     private static void AnalyzeStyle(
         SymbolAnalysisContext context, TraceabilityContext state, ISymbol symbol, Mark mark, Location location)
     {
@@ -344,6 +379,9 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         }
     }
 
+    /// <summary>Lists the record types the kind takes, joined as prose for a diagnostic message.</summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <returns>The string as text.</returns>
     private static string Expected(CodeKind kind) =>
         string.Join(" or ", MarkRules.RecordTypes(kind));
 }

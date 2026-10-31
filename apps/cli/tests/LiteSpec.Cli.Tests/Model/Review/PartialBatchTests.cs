@@ -17,6 +17,9 @@ public sealed class PartialBatchTests
         root, "docs", "proof", "approvals", "2026-11-20-lending-rule.json");
 
     /// <summary>Adds one open question to the entry carrying the id.</summary>
+    /// <param name="path">The page file path.</param>
+    /// <param name="id">The record id of the entry to mark.</param>
+    /// <param name="question">The question text to add.</param>
     static void AddEntryQuestion(
         string path, string id, string question = "Who approves an extension past the loan period?") =>
         ReviewPages.PatchEntry(path, id, front => front["questions"] = new JsonArray(

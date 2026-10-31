@@ -161,7 +161,7 @@ static class HelperDispatchReader
     /// <param name="instance">The instance type as written.</param>
     /// <param name="method">The method name.</param>
     /// <param name="declared">The class declaration.</param>
-    /// <returns>The helper an instance call names, or null when the instance is the class itself.</returns>
+    /// <returns>The instance type and method as a pair, or null when the instance is the declaring class itself.</returns>
     public static (string Type, string Method)? InstanceCallee(string instance, string method, BaseTypeDeclarationSyntax declared)
     {
         var type = DotnetNames.KindOf(instance);

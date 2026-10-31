@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the constituent derivation and the constituent-parent-missing check against hand-built models.</summary>
 public sealed class ConstituentCheckTests
 {
+    /// <summary>State Beside Its Root Is Listed Under The Aggregate.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void State_Beside_Its_Root_Is_Listed_Under_The_Aggregate()
@@ -26,6 +27,7 @@ public sealed class ConstituentCheckTests
         Assert.Contains("src/Domain/Lending/Loans/LoanState.cs:LoanState", model.ToJson());
     }
 
+    /// <summary>Type In A Subfolder Of The Aggregate Folder Passes.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Type_In_A_Subfolder_Of_The_Aggregate_Folder_Passes()
@@ -41,6 +43,7 @@ public sealed class ConstituentCheckTests
         Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Type In A Module Folder With No Root Reports.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Type_In_A_Module_Folder_With_No_Root_Reports()
@@ -63,6 +66,7 @@ public sealed class ConstituentCheckTests
         Assert.Null(finding.Subject);
     }
 
+    /// <summary>Type In The Shared Kernel Is Listed Under Kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Type_In_The_Shared_Kernel_Is_Listed_Under_Kernel()
@@ -80,6 +84,7 @@ public sealed class ConstituentCheckTests
         Assert.Contains("src/Domain/Shared/Money.cs:Money", model.Constituents["kernel"]);
     }
 
+    /// <summary>Marked Domain Service Is Never A Constituent.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Marked_Domain_Service_Is_Never_A_Constituent()
@@ -97,6 +102,7 @@ public sealed class ConstituentCheckTests
         Assert.Empty(model.Constituents);
     }
 
+    /// <summary>Two Roots In One Folder Orphan The Type.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Two_Roots_In_One_Folder_Orphan_The_Type()
@@ -112,6 +118,7 @@ public sealed class ConstituentCheckTests
         Assert.Contains("constituent-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Type At The Domain Root With No Kernel Belongs To The Kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Type_At_The_Domain_Root_With_No_Kernel_Belongs_To_The_Kernel()

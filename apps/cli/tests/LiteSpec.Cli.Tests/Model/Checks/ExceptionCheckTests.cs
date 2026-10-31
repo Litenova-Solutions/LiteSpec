@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the exception checks against hand-built models.</summary>
 public sealed class ExceptionCheckTests
 {
+    /// <summary>Exception Past Its Expires On Reports Expired.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Exception_Past_Its_Expires_On_Reports_Expired()
@@ -21,6 +22,7 @@ public sealed class ExceptionCheckTests
         Assert.Equal("exception/list-loans-unimplemented", finding.Subject);
     }
 
+    /// <summary>Exception Before Its Expires On Passes.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Exception_Before_Its_Expires_On_Passes()
@@ -33,6 +35,7 @@ public sealed class ExceptionCheckTests
         Assert.DoesNotContain("exception-expired", TestModel.Codes(model));
     }
 
+    /// <summary>Gap Covering An Unknown Code Reports.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Gap_Covering_An_Unknown_Code_Reports()
@@ -48,6 +51,7 @@ public sealed class ExceptionCheckTests
         Assert.Equal("exception/list-loans-unimplemented", finding.Subject);
     }
 
+    /// <summary>Gap Covering Emitted Codes Passes.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Gap_Covering_Emitted_Codes_Passes()
@@ -60,6 +64,7 @@ public sealed class ExceptionCheckTests
         Assert.DoesNotContain("exception-finding-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Departure Covering A Provision Passes.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Departure_Covering_A_Provision_Passes()
@@ -73,6 +78,7 @@ public sealed class ExceptionCheckTests
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Departure Covering No Provision Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Departure_Covering_No_Provision_Reports_Invalid_Field()
@@ -87,6 +93,7 @@ public sealed class ExceptionCheckTests
         Assert.Equal("exception/inline-bank-answer", finding.Subject);
     }
 
+    /// <summary>Exception Naming Neither Subject Nor Paths Reports.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Exception_Naming_Neither_Subject_Nor_Paths_Reports()
@@ -101,6 +108,7 @@ public sealed class ExceptionCheckTests
         Assert.Equal("exception/list-loans-unimplemented", finding.Subject);
     }
 
+    /// <summary>Exception Naming Paths Passes Scope.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
     public void Exception_Naming_Paths_Passes_Scope()

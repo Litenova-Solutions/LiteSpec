@@ -19,12 +19,21 @@ public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS5006);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>Registers the analysis actions for the partial type analyzer rule with the compilation context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state) =>
         context.RegisterSymbolAction(c => Analyze(c, state), SymbolKind.NamedType);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void Analyze(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -76,6 +85,9 @@ public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
         }
     }
 
+    /// <summary>Returns the record id.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The record id as text, or null when none applies.</returns>
     private static string? FirstRecordId(INamedTypeSymbol type)
     {
         foreach (var mark in MarksOf(type))

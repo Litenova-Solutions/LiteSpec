@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1003 and LS1004, aggregate state records.</summary>
 public sealed class AggregateStateAnalyzerTests
 {
+    /// <summary>LS1003 reports an aggregate with no State property.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 reports an aggregate with no State property")]
     public Task ReportsAnAggregateWithNoState() =>
@@ -28,6 +30,8 @@ public sealed class AggregateStateAnalyzerTests
             }
             """);
 
+    /// <summary>LS1003 reports an aggregate whose State is a string.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 reports an aggregate whose State is a string")]
     public Task ReportsAnAggregateWithAStringState() =>
@@ -51,6 +55,8 @@ public sealed class AggregateStateAnalyzerTests
             }
             """);
 
+    /// <summary>LS1003 reports an aggregate whose State is not abstract.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 reports an aggregate whose State is not abstract")]
     public Task ReportsAnAggregateWithAConcreteRecordState() =>
@@ -76,6 +82,8 @@ public sealed class AggregateStateAnalyzerTests
             public record OrderState;
             """);
 
+    /// <summary>LS1003 and LS1004 accept an aggregate with sealed state cases.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 and LS1004 accept an aggregate with sealed state cases")]
     public Task AcceptsAnAggregateWithSealedCases() =>
@@ -105,6 +113,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderPlacedState(DateTimeOffset PlacedAt) : OrderState;
             """);
 
+    /// <summary>LS1004 reports an unsealed state case.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1004 reports an unsealed state case")]
     public Task ReportsAnUnsealedCase() =>
@@ -134,6 +144,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderPlacedState : OrderState;
             """);
 
+    /// <summary>LS1004 accepts an abstract intermediate case.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1004 accepts an abstract intermediate case")]
     public Task AcceptsAnAbstractIntermediateCase() =>
@@ -165,6 +177,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderPlacedState : OrderState;
             """);
 
+    /// <summary>LS1004 reports a nested unsealed case.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1004 reports a nested unsealed case")]
     public Task ReportsANestedUnsealedCase() =>
@@ -193,6 +207,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderPlacedState : OrderState;
             """);
 
+    /// <summary>LS1003 reports only the aggregate without a State.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 reports only the aggregate without a State")]
     public Task ReportsOneOfTwoAggregates() =>
@@ -227,6 +243,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderActiveState : OrderState;
             """);
 
+    /// <summary>LS1003 accepts a State inherited from an abstract base.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 accepts a State inherited from an abstract base")]
     public Task AcceptsAnInheritedState() =>
@@ -259,6 +277,8 @@ public sealed class AggregateStateAnalyzerTests
             public sealed record OrderActiveState : OrderState;
             """);
 
+    /// <summary>LS1003 and LS1004 ignore aggregates outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 and LS1004 ignore aggregates outside Domain")]
     public Task IgnoresAggregatesOutsideDomain() =>
@@ -285,6 +305,8 @@ public sealed class AggregateStateAnalyzerTests
             public record OrderDraftState : OrderState;
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1003 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
@@ -307,6 +329,8 @@ public sealed class AggregateStateAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <summary>LS1003 matches AggregateRoot in any namespace.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1003 matches AggregateRoot in any namespace")]
     public Task MatchesAggregateRootInAnyNamespace() =>

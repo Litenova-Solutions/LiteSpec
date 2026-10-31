@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a record citing, fulfilling or serving a changed record is flagged until it is updated.</summary>
 public sealed class ParentChangedCheckTests
 {
+    /// <summary>Approved Record Citing Changed Record Reports At Tier G.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Approved_Record_Citing_Changed_Record_Reports_At_Tier_G()
@@ -23,6 +24,7 @@ public sealed class ParentChangedCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Draft Record Citing Changed Record Reports At Tier A.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Draft_Record_Citing_Changed_Record_Reports_At_Tier_A()
@@ -39,6 +41,7 @@ public sealed class ParentChangedCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Record Citing Unchanged Record Passes.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Record_Citing_Unchanged_Record_Passes()
@@ -52,6 +55,7 @@ public sealed class ParentChangedCheckTests
         Assert.DoesNotContain("parent-reopened", TestModel.Codes(model));
     }
 
+    /// <summary>Rule Fulfilling Changed Requirement Reports.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Rule_Fulfilling_Changed_Requirement_Reports()
@@ -68,6 +72,7 @@ public sealed class ParentChangedCheckTests
         Assert.Equal("rule/lending.allow-renewal", finding.Subject);
     }
 
+    /// <summary>Journey Serving Changed Goal Reports.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Journey_Serving_Changed_Goal_Reports()
@@ -84,6 +89,7 @@ public sealed class ParentChangedCheckTests
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 
+    /// <summary>Changed Record Without Children Passes.</summary>
     /// <proves>litespec/core/model#flag-every-record-whose-parent-changed</proves>
     [Fact]
     public void Changed_Record_Without_Children_Passes()
@@ -97,24 +103,34 @@ public sealed class ParentChangedCheckTests
     }
 
     /// <summary>A problem whose approved hash matches its fields, or misses when changed.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <param name="changed">Whether the record fields differ from the stamped hash.</param>
+    /// <returns>The stamped problem record.</returns>
     static Record ChangedProblem(string root, bool changed) =>
         Stamped(
             TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(root, "problems.md"), """{"status": "approved", "affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
             changed);
 
     /// <summary>A requirement whose approved hash misses its fields.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <returns>The stamped requirement record with a stale hash.</returns>
     static Record ChangedRequirement(string root) =>
         Stamped(
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(root, "borrowing.md"), """{"status": "approved", "kind": "functional", "statement": "A reader holds at most five active loans."}"""),
             changed: true);
 
     /// <summary>A goal whose approved hash misses its fields.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <returns>The stamped goal record with a stale hash.</returns>
     static Record ChangedGoal(string root) =>
         Stamped(
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(root, "goals.md"), """{"status": "approved", "statement": "Readers pick up holds faster.", "measure": "Median pickup wait.", "target": "Two days.", "dueBy": "2027-01-01"}"""),
             changed: true);
 
     /// <summary>The record with its approved hash stamped, flipped when the record changed.</summary>
+    /// <param name="probe">The record to stamp.</param>
+    /// <param name="changed">Whether to flip the stamped hash so it misses the fields.</param>
+    /// <returns>The record carrying the stamped hash.</returns>
     static Record Stamped(Record probe, bool changed)
     {
         var hash = Checker.SemanticHash(probe);

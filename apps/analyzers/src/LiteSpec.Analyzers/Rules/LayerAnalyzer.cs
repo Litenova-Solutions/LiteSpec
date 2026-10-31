@@ -26,8 +26,11 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Whether the rule runs in a project of this layer.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected abstract bool AppliesTo(Layer layer);
 
     /// <summary>Registers the rule's actions for one compilation.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected abstract void Register(CompilationStartAnalysisContext context);
 }

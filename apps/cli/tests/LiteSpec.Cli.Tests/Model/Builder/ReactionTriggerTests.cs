@@ -20,9 +20,7 @@ public sealed class ReactionTriggerTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.False(
-            root.GetProperty("links").GetProperty("implements").EnumerateArray().Any(
-                link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs"));
+        Assert.DoesNotContain(root.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs");
         Assert.False(root.GetProperty("status").GetProperty("use-case/lending.notify-overdue").GetProperty("implemented").GetBoolean());
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -43,9 +41,7 @@ public sealed class ReactionTriggerTests
 
         using var document = Build(temp.Path);
 
-        Assert.False(
-            document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray().Any(
-                link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs"));
+        Assert.DoesNotContain(document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs");
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>

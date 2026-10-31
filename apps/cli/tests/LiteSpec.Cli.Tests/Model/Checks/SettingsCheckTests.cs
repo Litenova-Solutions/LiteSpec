@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the setting-key and template-store checks against fixture projects.</summary>
 public sealed class SettingsCheckTests
 {
+    /// <summary>Operator Setting Without Key Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Operator_Setting_Without_Key_Reports()
@@ -21,6 +22,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[G]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Operator Setting With Key Passes.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Operator_Setting_With_Key_Passes()
@@ -34,6 +36,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Decider Setting Without Key Passes.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Decider_Setting_Without_Key_Passes()
@@ -47,6 +50,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Keyed Setting Without Options Class Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Keyed_Setting_Without_Options_Class_Reports()
@@ -62,6 +66,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Keyed Setting With Marked Options Class Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Keyed_Setting_With_Marked_Options_Class_Passes()
@@ -78,6 +83,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Options Class With Wrong Section Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_With_Wrong_Section_Reports()
@@ -95,6 +101,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Options Class With Missing Property Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_With_Missing_Property_Reports()
@@ -112,6 +119,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Options Class Spelling Key Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_Spelling_Key_Passes()
@@ -127,6 +135,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Nested Section Spelling Key Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Nested_Section_Spelling_Key_Passes()
@@ -143,6 +152,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Methodless Options Class With Setting Mark Is Accepted.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Methodless_Options_Class_With_Setting_Mark_Is_Accepted()
@@ -157,11 +167,12 @@ public sealed class SettingsCheckTests
 
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
-        Assert.Empty(check.Output.Split('\n').Where(line =>
+        Assert.DoesNotContain(check.Output.Split('\n'), line =>
             line.Contains("[mark-unknown]", StringComparison.Ordinal)
-            && line.Contains("LendingOptions", StringComparison.Ordinal)));
+            && line.Contains("LendingOptions", StringComparison.Ordinal));
     }
 
+    /// <summary>Methodless Class With Use Case Mark Reports.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Methodless_Class_With_Use_Case_Mark_Reports()
@@ -177,6 +188,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("takes no mark", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Declared Template Missing From Store Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Declared_Template_Missing_From_Store_Reports()
@@ -195,6 +207,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Declared Template Held By Store Passes.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Declared_Template_Held_By_Store_Passes()
@@ -212,6 +225,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Missing Template Store File Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Missing_Template_Store_File_Reports()
@@ -228,6 +242,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Template Checks Skipped Without Store.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Template_Checks_Skipped_Without_Store()
@@ -243,6 +258,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-param-drift]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Stored Key Without Notification Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Stored_Key_Without_Notification_Reports()
@@ -262,6 +278,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Stored Keys Matching Notifications Pass.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Stored_Keys_Matching_Notifications_Pass()
@@ -279,6 +296,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Unused Parameter Reports.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Unused_Parameter_Reports()
@@ -297,6 +315,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
+    /// <summary>Used Parameters Pass.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Used_Parameters_Pass()
@@ -313,6 +332,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-param-drift]", check.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>Template None Skips Template Checks.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Template_None_Skips_Template_Checks()

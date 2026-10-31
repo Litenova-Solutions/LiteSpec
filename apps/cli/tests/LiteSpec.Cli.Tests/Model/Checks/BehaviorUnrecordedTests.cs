@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the behavior-unrecorded check against hand-built models.</summary>
 public sealed class BehaviorUnrecordedTests
 {
+    /// <summary>Handler Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Handler_Without_A_Mark_Reports_Mark_Missing()
@@ -23,6 +24,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-missing", codes);
     }
 
+    /// <summary>Handler With A Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_With_A_Record_Passes()
@@ -38,6 +40,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Endpoint Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Endpoint_Without_A_Mark_Reports_Mark_Missing()
@@ -54,6 +57,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-missing", codes);
     }
 
+    /// <summary>Event Handler Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Event_Handler_Without_A_Mark_Reports_Mark_Missing()
@@ -70,6 +74,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-missing", codes);
     }
 
+    /// <summary>Mark Naming No Record Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
@@ -88,6 +93,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-unknown", codes);
     }
 
+    /// <summary>Job Without A Mark Names The Job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Job_Without_A_Mark_Names_The_Job()
@@ -102,6 +108,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("Job 'NightlyJob'", message);
     }
 
+    /// <summary>Reaction With A Matching Tag Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_With_A_Matching_Tag_Passes()
@@ -116,6 +123,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Domain Event Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Domain_Event_Without_A_Mark_Reports_Mark_Missing()
@@ -132,6 +140,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("mark-missing", codes);
     }
 
+    /// <summary>Event With A Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Event_With_A_Record_Passes()
@@ -146,6 +155,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Surplus Literal Reports Behavior Unrecorded.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Surplus_Literal_Reports_Behavior_Unrecorded()
@@ -158,6 +168,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Rule Refusal Code Declares A Guard.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Rule_Refusal_Code_Declares_A_Guard()
@@ -176,6 +187,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Declared Literal Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Declared_Literal_Passes()
@@ -194,6 +206,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Screen Call Without An Endpoint Reports Behavior Unrecorded.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Screen_Call_Without_An_Endpoint_Reports_Behavior_Unrecorded()
@@ -210,6 +223,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Screen Call Matching A Route Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Screen_Call_Matching_A_Route_Passes()
@@ -230,6 +244,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Screen Call Matching An Operation Name Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Screen_Call_Matching_An_Operation_Name_Passes()
@@ -250,6 +265,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
 
+    /// <summary>Screen Calls Are Skipped For Client Only Shape.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Screen_Calls_Are_Skipped_For_Client_Only_Shape()
@@ -266,6 +282,7 @@ public sealed class BehaviorUnrecordedTests
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
+    /// <summary>Approved Exception Holds The Findings On The Paths It Names.</summary>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
     public void Approved_Exception_Holds_The_Findings_On_The_Paths_It_Names()
@@ -284,6 +301,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains(known, finding => finding.Code == "mark-missing");
     }
 
+    /// <summary>Exception Past Its Expires On Holds Nothing.</summary>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
     public void Exception_Past_Its_Expires_On_Holds_Nothing()

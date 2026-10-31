@@ -12,6 +12,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// </summary>
 public sealed class DotnetScreenReaderTests
 {
+    /// <summary>Blazor Page Directive Becomes A Route At Its Template.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Page_Directive_Becomes_A_Route_At_Its_Template()
@@ -26,6 +27,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal("/expenses", route.Address);
     }
 
+    /// <summary>Blazor Component Without A Page Directive Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Component_Without_A_Page_Directive_Is_No_Route()
@@ -41,6 +43,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(DotnetScreenReader.Read(Config(root, "blazor")));
     }
 
+    /// <summary>Blazor Escaped And Commented Page Directives Are No Routes.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Escaped_And_Commented_Page_Directives_Are_No_Routes()
@@ -56,6 +59,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(DotnetScreenReader.Read(Config(root, "blazor")));
     }
 
+    /// <summary>Blazor Each Page Directive Becomes Its Own Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Each_Page_Directive_Becomes_Its_Own_Route()
@@ -75,6 +79,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(2, routes[1].Line);
     }
 
+    /// <summary>Blazor Codebehind Doc Mark Becomes The Route Mark.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Codebehind_Doc_Mark_Becomes_The_Route_Mark()
@@ -92,6 +97,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(["screen/claimwick-app.expense-list"], route.Marks);
     }
 
+    /// <summary>Blazor Codebehind Attribute Mark Becomes The Route Mark.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Codebehind_Attribute_Mark_Becomes_The_Route_Mark()
@@ -109,6 +115,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(["screen/claimwick-app.expense-list"], route.Marks);
     }
 
+    /// <summary>Blazor Code Block Mark Becomes The Route Mark Without Codebehind.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Code_Block_Mark_Becomes_The_Route_Mark_Without_Codebehind()
@@ -124,6 +131,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(["screen/claimwick-app.expense-list"], route.Marks);
     }
 
+    /// <summary>Blazor Route Without A Mark Reports No Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Route_Without_A_Mark_Reports_No_Marks()
@@ -141,6 +149,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(route.Marks);
     }
 
+    /// <summary>Blazor Follows Marks Are Not Route Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Follows_Marks_Are_Not_Route_Marks()
@@ -158,6 +167,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(route.Marks);
     }
 
+    /// <summary>Blazor Codebehind Client Call Becomes A Call Without Async.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Codebehind_Client_Call_Becomes_A_Call_Without_Async()
@@ -180,6 +190,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(LineOf(behind, "ListAsync"), call.Line);
     }
 
+    /// <summary>Blazor Non Client And Non Async And Undirected Invocations Are No Calls.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Non_Client_And_Non_Async_And_Undirected_Invocations_Are_No_Calls()
@@ -197,6 +208,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(route.Calls);
     }
 
+    /// <summary>Blazor Code Block Client Call Becomes A Call At Its Razor Line.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Code_Block_Client_Call_Becomes_A_Call_At_Its_Razor_Line()
@@ -214,6 +226,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(LineOf(razor, "ListAsync"), call.Line);
     }
 
+    /// <summary>Blazor Inline Markup Client Call Becomes A Call.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Blazor_Inline_Markup_Client_Call_Becomes_A_Call()
@@ -231,6 +244,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(LineOf(razor, "SaveAsync"), call.Line);
     }
 
+    /// <summary>Android Activity Becomes A Destination Named By Its Class.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Activity_Becomes_A_Destination_Named_By_Its_Class()
@@ -248,6 +262,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(["screen/claimwick-app.expense-list"], route.Marks);
     }
 
+    /// <summary>Android Fragment With A Qualified Base Becomes A Destination.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Fragment_With_A_Qualified_Base_Becomes_A_Destination()
@@ -264,6 +279,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(["screen/claimwick-app.receipt"], route.Marks);
     }
 
+    /// <summary>Android Class Without A Destination Base Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Class_Without_A_Destination_Base_Is_No_Route()
@@ -279,6 +295,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(DotnetScreenReader.Read(Config(root, "android")));
     }
 
+    /// <summary>Android Nested Destination Class Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Nested_Destination_Class_Is_No_Route()
@@ -292,6 +309,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(DotnetScreenReader.Read(Config(root, "android")));
     }
 
+    /// <summary>Android Destination Without A Mark Reports No Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Destination_Without_A_Mark_Reports_No_Marks()
@@ -307,6 +325,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(route.Marks);
     }
 
+    /// <summary>Android Client Call Becomes A Call Without Async.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Client_Call_Becomes_A_Call_Without_Async()
@@ -324,6 +343,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal(LineOf(source, "ListAsync"), call.Line);
     }
 
+    /// <summary>Android Non Client Invocation Is No Call.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Android_Non_Client_Invocation_Is_No_Call()
@@ -339,6 +359,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(route.Calls);
     }
 
+    /// <summary>Unknown Platform Reads No Routes.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Unknown_Platform_Reads_No_Routes()
@@ -354,6 +375,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Empty(DotnetScreenReader.Read(Config(root, "svelte")));
     }
 
+    /// <summary>Blazor Codebehind Mark Records The Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Blazor_Codebehind_Mark_Records_The_Style_Seen()
@@ -379,6 +401,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal([MarkStyle.Attribute], fromAttribute.Styles);
     }
 
+    /// <summary>Blazor Code Block Marks Record Each Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Blazor_Code_Block_Marks_Record_Each_Style_Seen()
@@ -395,6 +418,7 @@ public sealed class DotnetScreenReaderTests
         Assert.Equal([MarkStyle.Xml, MarkStyle.Attribute], route.Styles);
     }
 
+    /// <summary>Android Destination Mark Records The Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Android_Destination_Mark_Records_The_Style_Seen()

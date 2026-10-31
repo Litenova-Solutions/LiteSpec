@@ -32,6 +32,7 @@ static class ConsumerValidator
     /// </summary>
     /// <param name="args">The command arguments after <c>consumer</c>.</param>
     /// <returns>The exit code: 0 no problem, 1 at least one problem, 2 usage error.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The consumer command is a last-resort command handler that reports any failure of the validation run through the last-resort reporter instead of crashing.")]
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, [], ["--root", "--format"]);

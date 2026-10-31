@@ -5,12 +5,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Readers.Settings;
 
-/// <summary>One stored template: its key, its line, and the placeholders its texts use.</summary>
-/// <param name="Key">The template key.</param>
-/// <param name="Line">The 1-based line of the key.</param>
-/// <param name="Placeholders">Every <c>{{Name}}</c> placeholder in the key's texts.</param>
-sealed record StoredTemplate(string Key, int Line, IReadOnlySet<string> Placeholders);
-
 /// <summary>
 ///     Reads the template store: the keys of the top-level dictionary initializer in
 ///     the file the stack configuration names, with every <c>{{Name}}</c>
@@ -28,6 +22,8 @@ static class TemplateStoreReader
     ///     Reads the stored templates, in document order, or null when the file is
     ///     missing or cannot be read.
     /// </summary>
+    /// <param name="file">The template store file path to read.</param>
+    /// <returns>The stored templates in document order, or null when the file is missing or cannot be read.</returns>
     public static IReadOnlyList<StoredTemplate>? Read(string file)
     {
         if (!File.Exists(file))
@@ -69,6 +65,9 @@ static class TemplateStoreReader
     }
 
     /// <summary>Reads the entries of one top-level dictionary initializer.</summary>
+    /// <param name="tree">The syntax tree that maps keys to source lines.</param>
+    /// <param name="value">The dictionary initializer expression, or null when the value is none.</param>
+    /// <param name="entries">The template entries collected so far, by key, added to in place.</param>
     private static void ReadInitializer(
         SyntaxTree tree, ExpressionSyntax? value, Dictionary<string, (int Line, HashSet<string> Placeholders)> entries)
     {
@@ -105,6 +104,8 @@ static class TemplateStoreReader
     }
 
     /// <summary>One keyed entry: the key literal with the value nodes beneath it.</summary>
+    /// <param name="entry">The dictionary entry expression to read a key and values from.</param>
+    /// <returns>The key literal, its text, and the value nodes beneath it, or null when the entry has no literal key.</returns>
     private static (LiteralExpressionSyntax Key, string Text, IReadOnlyList<ExpressionSyntax> Values)? KeyedEntry(ExpressionSyntax entry)
     {
         // ["key"] = value
@@ -128,6 +129,8 @@ static class TemplateStoreReader
     }
 
     /// <summary>The key literal of an element access, or null when the access names no literal key.</summary>
+    /// <param name="accessed">The element access expression whose bracket key is wanted.</param>
+    /// <returns>The key literal, or null when the element access names no literal key.</returns>
     private static LiteralExpressionSyntax? ElementKey(ExpressionSyntax accessed)
     {
         SeparatedSyntaxList<ArgumentSyntax> arguments;
@@ -149,6 +152,8 @@ static class TemplateStoreReader
     }
 
     /// <summary>Every <c>{{Name}}</c> placeholder in the string literals beneath the value nodes.</summary>
+    /// <param name="values">The value nodes beneath which string literals are searched.</param>
+    /// <returns>Every placeholder name used in the string literals beneath the value nodes.</returns>
     private static HashSet<string> PlaceholdersIn(IReadOnlyList<SyntaxNode> values)
     {
         var placeholders = new HashSet<string>(StringComparer.Ordinal);

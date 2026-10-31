@@ -77,6 +77,7 @@ public sealed class KindReaderSymbolTests
         public sealed class PayoutBankAdapter : IPayoutPort;
         """;
 
+    /// <summary>Syntax and symbol overloads agree on every type.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on every type")]
     public void SyntaxAndSymbolsAgreeOnTypes()
@@ -84,11 +85,11 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(Code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var context = new KindContext(new string[0], new string[0], new[] { "IPayoutPort" });
+        var context = new KindContext([], [], ["IPayoutPort"]);
 
-        foreach (var node in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+        foreach (var node in tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>())
         {
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
 
             var fromSyntax = KindReader.KindOf(node, context);
@@ -98,6 +99,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <summary>Syntax and symbol overloads agree on every method.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on every method")]
     public void SyntaxAndSymbolsAgreeOnMethods()
@@ -107,9 +109,9 @@ public sealed class KindReaderSymbolTests
         var model = compilation.GetSemanticModel(tree);
         var context = KindContext.Empty;
 
-        foreach (var node in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
+        foreach (var node in tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<MethodDeclarationSyntax>())
         {
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
 
             var fromSyntax = KindReader.KindOf(node, context);
@@ -119,6 +121,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <summary>Both overloads recognize the expected kinds.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Both overloads recognize the expected kinds")]
     public void BothOverloadsRecognizeExpectedKinds()
@@ -126,7 +129,7 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(Code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var context = new KindContext(new string[0], new string[0], new[] { "IPayoutPort" });
+        var context = new KindContext([], [], ["IPayoutPort"]);
         var expected = new (string Name, CodeKind? Kind)[]
         {
             ("Expense", CodeKind.AggregateRoot),
@@ -143,30 +146,31 @@ public sealed class KindReaderSymbolTests
 
         foreach (var (name, kind) in expected)
         {
-            var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+            var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .First(type => type.Identifier.ValueText == name);
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
 
             Assert.True(KindReader.KindOf(node, context) == kind, $"Syntax kind differs for {name}.");
             Assert.True(KindReader.KindOf(symbol, context) == kind, $"Symbol kind differs for {name}.");
         }
 
-        var submit = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+        var submit = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<MethodDeclarationSyntax>()
             .First(method => method.Identifier.ValueText == "Submit");
-        var submitSymbol = model.GetDeclaredSymbol(submit);
+        var submitSymbol = model.GetDeclaredSymbol(submit, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(submitSymbol);
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(submit, context));
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)submitSymbol, context));
 
-        var proves = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+        var proves = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<MethodDeclarationSyntax>()
             .First(method => method.Identifier.ValueText == "Submits");
-        var provesSymbol = model.GetDeclaredSymbol(proves);
+        var provesSymbol = model.GetDeclaredSymbol(proves, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(provesSymbol);
         Assert.Equal(CodeKind.Test, KindReader.KindOf(proves, context));
         Assert.Equal(CodeKind.Test, KindReader.KindOf((IMethodSymbol)provesSymbol, context));
     }
 
+    /// <summary>A marked method raising nothing is recognized from its symbol.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked method raising nothing is recognized from its symbol")]
     public void MarkedMethodRaisingNothingIsRecognizedFromSymbol()
@@ -192,15 +196,16 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<MethodDeclarationSyntax>()
             .First(method => method.Identifier.ValueText == "Erase");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(node, KindContext.Empty));
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)symbol, KindContext.Empty));
     }
 
+    /// <summary>An unmarked symbol method assigning state is recognized.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unmarked symbol method assigning state is recognized")]
     public void SymbolMethodAssigningStateIsRecognized()
@@ -223,15 +228,16 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<MethodDeclarationSyntax>()
             .First(method => method.Identifier.ValueText == "Erase");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(node, KindContext.Empty));
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)symbol, KindContext.Empty));
     }
 
+    /// <summary>A symbol mark outside the generated namespace is not a mark.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol mark outside the generated namespace is not a mark")]
     public void SymbolMarkOutsideGeneratedNamespaceIsIgnored()
@@ -274,9 +280,9 @@ public sealed class KindReaderSymbolTests
 
         foreach (var name in new[] { "IDomainPort", "IGeneratedPort" })
         {
-            var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+            var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .First(type => type.Identifier.ValueText == name);
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
 
             if (name == "IDomainPort")
@@ -292,6 +298,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <summary>Symbols resolve a transitive aggregate root that syntax needs context for.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Symbols resolve a transitive aggregate root that syntax needs context for")]
     public void SymbolsResolveTransitiveAggregateRoot()
@@ -308,18 +315,19 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "Expense");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(symbol, KindContext.Empty));
         Assert.Null(KindReader.KindOf(node, KindContext.Empty));
 
-        var context = new KindContext(new[] { "SpendingRoot" }, new string[0], new string[0]);
+        var context = new KindContext(["SpendingRoot"], [], []);
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(node, context));
     }
 
+    /// <summary>A nested symbol sharing a root's or an exception's name takes no kind.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A nested symbol sharing a root's or an exception's name takes no kind")]
     public void NestedSymbolSharingANameTakesNoKind()
@@ -347,24 +355,25 @@ public sealed class KindReaderSymbolTests
         var compilation = TestTrees.Compile(code);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var nested = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>()
+        var nested = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<RecordDeclarationSyntax>()
             .Where(type => type.Parent is TypeDeclarationSyntax)
             .ToList();
-        var context = new KindContext(new[] { "Order" }, new[] { "OrderRefusedException" }, new string[0]);
+        var context = new KindContext(["Order"], ["OrderRefusedException"], []);
 
         Assert.Equal(2, nested.Count);
         foreach (var node in nested)
         {
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
             Assert.Null(KindReader.KindOf(symbol, context));
         }
 
-        var root = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+        var root = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<ClassDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "Order");
-        Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(model.GetDeclaredSymbol(root)!, context));
+        Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(model.GetDeclaredSymbol(root, cancellationToken: TestContext.Current.CancellationToken)!, context));
     }
 
+    /// <summary>A symbol port reads its mark from source.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol port reads its mark from source")]
     public void SymbolPortReadsItsMark()
@@ -377,7 +386,7 @@ public sealed class KindReaderSymbolTests
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
         var node = TestTrees.First<InterfaceDeclarationSyntax>(tree);
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Application"));
@@ -385,6 +394,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.WebApi"));
     }
 
+    /// <summary>A symbol class with a method in an outer layer is technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol class with a method in an outer layer is technical")]
     public void SymbolClassWithMethodIsTechnical()
@@ -406,6 +416,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
     }
 
+    /// <summary>A symbol record, nested class, or constructor-only class is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol record, nested class, or constructor-only class is not technical")]
     public void SymbolNonClassShapesAreNotTechnical()
@@ -439,15 +450,16 @@ public sealed class KindReaderSymbolTests
 
         foreach (var name in new[] { "ExpenseSummary", "CommitStep", "ExpenseSettings" })
         {
-            var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+            var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .First(type => type.Identifier.ValueText == name);
-            var symbol = model.GetDeclaredSymbol(node);
+            var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(symbol);
 
             Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
         }
     }
 
+    /// <summary>A symbol migration or generated class is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol migration or generated class is not technical")]
     public void SymbolMigrationAndGeneratedAreNotTechnical()
@@ -486,6 +498,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(SymbolOf(code, "CommitStep"), KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A symbol partial class merges methods across parts.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol partial class merges methods across parts")]
     public void SymbolPartialMergesMethodsAcrossParts()
@@ -506,9 +519,9 @@ public sealed class KindReaderSymbolTests
             """);
         var tree = compilation.SyntaxTrees[0];
         var model = compilation.GetSemanticModel(tree);
-        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+        var node = tree.GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "CommitStep");
-        var symbol = model.GetDeclaredSymbol(node);
+        var symbol = model.GetDeclaredSymbol(node, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(symbol);
 
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));

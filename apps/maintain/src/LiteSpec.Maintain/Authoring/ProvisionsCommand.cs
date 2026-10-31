@@ -22,6 +22,8 @@ static class ProvisionsCommand
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <returns>The exit code: 0 written or current, 1 stale under check, 2 usage error.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, ["--check"], ["--root"]);

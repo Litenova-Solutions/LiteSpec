@@ -13,8 +13,10 @@ namespace LiteSpec.Analyzers.Rules.Layers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
 {
+    /// <summary>The options key text held for this operation.</summary>
     private const string OptionsKey = "litespec.LS2016.pipeline_owned_types";
 
+    /// <summary>Creates an immutable hash set string default owned types.</summary>
     private static readonly ImmutableHashSet<string> DefaultOwnedTypes = ImmutableHashSet.Create(
         "LiteBus.Messaging.Abstractions.IUnitOfWork",
         "LiteBus.Messaging.Abstractions.IIdempotencyStore",
@@ -25,12 +27,22 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2016);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the pipeline owned dependency analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSymbolAction(AnalyzeParameter, SymbolKind.Parameter);
 
+    /// <summary>Analyzes the parameter.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeParameter(SymbolAnalysisContext context)
     {
         var parameter = (IParameterSymbol)context.Symbol;
@@ -67,6 +79,10 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns the types.</summary>
+    /// <param name="options">The analyzer options carrying the additional files.</param>
+    /// <param name="tree">The syntax tree under inspection.</param>
+    /// <returns>The types.</returns>
     private static ImmutableHashSet<string> OwnedTypes(AnalyzerOptions options, SyntaxTree tree)
     {
         if (options.AnalyzerConfigOptionsProvider.GetOptions(tree).TryGetValue(OptionsKey, out var value)
@@ -79,6 +95,9 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
         return DefaultOwnedTypes;
     }
 
+    /// <summary>Returns true when the type is command or query handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command or query handler; otherwise false.</returns>
     private static bool IsCommandOrQueryHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -103,6 +122,9 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns the i type symbol.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The i type symbol.</returns>
     private static ITypeSymbol Unwrap(ITypeSymbol type)
     {
         if (type is INamedTypeSymbol named

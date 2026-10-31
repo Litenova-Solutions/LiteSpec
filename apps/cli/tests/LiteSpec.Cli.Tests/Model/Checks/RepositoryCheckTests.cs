@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the repository-unimplemented check against hand-built models and reader fixtures.</summary>
 public sealed class RepositoryCheckTests
 {
+    /// <summary>Changed Aggregate Without An Implementation Reports.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void Changed_Aggregate_Without_An_Implementation_Reports()
@@ -19,6 +20,7 @@ public sealed class RepositoryCheckTests
         Assert.Contains("repository-unimplemented", TestModel.Codes(model));
     }
 
+    /// <summary>Changed Aggregate With An Implementation Passes.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void Changed_Aggregate_With_An_Implementation_Passes()
@@ -33,6 +35,7 @@ public sealed class RepositoryCheckTests
         Assert.DoesNotContain("repository-unimplemented", TestModel.Codes(model));
     }
 
+    /// <summary>Reader Fixture Without An Implementation Reports.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void Reader_Fixture_Without_An_Implementation_Reports()
@@ -54,6 +57,7 @@ public sealed class RepositoryCheckTests
         Assert.Contains("repository-unimplemented", TestModel.Codes(model));
     }
 
+    /// <summary>Reader Fixture With An Implementation Passes.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void Reader_Fixture_With_An_Implementation_Passes()
@@ -83,6 +87,8 @@ public sealed class RepositoryCheckTests
     }
 
     /// <summary>A model whose borrow-copy use case changes the loan aggregate.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the use case and the aggregate.</returns>
     static ProjectModel ChangedLoanModel(string root) =>
         TestModel.Model(
             TestModel.Config(root),
@@ -90,10 +96,13 @@ public sealed class RepositoryCheckTests
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(root, "loan.md"), """{"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
 
     /// <summary>The loan's domain repository interface as the Domain reader reports it.</summary>
+    /// <param name="root">The fixture root folder the interface file sits under.</param>
+    /// <returns>The domain type describing the repository interface.</returns>
     static DomainType RepositoryInterface(string root) =>
         new("ILoanRepository", "Library.Domain.Lending.Loans", Path.Combine(root, "ILoanRepository.cs"), 1, false);
 
     /// <summary>Creates the Infrastructure folder the default project layout resolves to.</summary>
+    /// <param name="root">The fixture root folder to create the folder under.</param>
     static void CreateInfrastructure(string root) =>
         Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Infrastructure"));
 

@@ -106,7 +106,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="raw">The raw template text.</param>
     /// <returns>The normalized template text.</returns>
-    private string NormalizeTemplate(string relative, string raw) => raw
+    private static string NormalizeTemplate(string relative, string raw) => raw
         .Replace("{litespec/page#state-one-action}", "litespec/core/template#state-one-action", StringComparison.Ordinal)
         .Replace("{litespec/page#use-one-default}", "litespec/core/template#use-one-default", StringComparison.Ordinal)
         .Replace("{litespec/page#state-one-extension-action}", "litespec/ext/template#state-one-extension-action", StringComparison.Ordinal)
@@ -204,7 +204,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="value">The escaped target.</param>
     /// <param name="decoded">The decoded target.</param>
     /// <returns>True when the target decodes.</returns>
-    private bool TryDecodeURIComponent(string value, out string decoded)
+    private static bool TryDecodeURIComponent(string value, out string decoded)
     {
         try
         {
@@ -221,7 +221,7 @@ internal sealed partial class RepositoryValidator
     /// <summary>Decodes a percent-escaped link target.</summary>
     /// <param name="value">The escaped target.</param>
     /// <returns>The decoded target.</returns>
-    private string DecodeURIComponent(string value)
+    private static string DecodeURIComponent(string value)
     {
         for (var index = 0; index < value.Length; index++)
         {
@@ -301,6 +301,7 @@ internal sealed partial class RepositoryValidator
     // skips it. A template whose type matches no record definition teaches nothing.
     // (litespec/core/authoring#run-repeatable-authoring-checks)
     /// <summary>Checks every consumer template against the record schema it teaches.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckConsumerTemplates reports a record schema that cannot be read or parsed, or a validation failure over an arbitrary template, as collected TEMPLATE_SCHEMA errors instead of crashing the validation run.")]
     internal void CheckConsumerTemplates()
     {
         var root = Context.Root;
@@ -347,7 +348,7 @@ internal sealed partial class RepositoryValidator
                 continue;
             }
 
-            if (!Context.Records.TryParseRecordFrontmatter(raw, out var frontmatter, out var error))
+            if (!RecordsValidator.TryParseRecordFrontmatter(raw, out var frontmatter, out var error))
             {
                 add(relative, 1, "TEMPLATE_SCHEMA", $"record frontmatter is invalid: {error}");
                 continue;
@@ -401,7 +402,7 @@ internal sealed partial class RepositoryValidator
     /// <summary>Computes the schema definition name of a record type.</summary>
     /// <param name="type">The record type name.</param>
     /// <returns>The definition name.</returns>
-    private string TemplateDefName(string type)
+    private static string TemplateDefName(string type)
     {
         var parts = type.Split('-', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
@@ -501,7 +502,8 @@ internal sealed partial class RepositoryValidator
     /// <summary>Finds a worked example that a pattern accepts.</summary>
     /// <param name="pattern">The pattern to satisfy.</param>
     /// <returns>The first accepted example.</returns>
-    private string TemplatePatternExample(string pattern)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "TemplatePatternExample tries candidate examples against an arbitrary schema pattern and falls back to the generic word when the pattern cannot run, instead of crashing template validation.")]
+    private static string TemplatePatternExample(string pattern)
     {
         foreach (var candidate in TemplatePatternPool)
         {
@@ -525,7 +527,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="schema">The schema to resolve.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <returns>The resolved schema and its definition name.</returns>
-    private (JsonObject? Resolved, string? DefName) ResolveTemplateRef(JsonNode? schema, JsonObject defs)
+    private static (JsonObject? Resolved, string? DefName) ResolveTemplateRef(JsonNode? schema, JsonObject defs)
     {
         const string prefix = "#/$defs/";
         var current = schema;
@@ -755,7 +757,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="defs">The schema definitions.</param>
     /// <param name="root">The schema root.</param>
     /// <returns>The substitute value.</returns>
-    private JsonNode SubstituteTemplateScalar(JsonNode? schema, JsonObject defs, JsonNode root) =>
+    private static JsonNode SubstituteTemplateScalar(JsonNode? schema, JsonObject defs, JsonNode root) =>
         SubstituteTemplateScalar(schema, defs, root, new HashSet<string>(StringComparer.Ordinal));
 
     /// <summary>Substitutes a valid scalar example for a template placeholder.</summary>
@@ -764,7 +766,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="root">The schema root.</param>
     /// <param name="visited">The definitions already visited.</param>
     /// <returns>The substitute value.</returns>
-    private JsonNode SubstituteTemplateScalar(JsonNode? schema, JsonObject defs, JsonNode root, HashSet<string> visited)
+    private static JsonNode SubstituteTemplateScalar(JsonNode? schema, JsonObject defs, JsonNode root, HashSet<string> visited)
     {
         const string prefix = "#/$defs/";
         var current = schema;
@@ -863,7 +865,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="branches">The candidate branches.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <returns>The selected branch.</returns>
-    private JsonNode? SelectTemplateBranch(JsonObject obj, JsonArray branches, JsonObject defs)
+    private static JsonNode? SelectTemplateBranch(JsonObject obj, JsonArray branches, JsonObject defs)
     {
         var type = JsonString(obj["type"]);
         if (type is not null)
@@ -902,7 +904,7 @@ internal sealed partial class RepositoryValidator
     /// <summary>Reports whether a template branch schema is scalar.</summary>
     /// <param name="schema">The branch schema.</param>
     /// <returns>True when the branch is scalar.</returns>
-    private bool TemplateBranchIsScalar(JsonObject schema)
+    private static bool TemplateBranchIsScalar(JsonObject schema)
     {
         if (schema.TryGetPropertyValue("const", out _)
             || schema["enum"] is JsonArray
@@ -918,7 +920,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="branches">The candidate branches.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <returns>The selected branch.</returns>
-    private JsonNode? SelectTemplateStringBranch(JsonArray branches, JsonObject defs)
+    private static JsonNode? SelectTemplateStringBranch(JsonArray branches, JsonObject defs)
     {
         foreach (var branch in branches)
         {
@@ -957,7 +959,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="schema">The object schema.</param>
     /// <param name="root">The schema root.</param>
     /// <returns>True when the conditional rules accept the object.</returns>
-    private bool TemplateAcceptsConditionals(JsonObject obj, string prop, JsonObject schema, JsonNode root)
+    private static bool TemplateAcceptsConditionals(JsonObject obj, string prop, JsonObject schema, JsonNode root)
     {
         if (schema["allOf"] is not JsonArray conditional)
         {
@@ -1002,7 +1004,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="obj">The template object.</param>
     /// <param name="root">The schema root.</param>
     /// <returns>True when the property is required.</returns>
-    private bool IsTemplateRequired(JsonObject schema, string prop, JsonObject obj, JsonNode root)
+    private static bool IsTemplateRequired(JsonObject schema, string prop, JsonObject obj, JsonNode root)
     {
         if ((schema["required"] as JsonArray)?.Any(node => JsonString(node) == prop) == true)
         {
@@ -1039,7 +1041,8 @@ internal sealed partial class RepositoryValidator
     /// <param name="schema">The schema.</param>
     /// <param name="root">The schema root.</param>
     /// <returns>True when the value matches.</returns>
-    private bool TemplateMatches(JsonNode? value, JsonNode? schema, JsonNode root)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "TemplateMatches returns false when schema validation over an arbitrary template value cannot run, so a malformed schema reads as no match instead of crashing template validation.")]
+    private static bool TemplateMatches(JsonNode? value, JsonNode? schema, JsonNode root)
     {
         var errors = new List<string>();
         try
@@ -1269,7 +1272,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="left">The left version parts.</param>
     /// <param name="right">The right version parts.</param>
     /// <returns>The comparison result.</returns>
-    private int CompareVersions(List<int> left, List<int> right)
+    private static int CompareVersions(List<int> left, List<int> right)
     {
         for (var index = 0; index < Math.Max(left.Count, right.Count); index++)
         {
@@ -1287,6 +1290,7 @@ internal sealed partial class RepositoryValidator
     /// <param name="args">The git arguments.</param>
     /// <param name="output">The command output.</param>
     /// <returns>True when the command succeeds.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "TryRunGit returns false when git cannot start, cannot be killed, or fails in any other way, so a missing or failed git reads as no output instead of crashing the validation run.")]
     private bool TryRunGit(string[] args, out string output)
     {
         var root = Context.Root;

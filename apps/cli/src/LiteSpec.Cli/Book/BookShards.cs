@@ -21,9 +21,12 @@ static class BookShards
     /// <summary>One layer outline's split point: a layer past this size writes sequential shards.</summary>
     public const int OutlineSplitBytes = 700 * 1024;
 
+    /// <summary>The UTF-8 encoding without a byte order mark, used for the written shard files.</summary>
     static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
     /// <summary>The compact JSON of one node in UTF-8 bytes, the unit every packing budget counts in.</summary>
+    /// <param name="node">The JSON node to measure, or null.</param>
+    /// <returns>The byte count of the node compact JSON in UTF-8, or 4 for the null value.</returns>
     public static int Utf8Bytes(JsonNode? node) =>
         node is null ? 4 : Encoding.UTF8.GetByteCount(node.ToJsonString());
 
@@ -32,6 +35,11 @@ static class BookShards
     ///     new shard starts. One item past the target keeps its own shard whole,
     ///     since a record is never split; the cap test names it instead.
     /// </summary>
+    /// <typeparam name="T">The type of the items to pack.</typeparam>
+    /// <param name="items">The items to pack, in order.</param>
+    /// <param name="size">The function that gives the byte size of one item.</param>
+    /// <param name="targetBytes">The target byte size each pack fills to before a new pack starts.</param>
+    /// <returns>The packs in order, each holding its items in input order, empty when the input is empty.</returns>
     public static IReadOnlyList<IReadOnlyList<T>> Pack<T>(IReadOnlyList<T> items, Func<T, int> size, int targetBytes)
     {
         var packs = new List<IReadOnlyList<T>>();
@@ -65,6 +73,9 @@ static class BookShards
     ///     the serializer escapes markup, and any surviving closing tag or line
     ///     separator is escaped again here, which parses back to the same text.
     /// </summary>
+    /// <param name="key">The shard key the client reads the value under.</param>
+    /// <param name="value">The shard payload value.</param>
+    /// <returns>The shard file text with one BookData.put call holding the key and the escaped compact JSON.</returns>
     public static string ShardScript(string key, JsonNode value)
     {
         var json = value.ToJsonString().Replace("</", "<\\/", StringComparison.Ordinal);
@@ -74,9 +85,14 @@ static class BookShards
     }
 
     /// <summary>One Unicode line separator from its code point, kept out of the source as text.</summary>
+    /// <param name="code">The Unicode code point of the separator character.</param>
+    /// <returns>The one-character string for the code point.</returns>
     static string Separator(int code) => ((char)code).ToString();
 
     /// <summary>Writes <c>data/&lt;key&gt;.js</c> holding one shard script.</summary>
+    /// <param name="dataDir">The data folder that receives the shard file, created when missing.</param>
+    /// <param name="key">The shard key, which names the file and the client value.</param>
+    /// <param name="value">The shard payload value.</param>
     public static void WriteShard(string dataDir, string key, JsonNode value)
     {
         Directory.CreateDirectory(dataDir);
@@ -87,6 +103,9 @@ static class BookShards
     ///     Writes the record packs in identifier order as <c>records-&lt;nnn&gt;.js</c>,
     ///     and returns the shard id per record id for the manifest and the outline.
     /// </summary>
+    /// <param name="dataDir">The data folder that receives the record shard files.</param>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <returns>The shard identifier for each record identifier packed.</returns>
     public static IReadOnlyDictionary<string, string> WriteRecords(string dataDir, IReadOnlyDictionary<string, JsonObject> details)
     {
         var ids = details.Keys.OrderBy(id => id, StringComparer.Ordinal).ToList();
@@ -118,6 +137,9 @@ static class BookShards
     ///     One outline node as the client walks it: identity, kind, label, type,
     ///     status, nested children, and the records shard id on a sharded node.
     /// </summary>
+    /// <param name="node">The outline node to convert, with its children converted recursively.</param>
+    /// <param name="shardOf">The shard identifier for each record identifier.</param>
+    /// <returns>The client form of the node with its nested children and its shard identifier when sharded.</returns>
     public static JsonObject OutlineNodeJson(BookOutlineNode node, IReadOnlyDictionary<string, string> shardOf)
     {
         var json = new JsonObject
@@ -150,6 +172,11 @@ static class BookShards
     ///     shards, splitting past the outline budget, and returns the shard keys in
     ///     order. An empty layer writes no shard; the client reads an empty list.
     /// </summary>
+    /// <param name="dataDir">The data folder that receives the outline shard files.</param>
+    /// <param name="layer">The layer key, which names the shard files.</param>
+    /// <param name="tops">The top outline nodes of the layer.</param>
+    /// <param name="shardOf">The shard identifier for each record identifier.</param>
+    /// <returns>The outline shard keys in order, empty when the layer holds no node.</returns>
     public static IReadOnlyList<string> WriteLayer(
         string dataDir,
         string layer,
@@ -179,6 +206,9 @@ static class BookShards
     ///     Writes the search rows as sequential <c>search-&lt;n&gt;.js</c> shards
     ///     packed like records, and returns the shard keys in order.
     /// </summary>
+    /// <param name="dataDir">The data folder that receives the search shard files.</param>
+    /// <param name="rows">The search rows to pack, each holding identifier, title, type and excerpt.</param>
+    /// <returns>The search shard keys in order, empty when no row is given.</returns>
     public static IReadOnlyList<string> WriteSearch(string dataDir, JsonArray rows)
     {
         var items = rows.OfType<JsonNode>().ToList();
@@ -208,6 +238,8 @@ static class BookShards
     ///     One record's search excerpt: its first statement-like field, else its
     ///     body's head, flattened to one line and cut to 200 characters.
     /// </summary>
+    /// <param name="record">The record object that holds the fields and the body.</param>
+    /// <returns>The flattened excerpt cut to 200 characters, or an empty string when the record holds no statement-like field or body.</returns>
     public static string SearchExcerpt(JsonObject record)
     {
         var fields = record["fields"] as JsonObject;
@@ -232,6 +264,8 @@ static class BookShards
     }
 
     /// <summary>One excerpt on one line: whitespace runs become one space, then the head is cut.</summary>
+    /// <param name="text">The excerpt text with arbitrary whitespace.</param>
+    /// <returns>The text on one line with whitespace runs as single spaces, cut to 200 characters.</returns>
     static string Flatten(string text)
     {
         var single = string.Join(" ", text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
@@ -239,5 +273,7 @@ static class BookShards
     }
 
     /// <summary>A JSON string, or JSON null when the text is absent.</summary>
+    /// <param name="value">The text to convert, or null.</param>
+    /// <returns>A JSON string node for the text, or null when the text is null.</returns>
     static JsonNode? StringOrNull(string? value) => BookRender.StrNode(value);
 }

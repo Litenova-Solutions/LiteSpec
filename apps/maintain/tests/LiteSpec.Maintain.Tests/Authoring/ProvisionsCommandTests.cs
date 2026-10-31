@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec-maintain provisions</c>.</summary>
 public sealed class ProvisionsCommandTests
 {
+    /// <summary>Provisions --check on the repository is current.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "provisions --check on the repository is current")]
     public void CheckOnRepositoryIsCurrent()
@@ -14,6 +15,7 @@ public sealed class ProvisionsCommandTests
         Assert.Equal(0, result.Status);
     }
 
+    /// <summary>Provisions --check on a stale index fails.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "provisions --check on a stale index fails")]
     public void CheckOnStaleIndexFails()
@@ -25,6 +27,7 @@ public sealed class ProvisionsCommandTests
         Assert.Equal(1, result.Status);
     }
 
+    /// <summary>Provisions with an unknown option is a usage error.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "provisions with an unknown option is a usage error")]
     public void UnknownOptionIsUsageError()
@@ -33,6 +36,7 @@ public sealed class ProvisionsCommandTests
         Assert.Equal(2, result.Status);
     }
 
+    /// <summary>Provisions writes one section per area.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "provisions writes one section per area")]
     public void WritesSectionPerArea()

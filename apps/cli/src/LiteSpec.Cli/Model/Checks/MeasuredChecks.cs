@@ -12,6 +12,8 @@ namespace LiteSpec.Model.Checks;
 internal static class MeasuredChecks
 {
     /// <summary>Reports requirement-measure-missing.</summary>
+    /// <param name="model">The loaded project model that holds every record, each measure run and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement && record.Field(RecordFields.Measure) is { Length: > 0 }))
@@ -32,6 +34,8 @@ internal static class MeasuredChecks
     }
 
     /// <summary>Reports a statement naming a number with no measure, at tier A.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckNumberedStatement(ProjectModel model, List<Finding> findings)
     {
         foreach (var requirement in model.Records.Where(record =>
@@ -49,6 +53,8 @@ internal static class MeasuredChecks
     }
 
     /// <summary>Whether the statement names a number: a digit outside any record citation.</summary>
+    /// <param name="statement">The requirement statement text under inspection.</param>
+    /// <returns>True when a digit appears outside any record citation or step fragment; otherwise false.</returns>
     private static bool NamesNumber(string statement)
     {
         var prose = Identifiers.Citation.Replace(statement, " ");
@@ -58,9 +64,13 @@ internal static class MeasuredChecks
         return prose.Any(char.IsDigit);
     }
 
+    /// <summary>Matches a provision step fragment, whose digits name a step rather than a counted quantity.</summary>
     private static readonly Regex StepFragment = new(@"#[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", RegexOptions.Compiled);
 
     /// <summary>Whether the tool result is the requirement's check: the check alone, or the tool and the check.</summary>
+    /// <param name="measure">The tool result whose check name is compared.</param>
+    /// <param name="check">The check name the requirement declares.</param>
+    /// <returns>True when the result names the declared check alone or with its tool prefix; otherwise false.</returns>
     private static bool MeasureMatches(MeasureResult measure, string check) =>
         measure.Check.Equals(check, StringComparison.Ordinal)
         || $"{measure.Tool} {measure.Check}".Equals(check, StringComparison.Ordinal);

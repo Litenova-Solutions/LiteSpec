@@ -7,6 +7,7 @@ public sealed partial class UiValidatorTests
 {
     // Route suite coverage (litespec/frontend/web/ui#check-every-route-in-a-browser).
 
+    /// <summary>A Route With No Route Suite.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Route_With_No_Route_Suite()
@@ -18,6 +19,7 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/web/ui#check-every-route-in-a-browser] frontend 'web': route 'apps/web/src/routes/case.tsx' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
     }
 
+    /// <summary>A Second Route Is Reported Beside The First.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Second_Route_Is_Reported_Beside_The_First()
@@ -31,6 +33,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(result, "route 'apps/web/src/routes/orders.tsx' has no route suite");
     }
 
+    /// <summary>A Frontend With No Routes Needs No Suite.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Frontend_With_No_Routes_Needs_No_Suite()
@@ -41,6 +44,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <summary>Router Files Are Not Routes.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void Router_Files_Are_Not_Routes()
@@ -55,6 +59,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <summary>A Router Ignored Segment Is Not A Route.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Router_Ignored_Segment_Is_Not_A_Route()
@@ -67,6 +72,7 @@ public sealed partial class UiValidatorTests
             "export function Card() {\n  return null;\n}\n"));
     }
 
+    /// <summary>A Suite Outside The Frontend Does Not Cover Its Routes.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Suite_Outside_The_Frontend_Does_Not_Cover_Its_Routes()
@@ -80,6 +86,7 @@ public sealed partial class UiValidatorTests
             "route 'apps/web/src/routes/case.tsx' has no route suite");
     }
 
+    /// <summary>A Svelte Page With No Route Suite.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Svelte_Page_With_No_Route_Suite()
@@ -94,6 +101,7 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/web/ui#check-every-route-in-a-browser] frontend 'web': route 'apps/web/src/routes/orders/+page.svelte' has no route suite at 'apps/web/tests/routes/every-route.spec.ts'");
     }
 
+    /// <summary>A Svelte Page With Its Suite.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Svelte_Page_With_Its_Suite()
@@ -105,6 +113,7 @@ public sealed partial class UiValidatorTests
             "<h1>Orders</h1>\n"));
     }
 
+    /// <summary>A Svelte Non Page File Is Not A Route.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Svelte_Non_Page_File_Is_Not_A_Route()
@@ -117,6 +126,7 @@ public sealed partial class UiValidatorTests
             "<div>Bits</div>\n"));
     }
 
+    /// <summary>A Svelte Server Endpoint Is Not A Route.</summary>
     /// <proves>litespec/frontend/web/ui#check-every-route-in-a-browser</proves>
     [Fact]
     public void A_Svelte_Server_Endpoint_Is_Not_A_Route()

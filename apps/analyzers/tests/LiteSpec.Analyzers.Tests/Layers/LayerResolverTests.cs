@@ -5,6 +5,9 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for reading a project's layer.</summary>
 public sealed class LayerResolverTests
 {
+    /// <summary>The assembly name suffix names the layer.</summary>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "the assembly name suffix names the layer")]
     [InlineData("Shop.Domain", "Domain")]
@@ -21,6 +24,9 @@ public sealed class LayerResolverTests
     public void ReadsTheAssemblyName(string assemblyName, string expected) =>
         Assert.Equal(Enum.Parse<Layer>(expected), LayerResolver.FromAssemblyName(assemblyName));
 
+    /// <summary>A declared layer name parses with or without its dot.</summary>
+    /// <param name="value">The declared layer name to parse.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "a declared layer name parses with or without its dot")]
     [InlineData("Domain", "Domain")]

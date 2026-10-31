@@ -11,6 +11,9 @@ namespace LiteSpec.Model.Readers.Measures;
 static class ZapResultReader
 {
     /// <summary>Reads the alerts of a ZAP report object.</summary>
+    /// <param name="root">The root element of the parsed document.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>One measure result per alert in the report.</returns>
     public static List<MeasureResult> Parse(JsonElement root, string file)
     {
         var measures = new List<MeasureResult>();
@@ -86,6 +89,8 @@ static class ZapResultReader
     }
 
     /// <summary>The alert's risk as a ZAP risk code from 0 to 3, or empty when unknown.</summary>
+    /// <param name="alert">The alert object whose riskcode field is read.</param>
+    /// <returns>The risk code from 0 to 3 as text, or an empty string when the alert states an unknown risk.</returns>
     private static string RiskOf(JsonElement alert)
     {
         if (alert.TryGetProperty("riskcode", out var code))
@@ -111,6 +116,12 @@ static class ZapResultReader
         };
     }
 
+    /// <summary>
+    ///     The text of a field of a ZAP alert, or null when the alert states none or the field is not text.
+    /// </summary>
+    /// <param name="alert">The alert object that holds the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <returns>The field text, or null when the alert states none or the field is not text.</returns>
     private static string? StringOf(JsonElement alert, string field) =>
         alert.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString()

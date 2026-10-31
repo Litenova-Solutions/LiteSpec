@@ -45,7 +45,7 @@ internal sealed partial class RecordsValidator
     /// <param name="node">The parsed frontmatter, or null when it does not parse.</param>
     /// <param name="error">The parse failure message.</param>
     /// <returns>True when the frontmatter parses.</returns>
-    internal bool TryParseRecordFrontmatter(string raw, out JsonNode? node, out string error)
+    internal static bool TryParseRecordFrontmatter(string raw, out JsonNode? node, out string error)
     {
         node = null;
         error = "";
@@ -79,7 +79,7 @@ internal sealed partial class RecordsValidator
             node = JsonNode.Parse(json);
             return true;
         }
-        catch (Exception exception)
+        catch (System.Text.Json.JsonException exception)
         {
             error = exception.Message;
             return false;
@@ -92,6 +92,7 @@ internal sealed partial class RecordsValidator
     // checks below.
     /// <summary>Checks record frontmatter against the shipped record schema shapes.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckRecordSchema reports a validation failure over arbitrary record frontmatter as collected errors instead of crashing the validation run on malformed repository input.")]
     private void CheckRecordSchema(List<ParsedPage> parsedPages)
     {
         var root = Context.Root;
@@ -113,7 +114,15 @@ internal sealed partial class RecordsValidator
         {
             schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
         }
-        catch (Exception)
+        catch (IOException)
+        {
+            return;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return;
+        }
+        catch (System.Text.Json.JsonException)
         {
             return;
         }

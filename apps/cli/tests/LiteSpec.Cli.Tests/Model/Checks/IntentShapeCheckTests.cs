@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the renamed Intent shapes: rationale, setBy, choice, reopenedWhen and reviewBy.</summary>
 public sealed class IntentShapeCheckTests
 {
+    /// <summary>Requirement Without Rationale Reports.</summary>
     /// <proves>litespec/core/intent#explain-each-requirement-in-one-line</proves>
     [Fact]
     public void Requirement_Without_Rationale_Reports()
@@ -18,6 +19,7 @@ public sealed class IntentShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no rationale."));
     }
 
+    /// <summary>Requirement With Retired SetBy Reports.</summary>
     /// <proves>litespec/core/intent#state-requirement-kind-and-statement</proves>
     [Fact]
     public void Requirement_With_Retired_SetBy_Reports()
@@ -30,6 +32,7 @@ public sealed class IntentShapeCheckTests
         Assert.True(Reports(model, "field-invalid", "has setBy 'founder' outside decider, operator, tenant."));
     }
 
+    /// <summary>Decision Without ReopenedWhen Reports.</summary>
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact]
     public void Decision_Without_ReopenedWhen_Reports()
@@ -42,6 +45,7 @@ public sealed class IntentShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no reopenedWhen."));
     }
 
+    /// <summary>Approved Decision Without Choice Reports.</summary>
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact]
     public void Approved_Decision_Without_Choice_Reports()
@@ -54,6 +58,7 @@ public sealed class IntentShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no choice."));
     }
 
+    /// <summary>Topic Without ReviewBy Reports.</summary>
     /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact]
     public void Topic_Without_ReviewBy_Reports()

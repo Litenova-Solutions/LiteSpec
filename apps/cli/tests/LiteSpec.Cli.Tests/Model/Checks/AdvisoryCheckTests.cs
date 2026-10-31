@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the advisory checks and the open-questions shape rule against hand-built models.</summary>
 public sealed class AdvisoryCheckTests
 {
+    /// <summary>Significant Use Case Without Goal Reports.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Significant_Use_Case_Without_Goal_Reports()
@@ -18,6 +19,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("prose-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Trivial Use Case Passes.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Trivial_Use_Case_Passes()
@@ -30,6 +32,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Atomic With Two Cites Rules Reports.</summary>
     /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_Two_Cites_Rules_Reports()
@@ -42,6 +45,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
     }
 
+    /// <summary>Atomic With One Cites Rule Passes.</summary>
     /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_One_Cites_Rule_Passes()
@@ -54,6 +58,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
     }
 
+    /// <summary>Tier3 Question Without Recommendation Past DecideBy Reports.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier3_Question_Without_Recommendation_Past_DecideBy_Reports()
@@ -69,6 +74,7 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
+    /// <summary>Tier3 Question With Recommendation Passes.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier3_Question_With_Recommendation_Passes()
@@ -81,6 +87,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("question-expired", TestModel.Codes(model));
     }
 
+    /// <summary>Tier1 Question Past DecideBy Reports.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier1_Question_Past_DecideBy_Reports()
@@ -96,6 +103,7 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
+    /// <summary>Answered Question Past DecideBy Passes.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Answered_Question_Past_DecideBy_Passes()
@@ -111,6 +119,7 @@ public sealed class AdvisoryCheckTests
             finding => finding.Code == "record-invalid" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 
+    /// <summary>Question Without Decider Reports Draft Without Decider.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Question_Without_Decider_Reports_Draft_Without_Decider()
@@ -126,6 +135,7 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
+    /// <summary>Question Without DecideBy Reports Draft Without Decider.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Question_Without_DecideBy_Reports_Draft_Without_Decider()
@@ -141,6 +151,7 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
+    /// <summary>Tier3 Question Without Recommendation Reports Record Shape.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier3_Question_Without_Recommendation_Reports_Record_Shape()
@@ -157,6 +168,7 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
+    /// <summary>Tier1 Question Without Recommendation Passes Shape.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier1_Question_Without_Recommendation_Passes_Shape()
@@ -171,6 +183,7 @@ public sealed class AdvisoryCheckTests
             finding => finding.Code == "record-invalid" && finding.Message.Contains("names no recommendation", StringComparison.Ordinal));
     }
 
+    /// <summary>Approved With Open Questions Reports Record Shape.</summary>
     /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
     [Fact]
     public void Approved_With_Open_Questions_Reports_Record_Shape()
@@ -185,6 +198,7 @@ public sealed class AdvisoryCheckTests
             finding => finding.Code == "record-invalid" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 
+    /// <summary>Approved With Auto Approved Questions Passes.</summary>
     /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
     [Fact]
     public void Approved_With_Auto_Approved_Questions_Passes()

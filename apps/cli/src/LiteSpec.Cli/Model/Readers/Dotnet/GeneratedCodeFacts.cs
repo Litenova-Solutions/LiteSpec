@@ -43,7 +43,7 @@ static class GeneratedCodeFacts
 
     /// <summary>The simple attribute name without qualification or the <c>Attribute</c> suffix.</summary>
     /// <param name="name">The attribute name syntax.</param>
-    /// <returns>The simple attribute name without qualification or the <c>Attribute</c> suffix.</returns>
+    /// <returns>The rightmost name segment, with a trailing Attribute removed when a longer name carries it.</returns>
     public static string AttributeName(NameSyntax name)
     {
         var simple = name switch

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves the records file lets a browser test prove a frontend provision, and only those.</summary>
 public sealed class ProofTargetTests
 {
+    /// <summary>Proof Targets Hold Frontend Provisions And No Other Provision.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Proof_Targets_Hold_Frontend_Provisions_And_No_Other_Provision()

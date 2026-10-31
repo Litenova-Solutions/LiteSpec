@@ -4,65 +4,6 @@ using System.Collections.Generic;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One marked aggregate method's raised events for the act-event check, by
-///     event record id. The host keeps the method's own location and reads it
-///     back through the finding's method index.
-/// </summary>
-public sealed class ActMethodRaises
-{
-    /// <summary>Creates the method's raised events.</summary>
-    /// <param name="raised">The raised event ids, in source order.</param>
-    /// <exception cref="ArgumentNullException">The raised ids are null.</exception>
-    public ActMethodRaises(IReadOnlyList<string> raised)
-    {
-        if (raised is null)
-        {
-            throw new ArgumentNullException(nameof(raised));
-        }
-
-        Raised = raised;
-    }
-
-    /// <summary>The raised event ids, in source order.</summary>
-    public IReadOnlyList<string> Raised { get; }
-}
-
-/// <summary>One decided act-event finding: the code, the method index, and the event.</summary>
-public sealed class ActEventFinding
-{
-    /// <summary>Creates the finding.</summary>
-    /// <param name="code">The finding code: <c>act-event-undeclared</c> or <c>act-event-unimplemented</c>.</param>
-    /// <param name="method">The index of the method the finding sits on.</param>
-    /// <param name="eventId">The event record id.</param>
-    /// <exception cref="ArgumentNullException">The code or event id is null.</exception>
-    public ActEventFinding(string code, int method, string eventId)
-    {
-        if (code is null)
-        {
-            throw new ArgumentNullException(nameof(code));
-        }
-
-        if (eventId is null)
-        {
-            throw new ArgumentNullException(nameof(eventId));
-        }
-
-        Code = code;
-        Method = method;
-        EventId = eventId;
-    }
-
-    /// <summary>The finding code: <c>act-event-undeclared</c> or <c>act-event-unimplemented</c>.</summary>
-    public string Code { get; }
-
-    /// <summary>The index of the method the finding sits on.</summary>
-    public int Method { get; }
-
-    /// <summary>The event record id.</summary>
-    public string EventId { get; }
-}
-
-/// <summary>
 ///     The act-event check both hosts run over one use case's marked methods.
 /// </summary>
 /// <follows>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</follows>

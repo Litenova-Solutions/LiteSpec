@@ -12,6 +12,8 @@ namespace LiteSpec.Model.Checks;
 internal static class CalculationChecks
 {
     /// <summary>Reports a calculation rule shown by no scenario examples table.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "calculation"))
@@ -28,7 +30,10 @@ internal static class CalculationChecks
     }
 
     /// <summary>The use cases a rule governs: directly, or through the aggregate that holds them.</summary>
-    private static IReadOnlyList<Record> GovernedUseCases(ProjectModel model, Record rule)
+        /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="rule">The calculation rule whose governed use cases are collected.</param>
+    /// <returns>The governed use cases in the order the rule lists them.</returns>
+    private static List<Record> GovernedUseCases(ProjectModel model, Record rule)
     {
         var found = new List<Record>();
 
@@ -54,7 +59,10 @@ internal static class CalculationChecks
     }
 
     /// <summary>The scenarios on a use case page.</summary>
-    private static IReadOnlyList<Record> ScenariosOf(ProjectModel model, Record useCase)
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="useCase">The use case record whose scenario records are collected.</param>
+    /// <returns>The scenario records held on the use case page, or an empty list when the use case identifier does not split.</returns>
+    private static List<Record> ScenariosOf(ProjectModel model, Record useCase)
     {
         if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
         {
@@ -69,6 +77,8 @@ internal static class CalculationChecks
     }
 
     /// <summary>Whether the scenario carries a non-empty examples table.</summary>
+    /// <param name="scenario">The scenario record whose examples table is inspected.</param>
+    /// <returns>True when the scenario holds a non-empty examples array; otherwise false.</returns>
     private static bool HasExamples(Record scenario) =>
         scenario.Raw.ValueKind == JsonValueKind.Object
         && scenario.Raw.TryGetProperty(RecordFields.Examples, out var value)

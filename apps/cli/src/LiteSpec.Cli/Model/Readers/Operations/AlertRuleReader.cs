@@ -1,13 +1,5 @@
 namespace LiteSpec.Model.Readers.Operations;
 
-/// <summary>One alert rule: its name, labels and own text.</summary>
-/// <param name="Name">The rule name from its alert or title key.</param>
-/// <param name="File">The absolute file path.</param>
-/// <param name="Line">The 1-based line of the rule item.</param>
-/// <param name="Labels">The rule labels by key.</param>
-/// <param name="Text">The rule's own lines, for the threshold comparison.</param>
-sealed record AlertRule(string Name, string File, int Line, IReadOnlyDictionary<string, string> Labels, string Text);
-
 /// <summary>
 ///     Reads alert rules from the groups files the project lists in paths.alerts.
 ///     Groups hold rules, each rule named by alert or title and carrying labels.
@@ -16,6 +8,8 @@ sealed record AlertRule(string Name, string File, int Line, IReadOnlyDictionary<
 static class AlertRuleReader
 {
     /// <summary>Reads every alert rule under the configured alert paths.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>Every alert rule under the configured alert paths, in file order.</returns>
     public static List<AlertRule> Read(ConsumerConfig config)
     {
         var rules = new List<AlertRule>();
@@ -29,6 +23,8 @@ static class AlertRuleReader
     }
 
     /// <summary>Every alert file: a named file as named, every YAML file below a named folder.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The alert file paths: a named file as named, and every YAML file below a named folder.</returns>
     internal static IReadOnlyList<string> Files(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -50,6 +46,9 @@ static class AlertRuleReader
         return files;
     }
 
+    /// <summary>The alert rules one file states; empty when the file cannot be read.</summary>
+    /// <param name="file">The source file path to read.</param>
+    /// <returns>The alert rules stated in the file; empty when the file cannot be read.</returns>
     private static List<AlertRule> ReadFile(string file)
     {
         string[] lines;
@@ -83,6 +82,12 @@ static class AlertRuleReader
     }
 
     /// <summary>Reads the groups list opening at the line, adding its rules, and returns the line past it.</summary>
+    /// <param name="lines">The file lines in order, aligned with the parsed line information.</param>
+    /// <param name="infos">The parsed line information, aligned with the file lines.</param>
+    /// <param name="index">The index of the line where the list opens.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="rules">The alert rules collected so far, added to in place.</param>
+    /// <returns>The index of the line past the groups list.</returns>
     private static int ReadGroups(string[] lines, List<LineInfo> infos, int index, string file, List<AlertRule> rules)
     {
         var indent = infos[index].Indent;
@@ -133,6 +138,12 @@ static class AlertRuleReader
     }
 
     /// <summary>Reads one group block, adding the rules its rules list holds.</summary>
+    /// <param name="lines">The file lines in order, aligned with the parsed line information.</param>
+    /// <param name="infos">The parsed line information, aligned with the file lines.</param>
+    /// <param name="start">The index of the first line of the block.</param>
+    /// <param name="end">The index one past the last line of the block.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="rules">The alert rules collected so far, added to in place.</param>
     private static void ReadGroup(string[] lines, List<LineInfo> infos, int start, int end, string file, List<AlertRule> rules)
     {
         var itemIndent = infos[start].Indent;
@@ -163,6 +174,13 @@ static class AlertRuleReader
     }
 
     /// <summary>Reads the rules list under the key indent, adding each named rule.</summary>
+    /// <param name="lines">The file lines in order, aligned with the parsed line information.</param>
+    /// <param name="infos">The parsed line information, aligned with the file lines.</param>
+    /// <param name="key">The index of the line that opens the list.</param>
+    /// <param name="indent">The indent of the key line that opens the list.</param>
+    /// <param name="end">The index one past the last line of the block.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="rules">The alert rules collected so far, added to in place.</param>
     private static void ReadRules(string[] lines, List<LineInfo> infos, int key, int indent, int end, string file, List<AlertRule> rules)
     {
         var itemIndent = -1;
@@ -209,6 +227,12 @@ static class AlertRuleReader
     }
 
     /// <summary>Reads one rule block, keeping the rule when alert or title names it.</summary>
+    /// <param name="lines">The file lines in order, aligned with the parsed line information.</param>
+    /// <param name="infos">The parsed line information, aligned with the file lines.</param>
+    /// <param name="start">The index of the first line of the block.</param>
+    /// <param name="end">The index one past the last line of the block.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <param name="rules">The alert rules collected so far, added to in place.</param>
     private static void ReadRule(string[] lines, List<LineInfo> infos, int start, int end, string file, List<AlertRule> rules)
     {
         var itemIndent = infos[start].Indent;
@@ -285,6 +309,12 @@ static class AlertRuleReader
     }
 
     /// <summary>Reads the labels of one rule, from a flow map or the entries below the key.</summary>
+    /// <param name="infos">The parsed line information, aligned with the file lines.</param>
+    /// <param name="value">The text after the labels key, holding a flow map or nothing.</param>
+    /// <param name="at">The index of the line that carries the key.</param>
+    /// <param name="end">The index one past the last line of the block.</param>
+    /// <param name="indent">The indent of the key line that opens the list.</param>
+    /// <param name="found">The values collected so far, added to in place.</param>
     private static void ReadLabels(List<LineInfo> infos, string value, int at, int end, int indent, Dictionary<string, string> found)
     {
         if (value.StartsWith('{'))
@@ -352,6 +382,12 @@ static class AlertRuleReader
     /// <param name="Content">The line past its indent, or past "- " for an item.</param>
     sealed record LineInfo(int Indent, bool IsBlank, bool IsItem, string Content);
 
+    /// <summary>
+    ///     The parsed form of one file line: its indent, whether it is blank or a sequence item, and its
+    ///     content.
+    /// </summary>
+    /// <param name="line">The raw file line to parse.</param>
+    /// <returns>The line information: its indent, blank and item flags, and its content.</returns>
     private static LineInfo ParseLine(string line)
     {
         var indent = 0;
@@ -377,10 +413,14 @@ static class AlertRuleReader
     }
 
     /// <summary>The mapping the line holds, or null when it holds none.</summary>
+    /// <param name="info">The parsed line whose mapping is read.</param>
+    /// <returns>The key and value the line holds, or null when it holds no mapping.</returns>
     private static (string Key, string Value)? KeyOf(LineInfo info) =>
         info is { IsBlank: false, IsItem: false } ? SplitKey(info.Content) : null;
 
     /// <summary>Splits "key: value" at its first colon, or null when the text holds no key.</summary>
+    /// <param name="content">The text to split at its first colon.</param>
+    /// <returns>The key and value split at the first colon, or null when the text holds no colon.</returns>
     private static (string Key, string Value)? SplitKey(string content)
     {
         var colon = content.IndexOf(':');
@@ -401,6 +441,8 @@ static class AlertRuleReader
     }
 
     /// <summary>Strips a trailing comment and surrounding quotes from a scalar value.</summary>
+    /// <param name="value">The scalar text to strip of a trailing comment and surrounding quotes.</param>
+    /// <returns>The value without a trailing comment or surrounding quotes.</returns>
     private static string Clean(string value)
     {
         var text = value.Trim();
@@ -437,6 +479,8 @@ static class AlertRuleReader
     }
 
     /// <summary>Splits a flow map into its pairs, keeping quoted commas whole.</summary>
+    /// <param name="value">The flow map text to split, including its surrounding braces.</param>
+    /// <returns>The key and value pairs of the flow map, in written order.</returns>
     private static List<(string Key, string Value)> SplitFlow(string value)
     {
         var pairs = new List<(string Key, string Value)>();

@@ -8,7 +8,13 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/agent#select-task-context</follows>
 static class Querier
 {
+    /// <summary>The JSON options query output uses: indented, with LF newlines.</summary>
+    private static readonly JsonSerializerOptions QueryOptions = new() { WriteIndented = true, NewLine = "\n" };
+
     /// <summary>Queries one id, or null when no record holds it.</summary>
+    /// <param name="model">The built project model to query.</param>
+    /// <param name="id">The record id to print.</param>
+    /// <returns>The record as indented JSON with its links in both directions, or null when no record holds the id.</returns>
     public static string? Query(ProjectModel model, string id)
     {
         if (!model.ById.TryGetValue(id, out var record))
@@ -90,12 +96,19 @@ static class Querier
                 linkedBy = incoming,
                 computed = status,
             },
-            new JsonSerializerOptions { WriteIndented = true, NewLine = "\n" });
+            QueryOptions);
     }
 
+    /// <summary>The home name a scenario id belongs to.</summary>
+    /// <param name="model">The built project model, kept for symmetry with the other query helpers.</param>
+    /// <param name="scenarioId">The scenario id to split.</param>
+    /// <returns>The home segment of the scenario id, or null when the id does not split.</returns>
     private static string? ScenarioOf(ProjectModel model, string scenarioId) =>
         Identifiers.TrySplit(scenarioId, out _, out var home, out _) ? home : null;
 
+    /// <summary>The name segment of a use-case id, which its scenarios carry as their home.</summary>
+    /// <param name="useCaseId">The use-case id to split.</param>
+    /// <returns>The name segment of the use-case id, or null when the id does not split.</returns>
     private static string? ScenarioName(string useCaseId) =>
         Identifiers.TrySplit(useCaseId, out _, out _, out var name) ? name : null;
 }

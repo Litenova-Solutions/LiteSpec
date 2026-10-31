@@ -32,7 +32,7 @@ static class BookLexiconFieldLabels
             ["calls"] = "Calls", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "On exhausted",
             ["mode"] = "Mode", ["within"] = "Within", ["useCase"] = "Use case", ["operation"] = "Operation", ["event"] = "Event",
             ["retry"] = "Retry", ["maxAttempts"] = "Max attempts", ["initialDelay"] = "Initial delay", ["maxDelay"] = "Max delay",
-            ["backoff"] = "Backoff", ["then"] = "Then", ["deadLetter"] = "Dead letter", ["after"] = "After", ["action"] = "Action",
+            ["backoff"] = "Backoff", ["deadLetter"] = "Dead letter", ["after"] = "After", ["action"] = "Action",
             ["surfacesIn"] = "Surfaces in", ["runbook"] = "Runbook", ["every"] = "Every", ["cron"] = "Cron", ["manual"] = "Manual",
             ["outcome"] = "Outcome",
             ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["examples"] = "Examples",

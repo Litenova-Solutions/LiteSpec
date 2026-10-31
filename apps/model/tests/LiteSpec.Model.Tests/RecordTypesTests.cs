@@ -25,7 +25,7 @@ public sealed class RecordTypesTests
     public void Cites_Links_Reasons_And_Requirements()
     {
         Assert.True(RecordTypes.LinkTargets["cites"].SetEquals(
-            new[] { "goal", "problem", "feature", "constraint", "research", "decision", "requirement" }));
+            ["goal", "problem", "feature", "constraint", "research", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("features"));
     }
 
@@ -35,7 +35,7 @@ public sealed class RecordTypesTests
     public void Addresses_Links_Actors_And_Permissions()
     {
         Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
-            new[] { "actor", "permission" }));
+            ["actor", "permission"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
     }
 
@@ -69,10 +69,10 @@ public sealed class RecordTypesTests
     [Fact]
     public void Effect_Verbs_Link_Their_Targets()
     {
-        Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(new[] { "use-case" }));
-        Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(new[] { "notification" }));
-        Assert.True(RecordTypes.LinkTargets["emits"].SetEquals(new[] { "integration-event" }));
-        Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(new[] { "external-system" }));
+        Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(["use-case"]));
+        Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
+        Assert.True(RecordTypes.LinkTargets["emits"].SetEquals(["integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(["external-system"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
     }
@@ -83,7 +83,7 @@ public sealed class RecordTypesTests
     public void TriggeredBy_Links_Events()
     {
         Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
-            new[] { "event", "integration-event" }));
+            ["event", "integration-event"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("on"));
     }
 
@@ -92,13 +92,13 @@ public sealed class RecordTypesTests
     [Fact]
     public void Object_Links_Resolve_Through_Their_Containers()
     {
-        Assert.True(RecordTypes.LinkTargets["compensation"].SetEquals(new[] { "use-case" }));
+        Assert.True(RecordTypes.LinkTargets["compensation"].SetEquals(["use-case"]));
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
-            new[] { "external-system", "integration-event" }));
-        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(new[] { "reaction", "job" }));
+            ["external-system", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["reaction", "job"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
-            new[] { "reaction", "job", "decision", "requirement" }));
+            ["reaction", "job", "decision", "requirement"]));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>
@@ -137,6 +137,8 @@ public sealed class RecordTypesTests
     sealed record LinksRow(string Field, string WrittenOn, string PointsAt);
 
     /// <summary>Every row of the Links table on the model page.</summary>
+    /// <param name="page">The markdown text of the model page.</param>
+    /// <returns>Every row of the Links table on the page.</returns>
     static IReadOnlyList<LinksRow> LinksRows(string page)
     {
         var rows = new List<LinksRow>();
@@ -159,7 +161,7 @@ public sealed class RecordTypesTests
                 break;
             }
 
-            if (line.StartsWith("|:"))
+            if (line.StartsWith("|:", StringComparison.Ordinal))
             {
                 continue;
             }
@@ -176,6 +178,8 @@ public sealed class RecordTypesTests
     }
 
     /// <summary>One Written on cell as record types: commas split, spaces become hyphens.</summary>
+    /// <param name="row">The Links table row to read.</param>
+    /// <returns>The record types that write the field, in ordinal order.</returns>
     static IReadOnlyList<string> WritersOf(LinksRow row) =>
         row.WrittenOn.Split(',')
             .Select(part => part.Trim())
@@ -186,6 +190,7 @@ public sealed class RecordTypesTests
             .ToList();
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>
+    /// <returns>The path of the repository root.</returns>
     static string FindRepository()
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)

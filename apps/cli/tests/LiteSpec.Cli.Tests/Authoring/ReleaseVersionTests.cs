@@ -44,21 +44,25 @@ public sealed class ReleaseVersionTests
         relative == "docs/reference/project-file.md"
         && line.Contains("does not match the installed LiteSpec tool release", StringComparison.Ordinal);
 
+    /// <summary>The Tool Package Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Tool_Package_Names_The_Manifest_Release() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "cli", "src", "LiteSpec.Cli", "LiteSpec.Cli.csproj"));
 
+    /// <summary>The Analyzer Package Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Analyzer_Package_Names_The_Manifest_Release() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "analyzers", "src", "LiteSpec.Analyzers", "LiteSpec.Analyzers.csproj"));
 
+    /// <summary>The Changelog Opens With The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Changelog_Opens_With_The_Manifest_Release() =>
         Assert.Equal($"## v{Manifest()}", Read("CHANGELOG.md").Split('\n').Select(line => line.TrimEnd('\r')).First(line => line.StartsWith("## ", StringComparison.Ordinal)));
 
+    /// <summary>The Consumer Template Reviews The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Consumer_Template_Reviews_The_Manifest_Release() =>
@@ -66,6 +70,7 @@ public sealed class ReleaseVersionTests
             Manifest(),
             JsonDocument.Parse(Read("templates", "consumer", "litespec.project.json")).RootElement.GetProperty("reviewedLiteSpecVersion").GetString());
 
+    /// <summary>Every Schema Id Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void Every_Schema_Id_Names_The_Manifest_Release()
@@ -103,6 +108,7 @@ public sealed class ReleaseVersionTests
         Assert.True(mismatches.Count == 0, "Schema $id values that disagree with the manifest release:\n" + string.Join("\n", mismatches));
     }
 
+    /// <summary>Every Template And Example Schema Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void Every_Template_And_Example_Schema_Names_The_Manifest_Release()
@@ -136,6 +142,7 @@ public sealed class ReleaseVersionTests
         Assert.True(mismatches.Count == 0, "Template and example $schema values that disagree with the manifest release:\n" + string.Join("\n", mismatches));
     }
 
+    /// <summary>Every Versioned Url And Install Version Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void Every_Versioned_Url_And_Install_Version_Names_The_Manifest_Release()

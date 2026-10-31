@@ -98,48 +98,56 @@ public sealed partial class StandardsValidatorTests
         }
         """ + "\n";
 
+    /// <summary>Unmarked class with a method reports MARK_MISSING.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "unmarked class with a method reports MARK_MISSING")]
     public void UnmarkedClassWithMethodReportsMarkMissing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Widget.cs", UnmarkedClass),
         ["MARK_MISSING"]);
 
+    /// <summary>Marked class with a method reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "marked class with a method reports nothing")]
     public void MarkedClassWithMethodReportsNothing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Widget.cs", MarkedClass),
         []);
 
+    /// <summary>Class with only properties reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "class with only properties reports nothing")]
     public void ClassWithOnlyPropertiesReportsNothing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Settings.cs", PropertyBag),
         []);
 
+    /// <summary>Nested class reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "nested class reports nothing")]
     public void NestedClassReportsNothing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Outer.cs", NestedClass),
         []);
 
+    /// <summary>Class under a Fixtures folder reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "class under a Fixtures folder reports nothing")]
     public void FixtureFolderClassReportsNothing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Fixtures/Widget.cs", UnmarkedClass),
         []);
 
+    /// <summary>Unknown proves mark reports MARK_UNRESOLVED.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "unknown proves mark reports MARK_UNRESOLVED")]
     public void UnknownProvesMarkReportsMarkUnresolved() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/tests/X.Tests", "WidgetTests.cs", UnknownProof),
         ["MARK_UNRESOLVED"]);
 
+    /// <summary>Known proves mark reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "known proves mark reports nothing")]
     public void KnownProvesMarkReportsNothing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/tests/X.Tests", "WidgetTests.cs", KnownProof),
         []);
 
+    /// <summary>Partial class marked on one part reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
     [Fact(DisplayName = "partial class marked on one part reports nothing")]
     public void PartialClassMarkedOnOnePartReportsNothing() => Check(

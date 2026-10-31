@@ -7,6 +7,9 @@ namespace LiteSpec.Model.Tests;
 public sealed class IdentifiersTests
 {
     /// <summary>The named pattern matches the sample exactly when expected.</summary>
+    /// <param name="name">The identifier kind name that selects the pattern.</param>
+    /// <param name="sample">The sample text the pattern runs against.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
@@ -42,6 +45,9 @@ public sealed class IdentifiersTests
     }
 
     /// <summary>A decision name opens with its four-digit number.</summary>
+    /// <param name="name">The identifier kind name that selects the pattern.</param>
+    /// <param name="decision">Whether the name belongs to a decision.</param>
+    /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</proves>
     [Theory]
     [InlineData("0001-loan-period", true, true)]

@@ -7,6 +7,8 @@ namespace LiteSpec.Model.Readers;
 sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunReader
 {
     /// <summary>Reads and merges every reader's run, in order.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The merged test run, or null when no reader found a run.</returns>
     public TestRun? Read(ConsumerConfig config)
     {
         TestRun? merged = null;

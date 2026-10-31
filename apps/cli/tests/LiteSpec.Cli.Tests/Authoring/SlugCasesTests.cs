@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Slug fixture cases: HeadingSlug returns each listed slug.</summary>
 public sealed class SlugCasesTests
 {
+    /// <summary>Heading slugs match the fixture.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-identifier-grammar</proves>
     [Fact(DisplayName = "heading slugs match the fixture")]
     public void SlugsMatchFixture()

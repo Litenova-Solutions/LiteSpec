@@ -8,6 +8,7 @@ public sealed class RenameMarksTests
     const string Old = "use-case/lending.borrow-copy";
     const string New = "use-case/lending.borrow-item";
 
+    /// <summary>Rename Rewrites A Doc Tag An Attribute And A Frontend Constant.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Rewrites_A_Doc_Tag_An_Attribute_And_A_Frontend_Constant()
@@ -26,6 +27,7 @@ public sealed class RenameMarksTests
         Assert.DoesNotContain(Old, File.ReadAllText(Frontend(temp.Path)));
     }
 
+    /// <summary>Rename Leaves An Unrelated String Alone.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Leaves_An_Unrelated_String_Alone()
@@ -39,6 +41,7 @@ public sealed class RenameMarksTests
         Assert.Contains($"public const string BorrowCopy = \"{Old}\";", File.ReadAllText(Unrelated(temp.Path)));
     }
 
+    /// <summary>Rename Rewrites A Decision Id Inside Follows Marks In Both Styles.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Rewrites_A_Decision_Id_Inside_Follows_Marks_In_Both_Styles()
@@ -58,6 +61,7 @@ public sealed class RenameMarksTests
         Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsAttribute(temp.Path)));
     }
 
+    /// <summary>Rename Keeps A Technical Decision Under Implementation.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Keeps_A_Technical_Decision_Under_Implementation()
@@ -79,6 +83,7 @@ public sealed class RenameMarksTests
         Assert.False(File.Exists(Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-files.md")));
     }
 
+    /// <summary>Rename Rewrites A Requirement Id Inside Proves Marks In Both Styles.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Rewrites_A_Requirement_Id_Inside_Proves_Marks_In_Both_Styles()
@@ -98,6 +103,7 @@ public sealed class RenameMarksTests
         Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesAttribute(temp.Path)));
     }
 
+    /// <summary>Rename Rewrites An External System Id Inside Proves Marks In Both Styles.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Rewrites_An_External_System_Id_Inside_Proves_Marks_In_Both_Styles()
@@ -117,6 +123,7 @@ public sealed class RenameMarksTests
         Assert.DoesNotContain(oldSystem, File.ReadAllText(ProvesAttribute(temp.Path)));
     }
 
+    /// <summary>Rename Rewrites An Integration Event Id Inside Proves Marks In Both Styles.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact]
     public void Rename_Rewrites_An_Integration_Event_Id_Inside_Proves_Marks_In_Both_Styles()

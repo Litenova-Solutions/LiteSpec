@@ -277,7 +277,7 @@ public sealed class BookCommandTests
         using var home = Cli.Temp("book-home");
         File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"3.0.0"}""");
         var result = Cli.Run(
-            new[] { "book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path },
+            ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);
         Assert.Contains("model.md", result.Output, StringComparison.Ordinal);
@@ -291,7 +291,7 @@ public sealed class BookCommandTests
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-no-home");
         var result = Cli.Run(
-            new[] { "book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path },
+            ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);
         Assert.Contains("Cannot find the carried LiteSpec release", result.Output, StringComparison.Ordinal);

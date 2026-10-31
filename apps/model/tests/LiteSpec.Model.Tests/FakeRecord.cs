@@ -10,7 +10,7 @@ sealed class FakeRecord : IRecordFacts
     private readonly Dictionary<string, string> fields;
     private readonly Dictionary<string, IReadOnlyList<string>> lists;
 
-    /// <summary>Builds the record with the identity, the fields and the id lists.</summary>
+    /// <summary>Initializes a new instance of the <see cref="FakeRecord"/> class.Builds the record with the identity, the fields and the id lists.</summary>
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="id">The identifier.</param>
     /// <param name="status">The resolved status.</param>
@@ -37,29 +37,33 @@ sealed class FakeRecord : IRecordFacts
         this.lists = lists ?? new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
     }
 
-    /// <summary>The record type, kebab-case.</summary>
+    /// <summary>Gets the record type, kebab-case.</summary>
     public string Type { get; }
 
-    /// <summary>The identifier.</summary>
+    /// <summary>Gets the identifier.</summary>
     public string Id { get; }
 
-    /// <summary>The display title.</summary>
+    /// <summary>Gets the display title.</summary>
     public string Title { get; }
 
-    /// <summary>The resolved status.</summary>
+    /// <summary>Gets the resolved status.</summary>
     public string? Status { get; }
 
-    /// <summary>The absolute file path.</summary>
+    /// <summary>Gets the absolute file path.</summary>
     public string File { get; }
 
-    /// <summary>The 1-based line.</summary>
+    /// <summary>Gets the 1-based line.</summary>
     public int Line { get; }
 
     /// <summary>Reads one optional string field.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The field value, or null when the record carries no such field.</returns>
     public string? Field(string name) =>
         fields.TryGetValue(name, out var value) ? value : null;
 
     /// <summary>Reads one field that holds one id or an array of ids.</summary>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The identifiers in the field, or an empty list when the record carries none.</returns>
     public IReadOnlyList<string> Ids(string name) =>
         lists.TryGetValue(name, out var value) ? value : Array.Empty<string>();
 }

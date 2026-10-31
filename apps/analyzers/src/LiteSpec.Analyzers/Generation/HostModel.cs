@@ -12,7 +12,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class HostModel : IEquatable<HostModel>
 {
-    /// <summary>Creates a host model.</summary>
+    /// <summary>Initializes a new instance of the <see cref="HostModel"/> class.Creates a host model.</summary>
     /// <param name="layer">The project layer.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
     public HostModel(Layer layer, bool xunitV3)
@@ -21,10 +21,10 @@ internal sealed class HostModel : IEquatable<HostModel>
         XunitV3 = xunitV3;
     }
 
-    /// <summary>The project layer.</summary>
+    /// <summary>Gets the project layer.</summary>
     public Layer Layer { get; }
 
-    /// <summary>Whether the compilation references xUnit v3.</summary>
+    /// <summary>Gets a value indicating whether whether the compilation references xUnit v3.</summary>
     public bool XunitV3 { get; }
 
     /// <summary>Reads the declared layer property, or empty when the project sets none.</summary>

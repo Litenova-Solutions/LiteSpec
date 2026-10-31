@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
 {
+    /// <summary>Requirement With Topic Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Requirement_With_Topic_Passes()
@@ -20,6 +21,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Requirement Without Topic Reports At Tier G.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Requirement_Without_Topic_Reports_At_Tier_G()
@@ -35,6 +37,7 @@ public sealed class ParentCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Draft Requirement Without Topic Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Draft_Requirement_Without_Topic_Reports()
@@ -50,6 +53,7 @@ public sealed class ParentCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Requirement With Another Topic Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Requirement_With_Another_Topic_Reports()
@@ -66,6 +70,7 @@ public sealed class ParentCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Requirement With Dangling Cites Reports Unresolved.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Requirement_With_Dangling_Cites_Reports_Unresolved()
@@ -80,6 +85,7 @@ public sealed class ParentCheckTests
         Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Requirement Topic Segment Differs From Page Reports.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
     [Fact]
     public void Requirement_Topic_Segment_Differs_From_Page_Reports()
@@ -96,6 +102,7 @@ public sealed class ParentCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
+    /// <summary>Requirement Topic Segment Matching Page Passes.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
     [Fact]
     public void Requirement_Topic_Segment_Matching_Page_Passes()
@@ -109,6 +116,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("identifier-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Refused Feature With Solves Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Refused_Feature_With_Solves_Passes()
@@ -121,6 +129,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Refused Feature Without Solves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Refused_Feature_Without_Solves_Reports()
@@ -136,6 +145,7 @@ public sealed class ParentCheckTests
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
+    /// <summary>Journey Serving Goal Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Journey_Serving_Goal_Passes()
@@ -149,6 +159,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Journey Serving Step Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Journey_Serving_Step_Reports()
@@ -166,6 +177,7 @@ public sealed class ParentCheckTests
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 
+    /// <summary>Journey Without Serves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Journey_Without_Serves_Reports()
@@ -181,6 +193,7 @@ public sealed class ParentCheckTests
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 
+    /// <summary>Journey With Dangling Serves Stays Silent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Journey_With_Dangling_Serves_Stays_Silent()
@@ -194,6 +207,7 @@ public sealed class ParentCheckTests
         Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Scenario With Result Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Scenario_With_Result_Passes()
@@ -209,6 +223,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scenario Without Result Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Scenario_Without_Result_Reports()
@@ -226,6 +241,7 @@ public sealed class ParentCheckTests
         Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", finding.Subject);
     }
 
+    /// <summary>Scenario With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Scenario_With_Missing_Home_Reports()
@@ -241,6 +257,7 @@ public sealed class ParentCheckTests
         Assert.Equal("scenario/no-such-case.filing-succeeds", finding.Subject);
     }
 
+    /// <summary>Result With Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Result_With_Home_Passes()
@@ -255,6 +272,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Result With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Result_With_Missing_Home_Reports()
@@ -270,6 +288,7 @@ public sealed class ParentCheckTests
         Assert.Equal("result/no-such-case.filed", finding.Subject);
     }
 
+    /// <summary>Screen With Agreeing EntryPoint Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Screen_With_Agreeing_EntryPoint_Passes()
@@ -283,6 +302,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Screen Without EntryPoint Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Screen_Without_EntryPoint_Reports()
@@ -298,6 +318,7 @@ public sealed class ParentCheckTests
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
+    /// <summary>Screen With Disagreeing EntryPoint Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Screen_With_Disagreeing_EntryPoint_Reports()
@@ -314,6 +335,7 @@ public sealed class ParentCheckTests
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
+    /// <summary>Use Case With Module Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Use_Case_With_Module_Passes()
@@ -327,6 +349,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Use Case With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Use_Case_With_Missing_Module_Reports()
@@ -342,6 +365,7 @@ public sealed class ParentCheckTests
         Assert.Equal("use-case/nope.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Aggregate With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Aggregate_With_Missing_Module_Reports()
@@ -357,6 +381,7 @@ public sealed class ParentCheckTests
         Assert.Equal("aggregate/nope.loan", finding.Subject);
     }
 
+    /// <summary>Rule With Aggregate Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Rule_With_Aggregate_Home_Passes()
@@ -371,6 +396,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Rule With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Rule_With_Missing_Home_Reports()
@@ -386,6 +412,7 @@ public sealed class ParentCheckTests
         Assert.Equal("rule/nope.loan-period", finding.Subject);
     }
 
+    /// <summary>Event With Aggregate Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Event_With_Aggregate_Passes()
@@ -400,6 +427,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Event With Missing Aggregate Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Event_With_Missing_Aggregate_Reports()
@@ -415,6 +443,7 @@ public sealed class ParentCheckTests
         Assert.Equal("event/nope.loan-borrowed", finding.Subject);
     }
 
+    /// <summary>Reaction With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Reaction_With_Missing_Module_Reports()
@@ -430,6 +459,7 @@ public sealed class ParentCheckTests
         Assert.Equal("reaction/nope.email-clerk-on-loan-borrowed", finding.Subject);
     }
 
+    /// <summary>Job With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Job_With_Missing_Module_Reports()
@@ -445,6 +475,7 @@ public sealed class ParentCheckTests
         Assert.Equal("job/nope.scan-due", finding.Subject);
     }
 
+    /// <summary>Notification With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Notification_With_Missing_Module_Reports()
@@ -460,6 +491,7 @@ public sealed class ParentCheckTests
         Assert.Equal("notification/nope.loan-due", finding.Subject);
     }
 
+    /// <summary>Setting With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Setting_With_Missing_Module_Reports()
@@ -475,6 +507,7 @@ public sealed class ParentCheckTests
         Assert.Equal("setting/nope.max-renewals", finding.Subject);
     }
 
+    /// <summary>Retired Record Without Parent Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Retired_Record_Without_Parent_Passes()
@@ -487,6 +520,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Root Type Without Parent Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Root_Type_Without_Parent_Passes()
@@ -499,6 +533,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Result Without Home Reports Parent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Result_Without_Home_Reports_Parent()
@@ -515,6 +550,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("identifier-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Use Case With Unparseable Id Reports Parent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Use_Case_With_Unparseable_Id_Reports_Parent()
@@ -531,6 +567,7 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("identifier-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Requirement Without Home Stays Identifier Form.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
     public void Requirement_Without_Home_Stays_Identifier_Form()

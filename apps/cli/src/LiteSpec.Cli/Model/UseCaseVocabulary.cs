@@ -147,6 +147,9 @@ static class UseCaseVocabulary
     ///     else the regular form. A phrasal verb tenses its first word, so
     ///     <c>check-in</c> becomes <c>checked-in</c>.
     /// </summary>
+    /// <param name="verb">The verb to tense, with any hyphenated phrasal tail.</param>
+    /// <param name="project">The project past-tense map, consulted before the baseline tables.</param>
+    /// <returns>The past tense of the verb.</returns>
     public static string PastTenseOf(string verb, IReadOnlyDictionary<string, string> project)
     {
         if (project.TryGetValue(verb, out var mapped) && mapped.Length > 0)
@@ -199,6 +202,8 @@ static class UseCaseVocabulary
     ///     The past tense of a one-syllable verb ending consonant-vowel-consonant, other than w, x or y,
     ///     which doubles its last consonant so shred becomes shredded; null for any other verb.
     /// </summary>
+    /// <param name="verb">The verb to tense.</param>
+    /// <returns>The doubled past form, or null when the verb does not double its last consonant.</returns>
     static string? Doubled(string verb) =>
         verb.Length >= 3
         && IsConsonant(verb[^1])
@@ -216,6 +221,8 @@ static class UseCaseVocabulary
     static readonly string[] VerbPrefixes = ["over", "under", "with", "out", "mis", "pre", "un", "re", "co"];
 
     /// <summary>The past tense of a base verb from the common or baseline table, or null when regular.</summary>
+    /// <param name="baseVerb">The base verb after its prefix is stripped.</param>
+    /// <returns>The tabled past tense of the base verb, or null when no table holds it.</returns>
     static string? BasePastTense(string baseVerb)
     {
         if (CommonPastTense.TryGetValue(baseVerb, out var common))
@@ -232,13 +239,19 @@ static class UseCaseVocabulary
     }
 
     /// <summary>Whether the character is one of the five vowels.</summary>
+    /// <param name="character">The character to test.</param>
+    /// <returns>True when the character is a, e, i, o or u.</returns>
     static bool IsVowel(char character) => character is 'a' or 'e' or 'i' or 'o' or 'u';
 
     /// <summary>Whether the character is an ASCII consonant.</summary>
+    /// <param name="character">The character to test.</param>
+    /// <returns>True when the character is a lowercase ASCII letter other than a vowel.</returns>
     static bool IsConsonant(char character) =>
         character is >= 'a' and <= 'z' && !IsVowel(character);
 
     /// <summary>The count of vowel groups in the verb, which stands in for its syllables.</summary>
+    /// <param name="verb">The verb whose vowel groups are counted.</param>
+    /// <returns>The number of runs of consecutive vowels in the verb.</returns>
     static int VowelGroups(string verb)
     {
         var groups = 0;

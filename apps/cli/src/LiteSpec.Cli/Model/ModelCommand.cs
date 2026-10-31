@@ -9,6 +9,7 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class ModelCommand
 {
+    /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
           litespec model build --root <consumer> [--out model.json]
@@ -25,6 +26,10 @@ static class ModelCommand
         Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, a refused batch, or a breaking intent change with --fail-on breaking, 2 usage error.
         """;
 
+    /// <summary>Runs the model command: build, check, render, query, names, review, approve or diff.</summary>
+    /// <param name="args">The command arguments, the subcommand first.</param>
+    /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
     public static int Run(string[] args)
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
@@ -534,6 +539,10 @@ static class ModelCommand
     ///     Blank lines and lines starting with <c>#</c> are ignored; a second field
     ///     on a file line names that batch's review report.
     /// </summary>
+    /// <param name="rest">The approve arguments after the subcommand, scanned for batch options.</param>
+    /// <param name="root">The consumer root a relative batches file resolves against.</param>
+    /// <param name="error">The usage error when a batches file is missing, or null.</param>
+    /// <returns>The batch requests in the order given.</returns>
     static List<BatchRequest> BatchRequests(string[] rest, string root, out string? error)
     {
         error = null;
@@ -593,7 +602,7 @@ static class ModelCommand
             {
                 var trimmed = line.Trim();
 
-                if (trimmed.Length == 0 || trimmed.StartsWith("#", StringComparison.Ordinal))
+                if (trimmed.Length == 0 || trimmed.StartsWith('#'))
                 {
                     continue;
                 }
@@ -623,6 +632,13 @@ static class ModelCommand
     ///     batch writes nothing and holds no later batch back, and each applied
     ///     batch updates the in-memory model for the batches after it.
     /// </summary>
+    /// <param name="model">The built project model, updated in place as batches apply.</param>
+    /// <param name="parsed">The parsed approve arguments.</param>
+    /// <param name="requests">The batch requests in the order given.</param>
+    /// <param name="all">Whether --all was given, which batch approval refuses.</param>
+    /// <param name="ids">The positional record ids, which batch approval refuses.</param>
+    /// <param name="root">The consumer root relative paths print against.</param>
+    /// <returns>The exit code: 0 when every batch applies, 1 when one is refused, 2 for a usage error.</returns>
     static int ApproveBatches(
         ProjectModel model, CliArgs parsed,
         IReadOnlyList<BatchRequest> requests, bool all, List<string> ids, string root)
@@ -718,6 +734,14 @@ static class ModelCommand
     }
 
     /// <summary>Approves one review batch: its drafts, re-stamps, manifest, and guards.</summary>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="model">The built project model the batch belongs to.</param>
+    /// <param name="parsed">The parsed approve arguments.</param>
+    /// <param name="selector">The batch selector naming the batch.</param>
+    /// <param name="all">Whether --all was given, which batch approval refuses.</param>
+    /// <param name="ids">The positional record ids, which batch approval refuses.</param>
+    /// <param name="root">The consumer root relative paths print against.</param>
+    /// <returns>The exit code: 0 on approval, 1 when the batch is missing or refused, 2 for a usage error.</returns>
     static int ApproveBatch(
         ConsumerConfig config, ProjectModel model, CliArgs parsed, string selector, bool all, List<string> ids, string root)
     {
@@ -794,11 +818,22 @@ static class ModelCommand
         return 0;
     }
 
+    /// <summary>A path relative to the root, written with forward slashes.</summary>
+    /// <param name="root">The root the path is made relative to.</param>
+    /// <param name="path">The absolute path to relativize.</param>
+    /// <returns>The relative path with forward slashes.</returns>
     static string Relative(string root, string path) =>
         Path.GetRelativePath(root, path).Replace(Path.DirectorySeparatorChar, '/');
 
+    /// <summary>A count with its noun, pluralized unless the count is one.</summary>
+    /// <param name="count">The number counted.</param>
+    /// <param name="noun">The singular noun.</param>
+    /// <returns>The count and noun, such as 1 record or 3 records.</returns>
     static string Counted(int count, string noun) => count == 1 ? $"1 {noun}" : $"{count} {noun}s";
 
+    /// <summary>The usage error for an unknown diff format.</summary>
+    /// <param name="format">The format value given, or null.</param>
+    /// <returns>The error naming the value, or null for text, markdown, json or no value.</returns>
     static string? DiffFormatError(string? format) =>
         format is null or "text" or "markdown" or "json"
             ? null
@@ -811,6 +846,11 @@ static class ModelCommand
     ///     with no reader is qualified. At release the release-readiness findings
     ///     block instead of reporting.
     /// </summary>
+    /// <param name="model">The built project model the finding belongs to.</param>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="finding">The finding to decide.</param>
+    /// <param name="release">Whether release readiness makes reported findings block.</param>
+    /// <returns>The severity of the finding under the release flag.</returns>
     static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, bool release)
     {
         var severity = Severity.Of(
@@ -832,6 +872,9 @@ static class ModelCommand
     ///     Whether the finding gates a release: an unverified use case, or an
     ///     unanswered question on a tier 1 record.
     /// </summary>
+    /// <param name="model">The built project model the finding belongs to.</param>
+    /// <param name="finding">The finding to test.</param>
+    /// <returns>True when the finding gates a release.</returns>
     static bool IsReleaseReadiness(ProjectModel model, Finding finding) =>
         finding.Code == "use-case-unverified"
         || (finding.Code == "question-expired"
@@ -844,6 +887,8 @@ static class ModelCommand
     ///     subset of <c>G</c>, <c>S</c> and <c>A</c>, or null when the option is
     ///     absent. Any other value is a usage error naming the value.
     /// </summary>
+    /// <param name="value">The --level value, or null when the option is absent.</param>
+    /// <returns>The level set with a null error, or a null set with the usage error.</returns>
     static (HashSet<string>? Levels, string? Error) ParseLevels(string? value)
     {
         if (value is null)
@@ -869,10 +914,16 @@ static class ModelCommand
     }
 
     /// <summary>One finding's printed line: its path, line, level, code and message.</summary>
+    /// <param name="config">The consumer configuration, for the relative path.</param>
+    /// <param name="finding">The finding to print.</param>
+    /// <param name="severity">The decided severity of the finding.</param>
+    /// <returns>The printed line for the finding.</returns>
     static string FindingLine(ConsumerConfig config, Finding finding, Severity severity) =>
         $"{config.Relative(finding.Path)}:{finding.Line} [{TierLabel(finding, severity)}] [{finding.Code}] {finding.Message}";
 
     /// <summary>The sort rank of a level: G first, then S, then A.</summary>
+    /// <param name="level">The level letter: G, S or A.</param>
+    /// <returns>The sort rank, 0 for G, 1 for S, 2 for A and 3 for anything else.</returns>
     static int LevelRank(string level) => level switch
     {
         "G" => 0,
@@ -882,9 +933,17 @@ static class ModelCommand
     };
 
     /// <summary>The printed tier: the tier plus the reason a reported finding does not block.</summary>
+    /// <param name="finding">The finding whose tier is printed.</param>
+    /// <param name="severity">The decided severity, whose reason is appended.</param>
+    /// <returns>The tier, with the non-blocking reason when one is recorded.</returns>
     static string TierLabel(Finding finding, Severity severity) =>
         severity.Reason is null ? finding.Tier : finding.Tier + " " + severity.Reason;
 
+    /// <summary>One standing finding as its JSON object.</summary>
+    /// <param name="config">The consumer configuration, for the relative path.</param>
+    /// <param name="finding">The finding to project.</param>
+    /// <param name="severity">The decided severity of the finding.</param>
+    /// <returns>The JSON object for the finding.</returns>
     static object AsJson(ConsumerConfig config, Finding finding, Severity severity) => new
     {
         code = finding.Code,
@@ -897,6 +956,10 @@ static class ModelCommand
         subject = finding.Subject,
     };
 
+    /// <summary>One known-gap finding as its JSON object.</summary>
+    /// <param name="config">The consumer configuration, for the relative path.</param>
+    /// <param name="finding">The known-gap finding to project.</param>
+    /// <returns>The JSON object for the known-gap finding.</returns>
     static object AsKnownJson(ConsumerConfig config, Finding finding) => new
     {
         code = finding.Code,

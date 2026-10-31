@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the record name-shape checks: use-case nouns, refusal codes, template keys, setting units and published event names.</summary>
 public sealed class RecordNameCheckTests
 {
+    /// <summary>Use Case Naming Its Aggregate Passes.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Use_Case_Naming_Its_Aggregate_Passes()
@@ -21,6 +22,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Aggregate Plural Passes The Noun Check.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Aggregate_Plural_Passes_The_Noun_Check()
@@ -35,6 +37,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Declared Part Passes The Noun Check.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Declared_Part_Passes_The_Noun_Check()
@@ -49,6 +52,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Glossary Term Passes The Noun Check.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Glossary_Term_Passes_The_Noun_Check()
@@ -64,6 +68,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Plural Of A Glossary Term Passes The Noun Check.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Plural_Of_A_Glossary_Term_Passes_The_Noun_Check()
@@ -79,6 +84,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Phrasal Verb Strips Before The Noun Check.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Phrasal_Verb_Strips_Before_The_Noun_Check()
@@ -93,6 +99,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Free Noun Reports Use Case Noun Unknown.</summary>
     /// <proves>litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model</proves>
     [Fact]
     public void Free_Noun_Reports_Use_Case_Noun_Unknown()
@@ -108,6 +115,7 @@ public sealed class RecordNameCheckTests
         Assert.Contains("borrow-volume", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Module Code Naming Its State Passes.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Module_Code_Naming_Its_State_Passes()
@@ -123,6 +131,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Declared Generic Refusal Prefix Passes.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Declared_Generic_Refusal_Prefix_Passes()
@@ -139,6 +148,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Declared Module Prefix Passes.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Declared_Module_Prefix_Passes()
@@ -154,6 +164,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Composed Refusal Prefix Passes.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Composed_Refusal_Prefix_Passes()
@@ -168,6 +179,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Project Refusal Prefix Passes.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Project_Refusal_Prefix_Passes()
@@ -182,6 +194,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Vague Word Reports Refusal Code Form.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Vague_Word_Reports_Refusal_Code_Form()
@@ -197,6 +210,7 @@ public sealed class RecordNameCheckTests
         Assert.Contains("invalid", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Foreign Prefix Reports Refusal Code Form.</summary>
     /// <proves>litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses</proves>
     [Fact]
     public void Foreign_Prefix_Reports_Refusal_Code_Form()
@@ -212,6 +226,7 @@ public sealed class RecordNameCheckTests
         Assert.Contains("billing.copy-on-loan", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Template Key Ending In Its Audience Passes.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
     public void Template_Key_Ending_In_Its_Audience_Passes()
@@ -225,6 +240,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Comma Separated Template Keys Pass With None Skipped.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
     public void Comma_Separated_Template_Keys_Pass_With_None_Skipped()
@@ -238,6 +254,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Template Key Missing Its Audience Reports.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
     public void Template_Key_Missing_Its_Audience_Reports()
@@ -252,6 +269,7 @@ public sealed class RecordNameCheckTests
         Assert.Contains("loan-due", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Setting With A Unit Passes.</summary>
     /// <proves>litespec/core/use-cases#state-the-unit-of-every-quantity-setting</proves>
     [Fact]
     public void Setting_With_A_Unit_Passes()
@@ -266,6 +284,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("setting-unit-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Quantity Setting Without A Unit Reports.</summary>
     /// <proves>litespec/core/use-cases#state-the-unit-of-every-quantity-setting</proves>
     [Fact]
     public void Quantity_Setting_Without_A_Unit_Reports()
@@ -280,6 +299,7 @@ public sealed class RecordNameCheckTests
         Assert.Contains("setting/lending.loan-period", message, StringComparison.Ordinal);
     }
 
+    /// <summary>Outbound Event Named For Its Fact Passes.</summary>
     /// <proves>litespec/core/edges#name-published-events-in-the-domains-words</proves>
     [Fact]
     public void Outbound_Event_Named_For_Its_Fact_Passes()
@@ -294,6 +314,7 @@ public sealed class RecordNameCheckTests
         Assert.DoesNotContain("integration-event-name-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Outbound Event Naming Machinery Reports.</summary>
     /// <proves>litespec/core/edges#name-published-events-in-the-domains-words</proves>
     [Fact]
     public void Outbound_Event_Naming_Machinery_Reports()

@@ -19,6 +19,8 @@ public sealed class BatchGuardTests
     }
 
     /// <summary>Adds another owner to the project, so the second-reading guard applies.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="owner">The owner name to add.</param>
     static void AddOwner(string root, string owner = "second-team")
     {
         var path = Path.Combine(root, "litespec.project.json");

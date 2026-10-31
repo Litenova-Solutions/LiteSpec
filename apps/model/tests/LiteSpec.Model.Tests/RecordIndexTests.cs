@@ -11,11 +11,11 @@ public sealed class RecordIndexTests
     [Fact]
     public void Result_Of_Draft_Use_Case_Is_Draft()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("use-case", "use-case/lending.borrow-copy", "draft"),
             new FakeRecord("result", "result/borrow-copy.borrowed"),
-        };
+        ];
 
         var index = new RecordIndex(records);
 
@@ -27,11 +27,11 @@ public sealed class RecordIndexTests
     [Fact]
     public void Result_Without_Holder_Keeps_Own_Status()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("use-case", "use-case/lending.borrow-copy", "draft"),
             new FakeRecord("result", "result/renew-copy.renewed"),
-        };
+        ];
 
         var index = new RecordIndex(records);
 

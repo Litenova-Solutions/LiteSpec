@@ -16,6 +16,8 @@ namespace LiteSpec.Model.Checks;
 internal static class IdentifierChecks
 {
     /// <summary>Reports identifier-invalid, identifier-duplicate, aggregate-name-clash and use-case-name-clash.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -104,6 +106,9 @@ internal static class IdentifierChecks
     }
 
     /// <summary>Reports a requirement whose topic segment differs from its page's name.</summary>
+    /// <param name="record">The requirement record whose topic segment is compared with its page name.</param>
+    /// <param name="home">The home segment split from the requirement identifier.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRequirementTopic(Record record, string home, List<Finding> findings)
     {
         var page = Path.GetFileNameWithoutExtension(record.File);

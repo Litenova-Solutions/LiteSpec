@@ -2,8 +2,10 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the shared UI package and API contracts.</summary>
 public sealed partial class ConsumerValidatorTests
 {
+    /// <summary>Controlled frontend without its shared package.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
@@ -18,6 +20,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "no 'paths.uiPackage'");
     }
 
+    /// <summary>Frontend outside the controlled contract stays quiet.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
@@ -32,6 +35,7 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }
 
+    /// <summary>Child validator findings merge with their prefix.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
@@ -71,6 +75,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "controlled UI:");
     }
 
+    /// <summary>Malformed project file keeps the machine-readable contract.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "malformed project file keeps the machine-readable contract")]
     public void MalformedProjectFileKeepsTheMachineReadableContract()
@@ -84,6 +89,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains("not valid JSON", parsed["problems"]?.ToJsonString() ?? string.Empty, StringComparison.Ordinal);
     }
 
+    /// <summary>Failing run writes its problems as an array.</summary>
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
@@ -102,6 +108,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains(problems, problem => problem.Contains("requires an H2 'Decision'", StringComparison.Ordinal));
     }
 
+    /// <summary>Machine-readable problems carry their level.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact(DisplayName = "machine-readable problems carry their level")]
     public void MachineReadableProblemsCarryTheirLevel()
@@ -119,6 +126,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
     }
 
+    /// <summary>Page with a leading byte-order mark.</summary>
     /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
@@ -146,6 +154,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Project file with a leading byte-order mark.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "project file with a leading byte-order mark")]
     public void ProjectFileWithALeadingByteOrderMark()

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class RefusalCodeCheckTests
 {
+    /// <summary>Bare Refusal With A Wrong Code Reports Runtime Value Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Bare_Refusal_With_A_Wrong_Code_Reports_Runtime_Value_Drift()
@@ -21,6 +22,7 @@ public sealed class RefusalCodeCheckTests
         Assert.Contains("lending.receipt-missing", finding.Message);
     }
 
+    /// <summary>Bare Refusal With The Equal Code Reports No Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Bare_Refusal_With_The_Equal_Code_Reports_No_Drift()
@@ -31,6 +33,7 @@ public sealed class RefusalCodeCheckTests
         Assert.DoesNotContain(drifts, finding => finding.Message.Contains("EqualCodeException"));
     }
 
+    /// <summary>Refusal To A Success Result Reports No Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Refusal_To_A_Success_Result_Reports_No_Drift()
@@ -42,6 +45,7 @@ public sealed class RefusalCodeCheckTests
     }
 
     /// <summary>Writes a consumer with a bare refusal, an equal code, and a success refusal.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
         var temp = Cli.Temp("marks");

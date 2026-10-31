@@ -15,11 +15,18 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS3004);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None && layer != Layer.Test;
 
+    /// <summary>Registers the analysis actions for the sealed class analyzer rule with the compilation context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterCompilationEndAction(Analyze);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(CompilationAnalysisContext context)
     {
         var types = new List<INamedTypeSymbol>();
@@ -43,6 +50,9 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Collects the types.</summary>
+    /// <param name="space">The namespace that contains the types under inspection.</param>
+    /// <param name="types">The types collected so far, in discovery order.</param>
     private static void CollectTypes(INamespaceSymbol space, List<INamedTypeSymbol> types)
     {
         foreach (var member in space.GetTypeMembers())
@@ -56,6 +66,9 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Collects the type.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="types">The types collected so far, in discovery order.</param>
     private static void CollectType(INamedTypeSymbol type, List<INamedTypeSymbol> types)
     {
         types.Add(type);
@@ -65,6 +78,9 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the type is sealable leaf; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is sealable leaf; otherwise false.</returns>
     private static bool IsSealableLeaf(INamedTypeSymbol type)
     {
         if (type.DeclaringSyntaxReferences.Length == 0
@@ -87,6 +103,9 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         return !DesignedForExtension(type);
     }
 
+    /// <summary>Returns true when the designed-for-extension condition holds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the designed-for-extension condition holds; otherwise false.</returns>
     private static bool DesignedForExtension(INamedTypeSymbol type)
     {
         foreach (var member in type.GetMembers())
@@ -100,6 +119,9 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the member is protected; otherwise false.</summary>
+    /// <param name="member">The member declaration under inspection.</param>
+    /// <returns>True when the member is protected; otherwise false.</returns>
     private static bool IsProtected(ISymbol member) =>
         member.DeclaredAccessibility == Accessibility.Protected
         || member.DeclaredAccessibility == Accessibility.ProtectedOrInternal

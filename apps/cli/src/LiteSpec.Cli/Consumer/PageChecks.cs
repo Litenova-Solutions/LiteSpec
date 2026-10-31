@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
@@ -327,7 +328,7 @@ static class PageChecks
     /// <summary>Every refusal-result home the page's records name, each a use-case own name.</summary>
     /// <param name="meta">The page frontmatter.</param>
     /// <returns>The refusal homes the page names.</returns>
-    static IReadOnlyList<string> RefusalHomes(JsonNode? meta)
+    static List<string> RefusalHomes(JsonNode? meta)
     {
         if (meta is not JsonObject page
             || !page.TryGetPropertyValue("records", out var records)
@@ -420,7 +421,7 @@ static class PageChecks
         {
             return JsonNode.Parse(raw.Substring(3, end - 3).Trim());
         }
-        catch (Exception cause)
+        catch (JsonException cause)
         {
             add($"{relative}: JSON parse error: {cause.Message}");
             return null;

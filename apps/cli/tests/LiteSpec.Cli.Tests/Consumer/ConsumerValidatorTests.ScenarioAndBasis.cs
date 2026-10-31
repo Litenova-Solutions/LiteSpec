@@ -2,8 +2,10 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for quality scenarios and decision bases.</summary>
 public sealed partial class ConsumerValidatorTests
 {
+    /// <summary>Quality requirement carrying its scenario.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact(DisplayName = "quality requirement carrying its scenario")]
     public void QualityRequirementCarryingItsScenario()
@@ -13,6 +15,8 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Quality requirement missing a scenario field.</summary>
+    /// <param name="field">The quality scenario field the case removes, such as stimulus or measure.</param>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Theory(DisplayName = "quality requirement missing a scenario field")]
     [InlineData("stimulus")]
@@ -20,6 +24,7 @@ public sealed partial class ConsumerValidatorTests
     [InlineData("response")]
     [InlineData("measure")]
     [InlineData("dueBy")]
+    // The InlineData values name each scenario field case.
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
@@ -27,6 +32,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
+    /// <summary>Functional requirement without scenario fields.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact(DisplayName = "functional requirement without scenario fields")]
     public void FunctionalRequirementWithoutScenarioFields()
@@ -41,6 +47,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Technical decision naming a requirement in basedOn.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact(DisplayName = "technical decision naming a requirement in basedOn")]
     public void TechnicalDecisionNamingRequirement()
@@ -68,9 +75,13 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>The first requirement entry on the pricing page.</summary>
+    /// <param name="meta">The pricing page frontmatter.</param>
+    /// <returns>The first record in the page records array.</returns>
     static JsonObject FirstRecord(JsonObject meta) => (JsonObject)((JsonArray)meta["records"]!)[0]!;
 
     /// <summary>Turns the first pricing record into a quality requirement missing the named fields.</summary>
+    /// <param name="meta">The pricing page frontmatter to mutate.</param>
+    /// <param name="missing">The scenario fields to omit from the record.</param>
     static void QualityRecord(JsonObject meta, string[] missing)
     {
         var record = FirstRecord(meta);

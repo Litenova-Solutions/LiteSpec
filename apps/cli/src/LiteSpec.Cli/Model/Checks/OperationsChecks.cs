@@ -17,6 +17,8 @@ namespace LiteSpec.Model.Checks;
 internal static class OperationsChecks
 {
     /// <summary>Runs alert-link-missing, alert-threshold-drift, quality-alert-missing and the operations-file marks.</summary>
+    /// <param name="model">The loaded project model that holds every record, each measure run and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     public static void Run(ProjectModel model, List<Finding> findings)
     {
         var alerts = AlertRuleReader.Read(model.Config);
@@ -27,6 +29,10 @@ internal static class OperationsChecks
         CheckOperationsMarks(model, findings);
     }
 
+    /// <summary>Reports each alert rule whose requirement or runbook label names no matching record of the required kind.</summary>
+    /// <param name="model">The loaded project model that resolves each labelled record identifier.</param>
+    /// <param name="alerts">The alert rules read from the operations files.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAlertLinked(ProjectModel model, List<AlertRule> alerts, List<Finding> findings)
     {
         foreach (var rule in alerts)
@@ -72,6 +78,10 @@ internal static class OperationsChecks
         }
     }
 
+    /// <summary>Reports each alert rule that carries none of the decimal numbers its quality requirement names in its measure.</summary>
+    /// <param name="model">The loaded project model that resolves each labelled requirement.</param>
+    /// <param name="alerts">The alert rules read from the operations files.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAlertThreshold(ProjectModel model, List<AlertRule> alerts, List<Finding> findings)
     {
         foreach (var rule in alerts)
@@ -107,6 +117,9 @@ internal static class OperationsChecks
     }
 
     /// <summary>Whether the carried number states the wanted one, as written or as a percent of it.</summary>
+    /// <param name="wanted">The decimal number as written in the requirement measure.</param>
+    /// <param name="carried">The decimal number as written in the alert rule text.</param>
+    /// <returns>True when both numbers agree as written or one states the other as a percent; otherwise false.</returns>
     private static bool NumberMatches(string wanted, string carried)
     {
         if (string.Equals(wanted, carried, StringComparison.Ordinal))
@@ -123,6 +136,10 @@ internal static class OperationsChecks
         return have == want / 100m || want == have / 100m;
     }
 
+    /// <summary>Reports each quality requirement that no alert rule names and no measured check result matches.</summary>
+    /// <param name="model">The loaded project model that holds every requirement and each measure run.</param>
+    /// <param name="alerts">The alert rules read from the operations files.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckQualityAlerted(ProjectModel model, List<AlertRule> alerts, List<Finding> findings)
     {
         var named = new HashSet<string>(StringComparer.Ordinal);
@@ -160,6 +177,9 @@ internal static class OperationsChecks
         }
     }
 
+    /// <summary>Reports each operations file that carries no follows mark and validates each mark it carries.</summary>
+    /// <param name="model">The loaded project model that holds the project configuration and every record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckOperationsMarks(ProjectModel model, List<Finding> findings)
     {
         var byFile = OperationsMarkReader.Read(model.Config)
@@ -189,6 +209,10 @@ internal static class OperationsChecks
     ///     the carried release on an applied page, or a decision or exception that
     ///     is not retired.
     /// </summary>
+    /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and every record.</param>
+    /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
+    /// <param name="mark">The follows mark read from the operations file.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckOperationsFollows(ProjectModel model, string relative, OperationsMark mark, List<Finding> findings)
     {
         var name = $"Operations file '{relative}'";
@@ -235,8 +259,12 @@ internal static class OperationsChecks
     }
 
     /// <summary>One rule label, or null when the rule carries no value for the key.</summary>
+    /// <param name="rule">The alert rule whose labels are read.</param>
+    /// <param name="key">The label name whose value is wanted.</param>
+    /// <returns>The label value, or null when the rule carries no non-empty value for the key.</returns>
     private static string? Label(AlertRule rule, string key) =>
         rule.Labels.TryGetValue(key, out var value) && value.Length > 0 ? value : null;
 
+    /// <summary>Finds each decimal number in a measure or an alert rule text.</summary>
     private static readonly Regex Decimals = new(@"\d+(\.\d+)?", RegexOptions.Compiled);
 }

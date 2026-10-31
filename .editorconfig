@@ -1,0 +1,80 @@
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{cs,csproj,props,targets,slnx}]
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,ts,mjs,js,astro,svelte,css}]
+indent_style = space
+indent_size = 2
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped
+csharp_preferred_modifier_order = public, internal, protected, private, file, static, async, abstract, virtual, readonly, sealed, override, extern, unsafe, volatile, new, required:suggestion
+
+# StyleCop: the documentation rules only, as in LiteBus. File headers are not used.
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = warning
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.MaintainabilityRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.NamingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.OrderingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.ReadabilityRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.SpacingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.SpecialRules.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1634.severity = none
+dotnet_diagnostic.SA1635.severity = none
+dotnet_diagnostic.SA1636.severity = none
+dotnet_diagnostic.SA1637.severity = none
+dotnet_diagnostic.SA1638.severity = none
+
+# SA1629 asks for a period at the end of every documentation element, and it reads LiteSpec's own
+# <follows> and <proves> marks as documentation text. Their content is a provision or record
+# identifier that the tools parse, where a period would name a provision that does not exist.
+dotnet_diagnostic.SA1629.severity = none
+
+# One type per file, named after the file.
+dotnet_diagnostic.SA1402.severity = warning
+dotnet_diagnostic.SA1649.severity = warning
+
+# Code analysis rules LiteBus raises.
+dotnet_diagnostic.CA1510.severity = warning
+dotnet_diagnostic.CA1511.severity = warning
+dotnet_diagnostic.CA1069.severity = warning
+dotnet_diagnostic.CA1031.severity = warning
+dotnet_diagnostic.CA1062.severity = none
+# The tools are console applications, not libraries: no synchronization context to escape,
+# so ConfigureAwait on every await would be noise rather than the safeguard CA2007 is in LiteBus.
+dotnet_diagnostic.CA2007.severity = none
+
+# Code style.
+dotnet_diagnostic.IDE0161.severity = error
+dotnet_diagnostic.IDE0300.severity = warning
+dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.IDE0007.severity = none
+
+[apps/*/tests/**.cs]
+# Test methods are named by their scenario with underscores, test doubles take handler-like names,
+# and test namespaces mirror the scenarios they cover.
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1711.severity = none
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1859.severity = none
+# A test states its expected values beside the assertion that reads them; hoisting each literal
+# array into a static field for a one-off allocation would hide the expectation.
+dotnet_diagnostic.CA1861.severity = none
+# Documentation is required on the production code; a test's DisplayName and proves mark describe it.
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.IDE0161.severity = warning
+
+[apps/cli/tests/**/Fixtures/**.cs]
+# Fixtures are sample consumer code read as text by the readers under test, never compiled here.
+generated_code = true

@@ -11,6 +11,9 @@ namespace LiteSpec.Model.Readers.Measures;
 static class LighthouseResultReader
 {
     /// <summary>Reads the categories and measured audits of a Lighthouse report.</summary>
+    /// <param name="root">The root element of the parsed document.</param>
+    /// <param name="file">The path of the file to read.</param>
+    /// <returns>One measure result per category and per measured audit.</returns>
     public static List<MeasureResult> Parse(JsonElement root, string file)
     {
         var measures = new List<MeasureResult>();
@@ -69,6 +72,9 @@ static class LighthouseResultReader
         return measures;
     }
 
+    /// <summary>The numeric score a Lighthouse node states, as written, or null when it states none.</summary>
+    /// <param name="node">The Lighthouse node whose numeric score is read.</param>
+    /// <returns>The score as written, or null when the node states no numeric score.</returns>
     private static string? ScoreOf(JsonElement node) =>
         node.ValueKind == JsonValueKind.Object
         && node.TryGetProperty("score", out var score)

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class MarkVerbTests
 {
+    /// <summary>Proves On A Handler Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_On_A_Handler_Reports_Mark_Unresolved()
@@ -21,6 +22,7 @@ public sealed class MarkVerbTests
         Assert.Contains("takes implements", finding.Message);
     }
 
+    /// <summary>Implements On A Test Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Implements_On_A_Test_Reports_Mark_Unresolved()
@@ -34,6 +36,7 @@ public sealed class MarkVerbTests
         Assert.Contains("takes proves", finding.Message);
     }
 
+    /// <summary>Matching Verbs Report No Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Matching_Verbs_Report_No_Mark_Unresolved()
@@ -47,6 +50,7 @@ public sealed class MarkVerbTests
     }
 
     /// <summary>Writes a consumer where one handler proves and one test implements, beside matching marks.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
         var temp = Cli.Temp("marks");

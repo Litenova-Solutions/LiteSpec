@@ -34,7 +34,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         ImmutableArray<string>.Empty,
         ImmutableArray<string>.Empty);
 
-    /// <summary>Creates a record model.</summary>
+    /// <summary>Initializes a new instance of the <see cref="RecordModel"/> class.Creates a record model.</summary>
     /// <param name="valid">Whether a project file was found and parsed.</param>
     /// <param name="style">The declared mark style.</param>
     /// <param name="eventIds">The event identifiers, sorted.</param>
@@ -69,34 +69,34 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         PhrasalVerbs = phrasalVerbs;
     }
 
-    /// <summary>Whether a project file was found and parsed.</summary>
+    /// <summary>Gets a value indicating whether whether a project file was found and parsed.</summary>
     public bool Valid { get; }
 
-    /// <summary>The declared mark style.</summary>
+    /// <summary>Gets the declared mark style.</summary>
     public MarkStyle Style { get; }
 
-    /// <summary>The event identifiers, sorted.</summary>
+    /// <summary>Gets the event identifiers, sorted.</summary>
     public ImmutableArray<string> EventIds { get; }
 
-    /// <summary>Each rule with a refusal code, sorted by rule.</summary>
+    /// <summary>Gets each rule with a refusal code, sorted by rule.</summary>
     public ImmutableArray<RuleCode> RuleCodes { get; }
 
-    /// <summary>Each permission with its scope, group and risks, sorted by id.</summary>
+    /// <summary>Gets each permission with its scope, group and risks, sorted by id.</summary>
     public ImmutableArray<PermissionFacts> Permissions { get; }
 
-    /// <summary>Each role with its scope and allowed permissions, sorted by id.</summary>
+    /// <summary>Gets each role with its scope and allowed permissions, sorted by id.</summary>
     public ImmutableArray<RoleFacts> Roles { get; }
 
-    /// <summary>Each use case with an access grant, sorted by use case.</summary>
+    /// <summary>Gets each use case with an access grant, sorted by use case.</summary>
     public ImmutableArray<UseCaseGrant> Grants { get; }
 
-    /// <summary>The domain verbs the project adds to the baseline.</summary>
+    /// <summary>Gets the domain verbs the project adds to the baseline.</summary>
     public ImmutableArray<string> Verbs { get; }
 
-    /// <summary>The project verbs that name a query.</summary>
+    /// <summary>Gets the project verbs that name a query.</summary>
     public ImmutableArray<string> QueryVerbs { get; }
 
-    /// <summary>The multi-word verbs counted as one opening.</summary>
+    /// <summary>Gets the multi-word verbs counted as one opening.</summary>
     public ImmutableArray<string> PhrasalVerbs { get; }
 
     /// <summary>
@@ -254,6 +254,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         }
     }
 
+    /// <summary>Returns the project file.</summary>
+    /// <param name="texts">Every additional file handed to the generator.</param>
+    /// <returns>The project file, or null when none applies.</returns>
     private static AdditionalText? FindProjectFile(List<AdditionalText> texts)
     {
         foreach (var text in texts)
@@ -267,6 +270,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return null;
     }
 
+    /// <summary>Returns the roots.</summary>
+    /// <param name="projectText">The project file text to read the settings and roots from.</param>
+    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
+    /// <returns>The roots, in the order this method builds them, or an empty collection when none apply.</returns>
     private static List<string> DocRoots(string projectText, string projectDir)
     {
         var docs = new List<string>();
@@ -306,6 +313,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return roots;
     }
 
+    /// <summary>Collects the roots.</summary>
+    /// <param name="paths">The paths object from the project file, or null when it states none.</param>
+    /// <param name="name">The name to convert or match.</param>
+    /// <param name="values">The values collected so far, in the order they were found.</param>
     private static void CollectRoots(JsonText paths, string name, List<string> values)
     {
         if (!paths.TryGetProperty(name, out var value))
@@ -333,6 +344,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         }
     }
 
+    /// <summary>Adds the root.</summary>
+    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
+    /// <param name="value">The value to convert or test.</param>
+    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
     private static void AddRoot(string projectDir, string value, List<string> roots)
     {
         var root = ResolveRoot(projectDir, value);
@@ -343,13 +358,17 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         }
     }
 
+    /// <summary>Returns the root.</summary>
+    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
+    /// <param name="value">The value to convert or test.</param>
+    /// <returns>The root as text.</returns>
     private static string ResolveRoot(string projectDir, string value)
     {
         var cleaned = value.Replace('\\', '/');
         var joined = IsRooted(cleaned) || projectDir.Length == 0
             ? cleaned
             : projectDir + "/" + cleaned;
-        var parts = joined.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = joined.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
         var kept = new List<string>();
 
         foreach (var part in parts)
@@ -382,10 +401,16 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return resolved;
     }
 
+    /// <summary>Returns true when the path is rooted; otherwise false.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>True when the path is rooted; otherwise false.</returns>
     private static bool IsRooted(string path) =>
         path.StartsWith("/", StringComparison.Ordinal)
         || (path.Length > 1 && path[1] == ':');
 
+    /// <summary>Returns the directory of the path.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>The directory of the path.</returns>
     private static string DirectoryOf(string path)
     {
         var cleaned = path.Replace('\\', '/');
@@ -394,6 +419,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return slash < 0 ? string.Empty : cleaned.Substring(0, slash);
     }
 
+    /// <summary>Returns true when the under-any-root condition holds; otherwise false.</summary>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
+    /// <returns>True when the under-any-root condition holds; otherwise false.</returns>
     private static bool UnderAnyRoot(string path, List<string> roots)
     {
         var cleaned = path.Replace('\\', '/');
@@ -410,6 +439,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return false;
     }
 
+    /// <summary>Returns the ids of the index.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The ids of the index.</returns>
     private static ImmutableArray<string> IdsOf(RecordIndex index, string type)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -428,6 +461,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(ids);
     }
 
+    /// <summary>Returns the codes of.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <returns>The codes of, in the order this method builds them, or an empty collection when none apply.</returns>
     private static ImmutableArray<RuleCode> RuleCodesOf(RecordIndex index)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -455,6 +491,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(codes);
     }
 
+    /// <summary>Returns the permissions of the index.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <returns>The permissions of the index.</returns>
     private static ImmutableArray<PermissionFacts> PermissionsOf(RecordIndex index)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -479,6 +518,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(found);
     }
 
+    /// <summary>Returns the roles of the index.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <returns>The roles of the index.</returns>
     private static ImmutableArray<RoleFacts> RolesOf(RecordIndex index)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -502,6 +544,10 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(found);
     }
 
+    /// <summary>Returns the grants of the index.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <param name="grants">The access grants read from the record pages, by use-case identifier.</param>
+    /// <returns>The grants of the index.</returns>
     private static ImmutableArray<UseCaseGrant> GrantsOf(
         RecordIndex index, Dictionary<string, string> grants)
     {
@@ -524,207 +570,5 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         found.Sort(static (left, right) => string.Compare(left.UseCaseId, right.UseCaseId, StringComparison.Ordinal));
 
         return ImmutableArray.CreateRange(found);
-    }
-}
-
-/// <summary>One rule with the refusal code its exception carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-internal sealed class RuleCode : IEquatable<RuleCode>
-{
-    /// <summary>Creates a rule code.</summary>
-    /// <param name="ruleId">The rule identifier.</param>
-    /// <param name="code">The code of its refusal result, or its bare refusal code.</param>
-    public RuleCode(string ruleId, string code)
-    {
-        RuleId = ruleId;
-        Code = code;
-    }
-
-    /// <summary>The rule identifier.</summary>
-    public string RuleId { get; }
-
-    /// <summary>The code of its refusal result, or its bare refusal code.</summary>
-    public string Code { get; }
-
-    /// <inheritdoc />
-    public bool Equals(RuleCode? other) =>
-        other is not null
-        && string.Equals(RuleId, other.RuleId, StringComparison.Ordinal)
-        && string.Equals(Code, other.Code, StringComparison.Ordinal);
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is RuleCode other && Equals(other);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(RuleId);
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Code);
-
-            return hash;
-        }
-    }
-}
-
-/// <summary>One permission with the facts the generated entry carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
-internal sealed class PermissionFacts : IEquatable<PermissionFacts>
-{
-    /// <summary>Creates permission facts.</summary>
-    /// <param name="id">The permission identifier.</param>
-    /// <param name="scope">The reach at which a role grants it, or empty when the record states none.</param>
-    /// <param name="group">The group ordering it beside its peers, or null when the record states none.</param>
-    /// <param name="risks">The risks the record marks, in record order.</param>
-    public PermissionFacts(string id, string scope, string? group, ImmutableArray<string> risks)
-    {
-        Id = id;
-        Scope = scope;
-        Group = group;
-        Risks = risks;
-    }
-
-    /// <summary>The permission identifier.</summary>
-    public string Id { get; }
-
-    /// <summary>The reach at which a role grants it, or empty when the record states none.</summary>
-    public string Scope { get; }
-
-    /// <summary>The group ordering it beside its peers, or null when the record states none.</summary>
-    public string? Group { get; }
-
-    /// <summary>The risks the record marks, in record order.</summary>
-    public ImmutableArray<string> Risks { get; }
-
-    /// <inheritdoc />
-    public bool Equals(PermissionFacts? other) =>
-        other is not null
-        && string.Equals(Id, other.Id, StringComparison.Ordinal)
-        && string.Equals(Scope, other.Scope, StringComparison.Ordinal)
-        && string.Equals(Group, other.Group, StringComparison.Ordinal)
-        && Risks.SequenceEqual(other.Risks);
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is PermissionFacts other && Equals(other);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Id);
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Scope);
-
-            if (Group is not null)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Group);
-            }
-
-            foreach (var risk in Risks)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(risk);
-            }
-
-            return hash;
-        }
-    }
-}
-
-/// <summary>One role with the facts the generated entry carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
-internal sealed class RoleFacts : IEquatable<RoleFacts>
-{
-    /// <summary>Creates role facts.</summary>
-    /// <param name="id">The role identifier.</param>
-    /// <param name="scope">The reach of the grant, or empty when the record states none.</param>
-    /// <param name="allows">The permission identifiers the record allows, in record order.</param>
-    public RoleFacts(string id, string scope, ImmutableArray<string> allows)
-    {
-        Id = id;
-        Scope = scope;
-        Allows = allows;
-    }
-
-    /// <summary>The role identifier.</summary>
-    public string Id { get; }
-
-    /// <summary>The reach of the grant, or empty when the record states none.</summary>
-    public string Scope { get; }
-
-    /// <summary>The permission identifiers the record allows, in record order.</summary>
-    public ImmutableArray<string> Allows { get; }
-
-    /// <inheritdoc />
-    public bool Equals(RoleFacts? other) =>
-        other is not null
-        && string.Equals(Id, other.Id, StringComparison.Ordinal)
-        && string.Equals(Scope, other.Scope, StringComparison.Ordinal)
-        && Allows.SequenceEqual(other.Allows);
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is RoleFacts other && Equals(other);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Id);
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Scope);
-
-            foreach (var allowed in Allows)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(allowed);
-            }
-
-            return hash;
-        }
-    }
-}
-
-/// <summary>One use case with its access grant.</summary>
-/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-internal sealed class UseCaseGrant : IEquatable<UseCaseGrant>
-{
-    /// <summary>Creates a use-case grant.</summary>
-    /// <param name="useCaseId">The use-case identifier.</param>
-    /// <param name="grant">Its access grant.</param>
-    public UseCaseGrant(string useCaseId, string grant)
-    {
-        UseCaseId = useCaseId;
-        Grant = grant;
-    }
-
-    /// <summary>The use-case identifier.</summary>
-    public string UseCaseId { get; }
-
-    /// <summary>Its access grant.</summary>
-    public string Grant { get; }
-
-    /// <inheritdoc />
-    public bool Equals(UseCaseGrant? other) =>
-        other is not null
-        && string.Equals(UseCaseId, other.UseCaseId, StringComparison.Ordinal)
-        && string.Equals(Grant, other.Grant, StringComparison.Ordinal);
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is UseCaseGrant other && Equals(other);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(UseCaseId);
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Grant);
-
-            return hash;
-        }
     }
 }

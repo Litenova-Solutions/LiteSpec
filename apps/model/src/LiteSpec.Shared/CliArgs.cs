@@ -19,22 +19,29 @@ public sealed class CliArgs
     /// <summary>Options a command collects repeatedly from the raw arguments.</summary>
     static readonly HashSet<string> RepeatableOptions = new(StringComparer.Ordinal) { "--batch", "--batches" };
 
+    /// <summary>The option values by option name.</summary>
     readonly Dictionary<string, string> values = new(StringComparer.Ordinal);
+    /// <summary>The flags that were passed.</summary>
     readonly HashSet<string> flags = new(StringComparer.Ordinal);
 
-    /// <summary>The arguments that are not options, in order.</summary>
+    /// <summary>Gets the arguments that are not options, in order.</summary>
     public List<string> Positionals { get; } = [];
 
-    /// <summary>The usage error, or null when the arguments parsed.</summary>
+    /// <summary>Gets the usage error, or null when the arguments parsed.</summary>
     public string? Error { get; private set; }
 
-    /// <summary>True when <c>--help</c> or <c>-h</c> was passed.</summary>
+    /// <summary>Gets a value indicating whether true when <c>--help</c> or <c>-h</c> was passed.</summary>
     public bool Help { get; private set; }
 
     /// <summary>
     ///     Parses <paramref name="args"/> against the declared flags and value options.
     ///     Names include their dashes, such as <c>--check</c> or <c>--root</c>.
     /// </summary>
+    /// <param name="args">The raw arguments.</param>
+    /// <param name="flagNames">The declared flag names, with their dashes.</param>
+    /// <param name="optionNames">The declared value option names, with their dashes.</param>
+    /// <param name="maxPositionals">The most positional arguments the command takes.</param>
+    /// <returns>The parsed arguments, with any usage error stated.</returns>
     public static CliArgs Parse(string[] args, IEnumerable<string> flagNames, IEnumerable<string> optionNames, int maxPositionals = 0)
     {
         var result = new CliArgs();
@@ -119,18 +126,24 @@ public sealed class CliArgs
     }
 
     /// <summary>True when the flag was passed.</summary>
+    /// <param name="flag">The flag name, with its dashes.</param>
+    /// <returns>True when the caller passed the flag on the command line; otherwise false.</returns>
     public bool Has(string flag) => flags.Contains(flag);
 
     /// <summary>The option's value, or null when it was not passed.</summary>
+    /// <param name="option">The option name, with its dashes.</param>
+    /// <returns>The option value, or null when it was not passed.</returns>
     public string? Value(string option) => values.GetValueOrDefault(option);
 
-    /// <summary>True when <c>--format json</c> or <c>--format=json</c> was passed.</summary>
+    /// <summary>Gets a value indicating whether true when <c>--format json</c> or <c>--format=json</c> was passed.</summary>
     public bool Json => Value("--format") == "json";
 
-    /// <summary>A usage error for a <c>--format</c> value other than <c>json</c> or <c>text</c>.</summary>
+    /// <summary>Gets a usage error for a <c>--format</c> value other than <c>json</c> or <c>text</c>.</summary>
     public string? FormatError => Value("--format") is null or "json" or "text" ? null : $"Unknown format '{Value("--format")}'; use json or text.";
 
     /// <summary>The <c>--root</c> value as a full path, or the working directory.</summary>
+    /// <param name="fallback">The root to use when no root option was passed.</param>
+    /// <returns>The root as a full path.</returns>
     public string Root(string? fallback = null) =>
         Path.GetFullPath(Value("--root") ?? fallback ?? Directory.GetCurrentDirectory());
 }

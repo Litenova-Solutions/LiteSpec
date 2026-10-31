@@ -9,9 +9,10 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public sealed class IndexRecord : IRecordFacts
 {
+    /// <summary>The record's JSON object.</summary>
     private readonly JsonText raw;
 
-    /// <summary>Builds the record from its JSON object.</summary>
+    /// <summary>Initializes a new instance of the <see cref="IndexRecord"/> class.Builds the record from its JSON object.</summary>
     /// <param name="raw">The record's JSON object.</param>
     /// <param name="file">The absolute file path.</param>
     /// <param name="line">The 1-based line.</param>
@@ -40,37 +41,41 @@ public sealed class IndexRecord : IRecordFacts
         Status = StringOf(raw, "status") ?? inheritedStatus;
     }
 
-    /// <summary>The record type, kebab-case.</summary>
+    /// <summary>Gets the record type, kebab-case.</summary>
     public string Type { get; }
 
-    /// <summary>The identifier.</summary>
+    /// <summary>Gets the identifier.</summary>
     public string Id { get; }
 
-    /// <summary>The display title.</summary>
+    /// <summary>Gets the display title.</summary>
     public string Title { get; }
 
-    /// <summary>The resolved owner: the entry's own, else its page's.</summary>
+    /// <summary>Gets the resolved owner: the entry's own, else its page's.</summary>
     public string? Owner { get; }
 
-    /// <summary>The resolved status: the entry's own, else its page's.</summary>
+    /// <summary>Gets the resolved status: the entry's own, else its page's.</summary>
     public string? Status { get; }
 
-    /// <summary>The absolute file path.</summary>
+    /// <summary>Gets the absolute file path.</summary>
     public string File { get; }
 
-    /// <summary>The 1-based line.</summary>
+    /// <summary>Gets the 1-based line.</summary>
     public int Line { get; }
 
-    /// <summary>Whether the record is an entry rather than a page.</summary>
+    /// <summary>Gets a value indicating whether whether the record is an entry rather than a page.</summary>
     public bool IsEntry { get; }
 
-    /// <summary>The carrying page's record id, for an entry.</summary>
+    /// <summary>Gets the carrying page's record id, for an entry.</summary>
     public string? PageId { get; }
 
     /// <summary>Reads one optional string field.</summary>
+    /// <param name="name">The field name.</param>
+    /// <returns>The field text, or null when the record holds no such string field.</returns>
     public string? Field(string name) => StringOf(raw, name);
 
     /// <summary>Reads one field that holds one id or an array of ids.</summary>
+    /// <param name="name">The field name.</param>
+    /// <returns>The ids the field holds, in field order; empty when it holds none.</returns>
     public IReadOnlyList<string> Ids(string name)
     {
         if (!raw.TryGetProperty(name, out var value))
@@ -80,7 +85,7 @@ public sealed class IndexRecord : IRecordFacts
 
         if (value.Kind == JsonKind.String && value.GetString() is string single)
         {
-            return new string[] { single };
+            return [single];
         }
 
         if (value.Kind == JsonKind.Array)
@@ -101,6 +106,10 @@ public sealed class IndexRecord : IRecordFacts
         return Array.Empty<string>();
     }
 
+    /// <summary>Reads one optional string field from a JSON object.</summary>
+    /// <param name="node">The JSON object.</param>
+    /// <param name="name">The field name.</param>
+    /// <returns>The field text, or null when the object holds no such string field.</returns>
     private static string? StringOf(JsonText node, string name) =>
         node.TryGetProperty(name, out var value) ? value.GetString() : null;
 }

@@ -8,17 +8,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Analyzers.Tests.Support;
 
-/// <summary>The outcome of one generator run.</summary>
-/// <param name="Sources">The generated sources by hint name.</param>
-/// <param name="ReportedDiagnostics">The diagnostics the generator reported.</param>
-/// <param name="CompileErrors">The errors of the user code with the generated sources.</param>
-/// <param name="RunResult">The full run result, with the tracked steps.</param>
-internal sealed record GeneratorRun(
-    IReadOnlyDictionary<string, string> Sources,
-    ImmutableArray<Diagnostic> ReportedDiagnostics,
-    IReadOnlyList<Diagnostic> CompileErrors,
-    GeneratorDriverRunResult RunResult);
-
 /// <summary>
 /// Runs the LiteSpec source generator over C# sources and additional files and returns the
 /// generated sources with the diagnostics and the final compilation errors. Sources parse with
@@ -59,7 +48,8 @@ internal static class GeneratorVerify
         // A consumer may treat warnings as errors, so a warning inside generated code counts too.
         foreach (var diagnostic in compilation.AddSyntaxTrees(result.GeneratedTrees).GetDiagnostics())
         {
-            var inGenerated = result.GeneratedTrees.Contains(diagnostic.Location.SourceTree);
+            var sourceTree = diagnostic.Location.SourceTree;
+            var inGenerated = sourceTree is not null && result.GeneratedTrees.Contains(sourceTree);
 
             if (diagnostic.Severity == DiagnosticSeverity.Error
                 || (diagnostic.Severity == DiagnosticSeverity.Warning && inGenerated))
@@ -135,6 +125,7 @@ internal static class GeneratorVerify
         driver.RunGenerators(compilation).GetRunResult();
 
     /// <summary>The running .NET's own assemblies, enough to compile any BCL-only test source.</summary>
+    /// <returns>The metadata references of the running .NET assemblies.</returns>
     private static ImmutableArray<MetadataReference> LoadReferences()
     {
         var paths = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);

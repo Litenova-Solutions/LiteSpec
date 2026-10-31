@@ -13,6 +13,8 @@ static class Purl
     ///     is percent-decoded, and a URL without a version yields an empty version.
     ///     Returns null when the value is no package URL.
     /// </summary>
+    /// <param name="value">The package URL text to parse, such as pkg:nuget/Name@1.0.0.</param>
+    /// <returns>The ecosystem, the decoded name, and the version, or null when the value is no package URL.</returns>
     public static (string Ecosystem, string Name, string Version)? Parse(string value)
     {
         if (!value.StartsWith("pkg:", StringComparison.Ordinal))

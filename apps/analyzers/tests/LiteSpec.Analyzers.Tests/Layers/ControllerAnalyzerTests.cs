@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2003, no MVC controllers in WebApi.</summary>
 public sealed class ControllerAnalyzerTests
 {
+    /// <summary>LS2003 reports a class deriving from ControllerBase.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a class deriving from ControllerBase")]
     public Task ReportsAControllerBaseSubclass() =>
@@ -23,6 +25,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 reports an indirect subclass and its abstract base.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports an indirect subclass and its abstract base")]
     public Task ReportsAnIndirectSubclassAndItsBase() =>
@@ -42,6 +46,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 reports a class deriving from Controller.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a class deriving from Controller")]
     public Task ReportsAControllerSubclass() =>
@@ -61,6 +67,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 reports ApiController alone.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports ApiController alone")]
     public Task ReportsApiControllerAlone() =>
@@ -81,6 +89,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 reports a controller with ApiController once.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a controller with ApiController once")]
     public Task ReportsABaseAndAttributeBreachOnce() =>
@@ -103,6 +113,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 accepts a minimal API endpoint class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 accepts a minimal API endpoint class")]
     public Task AcceptsAMinimalApiEndpoint() =>
@@ -120,6 +132,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS2003 ignores a controller in Application.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 ignores a controller in Application")]
     public Task IgnoresAControllerInApplication() =>
@@ -137,6 +151,8 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2003 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

@@ -13,16 +13,16 @@ namespace LiteSpec.Model;
 /// <param name="Subject">The record id the finding is about, when there is one.</param>
 public sealed record Finding(string Code, string Message, string Path, int Line, string? Subject)
 {
-    /// <summary>The reader that produced this finding's facts: <c>roslyn</c>, <c>typescript</c>, or null for a record-only finding.</summary>
+    /// <summary>Gets the reader that produced this finding's facts: <c>roslyn</c>, <c>typescript</c>, or null for a record-only finding.</summary>
     public string? Reader { get; init; }
 
-    /// <summary>Whether the reader named by <see cref="Reader" /> is qualified, so its S findings block.</summary>
+    /// <summary>Gets a value indicating whether whether the reader named by <see cref="Reader" /> is qualified, so its S findings block.</summary>
     public bool ReaderIsQualified { get; init; } = true;
 
     /// <summary>The .NET (Roslyn) reader name.</summary>
     public const string RoslynReader = "roslyn";
 
-    /// <summary>The tier this one finding carries instead of its code's tier, when the check grades it by risk.</summary>
+    /// <summary>Gets the tier this one finding carries instead of its code's tier, when the check grades it by risk.</summary>
     public string? TierOverride { get; init; }
 
     /// <summary>The TypeScript reader name.</summary>
@@ -170,6 +170,6 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["proof-invalid"] = "A",
         };
 
-    /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>
+    /// <summary>Gets the finding tier: G blocks, S blocks where qualified, A reports.</summary>
     public string Tier => TierOverride ?? (Tiers.TryGetValue(Code, out var tier) ? tier : "G");
 }

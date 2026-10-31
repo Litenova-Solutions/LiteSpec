@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the reaction-trigger-unknown check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
 {
+    /// <summary>Reaction Without A Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_Without_A_Trigger_Reports()
@@ -18,6 +19,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With An Unresolved Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_With_An_Unresolved_Trigger_Reports()
@@ -30,6 +32,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With A Non Event Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_With_A_Non_Event_Trigger_Reports()
@@ -43,6 +46,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With An Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_With_An_Event_Trigger_Passes()
@@ -56,6 +60,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With An Integration Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_With_An_Integration_Event_Trigger_Passes()
@@ -69,6 +74,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction With Two Event Triggers Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Reaction_With_Two_Event_Triggers_Passes()
@@ -83,6 +89,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
+    /// <summary>Command Without A Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
     public void Command_Without_A_Trigger_Passes()

@@ -3,6 +3,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves the mark presence, link, style and drift findings against the marks fixtures.</summary>
 public sealed class MarkFindingTests
 {
+    /// <summary>Handler Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Handler_Without_A_Mark_Reports_Mark_Missing()
@@ -16,6 +17,7 @@ public sealed class MarkFindingTests
         Assert.Null(finding.Subject);
     }
 
+    /// <summary>Mark Naming No Record Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
@@ -28,6 +30,7 @@ public sealed class MarkFindingTests
         Assert.Equal("use-case/lending.ghost", finding.Subject);
     }
 
+    /// <summary>Mark Naming A Record Of Another Type Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_A_Record_Of_Another_Type_Reports_Mark_Unresolved()
@@ -41,6 +44,7 @@ public sealed class MarkFindingTests
         Assert.Equal("rule/loan.copy-available", finding.Subject);
     }
 
+    /// <summary>Handler With Two Marks Reports Mark Count.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Handler_With_Two_Marks_Reports_Mark_Count()
@@ -52,6 +56,7 @@ public sealed class MarkFindingTests
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);
     }
 
+    /// <summary>Port Naming One System Twice Reports Mark Count.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Port_Naming_One_System_Twice_Reports_Mark_Count()
@@ -63,6 +68,7 @@ public sealed class MarkFindingTests
         Assert.Contains("external-system/text-gateway", finding.Message);
     }
 
+    /// <summary>Mark In The Undeclared Style Reports Mark Style Mixed.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Mark_In_The_Undeclared_Style_Reports_Mark_Style_Mixed()
@@ -77,6 +83,7 @@ public sealed class MarkFindingTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <summary>Event Classification Drifting From Its Record Reports Runtime Value Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Event_Classification_Drifting_From_Its_Record_Reports_Runtime_Value_Drift()
@@ -89,6 +96,7 @@ public sealed class MarkFindingTests
         Assert.Contains("event/loan.placed", finding.Message);
     }
 
+    /// <summary>Exception Code Drifting From Its Result Reports Runtime Value Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Exception_Code_Drifting_From_Its_Result_Reports_Runtime_Value_Drift()

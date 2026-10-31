@@ -4,84 +4,6 @@ using System.Collections.Generic;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One mark read from text: the verb it was written with, the record
-///     identifier it names, the offset where the mark starts, and whether it
-///     was written as an attribute rather than a tag. The caller assigns the
-///     style from the language it reads: a tag in C# is <see cref="MarkStyle.Xml" />,
-///     a tag in an operations comment is <see cref="MarkStyle.Comment" />, and an
-///     attribute is <see cref="MarkStyle.Attribute" />.
-/// </summary>
-/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-public sealed class ParsedMark : IEquatable<ParsedMark>
-{
-    /// <summary>Creates a parsed mark.</summary>
-    /// <param name="verb">The verb the mark was written with.</param>
-    /// <param name="recordId">The record identifier, trimmed and non-empty.</param>
-    /// <param name="index">The offset where the mark starts.</param>
-    /// <param name="fromAttribute">True for an attribute, false for a tag.</param>
-    /// <exception cref="ArgumentNullException">The record identifier is null.</exception>
-    public ParsedMark(MarkVerb verb, string recordId, int index, bool fromAttribute)
-    {
-        if (recordId is null)
-        {
-            throw new ArgumentNullException(nameof(recordId));
-        }
-
-        Verb = verb;
-        RecordId = recordId;
-        Index = index;
-        FromAttribute = fromAttribute;
-    }
-
-    /// <summary>The verb the mark was written with.</summary>
-    public MarkVerb Verb { get; }
-
-    /// <summary>The record identifier, trimmed and non-empty.</summary>
-    public string RecordId { get; }
-
-    /// <summary>The offset where the mark starts.</summary>
-    public int Index { get; }
-
-    /// <summary>True for an attribute, false for a tag.</summary>
-    public bool FromAttribute { get; }
-
-    /// <inheritdoc />
-    public bool Equals(ParsedMark? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return Verb == other.Verb
-            && string.Equals(RecordId, other.RecordId, StringComparison.Ordinal)
-            && Index == other.Index
-            && FromAttribute == other.FromAttribute;
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is ParsedMark other && Equals(other);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            hash = hash * 31 + Verb.GetHashCode();
-            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(RecordId);
-            hash = hash * 31 + Index.GetHashCode();
-            hash = hash * 31 + FromAttribute.GetHashCode();
-            return hash;
-        }
-    }
-
-    /// <inheritdoc />
-    public override string ToString() =>
-        Verb.ToTagName() + " " + RecordId + " (at " + Index + ")";
-}
-
-/// <summary>
 ///     Reads marks from text in every written form: the documentation tags and
 ///     the generated attributes. The Blazor and operations readers share this,
 ///     so all three read the same verbs with the same trimming. Matching is
@@ -208,6 +130,12 @@ public static class MarkParser
         return found;
     }
 
+    /// <summary>Tries to read a mark opening tag at the offset.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="open">The offset of the opening angle bracket.</param>
+    /// <param name="verb">The verb the tag names, when one reads.</param>
+    /// <param name="tagEnd">The offset of the opening tag's closing bracket, when one reads.</param>
+    /// <returns>True when an opening mark tag starts at the offset.</returns>
     private static bool TryReadOpenTag(string text, int open, out MarkVerb verb, out int tagEnd)
     {
         verb = MarkVerb.Implements;
@@ -248,19 +176,30 @@ public static class MarkParser
         return false;
     }
 
+    /// <summary>One closing tag: where it starts and where the mark text ends.</summary>
     private sealed class CloseTag
     {
+        /// <summary>Initializes a new instance of the <see cref="CloseTag"/> class.</summary>
+        /// <param name="start">The offset where the closing tag starts.</param>
+        /// <param name="end">The offset just past the closing tag.</param>
         public CloseTag(int start, int end)
         {
             Start = start;
             End = end;
         }
 
+        /// <summary>Gets the offset where the closing tag starts.</summary>
         public int Start { get; }
 
+        /// <summary>Gets the offset just past the closing tag.</summary>
         public int End { get; }
     }
 
+    /// <summary>Finds the closing tag for the verb at or after the offset.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="index">The offset to start from.</param>
+    /// <param name="verb">The verb the closing tag names.</param>
+    /// <returns>The closing tag, or null when the text holds none.</returns>
     private static CloseTag? FindCloseTag(string text, int index, MarkVerb verb)
     {
         var name = verb.ToTagName();
@@ -292,6 +231,13 @@ public static class MarkParser
         return null;
     }
 
+    /// <summary>Tries to read one attribute mark at the cursor.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="cursor">The offset to start from.</param>
+    /// <param name="stop">The offset the attribute list ends at.</param>
+    /// <param name="mark">The mark read, when one reads.</param>
+    /// <param name="next">The offset just past the mark, when one reads.</param>
+    /// <returns>True when an attribute mark starts at the cursor.</returns>
     private static bool TryReadAttribute(string text, int cursor, int stop, out ParsedMark mark, out int next)
     {
         mark = new ParsedMark(MarkVerb.Implements, "x", cursor, fromAttribute: true);
@@ -480,6 +426,9 @@ public static class MarkParser
         return true;
     }
 
+    /// <summary>Whether the qualifier names the generated mark namespace or no namespace.</summary>
+    /// <param name="qualifier">The qualifier as written, with its separators.</param>
+    /// <returns>True when the qualifier is empty or names the generated namespace.</returns>
     private static bool IsGeneratedQualifier(string qualifier)
     {
         var cleaned = qualifier.Replace("@", string.Empty).Replace(" ", string.Empty).Replace("\t", string.Empty);
@@ -495,6 +444,11 @@ public static class MarkParser
             || string.Equals(cleaned, "global::LiteSpec::", StringComparison.Ordinal);
     }
 
+    /// <summary>Whether the value occurs in the text at the offset.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="index">The offset to test.</param>
+    /// <param name="value">The value to match.</param>
+    /// <returns>True when the value occurs at the offset.</returns>
     private static bool StartsAt(string text, int index, string value)
     {
         if (index + value.Length > text.Length)
@@ -513,6 +467,10 @@ public static class MarkParser
         return true;
     }
 
+    /// <summary>Whether the offset ends a tag name: the end of the text, whitespace, a bracket, or a slash.</summary>
+    /// <param name="text">The text to read.</param>
+    /// <param name="index">The offset just past the tag name.</param>
+    /// <returns>True when the offset is a tag boundary.</returns>
     private static bool IsTagBoundary(string text, int index) =>
         index >= text.Length || char.IsWhiteSpace(text[index]) || text[index] == '>' || text[index] == '/';
 }

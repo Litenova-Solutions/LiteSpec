@@ -15,8 +15,13 @@ public sealed class ControllerAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2003);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.WebApi;
 
+    /// <summary>Registers the analysis actions for the controller analyzer rule with the compilation context.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var controllerBase = context.Compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ControllerBase");
@@ -26,6 +31,11 @@ public sealed class ControllerAnalyzer : LayerAnalyzer
             symbol => Analyze(symbol, controllerBase, controller, apiController), SymbolKind.NamedType);
     }
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="controllerBase">The controller base supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="controller">The controller supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="apiController">The api controller supplied for the check, or null when the compilation does not provide it.</param>
     private static void Analyze(
         SymbolAnalysisContext context,
         INamedTypeSymbol? controllerBase,
@@ -59,10 +69,17 @@ public sealed class ControllerAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the candidate is applicable; otherwise false.</summary>
+    /// <param name="candidate">The candidate supplied for the check, or null when the compilation does not provide it.</param>
+    /// <param name="known">The known supplied for the check, or null when the compilation does not provide it.</param>
+    /// <returns>True when the candidate is applicable; otherwise false.</returns>
     private static bool Is(INamedTypeSymbol? candidate, INamedTypeSymbol? known) =>
         candidate != null && known != null
         && SymbolEqualityComparer.Default.Equals(candidate.OriginalDefinition, known);
 
+    /// <summary>Returns the name.</summary>
+    /// <param name="attribute">The attribute type under inspection.</param>
+    /// <returns>The name as text.</returns>
     private static string ShortName(INamedTypeSymbol attribute)
     {
         var name = attribute.Name;

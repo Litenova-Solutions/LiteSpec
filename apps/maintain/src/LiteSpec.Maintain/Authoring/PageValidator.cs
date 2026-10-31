@@ -42,7 +42,7 @@ internal sealed partial class PageValidator
     /// <summary>Names the class of a page from its repository-relative path, or null when it holds no page.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <returns>The page class, or null.</returns>
-    public string? PageClass(string relative)
+    public static string? PageClass(string relative)
     {
         if (relative == Provisions.IndexPath)
         {
@@ -137,7 +137,7 @@ internal sealed partial class PageValidator
     /// <summary>Returns the section contract for a page class, or null when the class has none.</summary>
     /// <param name="kind">The page class.</param>
     /// <returns>The section contract, or null.</returns>
-    private PageContract? ExpectedSections(string? kind)
+    private static PageContract? ExpectedSections(string? kind)
     {
         if (kind == "topic")
         {
@@ -304,7 +304,7 @@ internal sealed partial class PageValidator
     /// <summary>Reports whether a heading uses Title Case.</summary>
     /// <param name="value">The heading text.</param>
     /// <returns>True when the heading uses Title Case.</returns>
-    private bool TitleCase(string value)
+    private static bool TitleCase(string value)
     {
         // Code spans and explicit anchors keep their own case; the rule judges
         // the words around them.
@@ -322,7 +322,7 @@ internal sealed partial class PageValidator
 
             if (item.index > 0 && item.index < matches.Count - 1 && !afterColon && TitleSmallWords.Contains(item.token.ToLowerInvariant()))
             {
-                return item.token == item.token.ToLowerInvariant();
+                return string.Equals(item.token, item.token.ToLowerInvariant(), StringComparison.Ordinal);
             }
 
             return TitleCapitalPattern().IsMatch(item.token);
@@ -374,7 +374,7 @@ internal sealed partial class PageValidator
     /// <summary>Reports whether a section body is a placeholder variant of an empty section.</summary>
     /// <param name="body">The section body.</param>
     /// <returns>True when the body is a placeholder variant.</returns>
-    private bool EmptySectionVariant(string body)
+    private static bool EmptySectionVariant(string body)
     {
         var text = body.Trim();
         if (text is "None" or "N/A" or "n/a")

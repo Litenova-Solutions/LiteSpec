@@ -11,6 +11,8 @@ internal static class SyntaxNames
     ///     The simple name of an attribute, without its namespace qualifier, or null
     ///     when the name is generic: a mark or test attribute is never generic.
     /// </summary>
+    /// <param name="name">The attribute name as written.</param>
+    /// <returns>The simple name, or null when the name is generic.</returns>
     internal static string? SimpleName(NameSyntax name)
     {
         switch (name)
@@ -27,6 +29,8 @@ internal static class SyntaxNames
     }
 
     /// <summary>The simple name of a base type, without qualification or type arguments.</summary>
+    /// <param name="type">The base type as written.</param>
+    /// <returns>The simple name of the base type.</returns>
     internal static string SimpleName(TypeSyntax type)
     {
         switch (type)
@@ -45,6 +49,8 @@ internal static class SyntaxNames
     }
 
     /// <summary>Strips one trailing <c>Attribute</c> suffix from a simple name.</summary>
+    /// <param name="name">The simple name.</param>
+    /// <returns>The name without one trailing Attribute suffix.</returns>
     internal static string StripAttributeSuffix(string name)
     {
         const string suffix = "Attribute";
@@ -58,6 +64,8 @@ internal static class SyntaxNames
     ///     qualified with <c>LiteSpec</c>, or qualified with <c>global::LiteSpec</c>.
     ///     Any other qualifier names a domain attribute, never a mark.
     /// </summary>
+    /// <param name="name">The attribute name as written.</param>
+    /// <returns>True when the name is written in the generated namespace.</returns>
     internal static bool IsGeneratedMarkName(NameSyntax name)
     {
         switch (name)

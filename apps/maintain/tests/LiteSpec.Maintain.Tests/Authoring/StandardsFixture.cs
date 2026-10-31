@@ -348,6 +348,9 @@ static class StandardsFixture
         "A command page documents one command and what it runs underneath.\n";
 
     /// <summary>Writes a file inside the temporary repository, creating its folder.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="relative">The file path under the root, with forward-slash segments.</param>
+    /// <param name="contents">The file contents to write.</param>
     public static void Write(string root, string relative, string contents)
     {
         var file = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
@@ -356,6 +359,8 @@ static class StandardsFixture
     }
 
     /// <summary>Deletes a file inside the temporary repository when it exists.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="relative">The file path under the root, with forward-slash segments.</param>
     public static void Delete(string root, string relative)
     {
         var file = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
@@ -369,6 +374,10 @@ static class StandardsFixture
     public static readonly string ProjectFile = "<Project Sdk=\"Microsoft.NET.Sdk\" />\n";
 
     /// <summary>Writes a C# file into a .NET project, creating the project file beside it.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="project">The project folder path under the root.</param>
+    /// <param name="file">The source file name inside the project folder.</param>
+    /// <param name="contents">The source file contents to write.</param>
     public static void WriteSource(string root, string project, string file, string contents)
     {
         var name = project.Split('/')[^1];
@@ -377,6 +386,7 @@ static class StandardsFixture
     }
 
     /// <summary>Regenerates the provision index from the current standards.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
     public static void RebuildIndex(string root)
     {
         Write(root, Provisions.IndexPath, Provisions.BuildIndex(root) + "\n");
@@ -387,6 +397,7 @@ static class StandardsFixture
     ///     names <c>litespec-maintain validate</c>, which needs no stub file, so this tree
     ///     carries no <c>tools/</c> stub.
     /// </summary>
+    /// <param name="root">The temporary repository root folder.</param>
     public static void Base(string root)
     {
         Write(root, "docs/core/topic.md", TopicPage);
@@ -403,6 +414,10 @@ static class StandardsFixture
     }
 
     /// <summary>Replaces the first occurrence of one substring with another.</summary>
+    /// <param name="text">The text to change.</param>
+    /// <param name="oldValue">The substring to replace.</param>
+    /// <param name="newValue">The replacement text.</param>
+    /// <returns>The text with the first occurrence replaced, or the text itself when absent.</returns>
     public static string ReplaceFirst(string text, string oldValue, string newValue)
     {
         var index = text.IndexOf(oldValue, StringComparison.Ordinal);
@@ -410,6 +425,8 @@ static class StandardsFixture
     }
 
     /// <summary>The shipped project schema, read from the real repository.</summary>
+    /// <param name="root">The repository root to read from, or null for the test repository.</param>
+    /// <returns>The project schema text.</returns>
     public static string ShippedProjectSchema(string? root = null) =>
         File.ReadAllText(Path.Combine(root ?? Cli.Repository, "schemas", "litespec-project.schema.json"));
 

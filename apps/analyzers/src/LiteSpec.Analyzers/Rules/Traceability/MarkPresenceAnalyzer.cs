@@ -17,8 +17,17 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS5001);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None;
 
+    /// <summary>
+    ///     Registers the analysis actions for the mark presence analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state)
     {
@@ -26,6 +35,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
         context.RegisterSymbolAction(c => AnalyzeMethod(c, state), SymbolKind.Method);
     }
 
+    /// <summary>Analyzes the type.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void AnalyzeType(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -58,6 +70,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
             ExpectedTypes(kind.Value));
     }
 
+    /// <summary>Analyzes the method.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void AnalyzeMethod(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var method = (IMethodSymbol)context.Symbol;
@@ -100,6 +115,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     ///     Ports and domain services are recognized only by their mark, so no
     ///     layer checks their absence.
     /// </summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when the checked-in condition holds; otherwise false.</returns>
     private static bool CheckedIn(CodeKind kind, Layer layer)
     {
         switch (layer)
@@ -131,6 +149,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     ///     <c>proves</c> mark the kind takes, except on a technical class, which
     ///     takes <c>implements</c> or <c>follows</c>.
     /// </summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <returns>True when the symbol has kind mark; otherwise false.</returns>
     private static bool HasKindMark(ISymbol symbol, CodeKind kind)
     {
         foreach (var mark in MarksOf(symbol))
@@ -144,6 +165,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
         return false;
     }
 
+    /// <summary>Returns the types.</summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <returns>The types as text.</returns>
     private static string ExpectedTypes(CodeKind kind)
     {
         if (kind != CodeKind.Technical)

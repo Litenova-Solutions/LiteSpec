@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves that only a use case nothing runs must name an entry point.</summary>
 public sealed class ReachedThroughTests
 {
+    /// <summary>Use Case No Record Runs Must Name An Entry Point.</summary>
     /// <proves>litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case</proves>
     [Fact]
     public void Use_Case_No_Record_Runs_Must_Name_An_Entry_Point()
@@ -19,6 +20,7 @@ public sealed class ReachedThroughTests
             finding.Code == "record-invalid" && finding.Message.Contains("has no reachedThrough", StringComparison.Ordinal));
     }
 
+    /// <summary>Use Case A Job Runs Needs No Entry Point.</summary>
     /// <proves>litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case</proves>
     [Fact]
     public void Use_Case_A_Job_Runs_Needs_No_Entry_Point()

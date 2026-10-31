@@ -22,10 +22,10 @@ static class ConsumerFixture
 
     static readonly Lazy<ManifestInfo> Manifest = new(ReadManifest);
 
-    /// <summary>The pinned release the fixture project reviews, from the tracked manifest.</summary>
+    /// <summary>Gets the pinned release the fixture project reviews, from the tracked manifest.</summary>
     public static string ManifestVersion => Manifest.Value.Version;
 
-    /// <summary>The first extension id in the tracked manifest, or <c>outbox</c>.</summary>
+    /// <summary>Gets the first extension id in the tracked manifest, or <c>outbox</c>.</summary>
     public static string KnownExtension => Manifest.Value.KnownExtension;
 
     /// <summary>One fixture page: repository-relative path, frontmatter JSON, body.</summary>
@@ -362,15 +362,23 @@ static class ConsumerFixture
     }
 
     /// <summary>Serializes a JSON value with two-space indent and relaxed escaping.</summary>
+    /// <param name="node">The JSON value to serialize.</param>
+    /// <returns>The indented JSON text.</returns>
     public static string Stringify(JsonNode? node) => node!.ToJsonString(Json);
 
     /// <summary>Parses inline JSON into a JSON value.</summary>
+    /// <param name="json">The inline JSON text to parse.</param>
+    /// <returns>The parsed JSON value.</returns>
     public static JsonNode Meta(string json) => JsonNode.Parse(json)!;
 
     /// <summary>Combines frontmatter JSON and a body into one page.</summary>
+    /// <param name="meta">The frontmatter JSON value.</param>
+    /// <param name="body">The page body text after the frontmatter.</param>
+    /// <returns>The complete page text.</returns>
     public static string Page(JsonNode meta, string body) => $"---\n{Stringify(meta)}\n---\n{body}";
 
     /// <summary>Builds a fresh fixture consumer in its own temporary folder.</summary>
+    /// <returns>The temporary folder holding the fixture consumer.</returns>
     public static TempFolder Create()
     {
         var folder = Cli.Temp("consumer");
@@ -408,6 +416,8 @@ static class ConsumerFixture
     ///     Builds a throwaway LiteSpec release a test points the tool at with
     ///     <c>LITESPEC_HOME</c>: the tracked manifest with its schemas, mutated in place.
     /// </summary>
+    /// <param name="mutateManifest">The change to apply to the copied manifest, or null to keep it as tracked.</param>
+    /// <returns>The temporary folder holding the throwaway LiteSpec release.</returns>
     public static TempFolder CreateHome(Action<JsonObject>? mutateManifest = null)
     {
         var home = Cli.Temp("consumer-home");
@@ -432,6 +442,9 @@ static class ConsumerFixture
     }
 
     /// <summary>Writes a file under the fixture root, creating its directory.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <param name="contents">The file contents to write.</param>
     public static void WriteFile(string root, string relative, string contents)
     {
         var file = Resolve(root, relative);
@@ -440,9 +453,15 @@ static class ConsumerFixture
     }
 
     /// <summary>Reads a file under the fixture root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <returns>The file text.</returns>
     public static string ReadFile(string root, string relative) => File.ReadAllText(Resolve(root, relative));
 
     /// <summary>Mutates one page's frontmatter, leaving its body alone.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The page path under the root.</param>
+    /// <param name="mutate">The change to apply to the frontmatter object.</param>
     public static void MutateMeta(string root, string relative, Action<JsonObject> mutate)
     {
         var raw = ReadFile(root, relative);
@@ -454,6 +473,8 @@ static class ConsumerFixture
     }
 
     /// <summary>Mutates <c>litespec.project.json</c>.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="mutate">The change to apply to the project object.</param>
     public static void MutateProject(string root, Action<JsonObject> mutate)
     {
         var project = (JsonObject)JsonNode.Parse(ReadFile(root, "litespec.project.json"))!;
@@ -462,6 +483,9 @@ static class ConsumerFixture
     }
 
     /// <summary>Mutates one JSON file under the fixture root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The JSON file path under the root.</param>
+    /// <param name="mutate">The change to apply to the JSON object.</param>
     public static void MutateJson(string root, string relative, Action<JsonObject> mutate)
     {
         var value = (JsonObject)JsonNode.Parse(ReadFile(root, relative))!;
@@ -470,6 +494,9 @@ static class ConsumerFixture
     }
 
     /// <summary>Rewrites one file's text through a transform.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <param name="transform">The change to apply to the file text.</param>
     public static void MutateBody(string root, string relative, Func<string, string> transform) =>
         WriteFile(root, relative, transform(ReadFile(root, relative)));
 

@@ -12,6 +12,8 @@ namespace LiteSpec.Model.Checks;
 internal static class CitationChecks
 {
     /// <summary>Reports a citation resolving to no record.</summary>
+    /// <param name="model">The loaded project model that holds every record, page body and scanned comment.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -57,7 +59,7 @@ internal static class CitationChecks
 
         // A batch review report records what its reader saw when the review ran, as an approval
         // manifest does, so a record renamed or removed since then is history, not a broken link.
-        var docs = model.Config.RecordRoots.FirstOrDefault() ?? Path.Combine(model.Config.Root, "docs");
+        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, "docs");
         var reviews = Path.GetFullPath(Path.Combine(docs, "proof", "reviews")) + Path.DirectorySeparatorChar;
 
         foreach (var body in model.Bodies)
@@ -107,6 +109,13 @@ internal static class CitationChecks
         findings.AddRange(found);
     }
 
+    /// <summary>Reports each citation in one text that resolves to no record or shared provision.</summary>
+    /// <param name="model">The loaded project model that resolves each cited identifier.</param>
+    /// <param name="file">The file that holds the text, shown on each finding.</param>
+    /// <param name="text">The page body or comment text whose citations are checked.</param>
+    /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
+    /// <param name="subject">The record the text belongs to, or null for code and test comments.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTextCitations(
         ProjectModel model,
         string file,
@@ -142,6 +151,10 @@ internal static class CitationChecks
         }
     }
 
+    /// <summary>Decides whether a cited identifier names a record or an admitted shared provision.</summary>
+    /// <param name="model">The loaded project model that holds every record and the admitted provision identifiers.</param>
+    /// <param name="id">The cited identifier under test.</param>
+    /// <returns>True when the identifier resolves to a record or an admitted provision; otherwise false.</returns>
     private static bool Resolves(ProjectModel model, string id)
     {
         if (model.ById.ContainsKey(id))
@@ -157,6 +170,9 @@ internal static class CitationChecks
         return false;
     }
 
+    /// <summary>Yields each string held by a JSON value, descending into arrays and objects.</summary>
+    /// <param name="value">The JSON value whose strings are collected.</param>
+    /// <returns>Each string in document order; empty when the value holds no string.</returns>
     private static IEnumerable<string> StringsOf(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.String && value.GetString() is { } text)
@@ -185,5 +201,6 @@ internal static class CitationChecks
         }
     }
 
+    /// <summary>Matches one Markdown link target, so file paths are blanked before citations are read.</summary>
     private static readonly Regex LinkTarget = new(@"\]\([^)\s]*\)", RegexOptions.Compiled);
 }

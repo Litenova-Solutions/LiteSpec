@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the calculation-table-missing check against hand-built models.</summary>
 public sealed class CalculationCheckTests
 {
+    /// <summary>Calculation Without An Examples Table Reports.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_Without_An_Examples_Table_Reports()
@@ -25,6 +26,7 @@ public sealed class CalculationCheckTests
         Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Calculation With An Examples Table Passes.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_With_An_Examples_Table_Passes()
@@ -43,6 +45,7 @@ public sealed class CalculationCheckTests
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Calculation Governing An Aggregate Reads The Scenarios Beside It.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_Governing_An_Aggregate_Reads_The_Scenarios_Beside_It()
@@ -71,6 +74,7 @@ public sealed class CalculationCheckTests
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Invariant Without An Examples Table Passes.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Invariant_Without_An_Examples_Table_Passes()
@@ -88,6 +92,7 @@ public sealed class CalculationCheckTests
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Scenario With Examples Does Not Cover.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Retired_Scenario_With_Examples_Does_Not_Cover()

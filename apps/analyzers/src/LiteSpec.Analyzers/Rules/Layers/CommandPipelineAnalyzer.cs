@@ -17,9 +17,17 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2004);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the command pipeline analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         context.RegisterSymbolAction(AnalyzeField, SymbolKind.Field);
@@ -29,6 +37,8 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         context.RegisterOperationAction(AnalyzeDeclarator, OperationKind.VariableDeclarator);
     }
 
+    /// <summary>Analyzes the field.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeField(SymbolAnalysisContext context)
     {
         var field = (IFieldSymbol)context.Symbol;
@@ -56,6 +66,8 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the property.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeProperty(SymbolAnalysisContext context)
     {
         var property = (IPropertySymbol)context.Symbol;
@@ -81,6 +93,8 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the parameter.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeParameter(SymbolAnalysisContext context)
     {
         var parameter = (IParameterSymbol)context.Symbol;
@@ -116,6 +130,8 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the invocation.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeInvocation(OperationAnalysisContext context)
     {
         var invocation = (IInvocationOperation)context.Operation;
@@ -137,6 +153,8 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Analyzes the declarator.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void AnalyzeDeclarator(OperationAnalysisContext context)
     {
         var declarator = (IVariableDeclaratorOperation)context.Operation;
@@ -161,6 +179,9 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the type is command handler; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is command handler; otherwise false.</returns>
     private static bool IsCommandHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -184,6 +205,9 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the type is session or context; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is session or context; otherwise false.</returns>
     private static bool IsSessionOrContext(ITypeSymbol type)
     {
         if (type.Name == "IDocumentSession" || type.Name == "DbContext")
@@ -202,6 +226,9 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns the i type symbol.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The i type symbol.</returns>
     private static ITypeSymbol Unwrap(ITypeSymbol type)
     {
         if (type is INamedTypeSymbol named
@@ -214,6 +241,9 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         return type;
     }
 
+    /// <summary>Returns the type.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The type, or null when none applies.</returns>
     private static INamedTypeSymbol? InnermostType(ISymbol symbol)
     {
         for (var current = symbol; current != null; current = current.ContainingSymbol)
@@ -227,6 +257,9 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         return null;
     }
 
+    /// <summary>Returns the location.</summary>
+    /// <param name="invocation">The invocation operation whose target and arguments the check reads.</param>
+    /// <returns>The location.</returns>
     private static Location MemberLocation(IInvocationOperation invocation)
     {
         if (invocation.Syntax is InvocationExpressionSyntax syntax)
@@ -247,6 +280,10 @@ public sealed class CommandPipelineAnalyzer : LayerAnalyzer
         return invocation.Syntax.GetLocation();
     }
 
+    /// <summary>Returns true when the list is first; otherwise false.</summary>
+    /// <param name="list">The list that receives the collected values.</param>
+    /// <param name="declarator">The variable declarator under inspection.</param>
+    /// <returns>True when the list is first; otherwise false.</returns>
     private static bool IsFirst(VariableDeclarationSyntax list, VariableDeclaratorSyntax declarator) =>
         list.Variables.Count == 0 || list.Variables[0].SpanStart == declarator.SpanStart;
 }

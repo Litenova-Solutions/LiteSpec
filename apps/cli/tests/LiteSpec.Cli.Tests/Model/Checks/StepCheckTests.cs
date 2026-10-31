@@ -69,6 +69,8 @@ public sealed class StepCheckTests
     }
 
     /// <summary>A journey walking one step the servers serve.</summary>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <returns>The journey record holding the step.</returns>
     static Record Journey(string root) =>
         TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow-and-return.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}""");
 }

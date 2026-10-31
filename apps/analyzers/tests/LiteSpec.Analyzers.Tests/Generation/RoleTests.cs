@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using LiteSpec.Analyzers.Tests.Support;
@@ -10,6 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated role constants and entries.</summary>
 public sealed class RoleTests
 {
+    /// <summary>Roles list each role with its scope and allows in record order.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Roles list each role with its scope and allows in record order")]
     public void RolesListScopeAndAllowsInRecordOrder()
@@ -39,6 +41,7 @@ public sealed class RoleTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Of returns the entry for a known id and throws for an unknown id.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Of returns the entry for a known id and throws for an unknown id")]
     public void OfReturnsKnownAndThrowsForUnknown()
@@ -56,11 +59,12 @@ public sealed class RoleTests
             trees.Add(CSharpSyntaxTree.ParseText(
                 SourceText.From(generated.Value, Encoding.UTF8),
                 new CSharpParseOptions(LanguageVersion.Latest),
-                generated.Key));
+                generated.Key,
+                cancellationToken: TestContext.Current.CancellationToken));
         }
 
         using var stream = new MemoryStream();
-        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream);
+        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(emitted.Success, "The generated code does not emit:\n" + string.Join("\n", emitted.Diagnostics));
 
         var roles = Assembly.Load(stream.ToArray()).GetType("LiteSpec.LiteSpecRoles");
@@ -68,7 +72,7 @@ public sealed class RoleTests
         var of = roles.GetMethod("Of", BindingFlags.Public | BindingFlags.Static);
         Assert.NotNull(of);
 
-        var entry = of.Invoke(null, new object[] { "role/finance" });
+        var entry = of.Invoke(null, ["role/finance"]);
         Assert.NotNull(entry);
         Assert.Equal("role/finance", Property(entry, "Id"));
         Assert.Equal("platform", Property(entry, "Scope"));
@@ -84,11 +88,12 @@ public sealed class RoleTests
         Assert.Equal("role/employee", Property(entries[1], "Id"));
         Assert.Equal("role/finance", Property(entries[2], "Id"));
 
-        var thrown = Assert.Throws<TargetInvocationException>(() => of.Invoke(null, new object[] { "role/unknown" }));
+        var thrown = Assert.Throws<TargetInvocationException>(() => of.Invoke(null, ["role/unknown"]));
         var argument = Assert.IsType<ArgumentException>(thrown.InnerException);
         Assert.Equal("id", argument.ParamName);
     }
 
+    /// <summary>A role without scope and allows reads empty and empty.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A role without scope and allows reads empty and empty")]
     public void RoleWithoutScopeAndAllowsReadsDefaults()
@@ -105,6 +110,7 @@ public sealed class RoleTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A role allowing an undeclared permission is emitted and reports LS5012.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A role allowing an undeclared permission is emitted and reports LS5012")]
     public void RoleAllowingUndeclaredPermissionReportsLS5012()
@@ -120,13 +126,14 @@ public sealed class RoleTests
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5012", diagnostic.Id);
-        Assert.Contains("role/employee", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("permission/mint-money", diagnostic.GetMessage(), StringComparison.Ordinal);
+        Assert.Contains("role/employee", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("permission/mint-money", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.True(run.Sources.TryGetValue("LiteSpecRoles.g.cs", out var roles), "The roles source is missing.");
         Assert.Contains("new LiteSpecRole(\"role/employee\", \"self\", new string[] { \"permission/submit-expense\", \"permission/mint-money\" })", roles, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Two roles producing one name report LS5009 and emit no roles.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Two roles producing one name report LS5009 and emit no roles")]
     public void RoleCollisionReportsLS5009AndEmitsNoRoles()
@@ -143,15 +150,16 @@ public sealed class RoleTests
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5009", diagnostic.Id);
-        Assert.Contains("AB", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("role/a-b", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("role/a--b", diagnostic.GetMessage(), StringComparison.Ordinal);
+        Assert.Contains("AB", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("role/a-b", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("role/a--b", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.False(run.Sources.ContainsKey("LiteSpecRoles.g.cs"), "The roles source must not be generated.");
         Assert.True(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source is independent of the collision and stays.");
         Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry is independent of the collision and stays.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Domain generates roles beside permissions.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Domain generates roles beside permissions")]
     public void DomainGeneratesRoles()
@@ -171,6 +179,7 @@ public sealed class RoleTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unknown layer generates no roles.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "An unknown layer generates no roles")]
     public void UnknownLayerGeneratesNoRoles()

@@ -3,7 +3,7 @@ namespace LiteSpec.Model;
 /// <summary>The verdict of the mark-count-invalid rule for one element's marks.</summary>
 public sealed class MarkCount
 {
-    /// <summary>Creates the verdict.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MarkCount"/> class.Creates the verdict.</summary>
     /// <param name="violated">Whether the marks violate the kind's count rule.</param>
     /// <param name="duplicate">The twice-named record id when the violation is a duplicate, else null.</param>
     public MarkCount(bool violated, string? duplicate)
@@ -12,9 +12,9 @@ public sealed class MarkCount
         Duplicate = duplicate;
     }
 
-    /// <summary>Whether the marks violate the kind's count rule.</summary>
+    /// <summary>Gets a value indicating whether whether the marks violate the kind's count rule.</summary>
     public bool Violated { get; }
 
-    /// <summary>The twice-named record id when the violation is a duplicate, else null.</summary>
+    /// <summary>Gets the twice-named record id when the violation is a duplicate, else null.</summary>
     public string? Duplicate { get; }
 }

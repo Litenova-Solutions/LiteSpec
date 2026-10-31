@@ -4,11 +4,11 @@ using System.Text.Json;
 
 namespace LiteSpec.Model;
 
-/// <summary>One scenario's recorded proof: its hashes at the last passing run, and that run.</summary>
-/// <param name="Scenario">The scenario semantic hash at the last passing run.</param>
-/// <param name="Test">The proving test files' hash at the last passing run.</param>
-/// <param name="Run">The run identity that recorded the hashes.</param>
-sealed record ProofEntry(string Scenario, string Test, string Run);
+
+
+
+
+
 
 /// <summary>
 ///     The hashes each scenario had when the builder last read a passing run of
@@ -18,28 +18,35 @@ sealed record ProofEntry(string Scenario, string Test, string Run);
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class ProofLedger
 {
+    /// <summary>The recorded proofs by scenario id, updated in place when a run passes.</summary>
     private readonly Dictionary<string, ProofEntry> entries;
 
+    /// <summary>Initializes a new instance of the <see cref="ProofLedger" /> class with its recorded proofs.</summary>
+    /// <param name="entries">The recorded proofs by scenario id.</param>
+    /// <param name="problems">The problems to report, empty when the ledger reads.</param>
     private ProofLedger(Dictionary<string, ProofEntry> entries, IReadOnlyList<Finding> problems)
     {
         this.entries = entries;
         Problems = problems;
     }
 
-    /// <summary>Whether a build recorded a new proof since the ledger was read.</summary>
+    /// <summary>Gets a value indicating whether whether a build recorded a new proof since the ledger was read.</summary>
     public bool Changed { get; private set; }
 
-    /// <summary>The problem a ledger that does not parse reports, empty when the ledger reads.</summary>
+    /// <summary>Gets the problem a ledger that does not parse reports, empty when the ledger reads.</summary>
     public IReadOnlyList<Finding> Problems { get; }
 
-    /// <summary>The recorded proofs, by scenario id.</summary>
+    /// <summary>Gets the recorded proofs, by scenario id.</summary>
     public IReadOnlyDictionary<string, ProofEntry> Entries => entries;
 
     /// <summary>The ledger file of a project: <c>proof/proofs.json</c> under its documentation root.</summary>
+    /// <param name="config">The consumer configuration holding the documentation root.</param>
+    /// <returns>The absolute path of the ledger file.</returns>
     public static string PathOf(ConsumerConfig config) =>
-        Path.Combine(config.RecordRoots.FirstOrDefault() ?? Path.Combine(config.Root, "docs"), "proof", "proofs.json");
+        Path.Combine(config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, "docs"), "proof", "proofs.json");
 
     /// <summary>A ledger with no recorded proof.</summary>
+    /// <returns>A ledger holding no recorded proof and no problems.</returns>
     public static ProofLedger Empty() => new(new Dictionary<string, ProofEntry>(StringComparer.Ordinal), []);
 
     /// <summary>
@@ -47,6 +54,8 @@ sealed class ProofLedger
     ///     that does not parse reads empty and reports a model problem, so a
     ///     damaged ledger never counts as a ledger with no proof.
     /// </summary>
+    /// <param name="config">The consumer configuration holding the documentation root.</param>
+    /// <returns>The ledger read from disk, or an empty ledger when the file is missing or does not parse.</returns>
     public static ProofLedger Load(ConsumerConfig config)
     {
         var entries = new Dictionary<string, ProofEntry>(StringComparer.Ordinal);
@@ -95,6 +104,9 @@ sealed class ProofLedger
     ///     The identity of a test run: a hash over its result files' paths and contents, so
     ///     every new run differs from the last even on the same day with the same counts.
     /// </summary>
+    /// <param name="config">The consumer configuration holding the project root.</param>
+    /// <param name="run">The test run whose result files identify it.</param>
+    /// <returns>The sixteen-hex-character identity of the run.</returns>
     public static string RunOf(ConsumerConfig config, TestRun run)
     {
         using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -121,6 +133,9 @@ sealed class ProofLedger
     ///     proof until a newer passing run is read and a checkout on another
     ///     machine hashes the same. A missing file hashes as empty.
     /// </summary>
+    /// <param name="model">The built project model holding the proves links and tests.</param>
+    /// <param name="scenario">The scenario id whose proving test files are hashed.</param>
+    /// <returns>The sixteen-hex-character hash of the proving test files.</returns>
     public static string TestHashOf(ProjectModel model, string scenario)
     {
         var files = new SortedSet<string>(StringComparer.Ordinal);
@@ -179,6 +194,11 @@ sealed class ProofLedger
     ///     later build against the same run, the proof is stale when either hash moved.
     ///     A newer passing run records the current hashes instead.
     /// </summary>
+    /// <param name="scenario">The scenario id to test.</param>
+    /// <param name="scenarioHash">The scenario semantic hash in this build.</param>
+    /// <param name="testHash">The proving test files hash in this build.</param>
+    /// <param name="run">The identity of the passing run in this build.</param>
+    /// <returns>True when the recorded proof for the same run carries a moved hash.</returns>
     public bool Stale(string scenario, string scenarioHash, string testHash, string run)
     {
         if (entries.TryGetValue(scenario, out var entry) && entry.Run == run)
@@ -193,6 +213,7 @@ sealed class ProofLedger
     }
 
     /// <summary>Writes the ledger when a build recorded a new proof.</summary>
+    /// <param name="config">The consumer configuration holding the documentation root.</param>
     public void Save(ConsumerConfig config)
     {
         if (!Changed)

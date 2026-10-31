@@ -21,11 +21,13 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class TraceabilityContext
 {
+    /// <summary>Holds the traceability context built for each compilation, keyed weakly so compilations stay collectable.</summary>
     private static readonly ConditionalWeakTable<Compilation, TraceabilityContext> Cache = new();
 
+    /// <summary>Holds the live collected for this operation, keyed or ordered as the type states.</summary>
     private readonly List<LiveException> live;
 
-    /// <summary>Creates the context for one compilation.</summary>
+    /// <summary>Initializes a new instance of the <see cref="TraceabilityContext"/> class.Creates the context for one compilation.</summary>
     /// <param name="layer">The layer the compilation belongs to.</param>
     /// <param name="store">The consumer's records.</param>
     /// <param name="kinds">The cross-file kind names.</param>
@@ -56,22 +58,22 @@ internal sealed class TraceabilityContext
         }
     }
 
-    /// <summary>The layer the compilation belongs to.</summary>
+    /// <summary>Gets the layer the compilation belongs to.</summary>
     public Layer Layer { get; }
 
-    /// <summary>The consumer's records.</summary>
+    /// <summary>Gets the consumer's records.</summary>
     public RecordStore Store { get; }
 
-    /// <summary>The cross-file kind names.</summary>
+    /// <summary>Gets the cross-file kind names.</summary>
     public KindContext Kinds { get; }
 
-    /// <summary>The event id by simple event type name.</summary>
+    /// <summary>Gets the event id by simple event type name.</summary>
     public IReadOnlyDictionary<string, string> EventIds { get; }
 
-    /// <summary>The assembly name, for project checks.</summary>
+    /// <summary>Gets the assembly name, for project checks.</summary>
     public string Project { get; }
 
-    /// <summary>Whether the compilation is a test project.</summary>
+    /// <summary>Gets a value indicating whether whether the compilation is a test project.</summary>
     public bool OnTest => Layer == Layer.Test;
 
     /// <summary>
@@ -202,6 +204,9 @@ internal sealed class TraceabilityContext
         return created;
     }
 
+    /// <summary>Returns the types.</summary>
+    /// <param name="compilation">The compilation whose types and references the check reads.</param>
+    /// <returns>The types, in the order this method builds them, or an empty collection when none apply.</returns>
     private static IEnumerable<INamedTypeSymbol> SourceTypes(Compilation compilation)
     {
         var stack = new Stack<INamespaceOrTypeSymbol>();
@@ -226,6 +231,9 @@ internal sealed class TraceabilityContext
         }
     }
 
+    /// <summary>Returns true when the type is source; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is source; otherwise false.</returns>
     private static bool IsSource(INamedTypeSymbol type)
     {
         foreach (var reference in type.DeclaringSyntaxReferences)
@@ -239,6 +247,10 @@ internal sealed class TraceabilityContext
         return false;
     }
 
+    /// <summary>Returns true when the derives-from condition holds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="baseName">The base type name to compare against.</param>
+    /// <returns>True when the derives-from condition holds; otherwise false.</returns>
     private static bool DerivesFrom(INamedTypeSymbol type, string baseName)
     {
         for (var current = type.BaseType; current is not null; current = current.BaseType)
@@ -252,6 +264,9 @@ internal sealed class TraceabilityContext
         return false;
     }
 
+    /// <summary>Returns true when the type is event type; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is event type; otherwise false.</returns>
     private static bool IsEventType(INamedTypeSymbol type)
     {
         if (type.TypeKind == TypeKind.Interface)
@@ -271,6 +286,8 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>Whether the interface carries an external-system mark, in source or in metadata.</summary>
+    /// <param name="contract">The interface contract under inspection.</param>
+    /// <returns>True when the contract is external system port; otherwise false.</returns>
     private static bool IsExternalSystemPort(INamedTypeSymbol contract)
     {
         foreach (var attribute in contract.GetAttributes())
@@ -299,6 +316,9 @@ internal sealed class TraceabilityContext
         return false;
     }
 
+    /// <summary>Returns the attribute value.</summary>
+    /// <param name="attribute">The attribute type under inspection.</param>
+    /// <returns>The attribute value as text, or null when none applies.</returns>
     private static string? MarkAttributeValue(AttributeData attribute)
     {
         if (!MarkVerbNames.TryParseAttributeName(attribute.AttributeClass?.Name, out _))
@@ -316,6 +336,8 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>The first event mark on the type, or null when it carries none.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The id of as text, or null when none applies.</returns>
     private static string? EventIdOf(INamedTypeSymbol type)
     {
         foreach (var reference in type.DeclaringSyntaxReferences)
@@ -336,6 +358,9 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>A finding's file as a forward-slash path from the project root.</summary>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>The relative as text.</returns>
     private static string RootRelative(string root, string path)
     {
         var relative = Path.IsPathRooted(path) ? RelativeTo(root, path) : path;
@@ -347,6 +372,9 @@ internal sealed class TraceabilityContext
     ///     The path from one folder to another, with forward slashes: dot when both name
     ///     the same folder, the path itself when they share no root.
     /// </summary>
+    /// <param name="root">The syntax root of the tree being searched.</param>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>The to as text.</returns>
     private static string RelativeTo(string root, string path)
     {
         var comparison = Path.DirectorySeparatorChar == '\\'
@@ -360,8 +388,8 @@ internal sealed class TraceabilityContext
             return path;
         }
 
-        var fromSegments = from.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-        var toSegments = to.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        var fromSegments = from.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+        var toSegments = to.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
         var common = 0;
 
         while (common < fromSegments.Length
@@ -387,11 +415,13 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>The root two paths must share: a drive, a UNC share, or the filesystem root.</summary>
+    /// <param name="value">The value to convert or test.</param>
+    /// <returns>The name as text.</returns>
     private static string RootName(string value)
     {
         if (value.StartsWith("//", StringComparison.Ordinal))
         {
-            var segments = value.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = value.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
             return segments.Length >= 2
                 ? "//" + segments[0] + "/" + segments[1]
@@ -406,12 +436,18 @@ internal sealed class TraceabilityContext
         return value.StartsWith("/", StringComparison.Ordinal) ? "/" : "";
     }
 
+    /// <summary>Returns true when the iso-date condition holds; otherwise false.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <param name="date">The date the expiry is tested against.</param>
+    /// <returns>True when the iso-date condition holds; otherwise false.</returns>
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
     /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
+        /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
+        /// <param name="exception">The exception type under inspection.</param>
         public LiveException(IRecordFacts exception)
         {
             Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
@@ -419,10 +455,13 @@ internal sealed class TraceabilityContext
             Codes = new HashSet<string>(exception.Ids("covers"), StringComparer.Ordinal);
         }
 
+        /// <summary>Gets the subjects for the live exception.</summary>
         public HashSet<string> Subjects { get; }
 
+        /// <summary>Gets the paths for the live exception.</summary>
         public IReadOnlyList<string> Paths { get; }
 
+        /// <summary>Gets the codes for the live exception.</summary>
         public HashSet<string> Codes { get; }
     }
 
@@ -431,6 +470,9 @@ internal sealed class TraceabilityContext
     ///     <c>**</c> spans folders, <c>*</c> and <c>?</c> stay inside one segment,
     ///     and a trailing slash holds the whole folder.
     /// </summary>
+    /// <param name="pattern">The pattern text to match against.</param>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <returns>True when the glob-matches condition holds; otherwise false.</returns>
     private static bool GlobMatches(string pattern, string path)
     {
         var glob = pattern.Replace('\\', '/');
@@ -446,13 +488,18 @@ internal sealed class TraceabilityContext
         }
 
         return GlobSegments(
-            glob.Split(new char[] { '/' }, StringSplitOptions.None),
+            glob.Split(['/'], StringSplitOptions.None),
             0,
-            path.Split(new char[] { '/' }, StringSplitOptions.None),
+            path.Split(['/'], StringSplitOptions.None),
             0);
     }
 
     /// <summary>Whether the trailing pattern segments match the trailing path segments.</summary>
+    /// <param name="pattern">The pattern text to match against.</param>
+    /// <param name="nextPattern">The next pattern segment to match.</param>
+    /// <param name="path">The file path as the host reports it.</param>
+    /// <param name="nextPath">The next path segment to match.</param>
+    /// <returns>True when the glob-segments condition holds; otherwise false.</returns>
     private static bool GlobSegments(string[] pattern, int nextPattern, string[] path, int nextPath)
     {
         while (nextPattern < pattern.Length && nextPath <= path.Length)
@@ -488,6 +535,9 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>Whether the segment pattern matches the path segment: <c>*</c> spans, <c>?</c> takes one.</summary>
+    /// <param name="pattern">The pattern text to match against.</param>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>True when the glob-segment condition holds; otherwise false.</returns>
     private static bool GlobSegment(string pattern, string text)
     {
         var nextPattern = 0;

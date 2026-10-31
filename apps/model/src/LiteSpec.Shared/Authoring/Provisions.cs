@@ -24,14 +24,22 @@ public static class Provisions
     // owning page path relative to docs/ without its extension, and the slug is the
     // heading slug. The ID line right below the heading states it, so a reader
     // copies the identifier without composing it. No segment carries a sequence number.
+    /// <summary>The pattern a whole provision identifier matches.</summary>
     static readonly Regex ProvisionIdPattern = new($"^{IdSource}$");
+    /// <summary>The pattern that splits a provision identifier into its page and slug.</summary>
     static readonly Regex ParseIdPattern = new(@"^litespec\/([a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)#([a-z0-9]+(?:-[a-z0-9]+)*)$");
+    /// <summary>The trailing explicit anchor suffix a heading carries.</summary>
     static readonly Regex AnchorSuffix = new(@"\s+\{#[^}]+\}\s*$");
+    /// <summary>The characters a heading slug drops.</summary>
     static readonly Regex SlugStrip = new(@"[^a-z0-9\s-]");
+    /// <summary>One run of whitespace in a heading.</summary>
     static readonly Regex WhitespaceRun = new(@"\s+");
+    /// <summary>One run of dashes in a slug.</summary>
     static readonly Regex DashRun = new(@"-+");
 
     /// <summary>Turns a heading into the anchor slug the index links to.</summary>
+    /// <param name="value">The heading text.</param>
+    /// <returns>The anchor slug.</returns>
     public static string HeadingSlug(string value)
     {
         var slug = AnchorSuffix.Replace(value, string.Empty).ToLowerInvariant().Replace("`", string.Empty, StringComparison.Ordinal);
@@ -46,6 +54,8 @@ public static class Provisions
     ///     <c>structure.md</c> in two folders stay distinct. Returns null when the
     ///     identifier is malformed.
     /// </summary>
+    /// <param name="id">The provision identifier.</param>
+    /// <returns>The parsed identifier, or null when the identifier is malformed.</returns>
     public static ProvisionId? Parse(string id)
     {
         var match = ParseIdPattern.Match(id);
@@ -59,14 +69,19 @@ public static class Provisions
     }
 
     /// <summary>Whether the identifier matches the provision identifier pattern.</summary>
+    /// <param name="id">The provision identifier.</param>
+    /// <returns>True when the identifier is a provision identifier.</returns>
     public static bool IsProvisionId(string id) => ProvisionIdPattern.IsMatch(id);
 
     // A provision is a ### heading inside a page's Standards or Conventions section,
     // on any page under docs/ except the lookup areas and the navigation pages, which
     // own no provisions.
+    /// <summary>The repository-relative areas that own no provisions.</summary>
     static readonly string[] ExcludedAreas = ["docs/tools/", "docs/maintain/", "docs/reference/", "docs/tutorial/", "docs/guide/", "docs/learn/", "docs/analyzers/", "docs/example/"];
 
     /// <summary>Whether provisions are collected from this repository-relative path.</summary>
+    /// <param name="relative">The repository-relative path, with forward slashes.</param>
+    /// <returns>True when the path is a standards page that owns provisions.</returns>
     public static bool IsProvisionPage(string relative) =>
         relative.StartsWith("docs/", StringComparison.Ordinal)
         && relative.EndsWith(".md", StringComparison.Ordinal)
@@ -77,9 +92,13 @@ public static class Provisions
     ///     The page path a provision identifier names: the repository-relative page path
     ///     without the <c>docs/</c> prefix and the <c>.md</c> extension.
     /// </summary>
+    /// <param name="relative">The repository-relative page path, with forward slashes.</param>
+    /// <returns>The page path the identifier names.</returns>
     public static string PagePath(string relative) => relative["docs/".Length..^".md".Length];
 
     /// <summary>Collects every provision row from the standards pages, sorted by identifier.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Every provision row, sorted by identifier.</returns>
     public static List<ProvisionRow> Collect(string root)
     {
         var rows = new List<ProvisionRow>();
@@ -136,6 +155,8 @@ public static class Provisions
     }
 
     /// <summary>Builds the provision index text with <c>\n</c> line ends, without a trailing newline.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The provision index text.</returns>
     public static string BuildIndex(string root)
     {
         var rows = Collect(root);
@@ -187,8 +208,14 @@ public static class Provisions
         return string.Join("\n", lines);
     }
 
+    /// <summary>Writes a path with forward slashes.</summary>
+    /// <param name="value">The path as the operating system writes it.</param>
+    /// <returns>The path with forward slashes.</returns>
     static string Slash(string value) => value.Replace('\\', '/');
 
+    /// <summary>Lists every Markdown file under the folder, in ordinal order.</summary>
+    /// <param name="directory">The folder to walk.</param>
+    /// <returns>Every Markdown file under the folder.</returns>
     static List<string> Walk(string directory)
     {
         var result = new List<string>();
@@ -218,6 +245,11 @@ public static class Provisions
     // the mark: "Checked by" is checkable with the command that checks it, and
     // "Reviewed for" is guidance with the question a reviewer answers. The index
     // keeps its Mark column, derived from the label.
+    /// <summary>Reads each provision's inline verification mark from its page.</summary>
+    /// <param name="reader">The page read.</param>
+    /// <param name="page">The page path the identifiers name.</param>
+    /// <param name="relative">The repository-relative page path, with forward slashes.</param>
+    /// <returns>The verification mark and evidence by provision identifier.</returns>
     static Dictionary<string, (string Mark, string Evidence)> CollectInlineMarks(PageReader reader, string page, string relative)
     {
         var marks = new Dictionary<string, (string Mark, string Evidence)>(StringComparer.Ordinal);
@@ -271,6 +303,10 @@ public static class Provisions
     ///     The identifier a provision states on the ID line under its heading, which is its
     ///     identity; the heading slug stands in only where no ID line names this page.
     /// </summary>
+    /// <param name="reader">The page read.</param>
+    /// <param name="page">The page path the identifiers name.</param>
+    /// <param name="heading">The provision heading.</param>
+    /// <returns>The provision identifier.</returns>
     static string IdOf(PageReader reader, string page, PageReader.ReaderHeading heading)
     {
         for (var index = heading.Line; index < reader.Lines.Length; index++)
@@ -293,24 +329,8 @@ public static class Provisions
         return $"litespec/{page}#{HeadingSlug(heading.Text.Trim())}";
     }
 
+    /// <summary>Escapes a table cell value.</summary>
+    /// <param name="value">The cell text.</param>
+    /// <returns>The cell text with each bar escaped.</returns>
     static string EscapeCell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal);
 }
-
-/// <summary>
-///     A parsed provision identifier.
-/// </summary>
-/// <param name="Page">The owning page path relative to <c>docs/</c> without its extension.</param>
-/// <param name="Slug">The heading slug.</param>
-public sealed record ProvisionId(string Page, string Slug);
-
-/// <summary>
-///     One provision with its heading, owning page and inline verification mark.
-/// </summary>
-/// <param name="Id">The provision identifier.</param>
-/// <param name="Heading">The provision heading.</param>
-/// <param name="Page">The owning page, relative to the repository root.</param>
-/// <param name="Anchor">The heading slug the index links to.</param>
-/// <param name="Kind">The assertion class.</param>
-/// <param name="Mark">The inline verification mark, or empty when the provision carries none.</param>
-/// <param name="Evidence">The inline verification evidence, or empty when the provision carries none.</param>
-public sealed record ProvisionRow(string Id, string Heading, string Page, string Anchor, string Kind, string Mark, string Evidence);

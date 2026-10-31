@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for recognizing the methods that assign the state of their type.</summary>
 public sealed class StateChangesTests
 {
+    /// <summary>A method assigning a field changes state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method assigning a field changes state")]
     public void AssigningAFieldChangesState()
@@ -26,6 +27,7 @@ public sealed class StateChangesTests
         Assert.True(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A method assigning a property through this changes state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method assigning a property through this changes state")]
     public void AssigningThroughThisChangesState()
@@ -45,6 +47,7 @@ public sealed class StateChangesTests
         Assert.True(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A method incrementing a counter changes state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method incrementing a counter changes state")]
     public void IncrementingChangesState()
@@ -64,6 +67,7 @@ public sealed class StateChangesTests
         Assert.True(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A method assigning through a private helper changes state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method assigning through a private helper changes state")]
     public void AssigningThroughAPrivateHelperChangesState()
@@ -85,6 +89,7 @@ public sealed class StateChangesTests
         Assert.True(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A method assigning only locals changes no state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method assigning only locals changes no state")]
     public void AssigningLocalsChangesNoState()
@@ -106,6 +111,7 @@ public sealed class StateChangesTests
         Assert.False(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A reading method changes no state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A reading method changes no state")]
     public void ReadingChangesNoState()
@@ -120,6 +126,7 @@ public sealed class StateChangesTests
         Assert.False(StateChanges.Changes(method, owner));
     }
 
+    /// <summary>A method assigning a parameter of a field name changes no state.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method assigning a parameter of a field name changes no state")]
     public void AssigningAShadowedParameterChangesNoState()

@@ -37,6 +37,9 @@ static class MarksFixture
     }
 
     /// <summary>The findings carrying the code.</summary>
+    /// <param name="findings">The findings to filter.</param>
+    /// <param name="code">The finding code to keep.</param>
+    /// <returns>The mark findings whose code matches, in the order reported.</returns>
     public static List<Finding> WithCode(IReadOnlyList<Finding> findings, string code) =>
         findings.Where(finding => finding.Code == code).ToList();
 

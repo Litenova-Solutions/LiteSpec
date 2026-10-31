@@ -13,6 +13,8 @@ namespace LiteSpec.Model.Checks;
 internal static class ReachChecks
 {
     /// <summary>Reports use-case-journey-missing.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReach(ProjectModel model, List<Finding> findings)
     {
         if (model.Config.Size == "small")
@@ -38,6 +40,8 @@ internal static class ReachChecks
     }
 
     /// <summary>Reports behavior-unrecorded.</summary>
+    /// <param name="model">The loaded project model that holds every record, the scanned code and each screen.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunBehavior(ProjectModel model, List<Finding> findings)
     {
         // A refusal result declares the code a caller sees. A rule whose refusal is a bare code
@@ -63,6 +67,9 @@ internal static class ReachChecks
         CheckUnmatchedCalls(model, findings);
     }
 
+    /// <summary>Reports each screen call that matches no endpoint by route or by operation name.</summary>
+    /// <param name="model">The loaded project model that holds the scanned endpoints and each screen.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckUnmatchedCalls(ProjectModel model, List<Finding> findings)
     {
         if (model.Screens.Count == 0 || model.Config.Shape == "client-only")
@@ -111,7 +118,10 @@ internal static class ReachChecks
     }
 
     /// <summary>The route template with parameter constraints removed, so `{id:guid}` reads `{id}`.</summary>
+    /// <param name="route">The route template whose parameter constraints are removed.</param>
+    /// <returns>The route template with each constrained parameter reduced to its bare name.</returns>
     private static string Template(string route) => TemplateConstraint.Replace(route, "{$1}");
 
+    /// <summary>Matches one constrained route parameter, capturing its name.</summary>
     private static readonly Regex TemplateConstraint = new(@"\{(?<name>[^}:]+):[^}]+\}", RegexOptions.Compiled);
 }

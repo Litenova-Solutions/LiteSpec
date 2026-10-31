@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the term-clash check: joined and hyphenated pairs, spelling pairs, and the ignore list.</summary>
 public sealed class TermLookalikeCheckTests
 {
+    /// <summary>Joined And Hyphenated Pair Reported When Both Occur.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Joined_And_Hyphenated_Pair_Reported_When_Both_Occur()
@@ -26,6 +27,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("reaction/test.send-sold-out-notice-on-sale-ended", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>One Form Alone Not Reported.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void One_Form_Alone_Not_Reported()
@@ -39,6 +41,7 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
+    /// <summary>Ignore List Honoured.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Ignore_List_Honoured()
@@ -53,6 +56,7 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
+    /// <summary>British And American Pair Reported.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void British_And_American_Pair_Reported()
@@ -73,6 +77,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("rule/test.color-check", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Singular And Plural Names In One Home Reported.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Singular_And_Plural_Names_In_One_Home_Reported()
@@ -93,6 +98,9 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("aggregate/test.copies", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Split Opening With A Function Word Not Reported.</summary>
+    /// <param name="split">The hyphenated form the case opens with a function word.</param>
+    /// <param name="joined">The joined term the hyphenated form resembles in the case.</param>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Theory]
     [InlineData("as-signed", "assigned")]
@@ -100,6 +108,8 @@ public sealed class TermLookalikeCheckTests
     [InlineData("as-set", "asset")]
     [InlineData("with-hold", "withhold")]
     [InlineData("with-holds", "withholds")]
+    // The InlineData values pair a function-word split with its joined lookalike.
+    // A split that opens with a function word reads as two words, not one compound.
     public void Split_Opening_With_A_Function_Word_Not_Reported(string split, string joined)
     {
         using var temp = Cli.Temp("checks");
@@ -112,12 +122,17 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
+    /// <summary>Real Compound Split Still Reported.</summary>
+    /// <param name="split">The hyphenated spelling of the compound term in the case.</param>
+    /// <param name="joined">The joined spelling of the compound term in the case.</param>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Theory]
     [InlineData("claw-back", "clawback")]
     [InlineData("sign-up", "signup")]
     [InlineData("take-down", "takedown")]
     [InlineData("line-up", "lineup")]
+    // The InlineData values pair a real compound split with its joined form.
+    // A real compound split still counts as a lookalike of the joined term.
     public void Real_Compound_Split_Still_Reported(string split, string joined)
     {
         using var temp = Cli.Temp("checks");
@@ -134,6 +149,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains(split, finding.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>Behaviour And Behavior Still Reported.</summary>
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Behaviour_And_Behavior_Still_Reported()

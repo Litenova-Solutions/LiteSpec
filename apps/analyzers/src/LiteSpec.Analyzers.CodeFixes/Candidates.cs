@@ -51,7 +51,7 @@ internal static class Candidates
         // A test proves the lowest record it verifies, from any of its kinds, but
         // the fix offers scenarios: the other proof targets are named by hand.
         var types = kind == CodeKind.Test
-            ? new string[] { "scenario" }
+            ? ["scenario"]
             : MarkRules.RecordTypes(kind);
 
         foreach (var type in types)
@@ -102,6 +102,9 @@ internal static class Candidates
     }
 
     /// <summary>The edit distance between two identifiers: insertions, deletions and substitutions.</summary>
+    /// <param name="left">The first identifier to compare.</param>
+    /// <param name="right">The second identifier to compare.</param>
+    /// <returns>The int.</returns>
     public static int Distance(string left, string right)
     {
         var previous = new int[right.Length + 1];
@@ -130,9 +133,18 @@ internal static class Candidates
         return previous[right.Length];
     }
 
+    /// <summary>Compares the ids.</summary>
+    /// <param name="left">The first identifier to compare.</param>
+    /// <param name="right">The second identifier to compare.</param>
+    /// <returns>The ids.</returns>
     private static int CompareIds(IRecordFacts left, IRecordFacts right) =>
         string.Compare(left.Id, right.Id, StringComparison.Ordinal);
 
+    /// <summary>Returns true when the record id is exact; otherwise false.</summary>
+    /// <param name="recordId">The record identifier the mark names, spelled as the record states it.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="exacts">The exact identifier stems derived from the folders and the element name.</param>
+    /// <returns>True when the record id is exact; otherwise false.</returns>
     private static bool IsExact(string recordId, string type, HashSet<string> exacts)
     {
         var prefix = type + "/";
@@ -142,6 +154,9 @@ internal static class Candidates
     }
 
     /// <summary>Whether the record's name part matches the derived stem, wholly or as a tail.</summary>
+    /// <param name="recordId">The record identifier the mark names, spelled as the record states it.</param>
+    /// <param name="stem">The kebab-case stem derived from the type or member name.</param>
+    /// <returns>True when the name-matches condition holds; otherwise false.</returns>
     private static bool NameMatches(string recordId, string stem)
     {
         var dot = recordId.LastIndexOf('.');
@@ -153,6 +168,9 @@ internal static class Candidates
     }
 
     /// <summary>The name without the kind's suffix, or the whole name when nothing strips.</summary>
+    /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
+    /// <param name="name">The name to convert or match.</param>
+    /// <returns>The suffix as text.</returns>
     private static string StripSuffix(CodeKind kind, string name)
     {
         string[] suffixes;
@@ -160,22 +178,22 @@ internal static class Candidates
         switch (kind)
         {
             case CodeKind.Handler:
-                suffixes = new string[] { "CommandHandler", "QueryHandler", "Handler" };
+                suffixes = ["CommandHandler", "QueryHandler", "Handler"];
                 break;
             case CodeKind.Endpoint:
-                suffixes = new string[] { "Endpoint" };
+                suffixes = ["Endpoint"];
                 break;
             case CodeKind.EventHandler:
-                suffixes = new string[] { "Handler" };
+                suffixes = ["Handler"];
                 break;
             case CodeKind.Job:
-                suffixes = new string[] { "Job", "Worker" };
+                suffixes = ["Job", "Worker"];
                 break;
             case CodeKind.DomainEvent:
-                suffixes = new string[] { "Event" };
+                suffixes = ["Event"];
                 break;
             case CodeKind.RuleException:
-                suffixes = new string[] { "Exception" };
+                suffixes = ["Exception"];
                 break;
             default:
                 return name;
@@ -193,6 +211,8 @@ internal static class Candidates
     }
 
     /// <summary>PascalCase, underscores and dots in kebab-case: SubmitExpense reads submit-expense.</summary>
+    /// <param name="name">The name to convert or match.</param>
+    /// <returns>The string as text.</returns>
     private static string Kebab(string name)
     {
         var built = new System.Text.StringBuilder();

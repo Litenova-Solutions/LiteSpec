@@ -1,3 +1,4 @@
+using System.Globalization;
 using LiteSpec.Analyzers.Tests.Support;
 
 namespace LiteSpec.Analyzers.Tests.Generation;
@@ -5,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission constants.</summary>
 public sealed class PermissionTests
 {
+    /// <summary>Application generates one constant per permission.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Application generates one constant per permission")]
     public void ApplicationGeneratesPermissionConstants()
@@ -20,6 +22,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Infrastructure generates permission constants from its assembly name.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Infrastructure generates permission constants from its assembly name")]
     public void InfrastructureGeneratesPermissionConstants()
@@ -33,6 +36,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>WebApi generates permission constants from the declared layer.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "WebApi generates permission constants from the declared layer")]
     public void WebApiGeneratesPermissionConstantsFromTheDeclaredLayer()
@@ -47,6 +51,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Domain generates permission constants for its role types.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "Domain generates permission constants for its role types")]
     public void DomainGeneratesPermissionConstants()
@@ -61,6 +66,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unknown layer generates no permission constants.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An unknown layer generates no permission constants")]
     public void UnknownLayerGeneratesNoPermissionConstants()
@@ -74,6 +80,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A name starting with a digit takes a leading underscore.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A name starting with a digit takes a leading underscore")]
     public void DigitStartTakesALeadingUnderscore()
@@ -88,6 +95,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Two permissions producing one name report a diagnostic and emit nothing.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Two permissions producing one name report a diagnostic and emit nothing")]
     public void CollisionReportsAndEmitsNothing()
@@ -99,9 +107,9 @@ public sealed class PermissionTests
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5009", diagnostic.Id);
-        Assert.Contains("AB", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("permission/a-b", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("permission/a--b", diagnostic.GetMessage(), StringComparison.Ordinal);
+        Assert.Contains("AB", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("permission/a-b", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("permission/a--b", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
         Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry is independent of the collision and stays.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));

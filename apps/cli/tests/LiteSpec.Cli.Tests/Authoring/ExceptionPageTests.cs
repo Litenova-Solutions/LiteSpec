@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec new exception</c>.</summary>
 public sealed class ExceptionPageTests
 {
+    /// <summary>New exception scaffolds the page under governance exceptions.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new exception scaffolds the page under governance exceptions")]
     public void NewExceptionScaffoldsItsPage()
@@ -24,6 +25,7 @@ public sealed class ExceptionPageTests
         Assert.Contains("exception/payment-retries-later", File.ReadAllText(page));
     }
 
+    /// <summary>New deviation is an unknown type.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new deviation is an unknown type")]
     public void NewDeviationIsUnknown()

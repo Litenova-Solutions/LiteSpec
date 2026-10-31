@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using LiteSpec.Analyzers.Tests.Support;
@@ -10,6 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the registry's message-to-use-case answers.</summary>
 public sealed class RegistryMessagesTests
 {
+    /// <summary>A command handler maps its message to its use case.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A command handler maps its message to its use case")]
     public void CommandHandlerMapsItsMessage()
@@ -39,6 +41,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A query handler maps its message to its use case.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A query handler maps its message to its use case")]
     public void QueryHandlerMapsItsMessage()
@@ -66,6 +69,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>An unmarked handler adds no message entry.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An unmarked handler adds no message entry")]
     public void UnmarkedHandlerAddsNothing()
@@ -93,6 +97,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>A handler with two use-case marks adds no message entry.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A handler with two use-case marks adds no message entry")]
     public void HandlerWithTwoUseCaseMarksAddsNothing()
@@ -122,6 +127,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>Two handlers of one message with different use cases report LS5011 and take no entry.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Two handlers of one message with different use cases report LS5011 and take no entry")]
     public void TwoHandlersOfOneMessageReportLS5011()
@@ -151,14 +157,15 @@ public sealed class RegistryMessagesTests
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5011", diagnostic.Id);
-        Assert.Contains("global::Shop.Spending.SubmitExpenseCommand", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("Shop.Spending.FirstCommandHandler", diagnostic.GetMessage(), StringComparison.Ordinal);
-        Assert.Contains("Shop.Spending.SecondCommandHandler", diagnostic.GetMessage(), StringComparison.Ordinal);
+        Assert.Contains("global::Shop.Spending.SubmitExpenseCommand", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("Shop.Spending.FirstCommandHandler", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        Assert.Contains("Shop.Spending.SecondCommandHandler", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("new System.Collections.Generic.Dictionary<System.Type, string>();", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <summary>UseCaseOf and GrantOf answer the use case and its grant from the message.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOf and GrantOf answer the use case and its grant from the message")]
     public void MessageLookupsAnswerTheUseCaseAndItsGrant()
@@ -198,11 +205,12 @@ public sealed class RegistryMessagesTests
             trees.Add(CSharpSyntaxTree.ParseText(
                 SourceText.From(generated.Value, Encoding.UTF8),
                 new CSharpParseOptions(LanguageVersion.Latest),
-                generated.Key));
+                generated.Key,
+                cancellationToken: TestContext.Current.CancellationToken));
         }
 
         using var stream = new MemoryStream();
-        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream);
+        var emitted = compilation.AddSyntaxTrees(trees).Emit(stream, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(emitted.Success, "The generated code does not emit:\n" + string.Join("\n", emitted.Diagnostics));
 
         var assembly = Assembly.Load(stream.ToArray());
@@ -215,15 +223,15 @@ public sealed class RegistryMessagesTests
 
         var submit = assembly.GetType("Shop.Spending.SubmitExpenseCommand");
         Assert.NotNull(submit);
-        Assert.Equal("use-case/spending.submit-expense", useCaseOf.Invoke(null, new object[] { submit }));
-        Assert.Equal("permission/submit-expense", grantOf.Invoke(null, new object[] { submit }));
+        Assert.Equal("use-case/spending.submit-expense", useCaseOf.Invoke(null, [submit]));
+        Assert.Equal("permission/submit-expense", grantOf.Invoke(null, [submit]));
 
         var rename = assembly.GetType("Shop.Spending.RenameExpenseCommand");
         Assert.NotNull(rename);
-        Assert.Equal("use-case/spending.rename-expense", useCaseOf.Invoke(null, new object[] { rename }));
-        Assert.Null(grantOf.Invoke(null, new object[] { rename }));
+        Assert.Equal("use-case/spending.rename-expense", useCaseOf.Invoke(null, [rename]));
+        Assert.Null(grantOf.Invoke(null, [rename]));
 
-        Assert.Null(useCaseOf.Invoke(null, new object[] { typeof(string) }));
-        Assert.Null(grantOf.Invoke(null, new object[] { typeof(string) }));
+        Assert.Null(useCaseOf.Invoke(null, [typeof(string)]));
+        Assert.Null(grantOf.Invoke(null, [typeof(string)]));
     }
 }

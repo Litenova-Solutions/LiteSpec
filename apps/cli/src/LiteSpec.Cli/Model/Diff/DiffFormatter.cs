@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace LiteSpec.Model.Diff;
@@ -9,9 +10,14 @@ namespace LiteSpec.Model.Diff;
 /// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 static class DiffFormatter
 {
+    /// <summary>The change sections in render order: removed, then modified, then added.</summary>
     static readonly ChangeKind[] Sections = [ChangeKind.Removed, ChangeKind.Modified, ChangeKind.Added];
 
     /// <summary>Renders the changelog reviewers read.</summary>
+    /// <param name="diff">The intent diff to render as plain text.</param>
+    /// <param name="breakingOnly">Whether only breaking changes are shown.</param>
+    /// <param name="view">The view whose changes are shown.</param>
+    /// <returns>The plain text changelog, with one section per change kind.</returns>
     public static string Text(IntentDiff diff, bool breakingOnly, DiffView view = DiffView.Both)
     {
         var shown = Shown(diff, breakingOnly, view);
@@ -33,7 +39,7 @@ static class DiffFormatter
                 continue;
             }
 
-            builder.Append($" ({entries.Count})");
+            builder.Append(CultureInfo.InvariantCulture, $" ({entries.Count})");
 
             string? family = null;
 
@@ -42,19 +48,19 @@ static class DiffFormatter
                 if (entry.Family != family)
                 {
                     family = entry.Family;
-                    builder.Append($"\n{IntentDiff.FamilyName(family)}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n{IntentDiff.FamilyName(family)}");
                 }
 
-                builder.Append($"\n- {(entry.Breaking ? "[BREAKING] " : "")}{IntentDiff.TypeName(entry.Type)} \"{entry.Title}\"{entry.Qualifier}");
+                builder.Append(CultureInfo.InvariantCulture, $"\n- {(entry.Breaking ? "[BREAKING] " : "")}{IntentDiff.TypeName(entry.Type)} \"{entry.Title}\"{entry.Qualifier}");
 
                 foreach (var detail in entry.Details)
                 {
-                    builder.Append($"\n  {detail}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n  {detail}");
                 }
 
                 foreach (var reason in entry.Reasons)
                 {
-                    builder.Append($"\n  Why it breaks ({reason.Code}): {reason.Message}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n  Why it breaks ({reason.Code}): {reason.Message}");
                 }
             }
         }
@@ -69,11 +75,11 @@ static class DiffFormatter
             }
             else
             {
-                builder.Append($" ({diff.SecurityQueue.Count})");
+                builder.Append(CultureInfo.InvariantCulture, $" ({diff.SecurityQueue.Count})");
 
                 foreach (var entry in diff.SecurityQueue)
                 {
-                    builder.Append($"\n- {IntentDiff.TypeName(entry.Type)} \"{entry.Title}\": {entry.Detail}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n- {IntentDiff.TypeName(entry.Type)} \"{entry.Title}\": {entry.Detail}");
                 }
             }
         }
@@ -82,19 +88,23 @@ static class DiffFormatter
     }
 
     /// <summary>Renders the comment a pull request carries, amended on every push.</summary>
+    /// <param name="diff">The intent diff to render as Markdown.</param>
+    /// <param name="breakingOnly">Whether only breaking changes are shown.</param>
+    /// <param name="view">The view whose changes are shown.</param>
+    /// <returns>The Markdown text of the pull request comment.</returns>
     public static string Markdown(IntentDiff diff, bool breakingOnly, DiffView view = DiffView.Both)
     {
         var shown = Shown(diff, breakingOnly, view);
         var counted = diff.ChangesIn(view);
         var builder = new StringBuilder();
 
-        builder.Append($"# {Header(diff, counted, breakingOnly, view)}");
+        builder.Append(CultureInfo.InvariantCulture, $"# {Header(diff, counted, breakingOnly, view)}");
 
         foreach (var section in Sections)
         {
             var entries = shown.Where(entry => entry.Change == section).ToList();
 
-            builder.Append($"\n\n## {SectionName(section)}");
+            builder.Append(CultureInfo.InvariantCulture, $"\n\n## {SectionName(section)}");
 
             if (entries.Count == 0)
             {
@@ -102,7 +112,7 @@ static class DiffFormatter
                 continue;
             }
 
-            builder.Append($" ({entries.Count})");
+            builder.Append(CultureInfo.InvariantCulture, $" ({entries.Count})");
 
             string? family = null;
 
@@ -111,19 +121,19 @@ static class DiffFormatter
                 if (entry.Family != family)
                 {
                     family = entry.Family;
-                    builder.Append($"\n\n### {IntentDiff.FamilyName(family)}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n\n### {IntentDiff.FamilyName(family)}");
                 }
 
-                builder.Append($"\n- {(entry.Breaking ? "**[BREAKING]** " : "")}{IntentDiff.TypeName(entry.Type)} \"{entry.Title}\"{entry.Qualifier}");
+                builder.Append(CultureInfo.InvariantCulture, $"\n- {(entry.Breaking ? "**[BREAKING]** " : "")}{IntentDiff.TypeName(entry.Type)} \"{entry.Title}\"{entry.Qualifier}");
 
                 foreach (var detail in entry.Details)
                 {
-                    builder.Append($"\n  - {detail}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n  - {detail}");
                 }
 
                 foreach (var reason in entry.Reasons)
                 {
-                    builder.Append($"\n  - Why it breaks ({reason.Code}): {reason.Message}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n  - Why it breaks ({reason.Code}): {reason.Message}");
                 }
             }
         }
@@ -138,11 +148,11 @@ static class DiffFormatter
             }
             else
             {
-                builder.Append($" ({diff.SecurityQueue.Count})");
+                builder.Append(CultureInfo.InvariantCulture, $" ({diff.SecurityQueue.Count})");
 
                 foreach (var entry in diff.SecurityQueue)
                 {
-                    builder.Append($"\n- {IntentDiff.TypeName(entry.Type)} \"{entry.Title}\": {entry.Detail}");
+                    builder.Append(CultureInfo.InvariantCulture, $"\n- {IntentDiff.TypeName(entry.Type)} \"{entry.Title}\": {entry.Detail}");
                 }
             }
         }
@@ -151,6 +161,10 @@ static class DiffFormatter
     }
 
     /// <summary>Renders the machine diff: every change with its fingerprint and the counts.</summary>
+    /// <param name="diff">The intent diff to render as JSON.</param>
+    /// <param name="breakingOnly">Whether only breaking changes are shown.</param>
+    /// <param name="view">The view whose changes are shown.</param>
+    /// <returns>The JSON text holding every change, its fingerprint, and the counts.</returns>
     public static string Json(IntentDiff diff, bool breakingOnly, DiffView view = DiffView.Both)
     {
         var counted = diff.ChangesIn(view);
@@ -189,6 +203,14 @@ static class DiffFormatter
         });
     }
 
+    /// <summary>
+    ///     The changes a render shows: the changes of the view, reduced to breaking changes when breakingOnly
+    ///     is set.
+    /// </summary>
+    /// <param name="diff">The intent diff to render.</param>
+    /// <param name="breakingOnly">Whether only breaking changes are shown.</param>
+    /// <param name="view">The view whose changes are shown.</param>
+    /// <returns>The changes of the view, reduced to breaking changes when breakingOnly is set.</returns>
     static IReadOnlyList<IntentChange> Shown(IntentDiff diff, bool breakingOnly, DiffView view)
     {
         var changes = diff.ChangesIn(view);
@@ -196,6 +218,15 @@ static class DiffFormatter
         return breakingOnly ? changes.Where(entry => entry.Breaking).ToList() : changes;
     }
 
+    /// <summary>
+    ///     The header line: the diff kind, the base and head labels, and the breaking, removed, modified, and
+    ///     added counts.
+    /// </summary>
+    /// <param name="diff">The intent diff to render.</param>
+    /// <param name="counted">The changes counted in the header, in the chosen view.</param>
+    /// <param name="breakingOnly">Whether only breaking changes are shown.</param>
+    /// <param name="view">The view whose changes are shown.</param>
+    /// <returns>The header line naming the diff kind, the bases, and the counts.</returns>
     static string Header(IntentDiff diff, IReadOnlyList<IntentChange> counted, bool breakingOnly, DiffView view)
     {
         var name = view == DiffView.Behavior ? "Behavior diff" : "Intent diff";
@@ -208,6 +239,9 @@ static class DiffFormatter
         return breakingOnly ? $"{header} (breaking only)" : header;
     }
 
+    /// <summary>The section heading for a change kind: REMOVED, MODIFIED, or ADDED.</summary>
+    /// <param name="section">The change kind whose heading is wanted.</param>
+    /// <returns>REMOVED, MODIFIED, or ADDED, according to the change kind.</returns>
     static string SectionName(ChangeKind section) => section switch
     {
         ChangeKind.Removed => "REMOVED",

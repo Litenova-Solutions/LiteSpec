@@ -21,12 +21,24 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS5005);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the runtime value analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state) =>
         context.RegisterSymbolAction(c => Analyze(c, state), SymbolKind.NamedType);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private static void Analyze(SymbolAnalysisContext context, TraceabilityContext state)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -48,6 +60,10 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         }
     }
 
+    /// <summary>Analyzes the event.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="type">The type under inspection.</param>
     private static void AnalyzeEvent(SymbolAnalysisContext context, TraceabilityContext state, INamedTypeSymbol type)
     {
         var mark = ResolvingMark(state, type, "event");
@@ -76,6 +92,10 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         }
     }
 
+    /// <summary>Analyzes the exception.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="type">The type under inspection.</param>
     private static void AnalyzeException(
         SymbolAnalysisContext context, TraceabilityContext state, INamedTypeSymbol type)
     {
@@ -106,6 +126,10 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>The first mark resolving to a record of the expected type, or null.</summary>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="recordType">The record type the mark must resolve to.</param>
+    /// <returns>The mark as text, or null when none applies.</returns>
     private static string? ResolvingMark(TraceabilityContext state, INamedTypeSymbol type, string recordType)
     {
         foreach (var member in Declarations(type))
@@ -124,6 +148,9 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>The refusal code of the rule through the shared rule, or null when it names none.</summary>
+    /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="ruleId">The rule identifier whose refusal code the value must match.</param>
+    /// <returns>The code as text, or null when none applies.</returns>
     private static string? ExpectedCode(TraceabilityContext state, string ruleId)
     {
         var rule = state.Store.Index.ById(ruleId);
@@ -132,7 +159,10 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>Every hand-written string literal value of the named member declared on the type.</summary>
-    private static System.Collections.Generic.IReadOnlyList<WrittenValue> WrittenValues(
+    /// <param name="type">The type under inspection.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
+    /// <returns>The values, in the order this method builds them, or an empty collection when none apply.</returns>
+    private static System.Collections.Generic.List<WrittenValue> WrittenValues(
         INamedTypeSymbol type, string memberName)
     {
         var values = new System.Collections.Generic.List<WrittenValue>();
@@ -162,6 +192,10 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         return values;
     }
 
+    /// <summary>Reads the field.</summary>
+    /// <param name="field">The field declaration that carries the hand-written value.</param>
+    /// <param name="memberName">The name of the member that carries the hand-written value.</param>
+    /// <param name="values">The values collected so far, in the order they were found.</param>
     private static void ReadField(
         FieldDeclarationSyntax field, string memberName, System.Collections.Generic.List<WrittenValue> values)
     {
@@ -177,6 +211,8 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>The string literal the property returns, or null when it returns none.</summary>
+    /// <param name="property">The property declaration under inspection.</param>
+    /// <returns>The literal as text, or null when none applies.</returns>
     private static string? PropertyLiteral(PropertyDeclarationSyntax property)
     {
         if (property.ExpressionBody?.Expression is LiteralExpressionSyntax arrow)
@@ -211,16 +247,22 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         return null;
     }
 
+    /// <summary>Holds the written value data the runtime value analyzer code works with.</summary>
     private sealed class WrittenValue
     {
+        /// <summary>Initializes a new instance of the <see cref="WrittenValue"/> class.</summary>
+        /// <param name="value">The value to convert or test.</param>
+        /// <param name="location">The source location the diagnostic reports at.</param>
         public WrittenValue(string value, Location location)
         {
             Value = value;
             Location = location;
         }
 
+        /// <summary>Gets the value for the written value.</summary>
         public string Value { get; }
 
+        /// <summary>Gets the location for the written value.</summary>
         public Location Location { get; }
     }
 }

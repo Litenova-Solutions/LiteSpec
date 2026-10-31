@@ -30,6 +30,8 @@ internal static class WordingChecks
     ];
 
     /// <summary>Reports statement-word-invalid.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -54,6 +56,10 @@ internal static class WordingChecks
     }
 
     /// <summary>Reports each vague word the field uses outside backticks.</summary>
+    /// <param name="record">The record whose field text is inspected for vague words.</param>
+    /// <param name="field">The name of the field on the record that holds the prose under inspection.</param>
+    /// <param name="label">The record kind shown at the start of the finding message.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWording(Record record, string field, string label, List<Finding> findings)
     {
         if (record.Field(field) is not { Length: > 0 } text)

@@ -20,13 +20,20 @@ static class NodeFrontendReader
     /// <summary>The frontend facts protocol version this CLI speaks.</summary>
     public const int Protocol = 1;
 
+    /// <summary>How long a Node reader run may take before it is stopped: two minutes.</summary>
     private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
 
     /// <summary>Reads every Svelte and React frontend of the consumer, in declared order.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The facts of every web frontend, in declared order.</returns>
     public static IReadOnlyList<FrontendFacts> Read(ConsumerConfig config) =>
         Read(config, LocateBundle(), FindNode());
 
     /// <summary>Reads with an explicit bundle and Node, so a test can name a fake reader.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="bundle">The reader bundle path to run.</param>
+    /// <param name="node">The Node executable path to run, or null to locate Node on PATH.</param>
+    /// <returns>The facts of every web frontend, in declared order.</returns>
     internal static IReadOnlyList<FrontendFacts> Read(ConsumerConfig config, string? bundle, string? node)
     {
         var web = config.Frontends
@@ -68,6 +75,7 @@ static class NodeFrontendReader
     }
 
     /// <summary>The bundle beside the tool, else the source checkout's built bundle, else null.</summary>
+    /// <returns>The bundle path, or null when no bundle is present beside the tool or in the checkout.</returns>
     public static string? LocateBundle()
     {
         var beside = Path.Combine(AppContext.BaseDirectory, "litespec-fe-reader.mjs");
@@ -101,6 +109,7 @@ static class NodeFrontendReader
     }
 
     /// <summary>The Node executable on PATH, or null when Node is absent.</summary>
+    /// <returns>The Node executable path, or null when Node is not on PATH.</returns>
     public static string? FindNode()
     {
         var path = Environment.GetEnvironmentVariable("PATH") ?? "";
@@ -121,8 +130,15 @@ static class NodeFrontendReader
         return null;
     }
 
+    /// <summary>The failure a Node reader run reports; its message states why the run produced no facts.</summary>
     private sealed class ReaderFailure(string message) : Exception(message);
 
+    /// <summary>Runs the Node reader bundle for the web frontends and captures its output and error text.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="web">The web frontends the reader is asked for.</param>
+    /// <param name="bundle">The reader bundle path to run.</param>
+    /// <param name="node">The Node executable path.</param>
+    /// <returns>The reader output together with its error output.</returns>
     private static (string Output, string Error) RunReader(
         ConsumerConfig config, IReadOnlyList<FrontendConfig> web, string bundle, string node)
     {
@@ -173,6 +189,9 @@ static class NodeFrontendReader
     }
 
     /// <summary>The versioned JSON request the protocol states, with absolute forward-slash paths.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="web">The web frontends the request asks the reader for.</param>
+    /// <returns>The JSON request text for the reader run, with absolute forward-slash paths.</returns>
     internal static string BuildRequest(ConsumerConfig config, IReadOnlyList<FrontendConfig> web)
     {
         using var stream = new MemoryStream();
@@ -224,6 +243,8 @@ static class NodeFrontendReader
     ///     <c>package.json</c> declares, or the stack's own alias when it declares none
     ///     (<c>@</c> for <c>src</c> on React, <c>#lib</c> for <c>src/lib</c> on Svelte).
     /// </summary>
+    /// <param name="frontend">The frontend whose import aliases are wanted.</param>
+    /// <returns>The alias and target pairs the frontend resolves.</returns>
     internal static IReadOnlyList<(string Alias, string Target)> Aliases(FrontendConfig frontend)
     {
         var declared = new List<(string, string)>();
@@ -266,7 +287,14 @@ static class NodeFrontendReader
             : [("#lib", Path.Combine(frontend.Path, "src", "lib"))];
     }
 
-    private static IReadOnlyList<string> TestRoots(ConsumerConfig config, FrontendConfig frontend)
+    /// <summary>
+    ///     The test roots of one frontend: its tests folder plus every configured test root under the frontend,
+    ///     without duplicates.
+    /// </summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="frontend">The frontend whose test roots are wanted.</param>
+    /// <returns>The test root paths of the frontend, without duplicates.</returns>
+    private static List<string> TestRoots(ConsumerConfig config, FrontendConfig frontend)
     {
         var roots = new List<string> { Path.Combine(frontend.Path, "tests") };
 
@@ -283,6 +311,9 @@ static class NodeFrontendReader
     }
 
     /// <summary>Parses one response; a handshake mismatch fails every frontend it was asked for.</summary>
+    /// <param name="web">The web frontends the reader was asked for.</param>
+    /// <param name="output">The reader process output text to parse.</param>
+    /// <returns>The facts stated in the response, or one failed fact set per frontend on a handshake mismatch.</returns>
     internal static IReadOnlyList<FrontendFacts> ParseResponse(IReadOnlyList<FrontendConfig> web, string output)
     {
         JsonDocument document;
@@ -349,9 +380,17 @@ static class NodeFrontendReader
         }
     }
 
+    /// <summary>One failed fact set per web frontend, each carrying the same cause.</summary>
+    /// <param name="web">The web frontends the reader is asked for.</param>
+    /// <param name="cause">Why every frontend failed, recorded on each fact set.</param>
+    /// <returns>One failed fact set per frontend, each carrying the cause.</returns>
     private static IReadOnlyList<FrontendFacts> FailAll(IReadOnlyList<FrontendConfig> web, string cause) =>
         [.. web.Select(frontend => FrontendFacts.Failed(frontend.Name, Finding.TypeScriptReader, cause))];
 
+    /// <summary>The facts one response entry states for the named frontend.</summary>
+    /// <param name="name">The frontend name the entry belongs to.</param>
+    /// <param name="entry">The response entry object for the frontend.</param>
+    /// <returns>The facts stated by one response entry.</returns>
     private static FrontendFacts ParseFrontend(string name, JsonElement entry) =>
         new(
             name,
@@ -372,11 +411,27 @@ static class NodeFrontendReader
             Diagnostics: ArrayOf(entry, "diagnostics", element => new FrontendDiagnostic(
                 Text(element, "file"), Line(element), Text(element, "message"))));
 
+    /// <summary>
+    ///     The entries of an array field of a JSON object, converted one by one, or an empty list when the
+    ///     field is absent or not an array.
+    /// </summary>
+    /// <typeparam name="T">The fact type one array entry converts to.</typeparam>
+    /// <param name="owner">The JSON object that holds the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <param name="read">Converts one array entry to its fact.</param>
+    /// <returns>The entries of the array field, or an empty list when the field is absent or not an array.</returns>
     private static IReadOnlyList<T> ArrayOf<T>(JsonElement owner, string field, Func<JsonElement, T> read) =>
         owner.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.Array
             ? [.. value.EnumerateArray().Select(read)]
             : [];
 
+    /// <summary>
+    ///     The text entries of an array field of a JSON object, or an empty list when the field is absent or
+    ///     not an array.
+    /// </summary>
+    /// <param name="owner">The JSON object that holds the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <returns>The text entries of the array field, or an empty list when the field is absent or not an array.</returns>
     private static IReadOnlyList<string> Strings(JsonElement owner, string field) =>
         owner.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.Array
             ? [.. value.EnumerateArray()
@@ -384,13 +439,23 @@ static class NodeFrontendReader
                 .Select(entry => entry.GetString()!)]
             : [];
 
+    /// <summary>The text of a field of a JSON object, or an empty string when it is absent or not text.</summary>
+    /// <param name="owner">The JSON object that holds the field.</param>
+    /// <param name="field">The field name to read.</param>
+    /// <returns>The text of the field, or an empty string when it is absent or not text.</returns>
     private static string Text(JsonElement owner, string field) =>
         owner.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString() ?? ""
             : "";
 
+    /// <summary>The line a response entry states, or 1 when it states none or a non-positive line.</summary>
+    /// <param name="owner">The JSON object that holds the field.</param>
+    /// <returns>The line the entry states, or 1 when it states none or a non-positive line.</returns>
     private static int Line(JsonElement owner) =>
         owner.TryGetProperty("line", out var value) && value.TryGetInt32(out var line) && line > 0 ? line : 1;
 
+    /// <summary>The path with forward slashes, for facts and requests.</summary>
+    /// <param name="path">The path to resolve or report.</param>
+    /// <returns>The path with forward slashes.</returns>
     private static string Slash(string path) => path.Replace(Path.DirectorySeparatorChar, '/');
 }

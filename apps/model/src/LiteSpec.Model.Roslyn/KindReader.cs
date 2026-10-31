@@ -30,14 +30,19 @@ namespace LiteSpec.Model.Roslyn;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class KindReader
 {
+    /// <summary>The record id prefix a port mark names.</summary>
     private const string ExternalSystemPrefix = "external-system/";
 
+    /// <summary>The record id prefix a domain service mark names.</summary>
     private const string RulePrefix = "rule/";
 
+    /// <summary>The record id prefix a setting mark names.</summary>
     private const string SettingPrefix = "setting/";
 
+    /// <summary>The record id prefix a job mark names.</summary>
     private const string JobPrefix = "job/";
 
+    /// <summary>The attribute names that mark a test method.</summary>
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
     {
         "Fact",
@@ -273,11 +278,17 @@ public static class KindReader
     ///     any other type is known by its bases, so a nested type sharing a root's simple name is
     ///     never mistaken for the root.
     /// </summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the declaration is another part of a partial type.</returns>
     private static bool IsOtherPart(TypeDeclarationSyntax type) =>
         type.BaseList is null
         && type.Parent is not TypeDeclarationSyntax
         && type.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
+    /// <summary>Whether the declaration is an aggregate root, from its bases or the collected root names.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is an aggregate root.</returns>
     private static bool IsAggregateRoot(TypeDeclarationSyntax type, KindContext context)
     {
         if (IsOtherPart(type) && context.AggregateRoots.Contains(type.Identifier.ValueText))
@@ -296,6 +307,9 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether a base type is the generic aggregate root base.</summary>
+    /// <param name="type">The base type as written.</param>
+    /// <returns>True when the base is the aggregate root base.</returns>
     private static bool IsAggregateRootBase(TypeSyntax type)
     {
         switch (type)
@@ -314,6 +328,10 @@ public static class KindReader
 
     // A symbol sees its whole base chain across every partial part, so it is known by its bases
     // only; its own name would mistake a nested type sharing a root's simple name for the root.
+    /// <summary>Whether the symbol is an aggregate root, from its base chain.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is an aggregate root.</returns>
     private static bool IsAggregateRoot(INamedTypeSymbol type, KindContext context)
     {
         for (var current = type.BaseType; current is not null; current = current.BaseType)
@@ -333,12 +351,22 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the declaration is a domain event.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the type is a domain event.</returns>
     private static bool IsDomainEvent(TypeDeclarationSyntax type) =>
         !(type is InterfaceDeclarationSyntax) && HasBaseName(type, "IDomainEvent");
 
+    /// <summary>Whether the symbol is a domain event.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <returns>True when the type is a domain event.</returns>
     private static bool IsDomainEvent(INamedTypeSymbol type) =>
         type.TypeKind != TypeKind.Interface && Implements(type, "IDomainEvent");
 
+    /// <summary>Whether the declaration is a rule exception.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is a rule exception.</returns>
     private static bool IsRuleException(TypeDeclarationSyntax type, KindContext context)
     {
         if (type.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.AbstractKeyword)))
@@ -363,6 +391,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the symbol is a rule exception.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is a rule exception.</returns>
     private static bool IsRuleException(INamedTypeSymbol type, KindContext context)
     {
         if (type.TypeKind != TypeKind.Class || type.IsAbstract)
@@ -381,20 +413,36 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the declaration is a command or query handler.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the type is a handler.</returns>
     private static bool IsHandler(TypeDeclarationSyntax type) =>
         IsClassLike(type) && (HasBaseName(type, "ICommandHandler") || HasBaseName(type, "IQueryHandler"));
 
+    /// <summary>Whether the symbol is a command or query handler.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <returns>True when the type is a handler.</returns>
     private static bool IsHandler(INamedTypeSymbol type) =>
         type.TypeKind == TypeKind.Class
         && (Implements(type, "ICommandHandler") || Implements(type, "IQueryHandler"));
 
+    /// <summary>Whether the declaration is an event handler.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the type is an event handler.</returns>
     private static bool IsEventHandler(TypeDeclarationSyntax type) =>
         IsClassLike(type) && (HasBaseName(type, "IEventHandler") || HasBaseName(type, "IDomainEventReaction"));
 
+    /// <summary>Whether the symbol is an event handler.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <returns>True when the type is an event handler.</returns>
     private static bool IsEventHandler(INamedTypeSymbol type) =>
         type.TypeKind == TypeKind.Class
         && (Implements(type, "IEventHandler") || Implements(type, "IDomainEventReaction"));
 
+    /// <summary>Whether the declaration is a job host.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a job host.</returns>
     private static bool IsJob(TypeDeclarationSyntax type, string? containingProject) =>
         IsClassLike(type) && (
             ((HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
@@ -402,6 +450,10 @@ public static class KindReader
             || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
                 && HasMark(type, JobPrefix)));
 
+    /// <summary>Whether the symbol is a job host.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a job host.</returns>
     private static bool IsJob(INamedTypeSymbol type, string? containingProject)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -426,33 +478,62 @@ public static class KindReader
             && HasMark(type, JobPrefix);
     }
 
+    /// <summary>Whether the name is a job name: it ends in Job or Worker.</summary>
+    /// <param name="name">The type name.</param>
+    /// <returns>True when the name ends in Job or Worker.</returns>
     private static bool HasJobName(string name) =>
         name.EndsWith("Job", StringComparison.Ordinal) || name.EndsWith("Worker", StringComparison.Ordinal);
 
+    /// <summary>Whether the declaration is a port: a marked interface in an application project.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a port.</returns>
     private static bool IsPort(TypeDeclarationSyntax type, string? containingProject) =>
         type is InterfaceDeclarationSyntax
         && ProjectMatches(containingProject, "Application", "Application.Abstractions")
         && HasExternalSystemMark(type);
 
+    /// <summary>Whether the symbol is a port: a marked interface in an application project.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a port.</returns>
     private static bool IsPort(INamedTypeSymbol type, string? containingProject) =>
         type.TypeKind == TypeKind.Interface
         && ProjectMatches(containingProject, "Application", "Application.Abstractions")
         && HasExternalSystemMark(type);
 
+    /// <summary>Whether the declaration is a domain service: a marked class in the domain project.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a domain service.</returns>
     private static bool IsDomainService(TypeDeclarationSyntax type, string? containingProject) =>
         type is ClassDeclarationSyntax
         && ProjectMatches(containingProject, "Domain")
         && HasMark(type, RulePrefix);
 
+    /// <summary>Whether the symbol is a domain service: a marked class in the domain project.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a domain service.</returns>
     private static bool IsDomainService(INamedTypeSymbol type, string? containingProject) =>
         type.TypeKind == TypeKind.Class
         && ProjectMatches(containingProject, "Domain")
         && HasMark(type, RulePrefix);
 
+    /// <summary>Whether the declaration carries an external-system mark.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the type carries an external-system mark.</returns>
     private static bool HasExternalSystemMark(TypeDeclarationSyntax type) => HasMark(type, ExternalSystemPrefix);
 
+    /// <summary>Whether the symbol carries an external-system mark.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <returns>True when the type carries an external-system mark.</returns>
     private static bool HasExternalSystemMark(INamedTypeSymbol type) => HasMark(type, ExternalSystemPrefix);
 
+    /// <summary>Whether the declaration carries a mark with the record id prefix.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="prefix">The record id prefix.</param>
+    /// <returns>True when the type carries such a mark.</returns>
     private static bool HasMark(TypeDeclarationSyntax type, string prefix)
     {
         foreach (var mark in MarkReader.Read(type))
@@ -466,6 +547,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the symbol carries a mark with the record id prefix.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="prefix">The record id prefix.</param>
+    /// <returns>True when the type carries such a mark.</returns>
     private static bool HasMark(INamedTypeSymbol type, string prefix)
     {
         foreach (var attribute in type.GetAttributes())
@@ -494,6 +579,9 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Reads the record id a mark attribute carries.</summary>
+    /// <param name="attribute">The attribute to read.</param>
+    /// <returns>The record id, or null when the attribute is no mark attribute.</returns>
     private static string? MarkAttributeValue(AttributeData attribute)
     {
         if (!MarkVerbNames.TryParseAttributeName(attribute.AttributeClass?.Name, out _))
@@ -524,12 +612,18 @@ public static class KindReader
     }
 
     /// <summary>Whether the attribute type is a generated mark attribute in the <c>LiteSpec</c> namespace.</summary>
+    /// <param name="attribute">The attribute type, or null.</param>
+    /// <returns>True when the attribute type is a generated mark attribute.</returns>
     private static bool IsGeneratedMarkAttribute(INamedTypeSymbol? attribute) =>
         attribute is not null
         && attribute.ContainingNamespace is { } space
         && space.ContainingNamespace is { IsGlobalNamespace: true }
         && space.Name == "LiteSpec";
 
+    /// <summary>Whether the declaration is an adapter: a class implementing a marked port.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is an adapter.</returns>
     private static bool IsAdapter(TypeDeclarationSyntax type, KindContext context)
     {
         if (!IsClassLike(type))
@@ -548,6 +642,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the symbol is an adapter: a class implementing a marked port.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the type is an adapter.</returns>
     private static bool IsAdapter(INamedTypeSymbol type, KindContext context)
     {
         if (type.TypeKind != TypeKind.Class)
@@ -566,12 +664,20 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the declaration is an endpoint.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is an endpoint.</returns>
     private static bool IsEndpoint(TypeDeclarationSyntax type, string? containingProject) =>
         IsClassLike(type)
         && (HasBaseName(type, "IEndpoint")
             || (type.Identifier.ValueText.EndsWith("Endpoint", StringComparison.Ordinal)
                 && ProjectMatches(containingProject, "WebApi")));
 
+    /// <summary>Whether the symbol is an endpoint.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is an endpoint.</returns>
     private static bool IsEndpoint(INamedTypeSymbol type, string? containingProject) =>
         type.TypeKind == TypeKind.Class
         && (Implements(type, "IEndpoint")
@@ -586,6 +692,10 @@ public static class KindReader
     ///     part reads through the context names the host collected, so partial parts
     ///     count as one class.
     /// </summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a technical class.</returns>
     private static bool IsTechnical(TypeDeclarationSyntax type, KindContext context, string? containingProject)
     {
         if (type is not ClassDeclarationSyntax
@@ -613,6 +723,9 @@ public static class KindReader
     ///     generated code, migrations, and model snapshots. Partial parts merge in
     ///     the symbol, so no context names are needed.
     /// </summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <returns>True when the type is a technical class.</returns>
     private static bool IsTechnical(INamedTypeSymbol type, string? containingProject)
     {
         if (type.TypeKind != TypeKind.Class
@@ -669,6 +782,8 @@ public static class KindReader
     }
 
     /// <summary>Whether the declaration holds an ordinary method directly: any method declaration.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the declaration holds an ordinary method directly.</returns>
     private static bool DeclaresOrdinaryMethod(TypeDeclarationSyntax type)
     {
         foreach (var member in type.Members)
@@ -683,6 +798,8 @@ public static class KindReader
     }
 
     /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the declaration carries a GeneratedCode attribute.</returns>
     private static bool HasGeneratedCodeAttribute(TypeDeclarationSyntax type)
     {
         foreach (var list in type.AttributeLists)
@@ -702,6 +819,8 @@ public static class KindReader
     }
 
     /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the declaration derives from Migration or ModelSnapshot.</returns>
     private static bool IsMigration(TypeDeclarationSyntax type)
     {
         foreach (var baseType in BaseTypes(type))
@@ -719,6 +838,8 @@ public static class KindReader
     ///     Whether the compiler treats the file as generated: a generated file name
     ///     or an <c>auto-generated</c> marker on one of the first two lines.
     /// </summary>
+    /// <param name="tree">The syntax tree.</param>
+    /// <returns>True when the compiler treats the file as generated.</returns>
     private static bool IsGeneratedFile(SyntaxTree tree)
     {
         var path = tree.FilePath.Replace('\\', '/');
@@ -750,6 +871,9 @@ public static class KindReader
             && text.Lines[1].ToString().Contains("<auto-generated", StringComparison.Ordinal);
     }
 
+    /// <summary>Whether the method carries a test attribute.</summary>
+    /// <param name="method">The method declaration.</param>
+    /// <returns>True when the method is a test method.</returns>
     private static bool IsTestMethod(MethodDeclarationSyntax method)
     {
         foreach (var list in method.AttributeLists)
@@ -767,6 +891,9 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the method symbol carries a test attribute.</summary>
+    /// <param name="method">The method symbol.</param>
+    /// <returns>True when the method is a test method.</returns>
     private static bool IsTestMethod(IMethodSymbol method)
     {
         foreach (var attribute in method.GetAttributes())
@@ -781,6 +908,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the method is an aggregate act: a public method of an aggregate root that raises, assigns, or carries a mark.</summary>
+    /// <param name="method">The method declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the method is an aggregate method.</returns>
     private static bool IsAggregateMethod(MethodDeclarationSyntax method, KindContext context)
     {
         if (!method.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
@@ -799,6 +930,10 @@ public static class KindReader
         return RaisesEvent(method, parent) || StateChanges.Changes(method, parent) || MarkReader.Read(method).Count > 0;
     }
 
+    /// <summary>Whether the method symbol is an aggregate act.</summary>
+    /// <param name="method">The method symbol.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>True when the method is an aggregate method.</returns>
     private static bool IsAggregateMethod(IMethodSymbol method, KindContext context)
     {
         if (method.DeclaredAccessibility != Accessibility.Public)
@@ -824,6 +959,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the method raises a domain event.</summary>
+    /// <param name="method">The method declaration.</param>
+    /// <param name="parent">The type declaring the method.</param>
+    /// <returns>True when the method raises an event.</returns>
     private static bool RaisesEvent(MethodDeclarationSyntax method, TypeDeclarationSyntax parent) =>
         RaisedEvents.Of(method, parent).Count != 0;
 
@@ -832,6 +971,9 @@ public static class KindReader
     ///     handler, job or domain event whose contract the host's cross-file closure names.
     ///     Null when the type carries no such contract or fails the kind's shape.
     /// </summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <returns>The transitive kind, or null when the type carries none.</returns>
     private static CodeKind? TransitiveKindOf(TypeDeclarationSyntax type, KindContext context)
     {
         var name = type.Identifier.ValueText;
@@ -866,6 +1008,10 @@ public static class KindReader
         return null;
     }
 
+    /// <summary>Whether a base of the type is one of the known names.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="known">The known base names.</param>
+    /// <returns>True when a base carries a known name.</returns>
     private static bool BaseCarries(TypeDeclarationSyntax type, IReadOnlyCollection<string> known)
     {
         if (type.BaseList is null || known.Count == 0)
@@ -884,6 +1030,9 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the declaration is a class or a class record.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>True when the declaration is class-like.</returns>
     private static bool IsClassLike(TypeDeclarationSyntax type)
     {
         switch (type)
@@ -897,6 +1046,9 @@ public static class KindReader
         }
     }
 
+    /// <summary>Lists the base types a declaration names.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <returns>The base types in declaration order.</returns>
     private static IEnumerable<TypeSyntax> BaseTypes(TypeDeclarationSyntax type)
     {
         if (type.BaseList is null)
@@ -910,6 +1062,10 @@ public static class KindReader
         }
     }
 
+    /// <summary>Whether a base of the type has the simple name.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="name">The simple base name.</param>
+    /// <returns>True when a base carries the name.</returns>
     private static bool HasBaseName(TypeDeclarationSyntax type, string name)
     {
         foreach (var baseType in BaseTypes(type))
@@ -923,6 +1079,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the type implements an interface with the name.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="name">The interface name.</param>
+    /// <returns>True when the type implements the interface.</returns>
     private static bool Implements(INamedTypeSymbol type, string name)
     {
         foreach (var contract in type.AllInterfaces)
@@ -936,6 +1096,10 @@ public static class KindReader
         return false;
     }
 
+    /// <summary>Whether the containing project is one of the named projects.</summary>
+    /// <param name="containingProject">The short project name, or null when unknown.</param>
+    /// <param name="shortNames">The project names that match.</param>
+    /// <returns>True when the project matches; a null project matches every name.</returns>
     private static bool ProjectMatches(string? containingProject, params string[] shortNames)
     {
         if (containingProject is null)

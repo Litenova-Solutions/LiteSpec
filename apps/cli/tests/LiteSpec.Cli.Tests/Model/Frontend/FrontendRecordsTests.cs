@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves <c>litespec model build</c> writes the records file each web frontend imports from its frame.</summary>
 public sealed class FrontendRecordsTests
 {
+    /// <summary>Build Writes The Records File Into Each Frame.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Build_Writes_The_Records_File_Into_Each_Frame()
@@ -33,6 +34,7 @@ public sealed class FrontendRecordsTests
         Assert.Contains("apps/console/src/app/litespec-records.ts", result.Stdout);
     }
 
+    /// <summary>Build Leaves Out Use Cases With No Browser Entry Point.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Build_Leaves_Out_Use_Cases_With_No_Browser_Entry_Point()
@@ -46,6 +48,7 @@ public sealed class FrontendRecordsTests
         Assert.DoesNotContain("use-case/lending.register-copy", File.ReadAllText(web));
     }
 
+    /// <summary>Check Writes No Records File.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Check_Writes_No_Records_File()
@@ -57,6 +60,7 @@ public sealed class FrontendRecordsTests
         Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts")));
     }
 
+    /// <summary>Render Writes Never For No Ids.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Render_Writes_Never_For_No_Ids()
@@ -71,6 +75,7 @@ public sealed class FrontendRecordsTests
         Assert.EndsWith("\n", text);
     }
 
+    /// <summary>Render Breaks A Long Union One Id Per Line.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Render_Breaks_A_Long_Union_One_Id_Per_Line()
@@ -83,6 +88,7 @@ public sealed class FrontendRecordsTests
         Assert.Equal(text, FrontendRecords.Render(ids, [], []));
     }
 
+    /// <summary>Render Writes The Proves Helper Typed To Proof Targets.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Render_Writes_The_Proves_Helper_Typed_To_Proof_Targets()

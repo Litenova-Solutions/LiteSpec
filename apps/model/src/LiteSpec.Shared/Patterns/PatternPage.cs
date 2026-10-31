@@ -3,39 +3,16 @@ using LiteSpec.Authoring;
 
 namespace LiteSpec.Patterns;
 
-/// <summary>One wireframe block as written: its text and the page line its first row is on.</summary>
-/// <param name="Text">The block body.</param>
-/// <param name="Line">The 1-based page line of the opening fence.</param>
-public sealed record WireframeBlock(string Text, int Line)
-{
-    /// <summary>The parsed block.</summary>
-    public Wireframe Parsed { get; } = WireframeParser.Parse(Text);
-}
-
-/// <summary>One option of a pattern.</summary>
-public sealed record PatternOption(string Id, string Name, int Line)
-{
-    public WireframeBlock? Wireframe { get; set; }
-    public WireframeBlock? Compact { get; set; }
-    public int WireframeCount { get; set; }
-    public int CompactCount { get; set; }
-    public Dictionary<string, string> Fields { get; } = new(StringComparer.Ordinal);
-}
-
-/// <summary>One pattern: a <c>###</c> heading in the page's Patterns section.</summary>
-public sealed record Pattern(string Name, string Slug, int Line)
-{
-    public Dictionary<string, string> Fields { get; } = new(StringComparer.Ordinal);
-    public List<PatternOption> Options { get; } = [];
-
-    /// <summary>The option id named by <c>**Default:**</c>, without backticks.</summary>
-    public string? Default => Fields.TryGetValue("Default", out var value) ? value.Trim().Trim('`') : null;
-}
-
 /// <summary>A pattern page: <c>docs/frontend/patterns/&lt;group&gt;.md</c>.</summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed partial class PatternPage
 {
+    /// <summary>The fields every pattern states before its options.</summary>
+    static readonly string[] RequiredPatternFields = ["Question", "Default", "Compact", "Rationale"];
+
+    /// <summary>The fields every option states after its wireframe.</summary>
+    static readonly string[] RequiredOptionFields = ["Rationale", "Cost"];
+
     /// <summary>The folder under the LiteSpec root that holds the pattern pages.</summary>
     public const string Folder = "docs/frontend/patterns";
 
@@ -45,20 +22,29 @@ public sealed partial class PatternPage
     /// <summary>The fields an option carries after its wireframe.</summary>
     public static readonly string[] OptionFields = ["Rationale", "Cost", "Reference"];
 
+    /// <summary>Gets the pattern group the page file names.</summary>
     public required string Group { get; init; }
+    /// <summary>Gets the page title.</summary>
     public required string Title { get; init; }
+    /// <summary>Gets the page intent text.</summary>
     public string Intent { get; init; } = "";
+    /// <summary>Gets the patterns on the page in page order.</summary>
     public List<Pattern> Patterns { get; } = [];
 
-    /// <summary>Problems in the page's shape, each with its 1-based line.</summary>
+    /// <summary>Gets problems in the page's shape, each with its 1-based line.</summary>
     public List<(int Line, string Message)> Errors { get; } = [];
 
     /// <summary>Whether the repository-relative path is a pattern page.</summary>
+    /// <param name="relative">The repository-relative path, with forward slashes.</param>
+    /// <returns>True when the path is a pattern page.</returns>
     public static bool IsPatternPage(string relative) =>
         relative.StartsWith(Folder + "/", StringComparison.Ordinal) && relative.EndsWith(".md", StringComparison.Ordinal)
         && !relative.EndsWith("/README.md", StringComparison.Ordinal);
 
     /// <summary>Reads a pattern page from its text.</summary>
+    /// <param name="group">The pattern group the page file names.</param>
+    /// <param name="text">The page text.</param>
+    /// <returns>The pattern page read from the text.</returns>
     public static PatternPage Parse(string group, string text)
     {
         var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
@@ -220,6 +206,7 @@ public sealed partial class PatternPage
     }
 
     /// <summary>Every problem in the page: its shape and each wireframe, with page lines.</summary>
+    /// <returns>Every problem in the page, in page order.</returns>
     public List<(int Line, string Message)> Check()
     {
         var problems = new List<(int Line, string Message)>(Errors);
@@ -232,7 +219,7 @@ public sealed partial class PatternPage
                 problems.Add((pattern.Line, $"pattern '{pattern.Name}' repeats the slug '{pattern.Slug}'"));
             }
 
-            foreach (var required in new[] { "Question", "Default", "Compact", "Rationale" }.Where(name => !pattern.Fields.ContainsKey(name)))
+            foreach (var required in RequiredPatternFields.Where(name => !pattern.Fields.ContainsKey(name)))
             {
                 problems.Add((pattern.Line, $"pattern '{pattern.Name}' has no **{required}:**"));
             }
@@ -266,7 +253,7 @@ public sealed partial class PatternPage
                     problems.Add((option.Line, $"option '{option.Id}' has {option.CompactCount} compact blocks; it has at most one"));
                 }
 
-                foreach (var required in new[] { "Rationale", "Cost" }.Where(name => !option.Fields.ContainsKey(name)))
+                foreach (var required in RequiredOptionFields.Where(name => !option.Fields.ContainsKey(name)))
                 {
                     problems.Add((option.Line, $"option '{option.Id}' has no **{required}:**"));
                 }
@@ -282,6 +269,10 @@ public sealed partial class PatternPage
         return problems;
     }
 
+    /// <summary>Reads one section's text: the lines under its heading, joined with spaces.</summary>
+    /// <param name="lines">The page lines.</param>
+    /// <param name="name">The section heading text.</param>
+    /// <returns>The section text, or empty when the page holds no such section.</returns>
     static string Section(string[] lines, string name)
     {
         var start = Array.FindIndex(lines, line => line.Trim() == $"## {name}");

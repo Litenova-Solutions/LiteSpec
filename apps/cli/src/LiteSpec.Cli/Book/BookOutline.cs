@@ -1,24 +1,25 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 
 namespace LiteSpec.Book;
 
-/// <summary>One outline node: a record, a group, or the code, test or finding under its subject.</summary>
-/// <param name="Id">The record id, the layer key, the layer and type, or the code, test or finding id.</param>
-/// <param name="Kind">One of record, group, code, test or finding.</param>
-/// <param name="Label">The title, the type plural, the layer label, or the file, test or finding name.</param>
-/// <param name="Type">The record type, the code, test or finding type, or null for a layer group.</param>
-/// <param name="Status">The record status, or null for anything else.</param>
-/// <param name="Children">The nested nodes.</param>
-sealed record BookOutlineNode(string Id, string Kind, string Label, string? Type, string? Status, List<BookOutlineNode> Children);
 
-/// <summary>One built outline: the parent per record, the layer trees, and the unplaced ids.</summary>
-/// <param name="ParentOf">The parent id per record id, or null when no rule places it.</param>
-/// <param name="Layers">One root group node per layer key, in layer order.</param>
-/// <param name="Unplaced">The ids with no outline node: no rule places them or their parent is itself unplaced, in identifier order.</param>
-sealed record BookOutlineResult(
-    IReadOnlyDictionary<string, string?> ParentOf,
-    IReadOnlyList<BookOutlineNode> Layers,
-    IReadOnlyList<string> Unplaced);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /// <summary>
 ///     The outline over model.json: every placed record sits once under its parent, with layer and
@@ -32,13 +33,20 @@ static class BookOutline
     /// <summary>The layer keys in outline order.</summary>
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
+    /// <summary>The record types that top the intent layer, in display order.</summary>
     static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "topic", "constraint", "research", "decision", "actor"];
+    /// <summary>The record types under a module, in display order.</summary>
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting"];
+    /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
+    /// <summary>The list record types in the behavior layer, in display order.</summary>
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
+    /// <summary>The record types in the governance layer, in display order.</summary>
     static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
 
     /// <summary>Builds the outline over a parsed model.json object.</summary>
+    /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
+    /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
     public static BookOutlineResult Build(JsonObject model)
     {
         var entries = model["records"] is JsonArray records
@@ -176,6 +184,10 @@ static class BookOutline
     ///     target in identifier order when a file implements several. The rest stay visible in the
     ///     rail trace the details carry.
     /// </summary>
+    /// <param name="model">The parsed model object that holds the code entries and implements links.</param>
+    /// <param name="byId">The record object for each record identifier.</param>
+    /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
+    /// <param name="nodes">The outline node for each record identifier, which receives the code leaves.</param>
     static void AttachImplementation(
         JsonObject model,
         Dictionary<string, JsonObject> byId,
@@ -252,6 +264,10 @@ static class BookOutline
     }
 
     /// <summary>Attaches one test node per unit and browser test under the lowest record it proves: the first claim in identifier order.</summary>
+    /// <param name="model">The parsed model object that holds the unit and browser tests.</param>
+    /// <param name="byId">The record object for each record identifier.</param>
+    /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
+    /// <param name="nodes">The outline node for each record identifier, which receives the test leaves.</param>
     static void AttachProof(
         JsonObject model,
         Dictionary<string, JsonObject> byId,
@@ -288,7 +304,7 @@ static class BookOutline
                 continue;
             }
 
-            var id = "test/" + file + ":" + (IntProp(browser, "line")?.ToString() ?? "?");
+            var id = "test/" + file + ":" + (IntProp(browser, "line")?.ToString(CultureInfo.InvariantCulture) ?? "?");
             var title = StrProp(browser, "title");
             tests.Add((id, title is { Length: > 0 } ? title : id, ClaimsOf(browser["proves"])));
         }
@@ -308,6 +324,10 @@ static class BookOutline
     }
 
     /// <summary>Attaches one finding node per open and known finding under its subject record.</summary>
+    /// <param name="model">The parsed model object that holds the open and known findings.</param>
+    /// <param name="byId">The record object for each record identifier.</param>
+    /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
+    /// <param name="nodes">The outline node for each record identifier, which receives the finding leaves.</param>
     static void AttachFindings(
         JsonObject model,
         Dictionary<string, JsonObject> byId,
@@ -344,6 +364,8 @@ static class BookOutline
     }
 
     /// <summary>The finding objects of a findings node, as an array or a wrapped file.</summary>
+    /// <param name="node">The findings node, either an array of findings or an object wrapping one, or null.</param>
+    /// <returns>The finding objects the node holds, empty when it holds none.</returns>
     static IEnumerable<JsonObject> FindingEntries(JsonNode? node)
     {
         if (node is JsonArray items)
@@ -363,6 +385,8 @@ static class BookOutline
     }
 
     /// <summary>The strings of a claims node, written as one value or a list.</summary>
+    /// <param name="node">The claims node, either one string or an array of strings, or null.</param>
+    /// <returns>The non-empty claim strings the node holds, in order.</returns>
     static List<string> ClaimsOf(JsonNode? node)
     {
         var claims = new List<string>();
@@ -385,6 +409,8 @@ static class BookOutline
     }
 
     /// <summary>The file name of a code path: the last segment after the slash.</summary>
+    /// <param name="path">The code path with slash separators.</param>
+    /// <returns>The last segment of the path after the final slash, or the whole path when it holds no slash.</returns>
     static string FileName(string path)
     {
         var slash = path.LastIndexOf('/');
@@ -392,6 +418,8 @@ static class BookOutline
     }
 
     /// <summary>One test name in words: the last segment with underscores as spaces.</summary>
+    /// <param name="scenario">The scenario or test name with dot segments and underscores.</param>
+    /// <returns>The last dot segment with underscores replaced by spaces.</returns>
     static string TestName(string scenario)
     {
         var tail = scenario;
@@ -405,6 +433,8 @@ static class BookOutline
     }
 
     /// <summary>Strips the step fragment of an id, such as journey/name#s1.</summary>
+    /// <param name="id">The identifier, optionally with a step fragment after a hash.</param>
+    /// <returns>The identifier without its fragment, unchanged when it holds no hash.</returns>
     static string BaseId(string id)
     {
         var hash = id.IndexOf('#');
@@ -412,6 +442,9 @@ static class BookOutline
     }
 
     /// <summary>Reads an integer property, or null when it is missing or not a number.</summary>
+    /// <param name="obj">The JSON object to read, or null.</param>
+    /// <param name="name">The property name to read.</param>
+    /// <returns>The integer value of the property, or null when the object or property is missing, not a number, or outside the integer range.</returns>
     static int? IntProp(JsonObject? obj, string name)
     {
         if (obj?[name] is JsonValue scalar && scalar.TryGetValue<int>(out var value))
@@ -427,6 +460,12 @@ static class BookOutline
         return null;
     }
 
+    /// <summary>Places one top-level node in its layer, directly or under its type group.</summary>
+    /// <param name="layers">The layer root nodes keyed by layer key.</param>
+    /// <param name="group">The factory that returns the type group node for a layer and a type, creating it on first use.</param>
+    /// <param name="layer">The layer key the node tops.</param>
+    /// <param name="type">The record type of the node.</param>
+    /// <param name="node">The outline node to place.</param>
     static void PlaceTopLevel(
         Dictionary<string, BookOutlineNode> layers,
         Func<string, string, BookOutlineNode> group,
@@ -461,6 +500,10 @@ static class BookOutline
         }
     }
 
+    /// <summary>Selects the layer a record tops when its parent is the product.</summary>
+    /// <param name="record">The record object, whose file path marks a technical decision.</param>
+    /// <param name="type">The record type.</param>
+    /// <returns>The layer key for the record type, with technical decisions in implementation and unknown types in intent.</returns>
     static string OwnLayer(JsonObject record, string type) =>
         type switch
         {
@@ -472,12 +515,18 @@ static class BookOutline
             _ => "intent",
         };
 
+    /// <summary>Determines whether a decision record is a technical decision from its file path.</summary>
+    /// <param name="record">The record object that holds the file path.</param>
+    /// <returns>True when the file path contains the implementation decisions segment; otherwise false.</returns>
     static bool IsTechnical(JsonObject record)
     {
         var file = StrProp(record, "file");
         return file is not null && file.Contains("implementation/decisions", StringComparison.Ordinal);
     }
 
+    /// <summary>Maps one layer key to its display label.</summary>
+    /// <param name="key">The layer key.</param>
+    /// <returns>The display label for the layer, or the key itself when it names no known layer.</returns>
     static string LayerLabel(string key) =>
         key switch
         {
@@ -490,11 +539,16 @@ static class BookOutline
             _ => key,
         };
 
+    /// <summary>Gives the plural display label of one record type for its group node.</summary>
+    /// <param name="type">The record type.</param>
+    /// <returns>The plural label of the type, with screen handled as Screens.</returns>
     static string PluralOf(string type) =>
         string.Equals(type, "screen", StringComparison.Ordinal)
             ? "Screens"
             : LiteSpec.Book.BookModel.TypeLabel(type, plural: true);
 
+    /// <summary>Sorts every layer tree and then each layer root by its layer order.</summary>
+    /// <param name="layers">The layer root nodes keyed by layer key.</param>
     static void SortTrees(Dictionary<string, BookOutlineNode> layers)
     {
         foreach (var layer in layers.Values)
@@ -509,6 +563,8 @@ static class BookOutline
         layers["glossary"].Children.Sort(DirectFirstOrder);
     }
 
+    /// <summary>Sorts one node subtree, record children by record order and group children by label.</summary>
+    /// <param name="node">The node whose subtree is sorted in place.</param>
     static void SortNode(BookOutlineNode node)
     {
         foreach (var child in node.Children)
@@ -526,6 +582,8 @@ static class BookOutline
         }
     }
 
+    /// <summary>Sorts the children of one record node by leaf rank and then by its type order or label.</summary>
+    /// <param name="node">The record node whose children are sorted in place.</param>
     static void SortRecordChildren(BookOutlineNode node)
     {
         var order = node.Type switch
@@ -562,6 +620,8 @@ static class BookOutline
     }
 
     /// <summary>The leaf rank of an outline node: records first, then code, tests and findings.</summary>
+    /// <param name="node">The outline node whose kind is ranked.</param>
+    /// <returns>The rank of the node kind: 0 for a record, 1 for code, 2 for a test, 3 for a finding and 4 for any other kind.</returns>
     static int LeafRank(BookOutlineNode node) =>
         node.Kind switch
         {
@@ -572,6 +632,10 @@ static class BookOutline
             _ => 4,
         };
 
+    /// <summary>Compares two intent layer children, placing the product record first.</summary>
+    /// <param name="left">The first node to compare.</param>
+    /// <param name="right">The second node to compare.</param>
+    /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int IntentLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
         var leftProduct = IsRecordOf(left, "product") ? 0 : 1;
@@ -586,6 +650,10 @@ static class BookOutline
             : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
+    /// <summary>Compares two behavior layer children, placing module records first and list groups next in their order.</summary>
+    /// <param name="left">The first node to compare.</param>
+    /// <param name="right">The second node to compare.</param>
+    /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int BehaviorLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
         var leftRank = BehaviorRank(left);
@@ -609,6 +677,9 @@ static class BookOutline
         return string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
+    /// <summary>Ranks one behavior layer child for the layer order.</summary>
+    /// <param name="node">The outline node to rank.</param>
+    /// <returns>0 for a module record, 1 for a list group in the behavior list order, and 2 for any other node.</returns>
     static int BehaviorRank(BookOutlineNode node)
     {
         if (IsRecordOf(node, "module"))
@@ -626,6 +697,10 @@ static class BookOutline
         return 2;
     }
 
+    /// <summary>Compares two governance layer children, placing direct records before type groups in their order.</summary>
+    /// <param name="left">The first node to compare.</param>
+    /// <param name="right">The second node to compare.</param>
+    /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int GovernanceLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
         var leftDirect = string.Equals(left.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
@@ -644,6 +719,10 @@ static class BookOutline
         return order != 0 ? order : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
+    /// <summary>Compares two layer children, placing direct records before groups.</summary>
+    /// <param name="left">The first node to compare.</param>
+    /// <param name="right">The second node to compare.</param>
+    /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int DirectFirstOrder(BookOutlineNode left, BookOutlineNode right)
     {
         var leftDirect = string.Equals(left.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
@@ -658,6 +737,10 @@ static class BookOutline
             : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
+    /// <summary>Finds the position of one record type in a display order.</summary>
+    /// <param name="order">The record types in display order.</param>
+    /// <param name="type">The record type to locate, or null.</param>
+    /// <returns>The index of the type in the order, or the order length when the type is absent or null.</returns>
     static int OrderIndex(IReadOnlyList<string> order, string? type)
     {
         for (var index = 0; index < order.Count; index++)
@@ -671,14 +754,26 @@ static class BookOutline
         return order.Count;
     }
 
+    /// <summary>Compares two nodes by label and then by identifier.</summary>
+    /// <param name="left">The first node to compare.</param>
+    /// <param name="right">The second node to compare.</param>
+    /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int CompareByLabel(BookOutlineNode left, BookOutlineNode right)
     {
         var label = string.Compare(left.Label, right.Label, StringComparison.Ordinal);
         return label != 0 ? label : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
+    /// <summary>Determines whether a node is a record node of one record type.</summary>
+    /// <param name="node">The outline node to test.</param>
+    /// <param name="type">The record type to match.</param>
+    /// <returns>True when the node is a record of the given type; otherwise false.</returns>
     static bool IsRecordOf(BookOutlineNode node, string type) =>
         string.Equals(node.Kind, "record", StringComparison.Ordinal) && string.Equals(node.Type, type, StringComparison.Ordinal);
 
+    /// <summary>Reads one string property of a JSON object.</summary>
+    /// <param name="obj">The JSON object to read, or null.</param>
+    /// <param name="name">The property name to read.</param>
+    /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
 }

@@ -3,54 +3,52 @@ using System.Text.Json;
 
 namespace LiteSpec.Model;
 
-/// <summary>One record's scenario evidence in the review queue.</summary>
-/// <param name="Total">The scenarios counted for the record.</param>
-/// <param name="Confirmed">The counted scenarios with a confirmed proof.</param>
-/// <param name="Passing">The counted scenarios with a passing, current proof.</param>
-/// <param name="Stale">The counted scenarios whose proof went stale.</param>
-sealed record ReviewScenarios(int Total, int Confirmed, int Passing, int Stale);
 
-/// <summary>One record in the review queue, with its evidence.</summary>
-/// <param name="Record">The queued record.</param>
-/// <param name="Layer">The record layer: intent, behavior, or governance.</param>
-/// <param name="Module">The batch module: the behavior module, intent, or governance.</param>
-/// <param name="Tier">The approval tier: 1 needs a named person, 3 is sampled.</param>
-/// <param name="EffectiveStatus">The builder's effective status.</param>
-/// <param name="Reopened">Whether the approval hash no longer matches.</param>
-/// <param name="FullReRead">Whether a reopened record needs a full re-read.</param>
-/// <param name="Awaiting">The drafts whose effective status is draft because of this record.</param>
-/// <param name="OpenQuestions">The count of open questions on the record.</param>
-/// <param name="Scenarios">The scenario evidence.</param>
-/// <param name="Findings">The count of open findings about the record.</param>
-sealed record ReviewEntry(
-    Record Record,
-    string Layer,
-    string Module,
-    int Tier,
-    string EffectiveStatus,
-    bool Reopened,
-    bool FullReRead,
-    IReadOnlyList<string> Awaiting,
-    int OpenQuestions,
-    ReviewScenarios Scenarios,
-    int Findings);
 
-/// <summary>One review batch: a use case, a reaction, a job, a decision, or one module and type.</summary>
-/// <param name="Selector">The batch selector.</param>
-/// <param name="Kind">The batch kind: use-case, reaction, job, decision, record (one tier 1 record on its own), or module-type.</param>
-/// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
-/// <param name="Deciders">The distinct deciders, sorted.</param>
-/// <param name="DecideBy">The earliest decide-by date, or null.</param>
-/// <param name="Awaiting">The count of distinct drafts awaiting the batch.</param>
-/// <param name="Records">The queued records, anchor first, then in authority order.</param>
-sealed record ReviewBatch(
-    string Selector,
-    string Kind,
-    int Tier,
-    IReadOnlyList<string> Deciders,
-    string? DecideBy,
-    int Awaiting,
-    IReadOnlyList<ReviewEntry> Records);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /// <summary>
 ///     The review queue: every draft and every reopened record, grouped into the
@@ -67,6 +65,8 @@ static class ReviewQueue
     ];
 
     /// <summary>Computes the review queue from the model, in review order.</summary>
+    /// <param name="model">The built project model to compute the queue from.</param>
+    /// <returns>The review batches in review order.</returns>
     public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model) =>
         Compute(model, FindingsBySubject(model));
 
@@ -74,6 +74,9 @@ static class ReviewQueue
     ///     Computes the review queue with open-finding counts already taken, so a run
     ///     approving many batches checks the model once rather than once per batch.
     /// </summary>
+    /// <param name="model">The built project model to compute the queue from.</param>
+    /// <param name="findings">The open finding count per record, already taken.</param>
+    /// <returns>The review batches in review order, computed with the given finding counts.</returns>
     public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model, IReadOnlyDictionary<string, int> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -93,6 +96,14 @@ static class ReviewQueue
     ///     approval covers. The model command passes the checker's open-finding counts;
     ///     the book passes the counts from the findings the model records.
     /// </summary>
+    /// <param name="records">Every written record, derived records included.</param>
+    /// <param name="effectiveStatus">The effective status of each record, by id.</param>
+    /// <param name="proves">The computed proves links.</param>
+    /// <param name="stale">The ids of scenarios whose proof is stale.</param>
+    /// <param name="findings">The open finding count per record.</param>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="today">The current date, for open-question expiry.</param>
+    /// <returns>The review batches in review order.</returns>
     internal static IReadOnlyList<ReviewBatch> ComputeBatches(
         IReadOnlyList<Record> records,
         IReadOnlyDictionary<string, string> effectiveStatus,
@@ -116,6 +127,12 @@ static class ReviewQueue
     }
 
     /// <summary>Keeps the batches holding a record that matches every given filter.</summary>
+    /// <param name="batches">The batches to filter.</param>
+    /// <param name="decider">The decider to keep, or null for any.</param>
+    /// <param name="tier">The tier to keep, or null for any.</param>
+    /// <param name="module">The batch module to keep, or null for any.</param>
+    /// <param name="type">The record type to keep, or null for any.</param>
+    /// <returns>The batches holding a record that matches every given filter.</returns>
     public static IReadOnlyList<ReviewBatch> Filter(
         IReadOnlyList<ReviewBatch> batches, string? decider, int? tier, string? module, string? type) =>
         batches
@@ -127,11 +144,25 @@ static class ReviewQueue
             .ToList();
 
     /// <summary>Describes one record with its queue evidence.</summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The record to describe.</param>
+    /// <param name="findings">The open finding count per record.</param>
+    /// <param name="today">The current date, for open-question expiry.</param>
+    /// <returns>The queue entry for the record with its evidence.</returns>
     public static ReviewEntry Describe(
         ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings, DateOnly today) =>
         Describe(model.Records, model.EffectiveStatus, model.Proves, model.Stale, record, findings, model.Config, today);
 
     /// <summary>Describes one record with its queue evidence, from the queue inputs.</summary>
+    /// <param name="records">Every written record, derived records included.</param>
+    /// <param name="effectiveStatus">The effective status of each record, by id.</param>
+    /// <param name="proves">The computed proves links.</param>
+    /// <param name="stale">The ids of scenarios whose proof is stale.</param>
+    /// <param name="record">The record to describe.</param>
+    /// <param name="findings">The open finding count per record.</param>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="today">The current date, for open-question expiry.</param>
+    /// <returns>The queue entry built from the given queue inputs.</returns>
     static ReviewEntry Describe(
         IReadOnlyList<Record> records,
         IReadOnlyDictionary<string, string> effectiveStatus,
@@ -157,6 +188,8 @@ static class ReviewQueue
             findings.TryGetValue(record.Id, out var count) ? count : 0);
 
     /// <summary>Counts the open findings by subject record id.</summary>
+    /// <param name="model">The built project model to check.</param>
+    /// <returns>The open finding count for each subject record id.</returns>
     public static IReadOnlyDictionary<string, int> FindingsBySubject(ProjectModel model)
     {
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -174,6 +207,8 @@ static class ReviewQueue
     }
 
     /// <summary>The record layer: intent, behavior, or governance.</summary>
+    /// <param name="record">The record whose layer is wanted.</param>
+    /// <returns>Intent, behavior or governance, as the record type or its own layer field names it.</returns>
     public static string LayerOf(Record record)
     {
         // Terms span both layers, so each term names its own.
@@ -189,10 +224,16 @@ static class ReviewQueue
     ///     The batch module: the behavior module holding the record's page, governance
     ///     for governance records, and an Intent record's identifier home (intent when it has none).
     /// </summary>
+    /// <param name="model">The built project model holding the behavior docs root.</param>
+    /// <param name="record">The record whose batch module is wanted.</param>
+    /// <returns>The batch module of the record.</returns>
     public static string ModuleOf(ProjectModel model, Record record) =>
         ModuleOf(model.Config.BehaviorDocs, record);
 
     /// <summary>The batch module, from the behavior docs root.</summary>
+    /// <param name="behaviorDocs">The behavior docs root the module folders sit under.</param>
+    /// <param name="record">The record whose batch module is wanted.</param>
+    /// <returns>The module folder name, governance, the record home, or intent.</returns>
     static string ModuleOf(string behaviorDocs, Record record)
     {
         var modules = behaviorDocs + Path.DirectorySeparatorChar
@@ -221,7 +262,7 @@ static class ReviewQueue
         // holds back only the records it can change. A journey has no identifier home, so it
         // batches with the goal it serves, its parent.
         if (record.Type == RecordTypes.Journey
-            && record.Ids(RecordFields.Serves).FirstOrDefault() is { } goal
+            && record.Ids(RecordFields.Serves) is { Count: > 0 } serves && serves[0] is { } goal
             && Identifiers.TrySplit(goal, out var prefix, out _, out var goalName)
             && prefix == RecordTypes.Goal)
         {
@@ -237,6 +278,9 @@ static class ReviewQueue
     ///     The approval tier: 1 when the record carries any risk value, else 3.
     ///     A result or a scenario takes its use case's tier.
     /// </summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The record whose tier is wanted.</param>
+    /// <returns>1 when the record or its holding use case carries risk, otherwise 3.</returns>
     public static int TierOf(ProjectModel model, Record record) =>
         TierOf(model.Records, record);
 
@@ -244,6 +288,9 @@ static class ReviewQueue
     ///     The approval tier from the records: 1 when the record carries any risk
     ///     value, else 3. A result or a scenario takes its use case's tier.
     /// </summary>
+    /// <param name="records">Every written record, for the holding use case lookup.</param>
+    /// <param name="record">The record whose tier is wanted.</param>
+    /// <returns>1 when the record or the use case holding it carries risk, otherwise 3.</returns>
     static int TierOf(IReadOnlyList<Record> records, Record record)
     {
         if (record.Type is RecordTypes.Result or RecordTypes.Scenario
@@ -258,6 +305,9 @@ static class ReviewQueue
     }
 
     /// <summary>The use case a result or scenario home names, when one holds it.</summary>
+    /// <param name="records">Every written record to scan.</param>
+    /// <param name="home">The use-case name the home segment carries.</param>
+    /// <returns>The first use case carrying the name, or null when none does.</returns>
     static Record? UseCaseOf(IReadOnlyList<Record> records, string home)
     {
         // ProjectModel.ById keeps the first record per id; the scan below keeps the same one.
@@ -282,6 +332,8 @@ static class ReviewQueue
     }
 
     /// <summary>Whether the record carries any risk value, which makes it tier 1.</summary>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when the record carries a non-empty risk value.</returns>
     public static bool HasRisk(Record record) =>
         record.Raw.ValueKind == JsonValueKind.Object
         && record.Raw.TryGetProperty(RecordFields.Risk, out var risk)
@@ -292,6 +344,8 @@ static class ReviewQueue
     ///     Whether the record is reopened: approved or reviewed, with an approval hash
     ///     present that no longer matches the semantic hash.
     /// </summary>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when the record is approved or reviewed and its hash no longer matches.</returns>
     public static bool IsReopened(Record record) =>
         record.Status is RecordStatuses.Approved or RecordStatuses.Reviewed
         && record.ApprovedHash is { Length: > 0 }
@@ -301,6 +355,8 @@ static class ReviewQueue
     ///     Whether a reopened record needs a full re-read: it carries a non-empty risk,
     ///     an access object, or a values field, so the hash cannot say which part moved.
     /// </summary>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when a reopened record carries risk, access or values a hash cannot locate.</returns>
     public static bool IsFullReRead(Record record)
     {
         if (!IsReopened(record))
@@ -328,6 +384,8 @@ static class ReviewQueue
     }
 
     /// <summary>Whether a values field carries anything.</summary>
+    /// <param name="value">The values field content to test.</param>
+    /// <returns>True when the value is a non-empty string, array or object, or any other kind.</returns>
     static bool Present(JsonElement value) => value.ValueKind switch
     {
         JsonValueKind.Null or JsonValueKind.Undefined => false,
@@ -342,6 +400,9 @@ static class ReviewQueue
     ///     a draft decision decides, a draft requirement they fulfill, or a draft journey
     ///     a transcribed record serves.
     /// </summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The record whose waiting drafts are wanted.</param>
+    /// <returns>The ids of the drafts waiting on the record, in ordinal order.</returns>
     public static IReadOnlyList<string> AwaitingOf(ProjectModel model, Record record) =>
         AwaitingOf(model.Records, record);
 
@@ -350,7 +411,10 @@ static class ReviewQueue
     ///     decision decides, a draft requirement they fulfill, or a draft journey a
     ///     transcribed record serves.
     /// </summary>
-    static IReadOnlyList<string> AwaitingOf(IReadOnlyList<Record> records, Record record)
+    /// <param name="records">Every written record to scan for waiting drafts.</param>
+    /// <param name="record">The record whose waiting drafts are wanted.</param>
+    /// <returns>The waiting draft ids sorted ordinally, from the given records.</returns>
+    static List<string> AwaitingOf(IReadOnlyList<Record> records, Record record)
     {
         if (record.Status != RecordStatuses.Draft)
         {
@@ -389,6 +453,10 @@ static class ReviewQueue
     }
 
     /// <summary>Counts the record's open questions: entries that are neither answered nor auto-approved.</summary>
+    /// <param name="record">The record whose open questions are counted.</param>
+    /// <param name="config">The consumer configuration holding the veto window.</param>
+    /// <param name="today">The current date, for auto-approval expiry.</param>
+    /// <returns>The number of question entries neither answered nor auto-approved.</returns>
     public static int OpenQuestionCount(Record record, ConsumerConfig config, DateOnly today)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -405,9 +473,13 @@ static class ReviewQueue
     ///     The tier of a question entry: tier 1 when the parent record carries
     ///     risk, else tier 3. A question carries no tier of its own.
     /// </summary>
+    /// <param name="parent">The record carrying the question.</param>
+    /// <returns>1 when the parent carries risk, otherwise 3.</returns>
     static int QuestionTier(Record parent) => HasRisk(parent) ? 1 : 3;
 
     /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
+    /// <param name="element">The question entry to test.</param>
+    /// <returns>True when the entry carries an answer or an answerer.</returns>
     static bool Answered(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
         && ((element.TryGetProperty(RecordFields.Answer, out var answer)
@@ -418,6 +490,8 @@ static class ReviewQueue
                 && by.GetString() is { Length: > 0 }));
 
     /// <summary>Whether the question entry carries a recommended answer.</summary>
+    /// <param name="element">The question entry to test.</param>
+    /// <returns>True when the entry carries a non-empty recommended answer.</returns>
     static bool HasRecommendation(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty(RecordFields.Recommendation, out var value)
@@ -429,6 +503,11 @@ static class ReviewQueue
     ///     Whether the question entry counts as auto-approved: tier 3 with a recommended
     ///     answer, past its decide-by date plus the veto window.
     /// </summary>
+    /// <param name="element">The question entry to test.</param>
+    /// <param name="parent">The record carrying the question.</param>
+    /// <param name="config">The consumer configuration holding the veto window.</param>
+    /// <param name="today">The current date to compare against the decide-by date.</param>
+    /// <returns>True when the entry is tier 3, recommended, and past its veto window.</returns>
     static bool AutoApproved(JsonElement element, Record parent, ConsumerConfig config, DateOnly today) =>
         QuestionTier(parent) == 3
         && HasRecommendation(element)
@@ -440,6 +519,9 @@ static class ReviewQueue
         && today > decideBy.AddDays(config.VetoWindowDays);
 
     /// <summary>Parses an ISO day, or a timestamp read as its day.</summary>
+    /// <param name="text">The date text, an ISO day or a timestamp.</param>
+    /// <param name="day">The parsed day when the text parses.</param>
+    /// <returns>True when the text parses as a day or a timestamp.</returns>
     static bool ParseDay(string text, out DateOnly day)
     {
         if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out day))
@@ -460,6 +542,9 @@ static class ReviewQueue
     ///     The scenario evidence: a use case, reaction or job counts its scenarios,
     ///     a scenario counts itself, and every other record counts none.
     /// </summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The record whose scenario evidence is wanted.</param>
+    /// <returns>The total, confirmed, passing and stale scenario counts for the record.</returns>
     public static ReviewScenarios ScenariosOf(ProjectModel model, Record record) =>
         ScenariosOf(model.Records, model.Proves, model.Stale, record);
 
@@ -468,13 +553,18 @@ static class ReviewQueue
     ///     counts its scenarios, a scenario counts itself, and every other record
     ///     counts none.
     /// </summary>
+    /// <param name="records">Every written record, for the owned scenario lookup.</param>
+    /// <param name="proves">The computed proves links.</param>
+    /// <param name="staleIds">The ids of scenarios whose proof is stale.</param>
+    /// <param name="record">The record whose scenario evidence is wanted.</param>
+    /// <returns>The scenario counts computed from the given queue inputs.</returns>
     static ReviewScenarios ScenariosOf(
         IReadOnlyList<Record> records,
         IReadOnlyList<ProvesLink> proves,
         IReadOnlySet<string> staleIds,
         Record record)
     {
-        IReadOnlyList<Record> own = record.Type switch
+        List<Record> own = record.Type switch
         {
             RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job => OwnedScenarios(records, record),
             RecordTypes.Scenario => [record],
@@ -508,7 +598,10 @@ static class ReviewQueue
     }
 
     /// <summary>The written scenarios the holder owns: by home for a use case, by page for a reaction or job.</summary>
-    static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record holder)
+    /// <param name="records">Every written record to scan.</param>
+    /// <param name="holder">The use case, reaction or job owning the scenarios.</param>
+    /// <returns>The written scenarios the holder owns, in record order.</returns>
+    static List<Record> OwnedScenarios(IReadOnlyList<Record> records, Record holder)
     {
         if (holder.Type is RecordTypes.Reaction or RecordTypes.Job)
         {
@@ -533,6 +626,9 @@ static class ReviewQueue
     }
 
     /// <summary>The reaction or job whose page carries the scenario, when one holds it.</summary>
+    /// <param name="records">Every written record to scan.</param>
+    /// <param name="scenario">The scenario whose page holder is wanted.</param>
+    /// <returns>The reaction or job on the scenario page, or null when no page holds it.</returns>
     static Record? PageHolder(IReadOnlyList<Record> records, Record scenario)
     {
         if (scenario.PageId is not { Length: > 0 } pageId)
@@ -569,7 +665,11 @@ static class ReviewQueue
     ///     it with the records it decides, and every other record falls into the batch of
     ///     its module and type.
     /// </summary>
-    static IReadOnlyList<Group> Assign(
+    /// <param name="records">Every written record, for holder lookups.</param>
+    /// <param name="queued">The queued draft and reopened records to assign.</param>
+    /// <param name="behaviorDocs">The behavior docs root, for module and type batches.</param>
+    /// <returns>The assignment groups, one per batch.</returns>
+    static List<Group> Assign(
         IReadOnlyList<Record> records, IReadOnlyList<Record> queued, string behaviorDocs)
     {
         var groups = new Dictionary<string, Group>(StringComparer.Ordinal);
@@ -637,6 +737,10 @@ static class ReviewQueue
     ///     The decision whose batch holds the record: a queued decision deciding it when
     ///     one exists, else the deciding decision with the lowest id.
     /// </summary>
+    /// <param name="records">Every written record to scan for decisions.</param>
+    /// <param name="queued">The queued records, whose deciding decisions win.</param>
+    /// <param name="record">The record whose deciding decision is wanted.</param>
+    /// <returns>The deciding decision, or null when no decision decides the record.</returns>
     static Record? Deciding(IReadOnlyList<Record> records, IReadOnlyList<Record> queued, Record record)
     {
         var queuedIds = queued.Select(entry => entry.Id).ToHashSet(StringComparer.Ordinal);
@@ -651,6 +755,15 @@ static class ReviewQueue
     }
 
     /// <summary>Describes one group as a batch, with its records in approval order.</summary>
+    /// <param name="records">Every written record, derived records included.</param>
+    /// <param name="effectiveStatus">The effective status of each record, by id.</param>
+    /// <param name="proves">The computed proves links.</param>
+    /// <param name="stale">The ids of scenarios whose proof is stale.</param>
+    /// <param name="group">The assignment group to describe.</param>
+    /// <param name="findings">The open finding count per record.</param>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="today">The current date, for open-question expiry.</param>
+    /// <returns>The batch describing the group, with entries in approval order.</returns>
     static ReviewBatch Describe(
         IReadOnlyList<Record> records,
         IReadOnlyDictionary<string, string> effectiveStatus,
@@ -699,10 +812,18 @@ static class ReviewQueue
     ///     Orders records inside a batch: the anchor first, then in authority order with
     ///     Intent before Governance before Behavior, then by type, then by id.
     /// </summary>
+    /// <param name="group">The batch group whose anchor orders first.</param>
+    /// <param name="left">The first entry to compare.</param>
+    /// <param name="right">The second entry to compare.</param>
+    /// <returns>Negative when the left entry orders before the right, positive when after, zero when equal.</returns>
     internal static int CompareRecords(Group group, ReviewEntry left, ReviewEntry right) =>
         CompareRecords(AnchorOf(group), left.Record, right.Record);
 
     /// <summary>Orders two records for approval: the anchor first, then authority order.</summary>
+    /// <param name="anchor">The batch anchor id ordering first, or null.</param>
+    /// <param name="left">The first record to compare.</param>
+    /// <param name="right">The second record to compare.</param>
+    /// <returns>Negative when the left record orders before the right, positive when after, zero when equal.</returns>
     public static int CompareRecords(string? anchor, Record left, Record right)
     {
         if (anchor is not null)
@@ -736,6 +857,8 @@ static class ReviewQueue
     }
 
     /// <summary>The batch anchor: the use case, reaction, job or decision id, else null.</summary>
+    /// <param name="group">The batch group whose anchor is wanted.</param>
+    /// <returns>The anchor record id for an anchored batch kind, or null for a module and type batch.</returns>
     static string? AnchorOf(Group group) => group.Kind switch
     {
         RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job => group.Selector,
@@ -744,6 +867,8 @@ static class ReviewQueue
     };
 
     /// <summary>Intent before Governance before Behavior.</summary>
+    /// <param name="record">The record whose layer rank is wanted.</param>
+    /// <returns>0 for intent, 1 for governance and 2 for behavior.</returns>
     static int LayerRank(Record record) => LayerOf(record) switch
     {
         "governance" => 1,
@@ -752,6 +877,8 @@ static class ReviewQueue
     };
 
     /// <summary>The ladder position, after every ladder type when the type has none.</summary>
+    /// <param name="type">The record type to rank.</param>
+    /// <returns>The ladder position of the type, or the ladder length when the type has none.</returns>
     static int LadderRank(string type)
     {
         var rank = Ladder
@@ -768,6 +895,9 @@ static class ReviewQueue
     ///     then by awaiting count, most first, then in authority order, then by the
     ///     earliest decide-by, then by selector.
     /// </summary>
+    /// <param name="left">The first batch to compare.</param>
+    /// <param name="right">The second batch to compare.</param>
+    /// <returns>Negative when the left batch orders before the right, positive when after, zero when equal.</returns>
     static int CompareBatches(ReviewBatch left, ReviewBatch right)
     {
         var reRead = right.Records.Any(entry => entry.FullReRead)
@@ -809,10 +939,14 @@ static class ReviewQueue
     }
 
     /// <summary>The batch authority: the lowest layer rank of its records.</summary>
+    /// <param name="batch">The batch whose authority rank is wanted.</param>
+    /// <returns>The lowest layer rank among the batch records, or 0 for an empty batch.</returns>
     static int AuthorityRank(ReviewBatch batch) =>
         batch.Records.Select(entry => LayerRank(entry.Record)).DefaultIfEmpty(0).Min();
 
     /// <summary>Writes the queue as one JSON object with a batches array.</summary>
+    /// <param name="batches">The batches to serialize.</param>
+    /// <returns>The queue as a JSON object with a batches array.</returns>
     public static string Json(IReadOnlyList<ReviewBatch> batches) =>
         CliJson.Serialize(new
         {
@@ -851,6 +985,8 @@ static class ReviewQueue
         });
 
     /// <summary>Prints one block per batch: a header line and one line per record.</summary>
+    /// <param name="batches">The batches to print.</param>
+    /// <returns>One block per batch, or the no-work message when the queue is empty.</returns>
     public static string Human(IReadOnlyList<ReviewBatch> batches)
     {
         if (batches.Count == 0)
@@ -876,6 +1012,8 @@ static class ReviewQueue
     }
 
     /// <summary>The record flags: reopened, full re-read, tier 1, and open questions.</summary>
+    /// <param name="entry">The queue entry whose flags are printed.</param>
+    /// <returns>The space-joined flags, or a dash when the entry carries none.</returns>
     static string Flags(ReviewEntry entry)
     {
         var flags = new List<string>();

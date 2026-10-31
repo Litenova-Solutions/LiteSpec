@@ -26,6 +26,8 @@ internal static class FulfilmentChecks
     };
 
     /// <summary>Reports a requirement fulfilled by no rule, use case, reaction, job, notification or setting.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var fulfilled = model.Records
@@ -62,6 +64,8 @@ internal static class FulfilmentChecks
     }
 
     /// <summary>Reports a requirement naming no reason in cites: tier A, tier G when it carries risk.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRequirementCited(ProjectModel model, List<Finding> findings)
     {
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement && record.Status != RecordStatuses.Retired))
@@ -74,6 +78,8 @@ internal static class FulfilmentChecks
     }
 
     /// <summary>Reports an applying constraint no requirement cites.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunConstraintCited(ProjectModel model, List<Finding> findings)
     {
         var cited = model.Records

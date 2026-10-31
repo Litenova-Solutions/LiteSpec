@@ -105,6 +105,8 @@ public sealed class TableDriftCheckTests
     }
 
     /// <summary>A retention-schedule page carrying one row with the period.</summary>
+    /// <param name="period">The retention period written in the row, in ISO duration form.</param>
+    /// <returns>The complete retention-schedule page text.</returns>
     static string RetentionPage(string period) =>
         "---\n"
         + "{\n"
@@ -127,6 +129,7 @@ public sealed class TableDriftCheckTests
         + RetentionBody();
 
     /// <summary>A retention body table holding the loans row with a seven-year period.</summary>
+    /// <returns>The retention page body text.</returns>
     static string RetentionBody() =>
         "# Retention\n\n| Data Class | Covers | Basis | Period | Enforced By |\n| --- | --- | --- | --- | --- |\n| loans | aggregate/lending.loan | business | P7Y | job/lending.expiry-sweep |\n";
 }

@@ -11,6 +11,6 @@ sealed record EffectEntry(string Verb, string Target, string? Timing)
     public string Edge() => $"{Verb} {Target}";
 
     /// <summary>The edge with its timing.</summary>
-    /// <returns>The edge with its timing.</returns>
+    /// <returns>The verb and target followed by the timing in parentheses, or by no timing when none is stated.</returns>
     public string Describe() => $"{Verb} {Target} ({Timing ?? "no timing"})";
 }

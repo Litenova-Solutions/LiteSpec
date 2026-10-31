@@ -225,6 +225,7 @@ internal static class SchemaComposition
     /// <param name="branch">The oneOf branch.</param>
     /// <param name="root">The schema root.</param>
     /// <returns>The pinned type const, or null.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "BranchTypeConst reads an optional dispatch hint and returns null on any unreadable reference, so the caller falls back to validating every branch.")]
     private static string? BranchTypeConst(JsonNode? branch, JsonNode root)
     {
         var current = branch;

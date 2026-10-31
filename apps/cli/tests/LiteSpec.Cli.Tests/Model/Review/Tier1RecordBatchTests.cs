@@ -9,6 +9,7 @@ public sealed class Tier1RecordBatchTests
     static string Borrowing(string root) => ReviewPages.Page(
         root, "docs", "product", "lending", "borrowing.md");
 
+    /// <summary>A Tier1 Requirement Is Queued And Approved On Its Own.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
     public void A_Tier1_Requirement_Is_Queued_And_Approved_On_Its_Own()

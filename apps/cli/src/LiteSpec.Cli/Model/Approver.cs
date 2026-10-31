@@ -11,6 +11,7 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#record-approval-as-data</follows>
 static class Approver
 {
+    /// <summary>The JSON options approval writes use: indented, with relaxed escaping so names stay readable.</summary>
     static readonly JsonSerializerOptions Write = new()
     {
         WriteIndented = true,
@@ -26,6 +27,8 @@ static class Approver
     ///     to eight hex characters. Page prose bodies and rendered consequences
     ///     summaries never feed the hash, so rewording prose reopens no approval.
     /// </summary>
+    /// <param name="record">The record whose semantic fields are hashed.</param>
+    /// <returns>The eight-hex-character hash of the record semantic fields.</returns>
     public static string SemanticHash(Record record) => Checker.SemanticHash(record);
 
     /// <summary>
@@ -33,6 +36,8 @@ static class Approver
     ///     semantic fields no longer match it. Returns the record with its reason: either
     ///     <c>no approvedHash</c> or <c>approvedHash differs</c>.
     /// </summary>
+    /// <param name="targets">The records an approval would stamp.</param>
+    /// <returns>Each target that needs stamping, with the reason it needs it, in target order.</returns>
     public static IReadOnlyList<(Record Record, string Reason)> DryRun(IReadOnlyList<Record> targets)
     {
         var planned = new List<(Record, string)>();
@@ -58,6 +63,11 @@ static class Approver
     ///     are always written, so re-approval carries the new approver and date.
     ///     Returns the records stamped and the ids no written record holds.
     /// </summary>
+    /// <param name="model">The built project model the targets belong to.</param>
+    /// <param name="targets">The records to stamp, grouped by their file for writing.</param>
+    /// <param name="by">The approver name to write, or null to fall back to each record decider or owner.</param>
+    /// <param name="on">The approval date to write, in ISO date form.</param>
+    /// <returns>The records stamped and the ids of the targets no written record holds.</returns>
     public static (IReadOnlyList<Record> Stamped, IReadOnlyList<string> Missing) Approve(
         ProjectModel model, IReadOnlyList<Record> targets, string? by, string on)
     {
@@ -117,6 +127,8 @@ static class Approver
     ///     Stamps each record of a batch approval: the target status, the approver, the
     ///     date, and the semantic hash, always. Returns the records stamped.
     /// </summary>
+    /// <param name="stamps">The batch stamps to write, grouped by each record file for writing.</param>
+    /// <returns>The records stamped, in file-group order.</returns>
     public static IReadOnlyList<Record> StampBatch(IReadOnlyList<BatchStamp> stamps)
     {
         var stamped = new List<Record>();
@@ -162,6 +174,9 @@ static class Approver
     ///     entry is not: the entry gains the page's former status, decider and decide-by date
     ///     as its own, so a page approval never promotes an entry its batch did not hold.
     /// </summary>
+    /// <param name="before">A deep clone of the page object before stamping, or null for a JSON page without one.</param>
+    /// <param name="page">The page object after stamping, or null when the page holds no object.</param>
+    /// <param name="stamped">The ids of the records stamped on the page.</param>
     static void KeepInheritedStatus(JsonObject? before, JsonObject? page, HashSet<string> stamped)
     {
         if (before is null || page is null || page["records"] is not JsonArray entries)
@@ -204,6 +219,9 @@ static class Approver
     }
 
     /// <summary>The object carrying the id: the page itself, an entry, or a nested entry.</summary>
+    /// <param name="node">The JSON node to search, with its children searched recursively.</param>
+    /// <param name="id">The record id to find.</param>
+    /// <returns>The object carrying the id, or null when no object in the tree carries it.</returns>
     static JsonNode? Find(JsonNode node, string id)
     {
         switch (node)

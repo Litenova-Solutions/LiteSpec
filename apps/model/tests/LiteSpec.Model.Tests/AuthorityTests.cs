@@ -16,22 +16,22 @@ public sealed class AuthorityTests
             "use-case/lending.borrow-copy",
             lists: new Dictionary<string, IReadOnlyList<string>>
             {
-                ["fulfills"] = new[] { "requirement/borrowing.max-active-loans" },
+                ["fulfills"] = ["requirement/borrowing.max-active-loans"],
             });
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "decision",
                 "decision/0001-loan-period",
                 "draft",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["decides"] = new[] { "requirement/borrowing.max-active-loans" },
+                    ["decides"] = ["requirement/borrowing.max-active-loans"],
                 }),
             new FakeRecord("requirement", "requirement/borrowing.max-active-loans"),
             useCase,
             new FakeRecord("result", "result/borrow-copy.borrowed"),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, holder => holder.Type == "result" ? useCase : null);
 
@@ -46,15 +46,15 @@ public sealed class AuthorityTests
     [Fact]
     public void Approved_Decision_Leaves_Use_Case_Live()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord(
                 "decision",
                 "decision/0001-loan-period",
                 "approved",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["decides"] = new[] { "requirement/borrowing.max-active-loans" },
+                    ["decides"] = ["requirement/borrowing.max-active-loans"],
                 }),
             new FakeRecord("requirement", "requirement/borrowing.max-active-loans"),
             new FakeRecord(
@@ -62,9 +62,9 @@ public sealed class AuthorityTests
                 "use-case/lending.borrow-copy",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["fulfills"] = new[] { "requirement/borrowing.max-active-loans" },
+                    ["fulfills"] = ["requirement/borrowing.max-active-loans"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -78,11 +78,11 @@ public sealed class AuthorityTests
     [Fact]
     public void Topic_Takes_Its_Own_Status()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("topic", "topic/borrowing", "approved"),
             new FakeRecord("topic", "topic/holds", "draft"),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -95,11 +95,11 @@ public sealed class AuthorityTests
     [Fact]
     public void Exception_Takes_Its_Own_Status()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("exception", "exception/list-loans-unimplemented", "approved"),
             new FakeRecord("exception", "exception/export-review-bypass", "draft"),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -112,8 +112,8 @@ public sealed class AuthorityTests
     [Fact]
     public void Draft_Screen_Is_Draft()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
             new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
             new FakeRecord("journey", "journey/submit-and-reimburse"),
@@ -123,11 +123,11 @@ public sealed class AuthorityTests
                 "draft",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
-                    ["offers"] = new[] { "use-case/spending.list-expenses" },
-                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                    ["entryPoint"] = ["entry-point/claimwick-app"],
+                    ["offers"] = ["use-case/spending.list-expenses"],
+                    ["serves"] = ["journey/submit-and-reimburse#s1"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -139,8 +139,8 @@ public sealed class AuthorityTests
     [Fact]
     public void Draft_Use_Case_Makes_Screen_Draft()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
             new FakeRecord("use-case", "use-case/spending.list-expenses", "draft"),
             new FakeRecord("journey", "journey/submit-and-reimburse"),
@@ -150,11 +150,11 @@ public sealed class AuthorityTests
                 "reviewed",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
-                    ["offers"] = new[] { "use-case/spending.list-expenses" },
-                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                    ["entryPoint"] = ["entry-point/claimwick-app"],
+                    ["offers"] = ["use-case/spending.list-expenses"],
+                    ["serves"] = ["journey/submit-and-reimburse#s1"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -166,8 +166,8 @@ public sealed class AuthorityTests
     [Fact]
     public void Draft_Journey_Makes_Screen_Draft()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
             new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
             new FakeRecord("journey", "journey/submit-and-reimburse", "draft"),
@@ -177,11 +177,11 @@ public sealed class AuthorityTests
                 "reviewed",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
-                    ["offers"] = new[] { "use-case/spending.list-expenses" },
-                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                    ["entryPoint"] = ["entry-point/claimwick-app"],
+                    ["offers"] = ["use-case/spending.list-expenses"],
+                    ["serves"] = ["journey/submit-and-reimburse#s1"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -193,8 +193,8 @@ public sealed class AuthorityTests
     [Fact]
     public void Draft_Entry_Point_Makes_Screen_Draft()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("entry-point", "entry-point/claimwick-app", "draft"),
             new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
             new FakeRecord("journey", "journey/submit-and-reimburse"),
@@ -204,11 +204,11 @@ public sealed class AuthorityTests
                 "reviewed",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
-                    ["offers"] = new[] { "use-case/spending.list-expenses" },
-                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                    ["entryPoint"] = ["entry-point/claimwick-app"],
+                    ["offers"] = ["use-case/spending.list-expenses"],
+                    ["serves"] = ["journey/submit-and-reimburse#s1"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 
@@ -220,8 +220,8 @@ public sealed class AuthorityTests
     [Fact]
     public void Live_Parents_Keep_Screen_Live()
     {
-        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
-        {
+        IReadOnlyList<IRecordFacts> records =
+        [
             new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
             new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
             new FakeRecord("journey", "journey/submit-and-reimburse"),
@@ -231,11 +231,11 @@ public sealed class AuthorityTests
                 "reviewed",
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
-                    ["offers"] = new[] { "use-case/spending.list-expenses" },
-                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                    ["entryPoint"] = ["entry-point/claimwick-app"],
+                    ["offers"] = ["use-case/spending.list-expenses"],
+                    ["serves"] = ["journey/submit-and-reimburse#s1"],
                 }),
-        };
+        ];
 
         var effective = Authority.EffectiveStatus(records, _ => null);
 

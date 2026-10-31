@@ -43,7 +43,8 @@ public static class JsonSchema
     /// <param name="relative">The schema file, relative to its root.</param>
     /// <param name="pointer">The JSON pointer of the schema.</param>
     /// <param name="add">The diagnostic sink, taking the relative path, line, code, and message.</param>
-    public static void UnsupportedKeywords(JsonNode? schema, string relative, string pointer, Action<string, int, string, string> add) =>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifiers should not contain type names", Justification = "The pointer parameter names the JSON Pointer of the schema in the JSON Schema specification; renaming the public parameter breaks callers that pass it by name.")]
+    public static void UnsupportedKeywords(JsonNode? schema, string relative, [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifiers should not contain type names", Justification = "The pointer parameter names the JSON Pointer of the schema in the JSON Schema specification; renaming the public parameter breaks callers that pass it by name.")] string pointer, Action<string, int, string, string> add) =>
         SchemaGate.UnsupportedKeywords(schema, relative, pointer, add);
 
     /// <summary>
@@ -98,6 +99,7 @@ public static class JsonSchema
     /// <param name="location">The value location.</param>
     /// <param name="readJson">The reader that loads a schema file as JSON.</param>
     /// <returns>The problems found.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Problems reports a schema validation as problem text rather than crashing the caller, so every failure of the local evaluator becomes one problem message.")]
     public static List<string> Problems(string schemaFile, JsonNode? value, string location, Func<string, JsonNode?> readJson)
     {
         var schema = readJson(schemaFile);

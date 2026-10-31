@@ -28,6 +28,9 @@ public sealed class BatchSampleTests
     }
 
     /// <summary>The expected sample: the lowest semantic hashes, the share rounded up, at least one.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="share">The sample share to apply, as a fraction.</param>
+    /// <returns>The record ids in the expected sample.</returns>
     static IReadOnlyList<string> ExpectedSample(string root, double share)
     {
         var (front, _) = ReviewPages.Read(LoanAggregate(root));

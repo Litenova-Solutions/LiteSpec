@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1010, repository contracts in Domain.</summary>
 public sealed class RepositoryContractAnalyzerTests
 {
+    /// <summary>LS1010 accepts a find returning a nullable aggregate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 accepts a find returning a nullable aggregate")]
     public Task AcceptsFindReturningNullableAggregate() =>
@@ -29,6 +31,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports a queryable return.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports a queryable return")]
     public Task ReportsQueryableReturn() =>
@@ -47,6 +51,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports an expression filter parameter.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports an expression filter parameter")]
     public Task ReportsExpressionFilterParameter() =>
@@ -68,6 +74,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports a session property.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports a session property")]
     public Task ReportsSessionProperty() =>
@@ -88,6 +96,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports a set property.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports a set property")]
     public Task ReportsSetProperty() =>
@@ -108,6 +118,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports a derived queryable return.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports a derived queryable return")]
     public Task ReportsDerivedQueryableReturn() =>
@@ -130,6 +142,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 reports a generic repository.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 reports a generic repository")]
     public Task ReportsGenericRepository() =>
@@ -146,6 +160,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 ignores an interface not named Repository.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 ignores an interface not named Repository")]
     public Task IgnoresInterfaceNotNamedRepository() =>
@@ -164,6 +180,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """);
 
+    /// <summary>LS1010 ignores a repository outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 ignores a repository outside Domain")]
     public Task IgnoresRepositoryOutsideDomain() =>
@@ -182,6 +200,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <summary>LS1010 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
@@ -200,6 +220,8 @@ public sealed class RepositoryContractAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <summary>LS1010 accepts a repository over an aggregate named Session.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</proves>
     [Fact(DisplayName = "LS1010 accepts a repository over an aggregate named Session")]
     public Task AcceptsRepositoryOverAggregateNamedSession() =>

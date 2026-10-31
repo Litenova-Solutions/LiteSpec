@@ -9,6 +9,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for recognizing each code kind from syntax, with a near miss for each.</summary>
 public sealed class KindReaderTests
 {
+    /// <summary>A class deriving AggregateRoot is an aggregate root.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class deriving AggregateRoot is an aggregate root")]
     public void AggregateRootDerivingIsRecognized()
@@ -20,6 +21,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class whose base the context names is an aggregate root.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class whose base the context names is an aggregate root")]
     public void AggregateRootFromContextIsRecognized()
@@ -27,11 +29,12 @@ public sealed class KindReaderTests
         var type = TestTrees.First<ClassDeclarationSyntax>("""
             public sealed class Expense : SpendingRoot;
             """);
-        var context = new KindContext(new[] { "SpendingRoot" }, new string[0], new string[0]);
+        var context = new KindContext(["SpendingRoot"], [], []);
 
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(type, context));
     }
 
+    /// <summary>A plain class is not an aggregate root.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A plain class is not an aggregate root")]
     public void PlainClassIsNotAnAggregateRoot()
@@ -43,6 +46,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class deriving a non-generic AggregateRoot is not an aggregate root.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class deriving a non-generic AggregateRoot is not an aggregate root")]
     public void NonGenericAggregateBaseIsNotAnAggregateRoot()
@@ -54,6 +58,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A public aggregate method raising an event is recognized.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A public aggregate method raising an event is recognized")]
     public void AggregateMethodRaisingIsRecognized()
@@ -71,6 +76,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>An aggregate method raising through a private helper is recognized.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An aggregate method raising through a private helper is recognized")]
     public void AggregateMethodThroughPrivateHelperIsRecognized()
@@ -90,6 +96,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>An unmarked public aggregate method raising nothing is not an aggregate method.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unmarked public aggregate method raising nothing is not an aggregate method")]
     public void UnmarkedAggregateMethodRaisingNothingIsNotRecognized()
@@ -104,6 +111,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>A marked public aggregate method raising nothing is recognized.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked public aggregate method raising nothing is recognized")]
     public void MarkedAggregateMethodRaisingNothingIsRecognized()
@@ -121,6 +129,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>An unmarked public aggregate method assigning state is recognized.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unmarked public aggregate method assigning state is recognized")]
     public void UnmarkedStateChangingAggregateMethodIsRecognized()
@@ -140,6 +149,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>An unmarked public aggregate method assigning only locals is not an aggregate method.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unmarked public aggregate method assigning only locals is not an aggregate method")]
     public void UnmarkedLocalAssigningAggregateMethodIsNotRecognized()
@@ -159,6 +169,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>A marked private aggregate method is not an aggregate method.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked private aggregate method is not an aggregate method")]
     public void MarkedPrivateAggregateMethodIsNotRecognized()
@@ -177,6 +188,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>A record implementing IDomainEvent is a domain event.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A record implementing IDomainEvent is a domain event")]
     public void DomainEventIsRecognized()
@@ -188,6 +200,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.DomainEvent, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A record implementing nothing is not a domain event.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A record implementing nothing is not a domain event")]
     public void PlainRecordIsNotADomainEvent()
@@ -199,6 +212,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>An interface extending IDomainEvent is not a domain event.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An interface extending IDomainEvent is not a domain event")]
     public void EventInterfaceIsNotADomainEvent()
@@ -210,6 +224,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class deriving DomainException is a rule exception.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class deriving DomainException is a rule exception")]
     public void RuleExceptionIsRecognized()
@@ -221,6 +236,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.RuleException, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>An abstract exception is not a rule exception.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An abstract exception is not a rule exception")]
     public void AbstractExceptionIsNotARuleException()
@@ -232,6 +248,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class implementing a command handler interface is a handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing a command handler interface is a handler")]
     public void CommandHandlerIsRecognized()
@@ -243,6 +260,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class implementing a query handler interface is a handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing a query handler interface is a handler")]
     public void QueryHandlerIsRecognized()
@@ -254,6 +272,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class named Handler implementing nothing is not a handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class named Handler implementing nothing is not a handler")]
     public void HandlerNameAloneIsNotAHandler()
@@ -265,6 +284,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class implementing an event handler interface is an event handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing an event handler interface is an event handler")]
     public void EventHandlerIsRecognized()
@@ -280,6 +300,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.EventHandler, KindReader.KindOf(second, KindContext.Empty));
     }
 
+    /// <summary>An event handler name without the interface is not an event handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An event handler name without the interface is not an event handler")]
     public void EventHandlerNameAloneIsNotAnEventHandler()
@@ -291,6 +312,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A hosted service named Job is a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A hosted service named Job is a job")]
     public void HostedJobIsRecognized()
@@ -306,6 +328,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(second, KindContext.Empty));
     }
 
+    /// <summary>A Job name without a hosted service base is not a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A Job name without a hosted service base is not a job")]
     public void JobNameAloneIsNotAJob()
@@ -317,6 +340,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A hosted service without a job name is not a job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A hosted service without a job name is not a job")]
     public void HostedServiceWithoutJobNameIsNotAJob()
@@ -328,6 +352,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A marked interface in Application is a port.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked interface in Application is a port")]
     public void MarkedInterfaceIsAPort()
@@ -342,6 +367,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>An interface port with no mark is not a port.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An interface port with no mark is not a port")]
     public void UnmarkedInterfaceIsNotAPort()
@@ -354,6 +380,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A marked interface outside Application is not a port.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked interface outside Application is not a port")]
     public void MarkedInterfaceOutsideApplicationIsNotAPort()
@@ -366,17 +393,18 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.WebApi"));
     }
 
+    /// <summary>A nested type sharing a root's name is not a root, and a partial part of the root is.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A nested type sharing a root's name is not a root, and a partial part of the root is")]
     public void OnlyAPartialPartTakesItsKindFromItsName()
     {
-        var context = new KindContext(new[] { "OrganizerInvitation" }, new string[0], new string[0]);
+        var context = new KindContext(["OrganizerInvitation"], [], []);
         var nestedRecord = TestTrees.Parse("""
             public abstract record OutboundMessagePurpose
             {
                 public sealed record OrganizerInvitation(string Code) : OutboundMessagePurpose;
             }
-            """).GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>().Single(record => record.Identifier.ValueText == "OrganizerInvitation");
+            """).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<RecordDeclarationSyntax>().Single(record => record.Identifier.ValueText == "OrganizerInvitation");
         var part = TestTrees.First<ClassDeclarationSyntax>("""
             public sealed partial class OrganizerInvitation
             {
@@ -387,6 +415,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(part, context));
     }
 
+    /// <summary>A Domain class marked with its rule is a domain service.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A Domain class marked with its rule is a domain service")]
     public void MarkedDomainClassIsADomainService()
@@ -399,6 +428,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.DomainService, KindReader.KindOf(type, KindContext.Empty, "Claimwick.Domain"));
     }
 
+    /// <summary>A Domain class with no rule mark is not a domain service.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A Domain class with no rule mark is not a domain service")]
     public void UnmarkedDomainClassIsNotADomainService()
@@ -412,6 +442,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Claimwick.Application"));
     }
 
+    /// <summary>A class implementing a marked port is an adapter.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing a marked port is an adapter")]
     public void AdapterIsRecognized()
@@ -419,11 +450,12 @@ public sealed class KindReaderTests
         var type = TestTrees.First<ClassDeclarationSyntax>("""
             internal sealed class PayoutBankAdapter : IPayoutPort;
             """);
-        var context = new KindContext(new string[0], new string[0], new[] { "IPayoutPort" });
+        var context = new KindContext([], [], ["IPayoutPort"]);
 
         Assert.Equal(CodeKind.Adapter, KindReader.KindOf(type, context));
     }
 
+    /// <summary>A class implementing an unmarked interface is not an adapter.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing an unmarked interface is not an adapter")]
     public void UnmarkedInterfaceImplementationIsNotAnAdapter()
@@ -435,6 +467,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class implementing IEndpoint is an endpoint.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class implementing IEndpoint is an endpoint")]
     public void EndpointInterfaceIsRecognized()
@@ -446,6 +479,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Endpoint, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A class named Endpoint in WebApi is an endpoint.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class named Endpoint in WebApi is an endpoint")]
     public void EndpointNameInWebApiIsRecognized()
@@ -458,6 +492,7 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Endpoint, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class named Endpoint outside WebApi is not an endpoint.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class named Endpoint outside WebApi is not an endpoint")]
     public void EndpointNameOutsideWebApiIsNotAnEndpoint()
@@ -469,6 +504,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A method with a test attribute is a test.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method with a test attribute is a test")]
     public void TestMethodIsRecognized()
@@ -490,6 +526,7 @@ public sealed class KindReaderTests
         }
     }
 
+    /// <summary>A method without a test attribute is not a test.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A method without a test attribute is not a test")]
     public void PlainMethodIsNotATest()
@@ -504,6 +541,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(method, KindContext.Empty));
     }
 
+    /// <summary>A handler that also handles events reads as a handler.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A handler that also handles events reads as a handler")]
     public void FirstMatchingKindWins()
@@ -516,6 +554,8 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A top-level class with a method in an outer layer is technical.</summary>
+    /// <param name="project">The project name that names the layer.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A top-level class with a method in an outer layer is technical")]
     [InlineData("Application")]
@@ -538,6 +578,8 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, project));
     }
 
+    /// <summary>A class outside the outer layers is not technical.</summary>
+    /// <param name="project">The project name that names the layer.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A class outside the outer layers is not technical")]
     [InlineData("Domain")]
@@ -555,6 +597,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, project));
     }
 
+    /// <summary>A class with no known project is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class with no known project is not technical")]
     public void ClassWithNoProjectIsNotTechnical()
@@ -569,6 +612,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty));
     }
 
+    /// <summary>A class with only properties, fields, or a constructor is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class with only properties, fields, or a constructor is not technical")]
     public void ClassWithoutOrdinaryMethodIsNotTechnical()
@@ -603,19 +647,20 @@ public sealed class KindReaderTests
         }
     }
 
+    /// <summary>A record, struct, interface, or enum is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A record, struct, interface, or enum is not technical")]
     public void NonClassIsNotTechnical()
     {
         var record = TestTrees.Parse("""
             public sealed record ExpenseSummary(Guid ExpenseId);
-            """).GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>().First();
+            """).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>().First();
         var structure = TestTrees.Parse("""
             public struct Money
             {
                 public decimal Amount() => 0m;
             }
-            """).GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>().First();
+            """).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>().First();
         var face = TestTrees.First<InterfaceDeclarationSyntax>("""
             public interface IClock
             {
@@ -628,6 +673,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(face, KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A nested class is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A nested class is not technical")]
     public void NestedClassIsNotTechnical()
@@ -640,33 +686,30 @@ public sealed class KindReaderTests
                     public void Commit() { }
                 }
             }
-            """).GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+            """).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<ClassDeclarationSyntax>()
             .First(type => type.Identifier.ValueText == "CommitStep");
 
         Assert.Null(KindReader.KindOf(nested, KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A generated class is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A generated class is not technical")]
     public void GeneratedClassIsNotTechnical()
     {
-        var generatedFile = CSharpSyntaxTree.ParseText(
-            """
+        var generatedFile = CSharpSyntaxTree.ParseText("""
             internal sealed class CommitStep
             {
                 public void Commit() { }
             }
-            """,
-            path: "CommitStep.g.cs").GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-        var markedFile = CSharpSyntaxTree.ParseText(
-            """
+            """, path: "CommitStep.g.cs", cancellationToken: TestContext.Current.CancellationToken).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+        var markedFile = CSharpSyntaxTree.ParseText("""
             // <auto-generated/>
             internal sealed class CommitStep
             {
                 public void Commit() { }
             }
-            """,
-            path: "CommitStep.cs").GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+            """, path: "CommitStep.cs", cancellationToken: TestContext.Current.CancellationToken).GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<ClassDeclarationSyntax>().First();
         var attribute = TestTrees.First<ClassDeclarationSyntax>("""
             [System.CodeDom.Compiler.GeneratedCode("tool", "1.0")]
             internal sealed class CommitStep
@@ -680,6 +723,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(attribute, KindContext.Empty, "Shop.Application"));
     }
 
+    /// <summary>A migration or model snapshot is not technical.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A migration or model snapshot is not technical")]
     public void MigrationIsNotTechnical()
@@ -701,6 +745,7 @@ public sealed class KindReaderTests
         Assert.Null(KindReader.KindOf(snapshot, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <summary>A class taking another kind keeps it.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A class taking another kind keeps it")]
     public void OtherKindWinsOverTechnical()
@@ -723,13 +768,14 @@ public sealed class KindReaderTests
                 public void Send() { }
             }
             """);
-        var context = new KindContext(new string[0], new string[0], new[] { "IPayoutPort" });
+        var context = new KindContext([], [], ["IPayoutPort"]);
 
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(handler, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Endpoint, KindReader.KindOf(endpoint, KindContext.Empty, "Shop.WebApi"));
         Assert.Equal(CodeKind.Adapter, KindReader.KindOf(adapter, context, "Shop.Infrastructure"));
     }
 
+    /// <summary>A partial part without a method reads through the context names.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A partial part without a method reads through the context names")]
     public void PartialPartReadsThroughContext()
@@ -739,7 +785,7 @@ public sealed class KindReaderTests
             {
             }
             """);
-        var context = new KindContext(new string[0], new string[0], new string[0], technicalClasses: new[] { "CommitStep" });
+        var context = new KindContext([], [], [], technicalClasses: ["CommitStep"]);
 
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(part, context, "Shop.Application"));
         Assert.Null(KindReader.KindOf(part, KindContext.Empty, "Shop.Application"));

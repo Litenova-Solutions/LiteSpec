@@ -12,28 +12,40 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkRules
 {
-    private static readonly string[] AggregateTypes = { "aggregate" };
-    private static readonly string[] UseCaseTypes = { "use-case" };
-    private static readonly string[] EventTypes = { "event" };
-    private static readonly string[] RuleTypes = { "rule" };
-    private static readonly string[] ReactionTypes = { "reaction" };
-    private static readonly string[] JobTypes = { "job" };
-    private static readonly string[] ExternalSystemTypes = { "external-system" };
-    private static readonly string[] ScreenTypes = { "screen" };
+    /// <summary>The record types an aggregate root mark names.</summary>
+    private static readonly string[] AggregateTypes = ["aggregate"];
+    /// <summary>The record types a use-case mark names.</summary>
+    private static readonly string[] UseCaseTypes = ["use-case"];
+    /// <summary>The record types an event mark names.</summary>
+    private static readonly string[] EventTypes = ["event"];
+    /// <summary>The record types a rule mark names.</summary>
+    private static readonly string[] RuleTypes = ["rule"];
+    /// <summary>The record types a reaction mark names.</summary>
+    private static readonly string[] ReactionTypes = ["reaction"];
+    /// <summary>The record types a job mark names.</summary>
+    private static readonly string[] JobTypes = ["job"];
+    /// <summary>The record types an external-system mark names.</summary>
+    private static readonly string[] ExternalSystemTypes = ["external-system"];
+    /// <summary>The record types a screen mark names.</summary>
+    private static readonly string[] ScreenTypes = ["screen"];
+    /// <summary>The record types a test mark names.</summary>
     private static readonly string[] TestTypes =
-    {
+    [
         "scenario", "rule", "requirement", "decision",
         "external-system", "integration-event", "litespec",
-    };
+    ];
+    /// <summary>The record types a technical class implements mark names.</summary>
     private static readonly string[] TechnicalImplementsTypes =
-    {
+    [
         "aggregate", "use-case", "reaction", "job", "external-system",
         "event", "rule", "notification", "setting", "integration-event",
-    };
-    private static readonly string[] FollowsTypes = { "litespec", "decision", "exception" };
+    ];
+    /// <summary>The record types a follows mark names.</summary>
+    private static readonly string[] FollowsTypes = ["litespec", "decision", "exception"];
 
+    /// <summary>The finding codes of the mark findings, in rule id order.</summary>
     private static readonly string[] Codes =
-    {
+    [
         "mark-missing",
         "mark-unknown",
         "mark-count-invalid",
@@ -42,7 +54,7 @@ public static class MarkRules
         "partial-missing",
         "act-event-undeclared",
         "act-event-unimplemented",
-    };
+    ];
 
     /// <summary>
     ///     The record types an <c>implements</c> or <c>proves</c> mark on the kind
@@ -58,7 +70,7 @@ public static class MarkRules
     public static IReadOnlyList<string> RecordTypes(CodeKind kind) => RuleOf(kind).RecordTypes;
 
     /// <summary>
-    ///     The record types a <c>follows</c> mark may name, as bare type names:
+    ///     Gets the record types a <c>follows</c> mark may name, as bare type names:
     ///     the provision namespace and the decision and exception records.
     /// </summary>
     public static IReadOnlyList<string> FollowsRecordTypes => FollowsTypes;
@@ -192,7 +204,7 @@ public static class MarkRules
             : new MarkCount(false, null);
     }
 
-    /// <summary>The finding codes of the mark findings, in rule id order.</summary>
+    /// <summary>Gets the finding codes of the mark findings, in rule id order.</summary>
     public static IReadOnlyList<string> FindingCodes => Codes;
 
     /// <summary>The analyzer rule id that reports the finding code.</summary>
@@ -258,6 +270,10 @@ public static class MarkRules
         }
     }
 
+    /// <summary>Reads the rule for one code kind.</summary>
+    /// <param name="kind">The code kind.</param>
+    /// <returns>The kind's rule.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The kind is not a known value.</exception>
     private static KindRule RuleOf(CodeKind kind)
     {
         switch (kind)
@@ -299,8 +315,13 @@ public static class MarkRules
         }
     }
 
+    /// <summary>One kind's mark rule: its record types, count rule, and verb.</summary>
     private sealed class KindRule
     {
+        /// <summary>Initializes a new instance of the <see cref="KindRule"/> class.</summary>
+        /// <param name="recordTypes">The record types the kind's marks name.</param>
+        /// <param name="takesExactlyOne">Whether the kind takes exactly one mark.</param>
+        /// <param name="verb">The verb the kind's marks use.</param>
         public KindRule(string[] recordTypes, bool takesExactlyOne, MarkVerb verb)
         {
             RecordTypes = recordTypes;
@@ -308,10 +329,13 @@ public static class MarkRules
             Verb = verb;
         }
 
+        /// <summary>Gets the record types the kind's marks name.</summary>
         public IReadOnlyList<string> RecordTypes { get; }
 
+        /// <summary>Gets a value indicating whether the kind takes exactly one mark.</summary>
         public bool TakesExactlyOne { get; }
 
+        /// <summary>Gets the verb the kind's marks use.</summary>
         public MarkVerb Verb { get; }
     }
 }

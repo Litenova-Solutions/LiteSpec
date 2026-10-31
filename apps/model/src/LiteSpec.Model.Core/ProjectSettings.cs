@@ -10,13 +10,13 @@ namespace LiteSpec.Model;
 /// <param name="Marks">The declared mark style.</param>
 public sealed record ProjectSettings(MarkStyle Marks)
 {
-    /// <summary>The domain verbs the project adds to the baseline vocabulary.</summary>
+    /// <summary>Gets the domain verbs the project adds to the baseline vocabulary.</summary>
     public IReadOnlyList<string> Verbs { get; init; } = Array.Empty<string>();
 
-    /// <summary>The project verbs that name a query, beside the baseline reading verbs.</summary>
+    /// <summary>Gets the project verbs that name a query, beside the baseline reading verbs.</summary>
     public IReadOnlyList<string> QueryVerbs { get; init; } = Array.Empty<string>();
 
-    /// <summary>Multi-word verbs counted as one use-case opening.</summary>
+    /// <summary>Gets multi-word verbs counted as one use-case opening.</summary>
     public IReadOnlyList<string> PhrasalVerbs { get; init; } = Array.Empty<string>();
 
     /// <summary>
@@ -65,6 +65,10 @@ public sealed record ProjectSettings(MarkStyle Marks)
         return true;
     }
 
+    /// <summary>Reads one vocabulary name list from the project file.</summary>
+    /// <param name="root">The project file object.</param>
+    /// <param name="name">The vocabulary field name.</param>
+    /// <returns>The names in file order; empty when the field holds no string array.</returns>
     private static IReadOnlyList<string> VocabularyNames(JsonText root, string name)
     {
         if (root.TryGetProperty("vocabulary", out var vocabulary)
@@ -88,6 +92,11 @@ public sealed record ProjectSettings(MarkStyle Marks)
         return Array.Empty<string>();
     }
 
+    /// <summary>Tries to read the declared mark style from the project file.</summary>
+    /// <param name="root">The project file object.</param>
+    /// <param name="marks">The declared style, or the default when the file names none.</param>
+    /// <param name="error">The error the host prints, or null when the value reads.</param>
+    /// <returns>True when the file names a known style or none.</returns>
     private static bool TryReadMarks(JsonText root, out MarkStyle marks, out string? error)
     {
         marks = MarkStyle.Xml;
@@ -109,6 +118,9 @@ public sealed record ProjectSettings(MarkStyle Marks)
         return false;
     }
 
+    /// <summary>Lowercases the first letter of a message.</summary>
+    /// <param name="message">The message to read.</param>
+    /// <returns>The message with a lowercase first letter.</returns>
     private static string LowerHead(string message) =>
         message.Length == 0 || char.IsLower(message[0])
             ? message

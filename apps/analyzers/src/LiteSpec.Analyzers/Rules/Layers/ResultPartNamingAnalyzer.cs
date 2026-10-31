@@ -21,12 +21,22 @@ public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS2009);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
 
+    /// <summary>
+    ///     Registers the analysis actions for the result part naming analyzer rule with the compilation
+    ///     context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSymbolAction(Analyze, SymbolKind.NamedType);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SymbolAnalysisContext context)
     {
         var result = (INamedTypeSymbol)context.Symbol;
@@ -47,6 +57,9 @@ public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
 
     // Every type declared in the result's namespace that the result reaches through public properties,
     // following collections, nullables and arrays, and following each part's own properties in turn.
+    /// <summary>Returns the parts of the result.</summary>
+    /// <param name="result">The result value built so far.</param>
+    /// <returns>The parts of the result.</returns>
     private static IEnumerable<INamedTypeSymbol> PartsOf(INamedTypeSymbol result)
     {
         var space = result.ContainingNamespace;
@@ -78,6 +91,9 @@ public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns the in.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The in, in the order this method builds them, or an empty collection when none apply.</returns>
     private static IEnumerable<INamedTypeSymbol> TypesIn(ITypeSymbol type)
     {
         switch (type)
@@ -103,6 +119,9 @@ public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the name is result; otherwise false.</summary>
+    /// <param name="name">The name to convert or match.</param>
+    /// <returns>True when the name is result; otherwise false.</returns>
     private static bool IsResult(string name) =>
         name.EndsWith("QueryResult", StringComparison.Ordinal)
         || name.EndsWith("CommandResult", StringComparison.Ordinal);

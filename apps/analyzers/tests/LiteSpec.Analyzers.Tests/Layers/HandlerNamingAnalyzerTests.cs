@@ -6,6 +6,8 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2005, handler command and query suffixes.</summary>
 public sealed class HandlerNamingAnalyzerTests
 {
+    /// <summary>LS2005 reports a command handler without its suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 reports a command handler without its suffix")]
     public Task ReportsACommandHandlerWithoutItsSuffix() =>
@@ -21,6 +23,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2005 reports a query handler without its suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 reports a query handler without its suffix")]
     public Task ReportsAQueryHandlerWithoutItsSuffix() =>
@@ -36,6 +40,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2005 accepts handlers with their full suffixes.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 accepts handlers with their full suffixes")]
     public Task AcceptsHandlersWithFullSuffixes() =>
@@ -59,6 +65,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2005 ignores a Handler name that implements neither contract.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores a Handler name that implements neither contract")]
     public Task IgnoresABareHandlerName() =>
@@ -70,6 +78,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2005 ignores an interface extending a handler contract.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores an interface extending a handler contract")]
     public Task IgnoresAnInterface() =>
@@ -83,6 +93,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <summary>LS2005 ignores a handler outside Application and Infrastructure.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores a handler outside Application and Infrastructure")]
     public Task IgnoresHandlerOutsideItsLayers() =>
@@ -98,6 +110,8 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <summary>LS2005 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class FactoryActTests
 {
+    /// <summary>Static Factory Marked With The Use Case Satisfies The Act Check.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Static_Factory_Marked_With_The_Use_Case_Satisfies_The_Act_Check()
@@ -18,6 +19,7 @@ public sealed class FactoryActTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.submit-order");
     }
 
+    /// <summary>Static Factory Without The Mark Reports Use Case Act Uncalled.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Static_Factory_Without_The_Mark_Reports_Use_Case_Act_Uncalled()
@@ -31,6 +33,7 @@ public sealed class FactoryActTests
     }
 
     /// <summary>Writes a consumer where one handler calls a marked static factory and one calls an unmarked one.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
         var temp = Cli.Temp("marks");

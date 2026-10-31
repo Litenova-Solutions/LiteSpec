@@ -19,8 +19,16 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(Descriptors.LS1011);
 
+    /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
+    /// <summary>
+    ///     Registers the analysis actions for the domain documentation analyzer rule with the
+    ///     compilation context.
+    /// </summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSyntaxNodeAction(
             Analyze,
@@ -38,6 +46,8 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
             SyntaxKind.FieldDeclaration,
             SyntaxKind.ConstructorDeclaration);
 
+    /// <summary>Analyzes the void.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         switch (context.Node)
@@ -80,6 +90,11 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Checks the symbol.</summary>
+    /// <param name="identifier">The identifier text to resolve.</param>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <param name="documentation">The documentation text under inspection.</param>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private static void CheckSymbol(SyntaxToken identifier, ISymbol? symbol, SyntaxNode documentation, SyntaxNodeAnalysisContext context)
     {
         if (identifier.IsMissing || symbol is null || !RequiresDocumentation(symbol))
@@ -93,6 +108,9 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the requires-documentation condition holds; otherwise false.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>True when the requires-documentation condition holds; otherwise false.</returns>
     private static bool RequiresDocumentation(ISymbol symbol)
     {
         if (symbol is INamedTypeSymbol type)
@@ -127,6 +145,9 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         }
     }
 
+    /// <summary>Returns true when the type is publicly visible; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is publicly visible; otherwise false.</returns>
     private static bool IsPubliclyVisible(INamedTypeSymbol type)
     {
         for (var current = type; current is not null; current = current.ContainingType)
@@ -140,6 +161,10 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         return true;
     }
 
+    /// <summary>Returns true when the node has documentation; otherwise false.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <param name="identifier">The identifier text to resolve.</param>
+    /// <returns>True when the node has documentation; otherwise false.</returns>
     private static bool HasDocumentation(SyntaxNode node, SyntaxToken identifier)
     {
         // Without a documentation file the compiler parses "///" as ordinary comments, so those
@@ -172,11 +197,18 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         return plain is not null && DocumentsPlain(plain.ToString());
     }
 
+    /// <summary>Stores the filled summary used by the containing code.</summary>
     private static readonly Regex FilledSummary = new(@"<summary>\s*\S[\s\S]*?</summary>", RegexOptions.Compiled);
 
+    /// <summary>Returns true when the documents-plain condition holds; otherwise false.</summary>
+    /// <param name="text">The source text the edit applies to.</param>
+    /// <returns>True when the documents-plain condition holds; otherwise false.</returns>
     private static bool DocumentsPlain(string text) =>
         text.IndexOf("<inheritdoc", StringComparison.Ordinal) >= 0 || FilledSummary.IsMatch(text);
 
+    /// <summary>Returns true when the documents condition holds; otherwise false.</summary>
+    /// <param name="trivia">The trivia under inspection.</param>
+    /// <returns>True when the documents condition holds; otherwise false.</returns>
     private static bool Documents(SyntaxTrivia trivia)
     {
         if (trivia.GetStructure() is not DocumentationCommentTriviaSyntax comment)
@@ -205,6 +237,10 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         return false;
     }
 
+    /// <summary>Returns true when the name is name; otherwise false.</summary>
+    /// <param name="name">The name to convert or match.</param>
+    /// <param name="expected">The value the record states.</param>
+    /// <returns>True when the name is name; otherwise false.</returns>
     private static bool IsName(XmlNameSyntax name, string expected) =>
         name.LocalName.ValueText.Equals(expected, StringComparison.Ordinal);
 }

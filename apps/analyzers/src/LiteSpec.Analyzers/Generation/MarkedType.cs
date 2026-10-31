@@ -19,7 +19,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class MarkedType : IEquatable<MarkedType>
 {
-    /// <summary>Creates a marked type.</summary>
+    /// <summary>Initializes a new instance of the <see cref="MarkedType"/> class.Creates a marked type.</summary>
     /// <param name="fullName">The dotted name with generic arity, the registry key.</param>
     /// <param name="ns">The escaped dotted namespace, or empty in the global namespace.</param>
     /// <param name="nesting">Each enclosing type outside in, as an escaped partial declaration.</param>
@@ -66,46 +66,46 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         BaseHasVirtualCode = baseHasVirtualCode;
     }
 
-    /// <summary>The dotted name with generic arity, the registry key.</summary>
+    /// <summary>Gets the dotted name with generic arity, the registry key.</summary>
     public string FullName { get; }
 
-    /// <summary>The escaped dotted namespace, or empty in the global namespace.</summary>
+    /// <summary>Gets the escaped dotted namespace, or empty in the global namespace.</summary>
     public string Namespace { get; }
 
-    /// <summary>Each enclosing type outside in, as an escaped partial declaration.</summary>
+    /// <summary>Gets each enclosing type outside in, as an escaped partial declaration.</summary>
     public ImmutableArray<string> Nesting { get; }
 
-    /// <summary>The escaped simple name.</summary>
+    /// <summary>Gets the escaped simple name.</summary>
     public string Name { get; }
 
-    /// <summary>The escaped type parameter list, or empty.</summary>
+    /// <summary>Gets the escaped type parameter list, or empty.</summary>
     public string TypeParameters { get; }
 
-    /// <summary>The declaration keyword: class, record, record struct, struct or interface.</summary>
+    /// <summary>Gets the declaration keyword: class, record, record struct, struct or interface.</summary>
     public string Keyword { get; }
 
-    /// <summary>The code kind, or null when the type is of no known kind.</summary>
+    /// <summary>Gets the code kind, or null when the type is of no known kind.</summary>
     public CodeKind? Kind { get; }
 
-    /// <summary>The record identifiers in source order, without duplicates.</summary>
+    /// <summary>Gets the record identifiers in source order, without duplicates.</summary>
     public ImmutableArray<string> MarkIds { get; }
 
-    /// <summary>The use-case marks in source order, counting duplicates.</summary>
+    /// <summary>Gets the use-case marks in source order, counting duplicates.</summary>
     public int UseCaseMarkCount { get; }
 
-    /// <summary>The fully qualified first type argument of the handler interface, or empty.</summary>
+    /// <summary>Gets the fully qualified first type argument of the handler interface, or empty.</summary>
     public string MessageFullName { get; }
 
-    /// <summary>Whether the type and every enclosing type carry partial in every declaration.</summary>
+    /// <summary>Gets a value indicating whether whether the type and every enclosing type carry partial in every declaration.</summary>
     public bool IsPartial { get; }
 
-    /// <summary>Whether a Classification member is declared in source.</summary>
+    /// <summary>Gets a value indicating whether whether a Classification member is declared in source.</summary>
     public bool HasClassification { get; }
 
-    /// <summary>Whether a Code member is declared in source.</summary>
+    /// <summary>Gets a value indicating whether whether a Code member is declared in source.</summary>
     public bool HasCode { get; }
 
-    /// <summary>Whether a base type declares a virtual string Code.</summary>
+    /// <summary>Gets a value indicating whether whether a base type declares a virtual string Code.</summary>
     public bool BaseHasVirtualCode { get; }
 
     /// <summary>
@@ -274,6 +274,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         }
     }
 
+    /// <summary>Returns true when the candidate has mark comment; otherwise false.</summary>
+    /// <param name="candidate">The type declaration that may carry the mark.</param>
+    /// <returns>True when the candidate has mark comment; otherwise false.</returns>
     private static bool HasMarkComment(TypeDeclarationSyntax candidate)
     {
         foreach (var trivia in candidate.GetLeadingTrivia())
@@ -297,6 +300,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return false;
     }
 
+    /// <summary>Returns the name of.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The name of as text.</returns>
     private static string FullNameOf(INamedTypeSymbol symbol)
     {
         var elements = new List<string>();
@@ -314,6 +320,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return namespaces.Count == 0 ? dotted : string.Join(".", namespaces) + "." + dotted;
     }
 
+    /// <summary>Returns the namespace of the symbol.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The namespace of the symbol.</returns>
     private static string NamespaceOf(INamedTypeSymbol symbol)
     {
         var parts = NamespaceParts(symbol);
@@ -327,6 +336,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return string.Join(".", escaped);
     }
 
+    /// <summary>Returns the parts.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The parts, in the order this method builds them, or an empty collection when none apply.</returns>
     private static List<string> NamespaceParts(INamedTypeSymbol symbol)
     {
         var parts = new List<string>();
@@ -343,6 +355,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return parts;
     }
 
+    /// <summary>Returns the nesting of the symbol.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The nesting of the symbol.</returns>
     private static ImmutableArray<string> NestingOf(INamedTypeSymbol symbol)
     {
         var chain = new List<INamedTypeSymbol>();
@@ -369,6 +384,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return ImmutableArray.CreateRange(declarations);
     }
 
+    /// <summary>Returns the parameters of.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The parameters of as text.</returns>
     private static string TypeParametersOf(INamedTypeSymbol symbol)
     {
         if (symbol.TypeParameters.Length == 0)
@@ -386,6 +404,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return "<" + string.Join(", ", names) + ">";
     }
 
+    /// <summary>Returns the keyword of the symbol.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The keyword of the symbol.</returns>
     private static string KeywordOf(INamedTypeSymbol symbol)
     {
         if (symbol.IsRecord)
@@ -450,6 +471,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return found ?? string.Empty;
     }
 
+    /// <summary>Returns true when the contains-type-parameter condition holds; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the contains-type-parameter condition holds; otherwise false.</returns>
     private static bool ContainsTypeParameter(ITypeSymbol type)
     {
         switch (type)
@@ -475,6 +499,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         }
     }
 
+    /// <summary>Returns true when the base-declares-virtual-code condition holds; otherwise false.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>True when the base-declares-virtual-code condition holds; otherwise false.</returns>
     private static bool BaseDeclaresVirtualCode(INamedTypeSymbol symbol)
     {
         for (var current = symbol.BaseType; current is not null; current = current.BaseType)
@@ -493,6 +520,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         return false;
     }
 
+    /// <summary>Escapes the identifier with a verbatim prefix when it is a keyword.</summary>
+    /// <param name="name">The name to convert or match.</param>
+    /// <returns>The string as text.</returns>
     private static string Escape(string name) =>
         SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None
         || SyntaxFacts.GetContextualKeywordKind(name) != SyntaxKind.None

@@ -5,34 +5,14 @@ using LiteSpec.Authoring;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One page's body, kept for citation and generated-region reads.
-/// </summary>
-/// <param name="File">The absolute path.</param>
-/// <param name="Body">The text after the frontmatter.</param>
-/// <param name="BodyStartLine">The body's first line, 1-based.</param>
-/// <param name="PageId">The page record's id, when the page carries one.</param>
-sealed record PageBody(string File, string Body, int BodyStartLine, string? PageId);
-
-/// <summary>
-///     What the record read found: records, bodies, provisions and problems.
-/// </summary>
-/// <param name="Records">Every written record.</param>
-/// <param name="Bodies">Every page body under the record roots.</param>
-/// <param name="Provisions">The shared provision ids, from the release the tool carries.</param>
-/// <param name="Problems">Files the reader could not read.</param>
-sealed record RecordRead(
-    IReadOnlyList<Record> Records,
-    IReadOnlyList<PageBody> Bodies,
-    IReadOnlySet<string> Provisions,
-    IReadOnlyList<Finding> Problems);
-
-/// <summary>
 ///     Finds every written record: page records, entries and terms.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordReader
 {
     /// <summary>Reads every record under the configured roots.</summary>
+    /// <param name="config">The consumer configuration holding the record roots and glossary.</param>
+    /// <returns>The records, bodies, provisions and problems the read found, each sorted by file and line.</returns>
     public static RecordRead Read(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -87,6 +67,8 @@ static class RecordReader
     }
 
     /// <summary>Whether the page opens with a frontmatter fence line, so a parse failure drops a record.</summary>
+    /// <param name="text">The page text to test.</param>
+    /// <returns>True when the first line of the text is the frontmatter fence.</returns>
     private static bool HasFrontmatterFence(string text)
     {
         var firstLine = text.Split('\n')[0].TrimEnd('\r');
@@ -94,6 +76,12 @@ static class RecordReader
         return string.Equals(firstLine, "---", StringComparison.Ordinal);
     }
 
+    /// <summary>Reads one page into records, a body and problems, all appended in place.</summary>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="file">The absolute path of the page to read.</param>
+    /// <param name="records">The records read so far, appended in place.</param>
+    /// <param name="bodies">The page bodies read so far, appended in place.</param>
+    /// <param name="problems">The problems found so far, appended in place.</param>
     private static void ReadPage(
         ConsumerConfig config,
         string file,
@@ -204,6 +192,7 @@ static class RecordReader
         IReadOnlyList<IReadOnlyList<string>> Rows,
         string Heading);
 
+    /// <summary>The pattern matching a Markdown table delimiter row.</summary>
     static readonly Regex TableDelimiter = new(
         @"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$",
         RegexOptions.CultureInvariant);
@@ -214,6 +203,9 @@ static class RecordReader
     ///     and a table that disagrees with one reports table-drift instead of
     ///     merging. Tables inside generated regions are tool output and never lift.
     /// </summary>
+    /// <param name="element">The page element to patch.</param>
+    /// <param name="tables">The handwritten tables on the page.</param>
+    /// <returns>The element with any table fields added, or the element itself when none apply.</returns>
     private static JsonElement PatchedPage(JsonElement element, IReadOnlyList<MarkdownTable> tables)
     {
         if (StringField(element, RecordFields.Type) == RecordTypes.Aggregate)
@@ -250,6 +242,10 @@ static class RecordReader
     ///     scenario the first plain table wins; with several, a table belongs to the
     ///     scenario its heading names. A front-matter field wins over a table.
     /// </summary>
+    /// <param name="entry">The entry element to patch.</param>
+    /// <param name="siblings">The entries array the entry sits in.</param>
+    /// <param name="tables">The handwritten tables on the page.</param>
+    /// <returns>The entry with its examples added, or the entry itself when no table belongs to it.</returns>
     private static JsonElement PatchedEntry(
         JsonElement entry,
         JsonElement siblings,
@@ -267,10 +263,19 @@ static class RecordReader
             : entry;
     }
 
+    /// <summary>Tests whether an element lacks a field or holds it as JSON null.</summary>
+    /// <param name="element">The element to test.</param>
+    /// <param name="field">The field name to test for.</param>
+    /// <returns>True when the field is absent or null.</returns>
     private static bool FieldMissing(JsonElement element, string field) =>
         !element.TryGetProperty(field, out var value) || value.ValueKind == JsonValueKind.Null;
 
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> ExamplesFor(
+    /// <summary>The examples rows belonging to one scenario entry.</summary>
+    /// <param name="entry">The scenario entry to find examples for.</param>
+    /// <param name="siblings">The entries array the entry sits in.</param>
+    /// <param name="tables">The handwritten tables on the page.</param>
+    /// <returns>The example rows of the table belonging to the entry.</returns>
+    private static List<IReadOnlyDictionary<string, string>> ExamplesFor(
         JsonElement entry,
         JsonElement siblings,
         IReadOnlyList<MarkdownTable> tables)
@@ -307,7 +312,10 @@ static class RecordReader
         return rows;
     }
 
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> FirstExamples(
+    /// <summary>The examples rows of the first plain table, skipping transitions and data tables.</summary>
+    /// <param name="tables">The handwritten tables on the page.</param>
+    /// <returns>The rows of the first plain table, or an empty list when the page holds none.</returns>
+    private static List<IReadOnlyDictionary<string, string>> FirstExamples(
         IReadOnlyList<MarkdownTable> tables)
     {
         foreach (var table in tables)
@@ -322,6 +330,8 @@ static class RecordReader
     }
 
     /// <summary>Every From and To row of every handwritten transitions table, in order; By aliases Triggered By.</summary>
+    /// <param name="tables">The handwritten tables to read transitions from.</param>
+    /// <returns>The From, To and optional By of every transitions row, in table order.</returns>
     internal static IReadOnlyList<(string From, string To, string? By)> TransitionsOf(
         IReadOnlyList<MarkdownTable> tables)
     {
@@ -376,6 +386,8 @@ static class RecordReader
     }
 
     /// <summary>Every named row of every handwritten data table, in order.</summary>
+    /// <param name="tables">The handwritten tables to read data rows from.</param>
+    /// <returns>The Name, Meaning and Classification of every data row, in table order.</returns>
     internal static IReadOnlyList<(string Name, string Meaning, string Classification)> DataOf(
         IReadOnlyList<MarkdownTable> tables)
     {
@@ -416,7 +428,9 @@ static class RecordReader
     ///     header becomes column plus its 1-based position, and a repeated header
     ///     keeps its last value.
     /// </summary>
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> ExamplesOf(MarkdownTable table)
+    /// <param name="table">The handwritten table to read as examples.</param>
+    /// <returns>The example rows of the table, keyed by header.</returns>
+    private static List<IReadOnlyDictionary<string, string>> ExamplesOf(MarkdownTable table)
     {
         var rows = new List<IReadOnlyDictionary<string, string>>();
 
@@ -441,14 +455,24 @@ static class RecordReader
         return rows;
     }
 
+    /// <summary>Tests whether a table is a transitions table, by its From and To columns.</summary>
+    /// <param name="headers">The table headers to test.</param>
+    /// <returns>True when the headers hold both a From and a To column.</returns>
     private static bool IsTransitions(IReadOnlyList<string> headers) =>
         ColumnOf(headers, "from") >= 0 && ColumnOf(headers, "to") >= 0;
 
+    /// <summary>Tests whether a table is a data table, by its Name, Meaning and Classification columns.</summary>
+    /// <param name="headers">The table headers to test.</param>
+    /// <returns>True when the headers hold Name, Meaning and Classification columns.</returns>
     private static bool IsData(IReadOnlyList<string> headers) =>
         ColumnOf(headers, "name") >= 0
         && ColumnOf(headers, "meaning") >= 0
         && ColumnOf(headers, "classification") >= 0;
 
+    /// <summary>Finds one column by its normalized header name.</summary>
+    /// <param name="headers">The table headers to search.</param>
+    /// <param name="target">The normalized column name to find.</param>
+    /// <returns>The 0-based column index, or -1 when no header matches.</returns>
     private static int ColumnOf(IReadOnlyList<string> headers, string target)
     {
         for (var index = 0; index < headers.Count; index++)
@@ -462,14 +486,24 @@ static class RecordReader
         return -1;
     }
 
+    /// <summary>Reads one cell, past the end of a short row.</summary>
+    /// <param name="cells">The row cells.</param>
+    /// <param name="index">The 0-based cell index.</param>
+    /// <returns>The cell text, or empty when the row holds no cell at the index.</returns>
     private static string CellOf(IReadOnlyList<string> cells, int index) =>
         index < cells.Count ? cells[index] : "";
 
     /// <summary>Headers compare case-insensitively, ignoring spaces, dashes and underscores.</summary>
+    /// <param name="value">The header text to normalize.</param>
+    /// <returns>The header lowered, without spaces, dashes, underscores or tabs.</returns>
     private static string Norm(string value) =>
         value.Replace(" ", "").Replace("-", "").Replace("_", "").Replace("\t", "").ToLowerInvariant();
 
     /// <summary>Whether the heading names the scenario by id, title or kebab name.</summary>
+    /// <param name="heading">The heading text above the table.</param>
+    /// <param name="id">The scenario id the heading may name.</param>
+    /// <param name="title">The scenario title the heading may name.</param>
+    /// <returns>True when the heading names the scenario by id, title or kebab name.</returns>
     private static bool HeadingNames(string heading, string id, string title)
     {
         if (heading.Length == 0)
@@ -497,6 +531,9 @@ static class RecordReader
     }
 
     /// <summary>Trimmed text: code ticks stripped, a lone link reduced to its label, or its target for an id.</summary>
+    /// <param name="cell">The raw cell text.</param>
+    /// <param name="preferTarget">Whether a lone link reduces to its target instead of its label.</param>
+    /// <returns>The cleaned cell text.</returns>
     private static string CleanCell(string cell, bool preferTarget)
     {
         var text = cell.Trim();
@@ -519,6 +556,9 @@ static class RecordReader
         return text;
     }
 
+    /// <summary>Splits a lone Markdown link into its label and its target.</summary>
+    /// <param name="text">The cell text to split.</param>
+    /// <returns>The label and target, or null when the text is no lone link ending the cell.</returns>
     private static (string Label, string Target)? LinkOf(string text)
     {
         if (!text.StartsWith('['))
@@ -549,6 +589,9 @@ static class RecordReader
     /// <summary>The From of a transition that creates the instance.</summary>
     public const string Creation = "-";
 
+    /// <summary>Tests whether a cell counts as empty: blank, a dash, or a none marker.</summary>
+    /// <param name="text">The cleaned cell text.</param>
+    /// <returns>True when the cell carries no value.</returns>
     private static bool IsEmptyCell(string text) =>
         text.Length == 0
         || text is "-" or "--" or "—"
@@ -557,6 +600,8 @@ static class RecordReader
         || text.Equals("none.", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Every handwritten Markdown table outside fenced code and generated regions, each with the heading above it.</summary>
+    /// <param name="body">The page body to scan for tables.</param>
+    /// <returns>The handwritten tables in body order, each with the heading above it.</returns>
     internal static IReadOnlyList<MarkdownTable> TablesOf(string body)
     {
         var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
@@ -647,6 +692,9 @@ static class RecordReader
         return tables;
     }
 
+    /// <summary>The text of a Markdown heading line.</summary>
+    /// <param name="trimmed">The trimmed line to read.</param>
+    /// <returns>The heading text without its hashes, or null when the line is no heading.</returns>
     private static string? HeadingText(string trimmed)
     {
         if (!trimmed.StartsWith('#'))
@@ -669,13 +717,21 @@ static class RecordReader
         return trimmed[hashes..].Trim().TrimEnd('#').Trim();
     }
 
-    private static IReadOnlyList<string> Cells(string line)
+    /// <summary>The trimmed cells of one Markdown table row line.</summary>
+    /// <param name="line">The table row line to split.</param>
+    /// <returns>The trimmed cells, or an empty list for a single empty cell.</returns>
+    private static List<string> Cells(string line)
     {
         var cells = line.Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToList();
 
         return cells is [{ Length: 0 }] ? [] : cells;
     }
 
+    /// <summary>A copy of an element with one field added.</summary>
+    /// <param name="element">The element to copy.</param>
+    /// <param name="field">The field name to add.</param>
+    /// <param name="writeValue">The action writing the field value.</param>
+    /// <returns>The copied element carrying the added field.</returns>
     private static JsonElement WithField(JsonElement element, string field, Action<Utf8JsonWriter> writeValue)
     {
         using var stream = new MemoryStream();
@@ -699,6 +755,9 @@ static class RecordReader
         return document.RootElement.Clone();
     }
 
+    /// <summary>Writes transition rows as a JSON array of from, to and by objects.</summary>
+    /// <param name="writer">The JSON writer to write the array into.</param>
+    /// <param name="rows">The transition rows to write.</param>
     private static void WriteTransitions(Utf8JsonWriter writer, IReadOnlyList<(string From, string To, string? By)> rows)
     {
         writer.WriteStartArray();
@@ -720,6 +779,9 @@ static class RecordReader
         writer.WriteEndArray();
     }
 
+    /// <summary>Writes data rows as a JSON array of name, meaning and classification objects.</summary>
+    /// <param name="writer">The JSON writer to write the array into.</param>
+    /// <param name="rows">The data rows to write.</param>
     private static void WriteData(Utf8JsonWriter writer, IReadOnlyList<(string Name, string Meaning, string Classification)> rows)
     {
         writer.WriteStartArray();
@@ -736,6 +798,9 @@ static class RecordReader
         writer.WriteEndArray();
     }
 
+    /// <summary>Writes example rows as a JSON array of objects keyed by header.</summary>
+    /// <param name="writer">The JSON writer to write the array into.</param>
+    /// <param name="rows">The example rows to write.</param>
     private static void WriteExamples(Utf8JsonWriter writer, IReadOnlyList<IReadOnlyDictionary<string, string>> rows)
     {
         writer.WriteStartArray();
@@ -755,6 +820,17 @@ static class RecordReader
         writer.WriteEndArray();
     }
 
+    /// <summary>Builds one record from its element, inheriting page owner, status, decider and decide-by.</summary>
+    /// <param name="element">The written element carrying the record fields.</param>
+    /// <param name="file">The absolute path of the page.</param>
+    /// <param name="line">The 1-based line of the record on its page.</param>
+    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
+    /// <param name="pageId">The id of the carrying page, or null for a page record.</param>
+    /// <param name="pageOwner">The page owner inherited when the record names none.</param>
+    /// <param name="pageStatus">The page status inherited when the record names none.</param>
+    /// <param name="pageDecider">The page decider inherited when the record names none.</param>
+    /// <param name="pageDecideBy">The page decide-by date inherited when the record names none.</param>
+    /// <returns>The built record.</returns>
     private static Record BuildRecord(
         JsonElement element,
         string file,
@@ -789,6 +865,9 @@ static class RecordReader
     ///     grant, and invalid-input for every use case with a validated input. Scenarios and
     ///     tests point at them; they are never written as records.
     /// </summary>
+    /// <param name="records">The written records, appended in place with the derived results.</param>
+    /// <param name="forbiddenCode">The refusal code the derived forbidden results carry.</param>
+    /// <param name="invalidInputCode">The refusal code the derived invalid-input results carry.</param>
     private static void DeriveResults(List<Record> records, string forbiddenCode, string invalidInputCode)
     {
         var taken = records
@@ -831,6 +910,12 @@ static class RecordReader
     }
 
     /// <summary>One derived generic result, carried by its use case's page.</summary>
+    /// <param name="useCase">The use case the derived result belongs to.</param>
+    /// <param name="id">The derived result id.</param>
+    /// <param name="title">The derived result title.</param>
+    /// <param name="meaning">The derived result meaning sentence.</param>
+    /// <param name="code">The refusal code the derived result carries.</param>
+    /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
     private static Record DerivedResult(Record useCase, string id, string title, string meaning, string code)
     {
         var json = JsonSerializer.Serialize(new Dictionary<string, string?>(StringComparer.Ordinal)
@@ -863,6 +948,10 @@ static class RecordReader
         };
     }
 
+    /// <summary>Reads the glossary terms into records, reporting a glossary that is not JSON.</summary>
+    /// <param name="config">The consumer configuration holding the glossary path.</param>
+    /// <param name="records">The records read so far, appended in place.</param>
+    /// <param name="problems">The problems found so far, appended in place.</param>
     private static void ReadTerms(ConsumerConfig config, List<Record> records, List<Finding> problems)
     {
         if (!File.Exists(config.GlossaryPath))
@@ -925,7 +1014,9 @@ static class RecordReader
         }
     }
 
-    private static IReadOnlySet<string> ReadProvisions()
+    /// <summary>Reads the provision ids of the carried LiteSpec release.</summary>
+    /// <returns>The provision ids, or an empty set when no release is found.</returns>
+    private static HashSet<string> ReadProvisions()
     {
         var home = LiteSpecHome.Root;
 
@@ -939,6 +1030,10 @@ static class RecordReader
             StringComparer.Ordinal);
     }
 
+    /// <summary>Reads one optional string field of an element.</summary>
+    /// <param name="element">The element to read.</param>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The field string value, or null when the field is missing or not a string.</returns>
     private static string? StringField(JsonElement element, string name) =>
         element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty(name, out var value)
@@ -947,6 +1042,9 @@ static class RecordReader
             : null;
 
     /// <summary>The 1-based line where the needle first occurs, or 1.</summary>
+    /// <param name="text">The text to search.</param>
+    /// <param name="needle">The text whose first occurrence is located.</param>
+    /// <returns>The 1-based line of the first occurrence, or 1 when the needle does not occur.</returns>
     public static int LineOf(string text, string needle)
     {
         var at = text.IndexOf(needle, StringComparison.Ordinal);

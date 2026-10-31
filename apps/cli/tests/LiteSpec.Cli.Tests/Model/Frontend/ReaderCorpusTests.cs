@@ -12,6 +12,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// </summary>
 public sealed class ReaderCorpusTests
 {
+    /// <summary>Every Corpus Case Matches Its Expected Facts.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
     public void Every_Corpus_Case_Matches_Its_Expected_Facts()
