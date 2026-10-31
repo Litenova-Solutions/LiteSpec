@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+      # A release is prepared on its own branch before it merges, so the branch is checked from its first push.
+      - "v[0-9]*"
   # A pinned action, a pinned Node release, and a validator that reads the clock
   # all change behavior without a commit. A nightly run reports that on the day
   # it happens rather than on the next pull request.

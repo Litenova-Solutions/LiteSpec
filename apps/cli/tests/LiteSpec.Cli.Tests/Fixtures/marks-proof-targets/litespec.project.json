@@ -15,6 +15,7 @@
     "docs": "docs",
     "behaviorDocs": "docs/behavior",
     "glossary": "docs/glossary.json",
+    "testResults": "results",
     "testRoots": [
       "apps/api/tests"
     ],
