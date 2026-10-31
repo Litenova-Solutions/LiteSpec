@@ -6,7 +6,7 @@ The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET
 
 ## How the Pages Fit Together
 
-Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm each project layer, read the first findings, and record a deviation for a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
+Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm each project layer, read the first findings, and record an exception for a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
 
 ## How a Rule Decides to Run
 
@@ -36,11 +36,11 @@ Each diagnostic carries a help link of the form `https://litespec.dev/3.0.0/<pag
 
 A traceability rule reads the records the code marks name. The package adds `litespec.project.json` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
-Severity follows the record the finding is about: a blocking finding is an error and a reported one is a warning. A finding about a draft record reports as a warning, and a finding about a retired record is not reported. While `check.phase` is `frozen`, a finding on a test reports as a warning. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries a deviation record.
+Severity follows the record the finding is about: a blocking finding is an error and a reported one is a warning. A finding about a draft record reports as a warning, and a finding about a retired record is not reported. A finding that an approved exception covers stays silent. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries an exception record.
 
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft or the phase holds proof findings without blocking, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so a draft finding stays a warning while a blocking one fails the build. A project lowers the severity per rule in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so a draft finding stays a warning while a blocking one fails the build. A project lowers the severity per rule in `.editorconfig`:
 
 ```ini
 [*.cs]
@@ -48,7 +48,7 @@ dotnet_diagnostic.LS1011.severity = warning
 dotnet_diagnostic.LS3004.severity = none
 ```
 
-When a project departs from the enforced Standard, it records a deviation that cites the provision, rather than suppressing the diagnostic silently.
+When a project departs from the enforced Standard, it records an exception that covers the provision, rather than suppressing the diagnostic silently.
 
 The package targets `netstandard2.0` and needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. Older compilers cannot load the analyzers.
 
@@ -104,5 +104,5 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 
 ## Pages in This Section
 
-- [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a deviation allows it.
+- [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where an exception allows it.
 - [Analyzer rules overview](rules/README.md): find the reference page for each of the 46 rules, grouped by layer.

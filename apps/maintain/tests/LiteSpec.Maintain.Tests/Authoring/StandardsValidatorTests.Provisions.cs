@@ -70,10 +70,64 @@ public sealed partial class StandardsValidatorTests
         ["VERIFY_MISSING_ID"]);
 
     /// <proves>litespec/core/authoring#place-the-id-under-every-provision-heading</proves>
-    [Fact(DisplayName = "wrong ID line")]
+    [Fact(DisplayName = "ID line naming another page")]
     public void WrongIdLine() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`", "**ID:** `litespec/core/topic#keep-the-topic-boundary`")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`", "**ID:** `litespec/core/other#keep-the-topic-bounded`")),
         ["ID_LINE_MISMATCH"]);
+
+    /// <proves>litespec/core/authoring#place-the-id-under-every-provision-heading</proves>
+    [Fact(DisplayName = "ID line outside the identifier grammar")]
+    public void MalformedIdLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`", "**ID:** `not-an-id`")),
+        ["ID_LINE_MISMATCH"]);
+
+    /// <proves>litespec/core/authoring#place-the-id-under-every-provision-heading</proves>
+    [Fact(DisplayName = "heading reworded above a kept ID")]
+    public void HeadingRewordedAboveKeptId() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "### Keep the Topic Bounded", "### Keep the Topic Inside Its Boundary"));
+            Directory.Delete(Path.Combine(root, "docs", "reference"), true);
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#name-the-owning-page-in-the-identifier</proves>
+    [Fact(DisplayName = "duplicate ID line on one page")]
+    public void DuplicateStatedId() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Conventions", "### Keep the Topic Narrow\n\n**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n**Statement:** Consumers MUST keep the topic narrow enough to review.\n\n**Rationale:** A narrow topic is reviewable.\n\n**Checked by:** `litespec-maintain validate` confirms the topic is narrow.\n\n## Conventions")),
+        ["ID_DUPLICATE"]);
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "released ID gone without a changelog record")]
+    public void RemovedProvisionUnrecorded() => Check(
+        null,
+        ["ID_REMOVED_UNRECORDED"],
+        [],
+        new HashSet<string>(StringComparer.Ordinal) { "litespec/core/topic#vanished-rule" });
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "released ID gone with a removal record")]
+    public void RemovedProvisionRecorded() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | removed |\n"),
+        [],
+        [],
+        new HashSet<string>(StringComparer.Ordinal) { "litespec/core/topic#vanished-rule" });
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "released ID gone with a rename record")]
+    public void RenamedProvisionRecorded() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | `litespec/core/topic#keep-the-topic-bounded` |\n"),
+        [],
+        [],
+        new HashSet<string>(StringComparer.Ordinal) { "litespec/core/topic#vanished-rule" });
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "released ID recorded under an older release")]
+    public void RemovedProvisionRecordedUnderOlderRelease() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Layers\n\n- Nothing removed.\n\n## v2.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | removed |\n"),
+        ["ID_REMOVED_UNRECORDED"],
+        [],
+        new HashSet<string>(StringComparer.Ordinal) { "litespec/core/topic#vanished-rule" });
 
     /// <proves>litespec/core/authoring#place-the-id-under-every-provision-heading</proves>
     [Fact(DisplayName = "missing ID line")]

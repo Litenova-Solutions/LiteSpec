@@ -164,6 +164,32 @@ public sealed class MarkReaderTests
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "An attribute qualified with another namespace reads no marks")]
+    public void DomainQualifiedAttributeReadsNone()
+    {
+        foreach (var code in new[]
+        {
+            """
+            [Spending.Implements("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler;
+            """,
+            """
+            [Spending.Follows("decision/0002-store-expenses-as-documents")]
+            internal sealed class ExpenseRepository;
+            """,
+            """
+            [global::Spending.ImplementsAttribute("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler;
+            """,
+        })
+        {
+            var member = TestTrees.First<ClassDeclarationSyntax>(code);
+
+            Assert.Empty(MarkReader.Read(member));
+        }
+    }
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An unclosed tag reads as a mark with an empty id")]
     public void UnclosedTagReadsAsEmptyMark()
     {

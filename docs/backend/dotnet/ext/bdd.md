@@ -37,7 +37,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A scenario costs maintenance on every behavior change, so the suite earns its keep only where business-language form improves shared understanding of cross-layer behavior. Each selected scenario gives product, domain, engineering, and testing discussions one executable example instead of four retellings.
 
-**Reviewed for:** Every BDD scenario in the acceptance suite traces to a cross-layer example the team discusses in business language.
+**Reviewed for:** Which BDD scenarios trace to no cross-layer example the team discusses in business language? Look at each BDD scenario in the acceptance suite.
 
 ### Avoid Routine Scenario Duplication
 
@@ -47,7 +47,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A unit test fails at the exact rule and runs in milliseconds; the same test duplicated as a BDD scenario fails at a public boundary after a full setup. Duplication slows the suite and moves the failure away from its cause, so routine behavior stays in its narrower tests.
 
-**Reviewed for:** Unit and validation tests in the narrower suites have no duplicate BDD scenario in the acceptance suite.
+**Reviewed for:** Which unit or validation tests repeat as a duplicate BDD scenario? Look at the narrower suites beside the acceptance suite.
 
 ### Prove a Scenario from Every BDD Scenario
 
@@ -59,7 +59,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Example:** `/// <proves>scenario/cancel-order.canceling-twice-is-refused</proves>` traces a cancellation BDD scenario to its scenario record.
 
-**Reviewed for:** Every BDD scenario in the acceptance suite carries one `proves` claim naming a scenario record.
+**Reviewed for:** Which BDD scenarios lack one `proves` claim naming their scenario? Look at each BDD scenario in the acceptance suite.
 
 ### Drive Public Behavior
 
@@ -69,7 +69,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A step that calls the HTTP API or another declared public boundary proves what a caller can observe. A step that reaches past the boundary depends on implementation details, so a refactoring breaks the scenario without breaking the behavior.
 
-**Reviewed for:** Every step definition in the acceptance suite calls the HTTP API or another declared public boundary.
+**Reviewed for:** Which step definitions call outside the HTTP API and the declared public boundaries? Look at each step definition in the acceptance suite.
 
 ### Assert Observable Outcomes
 
@@ -79,7 +79,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A scenario that runs requests without asserting proves only that nothing threw. Asserting a response, a later read, a durable event, an audit record, or another observable outcome shows the public boundary achieved the expected behavior.
 
-**Reviewed for:** Every BDD scenario in the acceptance suite asserts a response, read, event, record, or other observable outcome.
+**Reviewed for:** Which BDD scenarios assert no response, read, event, record, or other observable outcome? Look at each BDD scenario in the acceptance suite.
 
 ### Limit Database Assertions
 
@@ -89,7 +89,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** The database is an implementation detail, so asserting its rows couples the scenario to storage shapes. A direct assertion is allowed only for a documented durable boundary, such as an outbox record, where the stored row is itself the promised evidence.
 
-**Reviewed for:** Every direct database assertion in the acceptance suite names its documented durable boundary.
+**Reviewed for:** Which direct database assertions name no documented durable boundary? Look at each direct database assertion in the acceptance suite.
 
 ### Own Scenario Data
 
@@ -99,7 +99,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A scenario that borrows identifiers or state prepared elsewhere breaks when that other setup changes. Owning its identifiers, actor context, requests, responses, and expected state keeps each scenario self-contained and runnable alone.
 
-**Reviewed for:** Every BDD scenario in the acceptance suite declares its own identifiers, actor context, requests, responses, and expected state.
+**Reviewed for:** Which BDD scenarios borrow identifiers, actor context, requests, responses, or expected state? Look at each BDD scenario in the acceptance suite.
 
 ### Isolate Scenario Execution
 
@@ -109,7 +109,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** State left by one scenario becomes a hidden precondition of the next, and the suite passes only in one order. Resetting database state between scenarios removes that coupling, so any scenario runs alone or in any order.
 
-**Reviewed for:** The acceptance suite resets database state between scenarios, and every scenario passes alone and in any order.
+**Reviewed for:** Which scenarios fail alone or in another order, or which runs skip the state reset? Look at the acceptance suite runs.
 
 ### Translate Business Phrases
 
@@ -119,7 +119,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** HTTP calls, JSON shapes, and assertion mechanics in a step definition hide the business phrase the scenario promises. Translating each phrase into a typed test-driver call keeps the scenario readable while the driver owns the boundary mechanics.
 
-**Reviewed for:** Every step definition in the acceptance suite delegates to a typed test-driver call.
+**Reviewed for:** Which step definitions skip the typed test-driver call? Look at each step definition in the acceptance suite.
 
 ### Exclude Production Internals
 
@@ -129,7 +129,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** Resolving a repository, handler, session, or the production service provider runs the behavior without the boundary the scenario claims to verify. The scenario then passes while the public path stays untested, so step definitions resolve none of them.
 
-**Reviewed for:** No step definition in the acceptance suite resolves a repository, handler, session, or the production service provider.
+**Reviewed for:** Which step definitions resolve a repository, handler, session, or the production service provider? Look at each step definition in the acceptance suite.
 
 ### Preserve Scenario Failures
 
@@ -139,7 +139,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** Setup and cleanup are asynchronous, and an unawaited hook leaves the next scenario running against a half-reset database. A hook that throws during cleanup can also replace the scenario's own failure, hiding the real cause. Awaiting both without replacing the original failure keeps the evidence trustworthy.
 
-**Reviewed for:** Every hook in the acceptance suite awaits setup and cleanup and keeps the original scenario failure.
+**Reviewed for:** Which hooks skip awaiting setup or cleanup, or replace the original scenario failure? Look at each hook in the acceptance suite.
 
 ## Conventions
 
@@ -153,7 +153,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A scenario filed by business module sits beside the vocabulary it exercises, so a reader finds every example of one module in one folder. A flat or technically grouped suite scatters them.
 
-**Reviewed for:** Feature files or feature classes in `Acceptance.Tests` sit under module folders, or the project documentation names another grouping.
+**Reviewed for:** Which feature files or feature classes sit outside module folders without a documented grouping? Look at `Acceptance.Tests` beside the project documentation.
 
 ### Keep Steps Vocabulary-Scoped
 
@@ -165,7 +165,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A step reused across vocabularies, such as a generic success step, means something subtly different in each place and couples unrelated modules to one definition. Steps narrow to one business vocabulary keep their meaning exact.
 
-**Reviewed for:** Every reusable step set in the acceptance suite serves one business vocabulary, or the project documentation names another scope.
+**Reviewed for:** Which reusable step sets serve more than one business vocabulary without a documented scope? Look at each reusable step set beside the project documentation.
 
 ### Limit Scenario Context
 
@@ -177,7 +177,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** One context object holding the scenario's own values keeps shared state visible and small. Resolving services from it turns it into a service locator that hides what the scenario depends on.
 
-**Reviewed for:** The scenario context object in the acceptance suite holds scenario state only, or the project documentation names another use.
+**Reviewed for:** Which scenario context objects hold more than scenario state without a documented use? Look at the scenario context beside the project documentation.
 
 ### Mark Pull-Request Scenarios
 
@@ -189,7 +189,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** The `@critical` tag, or the LightBDD critical trait, selects the small subset whose failure stops a release, for fast pull-request feedback. The marking stays separate from the proves claim, which records scenario proof rather than release gating. A marking that every scenario carries selects nothing, so the subset keeps a stated size bound and an owner who keeps it there.
 
-**Reviewed for:** The pull-request subset in the acceptance suite stays small and owned, marked separately from proves claims.
+**Reviewed for:** Which pull-request subsets grow beyond their stated bound or lose their owner? Look at the marked subset beside the proves claims.
 
 ## Dependencies
 

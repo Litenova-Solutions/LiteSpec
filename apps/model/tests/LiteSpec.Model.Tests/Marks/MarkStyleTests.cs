@@ -33,6 +33,13 @@ public sealed class MarkStyleTests
         Assert.Throws<ArgumentException>(() => MarkStyleParser.Parse("yaml"));
 
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    [Theory(DisplayName = "Parse rejects the fixed styles of the other languages")]
+    [InlineData("typed")]
+    [InlineData("comment")]
+    public void ParseRejectsFixedStyles(string value) =>
+        Assert.Throws<ArgumentException>(() => MarkStyleParser.Parse(value));
+
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "TryParse reads both styles")]
     public void TryParseReadsBothStyles()
     {
@@ -64,7 +71,24 @@ public sealed class MarkStyleTests
     }
 
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    [Fact(DisplayName = "ToProjectValue writes the fixed styles of the other languages")]
+    public void ToProjectValueWritesFixedStyles()
+    {
+        Assert.Equal("typed", MarkStyle.Typed.ToProjectValue());
+        Assert.Equal("comment", MarkStyle.Comment.ToProjectValue());
+    }
+
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact(DisplayName = "ToProjectValue rejects an unknown style")]
     public void ToProjectValueRejectsUnknown() =>
         Assert.Throws<ArgumentOutOfRangeException>(() => ((MarkStyle)99).ToProjectValue());
+
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    [Theory(DisplayName = "IsCSharp holds only for the declared C# styles")]
+    [InlineData(MarkStyle.Xml, true)]
+    [InlineData(MarkStyle.Attribute, true)]
+    [InlineData(MarkStyle.Typed, false)]
+    [InlineData(MarkStyle.Comment, false)]
+    public void IsCSharpHoldsOnlyForCSharpStyles(MarkStyle style, bool expected) =>
+        Assert.Equal(expected, style.IsCSharp());
 }

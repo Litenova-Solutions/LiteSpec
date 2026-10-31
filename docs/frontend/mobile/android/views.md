@@ -20,7 +20,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Rationale:** One activity gives the app one lifecycle owner and one place where navigation state lives. Screens raise events instead of navigating, so the controller answers each event from the full history it holds. This realizes `litespec/frontend/mobile/screens#own-navigation-in-one-controller` for Android.
 
-**Reviewed for:** The app holds one activity, with navigation state owned by its controller.
+**Reviewed for:** Which apps host screens outside the one activity, or hold navigation state outside its controller? Look in the activities and the controller.
 
 ### Build Views in Code or Layout Resources, Not Both
 
@@ -30,7 +30,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Rationale:** Two approaches in one app force every reader to learn both and every change to guess which one the next screen uses. Code-built views keep logic and layout in one language, while layout resources keep structure in XML the tooling previews. One approach per app keeps every screen readable the same way.
 
-**Reviewed for:** Each screen builds in C# code or from a layout resource, with one approach across the app.
+**Reviewed for:** Which screens mix C# code and layout resources, or break the one approach across the app? Look in the screen implementations.
 
 ### Keep Text, Colors, and Icons in Resources
 
@@ -40,7 +40,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Rationale:** A language becomes a resource folder when every string lives in `strings.xml`, with no code change per locale. A palette change becomes one file when every color and icon lives in color and drawable resources. Hard-coded text and colors scatter both across screens, so each translation or rebrand hunts them down.
 
-**Reviewed for:** User-visible text resolves to `strings.xml` entries, with colors and icons in color and drawable resources.
+**Reviewed for:** Which user-visible text, colors, or icons sit outside `strings.xml`, color, or drawable resources? Look in the screens and the resources.
 
 ### Use the Android Back Dispatcher
 
@@ -50,7 +50,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Rationale:** The dispatcher is the one entry the system back gesture reaches, so handling it there keeps overlays, screens, and the app exit in one order. Routing each press to the navigation controller keeps the decision with the history it owns. This realizes `litespec/frontend/mobile/screens#follow-the-system-back-gesture` for Android.
 
-**Reviewed for:** Back handling routes through the API-level dispatcher to the navigation controller.
+**Reviewed for:** Which back handling bypasses the API-level dispatcher or the navigation controller? Look in the back handling.
 
 ### Apply Insets from WindowInsets
 
@@ -60,7 +60,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Rationale:** Edge-to-edge drawing puts content under the system bars, so each view offsets its controls and text by the insets the platform reports. Reading them from `WindowInsets` tracks bars, cutouts, and keyboards as they change. This realizes `litespec/frontend/mobile/screens#draw-edge-to-edge-with-insets` for Android.
 
-**Reviewed for:** Views apply system bar and cutout insets from `WindowInsets` as padding or margins.
+**Reviewed for:** Which views miss system bar or cutout insets from `WindowInsets` as padding or margins? Look in the view layouts.
 
 ## Conventions
 
@@ -87,4 +87,4 @@ internal sealed class PosterView : View
 }
 ```
 
-**Reviewed for:** SDK types in the `.Android` root resolve through `using` directives or `global::Android`.
+**Reviewed for:** Which SDK types in the `.Android` root resolve through a bare `Android.` prefix instead of `using` directives or `global::Android`? Look in the `.Android` sources.

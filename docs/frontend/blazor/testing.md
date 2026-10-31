@@ -30,7 +30,7 @@ tests/
   {ProjectName}.EndToEnd.Tests/        real browser flows
 ```
 
-**Reviewed for:** The client solution holds Domain, Application, Web, and end-to-end test projects that run in CI.
+**Reviewed for:** Which client solutions miss a Domain, Application, Web, or end-to-end test project, or skip one in CI? Look in the client solution tree and the CI jobs.
 
 ### Prove Each Scenario with a Test
 
@@ -40,7 +40,7 @@ tests/
 
 **Rationale:** A test that calls the use case and asserts the result proves the specification still holds after every change. The link between scenario and test is computed from the test, so it cannot claim coverage it lacks. A scenario no test proves becomes a gap exception with an owner and an expiry date, which keeps the gap visible and assigned instead of forgotten. This realizes `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`, `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`, and `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`.
 
-**Reviewed for:** Each scenario has a test whose steps call the use case and assert the result.
+**Reviewed for:** Which scenarios have no test calling the use case and asserting the result? Look in the tests beside the use cases.
 
 ### Test the Core Without a Browser
 
@@ -50,7 +50,7 @@ tests/
 
 **Rationale:** Domain and Application hold no browser types, so their tests need no browser, JavaScript host, or storage. A core test that needs an interop substitute proves the layering already broke: the production code reaches past its boundary. The fix belongs in the layering, not in the test setup. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** No Domain or Application test project references a browser or interop type.
+**Reviewed for:** Which Domain or Application test projects reference a browser or interop type? Look in the core test projects.
 
 ### Replace Interop in Component Tests
 
@@ -60,7 +60,7 @@ tests/
 
 **Rationale:** A component test substitutes every Application interface, including interop, so the component renders with no browser and the test asserts on user-visible output rather than markup structure. Coverage includes keyboard interaction and each declared route state, because those are the behaviors a component owns. Starting a real browser here would make the suite slow without proving more. This realizes litespec/frontend/testing#keep-mocks-at-owned-boundaries and litespec/frontend/testing#test-observable-states.
 
-**Reviewed for:** Each component render substitutes every Application interface.
+**Reviewed for:** Which component renders leave an Application interface unsubstituted? Look in the component tests.
 
 ### Verify Real Browser Behavior End to End
 
@@ -70,7 +70,7 @@ tests/
 
 **Rationale:** The primary release flow, startup with storage unavailable, offline startup, and export followed by import are the paths where a product with no server loses user work. None of them can run without a real browser: storage denial, offline caches, and file download are browser behaviors. A suite that skips them leaves the riskiest paths unproved. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** The browser suite covers the primary flow, storage loss, offline startup, and export with import.
+**Reviewed for:** Which browser suites miss the primary flow, storage loss, offline startup, or export with import? Look in the browser suite.
 
 ### Enforce the First-Load Budget
 
@@ -80,7 +80,7 @@ tests/
 
 **Rationale:** The framework payload is what the visitor waits for, and only compressed transfer size measures that wait; directory size does not. The measurement names the tool that produced it and the compression it applied, because two tools reporting different numbers for one payload make a budget unreviewable. A published size-limit tool holding the budget in its configuration is the baseline. A project-owned script recording the same two facts is equally valid.
 
-**Reviewed for:** The CI publish job fails when transfer size exceeds the recorded budget.
+**Reviewed for:** Which CI publish jobs pass above the recorded transfer size budget? Look in the publish job and the recorded budget.
 
 ## Conventions
 
@@ -94,7 +94,7 @@ tests/
 
 **Rationale:** A feature that depends on a browser capability meets browsers that lack it. Testing both paths proves the supported behavior and the guidance the unsupported browser shows. The unsupported path asserts user-facing guidance, because a silent absence of behavior reads as a broken page.
 
-**Reviewed for:** Each capability-dependent feature tests its supported and unsupported paths.
+**Reviewed for:** Which capability-dependent features test only one path? Look in the feature tests.
 
 ### Keep End-to-End Tests Few
 
@@ -106,4 +106,4 @@ tests/
 
 **Rationale:** Browser tests are slow and share one deployment, so each one costs the whole suite's runtime. The required flows and scenario-named interactions earn that cost; everything else runs faster and more precisely as a component or core test. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Each browser test maps to a required flow or a scenario-named interaction.
+**Reviewed for:** Which browser tests map to neither a required flow nor a scenario-named interaction? Look in the browser suite.

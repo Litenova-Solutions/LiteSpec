@@ -22,7 +22,7 @@ Every version resolves through central package management or the committed lockf
 
 **Statement:** A project reference MUST follow the graph in the table in this section and add no other edge.
 
-**Rationale:** An undeclared reference lets a layer reach past its boundary, and review has no ground to refuse what no graph forbids. The table names every permitted edge, so composition stays in the hosts and each project names only the layers its job needs. This provision states the .NET form of `litespec/workspace/dependencies#follow-the-declared-dependency-graph`.
+**Rationale:** An undeclared reference lets a layer reach past its boundary, and review has no ground to refuse what no graph forbids. The table names every permitted edge, so composition stays in the hosts and each project names only the layers its job needs. A small project merged under `litespec/backend/dotnet/architecture#use-five-application-projects` has no Application.Abstractions row; its remaining rows still bind. This provision states the .NET form of `litespec/workspace/dependencies#follow-the-declared-dependency-graph`.
 
 **Example:**
 
@@ -39,7 +39,7 @@ Every version resolves through central package management or the committed lockf
 
 `WebApi` references Infrastructure for composition in `Program.cs`. Endpoint implementations take their dependencies from Application abstractions, not from Infrastructure repositories, sessions, or provider clients.
 
-**Reviewed for:** Each project file's references match the permitted edges of the graph table, with no added edge.
+**Reviewed for:** Which project files add a reference outside the permitted edges of the graph table? Look at each project file beside the graph table.
 
 ### Keep Domain Package-Free
 
@@ -49,7 +49,7 @@ Every version resolves through central package management or the committed lockf
 
 **Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, EF Core, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
 
-**Reviewed for:** The Domain project file references no package beyond the base class library.
+**Reviewed for:** Which Domain project files reference a package beyond the base class library? Look at the Domain project file.
 
 ### Keep Application Dependencies Narrow
 
@@ -59,7 +59,7 @@ Every version resolves through central package management or the committed lockf
 
 **Rationale:** Application coordinates; Infrastructure hides technology. A provider package in Application makes the coordination layer depend on the technology it was meant to stay free of. The Statement names the one permitted read boundary; everything else provider-shaped stays out. This provision states the .NET form of `litespec/workspace/dependencies#keep-application-free-of-provider-packages`.
 
-**Reviewed for:** The Application project file references only the permitted abstractions and the one read boundary.
+**Reviewed for:** Which Application project files reference beyond the permitted abstractions and the one read boundary? Look at the Application project file.
 
 ### Pin Every Dependency Centrally
 
@@ -73,7 +73,7 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 
 **Example:** A consumer generating invoices pins its PDF library in `Directory.Packages.props` with a decision record. The manifest does not name it, and the pin is still central.
 
-**Reviewed for:** Every project file names packages without versions; each version resolves through central management or the lockfile at the manifest or consumer pin.
+**Reviewed for:** Which project files carry versions, or resolve outside central management or the lockfile? Look at each project file beside the central pins.
 
 ## Conventions
 
@@ -87,7 +87,7 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 
 **Rationale:** A unified bus package pulls contracts for commands, queries, and events into a layer that dispatches only some of them. Referencing only the module the code uses keeps each layer's dispatch surface exact.
 
-**Reviewed for:** Each project file references only the LiteBus modules its code dispatches.
+**Reviewed for:** Which project files reference a LiteBus module their code never dispatches? Look at each project file.
 
 ### Use This Baseline Package Ownership
 
@@ -121,7 +121,7 @@ Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The cons
 
 The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates.
 
-**Reviewed for:** Each baseline package reference sits in the project the ownership table assigns.
+**Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
 
 ### Run LiteSpec.Analyzers in Every Application Project
 
@@ -141,7 +141,7 @@ The example adds a package to the narrowest owning project. A central version en
 </ItemGroup>
 ```
 
-**Reviewed for:** Each of the five application project files references `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`.
+**Reviewed for:** Which application project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each application project file.
 
 ### Raise the LiteBus Handler Analyzers to Errors
 
@@ -162,7 +162,7 @@ litebus.LB1024.forbidden_types = Claimwick.Infrastructure.Payout.PayoutBankClien
 litespec.LS2016.pipeline_owned_types = Claimwick.Infrastructure.Uniqueness.ExpenseKeyClaims
 ```
 
-**Reviewed for:** `.editorconfig` sets `LB1023` and `LB1024` to error and lists `litebus.LB1024.forbidden_types`.
+**Reviewed for:** Does `.editorconfig` set `LB1023` and `LB1024` to error and list `litebus.LB1024.forbidden_types`? Look at `.editorconfig`.
 
 ## Reference Example
 

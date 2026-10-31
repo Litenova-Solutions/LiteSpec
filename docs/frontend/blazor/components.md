@@ -20,7 +20,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A rule inside a component runs only inside a rendered page, so no unit test reaches it and no second caller reuses it. A browser call inside a component ties every test of that component to a browser host. When components only show values and report interaction, rendering stays cheap and testable.
 
-**Reviewed for:** No component resolves storage, interop, or a Domain service.
+**Reviewed for:** Which components resolve storage, interop, or a Domain service? Look in the component sources.
 
 ### Declare Every Parameter Type
 
@@ -30,7 +30,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A typed parameter states the component's contract at its boundary, so a wrong call fails at compile time. A loosely typed bag of values hides that contract until the component runs. A Domain aggregate as a parameter couples rendering to the core model, so a domain change ripples into every view that names it. This realizes litespec/frontend/components#keep-component-inputs-narrow.
 
-**Reviewed for:** Each component parameter declares a feature-owned concrete type.
+**Reviewed for:** Which component parameters lack a feature-owned concrete type? Look in the component declarations.
 
 ### Raise Events Rather Than Mutating
 
@@ -40,7 +40,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A callback names the relationship between child and parent in the markup: the child reports, the parent decides. Mutating a parent-owned object or writing to a shared store hides that relationship, so a reader cannot tell which component changed the value or when.
 
-**Reviewed for:** Each child component reports upward through a callback parameter.
+**Reviewed for:** Which child components mutate a parent-owned object instead of reporting through a callback parameter? Look in the child component sources.
 
 ### Own the Layer Contract
 
@@ -50,7 +50,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** Each layer mirrors the shape it needs so a change in one layer does not ripple into the others, as `litespec/backend/architecture#own-each-layers-contract-types` requires. A view model that names a Domain aggregate or an Application result breaks that isolation: the view then compiles against the core model and breaks with it. Shared-kernel typed identifiers and value objects are the one sanctioned crossing. This rule pairs with `litespec/frontend/blazor/structure#keep-domain-free-of-browser-concerns`: that rule stops Domain from naming browser types, and this rule stops the view from naming Domain types. Both are needed, because a view model can name an aggregate even when Domain names no component.
 
-**Reviewed for:** No view model exposes a Domain or Application type.
+**Reviewed for:** Which view models expose a Domain aggregate, Domain closed set, or Application result? Look in the feature view models.
 
 ### Resolve Browser Behavior Through an Interface
 
@@ -60,7 +60,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A component that injects the interop runtime directly runs only where a JavaScript host exists, so its tests need a browser. Resolving browser behavior through an Application-owned interface lets a test substitute a double and assert what the component renders for each answer the browser could give.
 
-**Reviewed for:** No component injects the interop runtime directly.
+**Reviewed for:** Which components inject the interop runtime directly instead of an Application-owned interface? Look in the component injections.
 
 ### Place One Component per File
 
@@ -70,7 +70,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** One component per file named for what it renders makes each component findable by name. A file holding several components hides all but the first from search and review. Logic beyond trivial rendering moves to a code-behind partial class, so the markup stays readable.
 
-**Reviewed for:** Each `.razor` file declares one routable or reusable component.
+**Reviewed for:** Which `.razor` files declare zero or several components? Look in the `.razor` files.
 
 ### Keep Accessibility in the Component
 
@@ -80,7 +80,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** Only the component knows which element should receive focus, which keys it answers, and what a screen reader should announce. A page composing the component cannot supply any of that. When the component owns focus, keyboard interaction, labeling, and announcements, every page that composes it is accessible without extra work. This realizes litespec/frontend/components#support-keyboard-focus-labels-and-announcements.
 
-**Reviewed for:** Keyboard paths, focus, labels, and announcements work in each interactive component.
+**Reviewed for:** Which interactive components break a keyboard path, focus, label, or announcement? Look in the component tests.
 
 ## Conventions
 
@@ -94,7 +94,7 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A role suffix tells a reader what the component renders before opening it: a form, a summary, a list, or a card. A shared primitive takes the primitive's name instead, because naming it for the first feature that needed it hides it from the second. This realizes litespec/frontend/components#name-components-for-their-role.
 
-**Reviewed for:** Each feature component name matches its rendered role.
+**Reviewed for:** Which feature component names mismatch their rendered role? Look in the feature folders.
 
 ### Apply One Styling System
 
@@ -106,4 +106,4 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** One styling system with tokens defined once makes a restyle a token edit rather than a search through components. A hard-coded color, spacing value, or font size duplicates a token, and the two drift apart on the next design change. This realizes litespec/frontend/components#use-declared-visual-variants.
 
-**Reviewed for:** Each color, spacing, and font value is a defined token.
+**Reviewed for:** Which color, spacing, or font values are hard-coded instead of defined tokens? Look in the component styles.

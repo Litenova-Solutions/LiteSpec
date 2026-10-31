@@ -32,7 +32,7 @@ Every edge between use cases, automations, notifications, integration events, an
 
 **Rationale:** One use-case folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and pipeline-read values. Grouping by technical type scatters one use case across the project, so a change touches six folders and review misses one. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`. Pipeline-read values are declared beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
 
-**Reviewed for:** Each command or query owns one use-case folder under its module holding its message, result, validator, handler, mapping, and pipeline-read values.
+**Reviewed for:** Which commands or queries lack one use-case folder under their module with message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
 
 ### Dispatch Commands and Queries Through Separate Entry Points
 
@@ -44,7 +44,7 @@ Every edge between use cases, automations, notifications, integration events, an
 
 The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records an exception against the binding convention rather than touching this rule.
 
-**Reviewed for:** Each dispatch site calls the command entry point or the query entry point, with no unified bus.
+**Reviewed for:** Which dispatch sites call a unified bus instead of the command or query entry point? Look at each dispatch site.
 
 ### Separate Input Validation from Invariants
 
@@ -58,7 +58,7 @@ The rule states the property rather than the package. Each stack binding pins on
 
 Whether the expense above the threshold carries a receipt is an aggregate state decision, so the validator leaves it to Domain. Domain rejects an expense above the threshold that carries no receipt with `result/submit-expense.receipt-missing`, which carries the stable code `spending.receipt-missing`.
 
-**Reviewed for:** Each validator checks structural input only, leaving aggregate state decisions to Domain.
+**Reviewed for:** Which validators check aggregate state instead of structural input only? Look at each validator body.
 
 ### Report Input Problems as Validity Findings
 
@@ -79,7 +79,7 @@ Whether the expense above the threshold carries a receipt is an aggregate state 
 
 The caller learns the whole form in one answer, and the pipeline refuses the request before Domain runs.
 
-**Reviewed for:** Each validator reports validity findings with member, code, and message per finding, and no transport status.
+**Reviewed for:** Which validators report outside validity findings, or skip member, code, or message, or leak transport status? Look at the findings each validator reports.
 
 ### Model Expected Use-Case Refusals Explicitly
 
@@ -91,7 +91,7 @@ The caller learns the whole form in one answer, and the pipeline refuses the req
 
 The use case lists every result it returns, and each refusal result carries its code. Generic refusals are derived, never written: a use case whose grant is a permission derives its `forbidden` result, and a use case with rules on its input derives its `invalid-input` result. A conflict refuses the same input the same way until the caller rereads the resource and retries with current state. A refusal that a blind retry can pass is transient and belongs to the [integrations extension](../ext/integrations.md).
 
-**Reviewed for:** Each expected refusal carries its result code and a caller-safe message, with no transport status.
+**Reviewed for:** Which expected refusals miss their result code or caller-safe message, or leak transport status? Look at each refusal.
 
 ### Enforce Target Authorization in the Pipeline
 
@@ -123,7 +123,7 @@ WebApi enforces coarse authenticated, role, or scope policies first under `lites
 
 The handler loads or creates, calls once, stages, and returns. Validation, authorization, idempotency, audit, the timestamp, holds, commit, and fault classification belong to their owners, so none appears in the handler.
 
-**Reviewed for:** Each command handler loads or creates one aggregate, calls one method, stages it, and returns, with pipeline stages owning the rest.
+**Reviewed for:** Which command handlers do more than load or create one aggregate, call one method, stage it, and return? Look at each command handler body.
 
 ### Take Repositories from Declared Changes and Reads
 
@@ -135,7 +135,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** The `approve-expense` handler takes the expense repository and no other; staging a second aggregate fails the check unless the record declares `consistency: atomic` over both.
 
-**Reviewed for:** Each command handler takes one repository per aggregate its `changes` names, with no write outside `changes`.
+**Reviewed for:** Which command handlers write an aggregate outside their record's `changes`, or take more than one repository per named aggregate? Look at each handler beside its record's `changes`.
 
 ### Implement One Outcome Path per Command
 
@@ -159,7 +159,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** A handler that returns a code its record never lists fails the check, even when the code is spelled correctly.
 
-**Reviewed for:** Each handler returns only declared results, refusals, and codes.
+**Reviewed for:** Which handlers return a result, refusal, or code their use-case record never declares? Look at each return beside the record's results.
 
 ### Project Queries Directly
 
@@ -181,7 +181,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** The list-expenses query projects its rows and stages nothing.
 
-**Reviewed for:** Each query handler stages, stores, deletes, or dispatches nothing.
+**Reviewed for:** Which query handlers stage, store, delete, or dispatch? Look at each query handler body.
 
 ### Shape Query Results from Declared Output
 
@@ -193,7 +193,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** The expense-list result carries its `rows` group with the declared fields, freshness, and visibility.
 
-**Reviewed for:** Each query result type carries the declared `include` groups with their fields, freshness, and visibility.
+**Reviewed for:** Which query result types miss a declared `include` group, field, freshness, or visibility? Look at each result type beside its record's `output`.
 
 ### Mirror a Domain Closed Set in the Result
 
@@ -205,7 +205,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** A refund outcome result carries one case per Domain case with its data: pending, succeeded, failed, and reversed.
 
-**Reviewed for:** Each result carrying a Domain closed set models it with the same shape and cases.
+**Reviewed for:** Which results carrying a Domain closed set flatten its shape or drop a case? Look at each such result beside its Domain set.
 
 ### Record a Decision for Closed-Set Narrowing
 
@@ -215,7 +215,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Rationale:** Narrowing silently drops cases the Domain can produce, so a caller meeting a dropped case gets a shape the contract left undescribed. A recorded decision with an updated specification makes the dropped cases visible and owned. The decision and the specification follow `litespec/core/model#keep-one-owner-and-status-on-every-record`.
 
-**Reviewed for:** Each narrowed closed set names its recorded decision and updated specification.
+**Reviewed for:** Which narrowed closed sets lack a recorded decision and updated specification? Look at each narrowed set beside the decision records.
 
 ### Define Narrow External Ports
 
@@ -225,7 +225,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Rationale:** A port is the seam where a provider change stops: one method or one purpose, named as a noun for the capability (`PostArchive`) or a verb for the act (`ArchivePosts`), typed with project-owned types. If provider names or transport models entered the interface, replacing the provider would rewrite Application. Keeping them in Infrastructure confines the change to the adapter.
 
-**Reviewed for:** Each external port is a public interface with a noun or verb name, one method or one purpose, and project-owned types.
+**Reviewed for:** Which external ports escape the public interface with a noun or verb name, one method or one purpose, and project-owned types? Look at each port declaration.
 
 ### Declare a Port Where Its Consumers Meet
 
@@ -237,7 +237,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 You review a port declared beside its aggregate with that aggregate's specification. Nobody reviews a port in a project-wide folder. Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates. That module is the one whose rules change when the port changes.
 
-**Reviewed for:** Each port sits at the lowest folder holding every consumer that names it.
+**Reviewed for:** Which ports sit above the lowest folder holding every consumer that names them? Look at each port beside its consumers.
 
 ### Call External Systems Through Their Ports
 
@@ -249,7 +249,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** An event handler that calls an expense payout operation names it through the record's `calls` entry and the port method; a direct provider call fails the check.
 
-**Reviewed for:** Each `calls` effect runs in an event handler or automation through its port, after the commit.
+**Reviewed for:** Which `calls` effects run outside an event handler or automation, bypass their port, or run before the commit? Look at each provider call beside its record's `calls` entry.
 
 ### Send Notifications Through the Messenger Port
 
@@ -261,7 +261,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The due-notice event handler sends the loan-due notification through the messenger port; the template and consent rule stay on the notification record.
 
-**Reviewed for:** Each `sends` effect runs in an event handler through the messenger port, after the commit.
+**Reviewed for:** Which `sends` effects run outside an event handler, bypass the messenger port, or run before the commit? Look at each send beside its record's `sends` entry.
 
 ### Emit Declared Integration Events After Commit
 
@@ -273,7 +273,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages it in the outbox with the business work; the record's `emits` entry names the event.
 
-**Reviewed for:** Each `emits` effect leaves the commit as a domain event staged in the outbox.
+**Reviewed for:** Which `emits` effects leave outside a staged domain event in the outbox? Look at each emit beside its record's `emits` entry.
 
 ### Expose Store State Through Ports
 
@@ -285,7 +285,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The suppression list reaches code through a suppression port owned by the communications module, with no aggregate root.
 
-**Reviewed for:** Each `store` aggregate reaches code through an owner-naming port, with no aggregate root.
+**Reviewed for:** Which `store` aggregates grow an aggregate root or bypass their owner-naming port? Look at each store aggregate's code path.
 
 ### Read Settings Through Typed Options
 
@@ -297,7 +297,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The receipt threshold binds to a spending options value; the handler reads the bound and refuses past it with `atBound: refuse`.
 
-**Reviewed for:** Each setting reaches its handler through a typed options value or stored tenant data, with no raw lookup.
+**Reviewed for:** Which handlers read a setting through a raw lookup instead of a typed options value or stored tenant data? Look at each setting read in the handlers.
 
 ### Declare Every Pipeline Position Beside the Message
 
@@ -307,7 +307,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A pipeline stage that guesses a message's position guesses differently per message. Declaring a value or an exemption beside the message makes each position explicit, and composition refuses to start when a message states neither. The baseline holds one position: authorization, declared from the record's `access` on the message itself. The audit extension adds the audit selection position under `litespec/ext/audit#declare-audit-selection-on-every-command`.
 
-**Reviewed for:** Each message declares a value or an exemption for every pipeline position the baseline and selected extensions require.
+**Reviewed for:** Which messages miss a value or an exemption for a required pipeline position? Look at each message beside the baseline and selected extensions.
 
 ### Keep Event Automation Implementations Explicit
 
@@ -319,7 +319,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `OnLoanBorrowed/` carries one mark naming `automation/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
-**Reviewed for:** Each event handler answers its automation trigger in one class carrying its record mark, in its `On{Fact}` folder.
+**Reviewed for:** Which event handlers answer outside one class with one mark in their `On{Fact}` folder? Look at each event handler class and its mark.
 
 ### Run Each Automation Within Its Declared Selection
 
@@ -331,7 +331,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The erase-expired-data automation selects decided expenses past retention in batches of 200 under its lease, runs one erase command per expense, and resumes from its cursor.
 
-**Reviewed for:** Each scheduled or manual automation runs its commands once per item in its selection, honoring batch size, lease, and cursor.
+**Reviewed for:** Which scheduled or manual automations run outside their selection, batch size, lease, or cursor? Look at each automation run beside its record.
 
 ### Issue Per-Record Work from an Automation
 
@@ -355,7 +355,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages `integration-event/expense.reimbursed` in the outbox because its record declares that `emits` entry; a second emit the record does not declare fails the check.
 
-**Reviewed for:** A command handler changes only its aggregate, and each event handler or automation dispatch names a declared effect entry.
+**Reviewed for:** Which command handlers change more than their aggregate, or which event handler or automation dispatches name no declared effect entry? Look at each dispatch beside the record's effects.
 
 ### Declare Audit Values Beside the Message
 
@@ -379,7 +379,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The approve handler stamps its approval with the handled clock, not with a fresh clock read.
 
-**Reviewed for:** Each handler reads time from the scoped clock stamped once per message.
+**Reviewed for:** Which handlers read time outside the scoped clock stamped once per message? Look at the clock reads in each handler.
 
 ### Declare Exclusive Holds Beside the Message
 
@@ -391,7 +391,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The refund command declares its per-order hold with fifteen seconds of patience.
 
-**Reviewed for:** Each command needing exclusive access declares its hold key and patience beside the message.
+**Reviewed for:** Which commands needing exclusive access miss their hold key and patience beside the message? Look at each such command message.
 
 ### Refuse a Lost Race as a Conflict
 
@@ -403,7 +403,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** Two clerks register the same book barcode at once; the second commit violates the barcode unique index, and the command refuses with `book-barcode-taken`.
 
-**Reviewed for:** Each command that loses a race at commit ends with its use case conflict refusal.
+**Reviewed for:** Which commands losing a race at commit end outside their use case conflict refusal? Look at the race outcomes beside the use case refusals.
 
 ### Load a Required Record or Refuse It
 
@@ -415,7 +415,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The approve handler loads its expense with `GetByIdAsync`, while the optional coupon lookup uses `FindByIdAsync`.
 
-**Reviewed for:** Each required record loads through the throwing getter, with the finder kept for optional records.
+**Reviewed for:** Which required records load through the finder, or which optional lookups throw? Look at each load call in the handlers.
 
 ### Parse Input in the Validator
 
@@ -427,7 +427,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The invite validator parses the email address with `TryCreate`, and the handler creates it without a check.
 
-**Reviewed for:** Each validator parses every value object in the input.
+**Reviewed for:** Which validators leave a value object unparsed for the handler? Look at each validator beside its input.
 
 ### Validate Query Input
 
@@ -439,7 +439,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The list-expenses query validates its page size through its query validator.
 
-**Reviewed for:** Each query with paging, filters, or ranges declares a query validator.
+**Reviewed for:** Which queries with paging, filters, or ranges lack a query validator? Look at each such query beside the pipeline validators.
 
 ### Send Messages After Commit
 
@@ -463,7 +463,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The export-expenses command records its request, and an automation builds the file the requester then downloads.
 
-**Reviewed for:** Each heavy command records its request, with an automation building the artifact.
+**Reviewed for:** Which commands assembling a large artifact skip the recorded request and building automation? Look at each heavy command.
 
 ### Build Collaborators Through the Container
 
@@ -531,7 +531,7 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
 
 Only a use case or an event handler folder gets a folder. Any other type sits flat in the folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, so every folder name below a module names one use case or one fact. An event handler lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, with its mark under `litespec/backend/application#keep-event-automation-implementations-explicit`. A folder named for a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
 
-**Reviewed for:** Each use-case path matches its module, aggregate, and use case, each event handler sits in its `On{Fact}` folder, and each result part is named after its result.
+**Reviewed for:** Which use-case paths, event handler folders, or result part names break the layout? Look at each path under the modules.
 
 ### Keep Messages Immutable
 
@@ -543,7 +543,7 @@ Only a use case or an event handler folder gets a folder. Any other type sits fl
 
 **Rationale:** Immutable values give commands, queries, results, and validation errors a shape no handler mutates mid-pipeline. Typed identifiers and shared-kernel value objects cross the boundary; an aggregate-owned value object does not, so the message carries a primitive and the handler reconstructs it.
 
-**Reviewed for:** Each command, query, result, and validation error is an immutable value.
+**Reviewed for:** Which commands, queries, results, or validation errors mutate? Look at each message declaration.
 
 ### Return Use-Case Results
 
@@ -555,7 +555,7 @@ Only a use case or an event handler folder gets a folder. Any other type sits fl
 
 **Rationale:** A result carries only what the caller needs. An aggregate, session, provider response, or transport result leaving Application makes an inner concern part of the outward contract, and every change to that concern breaks callers.
 
-**Reviewed for:** Each Application result returns only the values the caller needs.
+**Reviewed for:** Which Application results return more than the caller needs? Look at each result beside its caller.
 
 ### Keep Mappings at the Owning Boundary
 
@@ -567,4 +567,4 @@ Only a use case or an event handler folder gets a folder. Any other type sits fl
 
 **Rationale:** A mapping changes when its output shape changes, so it lives with the boundary that defines that shape: domain-to-result projection in Application, transport mapping in WebApi, view models in the frontend. A mapping kept elsewhere breaks when the owning boundary evolves.
 
-**Reviewed for:** Each conversion lives in the layer owning its output shape.
+**Reviewed for:** Which conversions live outside the layer owning their output shape? Look at each conversion beside its output.

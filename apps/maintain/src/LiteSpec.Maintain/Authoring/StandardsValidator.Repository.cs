@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Schemas;
@@ -34,9 +36,8 @@ static partial class StandardsValidator
 
     static void CheckPageIdentity(List<ParsedPage> parsedPages, Action<string, int, string, string> add)
     {
-        // Provision identity comes from the path and the heading: the identifier names
-        // the page path, so every folder and file stem on that path is lowercase kebab
-        // case and the navigation pages keep their README.md name.
+        // The identifier names the page path, so every folder and file stem on that
+        // path is lowercase kebab case and the navigation pages keep their README.md name.
         foreach (var page in parsedPages)
         {
             if (!page.Relative.StartsWith("docs/", StringComparison.Ordinal))
@@ -994,4 +995,243 @@ static partial class StandardsValidator
     [GeneratedRegex(@"^(?:https?:|mailto:)")] private static partial Regex AbsoluteUriPattern();
 
     [GeneratedRegex(@"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|")] private static partial Regex TemplateRowPattern();
+
+    [GeneratedRegex(@"^v[0-9]+(?:\.[0-9]+)*$")] private static partial Regex ReleaseTagPattern();
+
+    // A released provision ID may not disappear in silence: every ID from the
+    // highest release tag is either active now or listed under Removed and
+    // Renamed Provisions in the pending changelog section, with the ID that
+    // carries its rule or as removed. Without git history there is nothing
+    // released to compare against, so the check stays quiet.
+    static void CheckRemovedProvisions(string root, HashSet<string> activeIds, HashSet<string>? releasedIds, Action<string, int, string, string> add)
+    {
+        var released = releasedIds ?? TryCollectReleasedIds(root);
+        if (released is null)
+        {
+            return;
+        }
+
+        var (recorded, line) = ParseChangelogRemovals(root);
+        foreach (var id in released.OrderBy(candidate => candidate, StringComparer.Ordinal))
+        {
+            if (!activeIds.Contains(id) && !recorded.Contains(id))
+            {
+                add("CHANGELOG.md", line, "ID_REMOVED_UNRECORDED", $"provision ID '{id}' from the latest release is gone and not listed under Removed and Renamed Provisions");
+            }
+        }
+    }
+
+    static HashSet<string>? TryCollectReleasedIds(string root)
+    {
+        if (!Path.Exists(Path.Combine(root, ".git")))
+        {
+            return null;
+        }
+
+        if (TryHighestReleaseTag(root) is not string tag)
+        {
+            return null;
+        }
+
+        if (!TryRunGit(root, ["ls-tree", "-r", "--name-only", tag, "--", "docs"], out var listing))
+        {
+            return null;
+        }
+
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        var stray = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var path in listing.Split('\n').Select(candidate => candidate.Trim()).Where(candidate => candidate.Length > 0))
+        {
+            if (!path.EndsWith(".md", StringComparison.Ordinal) || !Provisions.IsProvisionPage(path))
+            {
+                continue;
+            }
+
+            if (!TryRunGit(root, ["show", $"{tag}:{path}"], out var content))
+            {
+                return null;
+            }
+
+            var reader = PageReader.Parse(content);
+            foreach (var provision in ParsePage(path, reader, (_, _, _, _) => { }, stray, root).Provisions)
+            {
+                ids.Add(provision.Id);
+            }
+        }
+
+        return ids;
+    }
+
+    static string? TryHighestReleaseTag(string root)
+    {
+        if (!TryRunGit(root, ["tag", "--list", "v*"], out var listing))
+        {
+            return null;
+        }
+
+        string? best = null;
+        var bestParts = new List<int>();
+        foreach (var tag in listing.Split('\n').Select(candidate => candidate.Trim()).Where(candidate => candidate.Length > 0))
+        {
+            if (!ReleaseTagPattern().IsMatch(tag))
+            {
+                continue;
+            }
+
+            var current = new List<int>();
+            var valid = true;
+            foreach (var part in tag[1..].Split('.'))
+            {
+                if (!int.TryParse(part, out var number))
+                {
+                    valid = false;
+                    break;
+                }
+
+                current.Add(number);
+            }
+
+            if (!valid)
+            {
+                continue;
+            }
+
+            if (best is null || CompareVersions(current, bestParts) > 0)
+            {
+                best = tag;
+                bestParts = current;
+            }
+        }
+
+        return best;
+    }
+
+    static int CompareVersions(List<int> left, List<int> right)
+    {
+        for (var index = 0; index < Math.Max(left.Count, right.Count); index++)
+        {
+            var difference = (index < left.Count ? left[index] : 0) - (index < right.Count ? right[index] : 0);
+            if (difference != 0)
+            {
+                return difference;
+            }
+        }
+
+        return 0;
+    }
+
+    static bool TryRunGit(string root, string[] args, out string output)
+    {
+        output = "";
+        try
+        {
+            var start = new ProcessStartInfo
+            {
+                FileName = "git",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            start.ArgumentList.Add("-C");
+            start.ArgumentList.Add(root);
+            foreach (var arg in args)
+            {
+                start.ArgumentList.Add(arg);
+            }
+
+            using var process = Process.Start(start);
+            if (process is null)
+            {
+                return false;
+            }
+
+            output = process.StandardOutput.ReadToEnd();
+            if (!process.WaitForExit(30000))
+            {
+                try
+                {
+                    process.Kill();
+                }
+                catch (Exception)
+                {
+                }
+
+                return false;
+            }
+
+            return process.ExitCode == 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    static (HashSet<string> Removed, int Line) ParseChangelogRemovals(string root)
+    {
+        var removed = new HashSet<string>(StringComparer.Ordinal);
+        var file = JoinRoot(root, "CHANGELOG.md");
+        if (!File.Exists(file))
+        {
+            return (removed, 1);
+        }
+
+        var lines = SplitLines(ReadText(file));
+        var section = 0;
+        for (var index = 0; index < lines.Length; index++)
+        {
+            if (lines[index].StartsWith("## ", StringComparison.Ordinal))
+            {
+                section = index + 1;
+                break;
+            }
+        }
+
+        if (section == 0)
+        {
+            return (removed, 1);
+        }
+
+        var heading = 0;
+        for (var index = section; index < lines.Length; index++)
+        {
+            if (lines[index].StartsWith("## ", StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            if (lines[index].Trim() == "### Removed and Renamed Provisions")
+            {
+                heading = index + 1;
+                break;
+            }
+        }
+
+        if (heading == 0)
+        {
+            return (removed, section);
+        }
+
+        for (var index = heading; index < lines.Length; index++)
+        {
+            var line = lines[index];
+            if (line.StartsWith("## ", StringComparison.Ordinal) || line.StartsWith("### ", StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            foreach (var span in InlineCodes(line))
+            {
+                if (Provisions.IsProvisionId(span))
+                {
+                    removed.Add(span);
+                    break;
+                }
+            }
+        }
+
+        return (removed, heading);
+    }
 }

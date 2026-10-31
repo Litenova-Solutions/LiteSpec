@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
 namespace LiteSpec.Authoring;
 
@@ -15,9 +16,19 @@ static partial class StandardsValidator
         ["validate", "provisions"],
         StringComparer.Ordinal);
 
+    // The consumer findings that carry their own codes outside the shared
+    // finding registry: the glossary scan reports these two from ProseLanguage.
+    static readonly HashSet<string> ConsumerFindingCodes = new(
+        ["GLOSSARY_MANNERED_TERM", "GLOSSARY_REJECTED_SYNONYM"],
+        StringComparer.Ordinal);
+
     static readonly HashSet<string> ProvisionLabels = new(
         ["Statement", "Deviation", "Rationale", "Example", "Default", "Replacement"],
         StringComparer.Ordinal);
+
+    static readonly Lazy<HashSet<string>> StableCodeSetLazy = new(() => new HashSet<string>(StableDiagnosticCodes, StringComparer.Ordinal));
+
+    static HashSet<string> StableCodeSet => StableCodeSetLazy.Value;
 
     // A claim is the comparable core of a heading, a Statement, a Default, or a
     // summary bullet: lowercase words with punctuation, code marks, and any leading
@@ -274,8 +285,10 @@ static partial class StandardsValidator
 
     static void CheckProvisionIdentity(string relative, Provision provision, List<LineItem> fields, Action<string, int, string, string> add)
     {
-        // The ID line is the first line after the heading. It states the derived
-        // ID, so a reader copies the identifier without composing it.
+        // The ID line is the first line after the heading. It holds the
+        // provision's identity, so a reader copies the identifier without
+        // composing it. The heading may read differently from the ID slug,
+        // but the ID still names its owning page.
         var ids = fields.Where(item => PageReader.TryParseIdLine(item.Line, out _)).ToList();
         if (ids.Count == 0)
         {
@@ -290,9 +303,13 @@ static partial class StandardsValidator
         }
 
         PageReader.TryParseIdLine(ids[0].Line, out var stated);
-        if (stated != provision.Id)
+        if (!Provisions.IsProvisionId(stated))
         {
-            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}' but the heading derives '{provision.Id}'");
+            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}', which is not a provision identifier");
+        }
+        else if (Provisions.Parse(stated)!.Page != Provisions.PagePath(relative))
+        {
+            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}' but the provision sits on page '{Provisions.PagePath(relative)}'");
         }
 
         if (ids.Count > 1)
@@ -403,18 +420,19 @@ static partial class StandardsValidator
 
             if (mark == "checkable")
             {
-                CheckVerificationCommand(relative, found.Number, provision.Id, evidence, root, add);
+                CheckCheckedByReferences(relative, found.Number, provision.Id, evidence, root, add);
             }
         }
     }
 
-    // A checkable row's Evidence starts with the command that checks it, in
-    // backticks. A shipped tool is cited in its consumer-side form, so a leading
+    // A checkable line's evidence starts with the command that checks it, in
+    // backticks, then the finding code the tool reports where the tool emits
+    // one. A shipped tool is cited in its consumer-side form, so a leading
     // `litespec/` resolves against the repository root with the prefix removed. A
     // path outside the shipped trees is a consumer command the page itself defines,
     // such as the consumer's route suite, which exists in consumers rather than
     // here, so only a shipped tool path that does not exist fails.
-    static void CheckVerificationCommand(string relative, int line, string id, string evidence, string root, Action<string, int, string, string> add)
+    static void CheckCheckedByReferences(string relative, int line, string id, string evidence, string root, Action<string, int, string, string> add)
     {
         var command = EvidenceCommandPattern().Match(evidence);
         if (!command.Success)
@@ -455,8 +473,45 @@ static partial class StandardsValidator
             var target = JoinRoot(root, candidate);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
                 return;
+            }
+        }
+
+        // Every other backticked span names a finding code, an analyzer rule, a
+        // maintainer diagnostic, or a consumer finding code. A kebab-case span
+        // ending in a problem word is read as a finding code; an all-caps span
+        // with an underscore is read as a maintainer diagnostic or a consumer
+        // finding code, so acronyms and single words stay prose.
+        string? pin = null;
+        HashSet<string>? shipped = null;
+        var shippedRead = false;
+        foreach (var span in InlineCodes(evidence).Distinct(StringComparer.Ordinal))
+        {
+            if (AnalyzerCodePattern().IsMatch(span))
+            {
+                if (!shippedRead)
+                {
+                    pin = ReadAnalyzerPin(root);
+                    shipped = pin is null ? null : ReadShippedAnalyzerRules(root, pin);
+                    shippedRead = true;
+                }
+
+                if (shipped is not null && !shipped.Contains(span))
+                {
+                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', but the pinned analyzer release '{pin}' does not ship it");
+                }
+            }
+            else if (MaintainCodePattern().IsMatch(span))
+            {
+                if (!StableCodeSet.Contains(span) && !ConsumerFindingCodes.Contains(span))
+                {
+                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code or a consumer finding code");
+                }
+            }
+            else if (FindingCodePattern().IsMatch(span) && !Finding.Tiers.ContainsKey(span))
+            {
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a finding code");
             }
         }
     }
@@ -468,7 +523,7 @@ static partial class StandardsValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!LiteSpecCommands.Contains(subcommand))
             {
-                add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
             }
 
             return;
@@ -479,7 +534,7 @@ static partial class StandardsValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!MaintainCommands.Contains(subcommand))
             {
-                add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
             }
 
             return;
@@ -489,12 +544,12 @@ static partial class StandardsValidator
         {
             if (tokens[3].EndsWith("LiteSpec.Cli", StringComparison.Ordinal) && !LiteSpecCommands.Contains(tokens[5]))
             {
-                add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
             }
 
             if (tokens[3].EndsWith("LiteSpec.Maintain", StringComparison.Ordinal) && !MaintainCommands.Contains(tokens[5]))
             {
-                add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
+                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
             }
         }
     }
@@ -534,4 +589,13 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"\[litespec/[^\]\s]+\]")]
     private static partial Regex ProvisionTagPattern();
+
+    [GeneratedRegex(@"^LS[0-9]+$")]
+    private static partial Regex AnalyzerCodePattern();
+
+    [GeneratedRegex(@"^[A-Z][A-Z0-9_]*_[A-Z0-9_]+$")]
+    private static partial Regex MaintainCodePattern();
+
+    [GeneratedRegex(@"^[a-z0-9]+(?:-[a-z0-9]+)*-(?:missing|unknown|undeclared|unrecorded|unimplemented|unreached|drift|invalid|duplicate|clash|expired|reopened)$")]
+    private static partial Regex FindingCodePattern();
 }

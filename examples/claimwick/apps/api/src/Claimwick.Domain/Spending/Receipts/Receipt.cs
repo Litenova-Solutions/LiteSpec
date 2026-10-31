@@ -19,10 +19,4 @@ public sealed class Receipt : AggregateRoot<Guid>
     /// <summary>Attaches one receipt to an expense.</summary>
     public static Receipt Attach(Guid id, Guid expenseId, DateTimeOffset attachedAt) =>
         new(id, expenseId, attachedAt);
-
-    /// <summary>Removes an attached receipt.</summary>
-    public void Remove(DateTimeOffset removedAt)
-    {
-        State = new ReceiptRemovedState(removedAt);
-    }
 }

@@ -196,6 +196,27 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).RepositoryImplementations);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact]
+    public void Domain_Attribute_Named_Implements_Is_No_Mark()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
+            namespace Library.Application.Lending.Loans.BorrowCopy;
+
+            [Spending.Implements("use-case/lending.borrow-copy")]
+            public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
+            {
+            }
+            """);
+
+        var element = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Elements);
+
+        Assert.Equal(CodeKind.Handler, element.Kind);
+        Assert.Empty(element.Marks);
+    }
+
     static List<string> Literals(string root) =>
         new DotnetBackendReader().Read(ConsumerConfig.Load(root))
             .Literals.Where(literal => literal.Declares).Select(literal => literal.Value).ToList();

@@ -15,12 +15,12 @@ public sealed partial class StandardsValidatorTests
     ///     every expected code is present, every forbidden code is absent, and a
     ///     passing case reports no diagnostics.
     /// </summary>
-    static void Check(Action<string>? mutate, string[] expected, string[] forbidden)
+    static void Check(Action<string>? mutate, string[] expected, string[] forbidden, HashSet<string>? releasedIds = null)
     {
         using var temp = Cli.Temp("standards");
         StandardsFixture.Base(temp.Path);
         mutate?.Invoke(temp.Path);
-        var result = StandardsValidator.Validate(temp.Path);
+        var result = StandardsValidator.Validate(temp.Path, releasedIds);
         var codes = result.Diagnostics.Select(item => item.Code).ToHashSet(StringComparer.Ordinal);
         foreach (var code in expected)
         {
@@ -280,6 +280,7 @@ public sealed partial class StandardsValidatorTests
         var covered = new HashSet<string>(StringComparer.Ordinal)
         {
             "ANCHOR_BROKEN",
+            "CHECKED_BY_UNKNOWN",
             "CONVENTION_DEFAULT_SENTENCE",
             "CONVENTION_MISSING_DEFAULT",
             "CONVENTION_MISSING_REPLACEMENT",
@@ -308,6 +309,7 @@ public sealed partial class StandardsValidatorTests
             "ID_LINE_MISSING",
             "ID_LINE_MISMATCH",
             "ID_PAGE_FILENAME",
+            "ID_REMOVED_UNRECORDED",
             "ID_UNKNOWN_REFERENCE",
             "INDEX_CONTAINS_PROCEDURE",
             "INDEX_INTENT",

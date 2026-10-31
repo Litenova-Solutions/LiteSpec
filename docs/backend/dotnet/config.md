@@ -24,7 +24,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestMajor` roll-forward lets any newer SDK build it too. A patch or feature-band release then needs no workspace change, and two machines with different SDKs still build the same output. The manifest names the major release; `Directory.Build.props` sets its target framework.
 
-**Reviewed for:** The root `global.json` sets the manifest major release's first feature band with `latestMajor` roll-forward.
+**Reviewed for:** Does the root `global.json` set the manifest major release's first feature band with `latestMajor` roll-forward? Look at the root `global.json`.
 
 ### Centralize .NET Build Settings
 
@@ -34,7 +34,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** When each project sets its own framework, nullability, usings, and warnings, one project silently builds under weaker rules and its warnings go unread. One file owns those settings, so a change applies to every project and review sees it in one diff.
 
-**Reviewed for:** `apps/api/Directory.Build.props` sets the manifest target framework with nullable types, implicit usings, and warnings as errors.
+**Reviewed for:** Does `apps/api/Directory.Build.props` set the manifest target framework with nullable types, implicit usings, and warnings as errors? Look at that file.
 
 ### Centralize NuGet Versions
 
@@ -44,7 +44,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact pins, so an upgrade touches one place.
 
-**Reviewed for:** `apps/api/Directory.Packages.props` enables central management with the manifest pins, and project files carry no versions.
+**Reviewed for:** Does `apps/api/Directory.Packages.props` enable central management with the manifest pins, and which project files carry versions? Look at the central file beside the project files.
 
 ### Commit the Tool Manifest
 
@@ -54,7 +54,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing` names.
 
-**Reviewed for:** The root `.config/dotnet-tools.json` pins each local tool a documented command invokes, including the Stryker.NET runner.
+**Reviewed for:** Which local tools that a documented command invokes escape the root `.config/dotnet-tools.json` pin, including the Stryker.NET runner? Look at the tool manifest.
 
 ### Validate Backend Options at Startup
 
@@ -64,7 +64,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** A required setting read through a raw lookup fails on the first request that needs it, which may be hours after a bad deploy. Binding each section to a validated options class fails startup instead, with the field, range, or format named. This provision states the .NET form of `litespec/workspace/config#validate-backend-configuration-at-startup`.
 
-**Reviewed for:** Each configuration section binds a named options class validated for required fields, ranges, and formats, failing startup on bad values.
+**Reviewed for:** Which configuration sections lack a named options class validated for required fields, ranges, and formats at startup? Look at each section beside its options class.
 
 ### Bind Setting Records to Options
 
@@ -76,7 +76,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Example:** The receipt threshold binds to `SpendingOptions` with its range; startup fails when the configured value leaves the range.
 
-**Reviewed for:** Each decider-set or operator-set setting binds a named options class validated at startup; tenant-set values live in stored tenant state.
+**Reviewed for:** Which decider-set or operator-set settings lack a startup-validated options class, or which tenant-set values escape stored tenant state? Look at each setting beside its options class.
 
 ## Conventions
 

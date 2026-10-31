@@ -30,7 +30,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **Example:** At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform's own reflection and dependency injection. It needs no separate scanning package.
 
-**Reviewed for:** Each mapped route in the WebApi project resolves to one endpoint type with one mediator dispatch.
+**Reviewed for:** Which mapped routes resolve outside one endpoint type with one mediator dispatch? Look at the route table in the WebApi project.
 
 ### Keep Endpoint Dependencies Transport-Focused
 
@@ -40,7 +40,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **Rationale:** An endpoint that took a repository, session, provider, or application service could reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; handlers take mediators and HTTP-boundary services such as an actor accessor.
 
-**Reviewed for:** Endpoint constructors in the WebApi project take mediators and HTTP-boundary services only.
+**Reviewed for:** Which endpoint constructors take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the WebApi project.
 
 ### Defer Error Mapping to the Global Handler
 
@@ -50,7 +50,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **Rationale:** One global handler produces every error response from every failure type. An endpoint that caught a failure would create a second mapping for the same failure, and the two would diverge: the same refusal would answer different statuses or codes depending on which endpoint raised it.
 
-**Reviewed for:** Endpoint bodies in the WebApi project catch no failure, with mapping centralized in the global handler.
+**Reviewed for:** Which endpoint bodies catch a use-case, domain, or validation failure? Look at the endpoint bodies beside the global handler.
 
 ### Apply Only Coarse Policies at the Endpoint
 
@@ -62,7 +62,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 An operation applies a stable forbidden or not-found policy when revealing that a resource exists would leak information.
 
-**Reviewed for:** Endpoint policies in the WebApi project check authentication, role, or scope, with target decisions in the application guard.
+**Reviewed for:** Which endpoint policies decide target authorization instead of coarse authentication, role, or scope? Look at the endpoint policies beside the application guard.
 
 ### Return Stable Problem Details
 
@@ -117,7 +117,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 ![A domain failure or a validation failure reaches the global handler, which no endpoint preempts. The handler selects the HTTP status and returns a Problem Details body carrying the stable code, the trace identifier, and one entry per field failure.](../assets/diagrams/backend-error-flow.svg)
 
-**Reviewed for:** Error responses captured at the API boundary carry code, traceId, and one errors entry per field failure.
+**Reviewed for:** Which error responses miss the stable code, the traceId, or one errors entry per field failure? Look at the error responses at the API boundary.
 
 ### Use Consistent Status Codes
 
@@ -143,7 +143,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Accepted background operation | 202 with status location |
 | Unexpected failure | 500 |
 
-**Reviewed for:** Operation responses at the API boundary return the status the outcome table assigns their result.
+**Reviewed for:** Which operation responses return a status outside the outcome table? Look at each response beside the outcome table.
 
 ### Require the Marker Header on Cookie-Authenticated Writes
 
@@ -155,7 +155,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 The refused request is unauthenticated, so it answers 401 under `litespec/backend/api#use-consistent-status-codes`. The frontend pages own sending the header. This rule owns the API refusal.
 
-**Reviewed for:** A cookie-authenticated write sent without the marker header answers 401.
+**Reviewed for:** Which cookie-authenticated writes without the marker header escape the 401 answer? Look at the write requests with cookie authentication.
 
 ### Keep Routes Resource-Oriented
 
@@ -167,7 +167,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Example:** A route carries the authenticated actor identifier only when that actor is intentionally addressing another actor as a resource.
 
-**Reviewed for:** Route table entries use plural segments, kebab-case subresources, identity parameters, filter queries, and body command data.
+**Reviewed for:** Which routes break the plural segments, kebab-case subresources, identity parameters, filter queries, or body command data? Look at the route table entries.
 
 ### State an Unexpressible Transition as a Custom Method
 
@@ -187,7 +187,7 @@ POST /api/orders/{orderId}/refund-requests/{refundId}:decide
 
 The `operationId` keeps its verb-noun form, so `CancelShipment` names the same transition the path states.
 
-**Reviewed for:** Transitions beyond the five verbs appear as POST routes with a colon-suffixed verb.
+**Reviewed for:** Which transitions beyond the five verbs escape the POST custom method with a colon-suffixed verb? Look at the route table.
 
 ### Apply PATCH to a Partial Update
 
@@ -199,7 +199,7 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT keeps replacing the whole resource, and DELETE stays a hard-state transition.
 
-**Reviewed for:** Partial updates arrive as PATCH requests with the merge-patch media type.
+**Reviewed for:** Which partial updates arrive outside PATCH with the merge-patch media type? Look at the partial update requests.
 
 ### Use PUT for a Whole Replacement
 
@@ -211,7 +211,7 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Example:** A whole replacement sends every editable member, and an omitted member removes its value rather than keeping the stored one.
 
-**Reviewed for:** PUT requests replace the whole resource their path names, with omitted members removed.
+**Reviewed for:** Which PUT requests keep omitted members instead of removing them? Look at the PUT handlers.
 
 ### Bound Collection Queries
 
@@ -234,7 +234,7 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 }
 ```
 
-**Reviewed for:** Collection responses carry deterministic order with the declared default limit inside the declared maximum of 100 or lower.
+**Reviewed for:** Which collection responses lack deterministic order, or exceed the declared default or maximum limit? Look at the collection responses beside their records.
 
 ### Use Opaque Cursors for Collection Paging
 
@@ -244,7 +244,7 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Rationale:** A cursor that exposed offsets or internals lets callers craft requests against storage details and breaks when those details change. An opaque cursor keeps paging state server-defined, and the endpoint treats it as untrusted input: a malformed cursor, or an unsupported cursor version, answers 400 with code `invalid-cursor`.
 
-**Reviewed for:** A malformed cursor sent to a collection endpoint answers 400 with code invalid-cursor.
+**Reviewed for:** Which malformed cursors escape the 400 answer with code invalid-cursor? Look at the collection endpoints.
 
 ### Version Cursors with Stable Sort Values
 
@@ -254,7 +254,7 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Rationale:** Paging walks a sorted sequence, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the walk exact when values repeat. The tie-breaker matches the query's stable order under `litespec/backend/api#bound-collection-queries`. No sensitive value travels in readable form, because callers store and replay cursors.
 
-**Reviewed for:** Cursor payloads carry a version with the last sort values and a unique tie-breaker, and no readable secret.
+**Reviewed for:** Which cursor payloads miss a version, the last sort values, or a unique tie-breaker, or leak a readable secret? Look at the cursor payloads.
 
 ### Treat OpenAPI as a Generated Contract
 
@@ -277,7 +277,7 @@ Generation without hosted dependencies follows `litespec/backend/api#generate-th
 
 When a typed consumer reads the API, the pinned generator reads the source artifact. The generated client, its model types, its request schemas, and its query options are one workspace package, because every frontend and every command reads them.
 
-**Reviewed for:** The Release build regenerates the OpenAPI artifact, with the contract gate failing on a changed tree.
+**Reviewed for:** Which Release builds skip regenerating the OpenAPI artifact, or which contract gates pass on a changed tree? Look at the Release build output and the contract gate.
 
 ### Declare Stable Operation Metadata in the Contract
 
@@ -287,7 +287,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** Generated clients name their methods from `operationId`, so an unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.
 
-**Reviewed for:** Operations in the generated contract declare operationId, authorization, request, success, failure, and summary entries.
+**Reviewed for:** Which operations in the generated contract miss operationId, authorization, request, success, failure, or summary entries? Look at the operations in the generated contract.
 
 ### Name the Use Case on Every Published Operation
 
@@ -309,7 +309,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Rationale:** A committed artifact makes every contract change visible in review and lets CI fail when the document was not regenerated. Without the committed file, a breaking contract change hides inside a code change. Consumers read the artifact through the generated client, model, schema, and query-option packages.
 
-**Reviewed for:** The generated OpenAPI artifact sits committed and current for each consumer.
+**Reviewed for:** Which frontends or external consumers read an uncommitted or stale OpenAPI artifact? Look at the committed artifact beside its consumers.
 
 ### Reflect Enforced Authentication in the Contract
 
@@ -321,7 +321,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Example:** The implementation reads the registered authentication schemes and adds the matching `securitySchemes` and `security` entries. Handwritten security metadata drifts from registered schemes. An operation whose `access` grant is `anonymous` declares no security requirement.
 
-**Reviewed for:** Authenticated operations in the generated contract declare their security schemes and requirements.
+**Reviewed for:** Which authenticated operations miss their security schemes and requirements in the generated contract? Look at the operations in the generated contract.
 
 ### Publish Precise, Complete Schemas
 
@@ -335,7 +335,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 An operation requiring a control header declares it as a required parameter, for example `Idempotency-Key` or `If-Match`. The implementation prefers results, enums, and parameter metadata derived from code over handwritten schemas that drift from code.
 
-**Reviewed for:** Contract schemas declare value sets, bounds, formats, and required control headers for each field.
+**Reviewed for:** Which contract schemas miss value sets, bounds, formats, or required control headers for a field? Look at the schemas in the generated contract.
 
 ### Expose Development Tooling in Development Only
 
@@ -345,7 +345,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** Development tooling exposes the full API surface for exploration, which is what development needs and what a hosted environment leaves unoffered. Mapping it in Development only keeps exploration local while hosted environments serve only the API.
 
-**Reviewed for:** Hosted environments serve the API without exploration tooling, which appears in Development only.
+**Reviewed for:** Which hosted environments serve exploration tooling, or which Development hosts hide it? Look at the mapped endpoints in each environment.
 
 ### Mirror a Domain Closed Set as a Transport Model of the Same Shape
 
@@ -357,7 +357,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Example:** A label-only set maps to a string `enum`. A data-bearing set maps to a polymorphic model with one case per variant, published as `oneOf` with a discriminator.
 
-**Reviewed for:** Transport models carry every case and its data from their Domain set.
+**Reviewed for:** Which transport models drop a case or its data from their Domain set? Look at each transport model beside its Domain set.
 
 ### Publish Label-Only Sets as String Enums
 
@@ -367,7 +367,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** A label-only set carries no case data, so its labels are the complete contract and a string enum carries them exactly. The permission to use a plain enum for this one situation lives in `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`.
 
-**Reviewed for:** Label-only sets appear in the contract as string enums.
+**Reviewed for:** Which label-only sets escape the string enum in the contract? Look at the label-only sets in the contract.
 
 ### Mark Polymorphic Models with Discriminators
 
@@ -385,7 +385,7 @@ An operation requiring a control header declares it as a required parameter, for
 - Opt cases in explicitly, so an unregistered subtype fails serialization.
 - A document or schema transformer completes discriminator metadata that the generator omits.
 
-**Reviewed for:** Data-bearing sets appear as oneOf models with a required string discriminator.
+**Reviewed for:** Which data-bearing sets escape the oneOf model with a required string discriminator? Look at the data-bearing sets in the contract.
 
 ### Reject a Collapsed or Borrowed Wire Contract
 
@@ -395,7 +395,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** Collapsing a data-bearing set into an enum discards the data that distinguishes its cases, and reusing a Domain or Application type as the wire contract couples the public contract to inner shapes. Each layer owns its own contract type per `litespec/backend/architecture#own-each-layers-contract-types`, so the wire contract is always a dedicated transport model. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`.
 
-**Reviewed for:** Wire contracts hold dedicated transport models, with no enum-collapsed set or reused inner type.
+**Reviewed for:** Which wire contracts collapse a data-bearing set into an enum or reuse a Domain or Application type? Look at each wire contract.
 
 ### Keep One Name for a Use Case Across Layers
 
@@ -441,7 +441,7 @@ WebApi/
 
 Module nesting, including the single-aggregate flat form, follows the cited folder rule.
 
-**Reviewed for:** Endpoint folders group by module, aggregate, and use case.
+**Reviewed for:** Which endpoint folders break the module, aggregate, and use case grouping? Look at the endpoint folders.
 
 ### Name Transport Types by Their Boundary Role
 
@@ -455,7 +455,7 @@ Module nesting, including the single-aggregate flat form, follows the cited fold
 
 **Example:** A passive HTTP DTO names its boundary role and ends in `Model`.
 
-**Reviewed for:** Transport type names end in the suffix their boundary role assigns.
+**Reviewed for:** Which transport type names miss the suffix their boundary role assigns? Look at the transport type names.
 
 ### Name Routes from Resources
 
@@ -476,7 +476,7 @@ GET    /api/posts/{postId}/publication
 GET    /api/posts?after={cursor}&limit=20
 ```
 
-**Reviewed for:** Routes derive from their resource and subresource, with action segments only where neither fits.
+**Reviewed for:** Which routes derive outside their resource and subresource, or carry an action segment where either fits? Look at the route table.
 
 ### Shape Command Routes from the Aggregate and the Verb
 
@@ -507,7 +507,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Rationale:** A plain numeric schema lets consumers read `int32` and `double` directly. A string-or-number union is reserved for `int64` values beyond the JSON safe integer range, because an over-broad union forces every consumer to coerce plain numbers.
 
-**Reviewed for:** Numeric fields publish plain schemas, except int64 unions beyond the JSON safe integer range.
+**Reviewed for:** Which numeric fields publish outside plain schemas, or reserve the int64 union wrongly? Look at the numeric fields in the contract.
 
 ### Model a Monetary Value as One Object
 
@@ -521,7 +521,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `unitPrice` and `currencyCode` become `price` of type `Money`. A request that references an account with a fixed currency carries `amount` alone.
 
-**Reviewed for:** Monetary values travel as one Money object, or amount alone where the caller has no currency choice.
+**Reviewed for:** Which monetary values travel outside one Money object, or carry currency where the caller has no choice? Look at the monetary fields in the contract.
 
 ### Name Boolean Fields as Conditions
 
@@ -535,7 +535,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `IsBuyable` in code becomes `isBuyable` on the wire.
 
-**Reviewed for:** Boolean fields use camel-case condition names matching their code names.
+**Reviewed for:** Which boolean fields break the camel-case condition names of their code names? Look at the boolean fields in the contract.
 
 ### Name Time Fields with At
 
@@ -549,7 +549,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `createdAt` names the creation time.
 
-**Reviewed for:** Time fields in contract schemas end in At.
+**Reviewed for:** Which time fields in contract schemas end outside At? Look at the time fields.
 
 ### Use Standard Field Vocabulary
 
@@ -563,7 +563,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `defaultLanguageTag` replaces `defaultLocaleTag`.
 
-**Reviewed for:** Fields use created, languageTag, and displayName over their rejected synonyms.
+**Reviewed for:** Which fields use placed, locale, or keyName over the standard vocabulary? Look at the field names in the contract.
 
 ### Name Failure Pairs Code and Reason
 
@@ -575,7 +575,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Rationale:** A request body names failures the same way responses do: `code` for the class, `reason` for the explanation, mirroring the Problem Details code and detail under `litespec/backend/api#return-stable-problem-details`. One pair in both directions lets clients reuse their failure handling.
 
-**Reviewed for:** Request bodies name failures with code for the class and reason for the explanation.
+**Reviewed for:** Which request bodies name failures outside code and reason? Look at the failure pairs in request bodies.
 
 ### Name Path Parameters per Resource
 
@@ -589,7 +589,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `/api/posts/{postId}` names the post; `/details` takes the aggregate name.
 
-**Reviewed for:** Path parameters name their own resource identity.
+**Reviewed for:** Which path parameters miss their own resource identity? Look at the path parameters.
 
 ### Avoid Noise Words in Field Names
 
@@ -603,7 +603,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Example:** `customerInfo` becomes `customer`.
 
-**Reviewed for:** Field names in contract schemas carry no type prefix or noise word.
+**Reviewed for:** Which field names in contract schemas carry a type prefix or noise word? Look at the field names.
 
 ### Declare a Smaller Collection Maximum
 
@@ -615,7 +615,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Rationale:** Some collections cost more per item than others. A use case with stricter needs declares its smaller maximum in its record's `paging` with the reason on its use-case record, and the endpoint enforces it under `litespec/backend/api#bound-collection-queries`.
 
-**Reviewed for:** Lowered collection maxima state their value and reason on the use-case record.
+**Reviewed for:** Which lowered collection maxima miss their value and reason on the use-case record? Look at each lowered maximum.
 
 ### Use Offsets for Proven Bounded Datasets
 
@@ -627,7 +627,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Rationale:** Offsets skip rows the database still scans, so they stay cheap only while the dataset stays small. A collection over a proven bounded dataset declares offset paging while the public contract stays cursor-shaped, and the use-case record states the bound that makes it safe.
 
-**Reviewed for:** Offset paging cites the bound making it safe on the use-case record.
+**Reviewed for:** Which offset paging lacks the bound making it safe on the use-case record? Look at each offset-paged collection.
 
 ### Generate the Contract Without Hosted Dependencies
 
@@ -639,7 +639,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Rationale:** Build-time generation boots the host, and a boot that needs a secret, a certificate, or a reachable dependency fails on a clean checkout. The project records which answer it uses: a generation environment that wires no hosted dependency for the generation run, or a deferred guard that moves each startup refusal from composition to first use. The document reflects the generation environment's endpoint set, and with a deferred guard a misconfiguration surfaces on the first request instead of at boot.
 
-**Reviewed for:** Generation runs contact no hosted dependency, with the chosen answer recorded.
+**Reviewed for:** Which generation runs contact a hosted dependency, or lack a recorded answer? Look at the generation runs beside the project record.
 
 ## Reference Example
 

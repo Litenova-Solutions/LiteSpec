@@ -11,10 +11,6 @@
     {
       "name": "Active",
       "meaning": "The policy threshold applies."
-    },
-    {
-      "name": "Retired",
-      "meaning": "The policy no longer applies."
     }
   ],
   "records": [
@@ -41,7 +37,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "ffb5a4d4"
+  "approvedHash": "b1b18b8c"
 }
 ---
 

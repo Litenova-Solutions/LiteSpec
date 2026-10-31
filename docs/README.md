@@ -77,6 +77,7 @@ One product worked end to end, from its first record to a passing check.
 These principles hold for every backend. A backend stack folder states how its technology realizes them.
 
 - [Backend overview](backend/README.md): the principles every backend shares and the stacks that realize them.
+- [Write Code for a Use Case](backend/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Backend Architecture](backend/architecture.md): the five layers, the direction references point, and the modules and use cases that organize every layer.
 - [Domain Layer](backend/domain.md): aggregates, lifecycles, closed value sets, and repositories, and what Domain never references.
 - [Application Layer](backend/application.md): use-case coordination, pipeline stages, ports, and event automations.
@@ -160,6 +161,10 @@ The mobile pages state what every native mobile app does the same way, and each 
 - [Mobile Testing](frontend/mobile/testing.md): plain .NET core tests and device tests for screens.
 - [Android Stack](frontend/mobile/android/stack.md): the .NET for Android binding, its version pins, and its checks.
 - [Android Views](frontend/mobile/android/views.md): one activity, views in code or layouts, resources, back dispatch, and insets.
+
+## Implementation
+
+Implementation holds code only, so the `docs/implementation/` folder with its technical decisions and guides exists only in consumers. A backend element goes where [Write Code for a Use Case](backend/write-code-for-a-use-case.md) states, carries the mark the [Project Model](core/model.md) states, and meets the checks the [Analyzers overview](analyzers/README.md) states.
 
 ## Quality
 

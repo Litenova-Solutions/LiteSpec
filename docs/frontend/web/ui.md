@@ -228,4 +228,4 @@ Svelte:
 
 **Rationale:** Running `view`, `--dry-run`, and `--diff` first shows what the update changes before anything is written. The regenerated files and the local composites change for different reasons, upstream source versus product adaptation, so one review cannot cover both. The branch pins the CLI and starts clean, so the run is repeatable and the diff shows only the update.
 
-**Reviewed for:** Each update branch pins the CLI, records the dry-run output, and reviews regenerated files and local composites separately.
+**Reviewed for:** Which update branches miss the pinned CLI, the dry-run output, or the separate review of regenerated files and local composites? Look in the update branches.

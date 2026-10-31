@@ -40,7 +40,7 @@ This extension switches on no optional record type.
 
 **Rationale:** EF Core replaces the provider, the transaction boundary, the query surface, and the migration story for its aggregates. A decision that names aggregates, data evolution, transaction requirements, query impact, package changes, and rollback plan lets review judge the whole replacement; without it, each part is decided separately and they disagree.
 
-**Reviewed for:** The adoption decision names affected aggregates, data evolution, transaction requirements, query impact, package changes, and rollback plan.
+**Reviewed for:** Does the adoption decision name affected aggregates, data evolution, transaction requirements, query impact, package changes, and rollback plan? Look at the adoption decision.
 
 ### Retain Unaffected Baseline Persistence
 
@@ -50,7 +50,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The extension activates per aggregate path, so aggregates outside its scope keep Marten behavior, Marten queries, and Marten commits. Letting EF Core conventions leak onto those paths leaves two providers over one aggregate with no owner.
 
-**Reviewed for:** Every aggregate path outside the recorded scope keeps its baseline persistence behavior.
+**Reviewed for:** Which aggregate paths outside the recorded scope break baseline persistence behavior? Look at each unaffected aggregate path.
 
 ### Use One Write Provider
 
@@ -80,7 +80,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Each command path has exactly one owner, and the decision names it with the architecture-test evidence that proves it. Without that record, a later change moves a repository to the other provider and review cannot tell the boundary moved.
 
-**Reviewed for:** The adoption decision names each command path's provider with its architecture-test evidence.
+**Reviewed for:** Does the adoption decision name each command path's provider with its architecture-test evidence? Look at the adoption decision.
 
 ### Register One Command Post-Handler
 
@@ -100,7 +100,7 @@ This extension switches on no optional record type.
 
 **Rationale:** An invariant spanning a Marten aggregate and an EF Core aggregate has no atomic boundary until both sit on one provider or share a reviewed transaction mechanism. Accepting the invariant without either leaves a rule the storage cannot enforce.
 
-**Reviewed for:** Every accepted atomic cross-provider invariant sits on one provider or names a reviewed shared transaction mechanism.
+**Reviewed for:** Which accepted atomic cross-provider invariants sit across providers without a reviewed shared transaction mechanism? Look at each such invariant.
 
 ### Stage Aggregate Writes in Repositories
 
@@ -250,7 +250,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Conventions silently pick names, precisions, and delete behavior, and a provider upgrade can change the silence. Explicit configuration for typed IDs, owned values, fields, indexes, constraints, precision, deletes, concurrency tokens, and database names puts every storage choice in review and in migrations.
 
-**Reviewed for:** The mapping review records the explicit configuration of typed IDs, owned values, fields, indexes, constraints, precision, deletes, concurrency tokens, and database names.
+**Reviewed for:** Which mappings lack explicit configuration of typed IDs, owned values, fields, indexes, constraints, precision, deletes, concurrency tokens, or database names? Look at the mapping review.
 
 ### Retain Domain State Values
 
@@ -302,7 +302,7 @@ This extension switches on no optional record type.
 
 **Example:** `PostRow` maps `state_type`, `published_at`, and `archived_at` to one `PostState` record.
 
-**Reviewed for:** The new state review covers migration, mixed-version behavior, rollback behavior, and an integration fixture.
+**Reviewed for:** Does the new state review cover migration, mixed-version behavior, rollback behavior, and an integration fixture? Look at the new state review.
 
 ### Generate Migrations for Schema Changes
 
@@ -322,7 +322,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Tables, columns, indexes, constraints, data movement, destructive operations, and rollback compatibility each decide whether a deploy is safe and whether the data survives it. Reviewing all of them catches the destructive step before it runs in production.
 
-**Reviewed for:** The migration review covers tables, columns, indexes, constraints, data movement, destructive operations, and rollback compatibility.
+**Reviewed for:** Does the migration review cover tables, columns, indexes, constraints, data movement, destructive operations, and rollback compatibility? Look at the migration review.
 
 ### Apply Migrations as Release Work
 
@@ -418,7 +418,7 @@ This extension switches on no optional record type.
 
 **Rationale:** One folder holds the provider's context, factory, post-handler, configurations, migrations, and repositories, so every EF Core persistence question has one place. `Infrastructure/Persistence/EfCore/Configurations/` holds the mapping classes.
 
-**Reviewed for:** EF Core Infrastructure paths follow the default layout, or the project documentation names another persistence layout.
+**Reviewed for:** Which EF Core Infrastructure paths break the default layout without a documented alternative? Look at the persistence paths beside the project documentation.
 
 ### Use Snake-Case Relational Names
 

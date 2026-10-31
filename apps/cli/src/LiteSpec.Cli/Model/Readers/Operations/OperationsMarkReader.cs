@@ -1,19 +1,19 @@
-using System.Text.RegularExpressions;
-
 namespace LiteSpec.Model.Readers.Operations;
 
 /// <summary>One follows mark in an operations file.</summary>
 /// <param name="File">The absolute file path.</param>
 /// <param name="Line">The 1-based line.</param>
 /// <param name="Id">The decision, exception or provision the mark names.</param>
-sealed record OperationsMark(string File, int Line, string Id);
+/// <param name="Style">The style the mark was written in: always the comment.</param>
+sealed record OperationsMark(string File, int Line, string Id, MarkStyle Style = MarkStyle.Comment);
 
 /// <summary>
 ///     Reads the follows marks of the deployment, proxy, host and workflow files
-///     the project lists in paths.operations, from their hash comment lines.
+///     the project lists in paths.operations, from their hash comment lines,
+///     through the shared mark parser.
 /// </summary>
 /// <follows>litespec/quality/operations#point-each-operations-file-at-its-decision</follows>
-static partial class OperationsMarkReader
+static class OperationsMarkReader
 {
     /// <summary>Every operations file: a named file as named, every file below a named folder except its Markdown documentation.</summary>
     public static IReadOnlyList<string> Files(ConsumerConfig config)
@@ -62,13 +62,11 @@ static partial class OperationsMarkReader
                     continue;
                 }
 
-                foreach (Match match in Follows().Matches(lines[index]))
+                foreach (var mark in MarkParser.ReadTags(lines[index]))
                 {
-                    var id = match.Groups["id"].Value.Trim();
-
-                    if (id.Length > 0)
+                    if (mark.Verb == MarkVerb.Follows)
                     {
-                        marks.Add(new OperationsMark(file, index + 1, id));
+                        marks.Add(new OperationsMark(file, index + 1, mark.RecordId, MarkStyle.Comment));
                     }
                 }
             }
@@ -76,7 +74,4 @@ static partial class OperationsMarkReader
 
         return marks;
     }
-
-    [GeneratedRegex(@"<follows>(?<id>[^<>]+)</follows>")]
-    private static partial Regex Follows();
 }

@@ -28,7 +28,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** When storage sits behind an Application interface, a test replaces the browser with an in-memory implementation and every component keeps working. If a component or page called the browser API directly, its tests would need a browser host, and swapping the storage mechanism would touch every caller.
 
-**Reviewed for:** Every storage call in components and pages resolves the Application interface its adapter implements.
+**Reviewed for:** Which storage calls in components and pages bypass the Application interface their adapter implements? Look in the component and page sources.
 
 ### Version and Scope Every Storage Key
 
@@ -40,7 +40,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Example:** `claimwick.expenses.v1` names its product, its area, and its shape version.
 
-**Reviewed for:** Each storage key is a constant beside its adapter carrying product, area, and version.
+**Reviewed for:** Which storage keys are literals outside their adapter, or miss product, area, or version? Look in the adapters and their key constants.
 
 ### Provide a Migration for Every Changed Shape
 
@@ -50,7 +50,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Users keep data written by installs older than the current build, and the product starts against whatever those installs left behind. Without a migration the new build either crashes on the old shape or discards it. The migration runs at startup before the store finishes loading. Data it cannot interpret waits under a quarantine key, reported but never silently deleted, because deleting unreadable user data destroys work the user cannot recreate.
 
-**Reviewed for:** Each changed persisted shape ships a migration reading every released version into the current one.
+**Reviewed for:** Which changed persisted shapes ship without a migration reading every released version into the current one? Look in the migrations beside the adapters.
 
 ### Treat Reads as Fallible
 
@@ -60,7 +60,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** The browser can deny, partition, or fill storage at any time, and each of those differs from nothing stored yet. A typed result forces the caller to handle each outcome: the application starts and stays usable when storage is unavailable, with durable writes disabled and the user told once, instead of crashing or mistaking denied storage for empty state.
 
-**Reviewed for:** The adapter returns unavailable, absent, corrupt, and present as typed outcomes.
+**Reviewed for:** Which storage adapters return fewer than the unavailable, absent, corrupt, and present typed outcomes? Look in the adapter result types.
 
 ### Bound What Is Stored
 
@@ -70,7 +70,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Browser quotas are small and shared across the origin, so a collection that grows without a bound eventually fails a write the user cannot diagnose. A stated bound with an eviction rule keeps the collection inside the quota, so a write never fails for lack of room. Large generated assets are cached by the service worker rather than written to key storage.
 
-**Reviewed for:** Each aggregate persisting a growing collection states its bound and eviction rule.
+**Reviewed for:** Which aggregates persisting a growing collection state no bound and eviction rule? Look on the aggregate pages.
 
 ### Provide Export and Import
 
@@ -80,7 +80,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** With no server, the exported file is the only copy of the user's work outside the browser that holds it. A versioned file that imports its own version, transforms older ones, and refuses newer ones keeps that copy trustworthy across installs. Device-local state is excluded from the export. The file carries its own schema version. A refusal names the application version that wrote the file. A partial import of an unknown shape would drop fields silently, so the rule refuses instead.
 
-**Reviewed for:** An export reimports to identical durable state, transforms older versions, and refuses newer ones.
+**Reviewed for:** Which exports fail to reimport identical durable state, transform an older version, or refuse a newer version? Look in the export and import round-trip tests.
 
 ## Conventions
 
@@ -94,7 +94,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Each mechanism fits a different access pattern: key-value storage reads one small record, an indexed store queries a growing collection, and the cache API serves generated assets. Serializing a large collection into a single key-value entry rewrites the whole entry on every change.
 
-**Reviewed for:** Each persisted shape uses key-value storage, an indexed store, or the cache API per its access pattern.
+**Reviewed for:** Which persisted shapes use a mechanism outside their access pattern? Look in the adapter implementations.
 
 ### Keep a Stable Serialization Contract
 
@@ -106,7 +106,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Explicit property names keep the stored shape readable to any build, and tolerating unknown properties lets an older install read a record a newer install wrote without crashing. Without that tolerance, one extra field breaks every install that has not updated yet.
 
-**Reviewed for:** A record carrying an unknown property still reads.
+**Reviewed for:** Which persisted records fail to read when carrying an unknown property? Look in the serialization tests.
 
 ### Record the Classification
 
@@ -118,4 +118,4 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Export, clearing, and any future sync each need one kind of state without the other. Separate prefixes let each of them address durable and device-local state independently, instead of filtering key by key and risking a device-local value leaking into an export.
 
-**Reviewed for:** Durable and device-local keys use separate prefixes.
+**Reviewed for:** Which durable or device-local keys share a prefix instead of using separate ones? Look in the key constants.

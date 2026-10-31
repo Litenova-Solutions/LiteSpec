@@ -107,6 +107,14 @@ public sealed class FindingCodesTests
         Assert.Equal(tier, Finding.Tiers[code]);
     }
 
+    /// <summary>The backend folder drift code blocks where its reader is qualified.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Mark_Folder_Drift_Code_Is_Stack()
+    {
+        Assert.Equal("S", Finding.Tiers["mark-folder-drift"]);
+    }
+
     /// <summary>Every finding code reads subject-problem with one of the twelve problem words, beside the D37 proof code.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]

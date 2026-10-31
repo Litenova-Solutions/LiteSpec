@@ -71,8 +71,9 @@ static partial class DotnetScreenReader
                     relative,
                     LineOf(text, directive.Index),
                     directive.Groups["template"].Value,
-                    marks,
-                    calls));
+                    [.. marks.Select(mark => mark.Id)],
+                    calls,
+                    [.. marks.Select(mark => mark.Style)]));
             }
         }
 
@@ -111,13 +112,15 @@ static partial class DotnetScreenReader
                 }
 
                 var clients = ClientMembers(destination);
+                var marks = ScreenMarks(destination);
 
                 found.Add(new RouteFact(
                     relative,
                     tree.GetLineSpan(destination.Identifier.Span).StartLinePosition.Line + 1,
                     destination.Identifier.Text,
-                    ScreenMarks(destination),
-                    ClientCalls(tree, relative, destination, clients, lineShift: 0)));
+                    [.. marks.Select(mark => mark.Id)],
+                    ClientCalls(tree, relative, destination, clients, lineShift: 0),
+                    [.. marks.Select(mark => mark.Style)]));
             }
         }
 
@@ -146,20 +149,25 @@ static partial class DotnetScreenReader
         return false;
     }
 
+    /// <summary>One screen mark with the style it was written in.</summary>
+    private sealed record ScreenMark(string Id, MarkStyle Style);
+
     /// <summary>
     ///     The screen marks on the class declaration: the record identifier of every
-    ///     <c>implements</c> mark that names a record, in source order.
+    ///     <c>implements</c> mark that names a record, in source order, each with
+    ///     the style it was written in.
     /// </summary>
-    private static IReadOnlyList<string> ScreenMarks(ClassDeclarationSyntax destination) =>
+    private static IReadOnlyList<ScreenMark> ScreenMarks(ClassDeclarationSyntax destination) =>
         [.. MarkReader.Read(destination)
             .Where(mark => mark.Verb == MarkVerb.Implements && mark.HasRecordId)
-            .Select(mark => mark.RecordId)];
+            .Select(mark => new ScreenMark(mark.RecordId, mark.Style))];
 
     /// <summary>
     ///     The screen marks of a Blazor component: from the paired code-behind class when the
-    ///     <c>.razor.cs</c> file exists, else from the first mark in an <c>@code</c> block.
+    ///     <c>.razor.cs</c> file exists, else from the marks in the <c>@code</c> blocks,
+    ///     read through the shared mark parser.
     /// </summary>
-    private static IReadOnlyList<string> ComponentMarks(string file, string text, IReadOnlyList<CodeBlock> blocks)
+    private static IReadOnlyList<ScreenMark> ComponentMarks(string file, string text, IReadOnlyList<CodeBlock> blocks)
     {
         var behind = file + ".cs";
 
@@ -185,30 +193,22 @@ static partial class DotnetScreenReader
             return [];
         }
 
-        var found = new List<(int Index, string Id)>();
+        var found = new List<ScreenMark>();
 
         foreach (var block in blocks)
         {
             var inner = text.Substring(block.InnerStart, block.InnerEnd - block.InnerStart);
 
-            foreach (Match mark in ImplementsTag().Matches(inner))
+            foreach (var mark in MarkParser.Read(inner))
             {
-                if (mark.Groups["id"].Value.Trim() is { Length: > 0 } id)
+                if (mark.Verb == MarkVerb.Implements)
                 {
-                    found.Add((block.InnerStart + mark.Index, id));
-                }
-            }
-
-            foreach (Match mark in ImplementsAttribute().Matches(inner))
-            {
-                if (mark.Groups["id"].Value.Trim() is { Length: > 0 } id)
-                {
-                    found.Add((block.InnerStart + mark.Index, id));
+                    found.Add(new ScreenMark(mark.RecordId, mark.FromAttribute ? MarkStyle.Attribute : MarkStyle.Xml));
                 }
             }
         }
 
-        return [.. found.OrderBy(mark => mark.Index).Select(mark => mark.Id)];
+        return found;
     }
 
     /// <summary>
@@ -710,12 +710,6 @@ static partial class DotnetScreenReader
 
     [GeneratedRegex(@"@page\s+""(?<template>[^""]+)""")]
     private static partial Regex PageDirective();
-
-    [GeneratedRegex(@"<implements\s*>(?<id>[^<]+)</implements\s*>")]
-    private static partial Regex ImplementsTag();
-
-    [GeneratedRegex(@"\[\s*(?:\w+\.)*Implements(?:Attribute)?\s*\(\s*""(?<id>[^""]+)""")]
-    private static partial Regex ImplementsAttribute();
 
     [GeneratedRegex(@"(?<receiver>[A-Za-z_]\w*)\s*\??\.\s*(?<method>[A-Za-z_]\w*Async)\s*\(")]
     private static partial Regex InlineCall();

@@ -21,7 +21,7 @@ public sealed class FrontendModuleReaderTests
 
         Assert.Equal("use-case/lending.borrow-copy", mark.RecordId);
         Assert.Equal(MarkVerb.Implements, mark.Verb);
-        Assert.Equal(MarkStyle.Xml, mark.Style);
+        Assert.Equal(MarkStyle.Typed, mark.Style);
         Assert.Equal(borrow.File, mark.File);
         Assert.EndsWith("litespec.ts", mark.File);
         Assert.Equal(3, mark.Line);

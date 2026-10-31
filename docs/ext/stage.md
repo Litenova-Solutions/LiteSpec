@@ -90,7 +90,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Rationale:** A transcribed record carries what working code does, not what anyone decided, so reviewing it would approve behavior with no promise behind it. Holding it in draft until its requirement or journey parent is approved keeps every reviewed record a carried promise. The `transcription-status-invalid` check reports a transcribed record that reached reviewed early.
 
-**Reviewed for:** Each transcribed Behavior record stays in draft until its fulfills or serves parent is approved.
+**Checked by:** `litespec model check` reports `transcription-status-invalid` (level G) for a transcribed record that stands reviewed while its parent stays unapproved.
 
 ### End Transcription at the Named Decision
 
@@ -100,7 +100,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Rationale:** Transcription is adoption work with an end: once the named decision is approved, every Behavior record states decided behavior, and any record still marked transcribed is a promise nobody made. Naming the decision in the project file fixes the end where tools read it. The `transcription-expired` check reports a transcribed record left after the end.
 
-**Reviewed for:** The project file names the transcription-ending decision, and no transcribed record remains after its approval.
+**Checked by:** `litespec model check` reports `transcription-expired` (level G) for a transcribed record left after the named decision is approved; the project file names that decision in `adoption.transcriptionEndsWith`.
 
 ## Conventions
 

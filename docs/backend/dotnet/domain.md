@@ -40,7 +40,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **Rationale:** One project-owned base gives every aggregate the same identity and event mechanics: typed identity, a pending event collection, protected recording, and clearing. The root is a sealed class, so no behavior extends an aggregate by inheritance. The root carries a mark naming its aggregate record, so the builder links the record by that mark. A shared base that also owned timestamps, audit, tenancy, lifecycle, or persistence would force every aggregate to carry behavior most never need. The base carries the aggregate version only as persistence metadata that Domain never reads or sets. This provision states the .NET form of `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`.
 
-**Reviewed for:** Each aggregate root declaration: a sealed class deriving from the project-owned `AggregateRoot<TId>`.
+**Reviewed for:** Which aggregate root declarations escape the sealed class deriving from the project-owned `AggregateRoot<TId>`? Look at each root declaration.
 
 ### Model Child Entities as Sealed Classes
 
@@ -78,7 +78,7 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 `Order.AddLine` creates the line, and `Order.ChangeLineQuantity` calls `ChangeQuantity` after checking its invariant.
 
-**Reviewed for:** Each child entity declaration in the Domain project: a sealed class deriving from `Entity<TId>`, created through root methods.
+**Reviewed for:** Which child entity declarations escape the sealed class deriving from `Entity<TId>` or creation through root methods? Look at each child entity.
 
 ### Model Value Objects as Records
 
@@ -154,7 +154,7 @@ public sealed record PostTags
 
 If order is not part of the value, creation normalizes to the documented comparison order before storing values.
 
-**Reviewed for:** Each value object in the Domain project: an immutable record with static creation and no base type.
+**Reviewed for:** Which value objects escape the immutable record with static creation and no base type? Look at each value object.
 
 ### Implement Domain Services as Stateless Classes
 
@@ -182,7 +182,7 @@ public sealed class OrderPricingDomainService
 
 Application supplies the lines and passes the returned `Money` to `Order.ConfirmPrice`. The service has no repository, clock, logger, or provider client.
 
-**Reviewed for:** Each domain service in the Domain project: a stateless sealed class with Domain-only parameters and no provider calls.
+**Reviewed for:** Which domain services hold state, take non-Domain parameters, or call a provider? Look at each domain service.
 
 ### Model Every Aggregate Lifecycle with State Records
 
@@ -414,7 +414,7 @@ public sealed record Money
 
 The amount serializes as a string, so no reader parses it as binary floating point.
 
-**Reviewed for:** Each monetary amount: a `decimal` inside the shared `Money` object, serialized with amount and currency.
+**Reviewed for:** Which monetary amounts escape the `decimal` inside the shared `Money` object with amount and currency? Look at each monetary amount.
 
 ### Keep Repository Interfaces in Domain
 
@@ -467,7 +467,7 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
     Copies.Select(copy => copy.Barcode).ToList().AsReadOnly();
 ```
 
-**Reviewed for:** Each aggregate with a cross-record uniqueness rule: a `UniquenessKeys` method returning its current keys, with no other uniqueness code in Domain.
+**Reviewed for:** Which aggregates with a cross-record uniqueness rule miss `UniquenessKeys`, or carry other uniqueness code in Domain? Look at each such aggregate.
 
 ### Raise Immutable Domain Facts
 
@@ -633,7 +633,7 @@ public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
 
 Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while calling the base constructor. The base remains free of aggregate-specific exceptions.
 
-**Reviewed for:** The shared Domain contracts: each declared once, with `DomainException` declaring its abstract `Code` and `AggregateRoot<TId>` deriving from `Entity<TId>`.
+**Reviewed for:** Which shared Domain contracts repeat, or which `DomainException` or `AggregateRoot<TId>` break their declared shape? Look at the shared contracts.
 
 ### Keep ID Representations Aligned at Every Boundary
 
@@ -669,7 +669,7 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 }
 ```
 
-**Reviewed for:** Each identifier at Domain, persistence, transport, and client boundaries: the same UUID text form.
+**Reviewed for:** Which identifiers break the same UUID text form across Domain, persistence, transport, and client boundaries? Look at one identifier in each boundary form.
 
 ### Use the Domain Module Layout
 
@@ -750,7 +750,7 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 
 Each aggregate-specific repository interface stays with the aggregate it loads. Application, Infrastructure, and WebApi use the same module and per-aggregate folder names, per `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
-**Reviewed for:** Each Domain module folder: one plural folder per aggregate holding its states, events, exceptions, and concepts.
+**Reviewed for:** Which Domain module folders break the one plural folder per aggregate with states, events, exceptions, and concepts? Look at each module folder.
 
 ## Reference Example
 

@@ -43,7 +43,7 @@ export async function load({ parent, params }) {
 }
 ```
 
-**Reviewed for:** Each route that reads declares a loader prefetching those reads through the query cache.
+**Reviewed for:** Which routes that read declare no loader prefetching those reads through the query cache? Look in the route loaders.
 
 ### Read Route Data with a Suspense Query
 
@@ -67,7 +67,7 @@ Svelte:
 const expense = createQuery(() => expenseQuery(expenseId));
 ```
 
-**Reviewed for:** Each component read names the cache key its loader filled.
+**Reviewed for:** Which component reads name another key than the one their loader filled? Look in the component reads beside the loaders.
 
 ### Keep Search Parameters Validated by a Schema
 
@@ -89,7 +89,7 @@ The Svelte page parses the same shape from the address:
 const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 ```
 
-**Reviewed for:** Each route declares its search parameters in a validated schema, with no component reading the address directly.
+**Reviewed for:** Which routes leave search parameters outside a validated schema, and which components read the address directly? Look in the route schemas and the component sources.
 
 ### Split One Chunk per Route and per Language
 
@@ -111,7 +111,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Rationale:** Prefetching the route a pointer is over fills the query cache before the click, so most navigations render from data already held. The prefetch holds nothing beyond the query cache: two caches serve a stale answer beside a fresh one with no error anywhere. This realizes litespec/frontend/rendering#prefetch-a-route-on-intent.
 
-**Reviewed for:** The router preloads the route a pointer is over, holding no cache beyond the query cache.
+**Reviewed for:** Which routers skip preloading the route a pointer is over, or hold a cache beyond the query cache? Look in the router prefetch wiring.
 
 ### Define Route Metadata Deliberately
 
@@ -123,7 +123,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Example:** A channel route states `og:*` tags and one alternate per language. A console route ships a `noindex` meta tag in its document.
 
-**Reviewed for:** Each public route defines its title, description, canonical address, and indexing policy, and each private route ships a `noindex` marker.
+**Reviewed for:** Which public routes miss a title, description, canonical address, or indexing policy, and which private routes miss a `noindex` marker? Look in the route metadata.
 
 ### Keep Authenticated Caching Explicit
 
@@ -133,7 +133,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Rationale:** A cache that outlives its actor serves one reader's data to another, so actor-specific data stays uncached until its cache key, partition, invalidation owner, and security review are declared beside the query definition that sets the key. A cache partitioned per request is the safe server shape, and an uncached read is the safe default. This realizes litespec/frontend/rendering#keep-authenticated-caching-explicit.
 
-**Reviewed for:** Each cached actor-specific read declares its cache key, partition, invalidation owner, and security review beside its query definition.
+**Reviewed for:** Which cached actor-specific reads lack a declared cache key, partition, invalidation owner, or security review beside their query definition? Look in the query definitions setting cache keys.
 
 ### Keep Proxy Behavior at the Edge
 
@@ -145,7 +145,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Example:** A development proxy forwards `/api` and `/auth` to the API and changes nothing else.
 
-**Reviewed for:** Every development and edge proxy rule routes only, deciding neither the actor nor what the actor may read.
+**Reviewed for:** Which development or edge proxy rules decide the actor or what the actor may read instead of routing only? Look in the proxy rules.
 
 ### Build the Server Query Cache per Request
 
@@ -155,7 +155,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Rationale:** A server renders for many readers at once. A query cache built inside each request dies with its reader, so no reader sees another's data. A cache outliving one request would serve the next reader the previous reader's answer. This realizes litespec/frontend/rendering#build-the-server-data-cache-per-request.
 
-**Checked by:** `grep -c createQueryClient` on React or `grep -c 'new QueryClient'` on Svelte counts one construction in the request factory.
+**Reviewed for:** Which server-rendered frontends construct their query cache outside a single request? Look in the request factory at the query client construction.
 
 ## Conventions
 
@@ -169,7 +169,7 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Rationale:** A shell is the frame every child route shares, and a layout holds it without adding an address segment. The shell then never appears in a link, and every child route inherits the same frame. This realizes litespec/frontend/rendering#use-a-shared-layout-for-a-shell.
 
-**Reviewed for:** Each shell sits in a shared layout holding the frame every child route shares.
+**Reviewed for:** Which shells sit outside a shared layout holding the frame every child route shares? Look in the layout definitions.
 
 ## Reference Example
 

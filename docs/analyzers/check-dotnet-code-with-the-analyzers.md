@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deviation for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
+The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records an exception for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -137,14 +137,14 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where a deviation allows it, as the next step describes.
+Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where an exception allows it, as the next step describes.
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record a deviation that cites the provision, with its reason and review date, as [the model page](../core/model.md) describes. Keep the record at `docs/governance/deviations/<name>.md`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record an exception of kind `departure` that covers the provision, with its reason, owner, and expiry date, as [the model page](../core/model.md) describes. Keep the record at `docs/governance/exceptions/<name>.md`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // deviation: docs/governance/deviations/domain-docs-deferred.md
+#pragma warning disable LS1011 // exception: docs/governance/exceptions/domain-docs-deferred.md
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```
@@ -162,6 +162,6 @@ The example above quiets `litespec/backend/dotnet/domain#document-every-public-d
 
 Confirm the setup with these checks:
 
-- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones a deviation covers.
+- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones an exception covers.
 - Add a temporary enum to the Domain project and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.

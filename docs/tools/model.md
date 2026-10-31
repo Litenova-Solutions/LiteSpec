@@ -151,7 +151,8 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `decision-basis-missing` | A | A technical decision names no constraint or requirement in `basedOn`. | Name the constraint or requirement in `basedOn`. |
 | `constituent-parent-missing` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. | Move the type under its aggregate, or mark it. |
 | `mark-count-invalid` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. | Carry the marks the marks table names, each once. |
-| `mark-style-invalid` | S | A mark is written in the style the project did not declare. | Rewrite the mark in the declared style. |
+| `mark-style-invalid` | S | A C# mark is written in the style the project did not declare. | Rewrite the mark in the declared style. |
+| `mark-folder-drift` | S | A backend element marks a use case, automation or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. | Match the value to what the record states. |
 | `act-event-undeclared` | S | A root method marked with a use case raises an event the use case does not list in `raises`. | List the event in `raises`, or stop raising it. |
 | `act-event-unimplemented` | S | A use case lists an event in `raises` that no root method marked with it raises. | Raise the event from a marked root method, or remove it from `raises`. |

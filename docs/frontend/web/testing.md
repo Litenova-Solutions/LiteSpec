@@ -29,7 +29,7 @@ What each kind proves is stated on [Frontend Testing](../testing.md).
 
 **Rationale:** Vitest runs beside the module with no browser, so pure logic stays fast and precise. Playwright runs against a running stack, so navigation and integration prove real browser behavior. The route contract visits every address, so no route ships unproved. Each level proves what only it can, and fast tests never pay for a browser. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Each test uses Vitest beside its module for pure logic and Playwright against a running stack for navigation and integration, with the route contract visiting every address.
+**Reviewed for:** Which pure logic lacks a Vitest test beside its module, which navigation or integration lacks a Playwright specification, and which address lacks the route contract? Look in the module folders and the test roots.
 
 ### Assert Each Declared Refusal by Its Code
 
@@ -45,7 +45,7 @@ What each kind proves is stated on [Frontend Testing](../testing.md).
 await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTER_ACTION });
 ```
 
-**Reviewed for:** Each evidence specification for a use case declaring a refusal reaches that refusal and asserts its result code in the page.
+**Reviewed for:** Which declared refusals do no evidence specifications reach and assert by result code in the page? Look in the evidence specifications.
 
 ### Keep Mocks at Owned Boundaries
 
@@ -55,7 +55,7 @@ await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTE
 
 **Rationale:** A mock replaces what the test owns: its own boundary's answers. Replacing a framework or library instead proves the mock's behavior rather than the product's, and hides the integration the test was meant to cover. Each stack page names the libraries its tests keep. This realizes litespec/frontend/testing#keep-mocks-at-owned-boundaries.
 
-**Reviewed for:** No test replaces a library its stack page names.
+**Reviewed for:** Which tests replace a library their stack page names? Look in the test doubles.
 
 ### Use Network Mocks for Component Tests
 
@@ -67,7 +67,7 @@ await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTE
 
 **Example:** The handlers are `msw` handlers derived from the OpenAPI document and run in the browser worker and the Node server alike. The workspace keeps one mock-generation command that regenerates them.
 
-**Reviewed for:** Each component or logic test needing HTTP serves answers through `msw` handlers generated from the published contract.
+**Reviewed for:** Which component or logic tests needing HTTP answer outside `msw` handlers generated from the published contract? Look in the component tests.
 
 ### Prove the Module Mirror in a Structure Test
 
@@ -85,7 +85,7 @@ test("every module folder names a backend use case, and no folder is named for n
 });
 ```
 
-**Reviewed for:** The Vitest structure test resolves each module folder to a backend use case and names no refused folder.
+**Reviewed for:** Which module folders does the Vitest structure test fail to resolve to a backend use case, and which refused folders does it name? Look in the structure test.
 
 ### Run Browser Checks Through the Playwright CLI
 
@@ -101,7 +101,7 @@ test("every module folder names a backend use case, and no folder is named for n
 pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expenses list keeps the route contract"
 ```
 
-**Reviewed for:** Each browser suite runs through the Playwright CLI, addressable per route and per file.
+**Reviewed for:** Which browser suites run outside the Playwright CLI, or without per-route and per-file addressing? Look in the suite runner and the CI invocation.
 
 ### Refuse a Test Without an Assertion
 
@@ -131,7 +131,7 @@ pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expen
 
 **Rationale:** A calculation rule carries an examples table on its scenarios, and those rows seed the property cases: the properties hold for the agreed examples before they are checked against generated inputs. fast-check runs inside Vitest and shrinks a failure to its smallest input. It is free and maintained under MIT.
 
-**Reviewed for:** Each TypeScript calculation's property test imports fast-check and lists the examples-table rows as its seed cases.
+**Reviewed for:** Which TypeScript calculations lack a property test importing fast-check with the examples-table rows as seed cases? Look in the calculation tests.
 
 ## Conventions
 
@@ -145,4 +145,4 @@ pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expen
 
 **Rationale:** Scoping a query to one floorplan through its `data-floorplan` attribute keeps the test on the page it meant when several render at once. Addressing slot content by accessible role and name proves what a user can actually find and operate. The attribute is structural rather than an identifier, so it scopes without breaking the accessible query. This realizes litespec/frontend/testing#query-by-accessible-behavior.
 
-**Reviewed for:** Each browser query scopes to one floorplan through `data-floorplan` and addresses slot content by accessible role and name.
+**Reviewed for:** Which browser queries miss the `data-floorplan` scope or address slot content outside accessible role and name? Look in the test locators.

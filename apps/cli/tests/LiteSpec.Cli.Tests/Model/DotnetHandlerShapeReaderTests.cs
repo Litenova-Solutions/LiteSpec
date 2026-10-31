@@ -377,6 +377,37 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Equal("void-order", action.Action);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    [Fact]
+    public void State_Changing_Method_Without_An_Event_Is_An_Aggregate_Method_Element()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Order.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public sealed class Order : AggregateRoot<OrderId>
+            {
+                private bool erased;
+
+                public void Erase()
+                {
+                    erased = true;
+                }
+
+                public void Touch()
+                {
+                }
+            }
+            """);
+
+        var element = Assert.Single(Read(temp.Path).Elements.Where(found => found.Kind == CodeKind.AggregateMethod));
+
+        Assert.Equal("Order", element.Class);
+        Assert.Equal("Erase", element.Member);
+        Assert.Empty(element.Marks);
+    }
+
     static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteDomainRoot(string root) =>

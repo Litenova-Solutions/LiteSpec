@@ -20,7 +20,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** A system picker that needs no storage permission shows the visitor exactly what the app receives: the chosen items and nothing else. Requesting broad storage access instead asks for the whole library to read one photo, which the visitor has good reason to refuse. Using the permissionless picker where the platform offers one keeps the app's access to what the visitor chose.
 
-**Reviewed for:** Photo and file picking travels through the permissionless system picker where the platform offers one.
+**Reviewed for:** Which photo or file picking bypasses the permissionless system picker where the platform offers one? Look in the picking call sites.
 
 ### Request a Permission at the Point of Use
 
@@ -30,7 +30,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** A permission requested at launch arrives before the visitor knows what it is for, so the safe answer is no. Requested when the visitor starts the action that needs it, the same permission answers a question the visitor just asked. Each request names the feature waiting on it, so a refusal disables that feature rather than the app.
 
-**Reviewed for:** Runtime permission requests fire from the action needing them, with none at launch.
+**Reviewed for:** Which runtime permission requests fire at launch instead of from the action needing them? Look in the permission requests.
 
 ### Hold Audio Focus While Playing Sound
 
@@ -40,7 +40,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** One speaker serves every app, so playback without focus talks over navigation prompts, calls, and other players. Requesting focus before playing lets the platform arbitrate, and pausing on focus loss yields to whatever took it. Resuming waits for focus to return rather than grabbing it back.
 
-**Reviewed for:** Audible playback requests audio focus and pauses on focus loss.
+**Reviewed for:** Which audible playback skips audio focus or keeps playing on focus loss? Look in the playback code.
 
 ### Pause Media in the Background
 
@@ -50,7 +50,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** An app the visitor can no longer see should go quiet: background sound from a hidden app reads as a bug, and background video decodes frames nobody watches. Pausing on leaving the foreground frees the speaker and the decoder for the app now in front. Resuming only on return keeps playback tied to the visible screen.
 
-**Reviewed for:** Sound and video pause out of the foreground and resume only on return.
+**Reviewed for:** Which sound or video keeps playing out of the foreground, or resumes before return? Look in the lifecycle handling.
 
 ### Declare Only Used Permissions
 
@@ -60,7 +60,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** Each declared permission is a promise the app's features must keep: a declaration without a feature asks for the trust nothing uses. Stale declarations accumulate as features are removed, and each one costs the app a question the visitor should never have been asked. Declaring only what current features use keeps the manifest an honest list of the app's needs.
 
-**Reviewed for:** The app manifest declares only permissions current features use.
+**Reviewed for:** Which app manifest permissions do no current features use? Look in the app manifest beside the features.
 
 ## Conventions
 
@@ -74,4 +74,4 @@ A picker lends one item without granting access to the library; a permission gra
 
 **Rationale:** Background work runs where the visitor cannot see it, spending battery and data on a schedule the app chose. A project decision naming the service, job, or handler records why the work cannot wait for the foreground and what it costs. Without that decision, every device feature runs while the app is visible and stops with it.
 
-**Reviewed for:** Background services, scheduled jobs, and push handlers each name a project decision, or none exist.
+**Reviewed for:** Which background services, scheduled jobs, or push handlers run without a project decision naming them? Look in the background work beside the decision records.

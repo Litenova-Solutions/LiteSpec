@@ -42,7 +42,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 }
 ```
 
-**Reviewed for:** Each command handler: one aggregate loaded or created, one domain method called, staged through its repository, and nothing else; `dotnet build` reports find-or-create as LS2014 and looped stores as LS2015.
+**Reviewed for:** Which command handlers do more than load or create one aggregate, call one domain method, stage it, and return? Look at each command handler body; `dotnet build` reports find-or-create as LS2014 and looped stores as LS2015.
 
 ### Report Input Problems as Validity
 
@@ -52,7 +52,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Rationale:** Every validator for the message runs, and the pipeline merges the findings before it refuses the request, so the caller fixes the whole form at once. The member tells the caller which input failed, the stable code lets a client branch on the reason, and the message explains the problem in words safe to show. Validity values come from the pinned mediator's abstractions, named in `litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`, so every project reports the same shape. This provision states the .NET form of `litespec/backend/application#report-input-problems-as-validity-findings`.
 
-**Reviewed for:** Each validator: findings as `Validity`, with each `ValidationFailure` carrying member, code, and message, and no HTTP status.
+**Reviewed for:** Which validators report outside `Validity`, or skip member, code, or message, or leak HTTP status? Look at each validator.
 
 ### Keep Query Handlers Free of Writes
 
@@ -64,7 +64,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Example:** The list-expenses query projects its rows through `IQuerySession`, taking no repository and staging nothing.
 
-**Reviewed for:** Each query handler: no repository, projecting through `IQuerySession`, staging, storing, deleting and dispatching nothing; `dotnet build` reports a repository in a query handler as LS2011.
+**Reviewed for:** Which query handlers take a repository, skip `IQuerySession`, or stage, store, delete, or dispatch? Look at each query handler; `dotnet build` reports a repository in a query handler as LS2011.
 
 ### Dispatch Declared Effects Through Their Entry Points
 
@@ -102,7 +102,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 }
 ```
 
-**Reviewed for:** Each event automation in Application: one handler class carrying its record's mark, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
+**Reviewed for:** Which event automations escape one handler class with their record's mark in the `On{Fact}` folder? Look at each event automation in Application.
 
 ### Run Scheduled Automations as Hosted Operations
 
@@ -122,7 +122,7 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 }
 ```
 
-**Reviewed for:** Each scheduled or manual automation: one hosted operation carrying its record's mark, honoring selection, batch size, lease, and cursor.
+**Reviewed for:** Which scheduled or manual automations escape one marked hosted operation honoring selection, batch size, lease, and cursor? Look at each such automation.
 
 ### Bind the Pipeline to the Pinned LiteBus APIs
 
@@ -132,7 +132,7 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Rationale:** One pinned binding per position keeps every project's pipeline identical. The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`. Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-audit-values-beside-the-message`. Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`. Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`. Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change. The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message`.
 
-**Reviewed for:** The command pipeline composition: one pinned LiteBus API per position, for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
+**Reviewed for:** Which pipeline positions lack their pinned LiteBus API? Look at the command pipeline composition.
 
 ## Conventions
 
@@ -197,7 +197,7 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
-**Reviewed for:** Each operation folder under its module and aggregate: the message, result, validator, and handler files named for the use case; each event handler in its `On{Fact}` folder.
+**Reviewed for:** Which operation folders miss message, result, validator, or handler files named for the use case, or which event handlers escape their `On{Fact}` folder? Look at each operation folder.
 
 ### Use the Pinned Mediator Entry Points
 
@@ -209,7 +209,7 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
 
 **Rationale:** One pinned library means every dispatch site in every project reads the same way, and an agent finds all callers of a message with one search. A project that replaces the default still keeps commands and queries on separate entry points, because that separation is required by `litespec/backend/application#dispatch-commands-and-queries-through-separate-entry-points` and no replacement removes it.
 
-**Reviewed for:** Each dispatch site: commands through `ICommandMediator.SendAsync` and queries through `IQueryMediator.QueryAsync`, from the pinned LiteBus version.
+**Reviewed for:** Which dispatch sites bypass `ICommandMediator.SendAsync` or `IQueryMediator.QueryAsync`, or use an unpinned LiteBus version? Look at each dispatch site.
 
 ## Reference Example
 

@@ -20,7 +20,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Rationale:** The core holds no platform type, so its tests need no emulator, device, or platform host. They run as plain .NET test projects in xunit.v3, the test framework the manifest pins. A core test that needs a device proves the layering already broke, and the fix belongs in the layering rather than in the test setup. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Core test projects run on the plain .NET runner with no emulator.
+**Reviewed for:** Which core test projects need an emulator instead of running on the plain .NET runner? Look in the core test projects.
 
 ### Prove Screens on a Device or Emulator
 
@@ -30,7 +30,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Rationale:** Screens render through the platform toolkit, so only a device test meets them where users do: layout, insets, back behavior, and accessibility. A screen no device test drives is proved by nothing, whatever the core tests cover. Driving each screen a use case reaches on an emulator or device keeps every reachable screen proved. This realizes litespec/frontend/testing#match-test-level-to-risk.
 
-**Reviewed for:** Each screen a use case reaches has a device test driving it on an emulator or device.
+**Reviewed for:** Which screens a use case reaches lack a device test driving them on an emulator or device? Look in the device tests beside the screens.
 
 ## Conventions
 
@@ -44,4 +44,4 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Rationale:** Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Walking the release build on one physical device per platform meets the app as users will, and the recorded device and result make the walk reviewable. A release without that record ships on emulator evidence alone.
 
-**Reviewed for:** The release record names one physical device per platform and the walk result.
+**Reviewed for:** Which releases publish without a record naming one physical device per platform and the walk result? Look in the release records.

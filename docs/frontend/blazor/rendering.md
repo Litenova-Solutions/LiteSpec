@@ -20,7 +20,7 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 **Rationale:** The stack promises a product with no server of its own. Interactive server rendering, automatic render mode, and prerendering each need a live server connection at first paint, which breaks that promise and stops the product working offline. Rendering on the client only keeps the published output static files that any host can serve.
 
-**Reviewed for:** The published output declares no server render mode.
+**Reviewed for:** Which published output declares a server render mode? Look in the published output configuration.
 
 ### Declare Routes on Pages
 
@@ -30,7 +30,7 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 **Rationale:** One `@page` template on a page under `Pages/` makes each address findable and each route's input typed. Feature components stay unroutable, so no address reaches an interior piece of a page. An unparsable parameter renders the not-found state rather than throwing, so a mistyped link shows a page instead of a crash.
 
-**Reviewed for:** Each routable component under `Pages/` declares one `@page` template with typed parameters.
+**Reviewed for:** Which routable components under `Pages/` declare zero or several `@page` templates, or untyped parameters? Look in the `Pages/` components.
 
 ### Give Every Route Explicit States
 
@@ -40,7 +40,7 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 **Rationale:** A route without declared states shows whatever its components default to while loading, empty, or failing: usually a blank page or a crash. Six named states leave no gap: loading until persisted reads complete, empty, error, forbidden for an address the actor may not read, not-found for an unparsable parameter, and ready. Each state name is a term in the project's glossary, so every route describes the same states in the same words. This realizes litespec/frontend/rendering#represent-route-states.
 
-**Reviewed for:** Each route renders loading, empty, error, forbidden, not-found, and ready, with not-found for bad parameters.
+**Reviewed for:** Which routes miss a loading, empty, error, forbidden, not-found, or ready behavior? Look in the route state definitions.
 
 ### Keep the Acquisition Surface Static
 
@@ -50,7 +50,7 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 **Rationale:** A first-time visitor reads a landing page, and downloading the WebAssembly runtime first makes that read slow for no reason. Static documents outside the application load immediately. The application boundary begins where a visitor starts using the product, so only users pay the runtime cost.
 
-**Reviewed for:** Each landing page loads without fetching the framework payload.
+**Reviewed for:** Which landing pages fetch the framework payload on load? Look in the landing page network requests.
 
 ### Operate Offline After First Load
 
@@ -62,7 +62,7 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 The worker also shapes the online path. It serves the version it cached, so a visitor who never goes offline still runs yesterday's payload until the worker updates. The worker therefore declares its update strategy and what a visitor sees while a new version installs, so an update never surprises a user mid-task.
 
-**Reviewed for:** The application starts offline after first load, within the limits its use cases state.
+**Reviewed for:** Which application starts fail offline after first load, outside the limits its use cases state? Look in the offline startup tests.
 
 ## Conventions
 
@@ -76,7 +76,7 @@ The worker also shapes the online path. It serves the version it cached, so a vi
 
 **Rationale:** The address bar shows the route to the reader, so its segments should name the use case or page the reader asked for. A storage key, internal identifier, or layer name in the address exposes an implementation choice and breaks when the implementation changes.
 
-**Reviewed for:** Each route template matches its documented use case name.
+**Reviewed for:** Which route templates mismatch their documented use case name? Look in the route templates beside the use case records.
 
 ### Keep Navigation State in the URL
 
@@ -88,4 +88,4 @@ The worker also shapes the online path. It serves the version it cached, so a vi
 
 **Rationale:** Filters, selected tabs, and pagination in the route or query string survive a refresh and travel inside a shared link. The same state in a component vanishes on the first refresh and reaches nobody the reader sends the link to. This realizes litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema.
 
-**Reviewed for:** Filters, tabs, and pagination survive a refresh through the route or query string.
+**Reviewed for:** Which filters, tabs, or pagination lose their state on refresh? Look in the route and query string handling.

@@ -43,7 +43,7 @@ Three related rules live on other pages:
 
 **Rationale:** A browser run costs seconds and a deployment; a unit test costs milliseconds and nothing else. Proving pure logic through the browser makes the suite slow without making it stronger, while proving navigation with unit tests proves nothing about the running page. Logic tests take pure logic, browser specifications take navigation and integration, and the route contract covers every address, so each risk is proved at the cheapest boundary that represents it.
 
-**Reviewed for:** Pure logic takes logic tests, navigation and integration take browser specifications, and every address takes the route contract. Look in the test files beside the modules and under the tests roots.
+**Reviewed for:** Which pure logic lacks a logic test, which navigation or integration lacks a browser specification, and which address lacks the route contract? Look in the test files beside the modules and under the tests roots.
 
 ### Mark the Scenario a Browser Test Proves
 
@@ -91,7 +91,7 @@ Three related rules live on other pages:
 
 **Example:** The refusal alert carries the code, so the assertion names it.
 
-**Reviewed for:** Evidence specifications reach each declared refusal and assert it by its result code. Look in the evidence specifications.
+**Reviewed for:** Which declared refusals do no evidence specifications reach and assert by result code? Look in the evidence specifications.
 
 ### Prove Each Scenario at One Boundary
 
@@ -125,7 +125,7 @@ Three related rules live on other pages:
 
 **Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success, ties the test to the reader's view. The scenario states which states its situation reaches, so a logic test asserts only states its level reaches. The project records each state as a term with labels per language.
 
-**Reviewed for:** Tests assert observable behavior in the states their situation reaches. Look in the test assertions.
+**Reviewed for:** Which tests assert internal state instead of observable behavior in the states their situation reaches? Look in the test assertions.
 
 ### Keep Mocks at Owned Boundaries
 
@@ -135,7 +135,7 @@ Three related rules live on other pages:
 
 **Rationale:** A mock is a claim about code the test no longer exercises. Mocking the generated contract types, an implementation-private function, or a library the stack names replaces the project's own contract or someone else's internals with the test author's guess of how they behave. The generated client boundary stays replaceable because it is an owned contract: the project wrote it, so the project can stand in for it.
 
-**Reviewed for:** Mocks stand only at owned boundaries, with generated contract types, private functions, and stack-named libraries unmocked. Look in the test doubles.
+**Reviewed for:** Which mocks replace generated contract types, private functions, or stack-named libraries? Look in the test doubles.
 
 ### Use Network Mocks for Component Tests
 
@@ -147,7 +147,7 @@ Three related rules live on other pages:
 
 **Example:** The workspace keeps one mock-generation command that regenerates them.
 
-**Reviewed for:** Component and logic tests needing HTTP answer through contract-generated network mocks with the generated client in the path. Look in the component tests and the mock generation.
+**Reviewed for:** Which component or logic tests needing HTTP answer without contract-generated network mocks, or with the generated client out of the path? Look in the component tests and the mock generation.
 
 ### Isolate Browser Tests
 
@@ -157,7 +157,7 @@ Three related rules live on other pages:
 
 **Rationale:** A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test spends no seeded record; it creates the record it needs.
 
-**Reviewed for:** Browser tests create their own data, authentication context, and expected state, runnable alone in any order. Look in the browser specifications.
+**Reviewed for:** Which browser tests depend on another test's data, authentication context, or expected state? Look in the browser specifications.
 
 ### Prove the Module Mirror in a Structure Test
 
@@ -169,7 +169,7 @@ Three related rules live on other pages:
 
 **Example:** The structure check resolves each folder name against the backend's module tree.
 
-**Reviewed for:** The structure test resolves the module tree to backend use-case folders and names no refused folder. Look in the structure test.
+**Reviewed for:** Which module folders does the structure test fail to resolve to backend use-case folders, and which refused folders does it name? Look in the structure test.
 
 ### Run Browser Checks Through the Command Line
 
@@ -179,7 +179,7 @@ Three related rules live on other pages:
 
 **Rationale:** The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. Addressable per route and per file, the suite also runs just the check under review instead of the whole suite.
 
-**Reviewed for:** Browser suites run through the command line per route and per file. Look in the suite runner and the CI invocation.
+**Reviewed for:** Which browser suites run outside the command line, or without per-route and per-file addressing? Look in the suite runner and the CI invocation.
 
 ## Conventions
 
@@ -193,7 +193,7 @@ Three related rules live on other pages:
 
 **Rationale:** A query by role, label, name, or visible text fails when the user-facing behavior breaks, which is exactly the behavior worth protecting. A test identifier survives an accessibility regression in silence, so it is the last resort rather than the first. A structural floorplan marker is not an identifier, so a query can use it to scope to one floorplan; slot content is addressed by its accessible role and name.
 
-**Reviewed for:** Element queries use role, label, name, or visible text before test identifiers. Look in the test locators.
+**Reviewed for:** Which element queries reach for a test identifier before role, label, name, or visible text? Look in the test locators.
 
 ### Keep Test Support Narrow
 
@@ -205,7 +205,7 @@ Three related rules live on other pages:
 
 **Rationale:** Test support that grows into render frameworks, data builders, and custom runners becomes a second application with its own untested surface. Limiting it to render helpers for required providers, one shared API helper, and locator helpers keeps it small: a change to the actor header or the idempotency key reaches the fixtures rather than every specification.
 
-**Reviewed for:** Test support holds render helpers, one shared API helper, and locator helpers only. Look in the test support files.
+**Reviewed for:** Which test support files hold more than render helpers, one shared API helper, and locator helpers? Look in the test support files.
 
 ### Read the Deployment for Its Identifiers
 
@@ -217,7 +217,7 @@ Three related rules live on other pages:
 
 **Rationale:** A hard-coded record identifier passes against the deployment it was copied from and fails against the next, where that record does not exist. Reading the identifier from the running deployment keeps the test true wherever it runs. Falling back to an absent identifier still visits the route as a not-found page, which is a state a reader can reach anyway.
 
-**Reviewed for:** Record identifiers come from the running deployment, falling back to an absent identifier. Look in the browser specifications.
+**Reviewed for:** Which browser tests hard-code a record identifier instead of reading it from the running deployment? Look in the browser specifications.
 
 ## Reference Example
 

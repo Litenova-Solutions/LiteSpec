@@ -37,7 +37,7 @@ internal interface IEndpoint
 
 At startup, WebApi scans its own assembly for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
 
-**Reviewed for:** Each mapped route: one `IEndpoint` type converting input, dispatching through its mediator, and mapping the result.
+**Reviewed for:** Which mapped routes escape one `IEndpoint` type converting input, dispatching, and mapping the result? Look at the endpoints in the WebApi project.
 
 ### Exclude MVC Controllers from the Stack
 
@@ -57,7 +57,7 @@ At startup, WebApi scans its own assembly for non-abstract `IEndpoint` implement
 
 **Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary and description are declared explicitly. This provision states the .NET form of `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`.
 
-**Reviewed for:** Each operation: a stable `operationId`, authorization, request, success, and Problem Details metadata, typed results or `Produces` entries, and a summary.
+**Reviewed for:** Which operations miss a stable `operationId`, authorization, request, success, or Problem Details metadata, typed results or `Produces` entries, or a summary? Look at each operation.
 
 ### Derive HTTP Statuses from Refusal Codes
 
@@ -76,7 +76,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 The handler maps each known exception type to its status and code, and answers 500 with code `internal_error` for the rest.
 
-**Reviewed for:** The WebApi global handler: one `IExceptionHandler` mapping each refusal code to its outcome-table status.
+**Reviewed for:** Which refusal codes escape the one `IExceptionHandler`, or map outside their outcome-table status? Look at the WebApi global handler.
 
 ### Mark Polymorphic Transport Models with Discriminators
 
@@ -94,7 +94,7 @@ The handler maps each known exception type to its status and code, and answers 5
 - Opt derived types in explicitly, so an unregistered runtime subtype fails serialization.
 - Complete discriminator metadata that the generator omits with a document or schema transformer.
 
-**Reviewed for:** Each data-bearing set: an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
+**Reviewed for:** Which data-bearing sets escape the abstract base record with one sealed record per case and the `oneOf` string discriminator? Look at each data-bearing set.
 
 ## Conventions
 
@@ -143,7 +143,7 @@ The handler maps each known exception type to its status and code, and answers 5
   Program.cs
 ```
 
-**Reviewed for:** Each endpoint folder under its module and aggregate: the endpoint, request and response models, and mappings named for the use case.
+**Reviewed for:** Which endpoint folders miss the endpoint, request and response models, or mappings named for the use case? Look at each endpoint folder.
 
 ### Keep Program.cs as Composition
 
@@ -157,4 +157,4 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Example:** The visible order is trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
 
-**Reviewed for:** `Program.cs`: module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup in the recorded order.
+**Reviewed for:** Which `Program.cs` files break the recorded composition order or miss a step? Look at `Program.cs`.

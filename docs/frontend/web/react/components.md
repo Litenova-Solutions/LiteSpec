@@ -25,7 +25,7 @@ function OrderTotal({ orderId }: { orderId: string }) {
 }
 ```
 
-**Reviewed for:** Every component in the workspace is a function component using hooks, with no class component.
+**Reviewed for:** Which components are class components instead of function components using hooks? Look in the workspace components.
 
 ### Keep Component Boundaries Typed
 

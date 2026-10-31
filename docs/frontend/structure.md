@@ -37,7 +37,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
   modules/   one folder per backend module, aggregate, and use case
 ```
 
-**Reviewed for:** Frontends separate frame, routes, and use-case modules. Look in the frontend folder roots.
+**Reviewed for:** Which frontend files sit outside the frame, routes, and use-case modules split? Look in the frontend folder roots.
 
 ### Mirror the Backend Use Case Path in Kebab Case
 
@@ -69,7 +69,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 ![The backend folder Spending, Expenses, SubmitExpense beside the frontend folders spending, expenses, submit-expense, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
-**Reviewed for:** Use-case folders sit at `{module}/{aggregate}/{use-case}/` in kebab case and resolve to the backend folder of the same names. Look in the module tree and the structure test proving the mirror.
+**Reviewed for:** Which use-case folders sit outside `{module}/{aggregate}/{use-case}/` in kebab case, or resolve to no backend folder of the same names? Look in the module tree and the structure test proving the mirror.
 
 ### Keep a Use Case Folder Flat
 
@@ -79,7 +79,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Rationale:** A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the mirror checkable to the bottom.
 
-**Reviewed for:** Use-case folders hold files and no subfolder. Look in the module tree.
+**Reviewed for:** Which use-case folders hold a subfolder? Look in the module tree.
 
 ### Place a Shared File in the Folder That Owns It
 
@@ -91,7 +91,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** Three expense queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
 
-**Reviewed for:** Files read by several use cases sit flat in the narrowest folder holding every reader. Look in the aggregate and module folders.
+**Reviewed for:** Which files read by several use cases sit outside the narrowest folder holding every reader? Look in the aggregate and module folders.
 
 ### Reject a Folder Name That Owns Nothing
 
@@ -103,7 +103,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** A shared query three use cases read sits flat in the aggregate folder, not in a `shared/` folder beside them.
 
-**Reviewed for:** No folder under `src` carries a refused name. Look in the folder tree.
+**Reviewed for:** Which folders under `src` carry a refused name? Look in the folder tree.
 
 ### Keep a Route Entry Thin
 
@@ -115,7 +115,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** An expense list route validates its search, prefetches its read, and composes one screen from module components.
 
-**Reviewed for:** Route entries hold input, load, and component, with reusable logic in modules and no route-to-route reference. Look in the route entries.
+**Reviewed for:** Which route entries hold reusable logic or reference another route entry? Look in the route entries.
 
 ### Mark Each Route with Its Screen
 
@@ -145,7 +145,7 @@ Routes -> modules -> frame -> shared packages
 
 The direction refuses three imports: a module reaching a route, a shared package reaching an application, and a frame module reaching into one module's use-case folder for a second module's data.
 
-**Reviewed for:** Imports point from routes to modules to the frame to shared packages. Look in the import statements.
+**Reviewed for:** Which imports point against the route to module to frame to shared package direction? Look in the import statements.
 
 ### Keep Applications Independent
 
@@ -155,7 +155,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. An import from another application's source ties the two together: a change to one breaks or redeploys the other. Code two applications genuinely share moves down into a shared package, which names neither application.
 
-**Reviewed for:** Frontends import no source from another frontend. Look in the import statements.
+**Reviewed for:** Which frontends import source from another frontend? Look in the import statements.
 
 ### Keep Shared Packages Non Application Specific
 
@@ -165,7 +165,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** Shared packages hold what serves every frontend and names none of them: the generated client, the shared UI package, the locale dictionaries, and the frontend tooling. Page composition, feature state, authentication policy, or application components kept there would bind every application to one application's choices. Application-specific code stays in the application, where it can change without touching the rest.
 
-**Reviewed for:** Shared packages hold no page composition, feature state, authentication policy, or application components. Look in the shared package sources.
+**Reviewed for:** Which shared packages hold page composition, feature state, authentication policy, or application components? Look in the shared package sources.
 
 ### Locate Cross-Route Values in the Frame
 
@@ -175,7 +175,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. A route holding one of them holds a copy beside every other route's copy, with nothing keeping the copies equal. The frame holds each once, where every route reaches it. A browser API a use-case module needs belongs in the frame too, because a module renders and reads data rather than touching the device.
 
-**Reviewed for:** The frame holds client configuration, session read, language choice, permissions, formatting, shell data, and browser uses. Look in the frame.
+**Reviewed for:** Which client configuration, session read, language choice, permissions, formatting, shell data, or browser uses sit outside the frame? Look in the frame.
 
 ## Conventions
 
@@ -189,7 +189,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** A shared package is free to rearrange its internals between releases. An application importing an internal path couples itself to that layout, so the next rearrangement breaks the application. Documented public entry points are the stable surface the package keeps.
 
-**Reviewed for:** Applications import only documented public entry points of shared packages. Look in the application imports and the package manifests.
+**Reviewed for:** Which application imports reach past the documented public entry points of shared packages? Look in the application imports and the package manifests.
 
 ### Place Tests at Their Ownership Boundary
 
@@ -201,7 +201,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** A logic test beside its module is found from the code it covers and runs with it. Browser suites instead share one fixture set and one deployment per frontend, so scattering them beside modules would split the fixtures and the runs. One tests root per frontend keeps the browser suites together.
 
-**Reviewed for:** Logic tests sit beside their module, and browser suites share one tests root per frontend. Look in the module folders and the tests roots.
+**Reviewed for:** Which logic tests sit outside their module, and which browser suites sit outside the one tests root per frontend? Look in the module folders and the tests roots.
 
 ## Reference Example
 

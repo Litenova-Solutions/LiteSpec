@@ -4,6 +4,12 @@
 
 A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
 
+## Concepts
+
+### Marks and Their Lookup
+
+The [marks table](../../core/model.md#marks) owns which mark each code element carries. [Write Code for a Use Case](../write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
+
 ## Standards
 
 ### Declare `dotnet` as the Backend Stack
@@ -14,7 +20,7 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
 
-**Reviewed for:** The `stacks` array in `litespec.project.json`: `dotnet` listed when the backend runs on .NET.
+**Reviewed for:** Does the `stacks` array in `litespec.project.json` list `dotnet` when the backend runs on .NET? Look at `litespec.project.json`.
 
 ### Read .NET Code Through the Stack Reader
 

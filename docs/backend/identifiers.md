@@ -97,7 +97,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
 
-**Reviewed for:** Wire codes in the contract keep the values deployed clients branch on.
+**Reviewed for:** Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.
 
 ### Resolve Every Identifier Citation
 

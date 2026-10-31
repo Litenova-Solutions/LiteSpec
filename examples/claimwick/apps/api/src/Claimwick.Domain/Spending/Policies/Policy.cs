@@ -40,10 +40,4 @@ public sealed class Policy : AggregateRoot<Guid>
 
         State = new PolicyActiveState(threshold);
     }
-
-    /// <summary>Retires the policy.</summary>
-    public void Retire(DateTimeOffset retiredAt)
-    {
-        State = new PolicyRetiredState(retiredAt);
-    }
 }

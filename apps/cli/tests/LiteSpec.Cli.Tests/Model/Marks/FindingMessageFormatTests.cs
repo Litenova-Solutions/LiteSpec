@@ -82,7 +82,7 @@ public sealed class FindingMessageFormatTests
 
         var codes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "mark-missing", "mark-style-invalid", "mark-count-invalid", "mark-unknown",
+            "mark-missing", "mark-style-invalid", "mark-count-invalid", "mark-unknown", "mark-folder-drift",
             "decision-unimplemented", "runtime-value-drift", "use-case-act-missing",
             "act-event-undeclared", "act-event-unimplemented", "aggregate-unimplemented",
             "automation-unimplemented", "external-system-unimplemented",

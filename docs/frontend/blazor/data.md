@@ -20,7 +20,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A component that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the component a caller and the handler the definition.
 
-**Reviewed for:** No component resolves a Domain service or storage adapter.
+**Reviewed for:** Which components resolve a Domain service or storage adapter instead of invoking an Application handler? Look in the component sources.
 
 ### Classify State
 
@@ -30,7 +30,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale.
 
-**Reviewed for:** Each aggregate introducing state names durable, device-local, or derived on its page.
+**Reviewed for:** Which aggregates introducing state name no durable, device-local, or derived classification on their page? Look on the aggregate pages.
 
 ### Load Persisted State Once
 
@@ -40,7 +40,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** Storage reads are slow and fallible, so the product reads once at startup into a typed store that components read from. A component that reads storage on render pays an input-output call per frame and can render half-loaded state. A route renders its loading state until the store finishes loading, so it never shows an unloaded store as ready.
 
-**Reviewed for:** Persisted state loads into the typed store during startup, before the first render.
+**Reviewed for:** Which persisted state loads outside startup, or renders before the typed store finishes loading? Look in the startup sequence and the route loading states.
 
 ### Keep Derived Values Single-Sourced
 
@@ -50,7 +50,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** A value computed in two places agrees only until one computation changes. The component copy then shows a different answer from the handler copy with no error anywhere. One computation in Domain or Application, consumed everywhere else, keeps every reader on the same answer.
 
-**Reviewed for:** Each derived value has one computation site in Domain or Application.
+**Reviewed for:** Which derived values compute in more than one place, or outside Domain or Application? Look in the computation sites.
 
 ### Validate at the Boundary
 
@@ -60,7 +60,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** The Application validator is the one place the input rules live, and its typed results are what the form renders. A form that restates the rules drifts from them on the first change. A browser-side convenience check can improve feedback, but it cannot be the only enforcement, because anything that skips the form skips the check. This realizes litespec/frontend/data#validate-a-form-with-the-generated-schema.
 
-**Reviewed for:** Each form refusal originates from its Application validator.
+**Reviewed for:** Which form refusals originate outside their Application validator? Look in the forms and the validators.
 
 ### Make Refusals Explicit
 
@@ -70,7 +70,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** Signaling a refusal through `null`, an empty collection, or a bare boolean tells the caller that something was refused but not what. Every caller then guesses, and two callers guess differently. A typed result union names success and each refusal, so each caller handles each named outcome. This realizes litespec/frontend/data#map-every-failure-to-one-problem-type.
 
-**Reviewed for:** Each handler union covers success and every named refusal.
+**Reviewed for:** Which handler unions miss success or a named refusal? Look in the handler result types.
 
 ## Conventions
 
@@ -84,7 +84,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** A typed model states what the form collects, and the mapping to a command states what submitting it means. Binding to a Domain type couples the form to the core model, while binding to a dictionary hides the contract entirely. Either way the next author learns the shape by reading the markup instead of the type. This realizes litespec/frontend/data#keep-schemas-use-case-specific.
 
-**Reviewed for:** Each form binds a feature-owned model and maps it to a command on submission.
+**Reviewed for:** Which forms bind a Domain type or a dictionary, or skip the command mapping on submission? Look in the form bindings.
 
 ### Prefer Explicit Refresh
 
@@ -96,4 +96,4 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Rationale:** The command result already carries the new state, so the store can apply it directly. A component that re-queries after success spends a read discovering what the result already said, and the extra read can return a different answer if anything changed between the two. This realizes litespec/frontend/data#update-the-cache-a-command-changed.
 
-**Reviewed for:** The store updates from each command result without a follow-up query.
+**Reviewed for:** Which stores re-query after success instead of updating from the command result? Look in the command call sites.

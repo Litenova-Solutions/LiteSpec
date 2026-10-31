@@ -20,7 +20,7 @@ A provision moves from draft to active when its verification line is written, an
 
 ### The Identifier
 
-Every provision ID is `litespec/<page>#<slug>`, computed from the page path and the heading, as `litespec/core/authoring#use-the-declared-identifier-grammar` states. A rename replaces the identifier outright: the repository keeps no alias and no map from the old identifier to the new one. That is why a rename replaces every citation in the same change.
+Every provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, as `litespec/core/authoring#use-the-declared-identifier-grammar` states. The ID line is the provision's identity: a heading may change without changing the ID. An identifier rename replaces the ID outright: the repository keeps no alias and no map from the old identifier to the new one. That is why an identifier rename replaces every citation in the same change.
 
 ### Citations
 
@@ -59,11 +59,23 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Statement:** A provision rename MUST replace every citation of the old identifier in one change.
 
-**Rationale:** A heading rename renames the identifier, and the repository keeps no alias to catch stragglers. Every citation the rename misses names a provision that no longer exists, and readers follow it nowhere. Replacing all of them in one change keeps the repository resolvable at every commit.
+**Rationale:** An identifier rename changes the ID line, and the repository keeps no alias to catch stragglers. Every citation the rename misses names a provision that no longer exists, and readers follow it nowhere. Replacing all of them in one change keeps the repository resolvable at every commit. A heading reword leaves the identifier unchanged, so it needs no citation sweep.
 
-**Example:** Renaming a provision changes its heading, its ID line, and every citation together.
+**Example:** Renaming a provision identifier changes its ID line and every citation together.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
+### List Every Removed and Renamed Provision
+
+**ID:** `litespec/core/maintaining#list-every-removed-and-renamed-provision`
+
+**Statement:** A release MUST list every provision identifier it removed or renamed under `Removed and Renamed Provisions` in its changelog entry.
+
+**Rationale:** Consumers cite provision identifiers in code marks, so an identifier that vanishes with no record strands every mark that names it. The list pairs each old identifier with its new identifier or `removed`, so a consumer moving to the release finds every citation to update in one place.
+
+**Example:** The release entry lists each old identifier with the new identifier or `removed` beside it.
+
+**Checked by:** `litespec-maintain validate` emits no `ID_REMOVED_UNRECORDED` diagnostic for an identifier present at the highest release tag that is gone now and not listed under `Removed and Renamed Provisions` in the changelog entry.
 
 ### Publish a LiteSpec Release from a Tag
 
@@ -117,7 +129,7 @@ None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/maintaining#state-the-provision-lifecycle`, `litespec/core/maintaining#replace-every-citation-on-a-rename`, and `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`.
+This informative example demonstrates `litespec/core/maintaining#state-the-provision-lifecycle`, `litespec/core/maintaining#replace-every-citation-on-a-rename`, `litespec/core/maintaining#list-every-removed-and-renamed-provision`, and `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`.
 
 ### Step One, Adding a Provision
 
@@ -147,8 +159,8 @@ The validator reports the provision with no ID line and no verification line. Th
 
 ### Step Two, Renaming
 
-A rule changes, so the maintainer updates the heading and replaces the identifier and every citation of it in one change. When the change lands, no citation names the old identifier.
+A rule changes, so the maintainer updates the heading; the identifier stays. When the identifier itself must change, the maintainer replaces the ID line and every citation of it in one change. When the change lands, no citation names the old identifier.
 
 ### Step Three, Releasing
 
-The maintainer runs `git describe --tags --abbrev=0` to find the tag with the highest version number. That tag names the current release. The maintainer sets the manifest and tool package versions, adds the changelog entry, and tags the commit with the new version number.
+The maintainer runs `git describe --tags --abbrev=0` to find the tag with the highest version number. That tag names the current release. The maintainer sets the manifest and tool package versions, adds the changelog entry with every removed and renamed provision identifier under `Removed and Renamed Provisions`, and tags the commit with the new version number.

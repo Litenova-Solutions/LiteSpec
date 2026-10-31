@@ -11,10 +11,6 @@
     {
       "name": "Attached",
       "meaning": "The receipt sits on the expense."
-    },
-    {
-      "name": "Removed",
-      "meaning": "The receipt left the expense."
     }
   ],
   "records": [
@@ -56,7 +52,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "55f94df7"
+  "approvedHash": "011399c6"
 }
 ---
 

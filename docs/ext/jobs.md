@@ -28,7 +28,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **Rationale:** The automation record states when the work runs: `every` or `cron` with its timezone, so tools read the rhythm instead of parsing prose. A schedule kept outside the record runs with no reviewed moment attached, and misfire behavior has no stated time to measure against. The [automation page](../core/automation.md) states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
 
-**Reviewed for:** Each scheduled automation record carries a structured schedule with its timezone.
+**Checked by:** `litespec model check` reports `schedule-invalid` (level G) for an automation schedule that is neither an `every` duration nor a `cron` expression; each scheduled automation record states its timezone.
 
 ### Run One Command per Item in Selection
 
@@ -58,7 +58,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **Rationale:** Manual work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. The [automation page](../core/automation.md) states the record fields, and the `automation-guard-missing` check reports a manual automation with no guard.
 
-**Reviewed for:** Each manual automation run stays inside its runsWhere under its guard.
+**Checked by:** `litespec model check` reports `automation-guard-missing` (level G) for a manual automation with no `guard`; each manual run stays inside its `runsWhere`.
 
 ### Run Scheduled Automations in Worker
 

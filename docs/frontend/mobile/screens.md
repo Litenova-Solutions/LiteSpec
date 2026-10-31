@@ -20,7 +20,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** The platform's native toolkit gives each screen the platform's behavior for focus, text input, and accessibility without extra work. A WebView or a cross-platform layer reimplements that behavior and lags behind it, so the screen feels foreign on its own platform. One toolkit also keeps every screen testable through the platform's own device tests.
 
-**Reviewed for:** Every product screen renders with the platform's native UI toolkit, with no WebView or cross-platform UI layer.
+**Reviewed for:** Which product screens render in a WebView or a cross-platform UI layer instead of the platform's native UI toolkit? Look in the screen implementations.
 
 ### Own Navigation in One Controller
 
@@ -30,7 +30,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** One controller holding the current screen, the open overlay, and the history gives every navigation question one answer. A screen that navigates on its own hides a second history no other screen can read, so back behavior and deep links disagree with what the screen shows. Events keep screens decoupled from the controller, so the controller alone decides what each event opens.
 
-**Reviewed for:** The current screen, the open overlay, and the history live in one controller, and screens raise events instead of navigating.
+**Reviewed for:** Which navigation state lives outside the one controller, and which screens navigate instead of raising events? Look in the controller and the screens.
 
 ### Follow the System Back Gesture
 
@@ -40,7 +40,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** Users learn one back behavior per platform: the gesture dismisses what is on top before it leaves where they are. An app that leaves from a deeper screen, or that traps the gesture on the first screen, breaks a habit the whole platform teaches. Overlay first, then one screen back, then out from the first screen matches that habit on every screen. Each stack page names how the platform's back signal reaches the controller.
 
-**Reviewed for:** The system back gesture closes the open overlay first, steps back one screen, and leaves the app only from the first screen.
+**Reviewed for:** Which back gestures skip the overlay, jump more than one screen, or leave the app from a deeper screen? Look in the back handling.
 
 ### Draw Edge to Edge with Insets
 
@@ -50,7 +50,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** Drawing under the system bars uses the whole display, but controls and text under a bar or a cutout are unreadable and untappable. Applying the system bar and cutout insets moves controls and text into the visible area while backgrounds keep the full-bleed look. Each stack page names the inset source for its platform.
 
-**Reviewed for:** Screens draw under the system bars with insets applied to controls and text.
+**Reviewed for:** Which screens clip controls or text under the system bars without applying the insets? Look in the screen layouts.
 
 ### Honor Reduced Motion
 
@@ -60,7 +60,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** Some users turn animations off because motion causes discomfort, so a screen that keeps looping motion ignores an explicit request. A still state shows the same content without the movement: the final frame, the resting layout. Applying the system's setting on every screen keeps the whole app honoring one choice.
 
-**Reviewed for:** Screens with animations off show looping motion and video as a still state.
+**Reviewed for:** Which screens keep looping motion or video with animations off instead of showing a still state? Look in the screens with animations off.
 
 ### Release Media with Its Screen
 
@@ -70,7 +70,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** Media holds memory and hardware the app no longer shows once its view leaves the window. A player that keeps playing, or a decoded image that stays resident, drains the battery and starves the screen the user now sees. Releasing with the view ties each resource's life to the screen that uses it.
 
-**Reviewed for:** Players, animators, and decoded images release or cancel when their view leaves the window.
+**Reviewed for:** Which players, animators, or decoded images survive their view leaving the window? Look in the view teardown.
 
 ## Conventions
 
@@ -84,7 +84,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** The platform may destroy the app's process while it is in the background, and recreation without saved state drops the visitor on the first screen. Saving the controller's navigation state in the platform's saved-state mechanism returns the visitor to the same screen with the same overlay and history. Each stack page names the saved-state mechanism for its platform.
 
-**Reviewed for:** Process recreation returns to the screen the saved navigation state names.
+**Reviewed for:** Which process recreations drop the visitor outside the screen the saved navigation state names? Look in the saved-state handling.
 
 ### Meet Touch and Text Accessibility
 
@@ -96,4 +96,4 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the reader who enlarged the system font to read at all. Meeting the platform's target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings.
 
-**Reviewed for:** Interactive views carry content descriptions and platform-minimum targets, and text scales with the system font scale.
+**Reviewed for:** Which interactive views lack a content description or platform-minimum target, and which text ignores the system font scale? Look in the views and the text styles.

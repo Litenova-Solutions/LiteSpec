@@ -2,9 +2,10 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The mark checks: every element carries the marks its kind takes, each mark names
-///     a record of the type its kind takes in the declared style, hand-written runtime
-///     values match their records, each command handler calls its marked act, each marked
-///     act raises its use case's events, and every mapped record is named by a mark.
+///     a record of the type its kind takes in the declared style of its language, each
+///     backend mark sits in its record's module folder, hand-written runtime values match
+///     their records, each command handler calls its marked act, each marked act raises its
+///     use case's events, and every mapped record is named by a mark.
 /// </summary>
 static partial class Checker
 {
@@ -13,6 +14,7 @@ static partial class Checker
     {
         CheckMarkPresence(model, findings);
         CheckMarkLinks(model, findings);
+        CheckMarkFolderDrift(model, findings);
         CheckStrayMarks(model, findings);
         CheckDecisionsFollowed(model, findings);
         CheckRuntimeValueDrift(model, findings);
@@ -50,7 +52,7 @@ static partial class Checker
                     CheckServesMark(model, element, mark, findings);
                 }
 
-                if (mark.Style != model.Config.Marks)
+                if (UsesDeclaredStyle(element.Kind) && mark.Style != model.Config.Marks)
                 {
                     var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
@@ -73,6 +75,163 @@ static partial class Checker
                     : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
             }
         }
+    }
+
+    /// <summary>
+    ///     Whether the kind writes its marks in the style the project declares: the C#
+    ///     elements. A frontend kind writes the typed constant whatever the project
+    ///     declares, so its style is compared within its own language, never against
+    ///     the declaration.
+    /// </summary>
+    private static bool UsesDeclaredStyle(CodeKind kind) =>
+        kind is not (CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest);
+
+    /// <summary>
+    ///     Reports every backend mark naming a use case, automation or aggregate outside
+    ///     the module folder it sits in, and every handler or endpoint mark naming a use
+    ///     case outside the use-case folder it sits in. A copied handler keeps its old mark;
+    ///     the folder already says what the mark should be. A mark naming no record, a
+    ///     record of another type, or a record its kind does not take is
+    ///     <c>mark-unknown</c>, not drift.
+    /// </summary>
+    private static void CheckMarkFolderDrift(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.InTests
+                || element.Kind is CodeKind.Test or CodeKind.BrowserTest
+                    or CodeKind.FrontendModule or CodeKind.FrontendRoute)
+            {
+                continue;
+            }
+
+            foreach (var mark in element.Marks)
+            {
+                if (mark.Verb == MarkVerb.Follows)
+                {
+                    continue;
+                }
+
+                if (!Identifiers.TrySplit(mark.RecordId, out var prefix, out var home, out var name)
+                    || prefix is not ("use-case" or "automation" or "aggregate")
+                    || home is not { Length: > 0 })
+                {
+                    continue;
+                }
+
+                if (!model.ById.TryGetValue(mark.RecordId, out var record) || record.Type != prefix)
+                {
+                    continue;
+                }
+
+                if (!MarkRules.Accepts(element.Kind, mark.RecordId))
+                {
+                    continue;
+                }
+
+                if (ModuleSegments(model.Config, element.File) is not { } segments)
+                {
+                    continue;
+                }
+
+                if (!SameName(segments[0], home))
+                {
+                    findings.Add(new Finding("mark-folder-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+                    continue;
+                }
+
+                if (element.Kind is CodeKind.Handler or CodeKind.Endpoint
+                    && prefix == "use-case"
+                    && UseCaseFolderOf(segments) is { } folder
+                    && !SameName(folder, name))
+                {
+                    findings.Add(new Finding("mark-folder-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folder}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     The path segments of the file under its layer root, or null when the file sits
+    ///     under no layer root, under the cross-module contracts part, under provider
+    ///     plumbing, under the shared kernel, or in a layer root itself. A leading WebApi
+    ///     <c>Endpoints</c> folder is skipped, so the first segment is the module folder
+    ///     and the last is the file name.
+    /// </summary>
+    private static string[]? ModuleSegments(ConsumerConfig config, string file)
+    {
+        if (config.SharedKernel.Length > 0 && IsUnder(config.SharedKernel, file))
+        {
+            return null;
+        }
+
+        if (IsUnder(config.ApplicationRoot + ".Abstractions", file))
+        {
+            return null;
+        }
+
+        foreach (var root in new[] { config.ApplicationRoot, config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        {
+            if (root.Length == 0 || !IsUnder(root, file))
+            {
+                continue;
+            }
+
+            var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            if (segments.Length < 2)
+            {
+                return null;
+            }
+
+            var first = 0;
+
+            if (root == config.WebApiRoot && segments[0].Equals("Endpoints", StringComparison.OrdinalIgnoreCase))
+            {
+                first = 1;
+            }
+
+            if (root == config.InfrastructureRoot && segments[0].Equals("Persistence", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var rest = segments.Skip(first).ToArray();
+
+            return rest.Length >= 2 ? rest : null;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     The use-case folder of a handler or endpoint: the third segment of module,
+    ///     aggregate and use case, or the second of a flat module and use case. Null when
+    ///     the file sits directly in its module folder, where no use-case folder names it.
+    /// </summary>
+    private static string? UseCaseFolderOf(string[] segments) =>
+        segments.Length >= 4 ? segments[2] : segments.Length == 3 ? segments[1] : null;
+
+    /// <summary>Whether a folder name and a record name spell one name: case, hyphens and underscores ignored.</summary>
+    private static bool SameName(string folder, string name)
+    {
+        var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+        var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+
+        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsUnder(string root, string file)
+    {
+        if (root.Length == 0)
+        {
+            return false;
+        }
+
+        var relative = Path.GetRelativePath(root, file);
+
+        return !relative.StartsWith("..", StringComparison.Ordinal)
+            && !Path.IsPathRooted(relative);
     }
 
     /// <summary>

@@ -222,7 +222,7 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 The entry names the pattern's default option and records `owner` as the source, so the choice stands as settled and the platform team builds it in its own components.
 
-**Reviewed for:** Each decision carries `owner` or `recommended`, with agent proposals left as recommendations and later changes naming their record. Look in the catalog decisions.
+**Reviewed for:** Which decisions lack `owner` or `recommended`, pose an agent proposal as an owner choice, or change the choice without naming their record? Look in the catalog decisions.
 
 ### Declare the Compact Behavior
 
@@ -258,7 +258,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Example:** A route departing from the chosen option names `decision.record`, such as `docs/intent/decisions/0014-expense-sort-menu.md`.
 
-**Reviewed for:** Option switches, added options, and extensions land with their implementation; single-route departures name a decision record. Look in the change diffs and the catalog entries.
+**Reviewed for:** Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.
 
 ### State the Implementation Status
 
@@ -282,7 +282,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Example:** An option describes a menu listing sort fields rather than naming the component rendering it.
 
-**Reviewed for:** Patterns name behavior and structure, with platform bindings only under implementations. Look in the catalog entries outside implementations.
+**Reviewed for:** Which patterns name a component library outside their implementations? Look in the catalog entries outside implementations.
 
 ## Conventions
 
@@ -296,7 +296,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** An option seen beside its rivals is judged on appearance rather than on its description, which is how owners actually choose. The pattern's page on the LiteSpec site already draws every LiteSpec option at desktop and phone widths, so a product registry only needs to draw the patterns and options the product added, at compact and full widths. The catalog `registry` field names the command or path that renders them.
 
-**Reviewed for:** Product-added options render in the registry at compact and full widths, and LiteSpec options render on the pattern's page on the LiteSpec site. Look at the registry command or path the catalog names.
+**Reviewed for:** Which product-added options miss the registry at compact or full widths? Look at the registry command or path the catalog names.
 
 ### Report Pattern Feedback After the Work
 
@@ -308,7 +308,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** An agent that spots a better option finishes the task on the chosen pattern first: it changes no decision on its own and stops for no mid-task question. The proposal goes in the completion report with pattern id, change, reason, and affected option, where the owner accepts, refuses, or defers it. An accepted proposal updates the catalog with its implementation under `litespec/frontend/patterns#update-the-catalog-with-the-code`.
 
-**Reviewed for:** Completion reports carry proposals with pattern id, change, reason, and affected option. Look in the completion reports.
+**Reviewed for:** Which completion reports carry a pattern proposal without its pattern id, change, reason, or affected option? Look in the completion reports.
 
 ### Start from a LiteSpec Pattern
 
@@ -320,7 +320,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product's own options. Keeping the pattern's option IDs and names lets one product read another's catalog without translation. A product that chooses a different option records its reason in the entry, so the departure stays reviewable.
 
-**Reviewed for:** Entries set `library` and keep the pattern option ids and names, or record why no pattern fits. Look in the catalog entries.
+**Reviewed for:** Which entries lack `library` without recording why no pattern fits, or rename the pattern option ids and names? Look in the catalog entries.
 
 ### Promote Pattern Improvements
 
@@ -332,4 +332,4 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** An improvement learned in one product usually applies to every product, so keeping it local starves the shared patterns. Sending an accepted, product-neutral proposal to the LiteSpec pattern page, as a new option or a refined one, lets every later product start from it, while each product keeps its own choices. The proposal travels through `litespec/frontend/patterns#report-pattern-feedback-after-the-work` and reaches the pattern page after the owner accepts it.
 
-**Reviewed for:** Accepted product-neutral proposals reach the LiteSpec pattern page as new or refined options. Look in the LiteSpec pattern pages and the accepted proposals.
+**Reviewed for:** Which accepted product-neutral proposals never reached the LiteSpec pattern page as new or refined options? Look in the LiteSpec pattern pages and the accepted proposals.

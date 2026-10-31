@@ -39,6 +39,7 @@ static partial class StandardsValidator
     public static readonly IReadOnlyList<string> StableDiagnosticCodes =
     [
         "ANCHOR_BROKEN",
+        "CHECKED_BY_UNKNOWN",
         "CONVENTION_DEFAULT_SENTENCE",
         "CONVENTION_MISSING_DEFAULT",
         "CONVENTION_MISSING_REPLACEMENT",
@@ -67,6 +68,7 @@ static partial class StandardsValidator
         "ID_LINE_MISSING",
         "ID_LINE_MISMATCH",
         "ID_PAGE_FILENAME",
+        "ID_REMOVED_UNRECORDED",
         "ID_UNKNOWN_REFERENCE",
         "INDEX_CONTAINS_PROCEDURE",
         "INDEX_INTENT",
@@ -144,8 +146,16 @@ static partial class StandardsValidator
 
     /// <summary>
     ///     Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.
+    ///     The released provision identifiers come from the highest release tag.
     /// </summary>
-    public static StandardsResult Validate(string root)
+    public static StandardsResult Validate(string root) => Validate(root, null);
+
+    /// <summary>
+    ///     Validates the repository at <paramref name="root"/> against the given released
+    ///     provision identifiers, or the highest release tag when <paramref name="releasedIds"/>
+    ///     is null. Tests pass explicit identifiers so the removal check needs no git history.
+    /// </summary>
+    internal static StandardsResult Validate(string root, HashSet<string>? releasedIds)
     {
         var resolved = Path.GetFullPath(root.Length == 0 ? "." : root);
         var diagnostics = new List<StandardsDiagnostic>();
@@ -219,6 +229,7 @@ static partial class StandardsValidator
         var activeIds = new HashSet<string>(globalIds.Keys, StringComparer.Ordinal);
         CheckCitations(parsedPages, activeIds, Add);
         CheckMarks(resolved, activeIds, Add);
+        CheckRemovedProvisions(resolved, activeIds, releasedIds, Add);
 
         CheckAuthoringTemplates(resolved, globalIds, Add);
         CheckLinks(resolved, current, Add);

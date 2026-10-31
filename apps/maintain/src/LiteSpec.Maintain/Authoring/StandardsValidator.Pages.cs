@@ -467,16 +467,32 @@ static partial class StandardsValidator
                 continue;
             }
 
-            // The identifier is derived from the page path and the heading, and the
-            // ID line right below the heading states it, so the heading carries
-            // no ID text of its own.
+            // The ID line under the heading is the provision's identity. A heading
+            // may change without changing it, so the heading carries no ID text
+            // of its own and the page path still names the owning page.
             var title = heading.Text.Trim();
             if (title.Contains("litespec/", StringComparison.Ordinal))
             {
-                add(relative, heading.Line, "ID_IN_HEADING", $"provision heading '{title}' carries identifier text; the ID is computed from the page and the heading");
+                add(relative, heading.Line, "ID_IN_HEADING", $"provision heading '{title}' carries identifier text; the ID line under the heading states the identity");
             }
 
-            var id = $"litespec/{Provisions.PagePath(relative)}#{Provisions.HeadingSlug(title)}";
+            var nextLine = reader.Headings
+                .Where(candidate => (candidate.Level == 2 || candidate.Level == 3) && candidate.Line > heading.Line)
+                .Select(candidate => candidate.Line)
+                .Append(int.MaxValue)
+                .Min();
+            var body = clean.Where(item => item.Number > heading.Line && item.Number < nextLine).ToList();
+            var page = Provisions.PagePath(relative);
+            var derived = $"litespec/{page}#{Provisions.HeadingSlug(title)}";
+            var id = derived;
+            var firstContent = body.FirstOrDefault(item => item.Line.Trim().Length > 0);
+            if (firstContent is not null
+                && PageReader.TryParseIdLine(firstContent.Line, out var stated)
+                && Provisions.Parse(stated)?.Page == page)
+            {
+                id = stated;
+            }
+
             var firstWord = FirstWordPattern().Match(title);
             // A pattern heading is the pattern's name, so its ID survives a change of default.
             if (!pattern && (!firstWord.Success || !ActionVerbs.Contains(firstWord.Value)))
@@ -492,13 +508,6 @@ static partial class StandardsValidator
             {
                 globalIds[id] = $"{relative}:{heading.Line}";
             }
-
-            var nextLine = reader.Headings
-                .Where(candidate => (candidate.Level == 2 || candidate.Level == 3) && candidate.Line > heading.Line)
-                .Select(candidate => candidate.Line)
-                .Append(int.MaxValue)
-                .Min();
-            var body = clean.Where(item => item.Number > heading.Line && item.Number < nextLine).ToList();
 
             provisions.Add(new Provision(id, title, currentH2, heading.Line, body));
         }

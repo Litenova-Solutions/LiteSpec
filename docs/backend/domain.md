@@ -28,7 +28,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all. Each banned reference would drag one outer concern into the business model: persistence metadata couples a rule to a store format, and dispatch plumbing couples it to delivery. Infrastructure registers a persisted discriminator instead, so Domain carries no serialization metadata.
 
-**Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
+**Reviewed for:** Which Domain references reach beyond the language standard library and project-owned Domain types? Look at the references in the Domain code.
 
 ### Use One Ubiquitous Language
 
@@ -38,7 +38,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Rationale:** When code and specification share names, a reader moves between them without translation. A business action named `Publish` in the glossary is not `SetStatus` in code, because the second name hides which business action ran. The glossary holds each term meaning, labels per language, rejected words, and broader and narrower links; records cite the terms they use, following `litespec/core/domain-model#define-every-behavior-term-in-the-glossary`.
 
-**Reviewed for:** Each Domain name matches a term in `glossary.json` beside the specification.
+**Reviewed for:** Which Domain names match no term in the project glossary? Look at the Domain names beside `glossary.json`.
 
 ### Treat Aggregates as Consistency Boundaries
 
@@ -48,7 +48,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Rationale:** If outside code could set properties or call child mutations, it could change data without passing the root's checks. The root stands as the only public mutation entry point, so every change passes the invariant the transaction protects. A command with `consistency: atomic` changes every aggregate its `changes` names in one transaction, citing the rule in `cites` when it changes more than one.
 
-**Reviewed for:** Each aggregate root is the only public mutation entry point for the invariants its transaction protects.
+**Reviewed for:** Which invariants admit a public mutation outside their aggregate root? Look at the public mutation entry points of each aggregate.
 
 ### Take Identity and Events from the Project Root Contract
 
@@ -58,7 +58,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Rationale:** One root contract gives every aggregate the same identity and event mechanics, so Infrastructure collects events from any aggregate the same way. The contract owns typed identity, pending events, recording, and clearing, and carries the aggregate version only as persistence metadata that Domain never reads or sets: no timestamp, audit, tenant, lifecycle, or other persistence behavior, because any of those would couple every aggregate to a concern only some need.
 
-**Reviewed for:** Each aggregate root takes its identity and event mechanics from the one project-owned root contract.
+**Reviewed for:** Which aggregate roots take identity or event mechanics outside the project-owned root contract? Look at each aggregate root declaration.
 
 ### Model Every Aggregate Lifecycle with State Types
 
@@ -74,7 +74,7 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 
 ![Submit from submit-expense creates a Submitted expense, Approve from approve-expense moves it to Approved carrying the approver and the decided time, Refuse from refuse-expense moves it to Refused carrying the reason, and Reimburse from reimburse-expense moves an Approved expense to Reimbursed carrying the reimbursed time.](../assets/diagrams/backend-aggregate-lifecycle.svg)
 
-**Reviewed for:** Each aggregate exposes one state property backed by one closed hierarchy of per-state types.
+**Reviewed for:** Which aggregates expose their lifecycle outside one state property and one closed hierarchy of per-state types? Look at the lifecycle declarations in each aggregate.
 
 ### Model Every Closed Set of Domain Values as a Closed Type Hierarchy
 
@@ -88,7 +88,7 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 
 This provision owns the Domain form. The same set is mirrored in Application under `litespec/backend/application#mirror-a-domain-closed-set-in-the-result`, on the wire under `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`, and in storage under `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`. Label-only sets cross the boundary as plain enumerations under `litespec/backend/api#publish-label-only-sets-as-string-enums`. A transport label converts to its type case before it reaches a Domain method.
 
-**Reviewed for:** Each closed set is one type hierarchy whose cases the type system enumerates, with label lookups by name.
+**Reviewed for:** Which closed sets escape one type hierarchy with named label lookups? Look at each closed set and its boundary lookups.
 
 ### Create Valid Aggregates Through Named Factories
 
@@ -102,7 +102,7 @@ A root created with its children composes them inside the same factory call. The
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` creates its expense through a factory named for submitting: the factory takes the expense and employee identifiers, rejects an empty identity, selects the submitted state, and records the submitted event.
 
-**Reviewed for:** Each aggregate root creates instances through a factory named for its business action, checking identity and recording events.
+**Reviewed for:** Which aggregate roots create instances outside a factory named for their business action? Look at the creation paths of each root.
 
 ### Express Transitions Through Business Methods
 
@@ -118,7 +118,7 @@ Checks run before replacement, and replacement runs before recording. A method t
 
 An unapproved expense keeps its state, and the refusal carries the stable code `spending.not-approved`.
 
-**Reviewed for:** Each public mutation checks state and protects its invariants, and each lifecycle move also replaces state and records its transition event.
+**Reviewed for:** Which public mutations skip the state check or the invariant, or which lifecycle moves skip replacement or the transition event? Look at the public mutation methods of each aggregate.
 
 ### Call the Marked Act from Each Command Handler
 
@@ -164,7 +164,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Rationale:** A child that exposed mutable state would let outside code change aggregate data without passing the root's checks. The root creates, finds, and changes children through business methods, and collections surface as read-only views. A child with lifecycle states uses the same state types and no enumeration.
 
-**Reviewed for:** Child entities expose no mutable state outside their root, with collections as read-only views.
+**Reviewed for:** Which child entities expose mutable state outside their root? Look at the child entities beside their root, including collection views.
 
 ### Identify Aggregates with Strongly Typed Version 7 Values
 
@@ -178,7 +178,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **Example:** A post identifier wraps one version 7 UUID, rejects the empty value, and parses from text through a named method.
 
-**Reviewed for:** Each aggregate identity is a dedicated type over one version 7 UUID, with no conversion, alias, or creation path around its validation.
+**Reviewed for:** Which aggregate identities escape the dedicated version 7 type, or which conversions, aliases, or creation paths bypass its validation? Look at each identity type and its creation paths.
 
 ### Use Immutable Value Objects for Domain Concepts
 
@@ -190,7 +190,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **Example:** A post title accepts only non-blank text up to 200 characters: blank or longer input fails creation, and two titles with the same text compare as equal.
 
-**Reviewed for:** Each value object is immutable, compares by complete value, and validates every value at creation.
+**Reviewed for:** Which value objects mutate, compare by less than their complete value, or skip validation at creation? Look at each value object and its creation paths.
 
 ### Define Collection Value Semantics Explicitly
 
@@ -202,7 +202,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **Example:** A post-tags value holding an ordered list compares element by element with a matching hash. If order is not part of the value, creation normalizes to the documented comparison order before storing values.
 
-**Reviewed for:** Each collection value implements content equality with a matching hash under its declared ordering rule.
+**Reviewed for:** Which collection values lack content equality with a matching hash under their declared ordering rule? Look at each collection value beside the module terms.
 
 ### Model Money with Exact Decimal Values
 
@@ -220,7 +220,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 The amount serializes as a string, so no reader parses it as binary floating point.
 
-**Reviewed for:** Each monetary amount is an exact decimal in the shared `Money` value with the stated currency and JSON shape.
+**Reviewed for:** Which monetary amounts escape the shared `Money` value with its currency and JSON shape? Look at each monetary amount in Domain.
 
 ### Keep Binary Floating Point Out of Exact Quantities
 
@@ -246,7 +246,7 @@ A domain service is stateless and takes no port, so its tests are Domain tests. 
 
 **Example:** An order-pricing service takes order lines and a currency and returns their total as `Money`, with no domain repository, clock, logger, or provider client. Application supplies the lines and passes the returned total into aggregate behavior.
 
-**Reviewed for:** Each domain service is stateless over Domain values, with no persistence, messaging, logging, clock, authorization, or provider call.
+**Reviewed for:** Which domain services hold state, take non-Domain values, or reach persistence, messaging, logging, clock, authorization, or a provider? Look at each domain service and its calls.
 
 ### Expose Repositories for One Aggregate Only
 
@@ -262,7 +262,7 @@ This boundary is the write side only. Reading for a query uses a read model owne
 
 The Infrastructure implementation owns that refusal. The command pipeline owns the commit. The staging call stages the aggregate through the selected provider.
 
-**Reviewed for:** Each domain repository serves one aggregate root with aggregate and Domain types only, and no composable query, session, or generic CRUD surface.
+**Reviewed for:** Which domain repositories serve more than one aggregate, expose non-Domain types, or offer a composable query, session, or generic CRUD surface? Look at each repository interface.
 
 ### Place Every Constituent Type in Its Aggregate's Folder
 
@@ -286,7 +286,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Example:** In the library product, a book holding a list of copy barcodes returns each barcode from `UniquenessKeys`, so adding a copy claims the new barcode at commit. In the Claimwick product, a payout carrying a reference that is unique across payouts and adjustments returns that reference, so a duplicate reference fails the commit on either record.
 
-**Reviewed for:** Each aggregate with a cross-record uniqueness rule exposes its current keys through `UniquenessKeys`, with no other uniqueness code in Domain.
+**Reviewed for:** Which aggregates with a cross-record uniqueness rule miss `UniquenessKeys`, or carry other uniqueness code in Domain? Look at each such aggregate.
 
 ### Raise Immutable Facts as Domain Events
 
@@ -296,7 +296,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Rationale:** A domain event records a completed fact for automations to consume. Its name states the aggregate and the completed fact, following `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root` and `litespec/workspace/naming#use-architectural-suffixes`, so a reader knows which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its automations need, with no aggregate, session, service, mutable collection, or thrown error, because any of those would couple automations to the raising aggregate. Envelope identity, such as message identity and causation identity, lives on the published integration event that carries the fact outside the process. That integration event names the domain event in `translates`.
 
-**Reviewed for:** Each domain event is immutable, named for its aggregate and fact, and carries business data only.
+**Reviewed for:** Which domain events mutate, misname their aggregate or fact, or carry more than business data? Look at each domain event.
 
 ### Reject Business Violations with Dedicated Refusals
 
@@ -312,7 +312,7 @@ Two rules that share a caller-visible refusal code because a boundary maps them 
 
 Application validators handle malformed caller input through validity findings. Aggregate and value-object refusals remain the last defense when direct Domain use violates a rule. Command handlers do not catch expected Domain refusals. The host maps them to transport errors through the mapping the API page documents under `litespec/backend/api#defer-error-mapping-to-the-global-handler`.
 
-**Reviewed for:** Each rejected business rule ends its use case in a dedicated refusal carrying its stable code, with no transport status.
+**Reviewed for:** Which rejected business rules end outside a dedicated refusal with its stable code, or leak transport status? Look at each rejection beside its refusal.
 
 ### Reference Other Aggregates by ID
 
@@ -322,7 +322,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own: Application loads each aggregate through its domain repository when a command coordinates several, with `consistency: atomic` citing the rule in `cites`.
 
-**Reviewed for:** Each aggregate stores other aggregates as typed identifiers, with no object reference.
+**Reviewed for:** Which aggregates store another aggregate as an object reference instead of a typed identifier? Look at the fields of each aggregate.
 
 ### Pass Nondeterministic Values into Domain
 
@@ -342,7 +342,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Rationale:** A reader meeting a public Domain member needs to know the business rule behind it, not just its signature. Documentation states the business constraint, result, or refusal the member represents: a mutation method names its source states, resulting state, protected invariant, and recorded event. A summary that restates the member name adds nothing.
 
-**Reviewed for:** Each public Domain type and member documents the business constraint, result, or refusal it represents.
+**Reviewed for:** Which public Domain types or members lack documentation of their business constraint, result, or refusal? Look at the documentation on each public member.
 
 ## Conventions
 
@@ -431,7 +431,7 @@ Each aggregate's domain repository stays with the aggregate it loads. Applicatio
 
 **Example:** A post title reads as `PostTitle` at its call site, and a published post state as `PostPublishedState`. The stack page states the declaration form each name takes.
 
-**Reviewed for:** Each Domain name follows the cited workspace naming provisions, with one state-case form kept project-wide.
+**Reviewed for:** Which Domain names break the cited workspace naming provisions, or which state cases break the one kept form? Look at each Domain name.
 
 ### Reuse the Shared Domain Contracts Across Modules
 
@@ -447,7 +447,7 @@ Each aggregate's domain repository stays with the aggregate it loads. Applicatio
 
 Event clearing is delivery mechanics, not a business mutation. Infrastructure calls it only after delivery accepts the pending events.
 
-**Reviewed for:** Each shared Domain contract is declared once and reused across modules.
+**Reviewed for:** Which shared Domain contracts repeat their declaration across modules? Look at the root, event, identity, and refusal contracts in each module.
 
 ### Align ID Representations at Every Boundary
 
@@ -461,4 +461,4 @@ Event clearing is delivery mechanics, not a business mutation. Infrastructure ca
 
 **Example:** Domain and Application hold the typed identifier; the [HTTP API](api.md) states the route, query, JSON, and contract forms, and [Persistence](persistence.md) states the stored form. Alignment means a reader recognizes one identifier in every form.
 
-**Reviewed for:** Each identifier reads as one value in Domain, persistence, transport, and generated clients.
+**Reviewed for:** Which identifiers read as different values across Domain, persistence, transport, or generated clients? Look at one identifier in each boundary form.

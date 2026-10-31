@@ -20,7 +20,7 @@ A route entry is a component that declares an `@page` template. Its screen mark 
 
 **Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the `@page` component marks, and the screen, `calls`, and `refusal-sentence-missing` checks run from those marks.
 
-**Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its `@page` components carry screen marks the .NET reader reads.
+**Reviewed for:** Which stack selections or CI jobs apply a floorplan, token, or route-suite check, and which `@page` components lack a screen mark the .NET reader reads? Look in the stack selection, the CI jobs, and the `@page` components.
 
 ### Publish Static WebAssembly Output
 
@@ -30,7 +30,7 @@ A route entry is a component that declares an `@page` template. Its screen mark 
 
 **Rationale:** Standalone WebAssembly compiles to static files, which is what lets the product run with no server and offline. Blazor Server, interactive server rendering, and prerendering each reintroduce a server dependency, which stops the product working offline and contradicts the `client-only` shape.
 
-**Reviewed for:** The published output holds static files with no server assembly or server render mode.
+**Reviewed for:** Which published output holds a server assembly or a server render mode? Look in the published output.
 
 ## Conventions
 
@@ -51,7 +51,7 @@ dotnet build apps/web/{ProjectName}.slnx --configuration Release
 dotnet test apps/web/{ProjectName}.slnx --configuration Release --no-build
 ```
 
-**Reviewed for:** The CI client job runs `dotnet build` and `dotnet test`.
+**Reviewed for:** Which CI client jobs skip `dotnet build` or `dotnet test`, or add a Node build step? Look in the CI client job.
 
 ### Record a First-Load Budget
 
@@ -63,4 +63,4 @@ dotnet test apps/web/{ProjectName}.slnx --configuration Release --no-build
 
 **Rationale:** A WebAssembly client downloads a runtime before it renders anything, so first load is the slowest moment of the product. A recorded budget on compressed transfer size makes that wait a reviewed number instead of a surprise. Directory size does not describe the wait, because the visitor downloads compressed bytes over the network.
 
-**Reviewed for:** A limit entry in `docs/behavior/operations/limits.md` records the compressed transfer size budget the publish job enforces.
+**Reviewed for:** Which first-load budgets miss their limit entry in `docs/behavior/operations/limits.md`? Look in the limits file beside the publish job.

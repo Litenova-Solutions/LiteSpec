@@ -38,7 +38,7 @@ apps/mobile/
 
 Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
-**Reviewed for:** One solution at `apps/mobile/` holds the core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`.
+**Reviewed for:** Which mobile apps sit outside the one solution at `apps/mobile/`, or miss the core projects under `src/` or the `{ProjectName}.{Platform}` app project? Look in the `apps/mobile/` tree.
 
 ### Hold the Domain in the App Only Without a Server
 
@@ -48,7 +48,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **Rationale:** A product with no server carries its own domain model, so the app holds the Domain, Application, and Infrastructure projects that define it. A product with a server keeps its rules on the server, so the app holds a Client project with the generated API client and reaches every rule through that client rather than through a copy of the rules. A copied rule drifts from the server's rule on the first change, and the app then enforces a rule the server does not hold.
 
-**Reviewed for:** A `client-only` solution holds Domain, Application, and Infrastructure projects, and a `server` solution holds a Client project with the generated API client and no Domain copy.
+**Reviewed for:** Which `client-only` solutions miss a Domain, Application, or Infrastructure project, and which `server` solutions miss the Client project or hold a Domain copy? Look in the solution tree.
 
 ### Keep Core Projects Platform-Free
 
@@ -58,7 +58,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **Rationale:** A core project that names a platform SDK type compiles only for that platform, so a second platform app copies the core instead of reusing it. Targeting plain .NET with no platform reference keeps the core compiling for every platform unchanged. Platform differences stay behind the interfaces Application owns, with the platform projects holding the adapters.
 
-**Reviewed for:** Core projects target plain .NET and reference no platform SDK type.
+**Reviewed for:** Which core projects target a platform SDK or reference a platform SDK type? Look in the core project files and sources.
 
 ### Organize Screens by Module
 
@@ -68,7 +68,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **Rationale:** Screens grouped by module let a reader holding a module record find its screens by path, the way the frontend module mirror maps use cases to folders. A single-module product keeps its screens directly under `Screens/`, because one folder would add a level that distinguishes nothing. Use-case code reached from a screen lives in Application, so the screen folder holds the screen and the handler holds the behavior. This realizes litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case only as far as the screen path follows the module name.
 
-**Reviewed for:** Each screen lives under `Screens/`, in its module folder where the product has more than one module.
+**Reviewed for:** Which screens sit outside `Screens/`, or outside their module folder in a multi-module product? Look in the platform project tree.
 
 ### Keep Imports Directional
 
@@ -86,7 +86,7 @@ Infrastructure -> Application, Domain
 Application -> Domain
 ```
 
-**Reviewed for:** The reference graph matches the declared direction from the platform project inward.
+**Reviewed for:** Which references point against the declared direction from the platform project inward? Look in the project references.
 
 ## Conventions
 
@@ -100,4 +100,4 @@ Application -> Domain
 
 **Rationale:** One type per platform API surface in the platform project, each implementing an interface declared in Application, puts every platform call behind a testable boundary the core tests can substitute. The platform project is the only layer that names the platform SDK, so each adapter resolves to its platform API by name. This realizes litespec/frontend/structure#locate-cross-route-values-in-the-frame.
 
-**Reviewed for:** Each platform API surface has one adapter type in the platform project behind an interface Application owns.
+**Reviewed for:** Which platform API surfaces lack one adapter type in the platform project behind an interface Application owns? Look in the platform project adapters.

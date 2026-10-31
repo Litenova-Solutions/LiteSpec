@@ -79,6 +79,105 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - `litespec book` is one offline shell with sharded data, generated from the model, with the outline from the parent table and the labels from the Links table and the glossary.
 - Approval batches a journey with the goal it serves, keeps each entry a page stamp did not hold at the page's former status, refuses a decision naming no chosen option, and keeps a transcribed record serving a draft journey in draft. Screens are Behavior, and reaction and job scenarios carry their own stamp.
 
+### Removed and Renamed Provisions
+
+Every provision identifier present in v2.0.0 and gone now, with the identifier that carries its rule, or `removed` where no rule carries it.
+
+| Removed or Renamed ID | Replacement |
+|:---|:---|
+| `litespec/backend/application#keep-command-handlers-narrow` | `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` |
+| `litespec/backend/application#keep-event-reaction-implementations-explicit` | `litespec/backend/application#keep-event-automation-implementations-explicit` |
+| `litespec/backend/application#keep-one-state-changing-use-case-in-one-pipeline` | `litespec/backend/application#dispatch-only-declared-effect-edges` |
+| `litespec/backend/dotnet/application#keep-one-state-changing-use-case-in-one-command-pipeline` | `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points` |
+| `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers` | `litespec/backend/dotnet/application#run-event-automations-in-dedicated-handlers` |
+| `litespec/backend/testing#tag-the-test-that-proves-each-scenario` | `litespec/backend/testing#mark-the-test-that-proves-each-scenario` |
+| `litespec/core/access#name-what-an-external-system-receives` | `litespec/core/edges#describe-every-external-system-operation` |
+| `litespec/core/access#name-what-an-external-system-sends` | `litespec/core/edges#describe-every-external-system-operation` |
+| `litespec/core/access#state-the-failure-behavior-of-every-external-system` | `litespec/core/edges#describe-every-external-system-operation` |
+| `litespec/core/authoring#generate-repeated-verification-rows-with-the-owning-tool` | `removed` |
+| `litespec/core/authoring#name-observable-evidence-in-verification-rows` | `litespec/core/authoring#name-observable-evidence-in-verification-lines` |
+| `litespec/core/domain#classify-every-aggregate-data-field` | `litespec/core/privacy#classify-every-aggregate-data-field` |
+| `litespec/core/domain#connect-every-state-through-transitions` | `litespec/core/domain-model#connect-every-state-through-transitions` |
+| `litespec/core/domain#declare-every-query-output` | `litespec/core/use-cases#declare-every-query-output` |
+| `litespec/core/domain#define-every-domain-term-in-the-glossary` | `litespec/core/domain-model#define-every-behavior-term-in-the-glossary` |
+| `litespec/core/domain#end-every-use-case-in-named-results` | `litespec/core/use-cases#end-every-use-case-in-named-results` |
+| `litespec/core/domain#give-each-use-case-one-kind` | `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind` |
+| `litespec/core/domain#group-cross-aggregate-rules-by-theme` | `litespec/core/behavior#group-cross-aggregate-rules-by-theme` |
+| `litespec/core/domain#illustrate-pages-with-examples-from-the-cast` | `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast` |
+| `litespec/core/domain#keep-cross-aggregate-rules-on-a-rule-page` | `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page` |
+| `litespec/core/domain#keep-design-choices-out-of-the-records` | `litespec/core/behavior#keep-design-choices-out-of-the-records` |
+| `litespec/core/domain#keep-the-negation-word-in-the-rule-name` | `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name` |
+| `litespec/core/domain#model-each-aggregate-lifecycle-with-states` | `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states` |
+| `litespec/core/domain#name-the-refusal-a-broken-rule-produces` | `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces` |
+| `litespec/core/domain#name-the-result-each-scenario-ends-in` | `litespec/core/use-cases#name-the-result-each-scenario-ends-in` |
+| `litespec/core/domain#raise-every-event-through-its-aggregate-root` | `litespec/core/domain-model#raise-every-event-through-its-aggregate-root` |
+| `litespec/core/domain#state-each-event-with-meaning-and-carries` | `litespec/core/domain-model#state-each-event-with-meaning-and-carries` |
+| `litespec/core/domain#state-each-rule-with-its-kind` | `litespec/core/domain-model#state-each-rule-with-its-kind` |
+| `litespec/core/domain#state-every-module-dependency` | `litespec/core/domain-model#state-every-module-dependency` |
+| `litespec/core/domain#tabulate-every-calculation-with-examples` | `litespec/core/domain-model#tabulate-every-calculation-with-examples` |
+| `litespec/core/domain#trigger-every-reaction` | `litespec/core/automation#trigger-every-automation-from-its-declared-trigger` |
+| `litespec/core/domain#write-every-scenario-in-given-when-then` | `litespec/core/use-cases#write-every-scenario-in-given-when-then` |
+| `litespec/core/model#approve-intent-above-the-review-line` | `litespec/core/model#approve-tier-1-records-by-a-person` |
+| `litespec/core/model#cover-every-public-use-case-from-a-journey` | `litespec/core/model#connect-every-use-case-to-intent` |
+| `litespec/core/model#raise-modeling-questions-as-draft-intent` | `litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date` |
+| `litespec/core/model#read-truth-from-code-screens-and-test-runs` | `litespec/core/model#compute-proof-statuses-in-the-builder` |
+| `litespec/core/model#record-accepted-gaps-as-known-gaps` | `litespec/core/model#record-accepted-gaps-as-exceptions` |
+| `litespec/core/product#answer-every-constraint` | `litespec/core/intent#answer-every-constraint` |
+| `litespec/core/product#build-intent-before-specification-before-code` | `litespec/core/layers#write-each-layer-from-the-layer-above-it` |
+| `litespec/core/product#build-on-a-draft-decision-before-approval` | `removed` |
+| `litespec/core/product#cite-requirements-from-records` | `litespec/core/intent#restrict-requirement-fulfillment-to-behavior` |
+| `litespec/core/product#cite-sources-for-chapter-claims` | `removed` |
+| `litespec/core/product#derive-requirement-coverage-from-the-model` | `removed` |
+| `litespec/core/product#explain-each-requirement-in-one-line` | `litespec/core/intent#explain-each-requirement-in-one-line` |
+| `litespec/core/product#group-product-records-by-area` | `litespec/core/intent#group-product-records-by-area` |
+| `litespec/core/product#identify-every-requirement` | `litespec/core/intent#identify-every-requirement` |
+| `litespec/core/product#keep-behavior-out-of-product-pages` | `litespec/core/intent#keep-behavior-out-of-intent` |
+| `litespec/core/product#keep-product-intent-in-its-homes` | `litespec/core/intent#keep-intent-in-its-homes` |
+| `litespec/core/product#load-product-intent-before-commercial-work` | `removed` |
+| `litespec/core/product#name-product-decisions-in-one-numbered-sequence` | `litespec/core/intent#name-product-decisions-in-one-numbered-sequence` |
+| `litespec/core/product#name-the-person-who-approved-a-decision` | `litespec/core/intent#name-the-person-who-approved-a-decision` |
+| `litespec/core/product#order-each-journey-toward-one-goal` | `litespec/core/intent#order-each-journey-toward-one-goal` |
+| `litespec/core/product#place-the-story-before-the-commitments` | `litespec/core/intent#shape-each-topic-page` |
+| `litespec/core/product#record-each-choice-as-a-decision` | `litespec/core/intent#shape-each-decision-page` |
+| `litespec/core/product#record-research-with-read-sources` | `litespec/core/intent#record-research-with-read-sources` |
+| `litespec/core/product#reject-an-unfulfilled-requirement` | `litespec/core/intent#restrict-requirement-fulfillment-to-behavior` |
+| `litespec/core/product#replace-a-decision-with-a-new-record` | `litespec/core/intent#replace-a-decision-with-a-new-record` |
+| `litespec/core/product#review-a-requirement-page-by-its-date` | `removed` |
+| `litespec/core/product#shape-each-requirement-page` | `litespec/core/intent#shape-each-topic-page` |
+| `litespec/core/product#state-each-feature-with-its-state` | `litespec/core/intent#state-each-feature-with-its-lifecycle` |
+| `litespec/core/product#state-each-goal-with-its-measure` | `litespec/core/intent#state-each-goal-with-its-measure` |
+| `litespec/core/product#state-each-problem-with-its-evidence` | `litespec/core/intent#state-each-problem-with-its-evidence` |
+| `litespec/core/product#state-one-product` | `litespec/core/intent#state-one-product` |
+| `litespec/core/product#state-the-measure-on-a-counted-requirement` | `litespec/core/intent#state-the-measure-on-a-counted-requirement` |
+| `litespec/core/product#trace-every-choice-to-a-decision` | `removed` |
+| `litespec/core/product#treat-generated-research-as-source-material` | `litespec/core/intent#treat-generated-research-as-source-material` |
+| `litespec/core/release#record-accepted-debt-as-a-known-gap` | `litespec/core/release#record-accepted-debt-as-an-exception` |
+| `litespec/ext/compat#classify-published-event-changes` | `litespec/ext/compat#classify-integration-event-changes` |
+| `litespec/ext/compat#declare-published-events` | `litespec/ext/compat#declare-published-facts-as-integration-events` |
+| `litespec/ext/compat#retire-published-events-with-notice` | `litespec/ext/compat#retire-integration-events-with-notice` |
+| `litespec/ext/compat#version-breaking-published-events` | `litespec/ext/compat#version-breaking-integration-events` |
+| `litespec/ext/jobs#bound-job-duration` | `litespec/ext/jobs#bound-automation-duration` |
+| `litespec/ext/jobs#bound-job-retries` | `litespec/ext/jobs#bound-automation-retries` |
+| `litespec/ext/jobs#observe-job-cancellation` | `litespec/ext/jobs#observe-automation-cancellation` |
+| `litespec/ext/jobs#record-schedule-behavior` | `removed` |
+| `litespec/ext/jobs#run-jobs-in-worker` | `litespec/ext/jobs#run-scheduled-automations-in-worker` |
+| `litespec/ext/jobs#state-schedules-as-reaction-triggers` | `litespec/ext/jobs#carry-the-schedule-on-the-automation-record` |
+| `litespec/ext/jobs#stop-jobs-during-graceful-shutdown` | `litespec/ext/jobs#stop-automations-during-graceful-shutdown` |
+| `litespec/ext/outbox#exclude-manually-repeatable-reactions` | `litespec/ext/outbox#exclude-manually-repeatable-automations` |
+| `litespec/ext/outbox#publish-best-effort-reactions-after-commit` | `litespec/ext/outbox#emit-excluded-automations-after-commit` |
+| `litespec/ext/plans#bound-plan-amounts-in-limits` | `litespec/ext/plans#bound-plan-amounts-in-settings` |
+| `litespec/frontend/patterns/admin-screens#discount-and-promotion-codes` | `litespec/frontend/patterns/admin-screens#budget-codes-and-advances` |
+| `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-listing` | `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-policy` |
+| `litespec/frontend/patterns/forms-and-fields#color-field-for-the-storefront-accent` | `litespec/frontend/patterns/forms-and-fields#color-field-for-the-mail-accent` |
+| `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-price-tiers` | `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-budget-codes` |
+| `litespec/frontend/patterns/lists-and-tables#deliveries-as-a-grid` | `litespec/frontend/patterns/lists-and-tables#trips-as-a-grid` |
+| `litespec/frontend/patterns/money-time-density#sales-by-product-variant` | `litespec/frontend/patterns/money-time-density#spending-by-expense-kind` |
+| `litespec/frontend/patterns/money-time-density#sales-over-time` | `litespec/frontend/patterns/money-time-density#spending-over-time` |
+| `litespec/frontend/patterns/money-time-density#sell-through-against-capacity` | `litespec/frontend/patterns/money-time-density#spend-against-the-budget` |
+| `litespec/frontend/patterns/record-detail#order-record` | `litespec/frontend/patterns/record-detail#expense-record` |
+| `litespec/frontend/testing#prove-a-scenario-by-calling-its-use-case` | `litespec/frontend/testing#prove-each-scenario-at-one-boundary` |
+| `litespec/quality/operations#name-a-runbook-on-every-alert` | `litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert` |
+
 ## v2.0.0
 
 LiteSpec 2.0.0 is the standards contract for one bounded-context business application, built by people and agents. People and agents write intent records; the model builder reads the code, screens, tests, and test runs and computes the links between the two. A consumer installs this release as the `LiteSpec.Cli` local .NET tool at the release version, records it in `reviewedLiteSpecVersion`, and keeps it for as long as it serves. The release takes effect as the `v2.0.0` tag.

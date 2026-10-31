@@ -52,4 +52,22 @@ internal static class SyntaxNames
             ? name.Substring(0, name.Length - suffix.Length)
             : name;
     }
+
+    /// <summary>
+    ///     Whether the attribute name is written in the generated namespace: unqualified,
+    ///     qualified with <c>LiteSpec</c>, or qualified with <c>global::LiteSpec</c>.
+    ///     Any other qualifier names a domain attribute, never a mark.
+    /// </summary>
+    internal static bool IsGeneratedMarkName(NameSyntax name)
+    {
+        switch (name)
+        {
+            case IdentifierNameSyntax:
+                return true;
+            case QualifiedNameSyntax qualified:
+                return qualified.Left.ToString() is "LiteSpec" or "global::LiteSpec";
+            default:
+                return false;
+        }
+    }
 }

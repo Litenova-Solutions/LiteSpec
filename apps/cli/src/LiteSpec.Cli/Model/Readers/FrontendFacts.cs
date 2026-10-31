@@ -13,13 +13,15 @@ sealed record CallFact(string Operation, string File, int Line);
 /// <param name="Address">The route template the entry serves.</param>
 /// <param name="Marks">Every screen id the entry's mark names, in source order.</param>
 /// <param name="Calls">Every generated-client call the route reaches.</param>
+/// <param name="Styles">The style each mark was written in, one per mark, or null when the reader records none: the TypeScript reader reads only typed constants, so its routes carry none.</param>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 sealed record RouteFact(
     string File,
     int Line,
     string Address,
     IReadOnlyList<string> Marks,
-    IReadOnlyList<CallFact> Calls);
+    IReadOnlyList<CallFact> Calls,
+    IReadOnlyList<MarkStyle>? Styles = null);
 
 /// <summary>One use-case module folder a frontend reader found.</summary>
 /// <param name="Folder">The folder, relative to the frontend root with forward slashes.</param>

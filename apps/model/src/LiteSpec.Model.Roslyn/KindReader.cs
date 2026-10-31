@@ -12,10 +12,10 @@ namespace LiteSpec.Model.Roslyn;
 ///     Recognizes the LiteSpec code kind of a type or method from the code,
 ///     never from the mark, except for ports, domain services, and job hosts,
 ///     which are recognized by their own mark, for adapters, recognized
-///     through the marked port they implement, and for aggregate methods
-///     that raise nothing, recognized once they carry a mark. The syntax overloads read
-///     one declaration; the symbol overloads walk base types and interfaces
-///     semantically. Both agree on the same code
+///     through the marked port they implement, and for a public aggregate-root
+///     method that neither raises nor assigns state, recognized once it carries a mark.
+///     The syntax overloads read one declaration; the symbol overloads walk base types and
+///     interfaces semantically. Both agree on the same code
 ///     except where syntax cannot see across files: transitive handler and job
 ///     bases resolve only from symbols, and transitive aggregate roots, domain
 ///     exceptions, and marked ports resolve from syntax only through the
@@ -501,6 +501,11 @@ public static class KindReader
             return null;
         }
 
+        if (!IsGeneratedMarkAttribute(attribute.AttributeClass))
+        {
+            return null;
+        }
+
         if (attribute.ConstructorArguments.Length > 0
             && attribute.ConstructorArguments[0].Value is string positional)
         {
@@ -517,6 +522,13 @@ public static class KindReader
 
         return null;
     }
+
+    /// <summary>Whether the attribute type is a generated mark attribute in the <c>LiteSpec</c> namespace.</summary>
+    private static bool IsGeneratedMarkAttribute(INamedTypeSymbol? attribute) =>
+        attribute is not null
+        && attribute.ContainingNamespace is { } space
+        && space.ContainingNamespace is { IsGlobalNamespace: true }
+        && space.Name == "LiteSpec";
 
     private static bool IsAdapter(TypeDeclarationSyntax type, KindContext context)
     {
@@ -781,9 +793,10 @@ public static class KindReader
             return false;
         }
 
-        // A state-changing method that raises nothing carries no event to recognize
-        // it by, so the mark is what makes it an act.
-        return RaisesEvent(method, parent) || MarkReader.Read(method).Count > 0;
+        // A method that assigns state without raising an event is still an act:
+        // the assignment is what recognizes it, and the mark it carries names its use case.
+        // A method that neither raises nor assigns is recognized once it carries a mark.
+        return RaisesEvent(method, parent) || StateChanges.Changes(method, parent) || MarkReader.Read(method).Count > 0;
     }
 
     private static bool IsAggregateMethod(IMethodSymbol method, KindContext context)
@@ -802,7 +815,7 @@ public static class KindReader
         {
             if (reference.GetSyntax() is MethodDeclarationSyntax declaration
                 && declaration.Parent is TypeDeclarationSyntax parent
-                && (RaisesEvent(declaration, parent) || MarkReader.Read(declaration).Count > 0))
+                && (RaisesEvent(declaration, parent) || StateChanges.Changes(declaration, parent) || MarkReader.Read(declaration).Count > 0))
             {
                 return true;
             }

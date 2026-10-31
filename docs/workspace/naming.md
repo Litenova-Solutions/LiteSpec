@@ -74,7 +74,7 @@ A polymorphic transport model mirrors a Domain discriminated union (`litespec/ba
 
 The transport name drops the Domain union's aggregate prefix, such as `OrderFulfillmentOutcome`, while its discriminator string keeps the Domain union's stable case code unchanged.
 
-**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix and `LS2006` for an endpoint missing its suffix, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
+**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for an automation whose name hides its trigger kind, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
 
 ### Name Result Parts After Their Result
 
@@ -86,7 +86,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Example:** `ListPostsQueryResultItem` belongs to `ListPostsQueryResult`, and `ReadLoanQueryResultHold` belongs to `ReadLoanQueryResult`.
 
-**Reviewed for:** Each type nested in a use-case result in `apps/api/src` leads with its result name.
+**Checked by:** `dotnet build` reports `LS2009` for a type a use-case result reaches through its properties whose name does not start with the result name, in the dotnet stack.
 
 ### Group Event Handlers by the Fact They Handle
 
@@ -98,7 +98,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Example:** `Loans/Loans/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
 
-**Reviewed for:** Each event handler in `apps/api/src` lives in its `On{Fact}` folder and carries `{Action}On{Fact}Handler`.
+**Checked by:** `dotnet build` reports `LS2008` for an event handler declared outside the `On{Fact}` folder its event names, in the dotnet stack.
 
 ### Name Repository Variables After Their Interface
 
@@ -110,7 +110,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Example:** A parameter of type `IExpenseRepository` is named `expenseRepository`, and a field of type `ILoanRepository` is named `loanRepository`.
 
-**Reviewed for:** Each repository parameter, field, and local in `apps/api/src` carries its interface name without the `I` prefix.
+**Checked by:** `dotnet build` reports `LS2010` for a repository parameter, field, or local whose name does not follow its interface, in the dotnet stack.
 
 ### Name Asynchronous Operations Completely
 

@@ -113,6 +113,8 @@ A page record is a Markdown file whose opening block names a record type. An ent
 | `exception` | page | `docs/governance/exceptions/<name>.md` |
 | `term` | entry in the glossary | `docs/glossary.json` |
 
+The decision type has two homes: a product decision lives under `docs/intent/decisions/`, and a technical decision lives under `docs/implementation/decisions/`.
+
 ### Identifiers
 
 An identifier names its record type first, then the record name, with the owning home in between when the type has one. The name carries one to six lowercase hyphenated words, chosen by a person; a decision counts its number as a word.
@@ -277,6 +279,8 @@ The product has no record parent; its parent is the project that declares it. In
 
 ### Marks
 
+The mark rules keep their one home on this page: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each element goes and what checks it.
+
 A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain constituent type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`).
 
 | Record layer the code serves | Code element | Mark names |
@@ -298,15 +302,15 @@ A mark is the one written link from a code element to the record it serves. It h
 | Operations | Deployment, proxy, host, or CI workflow file listed in `paths.operations` | One or more `follows` marks in the file's `#` comments, such as `# <follows>decision/<number>-<name></follows>` |
 | Operations | Alert rule in a file listed in `paths.alerts` | A `requirement` label naming a quality requirement and a `runbook` label naming a runbook |
 | Tests | Test | The lowest record it verifies: `scenario/<use-case>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<topic>.<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep |
-| Application, Infrastructure or API | Technical class: a class that declares a method, or an options class that binds a setting, and takes no other mark | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `exception/<name>` in a `follows` mark |
+| Application, Infrastructure or API | Technical class: a top-level class that declares a method, or an options class that binds a setting, and takes no other mark. Nested types, records, interfaces, generated code, migrations, and model snapshots are never technical classes | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `exception/<name>` in a `follows` mark |
 
 A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the exception that allows it. Any other code element may carry a `follows` mark as well.
 
-The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, a job host by its hosted-service shape or by its mark, and an aggregate root method by the event it raises or by its mark, so an unmarked port is found only from the top, through its external system, and an unmarked method that changes state without raising an event is not recognized at all.
+The tools recognize code elements through the semantic model and then expect their mark: the generated mark attribute by its full name, and a handler by the interface it implements, wherever that interface comes from. A port and a domain service are recognized by their mark, and a job host by its hosted-service shape or by its mark. A public method on an aggregate root that changes state needs its use-case mark even when it raises no event, so an unmarked port is found only from the top, through its external system.
 
-Six provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/backend/testing#mark-the-test-that-proves-each-scenario` places the test mark.
+Seven provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#match-each-backend-mark-to-its-folder` matches each backend mark to its folder, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/backend/testing#mark-the-test-that-proves-each-scenario` places the test mark.
 
-A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `litespec.project.json`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
 ### Authority
 
@@ -383,7 +387,7 @@ Every check has a level.
 
 A structural parent is any link or containment the Parents table and the Identifiers table name as a record parent: topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment. A missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record.
 
-Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking.
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking.
 
 `litespec model check` prints the level beside each finding.
 
@@ -855,13 +859,25 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#declare-one-mark-style`
 
-**Statement:** A project MUST write every mark in the one style that `marks` in `litespec.project.json` declares.
+**Statement:** A project MUST write each C# mark in the one style that `marks` in `litespec.project.json` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
 
-**Rationale:** Two styles in one project are two ways to do one job: a reader learns both, a review checks both, and a search for a record finds half its code. The style is a project choice made once, so every tool reads it from the project file and refuses the other style. A code fix converts a mark to the declared style.
+**Rationale:** Two styles in one language are two ways to do one job: a reader learns both, a review checks both, and a search for a record finds half its code. The C# style is a project choice made once, so every tool reads it from the project file and refuses the other style within C#. TypeScript and operations files have one form each, so a typed constant beside a C# documentation tag is two languages, not two styles. A code fix converts a mark to the form its language takes.
 
-**Example:** The Claimwick product declares `"marks": "xml"`, so its submit-expense handler carries a documentation tag naming `use-case/spending.submit-expense`, and an attribute naming the same use case is reported.
+**Example:** The Claimwick product declares `"marks": "xml"`, so its submit-expense handler carries a documentation tag naming `use-case/spending.submit-expense`, and an attribute naming the same use case is reported. Its use-case module carries the same identifier as a typed constant, and its deployment file carries its `follows` mark as a comment.
 
-**Checked by:** `litespec model check` reports `mark-style-invalid` (level S) for a mark written in the style the project did not declare.
+**Checked by:** `litespec model check` reports `mark-style-invalid` (level S) for a mark written in a form its language does not take.
+
+### Match Each Backend Mark to Its Folder
+
+**ID:** `litespec/core/model#match-each-backend-mark-to-its-folder`
+
+**Statement:** A backend element MUST carry a mark naming a use case, automation, or aggregate in the module and folder it sits in.
+
+**Rationale:** Copying a handler and forgetting its mark is the most common agent mistake, and the folder already says what the mark should be. A handler that sits in one use-case folder while naming another sends readers and checks to the wrong record. The frontend mirror already compares each mark with its module; the backend check applies the same comparison to handlers, endpoints, and aggregates.
+
+**Example:** A handler in `Booking/Holds/HoldRoom/` marked `use-case/booking.release-hold` is reported, because the folder holds `use-case/booking.hold-room`.
+
+**Checked by:** `litespec model check` reports `mark-folder-drift` (level S) for a backend element whose mark names a record outside its module and folder.
 
 ### Hold Each Finding to Its Own Status
 

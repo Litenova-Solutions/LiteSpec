@@ -372,17 +372,17 @@ export default defineConfig({ output: 'static' });
 
 **Reviewed for:** Light is the initial scheme with a reader-chosen dark scheme, or the site-scheme convention names other schemes.
 
-### Read Prices and Claims from Brief and Business Requirements
+### Read Prices and Claims from Brief and Policy Requirements
 
 **ID:** `litespec/ext/site#read-prices-and-claims-from-brief-and-business-requirements`
 
-**Default:** Read site prices and claims from the consumer product brief and its business requirements.
+**Default:** Read site prices and claims from the consumer product brief and its policy requirements.
 
 **Replacement:** A consumer records a site-facts convention naming the records its prices and claims read.
 
-**Rationale:** The product brief and the business requirements hold commercial facts in every consumer, but each tree keeps them at its own paths. Naming the records without fixing paths lets every consumer resolve its own, where one fixed path would bind all trees to one layout.
+**Rationale:** The product brief and the policy requirements hold commercial facts in every consumer, but each tree keeps them at its own paths. Naming the records without fixing paths lets every consumer resolve its own, where one fixed path would bind all trees to one layout.
 
-**Reviewed for:** Prices and claims read the brief and business requirements, or the site-facts convention names other records.
+**Reviewed for:** Prices and claims read the brief and policy requirements, or the site-facts convention names other records.
 
 ## Dependencies
 

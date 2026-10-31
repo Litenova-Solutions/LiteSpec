@@ -202,6 +202,97 @@ public sealed class KindReaderSymbolTests
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "An unmarked symbol method assigning state is recognized")]
+    public void SymbolMethodAssigningStateIsRecognized()
+    {
+        const string code = """
+            public abstract class AggregateRoot<TState>;
+
+            public sealed class ExpenseState;
+
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                private bool erased;
+
+                public void Erase()
+                {
+                    erased = true;
+                }
+            }
+            """;
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+        var node = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .First(method => method.Identifier.ValueText == "Erase");
+        var symbol = model.GetDeclaredSymbol(node);
+        Assert.NotNull(symbol);
+
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(node, KindContext.Empty));
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)symbol, KindContext.Empty));
+    }
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "A symbol mark outside the generated namespace is not a mark")]
+    public void SymbolMarkOutsideGeneratedNamespaceIsIgnored()
+    {
+        const string code = """
+            using System;
+
+            namespace Spending
+            {
+                public sealed class ImplementsAttribute : Attribute
+                {
+                    public ImplementsAttribute(string recordId)
+                    {
+                    }
+                }
+            }
+
+            namespace LiteSpec
+            {
+                public sealed class ImplementsAttribute : Attribute
+                {
+                    public ImplementsAttribute(string recordId)
+                    {
+                    }
+                }
+            }
+
+            namespace Shop
+            {
+                [Spending.Implements("external-system/payout-bank")]
+                public interface IDomainPort;
+
+                [LiteSpec.Implements("external-system/payout-bank")]
+                public interface IGeneratedPort;
+            }
+            """;
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+
+        foreach (var name in new[] { "IDomainPort", "IGeneratedPort" })
+        {
+            var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+                .First(type => type.Identifier.ValueText == name);
+            var symbol = model.GetDeclaredSymbol(node);
+            Assert.NotNull(symbol);
+
+            if (name == "IDomainPort")
+            {
+                Assert.Null(KindReader.KindOf(node, KindContext.Empty, "Shop.Application"));
+                Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+            }
+            else
+            {
+                Assert.Equal(CodeKind.Port, KindReader.KindOf(node, KindContext.Empty, "Shop.Application"));
+                Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+            }
+        }
+    }
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Symbols resolve a transitive aggregate root that syntax needs context for")]
     public void SymbolsResolveTransitiveAggregateRoot()
     {

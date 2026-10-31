@@ -16,8 +16,10 @@ namespace LiteSpec.Model.Roslyn;
 ///     parsed from the trivia structure when the tree was parsed with
 ///     documentation, and scanned from the comment text when it was not.
 ///     Attribute marks come from the <c>Implements</c>, <c>Proves</c>, and
-///     <c>Follows</c> attributes, with or without a namespace qualifier or the
-///     <c>Attribute</c> suffix. Whitespace inside a mark is trimmed. A malformed mark is returned
+///     <c>Follows</c> attributes in the generated namespace: unqualified, or
+///     qualified with <c>LiteSpec</c> or <c>global::LiteSpec</c>, with or without
+///     the <c>Attribute</c> suffix. Any other qualifier names a domain attribute,
+///     never a mark. Whitespace inside a mark is trimmed. A malformed mark is returned
 ///     with an empty record identifier so hosts report it as unresolved rather
 ///     than ignoring it.
 /// </summary>
@@ -387,6 +389,11 @@ public static class MarkReader
             {
                 var simple = SyntaxNames.SimpleName(attribute.Name);
                 if (simple is null || !MarkVerbNames.TryParseAttributeName(simple, out var verb))
+                {
+                    continue;
+                }
+
+                if (!SyntaxNames.IsGeneratedMarkName(attribute.Name))
                 {
                     continue;
                 }

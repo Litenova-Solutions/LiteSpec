@@ -52,7 +52,7 @@ apps/{frontend}/
 
 The generated route artifacts, build output, and dependency folders stay untracked.
 
-**Reviewed for:** Each frontend tree matches the frame, routes, and modules layout its stack page states.
+**Reviewed for:** Which frontend trees break from the frame, routes, and modules layout their stack page states? Look in the frontend tree.
 
 ### Mark Each Use-Case Module with Its Use Case
 
@@ -104,7 +104,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Rationale:** A `lib` folder on React would sit beside `src/app` as a second frame, and `src/app` already holds the frame. A `stores` folder on Svelte would gather shared state in one place, while the rules put shared state in the frame or beside its readers. Refusing both names stops the second home before anything moves into it.
 
-**Reviewed for:** No React folder takes the name `lib`, and no Svelte folder under `src/lib` takes the name `stores`.
+**Reviewed for:** Which React folders take the name `lib`, and which Svelte folders under `src/lib` take the name `stores`? Look in the frontend tree.
 
 ### Keep a Route File Thin
 
@@ -136,7 +136,7 @@ export async function load({ parent, url }) {
 }
 ```
 
-**Reviewed for:** Each route file holds only its input, its load, and its component, importing no other route file.
+**Reviewed for:** Which route files hold reusable logic or import another route file? Look in the route files.
 
 ### Keep Imports Directional
 
@@ -162,7 +162,7 @@ src/routes -> src/lib/modules -> src/lib/app -> packages/*
 
 A module importing a route reverses the flow, as does a shared package importing an application. A frame module reaching into one module's use-case folder for a second module's data tangles two layers. On Svelte, imports resolve through the alias its stack page names.
 
-**Reviewed for:** Every import follows the route to module to frame to package direction.
+**Reviewed for:** Which imports point against the route to module to frame to package direction? Look in the import statements.
 
 ### Locate the Frame in the App Folder
 
@@ -172,7 +172,7 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. Filed in the frame folder, each has one home; filed in a route, each exists once per route with copies to keep equal. A browser API reached from a use-case module belongs here too, because a module renders and reads data rather than touching the device. This realizes litespec/frontend/structure#locate-cross-route-values-in-the-frame.
 
-**Reviewed for:** The frame folder its stack page names holds every cross-route value and browser use.
+**Reviewed for:** Which cross-route values or browser uses sit outside the frame folder their stack page names? Look in the frame folder and the route and module sources.
 
 ## Conventions
 
@@ -186,7 +186,7 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** The typed route artifacts derive from the files under `src/routes`, so generating them with the router's own command and leaving them untracked keeps one source of truth. Committed artifacts add a second copy that a renamed route file leaves behind.
 
-**Reviewed for:** The build and type-check scripts each run the router's generate command, and the generated artifacts stay untracked.
+**Reviewed for:** Which build or type-check scripts skip the router's generate command, and which generated artifacts stay tracked? Look in the package scripts and the version control status.
 
 ### Use Explicit Public Entry Points for Workspace Packages
 
@@ -198,7 +198,7 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** A package manifest names what an application may import: the package root or a documented subpath. An application importing an internal source path couples itself to a layout the package may rearrange, and the next package edit breaks the importer. This realizes litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages.
 
-**Reviewed for:** Every application import resolves to the package root or a documented subpath its package manifest exports.
+**Reviewed for:** Which application imports reach past the package root or a documented subpath the package manifest exports? Look in the application imports and the package manifests.
 
 ### Keep Tests Near Their Ownership Boundary
 
@@ -210,4 +210,4 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** A logic test beside its module stays discoverable from the code it covers, while the browser suites share one `tests/` root per frontend with one fixture set and one deployment, so they run as one suite instead of scattered files. This realizes litespec/frontend/structure#place-tests-at-their-ownership-boundary.
 
-**Reviewed for:** Each logic test sits beside its module as `*.test.ts`, and the browser suites share one `tests/` root per frontend.
+**Reviewed for:** Which logic tests sit outside their module or off the `*.test.ts` name, and which browser suites sit outside the one `tests/` root per frontend? Look in the module folders and the `tests/` roots.

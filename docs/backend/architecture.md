@@ -34,32 +34,6 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 ## Standards
 
-### Use Five Application Parts
-
-**ID:** `litespec/backend/architecture#use-five-application-parts`
-
-**Statement:** An application MUST use Domain, Application.Abstractions, Application, Infrastructure, and WebApi as its five baseline parts.
-
-**Rationale:** Five fixed parts give every type one home a reader can predict. `Application.Abstractions` holds the contracts that more than one module names: pipeline positions, cross-module ports, transport-neutral refusals, and published integration events. It depends on Domain and nothing else, and no type in it names a use case, a handler, or a module.
-
-That strict membership is the reason it is a part rather than a folder. A folder inside Application accepts whatever a developer puts in it, and the folder that tries becomes the place every unplaced type goes.
-
-An implementation belongs in a module, not there. The part name states the test, and a type that fails it belongs to a module under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
-
-Hosts support local hosting and diagnostics. They are hosts rather than application parts.
-
-**Example:**
-
-```text
-Domain/
-Application.Abstractions/
-Application/
-Infrastructure/
-WebApi/
-```
-
-**Reviewed for:** The solution file lists Domain, Application.Abstractions, Application, Infrastructure, and WebApi as the application parts, with no sixth part.
-
 ### Point Dependencies Inward
 
 **ID:** `litespec/backend/architecture#point-dependencies-inward`
@@ -72,7 +46,7 @@ WebApi/
 
 ![The five application projects and their references: WebApi references Infrastructure, Application, and Application.Abstractions; Infrastructure references Application, Application.Abstractions, and Domain; Application references Application.Abstractions and Domain; Application.Abstractions references Domain; Domain references nothing.](../assets/diagrams/backend-dependencies.svg)
 
-**Reviewed for:** The project reference graph in the solution shows every reference pointing toward Domain, with Domain referencing nothing.
+**Reviewed for:** Which project references point outward, away from Domain? Look at the project reference graph in the solution.
 
 ### Own Each Layer's Contract Types
 
@@ -82,17 +56,17 @@ WebApi/
 
 **Rationale:** When each layer defines its own outward contracts, a change to an inner shape stops at the boundary instead of rippling through every outer layer. Shared-kernel values cross because the kernel is shared by definition, and aggregate typed identifiers cross because messages need to name their targets.
 
-**Reviewed for:** The outward contracts in each layer's folders are declared in that layer, apart from shared-kernel values and aggregate typed identifiers.
+**Reviewed for:** Which outward contracts reuse an inner layer's type outside shared-kernel values and aggregate typed identifiers? Look at the contracts in each layer's folders.
 
 ### Keep One Application Part
 
 **ID:** `litespec/backend/architecture#keep-one-application-part`
 
-**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application part, and cross-module contracts in Application.Abstractions.
+**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application part, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/architecture#use-five-application-parts`.
 
 **Rationale:** Commands, queries, and automations coordinate the same use cases, so splitting them into Write, Read, Contracts, and event-handler parts buys unused deployment boundaries at the cost of a dependency every use case crosses. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The separation this backend keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): separate command and query models inside one Application part, with cross-module contracts in Application.Abstractions.
 
-**Reviewed for:** The Application part holds every message, handler, event handler class, and module-owned port, and the shared contracts part holds the cross-module contracts.
+**Reviewed for:** Which messages, handlers, event handler classes, or ports sit outside the Application part, or which cross-module contracts sit outside the shared contracts part and the merged Application? Look at the Application part beside the shared contracts.
 
 ### Organize Every Layer by Module and Use Case
 
@@ -137,7 +111,7 @@ The architecture test asserts the folder names directly, because a rule only a r
 fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 ```
 
-**Reviewed for:** Each layer folder path resolves to a declared module and aggregate, with no technical-grouping folder name.
+**Reviewed for:** Which layer folders resolve to no declared module or aggregate, or carry a technical-grouping name? Look at the folder paths in each layer.
 
 ### Place a Type at the Lowest Folder That Holds Its Consumers
 
@@ -153,7 +127,7 @@ The rule is mechanical, so placement is counted rather than judged. The contract
 
 Domain's shared kernel is the one folder of that name a solution keeps. Its membership is closed by `litespec/backend/architecture#own-each-layers-contract-types` rather than open to whatever needs a home. A service that coordinates several aggregates lives in the module that owns the aggregates it reads and writes, not with whichever module calls it first.
 
-**Reviewed for:** Each type sits in the lowest folder holding every consumer that names it, with no Shared, Common, Util, Helpers, Core, or Misc folder.
+**Reviewed for:** Which types sit above the lowest folder holding every consumer that names them? Look at each type beside its consumers, watching for Shared, Common, Util, Helpers, Core, or Misc folders.
 
 ### Keep Implementation Types Hidden
 
@@ -163,7 +137,7 @@ Domain's shared kernel is the one folder of that name a solution keeps. Its memb
 
 **Rationale:** Hidden implementations keep each part's surface to the contracts other parts actually use. A public handler invites direct construction that bypasses the pipeline, and an inheritable one invites overrides that split behavior across subclasses. Messages, results, and ports stay public only when another part uses them, and automatic discovery is not a reason to widen visibility.
 
-**Reviewed for:** Handlers, validators, definitions, persistence implementations, and endpoint implementations in the solution stay inside their own part and closed to extension.
+**Reviewed for:** Which handlers, validators, definitions, persistence implementations, or endpoint implementations escape their own part or stay open to extension? Look at the implementations in each part.
 
 ### Keep Business Invariants in Domain
 
@@ -173,7 +147,7 @@ Domain's shared kernel is the one folder of that name a solution keeps. Its memb
 
 **Rationale:** The aggregate or value object that owns data is the only code that sees every change to it. A rule duplicated in a handler drifts from the aggregate that owns it, and then the same action is allowed through one path and refused through another.
 
-**Reviewed for:** State transitions and invariants in the codebase run inside their aggregate or value object, with no copy in a handler.
+**Reviewed for:** Which state transitions or invariants run outside their aggregate or value object, or repeat in a handler? Look at the handlers beside the aggregates they call.
 
 ### Separate Command and Query Behavior
 
@@ -183,7 +157,7 @@ Domain's shared kernel is the one folder of that name a solution keeps. Its memb
 
 **Rationale:** Reads that load aggregates pay for invariant enforcement no read needs, and writes that read from projections enforce rules against stale shapes. Commands mutate one aggregate through its domain repository, following `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, with a use case declaring `consistency: atomic` over several aggregates as the declared exception. Queries project read results without loading an aggregate and write nothing, following `litespec/backend/application#keep-query-handlers-free-of-writes`. An enabled persistence extension may replace the read boundary for named aggregate paths, but a command still enforces no invariant from a read projection.
 
-**Reviewed for:** Commands in Application mutate one aggregate through its domain repository while queries project without loading an aggregate or writing.
+**Reviewed for:** Which commands mutate outside one aggregate or skip the domain repository, or which queries load an aggregate or write? Look at the command and query handlers in Application.
 
 ### Declare the Execution Host for Work That Outlives a Request
 
@@ -199,7 +173,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Example:** A Decision naming WebApi as the execution host states that durable dispatch shares the request process, and states what an unavailable process costs.
 
-**Reviewed for:** A decision record under `docs/intent/decisions/` names the execution host for durable dispatch, queue consumption, and scheduled work.
+**Reviewed for:** Which execution host runs durable dispatch, queue consumption, or scheduled work without a naming decision? Look for the decision record under `docs/intent/decisions/`.
 
 ### Create a Worker Project When Background Work Needs Its Own Process
 
@@ -211,7 +185,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Example:** An application with an outbox dispatching a few messages each minute can run it in WebApi. An application dispatching continuously, or one whose dispatch needs to survive an endpoint deployment, creates the Worker project.
 
-**Reviewed for:** The execution-host decision and the solution project list show background work needing its own process running in a Worker project.
+**Reviewed for:** Which background work needing its own process runs outside a Worker project? Look at the execution-host decision beside the solution project list.
 
 ### Test Structural Boundaries
 
@@ -221,7 +195,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Rationale:** Project references, package boundaries, visibility, module folders, and aggregate inheritance are invisible at runtime: the application runs the same with or without them. A structural rule that only a reviewer checks stops holding as soon as review misses one file, so architecture tests prove each one on every run.
 
-**Reviewed for:** The architecture tests in the test projects cover project references, package boundaries, visibility, module folders, and aggregate inheritance, and the latest test run passes.
+**Reviewed for:** Which structural boundaries lack an architecture test, or fail the latest run? Look at the architecture tests beside the latest test run.
 
 ### Compose Each Process Explicitly
 
@@ -231,9 +205,37 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Rationale:** Each host registers its own services and calls the shared Infrastructure entry point, so the full composition of a process is visible in one place. A second provider built mid-registration would resolve a different object graph than the host runs. WebApi and Worker are the only composition roots: Domain contains no registration code, and Application exposes contracts without resolving services.
 
-**Reviewed for:** Each host entry point registers its own transport services and calls the Infrastructure entry point once.
+**Reviewed for:** Which host entry points build a second provider or skip the Infrastructure entry point? Look at each host entry point.
 
 ## Conventions
+
+### Use Five Application Parts
+
+**ID:** `litespec/backend/architecture#use-five-application-parts`
+
+**Default:** Use Domain, Application.Abstractions, Application, Infrastructure, and WebApi as the five baseline parts at every size, with a small project merging Application.Abstractions into Application and hosts and a Worker project as allowed extras.
+
+**Replacement:** A project records its own part layout in its documentation.
+
+**Rationale:** Five fixed parts give every type one home a reader can predict. `Application.Abstractions` holds the contracts that more than one module names: pipeline positions, cross-module ports, transport-neutral refusals, and published integration events. It depends on Domain and nothing else, and no type in it names a use case, a handler, or a module.
+
+That strict membership is the reason it is a part rather than a folder. A folder inside Application accepts whatever a developer puts in it, and the folder that tries becomes the place every unplaced type goes. A small project with few cross-module contracts may merge them into Application, trading that protection for one less project.
+
+An implementation belongs in a module, not there. The part name states the test, and a type that fails it belongs to a module under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
+
+Hosts support local hosting and diagnostics. They are hosts rather than application parts. A Worker project hosts background work under `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`.
+
+**Example:**
+
+```text
+Domain/
+Application.Abstractions/
+Application/
+Infrastructure/
+WebApi/
+```
+
+**Reviewed for:** Which parts sit outside the five baseline parts, the merged small layout, or the allowed hosts and Worker? Look at the solution file beside the declared project size.
 
 ### Keep Service Registration in Hosts
 
@@ -254,7 +256,7 @@ webapi: register transport, authentication, and documentation
 
 The Infrastructure entry point receives configuration and host environment values needed to bind and validate provider options. The WebApi entry point owns error details, authentication, authorization, endpoint discovery, and API documentation.
 
-**Reviewed for:** Service registration calls sit in host entry points and host registration modules.
+**Reviewed for:** Which service registration calls sit outside host entry points and host registration modules? Look at the registration calls in each layer.
 
 ## Reference Example
 

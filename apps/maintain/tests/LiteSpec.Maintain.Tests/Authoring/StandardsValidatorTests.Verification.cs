@@ -43,7 +43,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "checkable evidence naming a missing file")]
     public void CheckableEvidenceMissingFile() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`tools/validate-missing.mjs` confirms the topic stays inside its declared boundary.")),
-        ["VERIFY_COMMAND"]);
+        ["CHECKED_BY_UNKNOWN"]);
 
     /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
     [Fact(DisplayName = "checkable evidence naming no command")]
@@ -55,7 +55,50 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "checkable evidence naming a removed command")]
     public void CheckableEvidenceRemovedCommand() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec patterns check` confirms the topic stays inside its declared boundary.")),
-        ["VERIFY_COMMAND"]);
+        ["CHECKED_BY_UNKNOWN"]);
+
+    /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
+    [Fact(DisplayName = "checkable evidence naming an unknown finding code")]
+    public void CheckableEvidenceUnknownFindingCode() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec model check` reports `topic-cites-missing` for a topic naming no reason.")),
+        ["CHECKED_BY_UNKNOWN"]);
+
+    /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
+    [Fact(DisplayName = "checkable evidence naming an unknown maintainer code")]
+    public void CheckableEvidenceUnknownMaintainerCode() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec-maintain validate` emits no `TOPIC_UNKNOWN_CODE` diagnostic.")),
+        ["CHECKED_BY_UNKNOWN"]);
+
+    /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
+    [Fact(DisplayName = "checkable evidence naming an unshipped analyzer rule")]
+    public void CheckableEvidenceUnshippedAnalyzerRule() => Check(
+        root =>
+        {
+            AnalyzerPinFiles(root, "3.0.0");
+            StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
+            CiteAnalyzerRule(root, "LS9999");
+        },
+        ["CHECKED_BY_UNKNOWN"]);
+
+    /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
+    [Fact(DisplayName = "checkable evidence naming codes that exist")]
+    public void CheckableEvidenceKnownCodes() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec model check` reports `record-invalid` for a record outside its home."));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
+    [Fact(DisplayName = "checkable evidence naming a consumer finding code")]
+    public void CheckableEvidenceConsumerFindingCode() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding."));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
 
     /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
     [Fact(DisplayName = "checkable evidence naming the consumer-side tool path")]

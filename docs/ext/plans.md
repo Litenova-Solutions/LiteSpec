@@ -16,7 +16,7 @@ The project selects `plans` when it sells more than one tier, or gates behavior 
 
 This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
-It switches on no record type: plans live as business requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, which the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
+It switches on no record type: plans live as policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, which the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
 
 ## Standards
 
@@ -98,17 +98,17 @@ It switches on no record type: plans live as business requirements, gated behavi
 
 **Reviewed for:** The authorization pipeline resolves the acting plan, or the plan-resolution convention names where use cases find it.
 
-### Record Plan Prices as Business Requirement Values
+### Record Plan Prices as Policy Requirement Values
 
 **ID:** `litespec/ext/plans#record-plan-prices-as-business-requirement-values`
 
-**Default:** Record each plan price as values on its business requirement.
+**Default:** Record each plan price as values on its policy requirement.
 
 **Replacement:** A consumer records a plan-price convention naming where its plan prices live.
 
-**Rationale:** A business requirement carries its values with effective dates, as the [intent page](../core/intent.md) states, so each price shows when it holds. Recording each plan price there keeps the commercial fact with the commitment it prices.
+**Rationale:** A policy requirement carries its values with effective dates, as the [intent page](../core/intent.md) states, so each price shows when it holds. Recording each plan price there keeps the commercial fact with the commitment it prices.
 
-**Reviewed for:** Each plan price sits as values on its business requirement, or the plan-price convention names where prices live.
+**Reviewed for:** Each plan price sits as values on its policy requirement, or the plan-price convention names where prices live.
 
 ## Dependencies
 

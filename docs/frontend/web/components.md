@@ -16,7 +16,7 @@ Every screen in a TypeScript web frontend draws with composites, shared building
 
 **Example:** The primitives sit in one folder that the registry CLI writes. No one edits that folder by hand. The composites sit beside them and import them.
 
-**Reviewed for:** The workspace packages hold the registry source and the composites in one shared package, with no primitive or composite copy under an application.
+**Reviewed for:** Which registry primitives or composites live under an application instead of the one shared package? Look in the workspace packages and the application sources.
 
 ### Use No Raw Element in Page Code
 
@@ -60,7 +60,7 @@ Text elements stay available, because a sentence is not a component decision: `p
 
 **Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, a public frame. Refusing them outright would push the drawing into an arbitrary value that no token governs. The visual file name declares the drawing visibly, and semantic theme tokens keep even the drawing inside the palette. Each stack page names the file pattern for its stack. This realizes litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file.
 
-**Reviewed for:** Each visual file named on its stack page uses semantic theme tokens only, and class names appear in no other route or module file.
+**Reviewed for:** Which visual files use values other than semantic theme tokens, and which class names appear in other route or module files? Look in the visual files and the route and module sources.
 
 ### Meet Accessibility Requirements
 
@@ -80,7 +80,7 @@ Text elements stay available, because a sentence is not a component decision: `p
 
 **Rationale:** A raw HTML sink renders whatever it receives, so untrusted content passed to it runs as page markup. Stored rich content therefore needs a decision record naming the sanitizer, the allowed elements and attributes, the link policy, and the test cases before any component renders it. Each stack page names the sink for its stack. This realizes litespec/frontend/components#sanitize-untrusted-rich-content.
 
-**Reviewed for:** Each stored-rich-content decision record names its sanitizer, allowed elements and attributes, link policy, and test cases, and no component passes untrusted content to the sink its stack page names without one.
+**Reviewed for:** Which stored-rich-content decisions lack a sanitizer, allowed elements and attributes, link policy, or test cases, and which components pass untrusted content to the named sink without one? Look in the decision records and the rendering components.
 
 ## Conventions
 
@@ -106,4 +106,4 @@ Text elements stay available, because a sentence is not a component decision: `p
 
 **Rationale:** Two merging helpers resolve the same class pair differently, so a second helper makes identical markup render differently by location. One merge helper exported by the shared package keeps conflict resolution identical everywhere. Page code holds no merge or variant helper import, because it has no decision to make.
 
-**Reviewed for:** Every class merge in the workspace imports the merge helper from the shared package, with no merge or variant helper import in route or module code.
+**Reviewed for:** Which class merges bypass the shared package merge helper, or import a merge or variant helper in route or module code? Look in the workspace imports.

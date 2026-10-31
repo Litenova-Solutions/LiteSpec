@@ -1,3 +1,4 @@
+using System.Linq;
 using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Dotnet;
@@ -351,6 +352,62 @@ public sealed class DotnetScreenReaderTests
             "namespace Mobile.Screens;\n\npublic class ExpenseListActivity : Activity\n{\n}\n");
 
         Assert.Empty(DotnetScreenReader.Read(Config(root, "svelte")));
+    }
+
+    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    [Fact]
+    public void Blazor_Codebehind_Mark_Records_The_Style_Seen()
+    {
+        using var temp = Cli.Temp("dotnet-screens");
+        var doc = WriteFrontend(
+            temp.Path,
+            "Pages/ExpenseList.razor",
+            "@page \"/expenses\"\n",
+            "Pages/ExpenseList.razor.cs",
+            "namespace Web.Pages;\n\n/// <implements>screen/claimwick-app.expense-list</implements>\npublic partial class ExpenseList\n{\n}\n");
+        var attributed = WriteFrontend(
+            temp.Path,
+            "Pages/Receipt.razor",
+            "@page \"/receipt\"\n",
+            "Pages/Receipt.razor.cs",
+            "namespace Web.Pages;\n\n[Implements(\"screen/claimwick-app.receipt\")]\npublic partial class Receipt\n{\n}\n");
+
+        var fromDoc = DotnetScreenReader.Read(Config(doc, "blazor")).Single(route => route.Address == "/expenses");
+        var fromAttribute = DotnetScreenReader.Read(Config(attributed, "blazor")).Single(route => route.Address == "/receipt");
+
+        Assert.Equal([MarkStyle.Xml], fromDoc.Styles);
+        Assert.Equal([MarkStyle.Attribute], fromAttribute.Styles);
+    }
+
+    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    [Fact]
+    public void Blazor_Code_Block_Marks_Record_Each_Style_Seen()
+    {
+        using var temp = Cli.Temp("dotnet-screens");
+        var root = WriteFrontend(
+            temp.Path,
+            "Pages/ExpenseList.razor",
+            "@page \"/expenses\"\n\n@code {\n    /// <implements>screen/claimwick-app.expense-list</implements>\n    [Implements(\"screen/claimwick-app.receipt\")]\n    private string title = \"\";\n}\n");
+
+        var route = Assert.Single(DotnetScreenReader.Read(Config(root, "blazor")));
+
+        Assert.Equal(["screen/claimwick-app.expense-list", "screen/claimwick-app.receipt"], route.Marks);
+        Assert.Equal([MarkStyle.Xml, MarkStyle.Attribute], route.Styles);
+    }
+
+    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
+    [Fact]
+    public void Android_Destination_Mark_Records_The_Style_Seen()
+    {
+        using var temp = Cli.Temp("dotnet-screens");
+        var root = WriteFrontend(
+            temp.Path,
+            "Screens/ExpenseListActivity.cs",
+            "namespace Mobile.Screens;\n\n[Implements(\"screen/claimwick-app.expense-list\")]\npublic class ExpenseListActivity : Activity\n{\n}\n");
+
+        var route = Assert.Single(DotnetScreenReader.Read(Config(root, "android")));
+
+        Assert.Equal([MarkStyle.Attribute], route.Styles);
     }
 
     static FrontendConfig Config(string root, string platform) => new("web", root, platform);

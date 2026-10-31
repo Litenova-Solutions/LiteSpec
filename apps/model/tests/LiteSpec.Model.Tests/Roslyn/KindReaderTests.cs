@@ -122,6 +122,44 @@ public sealed class KindReaderTests
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "An unmarked public aggregate method assigning state is recognized")]
+    public void UnmarkedStateChangingAggregateMethodIsRecognized()
+    {
+        var method = TestTrees.First<MethodDeclarationSyntax>("""
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                private bool erased;
+
+                public void Erase()
+                {
+                    erased = true;
+                }
+            }
+            """);
+
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
+    }
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "An unmarked public aggregate method assigning only locals is not an aggregate method")]
+    public void UnmarkedLocalAssigningAggregateMethodIsNotRecognized()
+    {
+        var method = TestTrees.First<MethodDeclarationSyntax>("""
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                public bool TryErase(bool allowed)
+                {
+                    var erased = false;
+                    erased = allowed;
+                    return erased;
+                }
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(method, KindContext.Empty));
+    }
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked private aggregate method is not an aggregate method")]
     public void MarkedPrivateAggregateMethodIsNotRecognized()
     {

@@ -48,7 +48,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A handwritten copy of a request, a response, or a schema drifts from the contract silently: the API changes, the copy still compiles, and the page sends a request the API no longer accepts. A generated client turns the same contract change into a compile error in every application at once, at every call site the change affects.
 
-**Reviewed for:** Client, types, schemas, and operation options are generated output from the published OpenAPI document. Look in the generated client directory and the contract it names.
+**Reviewed for:** Which client, type, schema, or operation option is handwritten instead of generated from the published OpenAPI document? Look in the generated client directory and the contract it names.
 
 ### Use One Configured Client per Application
 
@@ -58,7 +58,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** The configured client owns the base address, the credentials, the headers, and the mapping from a failure to a problem. A call that builds its own request opts out of all four at once: it can point at the wrong host, miss the session cookie, skip the write marker, and surface a raw failure outside the page's problem shape. Routing every read and write through the one client keeps those four decisions in one place.
 
-**Reviewed for:** Reads and writes pass through the one configured client with its base address, credentials, headers, and failure mapping. Look in the frame client configuration and the call sites.
+**Reviewed for:** Which reads or writes bypass the one configured client? Look in the frame client configuration and the call sites.
 
 ### Keep the Session in an API Owned Cookie
 
@@ -68,7 +68,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** Every value a script can read is a value any script on the page can read, including a script an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the reader is not signed in.
 
-**Reviewed for:** The browser session lives in an HTTP-only cookie, and frontend sources hold no token. Look in the API session handling and the frontend sources.
+**Reviewed for:** Which tokens sit in frontend sources instead of the API-owned HTTP-only cookie? Look in the API session handling and the frontend sources.
 
 ### Set the Write Marker on Every Request
 
@@ -78,7 +78,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A browser attaches its cookies to a cross-site request on its own, so the cookie alone fails to distinguish the page's own write from a forged post submitted from another site. The marker header separates the two: the page's client adds it to every write, and a page on another site adds no custom header without a preflight, which the API grants to no foreign origin. The API therefore accepts a cookie-authenticated write only when the header is present. The header name varies by project, so configuration owns it rather than code; it has the form `X-<Project>-Request` with the value `1`.
 
-**Reviewed for:** Writes carry the configured marker header of the form `X-<Project>-Request`. Look in the client configuration and the API write acceptance.
+**Reviewed for:** Which writes lack the configured marker header of the form `X-<Project>-Request`? Look in the client configuration and the API write acceptance.
 
 ### Map Every Failure to One Problem Type
 
@@ -88,7 +88,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A raw response body carries whatever the API included: field names, internals, sometimes data kept from the reader. Rendering it leaks that content and gives the reader no consistent recovery path, because each failure looks different. One problem type gives every failure the same shape: the page branches on the published code, so its decision survives a reworded message, and the trace identifier in the detail lets support find the request the reader saw fail. The identifier stays out of the headline, which says what happened in words the team wrote.
 
-**Reviewed for:** Failures render as one problem type decided from the code, with the trace identifier copyable in the detail. Look in the frame problem mapping and the error surfaces.
+**Reviewed for:** Which failures render outside the one problem type, or hide the trace identifier from the detail? Look in the frame problem mapping and the error surfaces.
 
 ### Place a Refusal Beside What Was Refused
 
@@ -100,7 +100,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Example:** Submitting an expense above the receipt threshold with no receipt refuses with `spending.receipt-missing` under `result/submit-expense.receipt-missing`. The page renders the application's sentence for that code beside the Submit control, carries the code in the markup so a test provokes it by name, and keeps the trace identifier in the detail in copyable form.
 
-**Reviewed for:** Refusals render beside the refused record or control in the application's sentence for the code, with the code in the markup. Look in the screen's page files beside the refusing controls.
+**Reviewed for:** Which refusals render away from the refused record or control, or without the application's sentence and code in the markup? Look in the screen's page files beside the refusing controls.
 
 ### Place a Field Refusal on Its Field
 
@@ -110,7 +110,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A list of problems above a long form forces the reader to read each sentence and each label to pair them, and a problem below the fold is missed entirely. The frame's one helper puts each problem on the field it names, so the reader sees what to fix where they fix it. The form stays open until each problem is resolved or the reader abandons the form, so no input is lost to a closed dialog.
 
-**Reviewed for:** Field problems render on their fields through the frame helper with the form left open. Look in the forms and the frame helper.
+**Reviewed for:** Which field problems miss their fields, bypass the frame helper, or close the form? Look in the forms and the frame helper.
 
 ### Validate a Form with the Generated Schema
 
@@ -120,7 +120,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** The generated schema is the contract's statement of what the API accepts, so it holds even where the browser accepts more. Validating the form against it refuses bad input before the request leaves the page. The application extends the schema with the message shown for each rule and any rule beyond the contract's reach, rather than replacing it, so the form refuses everything the API refuses.
 
-**Reviewed for:** Forms validate against the generated request schema extended with application rules. Look in the form sources and the generated schemas.
+**Reviewed for:** Which forms validate against a handwritten restatement instead of the generated request schema extended with application rules? Look in the form sources and the generated schemas.
 
 ### Update the Cache a Command Changed
 
@@ -132,7 +132,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Example:** The generated client holds both sides of one write: the expenses route calls the submit operation with the expense values, and the list reads through the list operation. After the submit succeeds, the page invalidates the list query and no other query, so the list shows the new expense without refetching unrelated pages.
 
-**Reviewed for:** Successful commands invalidate exactly the queries their answers changed. Look in the command call sites and the cache keys.
+**Reviewed for:** Which successful commands leave a changed query cached, or invalidate a query their answers left unchanged? Look in the command call sites and the cache keys.
 
 ### Assign State to the Narrowest Owner
 
@@ -142,7 +142,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** Server data belongs in the query cache, shareable values in the address, input in form state, and the rest in the component's own state. A value kept above its narrowest owner, typically in a shared store, makes unrelated components re-render when it changes and hides where the change came from. The order gives each value the smallest audience that can use it.
 
-**Reviewed for:** Values live in the query cache, the address, form state, or component state, at the narrowest applicable owner. Look in the state declarations.
+**Reviewed for:** Which values live above their narrowest owner instead of the query cache, the address, form state, or component state? Look in the state declarations.
 
 ### Route a Personal Value in a Header
 
@@ -152,7 +152,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A query string leaks: proxies log it, the browser keeps it in history, and the next page the reader opens receives it as the referrer. A value naming a person therefore travels in a request header the contract declares per operation, where it reaches the API without landing in those three places. The address keeps its own copy for filters and paging, so a filtered list stays a link somebody can share.
 
-**Reviewed for:** Person-naming values travel in contract-declared headers, not the query string. Look in the contract headers and the call sites.
+**Reviewed for:** Which person-naming values travel in the query string instead of contract-declared headers? Look in the contract headers and the call sites.
 
 ### Read a Permission from the Session
 
@@ -162,7 +162,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** Permissions are the project's permission records: an actor holds a role at a scope, a role allows permissions, and a use case needs permissions. The page reads the permissions the signed-in actor holds from the session the API returns, and offers only the commands those permissions allow at the record's scope, so the reader meets no offer that ends in a refusal. The API still decides every command, so an action offered in error is refused rather than executed.
 
-**Reviewed for:** Offered commands match the permissions the session actor holds at the record scope, with the API deciding each command. Look in the page command guards and the session shape.
+**Reviewed for:** Which offered commands exceed the permissions the session actor holds at the record scope? Look in the page command guards and the session shape.
 
 ### Name the Zone for Every Timestamp
 
@@ -172,7 +172,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** An instant from the API carries no zone, so a formatter left to pick one shows the reader's own zone: a payout cut-off reads as midnight in the reader's city instead of the office's. The caller resolves the zone from the record the screen shows: a record with its own zone states it, otherwise the account's zone applies, and an account that chooses none falls back to UTC. Passing the zone explicitly makes each timestamp name whose day it belongs to.
 
-**Reviewed for:** Timestamp formatters receive an explicit IANA zone resolved from the shown record. Look in the formatter call sites.
+**Reviewed for:** Which timestamp formatters run without an explicit IANA zone resolved from the shown record? Look in the formatter call sites.
 
 ### Keep Secrets Out of Browser Storage
 
@@ -182,7 +182,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** Local storage, session storage, IndexedDB, and a build-time public variable are all readable by any script on the page, so a secret kept there is available to the same injected script the secret is meant to resist. Refresh tokens, provider secrets, and privileged credentials therefore stay out of the browser entirely. A preference the reader chooses, such as a theme or a locale, is not a secret and can be stored under a named key in the frame.
 
-**Reviewed for:** Browser storage and browser-visible variables hold no refresh token, provider secret, or privileged credential. Look in the storage writes and the public variables.
+**Reviewed for:** Which refresh tokens, provider secrets, or privileged credentials sit in browser storage or browser-visible variables? Look in the storage writes and the public variables.
 
 ### Make Optimistic Behavior Recoverable
 
@@ -192,7 +192,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** An optimistic update shows a value the server has not confirmed. Without a stable client identity the retry after a failure creates a duplicate; without declared conflict behavior two writers overwrite each other silently; without a rollback path a failed update leaves the shown value wrong. Declaring identity, conflict behavior, rollback, and reconciliation up front makes each of those cases designed instead of improvised. Money, irreversible actions, and uncertain authorization skip optimism entirely and wait for the server result.
 
-**Reviewed for:** Optimistic updates declare client identity, conflict behavior, rollback, and reconciliation; money, irreversible actions, and uncertain authorization wait for the server. Look in the optimistic update definitions.
+**Reviewed for:** Which optimistic updates lack a declared client identity, conflict behavior, rollback, or reconciliation path, and which money, irreversible, or uncertainly authorized actions run optimistically instead of waiting for the server? Look in the optimistic update definitions.
 
 ### Announce the Outcome of an Optimistic Update
 
@@ -202,7 +202,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A rollback is a silent visual change: the shown value changes back with no event a screen reader announces. The reader heard the optimistic value confirmed and hears nothing when it is withdrawn, so they act on a value the server refused. Announcing the reconciled outcome through a live region tells them what actually holds. [The ARIA live-region technique](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA19) is the mechanism, and a test of the route asserts the announcement.
 
-**Reviewed for:** A reconciled outcome differing from the shown value announces through a live region. Look in the route tests asserting the announcement.
+**Reviewed for:** Which reconciled outcomes differing from the shown value announce through no live region? Look in the route tests asserting the announcement.
 
 ### Localize Copy Through Locale Dictionaries
 
@@ -214,7 +214,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Example:** A workspace that carries its own dictionary machinery still meets the same contract.
 
-**Reviewed for:** Copy resolves through locale dictionaries with fill and plural support, one chunk per language, typed keys, and a declared fallback. Look in the locale dictionaries and the copy call sites.
+**Reviewed for:** Which copy bypasses the locale dictionaries, or misses fill, plural, chunking, typed keys, or a declared fallback? Look in the locale dictionaries and the copy call sites.
 
 ## Conventions
 
@@ -228,7 +228,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** The client configuration, the problem mapping, and the download helpers serve every use case, so a copy in each use-case folder turns one change to the base address or the headers into an edit per folder, with the missed folder failing at runtime. The frame root holds them once, where every use case reaches them and no use case duplicates them.
 
-**Reviewed for:** Client configuration, problem mapping, and download helpers sit only in the frame root. Look in the frame root and the use-case folders.
+**Reviewed for:** Which client configuration, problem mapping, or download helpers sit in a use-case folder instead of the frame root? Look in the frame root and the use-case folders.
 
 ### Regenerate the Client Rather Than Editing It
 
@@ -240,7 +240,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A hand edit under the generated directory works until the next generation overwrites it, so the change appears sound and then silently disappears. Regenerating from the document keeps the committed output provably equal to the contract: a reviewer regenerates and compares, and any difference is either a contract change or an edit belonging outside the generated directory.
 
-**Reviewed for:** The committed client equals fresh generation output with no hand edits below the generated directory. Look in the generated directory and the generator command.
+**Reviewed for:** Which hand edits sit below the generated directory, making the committed client differ from fresh generation output? Look in the generated directory and the generator command.
 
 ### Keep Schemas Use-Case Specific
 
@@ -252,7 +252,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A schema shared before its second use case exists is a contract written for one reader. The second use case then either contorts itself to fit or breaks the first reader by changing the shared shape. Keeping a form schema or view model in its owning use-case folder until a second use case needs it lets the shared shape emerge from two real readers.
 
-**Reviewed for:** Form schemas and view models live in their owning use-case folder until a second use case needs them. Look in the use-case folders and the shared schema locations.
+**Reviewed for:** Which form schemas or view models sit in a shared location with only one use case reading them? Look in the use-case folders and the shared schema locations.
 
 ### Build a Form on the Shared Form Library
 
@@ -264,7 +264,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Rationale:** A form library used directly in every use-case folder gives each folder its own fields, its own validation wiring, and its own error display, and none of them knows how to show a refusal on its field. The shared package's form entry point and registered field components hold those decisions once, so every form validates, renders, and refuses the same way.
 
-**Reviewed for:** Forms build on the shared package form entry point and registered field components. Look in the form sources and the shared package form entry point.
+**Reviewed for:** Which forms bypass the shared package form entry point or its registered field components? Look in the form sources and the shared package form entry point.
 
 ## Reference Example
 

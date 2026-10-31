@@ -6,7 +6,7 @@ The backend pages state how a LiteSpec server application is built: its layers, 
 
 ## How the Pages Fit Together
 
-The seven principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its projects, its C# shapes, its Marten persistence, and its test suites. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
+The eight principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its projects, its C# shapes, its Marten persistence, and its test suites. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
 
 ## Backend Principles
 
@@ -17,6 +17,7 @@ The seven principle pages directly in this folder hold for every backend. They s
 - [HTTP API](api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
 - [Backend Testing](testing.md): the test suites each project size keeps and what each suite may use.
 - [Record Identifiers](identifiers.md): the identifier form for each record type and how citations resolve.
+- [Write Code for a Use Case](write-code-for-a-use-case.md): where each code element of a use case goes, the mark it carries, and the check that watches it.
 
 ## Backend Stack
 

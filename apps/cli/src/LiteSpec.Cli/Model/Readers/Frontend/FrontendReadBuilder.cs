@@ -130,7 +130,7 @@ static class FrontendReadBuilder
         foreach (var module in facts.Modules)
         {
             var marks = module.Marks
-                .Select(id => new CodeMark(id, config.Marks, MarkVerb.Implements, Absolute(frontend, module.File), module.Line))
+                .Select(id => new CodeMark(id, MarkStyle.Typed, MarkVerb.Implements, Absolute(frontend, module.File), module.Line))
                 .ToList();
             var file = marks.Count > 0 ? Absolute(frontend, module.File) : Absolute(frontend, module.Folder);
 
@@ -151,7 +151,7 @@ static class FrontendReadBuilder
         {
             var file = Absolute(frontend, route.File);
             var marks = route.Marks
-                .Select(id => new CodeMark(id, config.Marks, MarkVerb.Implements, file, route.Line))
+                .Select((id, index) => new CodeMark(id, RouteStyle(config, frontend, route, index), MarkVerb.Implements, file, route.Line))
                 .ToList();
 
             found.Add(new MarkedElement(
@@ -159,6 +159,26 @@ static class FrontendReadBuilder
         }
 
         return [.. found.OrderBy(element => element.File, StringComparer.Ordinal).ThenBy(element => element.Line)];
+    }
+
+    /// <summary>
+    ///     The style the route mark was written in: the typed constant on a TypeScript
+    ///     frontend, the style the .NET reader saw on a Blazor or Android frontend,
+    ///     and the declared style when the reader recorded none.
+    /// </summary>
+    private static MarkStyle RouteStyle(ConsumerConfig config, FrontendConfig frontend, RouteFact route, int index)
+    {
+        if (frontend.Platform is "svelte" or "react")
+        {
+            return MarkStyle.Typed;
+        }
+
+        if (route.Styles is { } styles && index < styles.Count)
+        {
+            return styles[index];
+        }
+
+        return config.Marks;
     }
 
     /// <summary>The module folder name a mark finding shows: the path under the modules root.</summary>

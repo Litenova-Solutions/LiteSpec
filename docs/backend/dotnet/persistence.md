@@ -61,7 +61,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
     query.OwnerId.Value);
 ```
 
-**Reviewed for:** Query handler files project through `IQuerySession` with filter, scope, ordering, and limit applied before materialization.
+**Reviewed for:** Which query handlers project outside `IQuerySession`, or apply filter, scope, ordering, or limit after materialization? Look at each query handler file.
 
 ### Commit Once in the Command Pipeline
 
@@ -73,7 +73,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under the `efcore` extension it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the automation resumes from its cursor or runs the declared compensation.
 
-**Reviewed for:** One command post-handler file calls `SaveChangesAsync`; no handler, repository, validator, automation, or endpoint file calls it.
+**Reviewed for:** Which pipelines commit outside one post-handler file calling `SaveChangesAsync`? Look at the `SaveChangesAsync` calls in each pipeline.
 
 ### Enforce Uniqueness with Marten Unique Indexes
 
@@ -99,7 +99,7 @@ A payout exists at most once per expense, so its document id is the expense id:
 session.Store(new PayoutDocument(expense.Id, payoutNumber));
 ```
 
-**Reviewed for:** Each Marten aggregate document with a uniqueness rule carries a unique index or an owner-derived identity in the store configuration.
+**Reviewed for:** Which Marten aggregate documents with a uniqueness rule lack a unique index or an owner-derived identity? Look at the store configuration.
 
 ### Claim Cross-Record Keys with a Claims Document
 
@@ -120,7 +120,7 @@ public sealed record BarcodeClaim(string Barcode);
 session.Insert(new BarcodeClaim(barcode));
 ```
 
-**Reviewed for:** Each cross-record key travels through a claims document written with `session.Insert`, with no `Store` call on the claims type.
+**Reviewed for:** Which cross-record keys bypass the claims document with `session.Insert`, or use `Store` on the claims type? Look at each key claim.
 
 ### Map Constraint Violations with the PostgreSQL Refusal Classifier
 
@@ -141,7 +141,7 @@ services.UseFaultRefusalClassifierInstance(
     }));
 ```
 
-**Reviewed for:** The service registration pairs each unique index name with its conflict refusal code in the PostgreSQL refusal classifier.
+**Reviewed for:** Which unique index names lack a conflict refusal code in the PostgreSQL refusal classifier? Look at the service registration.
 
 ### Apply Optimistic Concurrency to Every Aggregate Document
 
@@ -157,7 +157,7 @@ services.UseFaultRefusalClassifierInstance(
 options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 ```
 
-**Reviewed for:** Each Marten aggregate document type enables optimistic concurrency, per type or through the document policy.
+**Reviewed for:** Which Marten aggregate document types skip optimistic concurrency? Look at each document type and the document policy.
 
 ### Map Marten Concurrency Faults to Conflict Refusals
 
@@ -169,7 +169,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Example:** Two approvers race on one submitted expense; the loser throws `ConcurrencyException` at commit, and the classifier returns the approve conflict refusal so the caller re-reads the expense before deciding again.
 
-**Reviewed for:** A `ConcurrencyException` at commit reaches the caller as the use case conflict refusal through the registered classifier.
+**Reviewed for:** Which `ConcurrencyException` paths at commit escape the use case conflict refusal? Look at the registered classifier.
 
 ## Conventions
 
@@ -211,7 +211,7 @@ The module folders follow `litespec/backend/architecture#organize-every-layer-by
 
 Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay under the Marten root.
 
-**Reviewed for:** Marten configuration, repository, commit, and serialization files sit under the one Infrastructure persistence folder.
+**Reviewed for:** Which Marten configuration, repository, commit, or serialization files sit outside the one Infrastructure persistence folder? Look at the persistence files.
 
 ### Register One Scoped Session
 
@@ -223,7 +223,7 @@ Aggregate-specific configuration stays beside its aggregate, while session and c
 
 **Rationale:** One session per WebApi request or Worker operation means the repositories and the commit handler in one command resolve the same instance. Two sessions would stage and commit separately, splitting one command across two units of work. This provision states the .NET form of `litespec/backend/persistence#use-one-session-per-command`.
 
-**Reviewed for:** The service registration wires `IDocumentSession` once per WebApi request or Worker operation scope.
+**Reviewed for:** Does the service registration wire `IDocumentSession` once per WebApi request or Worker operation scope? Look at the service registration.
 
 ## Reference Example
 

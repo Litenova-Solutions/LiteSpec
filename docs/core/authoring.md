@@ -131,7 +131,7 @@ A Standard states one testable obligation:
 - Conditions and scope belong in the Statement sentence.
 - Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
 - A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
-- `SHOULD` keeps the standard's rule with a deviation; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a deviation.
+- `SHOULD` keeps the standard's rule with a recorded exception; a Convention is a project-owned default the project replaces by naming its own convention, not by recording an exception.
 
 A Convention states a default a project may replace:
 
@@ -145,7 +145,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records a deviation that cites the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the deviation record.
+A project that departs from a Standard records an exception of kind `departure` that covers the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the deviation record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -157,11 +157,11 @@ Every provision ID is `litespec/<page>#<slug>`:
 |:---|:---|
 | `litespec` | The source that owns the provision |
 | `<page>` | The page path under `docs/`, without `.md` |
-| `<slug>` | The heading: lowercase, punctuation removed, spaces as hyphens |
+| `<slug>` | The identifier slug as the ID line states it |
 
-`### Keep business invariants in Domain` on `docs/backend/architecture.md` is `litespec/backend/architecture#keep-business-invariants-in-domain`. The same text is the heading's address on the published site. Headings keep a stable verb-noun head, because a reword renames the ID.
+The `**ID:**` line under each provision heading is the provision's identity. A heading may change without changing the ID, so fixing a heading's wording breaks no citation. Headings keep a stable verb-noun head so readers find the provision, not to protect the ID.
 
-The heading carries no identifier text. A renamed heading renames the ID, so the two stay in agreement. No two pages share a path, so no two provisions share an ID. Consumer record identifiers follow the [identifier page](../backend/identifiers.md).
+The heading carries no identifier text. No two provisions share an ID. Consumer record identifiers follow the [identifier page](../backend/identifiers.md).
 
 ### Record Identifiers
 
@@ -186,7 +186,7 @@ Every provision has the same parts in the same order:
 ```
 
 1. The heading names the provision.
-2. The ID line holds the ID the heading derives, so a reader copies it from where the provision stands.
+2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
 3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
 4. `Rationale` and `Example` follow.
 5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
@@ -553,13 +553,13 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#use-the-declared-identifier-grammar`
 
-**Statement:** A provision ID MUST be `litespec/<page>#<slug>`, computed from its page path and its heading.
+**Statement:** A provision ID MUST be `litespec/<page>#<slug>` as its ID line states it.
 
-**Rationale:** The page names the file and the slug names the heading, so a citation resolves with no lookup table. One grammar for every identifier keeps citations writable by hand and checkable by tool.
+**Rationale:** The page names the file and the ID line states the slug, so a citation resolves with no lookup table. One grammar for every identifier keeps citations writable by hand and checkable by tool. The ID line is the identity: a heading reword leaves it unchanged, and no two provisions share one.
 
-**Example:** `litespec/frontend/components#compose-composites-in-page-code` is a heading on the frontend components page.
+**Example:** `litespec/frontend/components#compose-composites-in-page-code` is the ID line under its heading on the frontend components page.
 
-**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` or `ID_DUPLICATE` diagnostic.
 
 ### Name the Owning Page in the Identifier
 
@@ -601,7 +601,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.
 
-**Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
+**Example:** `automation/spending.send-approver-reminder-on-expense-submitted` is an automation owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 
 **Checked by:** `litespec consumer` fails a record identifier outside the declared grammar.
 
@@ -609,9 +609,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#place-the-id-under-every-provision-heading`
 
-**Statement:** Every provision heading MUST be followed by an ID line holding the ID the heading derives.
+**Statement:** Every provision heading MUST be followed by an ID line holding the provision's identity.
 
-**Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The heading stays the source: an ID line that disagrees with its heading is refused.
+**Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.
 
 **Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
 
@@ -645,7 +645,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A line that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
-**Checked by:** `litespec-maintain validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, or `VERIFY_COMMAND` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, `VERIFY_COMMAND`, or `CHECKED_BY_UNKNOWN` diagnostic.
 
 ### Give One Observable Fact One Mark Across Pages
 
@@ -747,7 +747,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name.
 
-**Example:** `litespec new reaction spending.send-approver-reminders-on-expense-submitted` creates the reaction page with its metadata block and reserved identifier.
+**Example:** `litespec new automation spending.send-approver-reminder-on-expense-submitted` creates the automation page with its metadata block and reserved identifier.
 
 **Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
 
@@ -853,9 +853,9 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
 
-**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
+**Example:** The notification `send-approvalreminder-confirmation` and the automation `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
-**Checked by:** `litespec model check` reports `term-clash` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
+**Checked by:** `litespec model check` reports `term-clash` (level A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
 
 ### State What Happens in Every Behavior Statement
 
@@ -869,7 +869,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
-**Checked by:** `litespec model check` reports `statement-word-invalid` (tier A) for a listed vague word in a rule statement, scenario step, or result meaning.
+**Checked by:** `litespec model check` reports `statement-word-invalid` (level A) for a listed vague word in a rule statement, scenario step, or result meaning.
 
 ## Conventions
 

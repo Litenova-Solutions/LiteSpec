@@ -54,7 +54,7 @@ Each stack adds the TanStack Query plugin its stack page names.
 
 **Rationale:** A raw response body shown to the user leaks whatever the API included and offers no consistent recovery path. Deciding from the code keeps each page's behavior stable across reworded messages, because a code is a published identifier. Showing the `traceId` in copyable form in the detail lets support find the exact request the user saw fail, without making an identifier the headline. This realizes litespec/frontend/data#map-every-failure-to-one-problem-type.
 
-**Reviewed for:** Each rendered error carries one problem shape decided from its code, with the `traceId` in copyable form in its detail.
+**Reviewed for:** Which rendered errors carry a raw body instead of one problem shape decided from the code, or hide the `traceId` from copyable detail? Look in the error surfaces.
 
 ### Place a Refusal Beside What Was Refused
 
@@ -74,7 +74,7 @@ Each stack adds the TanStack Query plugin its stack page names.
 <ProblemAlert error={mutation.error} describe={describe} />
 ```
 
-**Reviewed for:** Each refusal renders beside its refused record or control through the shared alert, in the application's sentence for that code.
+**Reviewed for:** Which refusals render away from their refused record or control, or outside the application's sentence for that code? Look in the screens beside the refusing controls.
 
 ### Validate a Form with the Generated Schema
 
@@ -90,7 +90,7 @@ Each stack adds the TanStack Query plugin its stack page names.
 zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.reason.trim().min(1, words.ui.required) })
 ```
 
-**Reviewed for:** Each form validates against the generated schema extended with the application's own rules, and a specification submitting contract-invalid input sees a client-side refusal.
+**Reviewed for:** Which forms validate outside the generated schema extended with the application's own rules? Look in the form sources and the specifications submitting contract-invalid input.
 
 ### Update the Cache a Command Changed
 
@@ -102,7 +102,7 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Example:** A mutation invalidates the TanStack Query entries its command changed, and no others.
 
-**Reviewed for:** Each successful command invalidates the TanStack Query entries its command changed and no others.
+**Reviewed for:** Which successful commands leave a changed TanStack Query entry cached, or invalidate one their command left unchanged? Look in the command call sites and the cache keys.
 
 ### Assign State to the Narrowest Owner
 
@@ -112,7 +112,7 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** Each value has a narrowest owner that can hold it: server data in the cache, shared address state in the address, form input in form state, and anything else in the component's own state. A store above that order re-renders unrelated components on every change and hides where the value changes. Each stack page names the component's own state for its stack. This realizes litespec/frontend/data#assign-state-to-the-narrowest-owner.
 
-**Reviewed for:** Each value lives in the query cache, the address, form state, or the component state its stack page names, whichever is narrowest.
+**Reviewed for:** Which values live above their narrowest owner instead of the query cache, the address, form state, or the named component state? Look in the state declarations.
 
 ### Localize Copy Through Locale Dictionaries
 
@@ -124,7 +124,7 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Example:** Each stack page names its dictionary library. A workspace may carry its own dictionary machinery when it meets the same contract.
 
-**Reviewed for:** All copy resolves through the dictionary library its stack page names, with fill, plurals, one chunk per language, and typed keys with a declared fallback.
+**Reviewed for:** Which copy bypasses the dictionary library its stack page names, or misses fill, plurals, chunking, typed keys, or a declared fallback? Look in the copy call sites and the dictionaries.
 
 ## Conventions
 
@@ -138,7 +138,7 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** Client configuration, problem mapping, and download helpers serve every use case, so they belong in the frame root rather than copied per folder. One place means a base-address or header change is one edit instead of one per application. Each stack page names the frame root for its stack. This realizes litespec/frontend/data#keep-the-client-boundary-in-the-frame.
 
-**Reviewed for:** Client configuration, problem mapping, and download helpers sit only in the frame root the stack page names.
+**Reviewed for:** Which client configuration, problem mapping, or download helpers sit outside the frame root the stack page names? Look in the frame root and the use-case folders.
 
 ### Regenerate the Client Rather Than Editing It
 
@@ -162,4 +162,4 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** A form library reached for directly in each use-case folder gives every folder its own idea of a field, and none of them knows how to show a refusal. Building on the shared package's form entry point and registered field components keeps every form's fields and refusal display identical. Each stack page names the form entry point for its stack. This realizes litespec/frontend/data#build-a-form-on-the-shared-form-library.
 
-**Reviewed for:** Each form builds on the form entry point its stack page names with the shared registered field components.
+**Reviewed for:** Which forms bypass the form entry point their stack page names or the shared registered field components? Look in the form sources.

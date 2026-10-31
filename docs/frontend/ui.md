@@ -101,7 +101,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.
 
-**Reviewed for:** The shared UI package installs the pinned manifest baseline once, and applications install none. Look in the shared package manifest and lock, and the application manifests.
+**Reviewed for:** Which pinned manifest baselines install outside the shared UI package, or install more than once? Look in the shared package manifest and lock, and the application manifests.
 
 ### Publish a Design Contract
 
@@ -146,7 +146,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 | `form-page` | `FormPage` | Supplies the input of one command, with one primary action. |
 ```
 
-**Reviewed for:** The design contract Patterns section lists every floorplan with its when-to-use rule. Look in the design contract.
+**Reviewed for:** Which floorplans miss the design contract Patterns section or their when-to-use rule? Look in the design contract.
 
 ### Compose Each Route from One Floorplan
 
@@ -158,7 +158,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Example:** An expense route composes the entity floorplan and fills each slot from the expense.
 
-**Reviewed for:** Routes render exactly one declared floorplan, or record a freestyle decision. Look in the route sources and the suite output reading the floorplan name from each frame.
+**Reviewed for:** Which routes render zero or several floorplans without recording a freestyle decision? Look in the route sources and the suite output reading the floorplan name from each frame.
 
 ### Keep Layout Inside Floorplans
 
@@ -168,7 +168,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan's shape. The next route copies the declaration because it looks like the local way to draw, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there reaches every route composing them.
 
-**Reviewed for:** Route files declare no layout outside floorplan and display composites. Look in the route sources.
+**Reviewed for:** Which route files declare layout outside floorplan and display composites? Look in the route sources.
 
 ### Record a Freestyle Route
 
@@ -178,7 +178,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A route that composes no declared floorplan is either the first consumer of a floorplan that does not exist yet or a genuine one-off. Naming the decision record that justifies its layout makes either case reviewable and keeps the declared set closed. A second route of the same shape is the signal to add the floorplan instead of recording another freestyle route.
 
-**Reviewed for:** Freestyle routes name the decision record justifying their layout. Look in the freestyle routes and the decision records.
+**Reviewed for:** Which freestyle routes name no decision record justifying their layout? Look in the freestyle routes and the decision records.
 
 ### Derive Each Page Type from a Named Reference
 
@@ -188,7 +188,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** An author with no named reference invents a page from primitives, and the next author invents another page for the same type. Naming the page type's reference keeps every page of one type on the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.
 
-**Reviewed for:** Routes name their page type reference, and freestyle routes name their decision record instead. Look in the route sources.
+**Reviewed for:** Which routes name neither their page type reference nor, for a freestyle route, their decision record? Look in the route sources.
 
 ### Select a Tone from the Closed Set
 
@@ -198,7 +198,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A page that picks its own color picks a meaning nobody agreed to: the same red celebrates on one screen and warns on another. One state-to-tone mapping per application, declared once as an exhaustive table of glossary terms, makes the same state read the same way on every screen. A new state fails to compile until its tone and its word exist, so no state ships uncolored or mislabeled.
 
-**Reviewed for:** Applications declare their state-to-tone mapping once as an exhaustive table of glossary terms. Look in the application state mapping.
+**Reviewed for:** Which applications lack a state-to-tone mapping, or map a state outside the exhaustive table of glossary terms? Look in the application state mapping.
 
 ### Keep Tokens in One Definition
 
@@ -208,7 +208,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the declared baseline.
 
-**Reviewed for:** Applications use the shared token definition with no declared value and no literal color in shipped definitions. Look in the application and shared token definitions.
+**Reviewed for:** Which applications declare their own token value, and which shipped definitions carry a literal color? Look in the application and shared token definitions.
 
 ### Hold the Declared Base Color
 
@@ -218,7 +218,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded exception keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
 
-**Reviewed for:** Token definitions carry only declared baseline values, with each departure recorded as an exception. Look in the token definitions and the exception records.
+**Reviewed for:** Which token values sit outside the declared baseline without a recorded exception? Look in the token definitions and the exception records.
 
 ### Keep Separators at the Subtle Step
 
@@ -228,7 +228,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A separator darker than its neighbors reads as emphasis, so authors stop trusting the token and start picking weights by eye. The border step the declared base color publishes keeps every structural separator and input border at one weight, so weight carries no accidental meaning.
 
-**Reviewed for:** Structural separators and input borders sit at the published border step or lighter. Look in the token definitions and the rendered separators.
+**Reviewed for:** Which structural separators or input borders run darker than the published border step? Look in the token definitions and the rendered separators.
 
 ### Select a Command Surface by Size
 
@@ -238,7 +238,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command costs the reader attention the command has no use for.
 
-**Reviewed for:** Commands use the surface the Concepts table assigns to their input. Look in the command surfaces.
+**Reviewed for:** Which commands use a surface other than the one the Concepts table assigns to their input? Look in the command surfaces.
 
 ### Show the Trace ID in Error Detail
 
@@ -248,7 +248,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** Support reads the trace identifier to find the failed request, and the reader copies it from the detail without retyping. Shown in copyable form from the problem body or the `X-Trace-Id` header, it connects the reader's report to the server's logs. The headline carries what happened in words; the identifier belongs in the detail.
 
-**Reviewed for:** Visible errors show the trace identifier copyably in the detail, from the problem body or the `X-Trace-Id` header. Look in the error surfaces.
+**Reviewed for:** Which visible errors hide the trace identifier from copyable detail? Look in the error surfaces.
 
 ### Check Every Route
 
@@ -258,7 +258,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, keyboard use, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
 
-**Reviewed for:** The route suite output shows every discovered route passing each check. Look in the suite output and the CI job logs.
+**Reviewed for:** Which discovered routes fail a route suite check? Look in the suite output and the CI job logs.
 
 ### Prove Every Result a Route Calls
 
@@ -280,7 +280,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A raw value in a style answers to no token: the theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the approved style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product's visual language by construction.
 
-**Reviewed for:** Styles use semantic tokens rather than raw values. Look in the stylesheets and the shared package definition.
+**Reviewed for:** Which styles use raw values instead of semantic tokens? Look in the stylesheets and the shared package definition.
 
 ### Govern Behavior Packages
 
@@ -290,7 +290,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A behavior package adds a capability the design baseline lacks, such as a chart or a rich editor, and naming the decision record that approves it for that capability keeps the approval tied to the need. Approval follows the capability rather than the visual catalog, so no package duplicates a component the design baseline already provides. Rendering through baseline components and tokens keeps the new capability inside the product's look.
 
-**Reviewed for:** Behavior packages name their approving decision record and render through baseline components and tokens. Look in the package declarations and the decision records.
+**Reviewed for:** Which behavior packages name no approving decision record, or render outside baseline components and tokens? Look in the package declarations and the decision records.
 
 ### Prove UI Behavior and Appearance
 
@@ -310,7 +310,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 | Fork | The fork record and the component test |
 | Behavior package | The accessibility check for the capability it supplies |
 
-**Reviewed for:** Changes name the evidence the matrix assigns to their class. Look in the change descriptions and the named evidence.
+**Reviewed for:** Which changes name no evidence the matrix assigns to their class? Look in the change descriptions and the named evidence.
 
 ### Record a Frontend Outside the Controlled Contract
 
@@ -320,7 +320,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract's checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend report as one with nothing to check.
 
-**Reviewed for:** Frontends outside the controlled platforms declare an entry point record naming their platform and replacement boundaries. Look in the entry point records.
+**Reviewed for:** Which frontends outside the controlled platforms declare no entry point record naming their platform and replacement boundaries? Look in the entry point records.
 
 ## Conventions
 
@@ -346,4 +346,4 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Rationale:** A command blocked only by the current state or role stays visible and disabled, with the reason beside it. The reader looking for the action learns it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead looks like a product that does not offer the action at all.
 
-**Reviewed for:** Commands blocked only by state or role stay visible and disabled with the reason beside them. Look in the command surfaces.
+**Reviewed for:** Which commands blocked only by state or role vanish instead of staying visible and disabled with the reason beside them? Look in the command surfaces.

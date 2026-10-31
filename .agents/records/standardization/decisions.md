@@ -79,3 +79,15 @@ The largest consumer has 17 reactions triggered by more than one event (for exam
 ## 2026-10-31: An Input or Payload Field May Hold Many Values
 
 D31 gives each input and payload field one scalar `type`. The largest consumer has about 70 inputs that are lists (event ids, listing ids, text values), and the type list has no way to say so. A field that holds a list says `"many": true` beside its element `type` (a predicate boolean, D11). Added with the judge's foundation before wave 11.
+
+## 2026-10-31: Mechanical Moves in the Largest Consumer
+
+The largest consumer's migration ran as judge scripts wherever a contract fixes the answer (kept in the consumer's plan folder): the field renames and objects of waves 3 to 5; reactions and jobs moved to automations (a one-off job became `{ "schedule": { "at": "startup" } }`; one automation was renamed where its name met a use case in the same folder); deviations and known gaps moved to exceptions (a deviation's removal condition kept as a sentence in the page body); the frozen phase became a `gap` exception; input types from the C# message records (4,513 of 4,688), `of` from the id type's aggregate (2,092), `binds` from the use cases citing each atomicity rule (43 of 56). A record-level `onFailure` of `retry: none` or `next-run` became `mode: skip-and-log` (the failure is logged and the next delivery or run carries on), and a retry policy became `mode: retry` with its policy and `then: dead-letter`. What needs judgement (rationales, classifications, purposes, payload types, sagas, advisory authorities, the rest) goes to the consumer's module workers.
+
+## 2026-10-31: The Provision Index Reads the ID Line
+
+Wave 8 made the `**ID:**` line a provision's identity in the validator, but the index builder (`Provisions.cs`) still derived IDs from headings, so two provisions whose headings changed from "Business" to "Policy" were listed under IDs no page states. The builder now reads the ID line too, and keeps the heading slug only as the link anchor; those two provisions keep their released IDs, as D42 allows.
+
+## 2026-10-31: Claimwick Drops Two States No Use Case Reaches
+
+J5's rule that every state-changing root method carries a mark found `Policy.Retire` and `Receipt.Remove` in the Claimwick example. No use case or transition reaches them, and nothing calls them; their states (`Retired`, `Removed`) were declared with no transition. The example shows only declared behavior, so the methods, their state types and the two states were removed rather than given invented use cases.

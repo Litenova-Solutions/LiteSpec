@@ -118,7 +118,7 @@ public static class Provisions
 
                 var title = heading.Text.Trim();
                 var slug = HeadingSlug(title);
-                var id = $"litespec/{page}#{slug}";
+                var id = IdOf(reader, page, heading);
                 var verification = marks.TryGetValue(id, out var found) ? found : (Mark: "", Evidence: "");
                 rows.Add(new ProvisionRow(
                     id,
@@ -260,11 +260,37 @@ public static class Provisions
             var pattern = section == "Patterns" && Patterns.PatternPage.IsPatternPage(relative);
             if (section == "Standards" || section == "Conventions" || pattern)
             {
-                current = $"litespec/{page}#{HeadingSlug(heading.Text.Trim())}";
+                current = IdOf(reader, page, heading);
             }
         }
 
         return marks;
+    }
+
+    /// <summary>
+    ///     The identifier a provision states on the ID line under its heading, which is its
+    ///     identity; the heading slug stands in only where no ID line names this page.
+    /// </summary>
+    static string IdOf(PageReader reader, string page, PageReader.ReaderHeading heading)
+    {
+        for (var index = heading.Line; index < reader.Lines.Length; index++)
+        {
+            var line = reader.Lines[index];
+
+            if (line.Trim().Length == 0)
+            {
+                continue;
+            }
+
+            if (PageReader.TryParseIdLine(line, out var stated) && Parse(stated)?.Page == page)
+            {
+                return stated;
+            }
+
+            break;
+        }
+
+        return $"litespec/{page}#{HeadingSlug(heading.Text.Trim())}";
     }
 
     static string EscapeCell(string value) => value.Replace("|", "\\|", StringComparison.Ordinal);

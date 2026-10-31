@@ -46,7 +46,7 @@ The registry build command is `shadcn build`. The state-to-tone table lives in `
 
 **Example:** A back-office console and an internal admin console ship as static files. A public marketing site runs as a Node server that hydrates in the browser. A receipt-scan client ships as one static page.
 
-**Reviewed for:** Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page.
+**Reviewed for:** Which frontends render in a mode their audience does not require? Look in the frontend rendering configuration.
 
 ### Build a Device Client as One Static Page
 
@@ -56,7 +56,7 @@ The registry build command is `shadcn build`. The state-to-tone table lives in `
 
 **Rationale:** A device client shows one answer on repeat: one question, one screen, no navigation. A router would add downloads for destinations the client never visits. One static page carries exactly what the device needs.
 
-**Reviewed for:** Each device client ships as one static page with no router.
+**Reviewed for:** Which device clients ship more than one page, or with a router? Look in the device client output.
 
 ## Conventions
 

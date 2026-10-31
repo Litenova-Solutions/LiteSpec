@@ -20,7 +20,7 @@ A route entry is a destination: an `Activity` or fragment class that is a naviga
 
 **Rationale:** One target framework keeps every Android build on the same runtime and API surface, so a screen written against one API level behaves the same on every build machine. Pinning both versions in the manifest makes the toolchain a reviewed number instead of a local install detail. Plain Android views keep the app on the platform toolkit the views page governs, while a MAUI or Forms layer would add a second UI framework with its own rules.
 
-**Reviewed for:** The Android project targets `net{dotnet}-android` at the manifest pins with plain Android views and no MAUI or Forms screen.
+**Reviewed for:** Which Android projects miss the `net{dotnet}-android` target, the manifest pins, or the plain Android views, or ship a MAUI or Forms screen? Look in the Android project file.
 
 ### Keep Android Outside the UI Contract
 
@@ -30,7 +30,7 @@ A route entry is a destination: an `Activity` or fragment class that is a naviga
 
 **Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for Blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the destination class marks, and the screen, `calls`, and `refusal-sentence-missing` checks run from those marks.
 
-**Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its destination classes carry screen marks the .NET reader reads.
+**Reviewed for:** Which stack selections or CI jobs apply a floorplan, token, or route-suite check, and which destination classes lack a screen mark the .NET reader reads? Look in the stack selection, the CI jobs, and the destination classes.
 
 ### Record the Minimum Android Version
 
@@ -40,7 +40,7 @@ A route entry is a destination: an `Activity` or fragment class that is a naviga
 
 **Rationale:** The floor decides which devices install the app and which platform APIs the code reaches without a guard. An unrecorded floor drifts with each toolchain update, silently dropping devices or blocking APIs. A decision naming the reason lets a later reader move the floor deliberately instead of guessing what it protected.
 
-**Reviewed for:** The app project sets `SupportedOSPlatformVersion` with a decision recording why that floor was chosen.
+**Reviewed for:** Which app projects miss `SupportedOSPlatformVersion` or the decision recording why that floor was chosen? Look in the app project file and the decision records.
 
 ### Pin Every Android Binding Package
 
@@ -50,7 +50,7 @@ A route entry is a destination: an `Activity` or fragment class that is a naviga
 
 **Rationale:** Binding packages track platform releases closely, so an unpinned binding moves the app to untested platform behavior on the next restore. Pinning the version in the manifest makes each binding a reviewed number with a fixed API surface. Approval before use records the use case, the owning layer, and the removal condition, so an unused binding leaves the tree.
 
-**Reviewed for:** Each AndroidX or Google binding resolves to a manifest pin with an approval decision.
+**Reviewed for:** Which AndroidX or Google bindings miss a manifest pin or an approval decision? Look in the package references, the manifest, and the decision records.
 
 ## Conventions
 
@@ -71,7 +71,7 @@ dotnet build apps/mobile/{ProjectName}.Mobile.slnx
 dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 ```
 
-**Reviewed for:** The CI mobile job runs `dotnet build` and `dotnet publish` with no Gradle or Android Studio step.
+**Reviewed for:** Which CI mobile jobs skip `dotnet build` or `dotnet publish`, or add a Gradle or Android Studio step? Look in the CI mobile job.
 
 ### Record a Package Size Budget
 
@@ -83,7 +83,7 @@ dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 
 **Rationale:** An install payload is the slowest moment of adoption, so its size deserves a reviewed number instead of a surprise. A recorded budget on the published AAB size makes growth visible before the store listing carries it. Untracked sizes grow with each asset until installs stall on slow networks.
 
-**Reviewed for:** A limit entry in `docs/behavior/operations/limits.md` records the AAB size budget the publish job enforces.
+**Reviewed for:** Which package sizes miss their AAB limit entry in `docs/behavior/operations/limits.md`? Look in the limits file beside the publish job.
 
 ### Store Streamed Media Uncompressed
 
@@ -95,4 +95,4 @@ dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 
 **Rationale:** `AssetManager.OpenFd` maps a file descriptor onto the asset, which works only when the package stores the file uncompressed. A compressed asset forces the player onto a slower path or fails the open, with the failure surfacing on a device rather than at build time. Listing each streamed extension keeps the packaging choice beside the playback code that depends on it.
 
-**Reviewed for:** Each media extension the app streams through `AssetManager.OpenFd` appears in `AndroidStoreUncompressedFileExtensions`.
+**Reviewed for:** Which streamed media extensions miss `AndroidStoreUncompressedFileExtensions` though the app plays them through `AssetManager.OpenFd`? Look in the project file beside the playback code.

@@ -34,7 +34,7 @@ Each scenario is proved by a test that carries a proves mark naming the scenario
 
 A small solution holds the first two; Acceptance appears when the executable BDD extension activates.
 
-**Reviewed for:** The solution tree under `apps/api/tests/` holds Architecture and Integration test projects, with Acceptance added when size is large.
+**Reviewed for:** Which solution trees miss Architecture or Integration test projects, or add Acceptance outside size large? Look at `apps/api/tests/` beside the declared size.
 
 ### Test HTTP Integration Through the Real Host
 
@@ -44,7 +44,7 @@ A small solution holds the first two; Acceptance appears when the executable BDD
 
 **Rationale:** A test host with substituted configuration proves the substitutes, not the product. Running through `WebApplicationFactory` with the real configuration, and covering Problem Details, authentication, and resource authorization, exercises the boundary clients actually call. Persistence behavior against PostgreSQL is covered by `litespec/backend/persistence#test-persistence-against-postgresql`; both run on the harness that `litespec/backend/dotnet/testing#use-one-production-faithful-integration-harness` owns. This provision states the .NET form of `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
-**Reviewed for:** HTTP integration test files run through `WebApplicationFactory` with the real configuration and cover Problem Details, authentication, and resource authorization.
+**Reviewed for:** Which HTTP integration tests bypass `WebApplicationFactory` with the real configuration, or skip Problem Details, authentication, or resource authorization? Look at the HTTP integration test files.
 
 ### Enforce Architecture Rules
 
@@ -54,7 +54,7 @@ A small solution holds the first two; Acceptance appears when the executable BDD
 
 **Rationale:** Layer references, visibility, and folder placement are boundaries the compiler does not enforce, so a review miss lands in the main branch and every later change copies it. Architecture tests assert the boundaries that `litespec/backend/architecture#test-structural-boundaries` names, and run in the Release test pass. This provision states the .NET form of `litespec/backend/testing#assert-architecture-boundaries-with-tests`.
 
-**Reviewed for:** Architecture test files assert the named structural boundaries, and the Release test pass runs them.
+**Reviewed for:** Which named structural boundaries lack an architecture test, or skip the Release test pass? Look at the architecture test files beside the Release test pass.
 
 ### Prove Each Scenario with a Test That Calls Its Use Case
 
@@ -82,40 +82,44 @@ A test carries no coverage mark; the proves mark is its only record citation. An
 
 **Rationale:** The fixture starts the pinned PostgreSQL once per test run as an xUnit v3 assembly fixture, and supplies each class its connection string before the host builds, so every test sees the same configuration. A container per test class multiplies run time by the class count while adding no isolation a cloned database lacks. "One harness" binds the integration project: an activated BDD extension brings its own host for the acceptance project, because the two projects run different lifetimes, and that host reuses this fixture's container and reset helper rather than starting another database. This provision states the .NET form of `litespec/backend/testing#share-one-production-faithful-integration-harness`.
 
-**Reviewed for:** The integration test project holds one container fixture, one `ApiFactory`, and one isolation helper.
+**Reviewed for:** Which integration test projects miss the one container fixture, `ApiFactory`, or isolation helper, or hold a second of one? Look at the integration test project.
+
+## Conventions
 
 ### Gate Changed Lines with Mutation Testing
 
 **ID:** `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`
 
-**Statement:** Each pull request MUST show zero surviving mutants on its changed lines from a Stryker.NET run scoped with `--since`.
+**Default:** Gate each pull request on the project's recorded mutation threshold over its changed lines, starting at zero surviving mutants, from a Stryker.NET run scoped with `--since`; each equivalent mutant is recorded in an exception of kind `gap` covering the mutation finding.
 
-**Rationale:** Mutation testing judges test strength where the change is: a project-wide score is confounded by suite size, so a large suite hides weak new tests behind a high percentage. Scoping the run to the pull request's changed lines with `--since` keeps the gate to minutes per pull request. A full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 is free and maintained under Apache-2.0. The tool manifest pins the runner.
+**Replacement:** A project records its own mutation threshold and gate in its testing documentation.
 
-**Example:** A pull request changing the submit-expense handler shows a Stryker.NET report with zero surviving mutants on its changed lines; a surviving mutant fails the pull request.
+**Rationale:** Mutation testing judges test strength where the change is: a project-wide score is confounded by suite size, so a large suite hides weak new tests behind a high percentage. Scoping the run to the pull request's changed lines with `--since` keeps the gate to minutes per pull request. A full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 is free and maintained under Apache-2.0. The tool manifest pins the runner. An equivalent mutant preserves behavior by construction, so no test kills it; the exception records that judgement with its owner and expiry instead of blocking the pull request forever. This provision states the .NET form of `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`.
 
-**Reviewed for:** Each pull request shows a Stryker.NET `--since` report with zero surviving mutants on its changed lines.
+**Example:** A pull request changing the submit-expense handler shows a Stryker.NET report with survivors at or below the recorded threshold on its changed lines; the rest fail the pull request, or land in an exception when the mutant is equivalent.
+
+**Reviewed for:** Which pull requests landed with survivors above the recorded threshold and no covering exception? Look at the Stryker.NET `--since` report beside the exception records.
 
 ### Seed Property Tests from Example Tables
 
 **ID:** `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables`
 
-**Statement:** Property tests for each calculation rule MUST run on FsCheck with cases seeded from the rule's scenario examples table.
+**Default:** Run property tests for each calculation rule on FsCheck with cases seeded from the rule's scenario examples table at size large; property tests stay optional at size small.
 
-**Rationale:** A calculation rule carries an examples table on its scenarios, and those rows seed the property cases: the properties hold for the agreed examples before they are checked against generated inputs. FsCheck is the .NET property library, free and maintained. The Domain test project owns the FsCheck reference under `litespec/backend/dotnet/packages#use-this-baseline-package-ownership`.
+**Replacement:** A project records its own calculation-proof technique in its testing documentation.
 
-**Reviewed for:** Each calculation rule's property tests run on FsCheck with cases drawn from the rule's scenario examples table.
+**Rationale:** A calculation rule carries an examples table on its scenarios, and those rows seed the property cases: the properties hold for the agreed examples before they are checked against generated inputs. FsCheck is the .NET property library, free and maintained. The Domain test project owns the FsCheck reference under `litespec/backend/dotnet/packages#use-this-baseline-package-ownership`. This provision states the .NET form of `litespec/backend/testing#prove-every-calculation-with-property-tests`.
+
+**Reviewed for:** Which calculation rules at size large lack FsCheck property tests seeded from their scenario examples? Look at the calculation rules beside their property test files and the declared project size.
 
 ### Generate Model Tests from Declared Transitions
 
 **ID:** `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions`
 
-**Statement:** Each aggregate MUST carry a model-based test generated from its declared transitions and run with FsCheck.
+**Default:** Carry a model-based test generated from the declared transitions and run with FsCheck for each aggregate at size large; model-based tests stay optional at size small.
 
-**Rationale:** The aggregate's declared transitions are the model: the test walks them and checks that each succeeds from its stated state while undeclared moves are refused. Generating the test from the record keeps it aligned with the declared lifecycle. FsCheck runs the generated model.
+**Replacement:** A project records its own lifecycle-proof technique in its testing documentation.
 
-**Reviewed for:** Each aggregate's model-based test runs on FsCheck against the aggregate's declared transitions.
+**Rationale:** The aggregate's declared transitions are the model: the test walks them and checks that each succeeds from its stated state while undeclared moves are refused. Generating the test from the record keeps it aligned with the declared lifecycle. FsCheck runs the generated model. This provision states the .NET form of `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test`.
 
-## Conventions
-
-None.
+**Reviewed for:** Which aggregates at size large lack a model-based test generated from their declared transitions? Look at the aggregates beside their model-based test files and the declared project size.

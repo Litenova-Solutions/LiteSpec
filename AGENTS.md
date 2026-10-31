@@ -8,7 +8,7 @@ LiteSpec 3.0.0 is the contract for one bounded-context business application. A p
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
-`litespec.manifest.json` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>`, the heading `<slug>` on `docs/<page>.md`, and `docs/reference/provisions.md` lists them all.
+`litespec.manifest.json` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
 
 Sources: `litespec/core/scope#keep-one-bounded-context`, `litespec/core/scope#select-a-size-a-shape-and-stacks`, `litespec/core/stacks#apply-the-complete-stack`, `litespec/core/scope#select-conditional-extensions-explicitly`, `litespec/core/authoring#use-the-declared-identifier-grammar`.
 
