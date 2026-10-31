@@ -1,4 +1,6 @@
 # Response headers for litespec.dev (Cloudflare Workers static assets).
+# The :version placeholder matches the release segment of any published
+# version, so no release number is written by hand in this file.
 
 /*
   X-Content-Type-Options: nosniff
@@ -17,23 +19,25 @@
 
 # Agent text: raw Markdown pages, selection indexes and layer bundles are read by agents
 # and stay out of search results, where the HTML page is the one to show.
-/2.0.0/:a.md
+/:version/:a.md
   X-Robots-Tag: noindex
-/2.0.0/:a/:b.md
+/:version/:a/:b.md
   X-Robots-Tag: noindex
-/2.0.0/:a/:b/:c.md
+/:version/:a/:b/:c.md
   X-Robots-Tag: noindex
-/2.0.0/:a/:b/:c/:d.md
+/:version/:a/:b/:c/:d.md
   X-Robots-Tag: noindex
-/2.0.0/:a/:b/:c/:d/:e.md
+/:version/:a/:b/:c/:d/:e.md
   X-Robots-Tag: noindex
-/2.0.0/select/:key/llms.txt
+/:version/:a/:b/:c/:d/:e/:f.md
   X-Robots-Tag: noindex
-/2.0.0/layers/*
+/:version/select/:key/llms.txt
   X-Robots-Tag: noindex
-/2.0.0/llms.txt
+/:version/layers/*
   X-Robots-Tag: noindex
-/2.0.0/llms-full.txt
+/:version/llms.txt
+  X-Robots-Tag: noindex
+/:version/llms-full.txt
   X-Robots-Tag: noindex
 /llms.txt
   X-Robots-Tag: noindex
