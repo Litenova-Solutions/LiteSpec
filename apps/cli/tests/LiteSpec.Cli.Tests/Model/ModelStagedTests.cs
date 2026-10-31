@@ -27,8 +27,8 @@ public sealed class ModelStagedTests
         }
     }
 
-    /// <summary>Runs git in the folder, throwing when it fails.</summary>
-    static void RunGit(string workdir, params string[] args)
+    /// <summary>Runs git in the folder and returns its standard output, throwing when it fails.</summary>
+    static string RunGit(string workdir, params string[] args)
     {
         var start = new ProcessStartInfo("git")
         {
@@ -44,7 +44,7 @@ public sealed class ModelStagedTests
         }
 
         using var process = Process.Start(start)!;
-        _ = process.StandardOutput.ReadToEndAsync();
+        var stdout = process.StandardOutput.ReadToEndAsync();
         var stderr = process.StandardError.ReadToEndAsync();
 
         if (!process.WaitForExit(TimeSpan.FromMinutes(2)))
@@ -57,6 +57,8 @@ public sealed class ModelStagedTests
         {
             throw new InvalidOperationException($"git {string.Join(' ', args)} failed: {stderr.Result}");
         }
+
+        return stdout.Result;
     }
 
     /// <summary>Commits the whole fixture so the index starts clean.</summary>
@@ -214,8 +216,12 @@ public sealed class ModelStagedTests
 
         var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
 
+        // When the scope is not empty, the message names what git sees as changed, so a
+        // difference that appears on one operating system only can be read from the log.
+        Assert.True(
+            since.Output.Contains("Since HEAD: 0 files, 0 records.", StringComparison.Ordinal),
+            $"{since.Output}\ngit status after the check:\n{RunGit(fixture.Path, "status", "--porcelain", "--untracked-files=all")}");
         Assert.Equal(0, since.Status);
-        Assert.Contains("Since HEAD: 0 files, 0 records.", since.Output);
         Assert.Contains("write-undeclared", since.Output);
     }
 
