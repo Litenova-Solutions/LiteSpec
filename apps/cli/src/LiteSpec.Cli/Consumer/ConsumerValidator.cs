@@ -209,6 +209,7 @@ static partial class ConsumerValidator
             Timing.Report($"[time] consumer-project {projectWatch.Elapsed.TotalSeconds:0.0}s");
 
             CheckPages(this);
+            CheckStageDeferrals(this);
             CheckGlossaryAndProse(this);
 
             var uiWatch = System.Diagnostics.Stopwatch.StartNew();
@@ -397,7 +398,7 @@ static partial class ConsumerValidator
     /// <summary>
     ///     One extension selection: a bare id string normalizes to a selection carrying only the id.
     /// </summary>
-    sealed record Selection(string? Id, string IdText, string? ReviewBy, string? ReleaseStage, List<JsonNode?> DeferredProvisions);
+    sealed record Selection(string? Id, string IdText, string? ReviewBy, string? ReleaseStage);
 
     static string Relative(string root, string file) =>
         Path.GetRelativePath(root, file).Replace(Path.DirectorySeparatorChar, '/');

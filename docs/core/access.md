@@ -32,7 +32,7 @@ Refusals that follow from access and input need no written result. A call withou
 
 ### Tenant Scope and Cross Tenant Access
 
-`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the highest access risk, so the Behavior diff lists every `cross` change in the security queue, where the security reviewer reads it separately from reviewed status. Cross scope raises no tier: the queue carries the review, and the tier follows the risk values the record carries.
+`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the highest access risk, so the Behavior diff lists every `cross` change in the security queue, where reviewers read it separately from reviewed status. Cross scope raises no tier: the queue carries the review, and the tier follows the risk values the record carries.
 
 ### Entitlements
 
@@ -222,9 +222,9 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Statement:** A use case with cross tenant scope MUST pass through the security queue at its own tier.
 
-**Rationale:** Work that reaches across tenants can read or write data that belongs to another tenant, which is the highest access risk a grant carries. The security queue puts that grant before the security reviewer separately from reviewed status, so no cross grant ships on a developer sample alone. Cross scope raises no tier: the tier follows the risk values the record carries, and the queue carries the review.
+**Rationale:** Work that reaches across tenants can read or write data that belongs to another tenant, which is the highest access risk a grant carries. The security queue lists that grant for review separately from reviewed status, so no cross grant ships on a developer sample alone. Cross scope raises no tier: the tier follows the risk values the record carries, and the queue carries the review.
 
-**Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff until the security reviewer accepts it. It keeps the tier its risk values give it.
+**Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff, a list to read rather than a gate. It keeps the tier its risk values give it.
 
 **Reviewed for:** Which cross grants shipped without security review, or gained a tier from cross scope alone? Look at the security queue in the Behavior diff.
 

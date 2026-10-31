@@ -30,5 +30,5 @@ Organize features by module and use case. This satisfies `litespec/frontend/blaz
 
 ## Check
 
-- The client solution builds with no error and no analyzer finding outside a recorded deviation.
+- The client solution builds with no error and no analyzer finding outside a recorded exception.
 - `litespec model build` followed by `litespec model check` links each new screen to its use case with no finding.

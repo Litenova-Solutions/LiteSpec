@@ -197,6 +197,61 @@ public sealed class BookContentTests
         }
     }
 
+    /// <summary>The client renders the exception record in LiteSpec words: kind, covers, subject or paths, reason and expiry.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Renders_Exception_With_LiteSpec_Terms()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var words in new[]
+        {
+            "exception: function",
+            "f.expiresOn",
+            "f.covers",
+            "f.paths",
+            "\"Because \" + esc(f.reason)",
+            "testedChip",
+            "Not yet met",
+            "Not yet tested",
+            "proved indirectly",
+            "Excepted",
+            "GL.exception",
+        })
+        {
+            Assert.Contains(words, script, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>The client holds none of the replaced wave-7 renderings: known-gap and deviation details, ends-by dates and gap words.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Holds_None_Of_The_Replaced_Wave7_Strings()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var removed in new[]
+        {
+            "known-gap",
+            "deviation",
+            "f.endsBy",
+            "f.removeWhen",
+            "\"Known gap\"",
+            "\"Accepted gap\"",
+            "Not yet verified",
+            "tile(\"verified\"",
+        })
+        {
+            Assert.DoesNotContain(removed, script, StringComparison.Ordinal);
+        }
+    }
+
     /// <summary>Research sources with a path render as code text beside the URL rendering, so a path source never throws.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]

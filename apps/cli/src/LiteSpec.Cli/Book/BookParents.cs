@@ -36,8 +36,7 @@ static class BookParents
             ["external-system"] = new("external-system", ["product"], "the product"),
             ["runbook"] = new("runbook", ["product"], "the product"),
             ["integration-event"] = new("integration-event", ["product"], "the product"),
-            ["deviation"] = new("deviation", ["product"], "the product"),
-            ["known-gap"] = new("known-gap", ["product"], "the product"),
+            ["exception"] = new("exception", ["product"], "the product"),
             ["feature"] = new("feature", ["problem"], "`solves`, first entry"),
             ["topic"] = new("topic", ["product"], "the product"),
             ["requirement"] = new("requirement", ["topic"], "identifier home"),
@@ -153,7 +152,7 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "topic" or "actor" or "term" or "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook" or "integration-event" or "deviation" or "known-gap" => index.ProductId,
+            "goal" or "problem" or "constraint" or "research" or "decision" or "topic" or "actor" or "term" or "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook" or "integration-event" or "exception" => index.ProductId,
             "feature" => LinkParent(index, FirstLink(record, "solves")),
             "requirement" => TopicParent(index, id),
             "journey" => LinkParent(index, FirstLink(record, "serves")),

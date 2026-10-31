@@ -13,7 +13,7 @@ static partial class StandardsValidator
     // other field follows the rule.
     // (litespec/core/language#name-each-field-by-its-word-class)
     static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "subject"], StringComparer.Ordinal);
-    static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom"], StringComparer.Ordinal);
+    static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
     static readonly HashSet<string> DateOrMilestoneFields = new(["dueBy"], StringComparer.Ordinal);
 
     // The word-class names the schemas carry: a link verb holds links, a
@@ -244,9 +244,15 @@ static partial class StandardsValidator
                 }
 
                 // A recorded date reads as <verb>edOn: the past verb says what
-                // happened, and On says when it was recorded.
+                // happened, and On says when it was recorded. A name beside the
+                // provision states what its date does instead: `effectiveFrom`
+                // opens a validity span, and `expiresOn` is the date the
+                // exception lapses.
                 // (litespec/core/language#name-each-date-by-what-it-marks)
-                if (field.Length > 2 && field.EndsWith("On", StringComparison.Ordinal) && ResolvesToIsoDate(node, defs, []))
+                if (field.Length > 2
+                    && field.EndsWith("On", StringComparison.Ordinal)
+                    && ResolvesToIsoDate(node, defs, [])
+                    && !IsoDateNameExceptions.Contains(field))
                 {
                     var stem = field[..^2];
                     if (!IsPastVerbStem(stem))

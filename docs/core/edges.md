@@ -14,7 +14,7 @@ An integration event is a published fact crossing the bounded context in CloudEv
 |:---|:---|
 | `direction` | `out` or `in`. |
 | `eventType`, `source`, `subject` | The CloudEvents type, source, and what the subject identifies. |
-| `payload` | `{ name, meaning, type, of, required, classification }` entries, with the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
+| `payload` | `{ name, meaning, type, of, many, required, classification }` entries, with the field types and the list flag use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states. |
 | `dataschema` | The URL the payload follows, optional. |
 | `trust` | `trigger-only` or `payload`. |
 | `correlation` | How an inbound event is matched, inbound only. |
@@ -56,12 +56,12 @@ The route entry that renders a screen carries its mark, in the form its stack pa
 
 ### External Systems
 
-An external system is one system outside the bounded context the product exchanges messages with. It acts inside the product as one actor, and each operation declares its direction, timeout, response, and cache. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. Its erasure position says how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with its acceptance.
+An external system is one system outside the bounded context the product exchanges messages with. It acts inside the product as one actor, and each operation declares its direction, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. Its erasure position says how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with its acceptance.
 
 | Field | Meaning |
 |:---|:---|
 | `actor` | The actor the system acts as. |
-| `operations` | `{ name, direction, timeout, onTimeout, response, cache }` entries; direction is `out` or `in`. |
+| `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache }` entries; direction is `out` or `in`, `retries` is optional prose. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with `acceptedBy`. |
 
 ## Standards
@@ -264,7 +264,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Each external system MUST describe its operations with direction, timeout, timeout handling, response, and cache.
 
-**Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system acts inside the product as one named actor.
+**Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system acts inside the product as one named actor.
 
 **Checked by:** `litespec consumer` fails an external system operation without direction, timeout, timeout handling, response, or cache.
 

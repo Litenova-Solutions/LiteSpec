@@ -333,8 +333,8 @@ public sealed class ScreenCheckTests
             ReaderIsQualified = true,
         };
 
-        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, null, false, "working", unqualified.ReaderIsQualified).Outcome);
-        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, null, false, "working", qualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, null, unqualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, null, qualified.ReaderIsQualified).Outcome);
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>
@@ -343,7 +343,7 @@ public sealed class ScreenCheckTests
     static BrowserTestInfo BrowserProof(string root, string title, string target) =>
         new(
             "web", title, Path.Combine(root, "tests", $"{title}.spec.ts"), 3,
-            ["scenario/list-loans.listing-succeeds"], null, [target], [], ["Listed"]);
+            ["scenario/list-loans.listing-succeeds"], null, [target], [], ["The loans are listed."]);
 
     static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases)
     {

@@ -77,8 +77,7 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | integration-event | `templates/consumer/integration-event.md` | Summary, optional Notes |
 | retention-schedule | `templates/consumer/retention-schedule.md` | Entries only |
 | runbook | `templates/consumer/runbook.md` | Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, Escalation |
-| deviation | `templates/consumer/deviation.md` | Consequences |
-| known-gap | `templates/consumer/known-gap.md` | Exit |
+| exception | `templates/consumer/exception.md` | Consequences for a departure, Exit for a gap |
 | glossary | `templates/consumer/glossary.md` | Generated region only |
 | example-cast | `templates/consumer/example-cast.md` | The Organization, The People, The Occasion, The Amounts, Recurring Situations, optional What This Page Does Not Do |
 | tutorial | `templates/consumer/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |

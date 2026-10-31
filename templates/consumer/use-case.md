@@ -120,7 +120,7 @@
     "level": "<required|optional|none; replace this whole audit object with { exempt: <justification> } when exempt>",
     "target": "<Target kind, or none>"
   },
-  "risk": ["<money|door|personal-data|access, or remove this line>"],
+  "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
   "background": "<The shared starting state every scenario starts from, or remove this line>",
   "records": [
     {

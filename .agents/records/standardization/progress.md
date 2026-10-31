@@ -5,3 +5,4 @@
 - 2026-10-31 05:10: wave 4 green (codes renamed by script; messages, field renames, value style and word-class checks on Muse; requests and Claimwick values fixed); committed.
 - 2026-10-31 06:05: wave 5 green (behavior split into five pages, 364 citations moved by script, mini-language objects, D1 to D3 code, B6 templates; two Claimwick fix slices); committed.
 - 2026-10-31 07:50: wave 6 green (automations, sagas, doors, typed contracts, privacy, scenarios; 14 slices, one API request slice, one fix round of four); committed.
+- 2026-10-31 09:25: wave 7 green (one exception record, tracked proof state, --release and --since, loose approval stated; one request slice with the post-wave-7 patch: startup schedule, service fields, several events, retry prose; one fix slice; many on typed fields); committed.

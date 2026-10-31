@@ -1,19 +1,22 @@
 ---
 {
-  "type": "known-gap",
-  "id": "known-gap/export-expenses-unimplemented",
+  "type": "exception",
+  "id": "exception/export-expenses-unimplemented",
   "title": "Export Expenses Unimplemented",
   "owner": "claimwick-team",
   "status": "approved",
-  "check": "use-case-unimplemented",
+  "kind": "gap",
+  "covers": [
+    "use-case-unimplemented"
+  ],
   "subject": [
     "use-case/spending.export-expenses"
   ],
-  "endsBy": "2027-06-01",
   "reason": "Export waits for the finance file format.",
+  "expiresOn": "2027-06-01",
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "356553fc"
+  "approvedHash": "f3c491e6"
 }
 ---
 

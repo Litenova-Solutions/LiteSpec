@@ -5,11 +5,11 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
 
-/// <summary>Proves check findings follow the record's own status and the project phase.</summary>
+/// <summary>Proves check findings follow the record's own status.</summary>
 public sealed class SeverityCheckTests
 {
     /// <summary>An S finding on a draft use case reports with draft and exits 0.</summary>
-    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
+    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact]
     public void Draft_Use_Case_Reports_Without_Blocking()
     {
@@ -31,7 +31,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>The same S finding on a reviewed use case blocks and exits 1.</summary>
-    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
+    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact]
     public void Reviewed_Use_Case_Blocks()
     {
@@ -82,62 +82,17 @@ public sealed class SeverityCheckTests
         Assert.Empty(missing);
     }
 
-    /// <summary>
-    ///     A frozen phase reports a proof finding with frozen instead of blocking. The overlay also
-    ///     leaves a G finding that blocks in every phase, so the outcome is asserted, not the exit code.
-    /// </summary>
-    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
+    /// <summary>An unknown marks value exits 2 with the file error.</summary>
     [Fact]
-    public void Frozen_Phase_Reports_Proof_Finding_Without_Blocking()
-    {
-        using var fixture = ModelFixture.Prepare("small", "proves-unreached");
-        FreezePhase(fixture.Path);
-
-        var text = Cli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Contains("[S frozen]", text.Output);
-        Assert.Contains("proves-unreached", text.Output);
-
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unreached");
-
-        Assert.Equal("reported", outcome);
-        Assert.Equal("frozen", reason);
-    }
-
-    /// <summary>A working phase blocks a proof finding and exits 1.</summary>
-    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
-    [Fact]
-    public void Working_Phase_Blocks_Proof_Finding()
-    {
-        using var fixture = ModelFixture.Prepare("small", "proves-unreached");
-
-        var text = Cli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Equal(1, text.Status);
-        Assert.DoesNotContain("[S frozen]", text.Output);
-        Assert.Contains("proves-unreached", text.Output);
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unreached");
-
-        Assert.Equal("blocking", outcome);
-        Assert.Null(reason);
-    }
-
-    /// <summary>An unknown marks or phase value exits 2 with the file error.</summary>
-    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
-    [Theory]
-    [InlineData("marks", "yaml", "unknown marks \"yaml\"")]
-    [InlineData("phase", "paused", "unknown check.phase \"paused\"")]
-    public void Unknown_Setting_Exits_2(string field, string value, string message)
+    public void Unknown_Marks_Exits_2()
     {
         using var fixture = ModelFixture.Prepare("small");
-        BreakSetting(fixture.Path, field, value);
+        BreakMarks(fixture.Path, "yaml");
 
         var result = Cli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains(message, result.Output);
+        Assert.Contains("unknown marks \"yaml\"", result.Output);
     }
 
     /// <summary>Flips the list-loans page to a draft with its decider and decide-by date.</summary>
@@ -184,30 +139,12 @@ public sealed class SeverityCheckTests
         File.WriteAllText(file, project.ToJsonString());
     }
 
-    /// <summary>Freezes the fixture's check phase.</summary>
-    static void FreezePhase(string root)
+    /// <summary>Writes an unknown marks value into the fixture's project file.</summary>
+    static void BreakMarks(string root, string value)
     {
         var file = Path.Combine(root, "litespec.project.json");
         var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        project["check"] = new JsonObject { ["phase"] = JsonValue.Create("frozen") };
-        File.WriteAllText(file, project.ToJsonString());
-    }
-
-    /// <summary>Writes an unknown marks or phase value into the fixture's project file.</summary>
-    static void BreakSetting(string root, string field, string value)
-    {
-        var file = Path.Combine(root, "litespec.project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-
-        if (field == "marks")
-        {
-            project["marks"] = JsonValue.Create(value);
-        }
-        else
-        {
-            project["check"] = new JsonObject { ["phase"] = JsonValue.Create(value) };
-        }
-
+        project["marks"] = JsonValue.Create(value);
         File.WriteAllText(file, project.ToJsonString());
     }
 

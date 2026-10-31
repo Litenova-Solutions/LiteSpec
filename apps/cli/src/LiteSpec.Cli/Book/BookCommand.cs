@@ -106,7 +106,7 @@ static class BookCommand
         var outline = BookOutline.Build(store);
         var details = BookEnrich.Build(store, outline);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
-        var review = BookModel.ReviewData(index, findingsFile, generatedOn, root);
+        var review = BookModel.ReviewData(index, findingsFile, root);
 
         try
         {
@@ -343,7 +343,7 @@ static class BookCommand
             var records = new JsonArray();
             foreach (var entry in batch.Records)
             {
-                records.Add(entry.Record.Id);
+                records.Add(entry);
             }
 
             batches[batch.Selector] = new JsonObject
@@ -520,14 +520,17 @@ static class BookCommand
     /// <summary>The review settings the client reads: the veto window and the security reviewer.</summary>
     static JsonObject ReviewJson(BookIndex index, string root)
     {
-        string? reviewer = null;
-        try
+        var reviewer = index.SecurityReviewer;
+        if (reviewer is null)
         {
-            reviewer = ConsumerConfig.Load(root).SecurityReviewer;
-        }
-        catch (Exception)
-        {
-            reviewer = null;
+            try
+            {
+                reviewer = ConsumerConfig.Load(root).SecurityReviewer;
+            }
+            catch (Exception)
+            {
+                reviewer = null;
+            }
         }
 
         return new JsonObject

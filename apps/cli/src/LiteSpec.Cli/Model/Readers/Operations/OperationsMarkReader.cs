@@ -5,7 +5,7 @@ namespace LiteSpec.Model.Readers.Operations;
 /// <summary>One follows mark in an operations file.</summary>
 /// <param name="File">The absolute file path.</param>
 /// <param name="Line">The 1-based line.</param>
-/// <param name="Id">The decision, deviation or provision the mark names.</param>
+/// <param name="Id">The decision, exception or provision the mark names.</param>
 sealed record OperationsMark(string File, int Line, string Id);
 
 /// <summary>

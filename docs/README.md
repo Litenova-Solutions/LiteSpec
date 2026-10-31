@@ -37,7 +37,7 @@ One product worked end to end, from its first record to a passing check.
 
 - [Example overview](example/README.md): the Claimwick product the example follows, and the reading order for its pages.
 - [The Claimwick Product](example/the-product.md): the Intent records: brief, goal, problem, feature, requirements, research, decision, constraint, and journey.
-- [Modules and Records](example/modules-and-records.md): the Behavior records: module, aggregates, rules, access chain, use cases, and the reaction, jobs, notifications, and setting around them.
+- [Modules and Records](example/modules-and-records.md): the Behavior records: module, aggregates, rules, access chain, use cases, and the automations, notifications, and setting around them.
 - [A Use Case in Code](example/a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](example/the-screen.md): the expenses list screen, the generated client it reads through, and the UI pattern it starts from.
 - [The Model and Its Checks](example/model-and-checks.md): model build, check, and query runs, journey detail and the Ballots view, the diffs, and the CI jobs that run the checks.
@@ -54,7 +54,7 @@ One product worked end to end, from its first record to a passing check.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
 - [Domain Model](core/domain-model.md): the modules, glossary, aggregates, rules, and domain events inside the bounded context.
 - [Use Cases](core/use-cases.md): the commands, queries, results, scenarios, and settings.
-- [Automation](core/automation.md): the reactions and jobs that run without a request.
+- [Automation](core/automation.md): the automations that run without a request.
 - [Edges and Screens](core/edges.md): the integration events, notifications, entry points, screens, and external systems.
 - [Privacy and Retention](core/privacy.md): the data classes and the retention schedule.
 - [Access](core/access.md): the actors, roles, permissions, access each use case declares, entry points, and external systems.
@@ -79,7 +79,7 @@ These principles hold for every backend. A backend stack folder states how its t
 - [Backend overview](backend/README.md): the principles every backend shares and the stacks that realize them.
 - [Backend Architecture](backend/architecture.md): the five layers, the direction references point, and the modules and use cases that organize every layer.
 - [Domain Layer](backend/domain.md): aggregates, lifecycles, closed value sets, and repositories, and what Domain never references.
-- [Application Layer](backend/application.md): use-case coordination, pipeline stages, ports, and event reactions.
+- [Application Layer](backend/application.md): use-case coordination, pipeline stages, ports, and event automations.
 - [Persistence](backend/persistence.md): repositories, the read session, the one commit per command, and the obligations on stored data.
 - [HTTP API](backend/api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
 - [Backend Testing](backend/testing.md): the test suites each project size keeps and what each suite may use.
@@ -194,7 +194,7 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Privacy](ext/privacy.md): erasure positions, requested reach, export-first guards, restore sweeps, and conflict rules in depth.
 - [Devices](ext/devices.md): the entry-point protocol block: messages, version rule, client rules, nonce, and offline uploads.
 - [Customer Automation](ext/automation.md): customer-composed rules and hooks with a may and may-not contract.
-- [Workflow Engine](ext/workflow-engine.md): engine-carried processes where each step maps to one use case with its compensation.
+- [Workflow Engine](ext/workflow-engine.md): engine-carried sagas where each step maps to one use case with its compensation.
 - [Ingest Pipelines](ext/pipeline.md): ingest steps, drop reasons, and buffer policy.
 - [Human Queues](ext/queues.md): human work queues: claim, score, preview, and confirm-by.
 - [Model Assistance](ext/ai.md): model-mediated queries with a closed tools set, structure-only scenarios, and a pinned stub.

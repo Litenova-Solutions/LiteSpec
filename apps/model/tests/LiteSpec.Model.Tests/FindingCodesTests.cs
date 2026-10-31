@@ -37,7 +37,7 @@ public sealed class FindingCodesTests
         Assert.Empty(missing);
     }
 
-    /// <summary>Every code a known gap may name has a tier.</summary>
+    /// <summary>Every code an exception may name has a tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Checker_Codes_Have_Tiers()
@@ -95,7 +95,19 @@ public sealed class FindingCodesTests
         Assert.Equal(tier, Finding.Tiers[code]);
     }
 
-    /// <summary>Every finding code reads subject-problem with one of the twelve problem words.</summary>
+    /// <summary>Each new Proof and Governance finding code carries its contracted tier.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("exception-expired", "G")]
+    [InlineData("exception-finding-unknown", "G")]
+    [InlineData("use-case-unverified", "A")]
+    [InlineData("proof-invalid", "A")]
+    public void New_Governance_Codes_Have_Tiers(string code, string tier)
+    {
+        Assert.Equal(tier, Finding.Tiers[code]);
+    }
+
+    /// <summary>Every finding code reads subject-problem with one of the twelve problem words, beside the D37 proof code.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]
     public void Codes_Follow_Subject_Problem_Grammar()
@@ -138,17 +150,17 @@ public sealed class FindingCodesTests
         return found.ToList();
     }
 
-    /// <summary>The codes in the Checker's known-gap set, read from its source.</summary>
+    /// <summary>The codes in the Checker's exception set, read from its source.</summary>
     static IReadOnlyList<string> CheckerCodes(string checkerSource)
     {
         var start = checkerSource.IndexOf("Codes = new", StringComparison.Ordinal);
 
-        Assert.True(start >= 0, "Checker.cs carries no known-gap code set.");
+        Assert.True(start >= 0, "Checker.cs carries no exception code set.");
 
         var open = checkerSource.IndexOf('{', start);
         var close = checkerSource.IndexOf("};", open, StringComparison.Ordinal);
 
-        Assert.True(open >= 0 && close > open, "Checker.cs carries no known-gap code set.");
+        Assert.True(open >= 0 && close > open, "Checker.cs carries no exception code set.");
 
         var block = checkerSource.Substring(open, close - open);
         var found = new List<string>();
@@ -161,9 +173,15 @@ public sealed class FindingCodesTests
         return found;
     }
 
-    /// <summary>Whether the code ends with one of the twelve problem words.</summary>
+    /// <summary>Whether the code ends with one of the twelve problem words, or is the D37 proof code.</summary>
     static bool FollowsGrammar(string code)
     {
+        // D37 names use-case-unverified explicitly; it negates the D38 proof word verified.
+        if (string.Equals(code, "use-case-unverified", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
         var dash = code.LastIndexOf('-');
 
         return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);

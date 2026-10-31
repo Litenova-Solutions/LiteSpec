@@ -30,19 +30,15 @@ sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunRe
 
             foreach (var (method, outcome) in run.OutcomeByMethod)
             {
-                if (!merged.OutcomeByMethod.TryGetValue(method, out var kept) || kept != "Failed")
-                {
-                    merged.OutcomeByMethod[method] = outcome;
-                }
+                merged.MergeOutcome(merged.OutcomeByMethod, method, outcome);
             }
 
             foreach (var (title, outcome) in run.OutcomeByTitle)
             {
-                if (!merged.OutcomeByTitle.TryGetValue(title, out var kept) || kept != "Failed")
-                {
-                    merged.OutcomeByTitle[title] = outcome;
-                }
+                merged.MergeOutcome(merged.OutcomeByTitle, title, outcome);
             }
+
+            merged.Flaky.UnionWith(run.Flaky);
 
             merged.Total += run.Total;
             merged.Passed += run.Passed;

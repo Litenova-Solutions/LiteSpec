@@ -75,7 +75,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** The folder answers what happens when the fact is recorded with one listing: `Loans/Loans/OnLoanBorrowed/` holds `SendDueNoticeOnLoanBorrowedHandler.cs` beside every other handler of the borrowed fact in that module. `dotnet build` reports a misnamed handler as `LS2007` and a handler outside its fact folder as `LS2008`. This provision states the .NET form of `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`.
 
-**Checked by:** `dotnet build` reports `LS2007` for an event handler or job host name hiding its kind and `LS2008` for an event handler outside its fact folder.
+**Checked by:** `dotnet build` reports `LS2007` for an event handler or scheduled automation name hiding its kind and `LS2008` for an event handler outside its fact folder.
 
 ### Name Repository Variables After Their Interface
 
@@ -101,7 +101,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Example:** The declared `Example.Domain/Shared/` folder passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
-**Checked by:** `litespec model check` reports `name-reason-missing` (tier S) for a folder or type named for the absence of a reason outside the declared shared kernel.
+**Checked by:** `litespec model check` reports `name-reason-missing` (level S) for a folder or type named for the absence of a reason outside the declared shared kernel.
 
 ## Reference Example
 

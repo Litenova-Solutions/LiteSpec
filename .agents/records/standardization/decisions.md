@@ -67,3 +67,15 @@ The contract wrote `drivenBy` as one object; the schema kept the list the old `d
 ## 2026-10-31: Templates Show One Concrete Case Where the Schema Branches
 
 The schema's `if` and `not` rules read the record's own values, so a placeholder `kind` or trigger cannot satisfy them. The aggregate template shows a saga (its saga-only fields say to remove them for other kinds), and the automation template a schedule trigger with a concrete `PT1H`; its Summary says how to write an event or manual trigger and which fields to drop.
+
+## 2026-10-31: A Startup Run Is a Schedule, and Jobs Keep Their Service Fields
+
+Wave 6 dropped the job kind `one-off` and the job fields `serviceLevel` and `evidence` without a contract line saying so; the largest consumer has 5 one-off jobs and uses both fields. D27 allows three triggers (event, schedule, manual), and a run once at deployment start is a time-based start, so the schedule object gains `{ "at": "startup" }`. `serviceLevel` and `evidence` return on automations as schedule and manual fields. `onExhausted` stays removed (D5 lists it among undefined fields). Landed after wave 7, whose schema slice owned the file.
+
+## 2026-10-31: An Automation May Listen to Several Events, and Operations Keep Their Retry Prose
+
+The largest consumer has 17 reactions triggered by more than one event (for example, assigning a ticket seat when a seat is sold or a sold seat is released), each with one handler class per event and one shared record. `triggeredBy.event` takes one event id or a list, so one automation states one act over the facts that start it. External-system operations described their retry behavior in a prose `retries` field, which wave 5 removed with the integer form; it returns as prose, its one shape, beside `onTimeout`. Both land in the post-wave-7 patch with the startup schedule.
+
+## 2026-10-31: An Input or Payload Field May Hold Many Values
+
+D31 gives each input and payload field one scalar `type`. The largest consumer has about 70 inputs that are lists (event ids, listing ids, text values), and the type list has no way to say so. A field that holds a list says `"many": true` beside its element `type` (a predicate boolean, D11). Added with the judge's foundation before wave 11.

@@ -36,7 +36,7 @@ static class BookOutline
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "automation", "notification", "setting"];
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
-    static readonly IReadOnlyList<string> GovernanceOrder = ["deviation", "known-gap"];
+    static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
 
     /// <summary>Builds the outline over a parsed model.json object.</summary>
     public static BookOutlineResult Build(JsonObject model)
@@ -465,7 +465,7 @@ static class BookOutline
         type switch
         {
             "term" => "glossary",
-            "deviation" or "known-gap" => "governance",
+            "exception" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "product" or "goal" or "problem" or "feature" or "topic" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "automation" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",

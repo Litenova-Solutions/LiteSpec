@@ -1138,58 +1138,65 @@
                                   }
                     },
                     {
-                        "type":  "deviation",
-                        "id":  "deviation/kiosk-cache",
+                        "type":  "exception",
+                        "id":  "exception/kiosk-cache",
                         "title":  "Kiosk Cache",
                         "owner":  "lending-team",
                         "status":  "approved",
                         "effectiveStatus":  "approved",
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/deviations/kiosk-cache.md",
+                        "file":  "docs/governance/exceptions/kiosk-cache.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "deviation",
-                                       "id":  "deviation/kiosk-cache",
+                                       "type":  "exception",
+                                       "id":  "exception/kiosk-cache",
                                        "title":  "Kiosk Cache",
                                        "owner":  "lending-team",
                                        "status":  "approved",
+                                       "kind":  "departure",
+                                       "covers":  "litespec/ext/cache#define-cache-invalidation",
+                                       "subject":  [
+                                                       "feature/self-checkout"
+                                                   ],
                                        "reason":  "The kiosk caches the catalog for a day.",
-                                       "reviewBy":  "2027-01-01",
-                                       "removeWhen":  "The kiosk reads the catalog live.",
-                                       "provision":  [
-                                                         "litespec/ext/cache#define-cache-invalidation"
-                                                     ]
+                                       "expiresOn":  "2027-01-01"
                                    },
                         "links":  {
-                                      "provision":  [
+                                      "covers":  [
                                                         "litespec/ext/cache#define-cache-invalidation"
-                                                    ]
+                                                    ],
+                                      "subject":  [
+                                                      "feature/self-checkout"
+                                                  ]
                                   }
                     },
                     {
-                        "type":  "known-gap",
-                        "id":  "known-gap/offline-kiosk",
+                        "type":  "exception",
+                        "id":  "exception/offline-kiosk",
                         "title":  "Offline Kiosk",
                         "owner":  "lending-team",
                         "status":  "approved",
                         "effectiveStatus":  "approved",
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/known-gaps/offline-kiosk.md",
+                        "file":  "docs/governance/exceptions/offline-kiosk.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "known-gap",
-                                       "id":  "known-gap/offline-kiosk",
+                                       "type":  "exception",
+                                       "id":  "exception/offline-kiosk",
                                        "title":  "Offline Kiosk",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "check":  "kiosk-offline",
-                                       "endsBy":  "2026-01-01",
-                                       "reason":  "The kiosk cannot lend offline yet.",
+                                       "kind":  "gap",
+                                       "covers":  [
+                                                       "kiosk-offline"
+                                                   ],
                                        "subject":  [
                                                        "feature/self-checkout"
-                                                   ]
+                                                   ],
+                                       "reason":  "The kiosk cannot lend offline yet.",
+                                       "expiresOn":  "2026-01-01"
                                    },
                         "links":  {
                                       "subject":  [

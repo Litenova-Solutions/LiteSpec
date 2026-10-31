@@ -44,16 +44,15 @@ static class Approver
     ///     integration-event (direction, eventType, source, subject, payload, dataschema,
     ///     addresses, trust, correlation, translates); automation (triggeredBy, skippedWhen,
     ///     effects, runbook, runsWhere, guard, cursor, selection, lease, batchSize,
-    ///     fulfills, serves, onFailure, idempotency, reads, changes);
+    ///     serviceLevel, evidence, fulfills, serves, onFailure, idempotency, reads, changes);
     ///     notification (template, addresses, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
     ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,
     ///     auth, path, contentType, cacheControl, versioning, fulfills, protocol);
     ///     external-system (actor, operations, erasure, acceptedBy); runbook (trigger,
-    ///     steps); deviation (provision, reason, reviewBy, removeWhen); known-gap
-    ///     (check, subject, endsBy, reason); plus questions, terms and replaces where a
-    ///     record carries them.
+    ///     steps); exception (kind, covers, subject, paths, reason, expiresOn);
+    ///     plus questions, terms and replaces where a record carries them.
     /// </summary>
     public static string SemanticHash(Record record) => Checker.SemanticHash(record);
 

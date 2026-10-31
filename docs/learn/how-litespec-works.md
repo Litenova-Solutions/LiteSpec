@@ -23,7 +23,7 @@ The diagram below shows how the four parts connect, with each layer written from
 
 ## A Use Case from Record to Code
 
-Claimwick lets employees submit work expenses with receipts. In LiteSpec, that behavior is a use case: one command or query with its access, results, and scenarios. Reactions to events, scheduled jobs, person-facing messages, and tunables are their own record types beside it.
+Claimwick lets employees submit work expenses with receipts. In LiteSpec, that behavior is a use case: one command or query with its access, results, and scenarios. Automations that answer events or run on a schedule, person-facing messages, and tunables are their own record types beside it.
 
 ### 1. the Written Record
 
@@ -40,7 +40,6 @@ The record lives in the project at `docs/behavior/modules/spending/expenses/subm
   "serves": ["journey/submit-and-reimburse#s1"],
   "fulfills": ["requirement/approval.receipt-over-threshold"],
   "access": {
-    "auth": ["session"],
     "grant": "permission/submit-expense",
     "tenant": "own"
   },
@@ -52,7 +51,7 @@ The record lives in the project at `docs/behavior/modules/spending/expenses/subm
 }
 ```
 
-Read it as a set of facts: submitting an expense is a command, a message that changes business state; it serves the first step of the submit-and-reimburse journey and fulfills the requirement that an expense above the receipt threshold carries a receipt; callers authenticate with a session, the grant names the `submit-expense` permission from the shared list, and the tenant scope stays inside one tenant; employees reach it through the expenses app; it changes the expense aggregate, reads the policy store for the threshold, and commits atomically; and it raises an `expense.submitted` event, one statement that the submission completed. The body of the page states the goal in one sentence: "An employee submits a work expense."
+Read it as a set of facts: submitting an expense is a command, a message that changes business state; it serves the first step of the submit-and-reimburse journey and fulfills the requirement that an expense above the receipt threshold carries a receipt; the grant names the `submit-expense` permission from the shared list, and the tenant scope stays inside one tenant; employees reach it through the expenses app, whose door declares session authentication; it changes the expense aggregate, reads the policy store for the threshold, and commits atomically; and it raises an `expense.submitted` event, one statement that the submission completed. The body of the page states the goal in one sentence: "An employee submits a work expense."
 
 Each result is an entry on the page: one way the use case ends. Refusals are listed in precedence order, first match wins, and each refusal names the stable code the API returns:
 
@@ -146,13 +145,13 @@ The use case is implemented: the builder found its handler through its mark. Two
 
 ### 4. the Reported Gaps
 
-`dotnet litespec model check` turns gaps into findings with a tier beside each one: `G` checks read records only and always block, `S` checks read code through a stack reader and block where that reader is qualified, and `A` checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record's header. Both run in CI, so a gap shows up in the pull request that introduced it.
+`dotnet litespec model check` turns gaps into findings with a level beside each one: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record's header. Both run in CI, so a gap shows up in the pull request that introduced it.
 
 For example, if the submit-expense page named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `docs/behavior/modules/spending/expenses/submit-expense.md`, and the pull request fails until the record names one.
 
 ## The Provision Identifier
 
-Every rule in the standard is a provision: one identified block with one assertion. Its ID joins its page and its heading. For example, the rule that every closed set of domain values is modeled without enums is `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`, on the [domain page](../backend/dotnet/domain.md). A review comment, an agent's report, or a project deviation can cite that ID, and everyone knows exactly which rule is meant.
+Every rule in the standard is a provision: one identified block with one assertion. Its ID joins its page and its heading. For example, the rule that every closed set of domain values is modeled without enums is `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`, on the [domain page](../backend/dotnet/domain.md). A review comment, an agent's report, or a project exception can cite that ID, and everyone knows exactly which rule is meant.
 
 ## Next
 

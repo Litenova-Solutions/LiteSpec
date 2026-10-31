@@ -20,7 +20,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 ### Security Review
 
-Three changes move trust or data outward: an access tenant scope widening to cross, a new calls effect on an outside operation, and a new personal or sensitive data class. The behavior diff lists them in the security queue for the security reviewer named in `review.securityReviewer`, who approves them separately from the developer review.
+Three changes move trust or data outward: an access tenant scope widening to cross, a new calls effect on an outside operation, and a new personal or sensitive data class. The behavior diff lists them in the security queue, a list to read rather than a gate, for review separately from the developer review.
 
 ## Standards
 
@@ -70,11 +70,11 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#route-tier-1-access-and-data-changes-through-the-security-reviewer`
 
-**Statement:** A change that widens access tenant scope to cross, adds a calls effect, or adds a personal or sensitive data class MUST pass the security reviewer named in `review.securityReviewer`.
+**Statement:** A change that widens access tenant scope to cross, adds a calls effect, or adds a personal or sensitive data class MUST appear in the security queue for review separately from the developer review.
 
-**Rationale:** A cross-tenant grant, a new outside call, and a new personal-data flow each move trust or data further than the developer review sees: the use case still reads correctly while the exposure grows. The security queue in the behavior diff lists each of the three, so one named reviewer judges them together and the decision stays visible beside the change.
+**Rationale:** A cross-tenant grant, a new outside call, and a new personal-data flow each move trust or data further than the developer review sees: the use case still reads correctly while the exposure grows. The security queue in the behavior diff lists each of the three, so one reviewer judges them together and the decision stays visible beside the change.
 
-**Reviewed for:** Each cross-scope access grant, new calls effect, and new personal-data flow carries the security reviewer's approval. Look at the security queue of the behavior diff.
+**Reviewed for:** Which cross-scope access grants, new calls effects, and new personal-data flows shipped without security review? Look at the security queue of the behavior diff.
 
 ### Validate at Trust Boundaries
 
@@ -190,11 +190,11 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#protect-live-data-at-rest`
 
-**Statement:** Live data at rest MUST carry encryption or a deviation record naming this provision.
+**Statement:** Live data at rest MUST carry encryption or a departure exception covering this provision.
 
-**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the deviation naming this provision keeps the gap visible with its reason and review date instead of silent.
+**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the exception covering this provision keeps the gap visible with its reason, owner, and expiry date instead of silent.
 
-**Reviewed for:** Each live store carries encryption, or a deviation record names this provision.
+**Reviewed for:** Each live store carries encryption, or an exception record covers this provision.
 
 ### Bound Abuse at Exposed Endpoints
 
@@ -272,9 +272,9 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** CI MUST scan every pull request for security findings with a free static analyzer.
 
-**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a deviation naming this provision, with its reason and review date, so each acceptance stays visible and dated.
+**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap exception covering the finding, with its reason, owner, and expiry date, so each acceptance stays visible and dated.
 
-**Reviewed for:** The static analysis report for the pull request shows its findings with a deviation for each accepted one.
+**Reviewed for:** The static analysis report for the pull request shows its findings with a gap exception for each accepted one.
 
 ## Conventions
 

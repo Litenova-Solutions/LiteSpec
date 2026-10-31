@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using LiteSpec.Authoring;
 
 namespace LiteSpec.Model;
 
@@ -11,14 +12,14 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static partial class Checker
 {
-    /// <summary>Every finding code a known gap may name.</summary>
+    /// <summary>Every finding code an exception may name.</summary>
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-invalid", "field-invalid", "identifier-invalid", "identifier-duplicate",
         "use-case-name-clash", "use-case-verb-unknown", "term-clash", "statement-word-invalid", "value-invalid", "use-case-noun-unknown", "refusal-code-invalid", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "use-case-verb-invalid", "automation-name-invalid", "reference-unknown", "approval-invalid",
-        "owner-unknown", "decider-missing", "known-gap-expired", "gap-finding-unknown",
+        "owner-unknown", "decider-missing", "exception-expired", "exception-finding-unknown",
         "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
-        "refusal-unimplemented", "use-case-unimplemented", "proves-unreached",
+        "refusal-unimplemented", "use-case-unimplemented", "proves-unreached", "use-case-unverified", "proof-invalid",
         "size-type-missing", "product-count-invalid",
         "use-case-journey-missing",
         "use-case-scenario-missing", "requirement-fulfillment-missing",
@@ -82,6 +83,8 @@ static partial class Checker
         Time("citations", () => CheckCitations(model, findings));
         Time("gates", () => CheckGates(model, findings));
         Time("proof", () => CheckProof(model, findings));
+        Time("use-case-unverified", () => CheckUseCaseUnverified(model, findings));
+        Time("proof-invalid", () => CheckProofInvalid(model, findings));
         Time("result-scenarios", () => CheckResultWithoutScenario(model, findings));
         Time("fulfillment", () => CheckFulfilment(model, findings));
         Time("requirement-cited", () => CheckRequirementCited(model, findings));
@@ -170,13 +173,60 @@ static partial class Checker
     }
 
     private static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Suppress(
-        ProjectModel model, List<Finding> findings) =>
-        Suppression.Partition(
+        ProjectModel model, List<Finding> findings)
+    {
+        var codes = CodesOfProvision();
+
+        return Suppression.Partition(
             findings,
             model.Records,
             model.Config.Root,
             DateTime.UtcNow.Date,
-            home => ModelBuilder.UseCaseOf(model, home)?.Id);
+            home => ModelBuilder.UseCaseOf(model, home)?.Id,
+            provision => codes.TryGetValue(provision, out var governed) ? governed : []);
+    }
+
+    /// <summary>
+    ///     The finding codes each provision governs, from the codes its Checked by
+    ///     line names. Built once per check, so departures cover their provision.
+    /// </summary>
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> CodesOfProvision()
+    {
+        var empty = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var home = LiteSpecHome.Root;
+
+        if (home is null || !Directory.Exists(Path.Combine(home, "docs")))
+        {
+            return empty;
+        }
+
+        var governed = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+
+        foreach (var row in Provisions.Collect(home))
+        {
+            var codes = new List<string>();
+
+            foreach (Match match in CodeSpan().Matches(row.Evidence))
+            {
+                var code = match.Groups["code"].Value;
+
+                if (Codes.Contains(code) && !codes.Contains(code))
+                {
+                    codes.Add(code);
+                }
+            }
+
+            if (codes.Count > 0)
+            {
+                governed[row.Id] = codes;
+            }
+        }
+
+        return governed;
+    }
+
+    [GeneratedRegex("`(?<code>[^`]+)`")]
+    private static partial Regex CodeSpan();
 
     /// <summary>Whether the record lives in the behavior layer, from the one layer table.</summary>
     private static bool IsBehavior(Record record) =>
@@ -603,30 +653,12 @@ static partial class Checker
                 RequireString(record, "trigger", findings);
                 break;
 
-            case "deviation":
-                RequireString(record, "provision", findings);
+            case "exception":
+                RequireEnum(record, "kind", ["departure", "gap"], findings);
                 RequireString(record, "reason", findings);
-                RequireDate(record, "reviewBy", findings);
-                RequireString(record, "removeWhen", findings);
-
-                if (record.Field("provision") is { } provision
-                    && !IsProvisionCitation(provision))
-                {
-                    findings.Add(new Finding("field-invalid", $"Deviation '{record.Id}' names '{provision}', which is not a shared provision.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                break;
-
-            case "known-gap":
-                RequireString(record, "check", findings);
-                RequireIds(record, "subject", 1, findings);
-                RequireDate(record, "endsBy", findings);
-                RequireString(record, "reason", findings);
-
-                if (record.Field("check") is { } check && !Codes.Contains(check))
-                {
-                    findings.Add(new Finding("gap-finding-unknown", $"Known gap '{record.Id}' names check '{check}', which no check uses.", record.File, record.Line, SubjectOf(record)));
-                }
+                RequireDate(record, "expiresOn", findings);
+                CheckExceptionCovers(record, findings);
+                CheckExceptionScope(record, findings);
 
                 break;
 
@@ -644,6 +676,41 @@ static partial class Checker
         }
 
         CheckLinkTypes(model, record, findings);
+    }
+
+    /// <summary>Reports an exception whose covers names no shared provision or no emitted finding code.</summary>
+    private static void CheckExceptionCovers(Record record, List<Finding> findings)
+    {
+        if (record.Field("kind") == "departure")
+        {
+            RequireString(record, "covers", findings);
+
+            if (record.Field("covers") is { } covers && !IsProvisionCitation(covers))
+            {
+                findings.Add(new Finding("field-invalid", $"Exception '{record.Id}' names '{covers}', which is not a shared provision.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        RequireArray(record, "covers", 1, findings);
+
+        foreach (var code in record.Strings("covers").Order(StringComparer.Ordinal))
+        {
+            if (!Codes.Contains(code))
+            {
+                findings.Add(new Finding("exception-finding-unknown", $"Exception '{record.Id}' names finding code '{code}', which no check emits.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Reports an exception naming neither the records nor the paths it covers.</summary>
+    private static void CheckExceptionScope(Record record, List<Finding> findings)
+    {
+        if (record.Ids("subject").Count == 0 && record.Ids("paths").Count == 0)
+        {
+            findings.Add(new Finding("record-invalid", $"Exception '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+        }
     }
 
     private static void CheckLinkTypes(ProjectModel model, Record record, List<Finding> findings)
@@ -1177,13 +1244,13 @@ static partial class Checker
             }
         }
 
-        foreach (var gap in model.Records.Where(record => record.Type == "known-gap"))
+        foreach (var exception in model.Records.Where(record => record.Type == "exception"))
         {
-            if (gap.Field("endsBy") is { } endsBy
-                && IsoDate(endsBy, out var ends)
-                && today > ends)
+            if (exception.Field("expiresOn") is { } expiresOn
+                && IsoDate(expiresOn, out var expires)
+                && today > expires)
             {
-                findings.Add(new Finding("known-gap-expired", $"Known gap '{gap.Id}' stands past its end {endsBy}.", gap.File, gap.Line, SubjectOf(gap)));
+                findings.Add(new Finding("exception-expired", $"Exception '{exception.Id}' stands past its expiresOn {expiresOn}.", exception.File, exception.Line, SubjectOf(exception)));
             }
         }
 
@@ -1421,6 +1488,68 @@ static partial class Checker
         var resultHome = Identifiers.TrySplit(result.Id, out _, out var right, out _) ? right : null;
 
         return scenarioHome is not null && scenarioHome == resultHome;
+    }
+
+    /// <summary>Reports a use case holding scenarios with no passing proof.</summary>
+    private static void CheckUseCaseUnverified(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name) || name is null)
+            {
+                continue;
+            }
+
+            var own = model.Records.Any(record => record.Type == "scenario"
+                && Identifiers.TrySplit(record.Id, out _, out var home, out _) && home == name);
+
+            if (!own)
+            {
+                continue;
+            }
+
+            if (model.Status.TryGetValue(useCase.Id, out var status) && !status.Verified)
+            {
+                findings.Add(new Finding("use-case-unverified", $"Use case '{useCase.Id}' has scenarios with no passing proof.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+        }
+    }
+
+    /// <summary>Reports a test that both passed and failed within the runs read.</summary>
+    private static void CheckProofInvalid(ProjectModel model, List<Finding> findings)
+    {
+        if (model.TestRun is null)
+        {
+            return;
+        }
+
+        foreach (var name in model.TestRun.Flaky.Order(StringComparer.Ordinal))
+        {
+            var test = model.Tests.FirstOrDefault(candidate => candidate.Name == name);
+
+            if (test is not null)
+            {
+                var subject = test.Claims
+                    .Where(claim => model.ById.ContainsKey(claim))
+                    .Order(StringComparer.Ordinal)
+                    .FirstOrDefault();
+
+                findings.Add(new Finding("proof-invalid", $"Test '{name}' passed and failed within the runs read.", test.File, test.Line, subject));
+                continue;
+            }
+
+            var browser = model.BrowserTests.FirstOrDefault(candidate => candidate.Title == name);
+
+            if (browser is not null)
+            {
+                var subject = browser.Proves
+                    .Where(claim => model.ById.ContainsKey(claim))
+                    .Order(StringComparer.Ordinal)
+                    .FirstOrDefault();
+
+                findings.Add(new Finding("proof-invalid", $"Test '{name}' passed and failed within the runs read.", browser.File, browser.Line, subject));
+            }
+        }
     }
 
     private static void CheckLinks(ProjectModel model, List<Finding> findings)

@@ -272,7 +272,7 @@ static class BatchApprover
 
         foreach (var action in tier1.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
         {
-            if (ReviewerGuard(by, secondReviewer, reviewReport) is { } reviewer)
+            if (ReviewerGuard(model, by, secondReviewer, reviewReport) is { } reviewer)
             {
                 failures.Add((action.Record.Id, reviewer));
             }
@@ -345,12 +345,20 @@ static class BatchApprover
             : $"needs --by naming a project owner ('{by}' is not a project owner)";
     }
 
-    /// <summary>The second-reviewer guard: tier 1 needs another reading beside the approver.</summary>
-    static string? ReviewerGuard(string? by, string? secondReviewer, string? reviewReport)
+    /// <summary>
+    ///     The second-reviewer guard: tier 1 needs another reading beside the approver,
+    ///     except on a project whose owners list holds one name.
+    /// </summary>
+    static string? ReviewerGuard(ProjectModel model, string? by, string? secondReviewer, string? reviewReport)
     {
+        if (model.Config.Owners.Count == 1)
+        {
+            return null;
+        }
+
         if (secondReviewer is not { Length: > 0 })
         {
-            return "tier 1 needs --second-reviewer other than the approver (missing)";
+            return "tier 1 needs --second-reviewer other than the approver (missing; a project whose owners list holds one name needs none)";
         }
 
         if (secondReviewer == by)

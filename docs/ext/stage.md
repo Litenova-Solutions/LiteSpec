@@ -16,7 +16,7 @@ The project selects `stage` before its first deployment holds customer data, or 
 
 This extension replaces no baseline provision. A `pre-production` consumer defers named provisions through this extension, while the compat extension still governs versioning once selected.
 
-It switches on no record type: the promotion decision is a core record every project requires. A reviewed Behavior record that rests on draft intent is covered here instead of by a known gap, as the [model page](../core/model.md) states in its authoring order.
+It switches on no record type: the promotion decision is a core record every project requires. A reviewed Behavior record that rests on draft intent is covered here instead of by an exception, as the [model page](../core/model.md) states in its authoring order.
 
 ## Standards
 
@@ -26,7 +26,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `litespec.project.json`.
 
-**Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, beside the deferrals the early stage allows. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
+**Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
 
 **Example:** A consumer with no customer data in any deployment declares the early stage.
 
@@ -40,17 +40,17 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#defer-named-provisions-until-promotion`
 
-**Statement:** A `pre-production` consumer MUST name each deferred provision with its end date in the stage extension selection, with a `production` consumer carrying no deferred provisions.
+**Statement:** A `pre-production` consumer MUST record each deferred provision as a departure exception expiring at promotion, with a `production` consumer carrying no deferred provision.
 
-**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each entry names the deferred provision with the date its deferral ends, and the promotion decision names the same provisions, so promotion closes every deferral at once.
+**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each exception names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
 
-**Example:** The stage selection carries each deferral with its end.
+**Example:** Each deferral is a departure exception covering its provision until promotion.
 
 ```json
-{"id": "stage", "criterion": "no deployment holds customer data", "reviewBy": "2026-12-01", "releaseStage": "pre-production", "deferredProvisions": [{"provision": "litespec/ext/compat#classify-breaking-contract-changes", "until": "2026-12-01"}]}
+{"type": "exception", "id": "exception/compat-classification-until-promotion", "title": "Compat Classification Until Promotion", "owner": "claimwick-team", "status": "approved", "approvedBy": "claimwick-team", "approvedOn": "2026-10-15", "approvedHash": "9f31ac02", "kind": "departure", "covers": "litespec/ext/compat#classify-breaking-contract-changes", "paths": ["apps/api/**"], "reason": "No consumer reads the contract before the first deployment.", "expiresOn": "2026-12-01"}
 ```
 
-**Checked by:** `litespec consumer` refuses a deferral naming an unknown provision or past its `until` date, and any deferral in `production`.
+**Checked by:** `litespec consumer` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `exception-expired` for an exception past its `expiresOn`.
 
 ### Promote Through a Recorded Decision
 

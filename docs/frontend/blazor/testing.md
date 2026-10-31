@@ -6,9 +6,9 @@ The Blazor client proves its behavior in 4 test projects, one per boundary: core
 
 ## Concepts
 
-### Scenarios, Results, and Known Gaps
+### Scenarios, Results, and Exceptions
 
-A use case states its scenarios: executable examples leading from a given situation, through a when call of the use case, to a then asserting one named result. A test proves a scenario when its steps call the use case and assert the result. A scenario no test proves is recorded as a known gap with an owner and an end date, so the missing proof stays visible instead of silently absent.
+A use case states its scenarios: executable examples leading from a given situation, through a when call of the use case, to a then asserting one named result. A test proves a scenario when its steps call the use case and assert the result. A scenario no test proves is recorded as a gap exception with an owner and an expiry date, so the missing proof stays visible instead of silently absent.
 
 ## Standards
 
@@ -38,7 +38,7 @@ tests/
 
 **Statement:** Each scenario of a use case MUST be proved by an automated test whose steps call the use case and assert the result.
 
-**Rationale:** A test that calls the use case and asserts the result proves the specification still holds after every change. The link between scenario and test is computed from the test, so it cannot claim coverage it lacks. A scenario no test proves becomes a known gap with an owner and an end date, which keeps the gap visible and assigned instead of forgotten. This realizes `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`, `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`, and `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`.
+**Rationale:** A test that calls the use case and asserts the result proves the specification still holds after every change. The link between scenario and test is computed from the test, so it cannot claim coverage it lacks. A scenario no test proves becomes a gap exception with an owner and an expiry date, which keeps the gap visible and assigned instead of forgotten. This realizes `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`, `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`, and `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`.
 
 **Reviewed for:** Each scenario has a test whose steps call the use case and assert the result.
 

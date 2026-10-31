@@ -3,21 +3,22 @@ using System.Diagnostics;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The staged scope for <c>model check --staged</c>: the records on pages changed in
-///     the git index, plus their direct links in both directions and the records staged
-///     code implements. A finding is in scope when its path is staged or its subject is.
+///     The git scopes for <c>model check --staged</c> and <c>model check --since</c>:
+///     the records on changed pages, plus their direct links in both directions and
+///     the records changed code implements. A finding is in scope when its path
+///     changed or its subject is.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class StagedScope
 {
-    /// <summary>One computed scope: its record ids, its staged paths and its file count.</summary>
+    /// <summary>One computed scope: its record ids, its changed paths and its file count.</summary>
     /// <param name="RecordIds">The changed records plus their direct links, by id.</param>
-    /// <param name="Files">The staged absolute paths.</param>
-    /// <param name="StagedFiles">How many files the index holds changed.</param>
+    /// <param name="Files">The changed absolute paths.</param>
+    /// <param name="ChangedFiles">How many files changed.</param>
     public sealed record Scope(
         IReadOnlySet<string> RecordIds,
         IReadOnlySet<string> Files,
-        int StagedFiles);
+        int ChangedFiles);
 
     /// <summary>
     ///     Computes the scope from the git index, or null with an error when git is
@@ -39,14 +40,63 @@ static class StagedScope
             return (null, $"Cannot read the git index: {Detail(diff, "git diff failed")}.");
         }
 
-        var toplevel = top.Stdout.Trim();
-        var staged = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        return (BuildScope(model, AbsolutePaths(top.Stdout.Trim(), diff.Stdout)), "");
+    }
 
-        foreach (var entry in diff.Stdout.Split('\0', StringSplitOptions.RemoveEmptyEntries))
+    /// <summary>
+    ///     Computes the scope from what changed since the revision: the tracked files
+    ///     differing between the revision and the working tree, plus untracked files.
+    ///     Null with an error when git is unavailable, the root sits outside a git
+    ///     repository, or the revision names nothing.
+    /// </summary>
+    public static (Scope? Scope, string Error) Since(ProjectModel model, string revision)
+    {
+        var top = RunGit(model.Config.Root, "rev-parse", "--show-toplevel");
+
+        if (top.Status != 0)
+        {
+            return (null, $"Cannot read changes since '{revision}': {Detail(top, "the root sits outside a git repository")}.");
+        }
+
+        var known = RunGit(model.Config.Root, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
+
+        if (known.Status != 0)
+        {
+            return (null, $"Cannot read changes since '{revision}': the revision names no commit.");
+        }
+
+        var diff = RunGit(model.Config.Root, "diff", revision, "--name-only", "-z");
+
+        if (diff.Status != 0)
+        {
+            return (null, $"Cannot read changes since '{revision}': {Detail(diff, "git diff failed")}.");
+        }
+
+        var untracked = RunGit(model.Config.Root, "ls-files", "--others", "--exclude-standard", "-z");
+
+        if (untracked.Status != 0)
+        {
+            return (null, $"Cannot read changes since '{revision}': {Detail(untracked, "git ls-files failed")}.");
+        }
+
+        var toplevel = top.Stdout.Trim();
+        var files = AbsolutePaths(toplevel, diff.Stdout);
+
+        files.UnionWith(AbsolutePaths(toplevel, untracked.Stdout));
+
+        return (BuildScope(model, files), "");
+    }
+
+    /// <summary>The NUL-separated git paths as absolute paths under the repository top.</summary>
+    static HashSet<string> AbsolutePaths(string toplevel, string output)
+    {
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var entry in output.Split('\0', StringSplitOptions.RemoveEmptyEntries))
         {
             try
             {
-                staged.Add(Path.GetFullPath(Path.Combine(toplevel, entry)));
+                paths.Add(Path.GetFullPath(Path.Combine(toplevel, entry)));
             }
             catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
             {
@@ -54,12 +104,18 @@ static class StagedScope
             }
         }
 
-        var changed = model.Records
-            .Where(record => record.Id.Length > 0 && staged.Contains(record.File))
+        return paths;
+    }
+
+    /// <summary>Builds the scope from the changed absolute paths.</summary>
+    static Scope BuildScope(ProjectModel model, HashSet<string> changed)
+    {
+        var touched = model.Records
+            .Where(record => record.Id.Length > 0 && changed.Contains(record.File))
             .Select(record => record.Id)
             .ToHashSet(StringComparer.Ordinal);
 
-        var scope = new HashSet<string>(changed, StringComparer.Ordinal);
+        var scope = new HashSet<string>(touched, StringComparer.Ordinal);
         var links = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
         foreach (var record in model.Records)
@@ -77,7 +133,7 @@ static class StagedScope
             links[record.Id] = targets;
         }
 
-        foreach (var id in changed)
+        foreach (var id in touched)
         {
             if (links.TryGetValue(id, out var targets))
             {
@@ -87,7 +143,7 @@ static class StagedScope
 
         foreach (var (id, targets) in links)
         {
-            if (targets.Overlaps(changed))
+            if (targets.Overlaps(touched))
             {
                 scope.Add(id);
             }
@@ -95,7 +151,7 @@ static class StagedScope
 
         var relative = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var path in staged)
+        foreach (var path in changed)
         {
             try
             {
@@ -107,7 +163,7 @@ static class StagedScope
             }
         }
 
-        // Staged code pulls its records into scope through the implements links.
+        // Changed code pulls its records into scope through the implements links.
         foreach (var link in model.Implements)
         {
             if (relative.Contains(link.Path))
@@ -116,10 +172,10 @@ static class StagedScope
             }
         }
 
-        return (new Scope(scope, staged, staged.Count), "");
+        return new Scope(scope, changed, changed.Count);
     }
 
-    /// <summary>Whether the finding touches the scope: a staged path or a scoped subject.</summary>
+    /// <summary>Whether the finding touches the scope: a changed path or a scoped subject.</summary>
     public static bool InScope(Scope scope, Finding finding) =>
         scope.Files.Contains(finding.Path)
         || (finding.Subject is not null && scope.RecordIds.Contains(Identifiers.BaseId(finding.Subject)));

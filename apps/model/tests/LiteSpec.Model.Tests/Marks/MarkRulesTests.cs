@@ -95,22 +95,22 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "setting/spending.max-open-expenses"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "integration-event/expense-submitted"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
-        Assert.False(MarkRules.Accepts(CodeKind.Technical, "deviation/export-review-bypass"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "exception/export-review-bypass"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and deviation")]
+    [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and exception")]
     public void FollowsRecordTypesNamesExpectedTypes() =>
-        Assert.Equal(new[] { "litespec", "decision", "deviation" }, MarkRules.FollowsRecordTypes);
+        Assert.Equal(new[] { "litespec", "decision", "exception" }, MarkRules.FollowsRecordTypes);
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "AcceptsFollows takes a provision, decision or deviation and rejects a Behavior record")]
+    [Fact(DisplayName = "AcceptsFollows takes a provision, decision or exception and rejects a Behavior record")]
     public void AcceptsFollowsTakesChoices()
     {
         Assert.True(MarkRules.AcceptsFollows("litespec/backend/persistence#commit-each-command-pipeline-once"));
         Assert.True(MarkRules.AcceptsFollows("decision/0002-store-expenses-as-documents"));
-        Assert.True(MarkRules.AcceptsFollows("deviation/export-review-bypass"));
+        Assert.True(MarkRules.AcceptsFollows("exception/export-review-bypass"));
         Assert.False(MarkRules.AcceptsFollows("use-case/spending.submit-expense"));
         Assert.False(MarkRules.AcceptsFollows("decision/"));
         Assert.False(MarkRules.AcceptsFollows("decision"));

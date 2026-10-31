@@ -268,12 +268,12 @@ public sealed class BehaviorUnrecordedTests
     }
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
-    public void Approved_Deviation_Holds_The_Findings_On_The_Code_It_Names()
+    public void Approved_Exception_Holds_The_Findings_On_The_Paths_It_Names()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2999-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
+            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
@@ -286,12 +286,12 @@ public sealed class BehaviorUnrecordedTests
 
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
-    public void Deviation_Past_Its_Review_Date_Holds_Nothing()
+    public void Exception_Past_Its_Expires_On_Holds_Nothing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2000-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
+            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2000-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));

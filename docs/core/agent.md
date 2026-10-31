@@ -8,7 +8,7 @@ An agent is software that reads task context, edits files, and runs checks. This
 
 ### The Project Model and the Agent Context
 
-A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
+A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
 
 The generated agent context is the rendered summary of that selection: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the context before editing starts the run from decided Intent instead of repository guesswork.
 
@@ -18,7 +18,7 @@ An extension is a conditional standards bundle a project selects when its criter
 
 ### Guidance Precedence
 
-Guidance overlaps by design: a project deviation narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project deviation first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local approved decision wins, and the broader baseline fills only the gaps it leaves.
+Guidance overlaps by design: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project exception first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local approved decision wins, and the broader baseline fills only the gaps it leaves.
 
 ### Decider Decisions and Agent Drafts
 
@@ -68,13 +68,13 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 
-**Statement:** A change adding no module, aggregate, frontend, dependency, or public boundary MAY skip the model query, reading the agent context and neighboring code instead.
+**Statement:** A change touching no record that carries `risk` or an approval MAY skip the model query, reading the agent context and neighboring code instead.
 
-**Rationale:** A small edit that adds no new surface does not need the full record set: the agent context plus the neighboring file already show the approved shape. Requiring a model query for every small change would slow ordinary work without adding information. Boundary-adding changes keep the full query, because a new module, record, frontend, dependency, or public boundary needs the wider context the model selects.
+**Rationale:** A small edit with no risk and no approval behind it does not need the full record set: the agent context plus the neighboring file already show the approved shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a record with `risk` or an approval keeps the full query, because the query shows the tier and the open questions a one-line change would otherwise miss, and it costs seconds.
 
-**Example:** A handler change that follows the module pattern reads `AGENTS.md` and the sibling handler, then edits without querying the model.
+**Example:** A spelling fix in a draft tier 3 setting that carries no risk reads the agent context and the sibling setting, then edits without querying the model.
 
-**Reviewed for:** The change names the local pattern it followed and adds no module, aggregate, frontend, dependency, or public boundary.
+**Reviewed for:** The change touches no record carrying `risk` or an approval and names the local pattern it followed.
 
 ### Load Applicable Extensions
 
@@ -92,11 +92,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#apply-guidance-precedence`
 
-**Statement:** An agent MUST apply the project deviation, the extension, the deeper page, and the shallower page in that order.
+**Statement:** An agent MUST apply the project exception, the extension, the deeper page, and the shallower page in that order.
 
-**Rationale:** Overlapping guidance is normal: a project deviation narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local approved decision first, so the broader baseline fills only the gaps it leaves.
+**Rationale:** Overlapping guidance is normal: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local approved decision first, so the broader baseline fills only the gaps it leaves.
 
-**Reviewed for:** The design applies the project deviation, the extension, the deeper page, and the shallower page in that order.
+**Reviewed for:** The design applies the project exception, the extension, the deeper page, and the shallower page in that order.
 
 ### Replace Only Declared Conventions
 
@@ -226,7 +226,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST report its findings as advice instead of recording approval or review.
 
-**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer clears tier 1 access and data. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent.
+**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer reads tier 1 access and data where the project names one. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent. A recorded agent reading counts as the tier 1 second reading in a one-person project; the person still approves.
 
 **Reviewed for:** The agent output records findings as advice, with approval and review left to people.
 

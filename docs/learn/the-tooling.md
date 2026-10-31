@@ -49,11 +49,11 @@ A project starts once with `dotnet litespec init --preset dotnet-react --size sm
 
 During implementation, a use case runs in one command handler in the Application project, in a folder that mirrors the record, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
 
-The model builder reads your records and follows the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model build` writes `.model/model.json` with the computed `implements`, `calls`, and `proves` links, `dotnet litespec model check` lists the gaps with a tier beside each finding, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model diff <base>` shows the change for review, and `dotnet litespec book --model .model/model.json --out .book` writes one offline shell with the Outline, Review queue, Security, and Ballots views, with no server. The [book page](../tools/book.md) describes the shell and its views.
+The model builder reads your records and follows the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model build` writes `.model/model.json` with the computed `implements`, `calls`, and `proves` links, `dotnet litespec model check` lists the gaps with a level beside each finding, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model diff <base>` shows the change for review, and `dotnet litespec book --model .model/model.json --out .book` writes one offline shell with the Outline, Review queue, Security, and Ballots views, with no server. The [book page](../tools/book.md) describes the shell and its views.
 
 Every pull request then runs the gates the [CI page](../quality/ci.md) selects for the changed areas, such as `dotnet litespec model check` for a record, code, or test change and `dotnet litespec consumer` for a documentation change, under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. It also publishes the intent diff and a book preview, so reviewers read the change in product words. A gap shows up in the change that introduced it.
 
-For example, if the shop team removed the cancel-order handler without retiring the record, `dotnet litespec model check` reports `[S use-case-unimplemented]` for `use-case/orders.cancel-order`, and CI fails the pull request until the handler returns or an open known gap covers it.
+For example, if the shop team removed the cancel-order handler without retiring the record, `dotnet litespec model check` reports `[S use-case-unimplemented]` for `use-case/orders.cancel-order`, and CI fails the pull request until the handler returns or an approved gap exception covers it.
 
 ## Agent and Reader Paths
 
@@ -88,7 +88,7 @@ Two commands belong to the LiteSpec repository, and the rest belong to a consume
 | `litespec init` | Consumer | Release template and preset | `litespec.project.json` |
 | `litespec consumer` | Consumer | Project file, pages, glossary | Diagnostics only |
 | `litespec ui` | Consumer | Shared UI package, frontends | Diagnostics only |
-| `litespec model` | Consumer | Records, code marks, routes, test runs | `model.json`, tiered findings, diffs, rendered regions |
+| `litespec model` | Consumer | Records, code marks, routes, test runs | `model.json`, findings with levels, diffs, rendered regions |
 | `litespec book` | Consumer | `model.json`, with the findings it records | One offline shell with four views |
 
 `litespec-maintain validate` and `litespec-maintain provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec consumer`, `dotnet litespec model check`, and the analyzers guard your project: your CI runs them on every pull request.

@@ -17,7 +17,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteManifest("dependencies", new JsonObject { ["@mui/material"] = "7.0.0" });
         UiFixture.AssertProblem(
             fixture.Run(),
-            "second general-purpose visual dependency '@mui/material' requires a deviation");
+            "second general-purpose visual dependency '@mui/material' requires an exception");
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
@@ -28,7 +28,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteManifest("optionalDependencies", new JsonObject { ["bootstrap"] = "5.3.3" });
         UiFixture.AssertProblem(
             fixture.Run(),
-            "second general-purpose visual dependency 'bootstrap' requires a deviation");
+            "second general-purpose visual dependency 'bootstrap' requires an exception");
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
@@ -42,7 +42,7 @@ public sealed partial class UiValidatorTests
         });
         UiFixture.AssertProblem(
             fixture.Run(),
-            "second general-purpose visual dependency '@mantine/core' requires a deviation");
+            "second general-purpose visual dependency '@mantine/core' requires an exception");
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
@@ -53,54 +53,54 @@ public sealed partial class UiValidatorTests
         fixture.WriteManifest("resolutions", new JsonObject { ["antd"] = "5.0.0" });
         UiFixture.AssertProblem(
             fixture.Run(),
-            "second general-purpose visual dependency 'antd' requires a deviation");
+            "second general-purpose visual dependency 'antd' requires an exception");
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void UI_Deviation_With_An_Expired_Review_Date()
+    public void UI_Exception_With_An_Expired_Date()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeviation("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/deviations/ui-authority.md: review date 2020-01-01 has passed; renew the decision");
+            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.md: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void UI_Deviation_With_A_Live_Review_Date()
+    public void UI_Exception_With_A_Live_Date()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeviation("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
+        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Deviation_Against_Another_Area_Stays_Unread_By_The_UI_Validator()
+    public void Exception_Against_Another_Area_Stays_Unread_By_The_UI_Validator()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeviation("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
+        fixture.WriteException("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Deviations_Folder_Set_Through_Paths_Records_Deviation()
+    public void Exceptions_Folder_Set_Through_Paths_Records_Exception()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["deviation"] = "docs/departures" };
+            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = "docs/departures" };
         });
-        fixture.WriteDeviationFile(
+        fixture.WriteExceptionFile(
             "docs/departures/moved.md",
-            UiFixture.DeviationMeta("deviation/moved", "Moved deviation", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"),
-            "Moved deviation");
+            UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"),
+            "Moved exception");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/departures/moved.md: review date 2020-01-01 has passed; renew the decision");
+            "[litespec/frontend/ui#select-one-visual-authority] docs/departures/moved.md: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
@@ -201,28 +201,28 @@ public sealed partial class UiValidatorTests
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void An_Additional_Registry_With_The_Deviation_Passes_Both_Gates()
+    public void An_Additional_Registry_With_The_Exception_Passes_Both_Gates()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
-        fixture.WriteDeviation("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteException("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void The_Configuration_Gate_Refuses_Without_The_Deviation()
+    public void The_Configuration_Gate_Refuses_Without_The_Exception()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/components.json: an additional registry requires a deviation");
+            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/components.json: an additional registry requires an exception");
     }
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void The_Source_Lock_Gate_Refuses_Without_The_Deviation()
+    public void The_Source_Lock_Gate_Refuses_Without_The_Exception()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();

@@ -17,7 +17,7 @@ static class RecordPages
         "product", "goal", "problem", "feature", "topic", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "automation", "notification", "role", "external-system",
-        "runbook", "deviation", "known-gap",
+        "runbook", "exception",
     };
 
     /// <summary>Where an entry type lives, for the refusal message.</summary>
@@ -84,8 +84,8 @@ static class RecordPages
             "screen" => Path.Combine(behavior, "screens", $"{home}.{name}.md"),
             "external-system" => Path.Combine(behavior, "external-systems", $"{name}.md"),
             "runbook" => Path.Combine(behavior, "runbooks", $"{name}.md"),
-            "deviation" => Path.Combine(docs, "governance", "deviations", $"{name}.md"),
-            "known-gap" => Path.Combine(docs, "governance", "known-gaps", $"{name}.md"),
+            "exception" => Path.Combine(docs, "governance", "exceptions", $"{name}.md"),
+
             _ => throw new ArgumentOutOfRangeException(nameof(type), $"Type '{type}' owns no page."),
         };
     }

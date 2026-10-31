@@ -20,6 +20,7 @@ static partial class ConsumerValidator
     // An aggregate carries its Transitions and Data in frontmatter with generated
     // regions for reading, so it names no required section. A use case carries Goal
     // and What Happens only when significant, which the section check below decides.
+    // An exception carries Consequences or Exit by its kind, decided below.
     static readonly Dictionary<string, string[]> RequiredSections = new(StringComparer.Ordinal)
     {
         ["product"] = ["Summary"],
@@ -36,8 +37,6 @@ static partial class ConsumerValidator
         ["role"] = ["Summary"],
         ["external-system"] = ["Summary"],
         ["runbook"] = ["Impact", "Prerequisites", "Procedure", "Verification", "Rollback or Recovery", "Escalation"],
-        ["deviation"] = ["Consequences"],
-        ["known-gap"] = ["Exit"],
         ["example-cast"] = ["The Organization", "The People", "The Occasion", "The Amounts", "Recurring Situations"],
         ["tutorial"] = ["Purpose", "Prerequisites", "Lesson", "What You Built"],
         ["how-to"] = ["Purpose", "Procedure", "Check"],
@@ -188,13 +187,26 @@ static partial class ConsumerValidator
 
             var type = PropString(meta as JsonObject, "type");
             var required = type is not null && RequiredSections.TryGetValue(type, out var names) ? names : Array.Empty<string>();
-            var bodies = SectionBodies(lines, required.Append("Goal").Append("What Happens").Append("Example"));
+            var bodies = SectionBodies(lines, required.Append("Goal").Append("What Happens").Append("Example").Append("Consequences").Append("Exit"));
 
             foreach (var name in required)
             {
                 if (bodies[name] is null)
                 {
                     errors.Add($"{relative}: type '{type}' requires an H2 '{name}'");
+                }
+            }
+
+            // An exception page carries the section of its kind: a departure states
+            // what is done instead in Consequences, a gap states its closing work in
+            // Exit. The template names both and keeps one.
+            if (type == "exception" && PropString(meta as JsonObject, "kind") is { } kind)
+            {
+                var want = kind == "departure" ? "Consequences" : kind == "gap" ? "Exit" : null;
+
+                if (want is not null && bodies[want] is null)
+                {
+                    errors.Add($"{relative}: type 'exception' requires an H2 '{want}'");
                 }
             }
 

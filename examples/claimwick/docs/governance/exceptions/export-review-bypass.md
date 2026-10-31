@@ -1,17 +1,20 @@
 ---
 {
-  "type": "deviation",
-  "id": "deviation/export-review-bypass",
+  "type": "exception",
+  "id": "exception/export-review-bypass",
   "title": "Export Review Bypass",
   "owner": "claimwick-team",
   "status": "approved",
-  "provision": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
+  "kind": "departure",
+  "covers": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
+  "subject": [
+    "use-case/spending.export-expenses"
+  ],
   "reason": "The weekend export runs with no reviewer on shift.",
-  "reviewBy": "2027-01-01",
-  "removeWhen": "A reviewer covers weekends.",
+  "expiresOn": "2027-01-01",
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "82e28f59"
+  "approvedHash": "6b3665a6"
 }
 ---
 

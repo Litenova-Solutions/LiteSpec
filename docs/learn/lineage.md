@@ -10,15 +10,15 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** aggregate, module, glossary, event.
 
-**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, which the builder checks. A multi-step aggregate is a process with steps, compensations, exits, and a driver; state no invariant guards is a store with a named owner.
+**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, which the builder checks. A multi-step aggregate is a saga with steps, compensations, exits, and `drivenBy`; state no invariant guards is a store with a named owner.
 
 ## Event Storming
 
 **Takes:** the policy: whenever something happens, do something in response.
 
-**Words:** reaction, with `on`, `issues` or `sends`, and `onFailure`.
+**Words:** automation, with `triggeredBy`, `runs` or `sends`, and `onFailure`.
 
-**Differs:** A reaction is its own record, not a use case kind: it names the event it answers, issues exactly one use case or sends exactly one notification, and never writes an aggregate directly. It is proven by scenarios like any other record, and its trigger names the event in words the builder reads.
+**Differs:** An automation is its own record, not a use case kind: it names the event it answers in `triggeredBy`, runs its use cases through `effects`, and never writes an aggregate directly. It is proven by scenarios like any other record, and its trigger names the event in words the builder reads.
 
 ## CQRS
 
@@ -66,7 +66,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** actor, role, permission.
 
-**Differs:** An actor holds a role at a scope, and a use case declares its access as auth kinds, a grant, and a tenant scope, so access reads as one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code, checked by tools. Generic refusals derive from access and input instead of being written on every use case.
+**Differs:** An actor holds a role at a scope, and a use case declares its access as a grant and a tenant scope, so access reads as one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code, checked by tools. Generic refusals derive from access and input instead of being written on every use case.
 
 ## Design by Contract
 

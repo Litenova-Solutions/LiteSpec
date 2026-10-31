@@ -29,7 +29,7 @@ public static class MarkRules
         "aggregate", "use-case", "automation", "external-system",
         "event", "rule", "notification", "setting", "integration-event",
     };
-    private static readonly string[] FollowsTypes = { "litespec", "decision", "deviation" };
+    private static readonly string[] FollowsTypes = { "litespec", "decision", "exception" };
 
     private static readonly string[] Codes =
     {
@@ -58,7 +58,7 @@ public static class MarkRules
 
     /// <summary>
     ///     The record types a <c>follows</c> mark may name, as bare type names:
-    ///     the provision namespace and the decision and deviation records.
+    ///     the provision namespace and the decision and exception records.
     /// </summary>
     public static IReadOnlyList<string> FollowsRecordTypes => FollowsTypes;
 

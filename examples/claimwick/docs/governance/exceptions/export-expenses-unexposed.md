@@ -1,19 +1,22 @@
 ---
 {
-  "type": "known-gap",
-  "id": "known-gap/export-expenses-unexposed",
+  "type": "exception",
+  "id": "exception/export-expenses-unexposed",
   "title": "Export Expenses Unexposed",
   "owner": "claimwick-team",
   "status": "approved",
-  "check": "use-case-endpoint-missing",
+  "kind": "gap",
+  "covers": [
+    "use-case-endpoint-missing"
+  ],
   "subject": [
     "use-case/spending.export-expenses"
   ],
-  "endsBy": "2027-06-01",
   "reason": "Export has no endpoint until it has a handler, which waits for the finance file format.",
+  "expiresOn": "2027-06-01",
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "3f153e04"
+  "approvedHash": "47d378df"
 }
 ---
 

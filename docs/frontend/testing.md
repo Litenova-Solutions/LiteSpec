@@ -55,7 +55,7 @@ Three related rules live on other pages:
 
 **Example:** The browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` in the Claimwick example carries `proves("scenario/list-expenses.listing-own-expenses-succeeds")`.
 
-**Checked by:** `litespec model check` reports `mark-unknown` (tier S) for a `proves` annotation naming no record a test may prove, or naming a journey.
+**Checked by:** `litespec model check` reports `mark-unknown` (level S) for a `proves` annotation naming no record a test may prove, or naming a journey.
 
 ### Reach a Screen That Offers the Scenario's Use Case
 
@@ -67,7 +67,7 @@ Three related rules live on other pages:
 
 **Example:** The evidence specification opens `/expenses`, the address of `screen/claimwick-app.expense-list`, which offers `use-case/spending.list-expenses`.
 
-**Checked by:** `litespec model check` reports `proves-unreached` (tier S) for a browser test whose `page.goto` targets match no screen offering the claimed scenario's use case.
+**Checked by:** `litespec model check` reports `proves-unreached` (level S) for a browser test whose `page.goto` targets match no screen offering the claimed scenario's use case.
 
 ### Assert the Result a Scenario Ends In
 
@@ -79,7 +79,7 @@ Three related rules live on other pages:
 
 **Example:** The browser specification for `scenario/list-expenses.listing-own-expenses-succeeds` opens the expense list on `screen/claimwick-app.expense-list` and asserts the expenses table, the listed ending the success result `result/list-expenses.listed` promises.
 
-**Checked by:** `litespec model check` reports `proves-unreached` (tier S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
+**Checked by:** `litespec model check` reports `proves-unreached` (level S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
 
 ### Assert Each Declared Refusal by Its Code
 
@@ -103,7 +103,7 @@ Three related rules live on other pages:
 
 **Example:** `scenario/list-expenses.listing-own-expenses-succeeds` is proved by the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts`, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead.
 
-**Checked by:** `litespec model check` reports `proves-duplicate` (tier A) for a scenario with `proves` marks on more than one test.
+**Checked by:** `litespec model check` reports `proves-duplicate` (level A) for a scenario with `proves` marks on more than one test.
 
 ### Name the Journey a Journey Test Walks
 

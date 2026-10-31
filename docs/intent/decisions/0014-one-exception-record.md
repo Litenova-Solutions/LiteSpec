@@ -49,7 +49,7 @@ One `exception` record replaces deviation, known gap, `deferredProvisions` and `
 
 ## Consequences
 
-`litespec/core/model#record-accepted-gaps-as-known-gaps`, `litespec/core/model#record-a-project-wide-lowering-as-a-deviation` and `litespec/core/release#record-accepted-debt-as-a-known-gap` state the mechanisms this decision unifies; the Governance pages replace them with the one exception record.
+`litespec/core/model#record-accepted-gaps-as-exceptions`, `litespec/core/model#record-a-project-wide-lowering-as-an-exception` and `litespec/core/release#record-accepted-debt-as-an-exception` state the mechanisms this decision unifies; the Governance pages replace them with the one exception record.
 
 ## Evidence with Confidence
 

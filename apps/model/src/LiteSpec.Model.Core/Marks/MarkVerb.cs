@@ -17,7 +17,7 @@ public enum MarkVerb
 
     /// <summary>
     ///     The element follows the choice: the verb of a mark naming the
-    ///     provision, decision, or deviation that shapes the code.
+    ///     provision, decision, or exception that shapes the code.
     /// </summary>
     Follows = 2,
 }

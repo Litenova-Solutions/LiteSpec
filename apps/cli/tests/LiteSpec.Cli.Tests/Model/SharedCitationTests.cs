@@ -63,7 +63,7 @@ public sealed class SharedCitationTests
         A retired record stays readable.
         """;
 
-    /// <summary>The provision the fixture's deviation cites, so pinning stays complete.</summary>
+    /// <summary>The provision the fixture's exception cites, so pinning stays complete.</summary>
     const string PinnedDeviationTarget = """
         # Application Layer
 

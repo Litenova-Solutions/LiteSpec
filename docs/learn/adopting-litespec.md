@@ -32,7 +32,7 @@ Run `dotnet litespec init` with the preset closest to the stack and the size:
 dotnet litespec init --preset dotnet-react --size small
 ```
 
-It writes `litespec.project.json` with the size, shape, and stacks, records the release the team reviewed in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the owners and paths, point `paths.behaviorDocs` at the Behavior root, name the security reviewer and the veto window in `review`, name the decision that ends transcription in `adoption`, and select the extensions the project needs. The [selection page](https://litespec.dev/3.0.0/select/) shows which pages the choices apply.
+It writes `litespec.project.json` with the size, shape, and stacks, records the release the team reviewed in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the owners and paths, point `paths.behaviorDocs` at the Behavior root, name the veto window in `review` and the security reviewer when the project wants one, name the decision that ends transcription in `adoption`, and select the extensions the project needs. The [selection page](https://litespec.dev/3.0.0/select/) shows which pages the choices apply.
 
 ### 3. Tell the Agents
 
@@ -67,11 +67,11 @@ Run `dotnet litespec consumer`, `dotnet litespec model check`, and the gates the
 
 Existing code rarely meets every rule at the start. Record each departure instead of ignoring it:
 
-- A **Deviation record** for a provision the project will not follow, with its reason and a review date.
-- A **Known gap** for one the project will fix later, with an owner and an end date.
+- An **exception record** of kind `departure` for a provision the project will not follow, with its reason, owner, and expiry date.
+- An **exception record** of kind `gap` for a check that stays red until the project fixes it, with its reason, owner, and expiry date.
 - A **transcribed record** for Behavior written from existing code during adoption, marked with `provenance: transcribed`. It stays in draft until its Intent parent is approved, and the mode ends at the decision `adoption.transcriptionEndsWith` names.
 
-All three keep the checks honest. A deviation holds until its review date, when someone looks at it again. A known gap is reported without failing the build until its end date, and fails after it. A transcribed record can never reach reviewed on its own.
+All three keep the checks honest. An exception applies once approved and holds until its expiry date; past that date `exception-expired` reports it. A transcribed record can never reach reviewed on its own.
 
 ## Next Steps
 

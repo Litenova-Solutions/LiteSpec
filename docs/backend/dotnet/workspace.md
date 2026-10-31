@@ -58,7 +58,7 @@ apps/api/
     {ProjectName}.Application.Tests/  optional unit tests
 ```
 
-Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no deviation for their absence.
+Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no exception for their absence.
 
 **Reviewed for:** Production project files sit under `apps/api/src/`, test project files under `apps/api/tests/`, and the solution file directly under `apps/api/`.
 

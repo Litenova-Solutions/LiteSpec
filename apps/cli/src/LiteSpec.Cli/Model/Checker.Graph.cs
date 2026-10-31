@@ -375,17 +375,31 @@ static partial class Checker
             && record.Type == "automation"
             && record.Field("skippedWhen") is { Length: > 0 });
 
-    /// <summary>The automation event triggers: the event its triggeredBy names.</summary>
+    /// <summary>The automation event triggers: the events its triggeredBy names, one id or a list.</summary>
     private static IReadOnlyList<string> AutomationEventTriggers(Record record)
     {
-        if (record.Raw.ValueKind == JsonValueKind.Object
-            && record.Raw.TryGetProperty("triggeredBy", out var triggered)
-            && triggered.ValueKind == JsonValueKind.Object
-            && triggered.TryGetProperty("event", out var trigger)
-            && trigger.ValueKind == JsonValueKind.String
-            && trigger.GetString() is { Length: > 0 } id)
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty("triggeredBy", out var triggered)
+            || triggered.ValueKind != JsonValueKind.Object
+            || !triggered.TryGetProperty("event", out var trigger))
+        {
+            return [];
+        }
+
+        if (trigger.ValueKind == JsonValueKind.String && trigger.GetString() is { Length: > 0 } id)
         {
             return [id];
+        }
+
+        if (trigger.ValueKind == JsonValueKind.Array)
+        {
+            return
+            [
+                .. trigger.EnumerateArray()
+                            .Where(entry => entry.ValueKind == JsonValueKind.String)
+                            .Select(entry => entry.GetString()!)
+                            .Where(id => id.Length > 0),
+            ];
         }
 
         return [];
@@ -1205,7 +1219,7 @@ static partial class Checker
         && triggered.ValueKind == JsonValueKind.Object
         && triggered.TryGetProperty("schedule", out var schedule)
         && schedule.ValueKind == JsonValueKind.Object
-        && (Str(schedule, "every") is { Length: > 0 } || Str(schedule, "cron") is { Length: > 0 });
+        && (Str(schedule, "every") is { Length: > 0 } || Str(schedule, "cron") is { Length: > 0 } || Str(schedule, "at") == "startup");
 
     private static void CheckProse(ProjectModel model, List<Finding> findings)
     {

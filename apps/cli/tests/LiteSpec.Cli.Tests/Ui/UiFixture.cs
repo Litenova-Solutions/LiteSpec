@@ -220,14 +220,14 @@ sealed class UiFixture : IDisposable
         return Run();
     }
 
-    /// <summary>Writes one Deviation record under the default deviations folder.</summary>
-    public string WriteDeviation(string name, string provision, string reviewBy) =>
-        WriteDeviationFile($"docs/deviations/{name}.md",
-            DeviationMeta($"deviation/{name}", $"Fixture deviation {name}", provision, reviewBy),
-            $"Fixture deviation {name}");
+    /// <summary>Writes one Exception record under the default exceptions folder.</summary>
+    public string WriteException(string name, string provision, string expiresOn) =>
+        WriteExceptionFile($"docs/governance/exceptions/{name}.md",
+            ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn),
+            $"Fixture exception {name}");
 
-    /// <summary>Writes one Deviation record at a consumer-relative path.</summary>
-    public string WriteDeviationFile(string relative, JsonObject meta, string heading)
+    /// <summary>Writes one Exception record at a consumer-relative path.</summary>
+    public string WriteExceptionFile(string relative, JsonObject meta, string heading)
     {
         var file = Join(relative);
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
@@ -235,18 +235,19 @@ sealed class UiFixture : IDisposable
         return file;
     }
 
-    /// <summary>The frontmatter of a fixture Deviation record.</summary>
-    public static JsonObject DeviationMeta(string id, string title, string provision, string reviewBy) => new()
+    /// <summary>The frontmatter of a fixture Exception record.</summary>
+    public static JsonObject ExceptionMeta(string id, string title, string provision, string expiresOn) => new()
     {
-        ["type"] = "deviation",
+        ["type"] = "exception",
         ["id"] = id,
         ["title"] = title,
         ["owner"] = "fixture",
         ["status"] = "approved",
-        ["provision"] = provision,
+        ["kind"] = "departure",
+        ["covers"] = provision,
+        ["paths"] = new JsonArray("packages/ui/**"),
         ["reason"] = "The fixture needs this departure.",
-        ["reviewBy"] = reviewBy,
-        ["removeWhen"] = "The fixture no longer needs it.",
+        ["expiresOn"] = expiresOn,
     };
 
     /// <summary>Mutates the source lock in place.</summary>
@@ -351,7 +352,7 @@ sealed class UiFixture : IDisposable
             "apps/web/src/routes",
             "apps/web/src/modules",
             "apps/web/tests/routes",
-            "docs/deviations",
+            "docs/governance/exceptions",
         })
         {
             Directory.CreateDirectory(Join(directory));

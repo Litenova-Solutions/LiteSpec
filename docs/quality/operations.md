@@ -63,7 +63,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Statement:** A host MUST carry the use-case identity of every mediated message, resolved from the generated registry, as `litespec.use_case` on its span, its log scope, and its error report.
 
-**Rationale:** A trace identifier joins the runtime records of one request to each other, but not to the specification: a person holding a slow span, a log line, or an error report still has to guess which use case it was. The identity is already a generated value, so a pipeline stage reads it from the registry once per message and stamps it on every surface under one name, and reactions, jobs, and outbox consumers carry it as well as requests. A metric carries it only as a label on an instrument whose series stay bounded: a duration histogram labeled by every use case multiplies its series by hundreds, so request instruments label by module instead.
+**Rationale:** A trace identifier joins the runtime records of one request to each other, but not to the specification: a person holding a slow span, a log line, or an error report still has to guess which use case it was. The identity is already a generated value, so a pipeline stage reads it from the registry once per message and stamps it on every surface under one name, and automations and outbox consumers carry it as well as requests. A metric carries it only as a label on an instrument whose series stay bounded: a duration histogram labeled by every use case multiplies its series by hundreds, so request instruments label by module instead.
 
 **Example:** A Claimwick request to submit an expense opens a span and a log scope carrying `litespec.use_case = use-case/spending.submit-expense`, and an unhandled failure inside it reaches the error tracker with the same tag.
 
@@ -79,7 +79,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/spending.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
 
-**Checked by:** `litespec model check` reports `alert-link-missing` (tier S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
+**Checked by:** `litespec model check` reports `alert-link-missing` (level S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
 
 ### Keep Each Alert Threshold to Its Requirement's Measure
 
@@ -91,19 +91,19 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** `requirement/spending.month-end-submissions` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
 
-**Checked by:** `litespec model check` reports `alert-threshold-drift` (tier A) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
+**Checked by:** `litespec model check` reports `alert-threshold-drift` (level A) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
 
 ### Cover Every Quality Requirement with an Alert or a Check
 
 **ID:** `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
 
-**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by an open known gap.
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by an approved gap exception.
 
-**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a known gap with an owner and an end date, instead of passing silently.
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with an owner and an expiry date, instead of passing silently.
 
 **Example:** `requirement/spending.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-alert-missing` (tier G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no open known gap with `check: quality-alert-missing` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no approved gap exception covering `quality-alert-missing` lists in its `subject`.
 
 ### Record Each Drill Run as a Check Result
 
@@ -121,13 +121,13 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#point-each-operations-file-at-its-decision`
 
-**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, deviation, or provision it carries out.
+**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, exception, or provision it carries out.
 
 **Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
 
 **Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (tier S) for a mark naming no decision, deviation, or provision, and counts the file toward `decision-unimplemented`.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, exception, or provision, and counts the file toward `decision-unimplemented`.
 
 ### Pass Trace Context in the W3C Format
 

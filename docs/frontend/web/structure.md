@@ -82,7 +82,7 @@ import type { LiteSpecMark } from "src/app/litespec-records";
 export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
 ```
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unknown` (tier S) for one naming a use case its path does not mirror; for a folder at `{module}/reads/{use-case}/` the mirrored use case is the one its module and use-case segments name, with no aggregate segment.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a use-case folder exporting no `litespec` constant, and `mark-unknown` (level S) for one naming a use case its path does not mirror; for a folder at `{module}/reads/{use-case}/` the mirrored use case is the one its module and use-case segments name, with no aggregate segment.
 
 ### Generate the Records File into the Frame
 
@@ -94,7 +94,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Example:** `litespec model build` writes `apps/web/src/lib/app/litespec-records.ts` for the Claimwick web frontend, whose `UseCaseId` holds the use cases its entry point reaches and nothing else.
 
-**Checked by:** `litespec model build` writes each frontend's file into its frame from its own entry points, and `litespec model check` reports `mark-unknown` (tier S) for a mark naming a use case or screen outside its frontend's entry points.
+**Checked by:** `litespec model build` writes each frontend's file into its frame from its own entry points, and `litespec model check` reports `mark-unknown` (level S) for a mark naming a use case or screen outside its frontend's entry points.
 
 ### Refuse Stack-Specific Folder Names
 

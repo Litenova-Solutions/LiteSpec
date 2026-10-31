@@ -28,11 +28,11 @@ A decider approves Intent without opening Behavior: the ballot and each book cha
 
 ### Declared Edges, Not Mechanism Bans
 
-Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect. The effect graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. A workflow engine carries a process only through the workflow-engine extension, where each engine step maps to exactly one use case with its compensation. A project that wants stricter rules keeps them as a cited convention.
+Every edge between use cases, automations, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect. The effect graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. A workflow engine carries a saga only through the workflow-engine extension, where each engine step maps to exactly one use case with its compensation. A project that wants stricter rules keeps them as a cited convention.
 
 ### Honest Opinion
 
-LiteSpec favors modules, aggregates, domain events, use cases, reactions, and jobs, and it does not claim to be neutral about that choice. Other mechanisms live in extensions, which state how they compose with the core fields. A project that needs another mechanism selects the extension that holds it.
+LiteSpec favors modules, aggregates, domain events, use cases, and automations, and it does not claim to be neutral about that choice. Other mechanisms live in extensions, which state how they compose with the core fields. A project that needs another mechanism selects the extension that holds it.
 
 ### One Source for Each Fact
 
@@ -156,13 +156,13 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#declare-every-edge`
 
-**Statement:** A consumer MUST declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems on the record that holds it.
+**Statement:** A consumer MUST declare every edge between use cases, automations, notifications, integration events, and external systems on the record that holds it.
 
 **Rationale:** An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.
 
 **Example:** A use case that reminds an approver declares a sends edge to the notification with its timing and failure handling.
 
-**Reviewed for:** Which edges lack a declaration on their record? Look at the effects, issues, sends, publishes, and calls fields beside the changed records.
+**Reviewed for:** Which edges lack a declaration on their record? Look at the `effects` entries with `runs`, `sends`, `emits`, or `calls` beside the changed records.
 
 ### End Every Effect Cycle in a Domain Event
 
@@ -182,7 +182,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** Two inline edges that look alike run in one transaction or two, and the difference decides what a failure leaves behind. Stating the sharing on the edge keeps transaction honesty where the edge is declared.
 
-**Example:** An inline issues edge states `sharesTransaction: true`, so a failure in the issued use case rolls back the caller.
+**Example:** An inline runs edge states `sharesTransaction: true`, so a failure in the use case it runs rolls back the caller.
 
 **Checked by:** `litespec model check` reports no `record-invalid` finding on the changed inline edges.
 
@@ -200,9 +200,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#map-each-engine-step-to-one-use-case`
 
-**Statement:** A process carried by a workflow engine MUST map each engine step to exactly one use case with its compensation.
+**Statement:** A saga carried by a workflow engine MUST map each engine step to exactly one use case with its compensation.
 
-**Rationale:** The engine carries the process while the records state it: one use case per step keeps the promise, the refusal codes, and the undo in the records the checks read. An engine step without its use case runs behavior no record names, and a step without its compensation leaves a failure with no stated undo.
+**Rationale:** The engine carries the saga while the records state it: one use case per step keeps the promise, the refusal codes, and the undo in the records the checks read. An engine step without its use case runs behavior no record names, and a step without its compensation leaves a failure with no stated undo.
 
 **Example:** An engine step that reimburses an expense maps to the reimburse-expense use case, whose compensation voids the payout.
 
@@ -222,7 +222,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#cover-other-mechanisms-with-extensions`
 
-**Statement:** A mechanism outside modules, aggregates, domain events, use cases, reactions, and jobs MUST live in an extension.
+**Statement:** A mechanism outside modules, aggregates, domain events, use cases, and automations MUST live in an extension.
 
 **Rationale:** LiteSpec favors one set of mechanisms and states that choice openly instead of claiming neutrality. An extension states how its mechanism composes with the core fields, so a project that needs it selects one place that holds the whole contract.
 
@@ -264,7 +264,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A test MUST prove a scenario only by calling its use case and asserting its result.
 
-**Rationale:** A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test is a known gap with an owner and an end date, not silent coverage. The [model page](model.md) defines the `proves` link.
+**Rationale:** A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test is a gap exception with an owner and an expiry date, not silent coverage. The [model page](model.md) defines the `proves` link.
 
 **Reviewed for:** Each scenario in the model links a passing test that calls its use case and asserts its result.
 

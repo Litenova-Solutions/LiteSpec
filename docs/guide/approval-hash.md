@@ -54,8 +54,7 @@ The semantic fields per record type are:
 | `entry-point` | `kind`, `auth`, `path`, `contentType`, `cacheControl`, `versioning`, `fulfills`, `protocol` |
 | `external-system` | `actor`, `operations`, `erasure`, `acceptedBy` |
 | `runbook` | `trigger`, `steps` |
-| `deviation` | `provision`, `reason`, `reviewBy`, `removeWhen` |
-| `known-gap` | `check`, `subject`, `endsBy`, `reason` |
+| `exception` | `kind`, `covers`, `subject`, `paths`, `reason`, `expiresOn` |
 
 `questions`, `terms`, and `replaces` feed the hash where a record carries them. The excluded fields stay outside on every type, so an integration event's CloudEvents `source` and an aggregate's `owner` feed no hash. This satisfies `litespec/core/model#record-approval-as-data`.
 

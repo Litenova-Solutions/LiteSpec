@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -38,84 +37,31 @@ sealed record ScenarioProofResult(string State, IReadOnlyList<ProofLink> Links, 
 /// <param name="Scenarios">The use case's scenarios.</param>
 sealed record UseCaseKids(IReadOnlyList<JsonObject> Results, IReadOnlyList<JsonObject> Scenarios);
 
-/// <summary>One use case's implementation state from the status map.</summary>
-/// <param name="Implemented">Whether code implements the use case.</param>
-/// <param name="Verified">Whether every scenario is proved by a passing test.</param>
-/// <param name="Stale">Whether a proof went stale after its scenario changed.</param>
-sealed record UseCaseState(bool Implemented, bool Verified, bool Stale);
-
-/// <summary>One requirement's verification state from the requirement status map.</summary>
-/// <param name="Known">Whether the model holds an entry for the requirement.</param>
-/// <param name="Verified">Whether everything fulfilling it is verified, with a passing measure check when measured.</param>
-/// <param name="MeasurePassed">Whether the measure check passed, or null without a measure or a result.</param>
-/// <param name="Stale">Whether a proof beneath it went stale.</param>
-sealed record RequirementState(bool Known, bool Verified, bool? MeasurePassed, bool Stale);
-
 /// <summary>One step of a record's why-chain: a plain label and the record it points at.</summary>
 /// <param name="Label">The step label, such as Result or Goal.</param>
 /// <param name="Id">The linked record's id.</param>
 sealed record WhyLink(string Label, string Id);
 
-/// <summary>One open question on a record, for the review and ballots pages.</summary>
-/// <param name="Record">The record carrying the question.</param>
-/// <param name="Question">The question in words.</param>
-/// <param name="Decider">The decider, or null when none is named.</param>
-/// <param name="DecideBy">The decide-by date, or null when none is named.</param>
-/// <param name="Recommended">The recommendation, or null when none is named.</param>
-/// <param name="Ballot">The ballot grouping, or null when none is named.</param>
-/// <param name="Tier">The approval tier: 1 needs explicit approval, 3 may auto-approve.</param>
-sealed record OpenQuestion(JsonObject Record, string Question, string? Decider, string? DecideBy, string? Recommended, string? Ballot, int Tier);
+/// <summary>One review batch for the queue shard: the selector, kind, tier and queued record ids.</summary>
+/// <param name="Selector">The batch selector.</param>
+/// <param name="Kind">The batch kind: use-case, automation, decision, record, or module-type.</param>
+/// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
+/// <param name="Deciders">The distinct deciders, sorted.</param>
+/// <param name="DecideBy">The earliest decide-by date, or null.</param>
+/// <param name="Awaiting">The count of distinct drafts awaiting the batch.</param>
+/// <param name="Records">The queued record ids, anchor first, then in authority order.</param>
+sealed record BookBatch(
+    string Selector,
+    string Kind,
+    int Tier,
+    IReadOnlyList<string> Deciders,
+    string? DecideBy,
+    int Awaiting,
+    IReadOnlyList<string> Records);
 
-/// <summary>One ballot: the questions sharing a ballot name, tier 1 first.</summary>
-/// <param name="Name">The ballot name, or null for questions with no ballot.</param>
-/// <param name="Questions">The ballot's questions, tier 1 first.</param>
-sealed record BallotGroup(string? Name, IReadOnlyList<OpenQuestion> Questions);
-
-/// <summary>One goal-lens feature with the requirements it carries.</summary>
-/// <param name="Feature">The feature record.</param>
-/// <param name="Requirements">The requirements with this feature, sorted by title.</param>
-sealed record GoalFeature(JsonObject Feature, IReadOnlyList<JsonObject> Requirements);
-
-/// <summary>One goal's lens: the goal, its features, and the verified share of its requirements.</summary>
-/// <param name="Goal">The goal record.</param>
-/// <param name="Features">The features serving the goal, sorted by title.</param>
-/// <param name="Verified">How many of its requirements are verified.</param>
-/// <param name="Total">How many requirements its features carry.</param>
-sealed record GoalLensView(JsonObject Goal, IReadOnlyList<GoalFeature> Features, int Verified, int Total);
-
-/// <summary>One role an actor holds, with the role record when it resolves.</summary>
-/// <param name="Hold">The holds entry naming the role and scope.</param>
-/// <param name="Role">The role record, or null when the id resolves to nothing.</param>
-sealed record RoleHold(JsonObject Hold, JsonObject? Role);
-
-/// <summary>An actor's lens: its journeys, roles, permissions and reachable use cases.</summary>
-/// <param name="Journeys">The journeys the actor takes.</param>
-/// <param name="Roles">The roles the actor holds.</param>
-/// <param name="Permissions">The permissions those roles allow.</param>
-/// <param name="UseCases">The use cases those permissions open.</param>
-sealed record ActorLens(
-    IReadOnlyList<JsonObject> Journeys,
-    IReadOnlyList<RoleHold> Roles,
-    IReadOnlyList<JsonObject> Permissions,
-    IReadOnlyList<JsonObject> UseCases);
-
-/// <summary>One known gap with whether its end date has passed.</summary>
-/// <param name="Record">The gap record.</param>
-/// <param name="Expired">Whether the gap's end date has passed.</param>
-sealed record GapEntry(JsonObject Record, bool Expired);
-
-/// <summary>Everything the review page shows: gaps, batches, questions and check findings.</summary>
-/// <param name="Gaps">The known gaps, expired first.</param>
+/// <summary>Everything the review queue shows: the review batches, in review order.</summary>
 /// <param name="Batches">The review batches, in review order.</param>
-/// <param name="Questions">The open questions on any record.</param>
-/// <param name="Findings">The check findings.</param>
-/// <param name="Known">The findings covered by a known gap.</param>
-sealed record ReviewBundle(
-    IReadOnlyList<GapEntry> Gaps,
-    IReadOnlyList<ReviewBatch> Batches,
-    IReadOnlyList<OpenQuestion> Questions,
-    IReadOnlyList<JsonObject?> Findings,
-    IReadOnlyList<JsonObject?> Known);
+sealed record ReviewBundle(IReadOnlyList<BookBatch> Batches);
 
 /// <summary>The index over model.json that every page renderer reads.</summary>
 sealed class BookIndex
@@ -182,6 +128,18 @@ sealed class BookIndex
 
     /// <summary>Days before a tier-3 question auto-approves; 7 when the model names none.</summary>
     public int VetoWindowDays { get; set; } = 7;
+
+    /// <summary>The tested state by record id the builder wrote, or empty when the model holds none.</summary>
+    public Dictionary<string, bool> Tested { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>The proof state by scenario or rule id the builder wrote, or empty when the model holds none.</summary>
+    public Dictionary<string, string> ScenarioStatus { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>The review batches the builder wrote, or null when the model holds none.</summary>
+    public JsonArray? StoredBatches { get; set; }
+
+    /// <summary>The security reviewer the model names, or null when it names none.</summary>
+    public string? SecurityReviewer { get; set; }
 }
 
 /// <summary>
@@ -200,7 +158,7 @@ static class BookModel
         new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "automation", "notification", "setting"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
-        new("How We Build", ["deviation", "known-gap"]),
+        new("How We Build", ["exception"]),
         new("Terms", ["term"]),
     ];
 
@@ -234,8 +192,7 @@ static class BookModel
             ["entry-point"] = ("Entry point", "Entry points"),
             ["external-system"] = ("External system", "External systems"),
             ["runbook"] = ("Runbook", "Runbooks"),
-            ["deviation"] = ("Deviation", "Deviations"),
-            ["known-gap"] = ("Known gap", "Known gaps"),
+            ["exception"] = ("Exception", "Exceptions"),
             ["term"] = ("Term", "Terms"),
         };
 
@@ -276,7 +233,7 @@ static class BookModel
         ("runbook", "Runbook"),
         ("subject", "About"),
         ("replaces", "Replaces"),
-        ("provision", "Provision"),
+        ("covers", "Covers"),
     ];
 
     /// <summary>The incoming link headings by field.</summary>
@@ -318,36 +275,17 @@ static class BookModel
             ["result"] = "Illustrated By",
             ["actor"] = "Systems For",
             ["runbook"] = "Runbook For",
-            ["subject"] = "Known Gaps",
+            ["subject"] = "Exceptions",
             ["replaces"] = "Replaced By",
             ["refusal"] = "Refusal For",
-            ["provision"] = "Deviations",
+            ["covers"] = "Covered By",
         };
 
     /// <summary>The record types in precedence order.</summary>
     public static readonly IReadOnlyList<string> Precedence = ["constraint", "product", "requirement", "rule", "use-case", "result", "scenario"];
 
-    /// <summary>The proof-state labels.</summary>
-    public static readonly IReadOnlyDictionary<string, string> ProofLabels =
-        new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["proved-passing"] = "Proved and passing",
-            ["proved-failing"] = "Proved and failing",
-            ["proved-indirect"] = "Proved indirect",
-            ["awaiting-run"] = "Proved, awaiting test run",
-            ["unproved"] = "Unproved",
-            ["not-run"] = "Not run",
-        };
-
-    /// <summary>What the book says when the model holds no test run: the tests were never read, so nothing can be shown as proved, failing or walked.</summary>
-    public const string NotRunSentence =
-        "The tests have not been run in this model. To read a test run, set paths.testResults to the folder that holds the test result files, then build the model again.";
-
-    /// <summary>Whether the model holds a test run a proof statement can read.</summary>
+    /// <summary>Whether the model holds a test run a proof state can read.</summary>
     public static bool HasTestRun(BookIndex index) => index.TestRun is not null;
-
-    /// <summary>Whether a passing test walked one journey step, as a <c>journey/&lt;name&gt;#&lt;step&gt;</c> id.</summary>
-    public static bool StepExercised(BookIndex index, string stepId) => index.ExercisedSteps.Contains(stepId);
 
     /// <summary>The display label of a record type, singular or plural.</summary>
     public static string TypeLabel(string? type, bool plural = false) =>
@@ -645,6 +583,28 @@ static class BookModel
             }
         }
 
+        foreach (var pair in model["tested"] as JsonObject ?? new JsonObject())
+        {
+            if (pair.Value is JsonValue scalar && scalar.TryGetValue<bool>(out var tested))
+            {
+                index.Tested[pair.Key] = tested;
+            }
+        }
+
+        foreach (var pair in model["scenarioStatus"] as JsonObject ?? new JsonObject())
+        {
+            if (pair.Value is JsonValue state
+                && state.TryGetValue<string>(out var words)
+                && words is { Length: > 0 }
+                && !index.ScenarioStatus.ContainsKey(pair.Key))
+            {
+                index.ScenarioStatus[pair.Key] = words;
+            }
+        }
+
+        index.StoredBatches = model["reviewBatches"] as JsonArray;
+        index.SecurityReviewer = BookRender.StrProp(model["review"] as JsonObject, "securityReviewer");
+
         index.HasFindings = model["findings"] is JsonArray or JsonObject || model["known"] is JsonArray;
         index.VetoWindowDays = VetoWindowOf(model);
 
@@ -691,7 +651,7 @@ static class BookModel
         return null;
     }
 
-    /// <summary>One scenario's proof state from its proves links.</summary>
+    /// <summary>One scenario's proof state from its proves links, while the model holds no stored state for it.</summary>
     public static ScenarioProofResult ScenarioProof(BookIndex index, string scenarioId)
     {
         var links = index.ProvesByClaim.TryGetValue(scenarioId, out var found) ? found : [];
@@ -705,7 +665,7 @@ static class BookModel
         var state = "unproved";
         if (!HasTestRun(index))
         {
-            state = "not-run";
+            state = "norun";
         }
         else if (confirmed.Count > 0)
         {
@@ -737,61 +697,6 @@ static class BookModel
         return new UseCaseKids(
             index.ResultsOf.TryGetValue(name, out var results) ? results : [],
             index.ScenariosOf.TryGetValue(name, out var scenarios) ? scenarios : []);
-    }
-
-    /// <summary>One use case's implementation state from the status map.</summary>
-    public static UseCaseState UseCaseStatus(BookIndex index, string? useCaseId)
-    {
-        var entry = useCaseId is not null && index.Status.TryGetPropertyValue(useCaseId, out var node) ? node as JsonObject : null;
-        if (entry is null)
-        {
-            return new UseCaseState(false, false, IsStale(index, useCaseId));
-        }
-
-        return new UseCaseState(
-            BookRender.IsTrue(entry["implemented"]),
-            BookRender.IsTrue(entry["verified"]),
-            BookRender.IsTrue(entry["stale"]) || IsStale(index, useCaseId));
-    }
-
-    /// <summary>Whether a record's proof went stale: the status map or the record says so.</summary>
-    public static bool IsStale(BookIndex index, string? recordId)
-    {
-        if (recordId is null)
-        {
-            return false;
-        }
-
-        if (index.ById.TryGetValue(recordId, out var record) && BookRender.IsTrue(record["stale"]))
-        {
-            return true;
-        }
-
-        return index.Status.TryGetPropertyValue(recordId, out var node)
-            && node is JsonObject entry
-            && BookRender.IsTrue(entry["stale"]);
-    }
-
-    /// <summary>One requirement's verification state from the requirement status map.</summary>
-    public static RequirementState RequirementStateOf(BookIndex index, string? requirementId)
-    {
-        if (requirementId is null || !index.RequirementStatus.TryGetValue(requirementId, out var entry))
-        {
-            return new RequirementState(false, false, null, IsStale(index, requirementId));
-        }
-
-        return new RequirementState(
-            true,
-            BookRender.IsTrue(entry["verified"]),
-            entry["measurePassed"] is JsonValue scalar && scalar.TryGetValue<bool>(out var passed) ? passed : (bool?)null,
-            BookRender.IsTrue(entry["stale"]) || IsStale(index, requirementId));
-    }
-
-    /// <summary>The latest test run's date, or null when the model holds none.</summary>
-    public static string? TestRunDate(BookIndex index)
-    {
-        var run = index.TestRun as JsonObject;
-        return BookRender.StrProp(run, "date") ?? BookRender.StrProp(run, "finished");
     }
 
     /// <summary>One rule kind as a predicate: this rule is always true, holds across records, and so on.</summary>
@@ -980,58 +885,6 @@ static class BookModel
         return null;
     }
 
-    /// <summary>One goal's lens: its features with their requirements and verified share.</summary>
-    public static GoalLensView? GoalLensOf(BookIndex index, string goalId)
-    {
-        if (!index.ById.TryGetValue(goalId, out var goal) || BookRender.StrProp(goal, "type") != "goal")
-        {
-            return null;
-        }
-
-        var features = new List<GoalFeature>();
-        var verified = 0;
-        var total = 0;
-        var candidates = (index.ByType.TryGetValue("feature", out var found) ? found : [])
-            .Where(feature => LinksOf(feature, "serves").Contains(goalId))
-            .OrderBy(feature => SortTitle(feature), BookRender.LocaleComparer);
-        foreach (var feature in candidates)
-        {
-            var featureId = BookRender.StrProp(feature, "id") ?? "";
-            var requirements = (index.ByType.TryGetValue("requirement", out var required) ? required : [])
-                .Where(requirement => LinksOf(requirement, "cites").Contains(featureId))
-                .OrderBy(requirement => SortTitle(requirement), BookRender.LocaleComparer)
-                .ToList();
-            features.Add(new GoalFeature(feature, requirements));
-            foreach (var requirement in requirements)
-            {
-                total += 1;
-                if (RequirementStateOf(index, BookRender.StrProp(requirement, "id")).Verified)
-                {
-                    verified += 1;
-                }
-            }
-        }
-
-        return new GoalLensView(goal, features, verified, total);
-    }
-
-    /// <summary>One scenario's proof state as a reviewer sentence, with the last proof date when known.</summary>
-    public static string ScenarioProofSentence(BookIndex index, string scenarioId)
-    {
-        var proof = ScenarioProof(index, scenarioId);
-        var date = TestRunDate(index);
-        var on = date is { Length: > 0 } ? $" on {date}" : "";
-        return proof.State switch
-        {
-            "proved-passing" => $"Proven by a passing test{on}.",
-            "proved-failing" => "A test proves it, but the test fails.",
-            "proved-indirect" => $"Proven indirectly by a passing test{on}.",
-            "awaiting-run" => "A test proves it; the tests have not been run in this model yet.",
-            "not-run" => NotRunSentence,
-            _ => "No passing proof yet.",
-        };
-    }
-
     static string? FirstLink(JsonObject record, string field)
     {
         var links = BookRender.Links(record)?[field] as JsonArray ?? [];
@@ -1070,223 +923,24 @@ static class BookModel
             .ToList();
     }
 
-    /// <summary>An actor's lens: its journeys, roles, permissions and the use cases they open.</summary>
-    public static ActorLens ActorLens(BookIndex index, string actorId)
+    /// <summary>Collects the review batches the queue shard shows.</summary>
+    public static ReviewBundle ReviewData(BookIndex index, JsonNode? findingsFile, string root) =>
+        new(BookReviewQueue.Compute(index, root, findingsFile, DateOnly.FromDateTime(DateTime.UtcNow)));
+
+    /// <summary>One record's tier: the tier the model states, or 1 when its record carries risk, else 3.</summary>
+    public static int TierOf(JsonObject record)
     {
-        var journeys = new List<JsonObject>();
-        foreach (var record in index.ByType.TryGetValue("journey", out var found) ? found : [])
+        if (record["tier"] is JsonValue scalar && scalar.TryGetValue<int>(out var tier) && tier is 1 or 3)
         {
-            var fields = BookRender.Fields(record);
-            if (BookRender.StrProp(fields, "actor") == actorId)
-            {
-                journeys.Add(record);
-                continue;
-            }
-
-            var steps = fields?["steps"] as JsonArray ?? [];
-            if (steps.OfType<JsonObject>().Any(step => BookRender.StrProp(step, "actor") == actorId))
-            {
-                journeys.Add(record);
-            }
+            return tier;
         }
 
-        var actor = index.ById.GetValueOrDefault(actorId);
-        var holds = BookRender.Fields(actor)?["holds"] as JsonArray ?? [];
-        var roles = new List<RoleHold>();
-        var permissionIds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var hold in holds.OfType<JsonObject>())
-        {
-            if (BookRender.StrProp(hold, "role") is not { } roleId)
-            {
-                continue;
-            }
-
-            var role = index.ById.GetValueOrDefault(roleId);
-            roles.Add(new RoleHold(hold, role));
-            var allows = BookRender.Links(role)?["allows"] as JsonArray ?? [];
-            foreach (var id in allows)
-            {
-                if (id is JsonValue scalar && scalar.TryGetValue<string>(out var allowed) && allowed is not null)
-                {
-                    permissionIds.Add(allowed);
-                }
-            }
-        }
-
-        var permissions = permissionIds
-            .Select(id => index.ById.GetValueOrDefault(id))
-            .OfType<JsonObject>()
-            .OrderBy(record => BookRender.PropText(record, "title"), BookRender.LocaleComparer)
-            .ToList();
-        var actorKind = BookRender.StrProp(BookRender.Fields(actor), "kind");
-        var useCases = new List<JsonObject>();
-        foreach (var record in index.ByType.TryGetValue("use-case", out var cases) ? cases : [])
-        {
-            if (ActorReaches(index, record, permissionIds, actorKind))
-            {
-                useCases.Add(record);
-            }
-        }
-
-        useCases = useCases.OrderBy(record => BookRender.PropText(record, "title"), BookRender.LocaleComparer).ToList();
-        return new ActorLens(journeys, roles, permissions, useCases);
+        return HasRisk(record) ? 1 : 3;
     }
-
-    /// <summary>Whether an actor reaches a use case: its grant names a held permission, or it is open.</summary>
-    static bool ActorReaches(BookIndex index, JsonObject useCase, HashSet<string> permissionIds, string? actorKind)
-    {
-        var grant = (BookRender.Fields(useCase)?["access"] as JsonObject)?["grant"];
-        var grantText = BookRender.Str(grant);
-        if (grantText == "anonymous")
-        {
-            return true;
-        }
-
-        if (grantText == "system")
-        {
-            return actorKind == "system";
-        }
-
-        var access = BookRender.Links(useCase)?["access"] as JsonArray ?? [];
-        foreach (var id in access)
-        {
-            if (id is JsonValue scalar && scalar.TryGetValue<string>(out var allowed) && allowed is not null && permissionIds.Contains(allowed))
-            {
-                return true;
-            }
-        }
-
-        // A grant written inline as a permission id still opens the use case.
-        return grantText.StartsWith("permission/", StringComparison.Ordinal) && permissionIds.Contains(grantText);
-    }
-
-    /// <summary>Collects the gaps, batches and findings the review page shows.</summary>
-    public static ReviewBundle ReviewData(BookIndex index, JsonNode? findingsFile, string generatedDate, string root)
-    {
-        var today = generatedDate.Length >= 10 ? generatedDate[..10] : generatedDate;
-        var gaps = new List<GapEntry>();
-        foreach (var record in index.ByType.TryGetValue("known-gap", out var found) ? found : [])
-        {
-            var endsBy = BookRender.Fields(record)?["endsBy"];
-            gaps.Add(new GapEntry(record, endsBy is JsonValue scalar && scalar.TryGetValue<string>(out var date) && string.CompareOrdinal(date, today) < 0));
-        }
-
-        gaps = gaps
-            .OrderByDescending(gap => gap.Expired)
-            .ThenBy(gap => BookRender.OrStr(BookRender.Fields(gap.Record)?["endsBy"], ""), BookRender.LocaleComparer)
-            .ToList();
-        var batches = BookReviewQueue.Compute(index, root, findingsFile, DateOnly.FromDateTime(DateTime.UtcNow));
-        var questions = CollectQuestions(index);
-        questions = questions
-            .OrderBy(question => question.DecideBy ?? "", BookRender.LocaleComparer)
-            .ThenBy(question => BookRender.PropText(question.Record, "id"), BookRender.LocaleComparer)
-            .ToList();
-        var file = findingsFile as JsonObject;
-        return new ReviewBundle(
-            gaps,
-            batches,
-            questions,
-            (file?["findings"] as JsonArray ?? []).Select(entry => entry as JsonObject).ToList(),
-            (file?["known"] as JsonArray ?? []).Select(entry => entry as JsonObject).ToList());
-    }
-
-    /// <summary>Every open question on every record, with its ballot and tier.</summary>
-    public static List<OpenQuestion> CollectQuestions(BookIndex index)
-    {
-        var questions = new List<OpenQuestion>();
-        foreach (var record in index.Records.OfType<JsonObject>())
-        {
-            foreach (var entry in BookRender.Fields(record)?["questions"] as JsonArray ?? [])
-            {
-                if (entry is JsonObject question && BookRender.IsTruthy(question["question"]))
-                {
-                    questions.Add(new OpenQuestion(
-                        record,
-                        BookRender.Str(question["question"]),
-                        BookRender.StrProp(question, "decider"),
-                        BookRender.StrProp(question, "decideBy"),
-                        BookRender.StrProp(question, "recommendation"),
-                        BookRender.StrProp(question, "ballot"),
-                        TierOf(record)));
-                }
-            }
-        }
-
-        return questions;
-    }
-
-    /// <summary>One question's tier: 1 when its record carries risk, else 3.</summary>
-    public static int TierOf(JsonObject record) => HasRisk(record) ? 1 : 3;
 
     /// <summary>Whether a record carries any risk value.</summary>
     public static bool HasRisk(JsonObject record) =>
         BookRender.Fields(record)?["risk"] is JsonArray risks && risks.Count > 0;
-
-    /// <summary>Whether a record carries one risk value, such as money.</summary>
-    public static bool HasRiskValue(JsonObject record, string value)
-    {
-        foreach (var entry in BookRender.Fields(record)?["risk"] as JsonArray ?? [])
-        {
-            if (entry is JsonValue scalar && scalar.TryGetValue<string>(out var named) && named == value)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>The auto-approval date: decideBy plus the veto window, or "" without a date.</summary>
-    public static string AutoApprovalDate(BookIndex index, string? decideBy)
-    {
-        if (decideBy is not { Length: >= 10 })
-        {
-            return "";
-        }
-
-        if (!DateOnly.TryParse(decideBy[..10], out var date))
-        {
-            return "";
-        }
-
-        return date.AddDays(index.VetoWindowDays).ToString("yyyy-MM-dd");
-    }
-
-    /// <summary>Every open question grouped by ballot, ballots with tier 1 first.</summary>
-    public static IReadOnlyList<BallotGroup> BallotsOf(BookIndex index)
-    {
-        const string none = "\u0000none";
-        var groups = new Dictionary<string, List<OpenQuestion>>(StringComparer.Ordinal);
-        var order = new List<string>();
-        foreach (var question in CollectQuestions(index))
-        {
-            var key = question.Ballot is { Length: > 0 } ? question.Ballot : none;
-            if (!groups.TryGetValue(key, out var list))
-            {
-                list = [];
-                groups[key] = list;
-                order.Add(key);
-            }
-
-            list.Add(question);
-        }
-
-        var ballots = new List<BallotGroup>();
-        foreach (var key in order)
-        {
-            var sorted = groups[key]
-                .OrderBy(question => question.Tier)
-                .ThenBy(question => question.DecideBy ?? "", BookRender.LocaleComparer)
-                .ThenBy(question => question.Question, BookRender.LocaleComparer)
-                .ToList();
-            ballots.Add(new BallotGroup(key == none ? null : key, sorted));
-        }
-
-        return ballots
-            .OrderBy(ballot => ballot.Questions.Any(question => question.Tier == 1) ? 0 : 1)
-            .ThenBy(ballot => ballot.Name ?? "\uffff", BookRender.LocaleComparer)
-            .ToList();
-    }
 
     /// <summary>The use cases serving one journey step id, such as journey/name#s1.</summary>
     public static IReadOnlyList<JsonObject> ServingUseCases(BookIndex index, string stepId)

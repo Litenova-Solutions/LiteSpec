@@ -69,8 +69,8 @@ The model builder writes the generated project model under `.model/` from record
       secrets.json             create with the first secret
       log/                     create with the first operations entry
     runbooks/                  create with the first runbook
-    deviations/                create with the first deviation record
-    known-gaps/                create with the first known-gap record
+    governance/
+      exceptions/              create with the first exception record
     ui/                        create with the first UI decision or guide, held in the pattern catalog and the design contract
     glossary.json
   AGENTS.md

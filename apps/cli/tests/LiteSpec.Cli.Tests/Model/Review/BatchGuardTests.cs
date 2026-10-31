@@ -18,6 +18,15 @@ public sealed class BatchGuardTests
         ReviewPages.AddPageRisk(BorrowCopy(root));
     }
 
+    /// <summary>Adds another owner to the project, so the second-reading guard applies.</summary>
+    static void AddOwner(string root, string owner = "second-team")
+    {
+        var path = Path.Combine(root, "litespec.project.json");
+        var project = (System.Text.Json.Nodes.JsonObject)System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
+        ((System.Text.Json.Nodes.JsonArray)project["owners"]!).Add(owner);
+        File.WriteAllText(path, project.ToJsonString() + "\n");
+    }
+
     /// <summary>A tier 1 batch without a named owner approver is refused and writes nothing.</summary>
     /// <proves>litespec/core/release#refuse-a-batch-without-a-named-approver</proves>
     [Fact]
@@ -75,6 +84,23 @@ public sealed class BatchGuardTests
         Assert.Contains("3 records approved, 0 held.", result.Output);
     }
 
+    /// <summary>A tier 1 batch on a solo project needs no second reading.</summary>
+    /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
+    [Fact]
+    public void Guard_Tier1_Solo_Owner_Needs_No_Second_Reviewer()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+
+        DraftTier1UseCase(fixture.Path);
+
+        var result = Cli.Run(
+            "model", "approve", "--root", fixture.Path,
+            "--batch", "use-case/lending.borrow-copy", "--by", "lending-team", "--on", "2026-11-20");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("3 records approved, 0 held.", result.Output);
+    }
+
     /// <summary>A tier 1 batch without a second reading is refused and writes nothing.</summary>
     /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
     [Fact]
@@ -83,6 +109,7 @@ public sealed class BatchGuardTests
         using var fixture = ModelFixture.Prepare("small");
 
         DraftTier1UseCase(fixture.Path);
+        AddOwner(fixture.Path);
 
         var before = File.ReadAllText(BorrowCopy(fixture.Path));
 
@@ -94,6 +121,7 @@ public sealed class BatchGuardTests
         Assert.Contains(
             "use-case/lending.borrow-copy: tier 1 needs --second-reviewer other than the approver",
             missing.Output);
+        Assert.Contains("holds one name", missing.Output);
 
         var same = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -215,6 +243,7 @@ public sealed class BatchGuardTests
         using var fixture = ModelFixture.Prepare("small");
 
         DraftTier1UseCase(fixture.Path);
+        AddOwner(fixture.Path);
 
         var before = File.ReadAllText(BorrowCopy(fixture.Path));
 

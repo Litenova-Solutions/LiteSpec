@@ -436,7 +436,7 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
-    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
+    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
     [Fact(DisplayName = "LS5002 on a draft record reports a warning")]
     public Task DraftSubjectReportsWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -634,14 +634,14 @@ public sealed class MarkLinkTests
             assemblyName: "Shop.Application");
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or deviation")]
-    public Task AcceptsAFollowsNamingADecisionOrDeviation() =>
+    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or exception")]
+    public Task AcceptsAFollowsNamingADecisionOrException() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Spending;
 
                 /// <follows>decision/0002-store-expenses-as-documents</follows>
-                /// <follows>deviation/marks-deferred</follows>
+                /// <follows>exception/marks-deferred</follows>
                 internal sealed class CommitStep
                 {
                     public void Commit()
@@ -649,7 +649,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Decision(), Deviation(["mark-missing"])],
+            [ProjectFile(), Decision(), Exception(["mark-missing"])],
             assemblyName: "Shop.Application");
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>

@@ -89,4 +89,4 @@ dotnet_diagnostic.LS1011.severity = warning
 dotnet_diagnostic.LS3004.severity = none
 ```
 
-A project that departs from a Standard records a deviation that cites the provision, as the [LiteSpec model page](https://litespec.dev/3.0.0/core/model/) describes.
+A project that departs from a Standard records an exception that cites the provision, as the [LiteSpec model page](https://litespec.dev/3.0.0/core/model/) describes.

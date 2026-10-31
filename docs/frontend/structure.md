@@ -127,7 +127,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** The `<script module>` of the Claimwick expense list page exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a route entry with no mark, `mark-count-invalid` (tier S) for one with more than one, and `mark-unknown` (tier S) for a mark naming no screen of the route's entry point.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a route entry with no mark, `mark-count-invalid` (level S) for one with more than one, and `mark-unknown` (level S) for a mark naming no screen of the route's entry point.
 
 ### Order Imports from Routes to Shared Packages
 

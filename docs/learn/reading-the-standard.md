@@ -2,7 +2,7 @@
 
 ## Intent
 
-A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file `litespec.project.json`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (deviations, replaced defaults, and known gaps) the standard provides for rules a project cannot follow yet.
+A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file `litespec.project.json`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.
 
 ## A Project's Selection
 
@@ -30,7 +30,7 @@ The Claimwick example in `examples/claimwick/` declares its own selection in `li
 
 Read it as four answers: size large, shape server, the dotnet and svelte stacks, and no extensions. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
 
-The project file holds more than the selection: `paths.behaviorDocs` points at the Behavior root, `review` names the veto window in days and the security reviewer, `adoption` names the decision that ends transcription mode, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed, `3.0.0`. The [project file page](../reference/project-file.md) lists every field.
+The project file holds more than the selection: `paths.behaviorDocs` points at the Behavior root, `review` names the veto window in days and, when the project wants one, the security reviewer, `adoption` names the decision that ends transcription mode, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed, `3.0.0`. The [project file page](../reference/project-file.md) lists every field.
 
 ## The Page Arrangement
 
@@ -90,26 +90,30 @@ The last line of each rule is its verification: `**Checked by:**` names the comm
 
 The standard expects departures and gives each one a home:
 
-- **A Deviation record** replaces one Standard for your project, with its reason, an owner, and a date to review it. An agent follows your deviation over the standard.
+- **An exception record** of kind `departure` replaces one Standard for your project, with its reason, an owner, and an expiry date. An agent follows your exception over the standard.
 - **A replaced Convention** is a default you change by stating your own in your project's documentation.
-- **A Known gap** records a problem you accept for now, with an owner and an end date, so a check does not fail on it forever.
+- **An exception record** of kind `gap` records a check that stays red until you fix it, with its reason, an owner, and an expiry date, so the check does not fail on it forever.
 - **An extension** can replace a baseline rule when you select it. The EF Core extension, for example, replaces the default persistence rules with its own.
 
-When guidance overlaps, the most specific source wins: your deviation, then a selected extension, then the deeper page, then the shallower one.
+When guidance overlaps, the most specific source wins: your exception, then a selected extension, then the deeper page, then the shallower one.
 
-The Claimwick example carries one deviation, at `examples/claimwick/docs/governance/deviations/export-review-bypass.md`:
+The Claimwick example carries one exception, at `examples/claimwick/docs/governance/exceptions/export-review-bypass.md`:
 
 ```json
 {
-  "type": "deviation",
-  "id": "deviation/export-review-bypass",
-  "provision": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
+  "type": "exception",
+  "id": "exception/export-review-bypass",
+  "kind": "departure",
+  "covers": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
+  "subject": ["use-case/spending.export-expenses"],
   "reason": "The weekend export runs with no reviewer on shift.",
-  "reviewBy": "2027-01-01"
+  "owner": "claimwick-team",
+  "status": "approved",
+  "expiresOn": "2027-01-01"
 }
 ```
 
-Read it as one departure: it names the provision it replaces, the reason, and the date to review it. An agent follows the deviation over the standard until that date.
+Read it as one departure: it names the provision it replaces in `covers`, the reason, and the expiry date. An agent follows the exception over the standard until that date.
 
 ## UI Patterns
 

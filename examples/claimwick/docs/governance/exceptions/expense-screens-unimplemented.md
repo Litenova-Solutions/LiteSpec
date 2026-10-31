@@ -1,11 +1,14 @@
 ---
 {
-  "type": "known-gap",
-  "id": "known-gap/expense-screens-unimplemented",
+  "type": "exception",
+  "id": "exception/expense-screens-unimplemented",
   "title": "Expense Screens Unimplemented",
   "owner": "claimwick-team",
   "status": "approved",
-  "check": "use-case-unreached",
+  "kind": "gap",
+  "covers": [
+    "use-case-unreached"
+  ],
   "subject": [
     "use-case/spending.approve-expense",
     "use-case/spending.attach-receipt",
@@ -16,11 +19,11 @@
     "use-case/spending.reimburse-expense",
     "use-case/spending.submit-expense"
   ],
-  "endsBy": "2027-06-01",
   "reason": "The web app holds the expense list only, so eight browser-reached use cases have no screen.",
+  "expiresOn": "2027-06-01",
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "67bb79ad"
+  "approvedHash": "7c61b0ba"
 }
 ---
 

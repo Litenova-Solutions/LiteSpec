@@ -110,7 +110,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **Statement:** A scheduled or manual automation MUST run as one hosted operation carrying one mark naming its automation record.
 
-**Rationale:** The job host class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, runs its commands once per item, and records its evidence where the record states. A `manual` automation states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-automation-within-its-declared-selection`.
+**Rationale:** The hosted operation lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, runs its commands once per item, and records its evidence where the record states. A `manual` automation states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-automation-within-its-declared-selection`.
 
 **Example:**
 

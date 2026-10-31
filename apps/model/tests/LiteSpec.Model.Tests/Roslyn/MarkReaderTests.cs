@@ -359,7 +359,7 @@ public sealed class MarkReaderTests
             internal sealed class ExpenseRepository;
             """);
         var suffixed = TestTrees.First<ClassDeclarationSyntax>("""
-            [global::LiteSpec.FollowsAttribute("deviation/export-review-bypass")]
+            [global::LiteSpec.FollowsAttribute("exception/export-review-bypass")]
             internal sealed class ExpenseExporter;
             """);
 
@@ -373,7 +373,7 @@ public sealed class MarkReaderTests
         Assert.Equal("decision/0002-store-expenses-as-documents", fromAttribute.RecordId);
         Assert.Equal(MarkStyle.Attribute, fromAttribute.Style);
         Assert.Equal(MarkVerb.Follows, fromAttribute.Verb);
-        Assert.Equal("deviation/export-review-bypass", fromSuffixed.RecordId);
+        Assert.Equal("exception/export-review-bypass", fromSuffixed.RecordId);
         Assert.Equal(MarkVerb.Follows, fromSuffixed.Verb);
     }
 

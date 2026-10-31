@@ -367,10 +367,10 @@ public sealed class BookViewsTests
         }
     }
 
-    /// <summary>A goal traces through features and requirements to the verified state; a goal no feature serves has no incoming advances.</summary>
+    /// <summary>A goal traces through features and requirements to the met state; a goal no feature serves has no incoming advances.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
-    public void Goal_Trace_Reaches_Verified_Requirements()
+    public void Goal_Trace_Reaches_Met_Requirements()
     {
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
@@ -388,8 +388,8 @@ public sealed class BookViewsTests
             Assert.True(HasEdge(Arr(details["feature/self-checkout"], "in"), id, "requirement.cites"));
         }
 
-        Assert.True(BoolOf(Obj(details["requirement/borrowing.copy-shelf-home"], "machine")["verified"]));
-        Assert.False(BoolOf(Obj(details["requirement/borrowing.max-wait"], "machine")["verified"]));
+        Assert.True(BoolOf(Obj(details["requirement/borrowing.copy-shelf-home"], "machine")["met"]));
+        Assert.False(BoolOf(Obj(details["requirement/borrowing.max-wait"], "machine")["met"]));
 
         var quiet = Arr(details["goal/quiet-study"], "in").OfType<JsonObject>().ToList();
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
@@ -429,7 +429,10 @@ public sealed class BookViewsTests
         Assert.Single(known);
         Assert.True(BoolOf(known[0]!.AsObject()["known"]));
 
-        Assert.Equal("2026-01-01", Str(Obj(details["known-gap/offline-kiosk"], "fields"), "endsBy"));
+        var exception = details.Values.First(detail => Str(detail, "type") == "exception");
+        var kind = Str(Obj(exception, "fields"), "kind");
+        Assert.True(kind is "departure" or "gap", $"Unexpected exception kind '{kind}'.");
+        Assert.True((Str(Obj(exception, "fields"), "expiresOn") ?? "").Length > 0);
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
@@ -460,7 +463,7 @@ public sealed class BookViewsTests
         Assert.Equal(2, examples.Count);
     }
 
-    /// <summary>A requirement detail states its fit criterion and its verification.</summary>
+    /// <summary>A requirement detail states its fit criterion and whether it is met.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Requirement_Detail_Carries_Fit_Criterion_And_Verification()
@@ -477,7 +480,7 @@ public sealed class BookViewsTests
         Assert.Equal("2026-12-31", Str(fields, "dueBy"));
         Assert.Equal("k6 desk-wait p(95)<120", Str(fields, "check"));
         var machine = Obj(measured, "machine");
-        Assert.False(BoolOf(machine["verified"]));
+        Assert.False(BoolOf(machine["met"]));
         Assert.Equal(false, machine["measurePassed"]?.GetValue<bool>());
         var kept = Obj(measured, "keptBy");
         Assert.Equal(3, kept.Count);
@@ -487,7 +490,7 @@ public sealed class BookViewsTests
         Assert.Equal("2026-10-20", manifest["testRun"]!.AsObject()["date"]!.GetValue<string>());
 
         var fulfilled = details["requirement/borrowing.copy-shelf-home"];
-        Assert.True(BoolOf(Obj(fulfilled, "machine")["verified"]));
+        Assert.True(BoolOf(Obj(fulfilled, "machine")["met"]));
     }
 
     /// <summary>An automation detail carries its trigger, what it sends and what it fulfills; a notification carries its addresses and channel.</summary>
@@ -805,7 +808,7 @@ public sealed class BookViewsTests
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook"
-            or "integration-event" or "deviation" or "known-gap" or "term";
+            or "integration-event" or "exception" or "term";
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
     static (string? Forward, string? Inverse) Phrases(JsonArray links, string field, string carrier)

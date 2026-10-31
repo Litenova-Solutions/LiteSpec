@@ -695,13 +695,13 @@ public sealed class HandlerShapeCheckTests
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
-    public void Approved_Deviation_Holds_An_Inline_Call_On_Its_Subject()
+    public void Approved_Exception_Holds_An_Inline_Call_On_Its_Subject()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.md"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("deviation", "deviation/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "approved", "provision": "litespec/backend/application#call-external-systems-through-their-ports", "reason": "The spender sees the bank's answer at once.", "reviewBy": "2999-01-01", "removeWhen": "The bank answers by message.", "subject": ["use-case/spending.reimburse-expense"]}"""));
+            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "approved", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 
@@ -712,13 +712,13 @@ public sealed class HandlerShapeCheckTests
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
-    public void Draft_Deviation_Holds_Nothing()
+    public void Draft_Exception_Holds_Nothing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.md"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("deviation", "deviation/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "draft", "provision": "litespec/backend/application#call-external-systems-through-their-ports", "reason": "The spender sees the bank's answer at once.", "reviewBy": "2999-01-01", "removeWhen": "The bank answers by message.", "subject": ["use-case/spending.reimburse-expense"]}"""));
+            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "draft", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Contains("effect-timing-invalid", TestModel.Codes(model));
     }

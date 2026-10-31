@@ -472,24 +472,24 @@ public sealed class RecordShapeCheckTests
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
-    public void Known_Gap_With_Approved_Passes_Status()
+    public void Exception_With_Approved_Passes_Status()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "approved", "check": "record-invalid", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+            TestModel.Record("exception", "exception/loan-screens-uncovered", Path.Combine(temp.Path, "exceptions.md"), """{"status": "approved", "kind": "gap", "covers": ["record-invalid"], "subject": ["scenario/no-such-case.no-such-scenario"], "expiresOn": "2035-06-01", "reason": "The screens land after the pilot."}"""));
 
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
     [Fact]
-    public void Known_Gap_With_Reviewed_Reports_Invalid_Field()
+    public void Exception_With_Reviewed_Reports_Invalid_Field()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "reviewed", "check": "record-invalid", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+            TestModel.Record("exception", "exception/loan-screens-uncovered", Path.Combine(temp.Path, "exceptions.md"), """{"status": "reviewed", "kind": "gap", "covers": ["record-invalid"], "subject": ["scenario/no-such-case.no-such-scenario"], "expiresOn": "2035-06-01", "reason": "The screens land after the pilot."}"""));
 
         Assert.True(Reports(model, "field-invalid", "has status 'reviewed'"));
         Assert.True(Reports(model, "field-invalid", "draft, approved or retired"));

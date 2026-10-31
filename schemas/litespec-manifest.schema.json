@@ -442,8 +442,7 @@
         "setting",
         "integration-event",
         "runbook",
-        "deviation",
-        "known-gap",
+        "exception",
         "term"
       ]
     },

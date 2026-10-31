@@ -11,7 +11,7 @@ A record is the smallest piece of intent one person can own and approve: one req
 Keeping intent in small records instead of long documents gives three results:
 
 - Each piece has one owner and one status, so the team always knows who decides and whether the piece is settled.
-- Records point at each other by ID, so a reader follows a use case to the requirement it serves and the decision behind it.
+- Records point at each other by ID, so a reader follows a use case to the requirement it fulfills and the decision behind it.
 - Tools check records, so a missing result or a broken link fails a build instead of surprising a reader.
 
 ## The Four Layers
@@ -21,11 +21,11 @@ Every record answers one layer's question, and each layer is written from the la
 | Layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term |
-| Behavior | How does the system behave to keep the promises? | Agents | Developers; the security reviewer for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
-| Implementation | How is it built? | Agents | Tier S checks; developers sample | Code only |
-| Proof | How do we know it holds? | The builder | Tier G and tier S checks | Tests, check results, computed statuses, the rendered book |
+| Behavior | How does the system behave to keep the promises? | Agents | Developers; the security queue for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, automation, notification, setting, role, permission, entry point, external system, runbook, term |
+| Implementation | How is it built? | Agents | Check level S; developers sample | Code only |
+| Proof | How do we know it holds? | The builder | level G and level S checks | Tests, check results, computed statuses, the rendered book |
 
-Governance records attach to any layer: a deviation replaces one provision for the project, and a known gap records one accepted problem. Both carry an owner and a date.
+Governance records attach to any layer: an exception of kind `departure` replaces one provision for the project, and an exception of kind `gap` records one check staying red until a date. Each carries an owner and an expiry date.
 
 Three translation rules join the layers. **Specify** turns Intent into Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it never decides a price, fee, rate, term, market, payer, personal-data retention period, observable freshness, or any default that differs by tenant, market, or date. Each of those undecided values travels up as a draft question with a decider and a date. **Implement** turns Behavior into code: it adds the code shapes the stack pages fix, and it adds no outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
 
@@ -39,13 +39,13 @@ The record types follow the questions a team asks, from why down to how:
 | What does it offer, and for which pain? | Problem, feature |
 | Who acts, and what may they do? | Actor, role, permission |
 | How is it reached, and what outside systems does it meet? | Journey, entry point, external system |
-| How does the business behave? | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting |
+| How does the business behave? | Module, aggregate, rule, event, integration event, use case, result, scenario, automation, notification, setting |
 | How is it run? | Runbook, retention schedule |
-| How is it built and spoken about? | Deviation, known gap, term |
+| How is it built and spoken about? | Exception, term |
 
 A small project keeps the rows the [model page](../core/model.md) marks small. A large project also keeps problems, features, journeys, and scenarios, which tie the product story to proven examples. Constraints and research switch on separately, and runbooks join when the product first goes into production.
 
-Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings on a settings page, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.md`, and access records under `docs/behavior/access/`. Deviations and known gaps live under `docs/governance/deviations/` and `docs/governance/known-gaps/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its automations and notifications in matching subfolders, its settings on a settings page, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.md`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
 
 ## Links Between Records
 
@@ -54,12 +54,12 @@ Records join through fields on the record that points. In the Claimwick example,
 ```json
 "holds": [{ "role": "role/employee", "scope": "self" }],
 "allows": ["permission/submit-expense", "permission/list-expenses"],
-"access": { "auth": ["session"], "grant": "permission/submit-expense", "tenant": "own" }
+"access": { "grant": "permission/submit-expense", "tenant": "own" }
 ```
 
-Read it as a chain: `actor/employee` holds `role/employee`, the role allows `permission/submit-expense` among others, and `use-case/spending.submit-expense` declares session auth, that permission as its grant, and a tenant scope of its own. Access reads as one chain from actor to use case, exactly as the [access page](../core/access.md) states.
+Read it as a chain: `actor/employee` holds `role/employee`, the role allows `permission/submit-expense` among others, and `use-case/spending.submit-expense` declares that permission as its grant and a tenant scope of its own. Access reads as one chain from actor to use case, exactly as the [access page](../core/access.md) states.
 
-Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. A reaction names the event in `on` and the use case or notification it answers with. A job names the use cases it issues. A use case names every edge it causes in `effects`: `issues` for a command, `sends` for a notification, `publishes` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
+Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. An automation names its trigger in `triggeredBy` and the use cases it runs. A use case names every edge it causes in `effects`: `runs` for a command, `sends` for a notification, `emits` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
 
 ## Ownership and Approval
 
@@ -85,8 +85,8 @@ Each layer is reviewed where it is written, by the reader it is written for:
 |:--|:--|:--|
 | Intent review | The intent diff in product words, and the Ballots view | The finance lead and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
 | Behavior review | The behavior diff | Developers; tier 1 needs passing scenarios plus advisory review, tier 3 is sampled |
-| Security review | The security queue: access widenings, new outside calls, new personal-data flows | The named security reviewer, separately from reviewed |
-| Release gate | Drafts past their date, aged deviations, and the checks | Ships only reviewed and proven behavior |
+| Security review | The security queue: access widenings, new outside calls, new personal-data flows | The security reviewer when the project names one, separately from reviewed |
+| Release gate | Drafts past their date, expired exceptions, and the checks | Ships only reviewed and proven behavior |
 
 Intent is enough to approve because each ballot and journey detail carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is context outside the approval hash. Product people never need to open a Behavior page to decide.
 
@@ -98,7 +98,7 @@ You never write whether a use case is implemented or verified. The model builder
 
 `litespec model build` reads the records and follows the marks by which code and tests point up to them: the mark each code element carries and the proves mark each test carries. For each use case it finds:
 
-- The handler, reaction class, or job that **implements** it, from its mark.
+- The handler or automation class that **implements** it, from its mark.
 - The screens that **call** it, from the frontend's generated API client.
 - The tests that **prove** each scenario, from the tests that claim them and the latest test run.
 
@@ -110,7 +110,7 @@ The diagram below shows the main record types around one use case, the links the
 
 ## Uses of the Model
 
-- **Checks.** `litespec model check` reports each gap as a finding with its tier: `G` checks read records only and always block, `S` checks read code through a stack reader and block where that reader is qualified, and `A` checks advise without blocking. A use case with no handler, a refusal the code never raises, a link to a missing record, or a known gap past its end date each becomes a finding.
+- **Checks.** `litespec model check` reports each gap as a finding with its level: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a refusal the code never raises, a link to a missing record, or an exception past its expiry date each becomes a finding.
 - **Answers.** `litespec model query <id>` prints one record with every link into and out of it. Agents use it to load exactly the context a task needs.
 - **Generated sections.** `litespec model render` fills the marked regions of your pages from the model, so lists such as a module's use cases always match the records. Generated regions derive from other records only, never from code.
 - **The project book.** `litespec book` turns the model into a browsable site of your own project: one offline shell with the Outline, Review queue, Security, and Ballots views, hash routes per record, and search.

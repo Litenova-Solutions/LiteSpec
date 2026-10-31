@@ -12,7 +12,7 @@ static class ModelCommand
     public const string Usage = """
         Usage:
           litespec model build --root <consumer> [--out model.json]
-          litespec model check --root <consumer> [--format json] [--staged]
+          litespec model check --root <consumer> [--format json] [--staged] [--release] [--since <ref>]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
           litespec model names [--root <consumer>] [--format text|json]
@@ -41,7 +41,7 @@ static class ModelCommand
             {
                 "diff" => ["--breaking-only", "--intent", "--behavior"],
                 "approve" => ["--all", "--dry-run"],
-                "check" => ["--staged"],
+                "check" => ["--staged", "--release"],
                 "backfill" => ["--dry-run"],
                 _ => [],
             },
@@ -51,6 +51,7 @@ static class ModelCommand
                 "approve" => ["--root", "--by", "--on", "--batch", "--batches", "--second-reviewer", "--review-report"],
                 "backfill" => ["--root"],
                 "review" => ["--root", "--out", "--format", "--decider", "--tier", "--module", "--type"],
+                "check" => ["--root", "--out", "--format", "--since"],
                 _ => ["--root", "--out", "--format"],
             },
             maxPositionals: command switch
@@ -130,15 +131,14 @@ static class ModelCommand
                     // needs only model.json: one check run, on the model just built,
                     // with the same severity decision and JSON shape as check --format json.
                     var (checkFindings, checkKnown) = Checker.Check(model);
-                    var buildPhase = config.Phase.ToProjectValue();
                     model.FindingsJson = checkFindings
-                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, buildPhase)))
+                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, false)))
                         .Where(entry => entry.Severity.Outcome != Outcome.Silent)
                         .Select(entry => AsJson(config, entry.Finding, entry.Severity))
                         .Cast<object>()
                         .ToList();
                     model.KnownJson = checkKnown
-                        .Where(gap => Decide(model, config, gap, buildPhase).Outcome != Outcome.Silent)
+                        .Where(gap => Decide(model, config, gap, false).Outcome != Outcome.Silent)
                         .Select(gap => AsKnownJson(config, gap))
                         .Cast<object>()
                         .ToList();
@@ -146,7 +146,7 @@ static class ModelCommand
 
                     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
                     File.WriteAllText(output, model.ToJson() + "\n");
-                    model.Ledger.Save(root);
+                    model.Ledger.Save(config);
 
                     foreach (var file in FrontendRecords.Write(model))
                     {
@@ -162,9 +162,12 @@ static class ModelCommand
                     var model = ModelBuilder.Build(config);
                     var (findings, known) = Checker.Check(model);
 
-                    model.Ledger.Save(root);
+                    model.Ledger.Save(config);
                     var json = parsed.Json;
+                    var release = parsed.Has("--release");
+                    var sinceRef = parsed.Value("--since");
                     StagedScope.Scope? staged = null;
+                    StagedScope.Scope? since = null;
 
                     if (parsed.Has("--staged"))
                     {
@@ -181,31 +184,64 @@ static class ModelCommand
                         known = known.Where(gap => StagedScope.InScope(scope, gap)).ToList();
                     }
 
-                    var phase = config.Phase.ToProjectValue();
+                    if (sinceRef is not null)
+                    {
+                        var (scope, sinceError) = StagedScope.Since(model, sinceRef);
+
+                        if (scope is null)
+                        {
+                            Console.Error.WriteLine(sinceError);
+                            return 2;
+                        }
+
+                        since = scope;
+                    }
+
                     var shown = findings
-                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, phase)))
+                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, release)))
+                        .Select(entry => since is not null
+                            && entry.Severity.Outcome == Outcome.Blocking
+                            && !StagedScope.InScope(since, entry.Finding)
+                                ? (entry.Finding, Severity: new Severity(Outcome.Reported, "unchanged"))
+                                : entry)
                         .Where(entry => entry.Severity.Outcome != Outcome.Silent)
                         .ToList();
                     var shownKnown = known
-                        .Where(gap => Decide(model, config, gap, phase).Outcome != Outcome.Silent)
+                        .Where(gap => Decide(model, config, gap, release).Outcome != Outcome.Silent)
                         .ToList();
 
                     if (json)
                     {
-                        object payload = staged is null
-                            ? new
-                            {
-                                findings = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList(),
-                                known = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList(),
-                            }
-                            : new
-                            {
-                                scope = "staged",
-                                stagedFiles = staged.StagedFiles,
-                                stagedRecords = staged.RecordIds.Count,
-                                findings = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList(),
-                                known = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList(),
-                            };
+                        var payload = new Dictionary<string, object?>();
+
+                        if (staged is not null && since is not null)
+                        {
+                            payload["scope"] = "staged+since";
+                        }
+                        else if (staged is not null)
+                        {
+                            payload["scope"] = "staged";
+                        }
+                        else if (since is not null)
+                        {
+                            payload["scope"] = "since";
+                        }
+
+                        if (staged is not null)
+                        {
+                            payload["stagedFiles"] = staged.ChangedFiles;
+                            payload["stagedRecords"] = staged.RecordIds.Count;
+                        }
+
+                        if (since is not null)
+                        {
+                            payload["since"] = sinceRef;
+                            payload["changedFiles"] = since.ChangedFiles;
+                            payload["changedRecords"] = since.RecordIds.Count;
+                        }
+
+                        payload["findings"] = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList();
+                        payload["known"] = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList();
 
                         Console.WriteLine(JsonSerializer.Serialize(payload, CliJson.Options));
                     }
@@ -213,7 +249,12 @@ static class ModelCommand
                     {
                         if (staged is not null)
                         {
-                            Console.WriteLine($"Staged scope: {staged.StagedFiles} files, {staged.RecordIds.Count} records.");
+                            Console.WriteLine($"Staged scope: {staged.ChangedFiles} files, {staged.RecordIds.Count} records.");
+                        }
+
+                        if (since is not null)
+                        {
+                            Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                         }
 
                         foreach (var entry in shown)
@@ -269,7 +310,7 @@ static class ModelCommand
                         parsed.Value("--module"),
                         parsed.Value("--type"));
 
-                    model.Ledger.Save(root);
+                    model.Ledger.Save(config);
                     Console.WriteLine(parsed.Json ? ReviewQueue.Json(batches) : ReviewQueue.Human(batches));
                     return 0;
                 }
@@ -660,7 +701,7 @@ static class ModelCommand
                 model, plan, by ?? "", secondReviewer, rawReport, on);
 
             BatchApprover.Apply(model, plan, by, on);
-            model.Ledger.Save(root);
+            model.Ledger.Save(model.Config);
             approved++;
             Console.WriteLine($"{request.Selector}: approved: {Relative(root, manifest)}"
                 + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : ""));
@@ -743,7 +784,7 @@ static class ModelCommand
         Console.WriteLine($"{Counted(stamped.Count, "record")} approved, {held} held"
             + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : "")
             + ".");
-        model.Ledger.Save(root);
+        model.Ledger.Save(config);
         return 0;
     }
 
@@ -758,17 +799,17 @@ static class ModelCommand
             : $"Unknown format '{format}'; use text, markdown or json.";
 
     /// <summary>
-    ///     Decides one finding's severity from its subject, its path, the phase and
-    ///     the qualification of the reader that produced it: TypeScript findings
-    ///     take the handshake qualification, Roslyn findings stay qualified, and
-    ///     a finding with no reader is qualified.
+    ///     Decides one finding's severity from its subject, its path and the
+    ///     qualification of the reader that produced it: TypeScript findings take the
+    ///     handshake qualification, Roslyn findings stay qualified, and a finding
+    ///     with no reader is qualified. At release the release-readiness findings
+    ///     block instead of reporting.
     /// </summary>
-    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase) =>
-        Severity.Of(
+    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, bool release)
+    {
+        var severity = Severity.Of(
             finding,
             finding.Subject is not null && model.ById.TryGetValue(finding.Subject, out var subject) ? subject.Status : null,
-            UnderTestRoot(config, finding.Path),
-            phase,
             (finding.Code == "reader-missing" && config.IsContinuousIntegration) || finding.Reader switch
             {
                 Finding.TypeScriptReader => model.TypeScriptQualified,
@@ -776,19 +817,23 @@ static class ModelCommand
                 _ => true,
             });
 
-    /// <summary>Whether the path lies under a test root.</summary>
-    static bool UnderTestRoot(ConsumerConfig config, string path)
-    {
-        var comparison = Path.DirectorySeparatorChar == '\\'
-            ? StringComparison.OrdinalIgnoreCase
-            : StringComparison.Ordinal;
-
-        return config.TestRoots.Any(root =>
-            string.Equals(path, root, comparison)
-            || path.StartsWith(root + Path.DirectorySeparatorChar, comparison));
+        return release && severity.Outcome == Outcome.Reported && IsReleaseReadiness(model, finding)
+            ? new Severity(Outcome.Blocking, null)
+            : severity;
     }
 
-    /// <summary>The printed tier: the tier plus the reason a reported S finding does not block.</summary>
+    /// <summary>
+    ///     Whether the finding gates a release: an unverified use case, or an
+    ///     unanswered question on a tier 1 record.
+    /// </summary>
+    static bool IsReleaseReadiness(ProjectModel model, Finding finding) =>
+        finding.Code == "use-case-unverified"
+        || (finding.Code == "question-expired"
+            && finding.Subject is not null
+            && model.ById.TryGetValue(Identifiers.BaseId(finding.Subject), out var subject)
+            && ReviewQueue.HasRisk(subject));
+
+    /// <summary>The printed tier: the tier plus the reason a reported finding does not block.</summary>
     static string TierLabel(Finding finding, Severity severity) =>
         severity.Reason is null ? finding.Tier : finding.Tier + " " + severity.Reason;
 

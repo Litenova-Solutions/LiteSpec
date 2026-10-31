@@ -23,12 +23,12 @@ public sealed class ModelCheckTests
         "erasure-undeclared",
         "except-fallback-missing",
         "exemption-expired",
-        "gap-finding-unknown",
+        "exception-finding-unknown",
         "identifier-duplicate",
         "identifier-invalid",
         "field-invalid",
         "use-case-journey-missing",
-        "known-gap-expired",
+        "exception-expired",
         "link-unknown",
         "notification-sender-missing",
         "automation-guard-missing",
@@ -128,70 +128,74 @@ public sealed class ModelCheckTests
         Assert.Equal(codes, overlays);
     }
 
-    /// <summary>Open known gaps turn their findings into exit 0.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
+    /// <summary>An open exception turns its findings into exit 0.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
-    public void Open_Known_Gap_Turns_Its_Finding_Into_Exit_0()
+    public void Open_Exception_Turns_Its_Findings_Into_Exit_0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        ModelFixture.WriteKnownGap(fixture.Path, "2035-06-01");
-        WriteKnownGap(fixture.Path, "known-gap/list-loans-unexposed", "List loans unexposed", "use-case-endpoint-missing", "2035-06-01");
-        WriteKnownGap(fixture.Path, "known-gap/list-loans-screen-calls", "List loans screen calls", "screen-offers-drift", "screen/library-app.loans", "2035-06-01");
-        WriteKnownGap(fixture.Path, "known-gap/list-loans-unmatched-call", "List loans unmatched call", "behavior-unrecorded", "screen/library-app.loans", "2035-06-01");
+        WriteException(
+            fixture.Path,
+            "exception/list-loans-unimplemented",
+            "List loans unimplemented",
+            ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
+            ["use-case/lending.list-loans", "screen/library-app.loans"],
+            "2035-06-01");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.Equal(0, result.Status);
     }
 
-    /// <summary>Expired known gap exits 1.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
+    /// <summary>An expired exception exits 1.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
-    public void Expired_Known_Gap_Exits_1()
+    public void Expired_Exception_Exits_1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        ModelFixture.WriteKnownGap(fixture.Path, "2020-01-01");
+        WriteException(
+            fixture.Path,
+            "exception/list-loans-unimplemented",
+            "List loans unimplemented",
+            ["use-case-unimplemented"],
+            ["use-case/lending.list-loans"],
+            "2020-01-01");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes an open known gap covering the check on the list-loans use case.</summary>
-    static void WriteKnownGap(string root, string id, string title, string check, string subject, string endsBy)
+    /// <summary>Writes an approved exception covering the codes on the subjects.</summary>
+    static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
-        var folder = Path.Combine(root, "docs", "known-gaps");
+        var folder = Path.Combine(root, "docs", "governance", "exceptions");
         Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, $"{id.Split('/')[1]}.md"), GapFile(id, title, check, subject, endsBy));
-    }
-
-    /// <summary>Writes an open known gap covering the check on the list-loans use case.</summary>
-    static void WriteKnownGap(string root, string id, string title, string check, string endsBy)
-    {
-        var folder = Path.Combine(root, "docs", "known-gaps");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, $"{id.Split('/')[1]}.md"), GapFile(id, title, check, endsBy));
+        File.WriteAllText(Path.Combine(folder, $"{id.Split('/')[1]}.md"), ExceptionFile(id, title, covers, subject, expiresOn));
     }
 
     // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
-    // The approval hash is stamped over the written fields, so the gap itself reports nothing.
-    static string GapFile(string id, string title, string check, string subject, string endsBy)
+    // The approval hash is stamped over the written fields, so the exception itself reports nothing.
+    static string ExceptionFile(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var frontmatter =
             "{\n"
-            + "  \"type\": \"known-gap\",\n"
+            + "  \"type\": \"exception\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
             + "  \"owner\": \"lending-team\",\n"
             + "  \"status\": \"approved\",\n"
-            + $"  \"check\": \"{check}\",\n"
+            + "  \"kind\": \"gap\",\n"
+            + "  \"covers\": [\n"
+            + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
+            + "\n  ],\n"
             + "  \"subject\": [\n"
-            + $"    \"{subject}\"\n"
-            + "  ],\n"
-            + $"  \"endsBy\": \"{endsBy}\",\n"
+            + string.Join(",\n", subject.Select(entry => $"    \"{entry}\""))
+            + "\n  ],\n"
+            + $"  \"expiresOn\": \"{expiresOn}\",\n"
             + "  \"reason\": \"Listing waits for the search index.\"\n"
             + "}\n";
 
         using var document = JsonDocument.Parse(frontmatter);
         var record = new LiteSpec.Model.Record
         {
-            Type = "known-gap",
+            Type = "exception",
             Id = id,
             Raw = document.RootElement.Clone(),
         };
@@ -200,39 +204,7 @@ public sealed class ModelCheckTests
             "\n}",
             ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
 
-        return "---\n" + stamped + "---\n" + "\n" + $"# {title}\n" + "\n" + "Listing loans has no endpoint yet.\n";
-    }
-
-    static string GapFile(string id, string title, string check, string endsBy)
-    {
-        var frontmatter =
-            "{\n"
-            + "  \"type\": \"known-gap\",\n"
-            + $"  \"id\": \"{id}\",\n"
-            + $"  \"title\": \"{title}\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"approved\",\n"
-            + $"  \"check\": \"{check}\",\n"
-            + "  \"subject\": [\n"
-            + "    \"use-case/lending.list-loans\"\n"
-            + "  ],\n"
-            + $"  \"endsBy\": \"{endsBy}\",\n"
-            + "  \"reason\": \"Listing waits for the search index.\"\n"
-            + "}\n";
-
-        using var document = JsonDocument.Parse(frontmatter);
-        var record = new LiteSpec.Model.Record
-        {
-            Type = "known-gap",
-            Id = id,
-            Raw = document.RootElement.Clone(),
-        };
-        var hash = Checker.SemanticHash(record);
-        var stamped = frontmatter.Replace(
-            "\n}",
-            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-
-        return "---\n" + stamped + "---\n" + "\n" + $"# {title}\n" + "\n" + "Listing loans has no endpoint yet.\n";
+        return "---\n" + stamped + "---\n" + "\n" + $"# {title}\n" + "\n" + "Listing loans has no handler yet.\n";
     }
 
 }

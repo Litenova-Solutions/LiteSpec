@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using LiteSpec.Analyzers.Layers;
 using LiteSpec.Analyzers.Records;
@@ -14,7 +15,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <summary>
 ///     What every traceability rule needs for one compilation: its layer, the
 ///     consumer's records, the cross-file kind names, the event id of every
-///     event type marked in source, and the known-gap and deviation sets built
+///     event type marked in source, and the live exceptions built
 ///     once so reporting a diagnostic never rescans every record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -22,9 +23,7 @@ internal sealed class TraceabilityContext
 {
     private static readonly ConditionalWeakTable<Compilation, TraceabilityContext> Cache = new();
 
-    private readonly HashSet<string> heldFiles;
-    private readonly HashSet<string> heldSubjects;
-    private readonly List<Gap> gaps;
+    private readonly List<LiveException> live;
 
     /// <summary>Creates the context for one compilation.</summary>
     /// <param name="layer">The layer the compilation belongs to.</param>
@@ -42,37 +41,17 @@ internal sealed class TraceabilityContext
         Project = project;
 
         var today = DateTime.UtcNow.Date;
-        heldFiles = new HashSet<string>(StringComparer.Ordinal);
-        heldSubjects = new HashSet<string>(StringComparer.Ordinal);
-        gaps = new List<Gap>();
+        live = new List<LiveException>();
 
         foreach (var record in store.Index.Records)
         {
-            if (record.Type == "deviation"
+            if (record.Type == "exception"
                 && record.Status == "approved"
-                && record.Field("reviewBy") is string reviewBy
-                && IsoDate(reviewBy, out var review)
-                && today <= review)
+                && record.Field("expiresOn") is string expiresOn
+                && IsoDate(expiresOn, out var expires)
+                && today <= expires)
             {
-                foreach (var path in record.Ids("code"))
-                {
-                    heldFiles.Add(path.Replace('\\', '/'));
-                }
-
-                foreach (var subject in record.Ids("subject"))
-                {
-                    heldSubjects.Add(subject);
-                }
-            }
-            else if (record.Type == "known-gap"
-                && record.Status != "retired"
-                && record.Field("check") is string check
-                && check.Length > 0
-                && record.Field("endsBy") is string endsBy
-                && IsoDate(endsBy, out var ends)
-                && today <= ends)
-            {
-                gaps.Add(new Gap(check, new HashSet<string>(record.Ids("subject"), StringComparer.Ordinal)));
+                live.Add(new LiveException(record));
             }
         }
     }
@@ -96,7 +75,7 @@ internal sealed class TraceabilityContext
     public bool OnTest => Layer == Layer.Test;
 
     /// <summary>
-    ///     Whether an open known gap or an in-date approved deviation covers the
+    ///     Whether an approved exception inside its expiry date covers the
     ///     finding, as <see cref="Suppression.Partition" /> decides for the CLI but
     ///     from the sets built once in the constructor.
     /// </summary>
@@ -104,37 +83,37 @@ internal sealed class TraceabilityContext
     /// <returns>True when the finding is known and stays silent.</returns>
     public bool IsKnown(Finding finding)
     {
-        if (finding.Code != "known-gap-expired" && heldFiles.Contains(RootRelative(Store.Root, finding.Path)))
-        {
-            return true;
-        }
-
-        if (finding.Code == "known-gap-expired" || finding.Subject is null)
+        if (finding.Code == "exception-expired")
         {
             return false;
         }
 
-        var subjects = new List<string> { finding.Subject };
+        var subjects = new List<string>();
 
-        if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
-            && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
-            && home is not null
-            && Store.UseCaseOfHome(home) is string holder)
+        if (finding.Subject is not null)
         {
-            subjects.Add(holder);
-        }
+            subjects.Add(finding.Subject);
 
-        foreach (var subject in subjects)
-        {
-            if (heldSubjects.Contains(subject))
+            if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
+                && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
+                && home is not null
+                && Store.UseCaseOfHome(home) is string holder)
             {
-                return true;
+                subjects.Add(holder);
             }
         }
 
-        foreach (var gap in gaps)
+        var relative = RootRelative(Store.Root, finding.Path);
+
+        foreach (var exception in live)
         {
-            if (gap.Check == finding.Code && gap.Subjects.Overlaps(subjects))
+            if (!exception.Codes.Contains(finding.Code))
+            {
+                continue;
+            }
+
+            if (subjects.Any(subject => exception.Subjects.Contains(subject))
+                || exception.Paths.Any(pattern => GlobMatches(pattern, relative)))
             {
                 return true;
             }
@@ -430,16 +409,123 @@ internal sealed class TraceabilityContext
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
-    private sealed class Gap
+    /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
+    private sealed class LiveException
     {
-        public Gap(string check, HashSet<string> subjects)
+        public LiveException(IRecordFacts exception)
         {
-            Check = check;
-            Subjects = subjects;
+            Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
+            Paths = exception.Ids("paths");
+            Codes = new HashSet<string>(exception.Ids("covers"), StringComparer.Ordinal);
         }
 
-        public string Check { get; }
-
         public HashSet<string> Subjects { get; }
+
+        public IReadOnlyList<string> Paths { get; }
+
+        public HashSet<string> Codes { get; }
+    }
+
+    /// <summary>
+    ///     Whether the glob matches the forward-slash path from the project root:
+    ///     <c>**</c> spans folders, <c>*</c> and <c>?</c> stay inside one segment,
+    ///     and a trailing slash holds the whole folder.
+    /// </summary>
+    private static bool GlobMatches(string pattern, string path)
+    {
+        var glob = pattern.Replace('\\', '/');
+
+        if (glob.StartsWith("/", StringComparison.Ordinal))
+        {
+            glob = glob.Substring(1);
+        }
+
+        if (glob.EndsWith("/", StringComparison.Ordinal))
+        {
+            glob += "**";
+        }
+
+        return GlobSegments(
+            glob.Split(new char[] { '/' }, StringSplitOptions.None),
+            0,
+            path.Split(new char[] { '/' }, StringSplitOptions.None),
+            0);
+    }
+
+    /// <summary>Whether the trailing pattern segments match the trailing path segments.</summary>
+    private static bool GlobSegments(string[] pattern, int nextPattern, string[] path, int nextPath)
+    {
+        while (nextPattern < pattern.Length && nextPath <= path.Length)
+        {
+            if (string.Equals(pattern[nextPattern], "**", StringComparison.Ordinal))
+            {
+                for (var skip = nextPath; skip <= path.Length; skip++)
+                {
+                    if (GlobSegments(pattern, nextPattern + 1, path, skip))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            if (nextPath == path.Length || !GlobSegment(pattern[nextPattern], path[nextPath]))
+            {
+                return false;
+            }
+
+            nextPattern++;
+            nextPath++;
+        }
+
+        while (nextPattern < pattern.Length && string.Equals(pattern[nextPattern], "**", StringComparison.Ordinal))
+        {
+            nextPattern++;
+        }
+
+        return nextPattern == pattern.Length && nextPath == path.Length;
+    }
+
+    /// <summary>Whether the segment pattern matches the path segment: <c>*</c> spans, <c>?</c> takes one.</summary>
+    private static bool GlobSegment(string pattern, string text)
+    {
+        var nextPattern = 0;
+        var nextText = 0;
+        var star = -1;
+        var mark = 0;
+
+        while (nextText < text.Length)
+        {
+            if (nextPattern < pattern.Length
+                && (pattern[nextPattern] == '?' || pattern[nextPattern] == text[nextText]))
+            {
+                nextPattern++;
+                nextText++;
+            }
+            else if (nextPattern < pattern.Length && pattern[nextPattern] == '*')
+            {
+                star = nextPattern;
+                mark = nextText;
+                nextPattern++;
+            }
+            else if (star >= 0)
+            {
+                mark++;
+                nextText = mark;
+                nextPattern = star + 1;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        while (nextPattern < pattern.Length && pattern[nextPattern] == '*')
+        {
+            nextPattern++;
+        }
+
+        return nextPattern == pattern.Length;
     }
 }

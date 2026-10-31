@@ -49,7 +49,7 @@ static partial class Renderer
     public static readonly HashSet<string> KnownRegions = new(StringComparer.Ordinal)
     {
         "history", "use-case-coverage", "sub-processors", "runbook-index", "rule-map",
-        "operations-log", "open-questions", "journeys", "glossary", "deviations", "census",
+        "operations-log", "open-questions", "journeys", "glossary", "exceptions", "census",
         "aggregate-map", "audit-register", "alert-inventory", "counts", "what-it-requires",
         "transitions", "data", "retention-schedule",
     };
@@ -73,7 +73,7 @@ static partial class Renderer
             "open-questions" => OpenQuestions(model),
             "journeys" => Journeys(model, file),
             "glossary" => Glossary(model),
-            "deviations" => Deviations(model, file),
+            "exceptions" => Exceptions(model, file),
             "census" => Census(model),
             "aggregate-map" => AggregateMap(model),
             "audit-register" => AuditRegister(model),
@@ -348,21 +348,22 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
-    private static string Deviations(ProjectModel model, string file)
+    private static string Exceptions(ProjectModel model, string file)
     {
         var lines = new List<string>
         {
-            "| Deviation | Provision |",
+            "| Exception | Covers |",
             "|:---|:---|",
         };
 
-        foreach (var deviation in model.Records
-                     .Where(record => record.Type == "deviation")
+        foreach (var exception in model.Records
+                     .Where(record => record.Type == "exception")
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            var name = Path.GetFileNameWithoutExtension(deviation.File);
+            var name = Path.GetFileNameWithoutExtension(exception.File);
+            var covers = string.Join(", ", exception.Ids("covers").Select(code => $"`{code}`"));
 
-            lines.Add($"| [{name}]({RelativeLink(file, deviation.File)}) | `{deviation.Field("provision") ?? ""}` |");
+            lines.Add($"| [{name}]({RelativeLink(file, exception.File)}) | {covers} |");
         }
 
         return string.Join('\n', lines);

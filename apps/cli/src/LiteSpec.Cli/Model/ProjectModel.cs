@@ -5,7 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>One computed implements link: code to a record.</summary>
 sealed record ImplementsLink(string Path, string To, string Kind);
 
-/// <summary>One computed follows link: code to the provision, decision or deviation that shapes it.</summary>
+/// <summary>One computed follows link: code to the provision, decision or exception that shapes it.</summary>
 sealed record FollowsLink(string Path, string To, string Kind);
 
 /// <summary>One computed calls link: a screen to a use case.</summary>

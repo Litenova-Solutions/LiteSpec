@@ -22,8 +22,7 @@
     { "$ref": "#/$defs/externalSystemPage" },
     { "$ref": "#/$defs/integrationEventPage" },
     { "$ref": "#/$defs/runbookPage" },
-    { "$ref": "#/$defs/deviationPage" },
-    { "$ref": "#/$defs/knownGapPage" },
+    { "$ref": "#/$defs/exceptionPage" },
     { "$ref": "#/$defs/topicPage" },
     { "$ref": "#/$defs/permissionListPage" },
     { "$ref": "#/$defs/entryPointListPage" },
@@ -167,13 +166,9 @@
       "type": "string",
       "pattern": "^runbook/[a-z0-9][a-z0-9-]*$"
     },
-    "deviationId": {
+    "exceptionId": {
       "type": "string",
-      "pattern": "^deviation/[a-z0-9][a-z0-9-]*$"
-    },
-    "knownGapId": {
-      "type": "string",
-      "pattern": "^known-gap/[a-z0-9][a-z0-9-]*$"
+      "pattern": "^exception/[a-z0-9][a-z0-9-]*$"
     },
     "termId": {
       "type": "string",
@@ -182,6 +177,16 @@
     "refusalCode": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+    },
+    "findingCode": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "findingCodeArray": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/findingCode" }
     },
     "standardsProvisionId": {
       "type": "string",
@@ -296,9 +301,9 @@
     "riskArray": {
       "type": "array",
       "uniqueItems": true,
-      "items": { "enum": ["money", "door", "personal-data", "access"] }
+      "items": { "enum": ["money", "physical-access", "personal-data", "access"] }
     },
-    "knownGapSubjectArray": {
+    "exceptionSubjectArray": {
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -883,11 +888,14 @@
       "properties": {
         "every": { "$ref": "#/$defs/isoDuration" },
         "cron": { "$ref": "#/$defs/nonEmptyString" },
+        "at": { "const": "startup" },
         "timezone": { "$ref": "#/$defs/nonEmptyString" }
       },
       "allOf": [
-        { "anyOf": [{ "required": ["every"] }, { "required": ["cron"] }] },
-        { "not": { "required": ["every", "cron"] } }
+        { "anyOf": [{ "required": ["every"] }, { "required": ["cron"] }, { "required": ["at"] }] },
+        { "not": { "required": ["every", "cron"] } },
+        { "not": { "required": ["every", "at"] } },
+        { "not": { "required": ["cron", "at"] } }
       ]
     },
     "automationTriggerEvent": {
@@ -900,7 +908,17 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "event": { "$ref": "#/$defs/automationTriggerEvent" },
+        "event": {
+          "anyOf": [
+            { "$ref": "#/$defs/automationTriggerEvent" },
+            {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/automationTriggerEvent" }
+            }
+          ]
+        },
         "schedule": { "$ref": "#/$defs/scheduleObject" },
         "manual": { "const": true }
       },
@@ -969,6 +987,7 @@
         "classification": { "$ref": "#/$defs/classification" },
         "type": { "$ref": "#/$defs/contractValueType" },
         "of": { "$ref": "#/$defs/contractFieldOf" },
+        "many": { "description": "True when the field holds a list of values of its type.", "type": "boolean" },
         "required": { "type": "boolean" }
       },
       "allOf": [
@@ -1005,6 +1024,7 @@
         "direction": { "enum": ["out", "in"] },
         "timeout": { "$ref": "#/$defs/nonEmptyString" },
         "onTimeout": { "$ref": "#/$defs/nonEmptyString" },
+        "retries": { "$ref": "#/$defs/nonEmptyString" },
         "response": { "$ref": "#/$defs/nonEmptyString" },
         "cache": { "$ref": "#/$defs/nonEmptyString" }
       }
@@ -1190,6 +1210,7 @@
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
         "type": { "$ref": "#/$defs/contractValueType" },
         "of": { "$ref": "#/$defs/contractFieldOf" },
+        "many": { "description": "True when the field holds a list of values of its type.", "type": "boolean" },
         "required": { "type": "boolean" },
         "rules": {
           "type": "array",
@@ -2422,6 +2443,8 @@
         "selection": { "$ref": "#/$defs/nonEmptyString" },
         "lease": { "$ref": "#/$defs/leaseObject" },
         "batchSize": { "type": "integer" },
+        "serviceLevel": { "$ref": "#/$defs/nonEmptyString" },
+        "evidence": { "$ref": "#/$defs/nonEmptyString" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
         "serves": { "$ref": "#/$defs/journeyStepIdArray" },
         "onFailure": { "$ref": "#/$defs/onFailureValue" },
@@ -2462,7 +2485,9 @@
                 { "required": ["cursor"] },
                 { "required": ["selection"] },
                 { "required": ["lease"] },
-                { "required": ["batchSize"] }
+                { "required": ["batchSize"] },
+                { "required": ["serviceLevel"] },
+                { "required": ["evidence"] }
               ]
             }
           }
@@ -2719,13 +2744,13 @@
         }
       ]
     },
-    "deviationPage": {
+    "exceptionPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "provision", "reason", "reviewBy", "removeWhen"],
+      "required": ["type", "id", "title", "owner", "status", "kind", "covers", "reason", "expiresOn"],
       "properties": {
-        "type": { "const": "deviation" },
-        "id": { "$ref": "#/$defs/deviationId" },
+        "type": { "const": "exception" },
+        "id": { "$ref": "#/$defs/exceptionId" },
         "title": { "$ref": "#/$defs/nonEmptyString" },
         "owner": { "$ref": "#/$defs/ownerName" },
         "status": { "$ref": "#/$defs/intentStatus" },
@@ -2737,12 +2762,22 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "provision": { "$ref": "#/$defs/standardsProvisionId" },
+        "kind": { "enum": ["departure", "gap"] },
+        "covers": {
+          "anyOf": [
+            { "$ref": "#/$defs/standardsProvisionId" },
+            { "$ref": "#/$defs/findingCodeArray" }
+          ]
+        },
+        "subject": { "$ref": "#/$defs/exceptionSubjectArray" },
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
         "reason": { "$ref": "#/$defs/nonEmptyString" },
-        "reviewBy": { "$ref": "#/$defs/isoDate" },
-        "removeWhen": { "$ref": "#/$defs/nonEmptyString" },
-        "subject": { "$ref": "#/$defs/genericIdArray" },
-        "code": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" }, "minItems": 1, "uniqueItems": true }
+        "expiresOn": { "$ref": "#/$defs/isoDate" }
       },
       "allOf": [
         {
@@ -2758,46 +2793,23 @@
             "properties": { "status": { "const": "approved" } }
           },
           "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
-        }
-      ]
-    },
-    "knownGapPage": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "check", "subject", "endsBy", "reason"],
-      "properties": {
-        "type": { "const": "known-gap" },
-        "id": { "$ref": "#/$defs/knownGapId" },
-        "title": { "$ref": "#/$defs/nonEmptyString" },
-        "owner": { "$ref": "#/$defs/ownerName" },
-        "status": { "$ref": "#/$defs/intentStatus" },
-        "decider": { "$ref": "#/$defs/ownerName" },
-        "decideBy": { "$ref": "#/$defs/isoDate" },
-        "approvedBy": { "$ref": "#/$defs/ownerName" },
-        "approvedOn": { "$ref": "#/$defs/isoDate" },
-        "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
-        "terms": { "$ref": "#/$defs/termIdArray" },
-        "questions": { "$ref": "#/$defs/questionsArray" },
-        "records": { "$ref": "#/$defs/recordsArray" },
-        "check": { "$ref": "#/$defs/nonEmptyString" },
-        "subject": { "$ref": "#/$defs/knownGapSubjectArray" },
-        "endsBy": { "$ref": "#/$defs/isoDate" },
-        "reason": { "$ref": "#/$defs/nonEmptyString" }
-      },
-      "allOf": [
+        },
         {
-          "if": {
-            "required": ["status"],
-            "properties": { "status": { "const": "draft" } }
-          },
-          "then": { "required": ["decider", "decideBy"] }
+          "anyOf": [{ "required": ["subject"] }, { "required": ["paths"] }]
         },
         {
           "if": {
-            "required": ["status"],
-            "properties": { "status": { "const": "approved" } }
+            "required": ["kind"],
+            "properties": { "kind": { "const": "departure" } }
           },
-          "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
+          "then": { "properties": { "covers": { "$ref": "#/$defs/standardsProvisionId" } } }
+        },
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "const": "gap" } }
+          },
+          "then": { "properties": { "covers": { "$ref": "#/$defs/findingCodeArray" } } }
         }
       ]
     },

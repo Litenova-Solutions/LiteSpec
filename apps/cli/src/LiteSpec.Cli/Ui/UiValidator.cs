@@ -148,7 +148,7 @@ static partial class UiValidator
             ? platform
             : null;
 
-    static readonly HashSet<string> UiDeviationPages = new(StringComparer.Ordinal)
+    static readonly HashSet<string> UiExceptionPages = new(StringComparer.Ordinal)
     {
         "frontend/ui", "frontend/components", "frontend/patterns",
         "frontend/web/ui", "frontend/web/components", "frontend/web/patterns",
@@ -156,8 +156,8 @@ static partial class UiValidator
 
     static readonly Regex ReviewDate = new("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", RegexOptions.Compiled);
 
-    /// <summary>One deviation record the UI gates read their own departures from.</summary>
-    sealed record UiDeviation(string File, string Provision, JsonNode? ReviewBy);
+    /// <summary>One exception record the UI gates read their own departures from.</summary>
+    sealed record UiException(string File, string Provision, JsonNode? ExpiresOn);
 }
 
 /// <summary>One declared frontend, with the raw values the outputs print.</summary>
@@ -288,42 +288,42 @@ static partial class UiValidator
             var baselineNode = baseline.Found ? baseline.Node : null;
             var hasBaseline = baselineNode is not null && TruthyNode(baselineNode);
 
-            var uiDeviations = ReadUiDeviations(project);
+            var uiExceptions = ReadUiExceptions(project);
 
-            // A deviation carries a review date and stops being valid once that date
+            // An exception carries an expiry date and stops being valid once that date
             // passes. This check is time dependent by design; every other check in this
-            // validator depends only on repository files. Only deviations against the UI
+            // validator depends only on repository files. Only exceptions against the UI
             // pages are read here; the rest belong to the checks that enforce them.
             var today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            foreach (var deviation in uiDeviations)
+            foreach (var exception in uiExceptions)
             {
                 // A provision ID is litespec/<page>#<slug>; the page decides whether the UI checks own it.
-                var page = deviation.Provision.StartsWith("litespec/", StringComparison.Ordinal)
-                    ? deviation.Provision["litespec/".Length..].Split('#')[0]
+                var page = exception.Provision.StartsWith("litespec/", StringComparison.Ordinal)
+                    ? exception.Provision["litespec/".Length..].Split('#')[0]
                     : "";
-                if (!UiDeviationPages.Contains(page))
+                if (!UiExceptionPages.Contains(page))
                 {
                     continue;
                 }
 
-                if (deviation.ReviewBy is not JsonValue reviewValue || !reviewValue.TryGetValue<string>(out var reviewBy) || !ReviewDate.IsMatch(reviewBy))
+                if (exception.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ReviewDate.IsMatch(expiresOn))
                 {
                     continue;
                 }
 
-                if (string.CompareOrdinal(reviewBy, today) < 0)
+                if (string.CompareOrdinal(expiresOn, today) < 0)
                 {
-                    Errors.Add($"[{deviation.Provision}] {deviation.File}: review date {reviewBy} has passed; renew the decision");
+                    Errors.Add($"[{exception.Provision}] {exception.File}: expiresOn {expiresOn} has passed; renew the exception");
                 }
             }
 
             // A controlled frontend composes the shared package, so the workspace declares
             // it once. A frontend that composes no shared component carries no UI block.
             // (litespec/frontend/ui#select-one-visual-authority)
-            // An additional registry passes both registry gates under a deviation against
-            // the pinned baseline provision. The review date on that record is checked
+            // An additional registry passes both registry gates under an exception against
+            // the pinned baseline provision. The expiry date on that record is checked
             // above; the gates below check its presence.
-            var baselineOverride = uiDeviations.Any(deviation => deviation.Provision == "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package");
+            var baselineOverride = uiExceptions.Any(exception => exception.Provision == "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package");
             var pkgValue = Chain(project, "paths", "uiPackage");
             var pkg = pkgValue.Found ? pkgValue.Node : null;
             var hasPkg = pkg is not null && TruthyNode(pkg);
@@ -637,22 +637,22 @@ static partial class UiValidator
             }
         }
 
-        // A rule override is a Deviation record: docs/deviations/<name>.md carrying the
-        // provision it departs from, the reason, the review date, and the removal
-        // condition. The consumer validator owns the record shape; this validator reads
-        // the departure its own gates need and enforces the review date. The folder
-        // moves with paths.records.deviation when the consumer sets it.
-        List<UiDeviation> ReadUiDeviations(JsonNode? project)
+        // A rule override is an Exception record: docs/governance/exceptions/<name>.md
+        // carrying the provision it departs from, the reason, and the expiry date.
+        // The consumer validator owns the record shape; this validator reads
+        // the departure its own gates need and enforces the expiry date. The folder
+        // moves with paths.records.exception when the consumer sets it.
+        List<UiException> ReadUiExceptions(JsonNode? project)
         {
-            var folder = Chain(project, "paths", "records", "deviation");
-            var folderName = folder is { Node: JsonValue value } && value.TryGetValue<string>(out var name) ? name : "docs/deviations";
+            var folder = Chain(project, "paths", "records", "exception");
+            var folderName = folder is { Node: JsonValue value } && value.TryGetValue<string>(out var name) ? name : "docs/governance/exceptions";
             var directory = FilePath(folderName);
             if (!Directory.Exists(directory))
             {
                 return [];
             }
 
-            var found = new List<UiDeviation>();
+            var found = new List<UiException>();
             foreach (var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos().OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
             {
                 if ((entry.Attributes & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0)
@@ -692,17 +692,17 @@ static partial class UiValidator
                     continue;
                 }
 
-                if (Child(meta, "type").Node is not JsonValue typeValue || !typeValue.TryGetValue<string>(out var type) || type != "deviation")
+                if (Child(meta, "type").Node is not JsonValue typeValue || !typeValue.TryGetValue<string>(out var type) || type != "exception")
                 {
                     continue;
                 }
 
-                if (Child(meta, "provision").Node is not JsonValue provisionValue || !provisionValue.TryGetValue<string>(out var provision))
+                if (Child(meta, "covers").Node is not JsonValue provisionValue || !provisionValue.TryGetValue<string>(out var provision))
                 {
                     continue;
                 }
 
-                found.Add(new UiDeviation(RelativeToRoot(entry.FullName), provision, Child(meta, "reviewBy").Node));
+                found.Add(new UiException(RelativeToRoot(entry.FullName), provision, Child(meta, "expiresOn").Node));
             }
 
             return found;

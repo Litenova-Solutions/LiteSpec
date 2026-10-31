@@ -23,7 +23,7 @@
         }
       ],
       "setBy": "<decider|operator|tenant>",
-      "risk": ["<money|door|personal-data|access, or remove this line>"],
+      "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
       "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
     },
     {
@@ -50,7 +50,7 @@
         }
       ],
       "setBy": "<decider|operator|tenant>",
-      "risk": ["<money|door|personal-data|access, or remove this line>"],
+      "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
       "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
     },
     {
@@ -73,7 +73,7 @@
         }
       ],
       "setBy": "<decider|operator|tenant>",
-      "risk": ["<money|door|personal-data|access, or remove this line>"],
+      "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
       "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
     }
   ],

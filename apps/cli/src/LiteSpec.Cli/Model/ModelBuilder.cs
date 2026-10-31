@@ -48,7 +48,7 @@ static partial class ModelBuilder
         model.ProbeRoutes = tests.ProbeRoutes;
         model.TestComments.AddRange(tests.Comments);
         model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
-        model.Ledger = ProofLedger.Load(config.Root);
+        model.Ledger = ProofLedger.Load(config);
 
         var coverage = Timed("coverage", () => CoverageReader.Read(config));
 
@@ -264,7 +264,7 @@ static partial class ModelBuilder
 
     /// <summary>
     ///     Adds one follows link per follows mark on every element, to the provision,
-    ///     decision or deviation the mark names, exported as written.
+    ///     decision or exception the mark names, exported as written.
     /// </summary>
     private static void ComputeFollows(ProjectModel model)
     {
@@ -653,9 +653,9 @@ static partial class ModelBuilder
     ///     <c>gotos</c> matches the <c>address</c> of a screen that offers the
     ///     scenario's use case (a <c>[param]</c> or <c>{}</c> segment matches any
     ///     segment), and its <c>codes</c> hold the refusal code (a refusal
-    ///     scenario) or its <c>texts</c> or <c>codes</c> are non-empty (a success
-    ///     scenario). Rule and provision claims follow the same rules as a
-    ///     backend test's claims.
+    ///     scenario) or one of its asserted texts is the result's sentence or the
+    ///     scenario's Then text (a success scenario). Rule and provision claims
+    ///     follow the same rules as a backend test's claims.
     /// </summary>
     public static bool BrowserConfirm(ProjectModel model, BrowserTestInfo test, string claim)
     {
@@ -714,15 +714,26 @@ static partial class ModelBuilder
         }
 
         var resultId = claimed.Ids("result").FirstOrDefault();
+        var result = resultId is not null && model.ById.TryGetValue(resultId, out var found) ? found : null;
 
-        if (resultId is not null
-            && model.ById.TryGetValue(resultId, out var result)
-            && result.Field("outcome") == "refusal")
+        if (result?.Field("outcome") == "refusal")
         {
             return result.Field("code") is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
         }
 
-        return test.Texts.Count > 0 || test.Codes.Count > 0;
+        var sentences = new HashSet<string>(StringComparer.Ordinal);
+
+        if (claimed.Field("then") is { Length: > 0 } then && then.Trim() is { Length: > 0 } trimmedThen)
+        {
+            sentences.Add(trimmedThen);
+        }
+
+        if (result?.Field("meaning") is { Length: > 0 } meaning && meaning.Trim() is { Length: > 0 } trimmedMeaning)
+        {
+            sentences.Add(trimmedMeaning);
+        }
+
+        return sentences.Count > 0 && test.Texts.Any(text => sentences.Contains(text.Trim()));
     }
 
     private static bool Indirect(ProjectModel model, string claim)
@@ -1353,8 +1364,9 @@ static partial class ModelBuilder
 
     /// <summary>
     ///     Computes the stale proofs: a scenario whose confirmed proof passes in the read run is
-    ///     stale when its semantic hash differs from the hash the ledger recorded for that run.
-    ///     A run passing the proof for the first time records the current hash instead.
+    ///     stale when its semantic hash or its tests' hash differs from the hashes the ledger
+    ///     recorded for that run. A run passing the proof for the first time records the
+    ///     current hashes instead.
     /// </summary>
     private static void ComputeStale(ProjectModel model, IReadOnlyList<Record> scenarios)
     {
@@ -1371,7 +1383,11 @@ static partial class ModelBuilder
 
         foreach (var scenario in scenarios.Where(scenario => passing.Contains(scenario.Id)))
         {
-            if (model.Ledger.Stale(scenario.Id, Checker.SemanticHash(scenario), run))
+            if (model.Ledger.Stale(
+                scenario.Id,
+                Checker.SemanticHash(scenario),
+                ProofLedger.TestHashOf(model, scenario.Id),
+                run))
             {
                 model.Stale.Add(scenario.Id);
             }
@@ -1381,7 +1397,8 @@ static partial class ModelBuilder
     /// <summary>
     ///     Computes each proof target's tested state: a quality requirement, a
     ///     technical decision, an external system, or an integration event is tested
-    ///     when a test run proving it passes. Tested never verifies a use case.
+    ///     when a passing test that asserts something proves it. Tested never
+    ///     verifies a use case.
     /// </summary>
     private static void ComputeTested(ProjectModel model)
     {
@@ -1392,8 +1409,38 @@ static partial class ModelBuilder
                 continue;
             }
 
-            model.Tested[record.Id] = model.Proves.Any(link => link.Claim == record.Id && link.Passing == true);
+            model.Tested[record.Id] = model.Proves.Any(link =>
+                link.Claim == record.Id
+                && link.Confirmed
+                && link.Passing == true
+                && TestAsserts(model, link.Scenario));
         }
+    }
+
+    /// <summary>
+    ///     Whether the proving test asserts something: a backend test with an assertion
+    ///     call, or a steps test with a then step asserting through its steps class, and
+    ///     a browser test with an asserted text or code.
+    /// </summary>
+    private static bool TestAsserts(ProjectModel model, string scenario)
+    {
+        foreach (var test in model.Tests)
+        {
+            if (test.Name == scenario)
+            {
+                return test.HasAssertion || test.Steps.Any(step => step.Phase == "then");
+            }
+        }
+
+        foreach (var browser in model.BrowserTests)
+        {
+            if (browser.Title == scenario)
+            {
+                return browser.Texts.Count > 0 || browser.Codes.Count > 0;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Whether the record carries a tested state: a proof target outside verified status.</summary>

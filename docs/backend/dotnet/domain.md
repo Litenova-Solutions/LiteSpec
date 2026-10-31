@@ -547,7 +547,7 @@ Application validators handle malformed caller input through validation errors. 
 
 **Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`. `AssignToApprover` raising `ExpenseAssignedToApproverEvent` passes with its `to` complement, and `MarkOverdue` raising `LoanOverdueEvent` passes by naming its state.
 
-**Checked by:** `litespec model check` reports `event-tense-invalid` (tier A) for an aggregate method raising an event not ending with the past tense of its verb, allowing a prepositional complement and a `mark` method naming its state.
+**Checked by:** `litespec model check` reports `event-tense-invalid` (level A) for an aggregate method raising an event not ending with the past tense of its verb, allowing a prepositional complement and a `mark` method naming its state.
 
 ## Conventions
 

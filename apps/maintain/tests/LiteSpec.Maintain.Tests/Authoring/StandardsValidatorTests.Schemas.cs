@@ -353,6 +353,18 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
+    /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
+    [Fact(DisplayName = "lapse date stating what its date does")]
+    public void LapseDateStatingWhatItsDateDoes() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"exceptionPage\":{\"type\":\"object\",\"properties\":{\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
+                "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
+        },
+        []);
+
     /// <proves>litespec/core/language#name-a-boolean-as-a-predicate</proves>
     [Fact(DisplayName = "boolean with an is prefix")]
     public void BooleanWithIsPrefix() => Check(
@@ -582,6 +594,33 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/automation.md", TemplatePage(
                 "{\"type\":\"automation\",\"id\":\"automation/<module>.<name>\",\"title\":\"<Automation display title>\"," +
                 "\"triggeredBy\":{}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying an exception identifier")]
+    public void ConsumerTemplateWithExceptionId() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"exceptionPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\",\"title\",\"kind\",\"covers\",\"reason\",\"expiresOn\"]," +
+                "\"properties\":{\"type\":{\"const\":\"exception\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/exceptionId\"}," +
+                "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"kind\":{\"enum\":[\"departure\",\"gap\"]}," +
+                "\"covers\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
+                "\"reason\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
+                "\"exceptionId\":{\"type\":\"string\",\"pattern\":\"^exception/[a-z0-9][a-z0-9-]*$\"}," +
+                "\"findingCodeArray\":{\"type\":\"array\",\"minItems\":1,\"uniqueItems\":true,\"items\":{\"$ref\":\"#/$defs/findingCode\"}}," +
+                "\"findingCode\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9]+(-[a-z0-9]+)*$\"}," +
+                "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+            StandardsFixture.Write(root, "templates/consumer/exception.md", TemplatePage(
+                "{\"type\":\"exception\",\"id\":\"exception/<name>\",\"title\":\"<Exception display title>\"," +
+                "\"kind\":\"gap\",\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
         []);
 

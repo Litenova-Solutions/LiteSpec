@@ -69,6 +69,35 @@ public sealed class ModelStagedTests
             "-c", "commit.gpgsign=false", "commit", "-m", "init");
     }
 
+    /// <summary>Commits the working tree on top of the fixture commit.</summary>
+    static void CommitWork(string path, string message)
+    {
+        RunGit(path, "add", "-A");
+        RunGit(
+            path, "-c", "user.name=Test", "-c", "user.email=test@example.com",
+            "-c", "commit.gpgsign=false", "commit", "-m", message);
+    }
+
+    /// <summary>Reads one finding's outcome and reason from the check JSON.</summary>
+    static (string? Outcome, string? Reason) OutcomeOf(string stdout, string code)
+    {
+        using var document = System.Text.Json.JsonDocument.Parse(stdout);
+
+        foreach (var finding in document.RootElement.GetProperty("findings").EnumerateArray())
+        {
+            if (finding.GetProperty("code").GetString() == code)
+            {
+                var reason = finding.GetProperty("reason");
+
+                return (
+                    finding.GetProperty("outcome").GetString(),
+                    reason.ValueKind == System.Text.Json.JsonValueKind.Null ? null : reason.GetString());
+            }
+        }
+
+        throw new InvalidOperationException($"No finding carries '{code}'.");
+    }
+
     /// <summary>A staged check outside git explains itself and exits 2.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
@@ -134,5 +163,74 @@ public sealed class ModelStagedTests
 
         Assert.Equal(1, full.Status);
         Assert.Contains("write-undeclared", full.Output);
+    }
+
+    /// <summary>A since check blocks on changed findings and reports the rest.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact]
+    public void Check_Since_Blocks_Only_Changed_Findings()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+
+        CommitAll(fixture.Path);
+        ApplyOverlay(fixture.Path, "paging-undeclared");
+        CommitWork(fixture.Path, "paging break");
+        ApplyOverlay(fixture.Path, "write-undeclared");
+
+        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+
+        Assert.Equal(1, since.Status);
+        Assert.Contains("Since HEAD:", since.Output);
+        Assert.Contains("paging-undeclared", since.Output);
+        Assert.Contains("write-undeclared", since.Output);
+        Assert.Contains("[G unchanged]", since.Output);
+
+        var json = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD", "--format", "json");
+        var (pagingOutcome, pagingReason) = OutcomeOf(json.Stdout, "paging-undeclared");
+        var (writeOutcome, _) = OutcomeOf(json.Stdout, "write-undeclared");
+
+        Assert.Equal(1, json.Status);
+        Assert.Contains("\"scope\"", json.Output);
+        Assert.Contains("\"since\"", json.Output);
+        Assert.Equal("reported", pagingOutcome);
+        Assert.Equal("unchanged", pagingReason);
+        Assert.Equal("blocking", writeOutcome);
+
+        var full = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var (fullPaging, _) = OutcomeOf(full.Stdout, "paging-undeclared");
+
+        Assert.Equal(1, full.Status);
+        Assert.Equal("blocking", fullPaging);
+    }
+
+    /// <summary>A since check on a clean tree reports everything and exits 0.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact]
+    public void Check_Since_With_Nothing_Changed_Exits_0()
+    {
+        using var fixture = ModelFixture.Prepare("large", "write-undeclared");
+
+        CommitAll(fixture.Path);
+
+        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+
+        Assert.Equal(0, since.Status);
+        Assert.Contains("Since HEAD: 0 files, 0 records.", since.Output);
+        Assert.Contains("write-undeclared", since.Output);
+    }
+
+    /// <summary>A since check with an unknown revision explains itself and exits 2.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact]
+    public void Check_Since_With_Unknown_Revision_Exits_2()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+
+        CommitAll(fixture.Path);
+
+        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "no-such-ref");
+
+        Assert.Equal(2, since.Status);
+        Assert.Contains("no-such-ref", since.Output);
     }
 }

@@ -38,5 +38,5 @@ Record the minimum Android version. This satisfies `litespec/frontend/mobile/and
 
 ## Check
 
-- The mobile solution builds with no error and no analyzer finding outside a recorded deviation.
+- The mobile solution builds with no error and no analyzer finding outside a recorded exception.
 - `dotnet publish apps/mobile/src/{ProjectName}.Android -c Release` produces an AAB.

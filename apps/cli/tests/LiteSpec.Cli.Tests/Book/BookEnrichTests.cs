@@ -103,7 +103,7 @@ public sealed class BookEnrichTests
         Assert.Null(details["use-case/lending.borrow-copy"]["proof"]);
     }
 
-    /// <summary>Machine states come from the status maps the builder already writes.</summary>
+    /// <summary>Machine states come from the status maps the builder already writes: verified use cases, met requirements.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Machine_States_Come_From_Status_Maps()
@@ -115,12 +115,98 @@ public sealed class BookEnrichTests
         var returned = Obj(details["use-case/lending.return-copy"], "machine");
         Assert.False(BoolOf(returned["implemented"]));
         var shelf = Obj(details["requirement/borrowing.copy-shelf-home"], "machine");
-        Assert.True(BoolOf(shelf["verified"]));
+        Assert.True(BoolOf(shelf["met"]));
+        Assert.Null(shelf["verified"]);
         Assert.Null(shelf["measurePassed"]);
         var wait = Obj(details["requirement/borrowing.max-wait"], "machine");
-        Assert.False(BoolOf(wait["verified"]));
+        Assert.False(BoolOf(wait["met"]));
+        Assert.Null(wait["verified"]);
         Assert.Equal(false, wait["measurePassed"]?.GetValue<bool>());
         Assert.Null(details["goal/faster-borrowing"]["machine"]);
+    }
+
+    /// <summary>A stored scenario state wins over the proves links; a scenario without one still reads its links.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Stored_Scenario_Status_Wins_Over_Proves_Links()
+    {
+        var model = NewModel(
+            Record("scenario", "scenario/borrow-copy.stored", "Stored"),
+            Record("scenario", "scenario/borrow-copy.derived", "Derived"));
+        model["testRun"] = new JsonObject { ["date"] = "2026-10-20" };
+        (model["links"] as JsonObject)!["proves"] = new JsonArray(
+            new JsonObject
+            {
+                ["scenario"] = "Library.Tests.BorrowTests.Stored",
+                ["claim"] = "scenario/borrow-copy.stored",
+                ["confirmed"] = true,
+                ["passing"] = true,
+                ["indirect"] = false,
+            },
+            new JsonObject
+            {
+                ["scenario"] = "Library.Tests.BorrowTests.Derived",
+                ["claim"] = "scenario/borrow-copy.derived",
+                ["confirmed"] = true,
+                ["passing"] = true,
+                ["indirect"] = false,
+            });
+        model["scenarioStatus"] = new JsonObject { ["scenario/borrow-copy.stored"] = "failing" };
+        var details = DetailsOf(model);
+        Assert.Equal("failing", Str(Obj(details["scenario/borrow-copy.stored"], "proof"), "state"));
+        Assert.Equal("passing", Str(Obj(details["scenario/borrow-copy.derived"], "proof"), "state"));
+    }
+
+    /// <summary>An indirect proof reads indirect, never passing.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Indirect_Proof_Reads_Indirect()
+    {
+        var model = NewModel(Record("scenario", "scenario/borrow-copy.background", "Background"));
+        model["testRun"] = new JsonObject { ["date"] = "2026-10-20" };
+        (model["links"] as JsonObject)!["proves"] = new JsonArray(
+            new JsonObject
+            {
+                ["scenario"] = "Library.Tests.BorrowTests.Background",
+                ["claim"] = "scenario/borrow-copy.background",
+                ["confirmed"] = true,
+                ["passing"] = true,
+                ["indirect"] = true,
+            });
+        var proof = Obj(DetailsOf(model)["scenario/borrow-copy.background"], "proof");
+        Assert.Equal("indirect", Str(proof, "state"));
+    }
+
+    /// <summary>Tested proof targets read their tested state from the tested map the builder wrote.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Tested_Comes_From_Tested_Map()
+    {
+        var model = NewModel(
+            Record("requirement", "requirement/borrowing.fast-desk", "Fast Desk", "approved", "approved", """{"kind": "quality"}"""),
+            Record("decision", "decision/0012-use-postgres", "Use Postgres", "approved", "approved"),
+            Record("external-system", "external-system/address-lookup", "Address Lookup", "approved", "approved"),
+            Record("integration-event", "integration-event/loan-borrowed", "Loan Borrowed", "approved", "approved"),
+            Record("decision", "decision/0013-use-sqlite", "Use Sqlite", "draft", "draft"));
+        model["tested"] = new JsonObject
+        {
+            ["requirement/borrowing.fast-desk"] = true,
+            ["decision/0012-use-postgres"] = true,
+            ["external-system/address-lookup"] = false,
+            ["integration-event/loan-borrowed"] = true,
+        };
+        (model["requirementStatus"] as JsonObject)!["requirement/borrowing.fast-desk"] = new JsonObject
+        {
+            ["verified"] = true,
+        };
+        var details = DetailsOf(model);
+        var quality = Obj(details["requirement/borrowing.fast-desk"], "machine");
+        Assert.True(BoolOf(quality["met"]));
+        Assert.True(BoolOf(quality["tested"]));
+        Assert.True(BoolOf(Obj(details["decision/0012-use-postgres"], "machine")["tested"]));
+        Assert.False(BoolOf(Obj(details["external-system/address-lookup"], "machine")["tested"]));
+        Assert.True(BoolOf(Obj(details["integration-event/loan-borrowed"], "machine")["tested"]));
+        Assert.Null(details["decision/0013-use-sqlite"]["machine"]);
     }
 
     /// <summary>Aggregates list their reachable states; other types carry no reachable list.</summary>

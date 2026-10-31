@@ -7,5 +7,6 @@ test(
   async ({ page }) => {
     await page.goto("/expenses");
     await expect(page.getByRole("table", { name: "Your expenses, newest first" })).toBeVisible();
+    await expect(page.getByText("The expenses are listed.")).toBeVisible();
   },
 );

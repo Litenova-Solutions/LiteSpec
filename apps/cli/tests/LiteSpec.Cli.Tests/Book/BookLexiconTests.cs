@@ -228,6 +228,9 @@ public sealed class BookLexiconTests
         Assert.Equal("Every", lexicon.Fields["every"]);
         Assert.Equal("Cron", lexicon.Fields["cron"]);
         Assert.Equal("Manual", lexicon.Fields["manual"]);
+        Assert.Equal("Covers", lexicon.Fields["covers"]);
+        Assert.Equal("Expires on", lexicon.Fields["expiresOn"]);
+        Assert.Equal("Paths", lexicon.Fields["paths"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));
@@ -246,6 +249,8 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("issues"));
         Assert.False(lexicon.Fields.ContainsKey("publishes"));
         Assert.False(lexicon.Fields.ContainsKey("driver"));
+        Assert.False(lexicon.Fields.ContainsKey("removeWhen"));
+        Assert.False(lexicon.Fields.ContainsKey("endsBy"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>

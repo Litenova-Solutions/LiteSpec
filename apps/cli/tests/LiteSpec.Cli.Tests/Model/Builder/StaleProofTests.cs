@@ -26,12 +26,34 @@ public sealed class StaleProofTests
             Assert.True(Verified(first.RootElement));
         }
 
-        Assert.True(File.Exists(Path.Combine(temp.Path, ".model", "proofs.json")));
+        Assert.True(File.Exists(Path.Combine(temp.Path, "docs", "proof", "proofs.json")));
+        Assert.False(File.Exists(Path.Combine(temp.Path, ".model", "proofs.json")));
 
         using var second = Build(temp.Path);
 
         Assert.True(Verified(second.RootElement));
         Assert.Empty(second.RootElement.GetProperty("stale").EnumerateArray());
+    }
+
+    /// <summary>The ledger records the scenario hash and the test hash at the last passing run.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Ledger_Records_Scenario_And_Test_Hashes()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        Write(temp.Path, ProofPath, ProofFile);
+        WriteTrx(temp.Path, "run-1");
+
+        Build(temp.Path).Dispose();
+
+        using var ledger = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(temp.Path, "docs", "proof", "proofs.json")));
+        var entry = ledger.RootElement.GetProperty(Scenario);
+
+        Assert.NotEmpty(entry.GetProperty("scenario").GetString());
+        Assert.NotEmpty(entry.GetProperty("test").GetString());
+        Assert.NotEmpty(entry.GetProperty("run").GetString());
     }
 
     /// <summary>A scenario whose semantic fields change after its proof passed reads stale and unverifies its use case.</summary>
@@ -50,6 +72,29 @@ public sealed class StaleProofTests
         }
 
         Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active for three weeks."));
+
+        using var changed = Build(temp.Path);
+
+        Assert.False(Verified(changed.RootElement));
+        Assert.Contains(Scenario, changed.RootElement.GetProperty("stale").EnumerateArray().Select(entry => entry.GetString()));
+    }
+
+    /// <summary>A test changed after its proof passed reads stale and unverifies its use case.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Test_Changed_After_Its_Proof_Passed_Reads_Stale()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        Write(temp.Path, ProofPath, ProofFile);
+        WriteTrx(temp.Path, "run-1");
+
+        using (var first = Build(temp.Path))
+        {
+            Assert.True(Verified(first.RootElement));
+        }
+
+        Write(temp.Path, ProofPath, ProofFile.Replace("copy-1", "copy-2", StringComparison.Ordinal));
 
         using var changed = Build(temp.Path);
 

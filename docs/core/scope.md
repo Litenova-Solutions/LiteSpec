@@ -24,11 +24,11 @@ Some architectures fall outside what LiteSpec supports: microservices, multiple 
 
 ### Review and Adoption Settings
 
-The project record carries its review settings under `review`: the veto window in days and the name of the security reviewer. Questions on tier 3 records with a recommendation auto-approve after the veto window, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
+The project record carries its review settings under `review`: the veto window in days and, where the project names one, the security reviewer. Questions on tier 3 records with a recommendation auto-approve after the veto window, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Approval stays loose: an agent reading counts as the tier 1 second reading, a project whose owners list holds one name needs no second reviewer, and the security queue is a list to read, not a gate. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
 
 ### What Claiming Conformance Means
 
-A consumer claims conformance when it applies every page its size, shape, and stacks select, selects every extension whose criteria hold, records each deviation against the provision it departs from with its reason and review date, and passes the checks its changed boundaries select. A project outside the supported boundary, or one that skips an applicable page or check, makes no conformance claim.
+A consumer claims conformance when it applies every page its size, shape, and stacks select, selects every extension whose criteria hold, records each exception it relies on with its reason and expiry date, and passes the checks its changed boundaries select. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips an applicable page or check, makes no conformance claim.
 
 ## Standards
 
@@ -141,19 +141,19 @@ The diagram shows the three project choices and what each decides.
 
 **Statement:** A consumer MUST meet every applicable provision before claiming conformance to LiteSpec.
 
-**Rationale:** A conformance claim tells a reader that the whole selected contract holds, not only the parts the project chose to follow. A recorded deviation whose review date has not passed outranks the provision it cites, so a project that records its deviations still meets this provision; an unrecorded departure breaks the claim.
+**Rationale:** A conformance claim tells a reader that the whole selected contract holds, not only the parts the project chose to follow. A recorded exception whose expiry date has not passed outranks the provision or findings it covers, so a project that records its exceptions still meets this provision; an unrecorded departure breaks the claim.
 
-**Example:** A consumer that selects the dotnet stack and the caching extension claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as a deviation.
+**Example:** A consumer that selects the dotnet stack and the caching extension claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as an exception.
 
-**Reviewed for:** `litespec.project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to a deviation record under `docs/governance/deviations/`, and the selected checks pass.
+**Reviewed for:** `litespec.project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to an exception record under `docs/governance/exceptions/`, and the selected checks pass.
 
 ### Record the Review Configuration
 
 **ID:** `litespec/core/scope#record-the-review-configuration`
 
-**Statement:** A consumer MUST record `review.securityReviewer` in `litespec.project.json`.
+**Statement:** A consumer MAY record its veto window and its security reviewer in `review` in `litespec.project.json`.
 
-**Rationale:** The security reviewer clears access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on tier 3 records.
+**Rationale:** The security reviewer reads access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on tier 3 records. The security queue is a list to read, not a gate.
 
 **Example:**
 
@@ -161,7 +161,7 @@ The diagram shows the three project choices and what each decides.
 { "review": { "vetoWindowDays": 7, "securityReviewer": "__OWNER__" } }
 ```
 
-**Checked by:** `litespec consumer` rejects a project record without `review.securityReviewer`.
+**Reviewed for:** Which recommendations lack a veto window, and which security queues lack a named reader where the project wants one? Look at `review` in `litespec.project.json` beside the ballots and the behavior diff.
 
 ### Record the Transcription Endpoint
 

@@ -35,7 +35,7 @@ The browser suite discovers its routes from the generated route tree rather than
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package, using the `uiBaseline` or `uiBaselineSvelte` entry.
 
-**Rationale:** Installing the pinned baseline once into the shared UI package keeps every application on the same source: the CLI's configuration, the registry source, the token stylesheet, and the source lock beside them. Installing per application made one copy each, and drift in any copy was invisible because every copy compiled. An additional registry is permitted only under a deviation recorded against this provision, so the departure stays visible. This realizes litespec/frontend/ui#pin-the-baseline-in-the-shared-package.
+**Rationale:** Installing the pinned baseline once into the shared UI package keeps every application on the same source: the CLI's configuration, the registry source, the token stylesheet, and the source lock beside them. Installing per application made one copy each, and drift in any copy was invisible because every copy compiled. An additional registry is permitted only under an exception recorded against this provision, so the departure stays visible. This realizes litespec/frontend/ui#pin-the-baseline-in-the-shared-package.
 
 **Checked by:** `litespec ui` compares the committed configuration against the manifest baseline fields and reports each mismatch.
 
@@ -55,7 +55,7 @@ The browser suite discovers its routes from the generated route tree rather than
 
 **Statement:** A route MUST render exactly one floorplan from the declared set, unless it is a recorded freestyle route.
 
-**Rationale:** The floorplan fixes the layout, the heading position, and the slots, so a reviewer reads which floorplan a route composes and knows the page's shape. The slots take domain values: the aggregate state, the use cases that state permits, and the refusal results of the called use case. Exactly one floorplan per route keeps layout decisions out of route code; a recorded freestyle route is the visible deviation. This realizes litespec/frontend/ui#compose-each-route-from-one-floorplan.
+**Rationale:** The floorplan fixes the layout, the heading position, and the slots, so a reviewer reads which floorplan a route composes and knows the page's shape. The slots take domain values: the aggregate state, the use cases that state permits, and the refusal results of the called use case. Exactly one floorplan per route keeps layout decisions out of route code; a recorded freestyle route is the visible departure. This realizes litespec/frontend/ui#compose-each-route-from-one-floorplan.
 
 **Example:** An expense route composes the entity floorplan and fills each slot from the expense.
 
@@ -108,7 +108,7 @@ Svelte:
 
 **Statement:** Every route MUST carry a `data-registry-item` attribute naming its page type's registry item, with a freestyle route carrying no attribute and naming its decision record.
 
-**Rationale:** An author with no named reference invents a page from primitives, and the next author invents another. The `data-registry-item` attribute naming the page type's registry item keeps every page of one type on one reference, and a test resolves it. A freestyle route carries no attribute and names its decision record instead, so the deviation is explicit. This realizes litespec/frontend/ui#derive-each-page-type-from-a-named-reference.
+**Rationale:** An author with no named reference invents a page from primitives, and the next author invents another. The `data-registry-item` attribute naming the page type's registry item keeps every page of one type on one reference, and a test resolves it. A freestyle route carries no attribute and names its decision record instead, so the departure is explicit. This realizes litespec/frontend/ui#derive-each-page-type-from-a-named-reference.
 
 **Checked by:** `pnpm playwright test tests/routes/every-route.spec.ts` asserts `data-registry-item` resolves to a published registry item on every non-freestyle route, and `litespec ui` reports each route missing its suite.
 
@@ -136,9 +136,9 @@ Svelte:
 
 **ID:** `litespec/frontend/web/ui#hold-the-declared-base-color`
 
-**Statement:** A token stylesheet MUST carry the values the manifest baseline `baseColor` ramp publishes, and no value outside them except under a recorded deviation.
+**Statement:** A token stylesheet MUST carry the values the manifest baseline `baseColor` ramp publishes, and no value outside them except under a recorded exception.
 
-**Rationale:** A token value outside the published `baseColor` ramp is a second palette beside the declared one, and the next author copies it. Holding the ramp keeps the whole product on one palette. A recorded deviation keeps a deliberate departure visible in the design contract instead of hidden in the stylesheet. This realizes litespec/frontend/ui#hold-the-declared-base-color.
+**Rationale:** A token value outside the published `baseColor` ramp is a second palette beside the declared one, and the next author copies it. Holding the ramp keeps the whole product on one palette. A recorded exception keeps a deliberate departure visible in the design contract instead of hidden in the stylesheet. This realizes litespec/frontend/ui#hold-the-declared-base-color.
 
 **Checked by:** `pnpm stylelint` reports each token value outside the declared base color ramp.
 
@@ -172,7 +172,7 @@ Svelte:
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/web/ui#check-every-route-in-a-browser")`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a test in a frontend's `routeSuite` or `visualGoldens` with no `proves` annotation, and `mark-unknown` (tier S) for one naming a scenario.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a test in a frontend's `routeSuite` or `visualGoldens` with no `proves` annotation, and `mark-unknown` (level S) for one naming a scenario.
 
 ### Prove Every Result a Route Calls
 

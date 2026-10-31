@@ -346,31 +346,51 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "deviation that omits its consequences")]
-    public void DeviationThatOmitsItsConsequences()
+    [Fact(DisplayName = "departure that omits its consequences")]
+    public void DepartureThatOmitsItsConsequences()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/deviations/export-review-bypass.md",
+            "docs/governance/exceptions/export-review-bypass.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"deviation","id":"deviation/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","provision":"litespec/core/scope#select-a-size-a-shape-and-stacks","reason":"The export runs once.","reviewBy":"2027-01-01","removeWhen":"The export is removed.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Export Review Bypass\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
     }
 
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "known gap that omits its exit")]
-    public void KnownGapThatOmitsItsExit()
+    [Fact(DisplayName = "gap that omits its exit")]
+    public void GapThatOmitsItsExit()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/known-gaps/export-unimplemented.md",
+            "docs/governance/exceptions/export-unimplemented.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"known-gap","id":"known-gap/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","check":"behavior-unrecorded","subject":["use-case/orders.cancel-order"],"endsBy":"2027-01-01","reason":"The export ships later.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Export Unimplemented\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Exit'");
+    }
+
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
+    [Fact(DisplayName = "exception carrying its kind's section")]
+    public void ExceptionCarryingItsKindsSection()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.WriteFile(
+            folder.Path,
+            "docs/governance/exceptions/export-review-bypass.md",
+            ConsumerFixture.Page(
+                ConsumerFixture.Meta("""{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                "# Export Review Bypass\n\n## Consequences\n\nThe export runs once outside review.\n"));
+        ConsumerFixture.WriteFile(
+            folder.Path,
+            "docs/governance/exceptions/export-unimplemented.md",
+            ConsumerFixture.Page(
+                ConsumerFixture.Meta("""{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                "# Export Unimplemented\n\n## Exit\n\nThe export ships before the date.\n"));
+        AssertAbsent(RunConsumer(folder.Path), "requires an H2");
     }
 
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>

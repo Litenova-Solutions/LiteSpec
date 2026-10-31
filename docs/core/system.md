@@ -90,13 +90,13 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice`
 
-**Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or deviation that shapes it.
+**Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or exception that shapes it.
 
-**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or a deviation allows it, and a `follows` mark names that reason by identifier. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a retired decision. A class may carry both kinds when it serves a record in a chosen way.
+**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or an exception allows it, and a `follows` mark names that reason by identifier. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a retired decision. A class may carry both kinds when it serves a record in a chosen way.
 
 **Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or exception, a retired record, or a provision on a page the project's stacks do not apply.
 
 ### Declare Every Edge Between Records
 
@@ -207,10 +207,10 @@ docs/
     log/
   runbooks/
     restore-a-backup.md
-  deviations/
-    temporary-direct-database-read.md
-  known-gaps/
-    export-expenses-unimplemented.md
+  governance/
+    exceptions/
+      temporary-direct-database-read.md
+      export-expenses-unimplemented.md
   ui/
     README.md
   glossary.json
@@ -218,7 +218,7 @@ docs/
 
 `product/` holds the brief, the journeys, the actors, and the business intent: one topic page per area with its requirements, and the product decisions, goals, problems, features, and constraints behind them. Actors are Intent records, so they live with Intent as the [model page](model.md) states. `behavior/` holds the roles, permissions, entry points, external systems, rules, and modules.
 
-`operations/` holds the limits, the secret inventory, and the operations log. `runbooks/`, `deviations/`, and `known-gaps/` hold their records. `ui/` holds the first UI decision or guide. `glossary.json` holds the term records.
+`operations/` holds the limits, the secret inventory, and the operations log. `runbooks/` and `governance/exceptions/` hold their records. `ui/` holds the first UI decision or guide. `glossary.json` holds the term records.
 
 Create an optional directory only when its first real artifact exists. Never create empty directories or placeholder records during inception.
 

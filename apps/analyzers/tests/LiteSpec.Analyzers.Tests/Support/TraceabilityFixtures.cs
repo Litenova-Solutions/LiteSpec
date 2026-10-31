@@ -12,13 +12,12 @@ internal static class TraceabilityFixtures
     /// <summary>The docs root every record page lives under.</summary>
     public const string DocsRoot = "/repo/docs";
 
-    /// <summary>A project file with the mark style and the check phase.</summary>
-    public static (string Path, string Source) ProjectFile(string marks = "xml", string phase = "working") =>
+    /// <summary>A project file with the mark style.</summary>
+    public static (string Path, string Source) ProjectFile(string marks = "xml") =>
         (ProjectPath, $$"""
             {
               "project": "Claimwick",
               "marks": "{{marks}}",
-              "check": { "phase": "{{phase}}" },
               "paths": { "docs": "docs" }
             }
             """);
@@ -150,18 +149,26 @@ internal static class TraceabilityFixtures
             }
             """, title);
 
-    /// <summary>An approved deviation covering the files and subjects until 2099.</summary>
-    public static (string Path, string Source) Deviation(
-        string[] code, string[]? subjects = null, string reviewBy = "2099-01-01", string status = "approved") =>
-        Page("deviation.md", $$"""
+    /// <summary>An approved exception covering the codes on the subjects and paths until 2099.</summary>
+    public static (string Path, string Source) Exception(
+        string[] covers,
+        string[]? subjects = null,
+        string[]? paths = null,
+        string id = "exception/marks-deferred",
+        string expiresOn = "2099-01-01",
+        string status = "approved") =>
+        Page(FileOf(id), $$"""
             {
-              "type": "deviation",
-              "id": "deviation/marks-deferred",
+              "type": "exception",
+              "id": "{{id}}",
               "title": "Marks deferred",
               "status": "{{status}}",
-              "reviewBy": "{{reviewBy}}",
-              "code": [{{string.Join(", ", code.Select(Quote))}}],
-              "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}]
+              "kind": "gap",
+              "covers": [{{string.Join(", ", covers.Select(Quote))}}],
+              "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
+              "paths": [{{string.Join(", ", (paths ?? []).Select(Quote))}}],
+              "reason": "Marks are deferred.",
+              "expiresOn": "{{expiresOn}}"
             }
             """, "Marks deferred");
 
@@ -223,20 +230,6 @@ internal static class TraceabilityFixtures
               "status": "{{status}}"
             }
             """, title);
-
-    /// <summary>An open known gap covering the check on the subjects until 2099.</summary>
-    public static (string Path, string Source) KnownGap(string check, string[] subjects, string endsBy = "2099-01-01") =>
-        Page("gap.md", $$"""
-            {
-              "type": "known-gap",
-              "id": "known-gap/marks",
-              "title": "Marks",
-              "status": "approved",
-              "check": "{{check}}",
-              "subject": [{{string.Join(", ", subjects.Select(Quote))}}],
-              "endsBy": "{{endsBy}}"
-            }
-            """, "Marks");
 
     private static (string Path, string Source) Page(string file, string json, string heading) =>
         ($"{DocsRoot}/{file}", $"---\n{json}\n---\n\n# {heading}\n");

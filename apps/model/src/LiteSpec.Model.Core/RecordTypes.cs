@@ -15,7 +15,7 @@ public static class RecordTypes
         "feature", "topic", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "automation", "notification", "setting",
-        "entry-point", "screen", "external-system", "runbook", "deviation", "known-gap", "term",
+        "entry-point", "screen", "external-system", "runbook", "exception", "term",
     };
 
     /// <summary>
@@ -35,7 +35,7 @@ public static class RecordTypes
             ["notification"] = "behavior", ["setting"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
-            ["deviation"] = "governance", ["known-gap"] = "governance",
+            ["exception"] = "governance",
         };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
@@ -58,7 +58,7 @@ public static class RecordTypes
     {
         "product", "decision", "requirement", "actor", "role", "permission",
         "module", "aggregate", "rule", "use-case", "result", "event",
-        "entry-point", "deviation", "known-gap", "term",
+        "entry-point", "exception", "term",
     };
 
     /// <summary>Types only the large size requires.</summary>

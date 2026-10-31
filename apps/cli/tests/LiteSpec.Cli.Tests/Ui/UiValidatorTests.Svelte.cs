@@ -95,7 +95,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteManifest("dependencies", new JsonObject { ["flowbite-svelte"] = "1.33.1" });
         UiFixture.AssertProblem(
             fixture.Run(),
-            "second general-purpose visual dependency 'flowbite-svelte' requires a deviation");
+            "second general-purpose visual dependency 'flowbite-svelte' requires an exception");
     }
 
     // Svelte baseline (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package,
@@ -231,27 +231,27 @@ public sealed partial class UiValidatorTests
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void A_Svelte_Registry_Deviation_Carries_The_Frontend_Provision()
+    public void A_Svelte_Registry_Exception_Carries_The_Frontend_Provision()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
         var components = (JsonObject)UiFixture.ReadJson(fixture.ComponentsFile)!;
         components["registry"] = "https://blocks.fixture.test";
         UiFixture.WriteJson(fixture.ComponentsFile, components);
-        fixture.WriteDeviation("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteException("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void A_Svelte_UI_Deviation_With_An_Expired_Review_Date()
+    public void A_Svelte_UI_Exception_With_An_Expired_Date()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
-        fixture.WriteDeviation("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/deviations/ui-authority.md: review date 2020-01-01 has passed; renew the decision");
+            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.md: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>

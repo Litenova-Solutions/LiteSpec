@@ -42,7 +42,7 @@ Every edge between use cases, automations, notifications, integration events, an
 
 **Rationale:** Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend's whole command and query split depends on that difference.
 
-The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records a deviation against the binding convention rather than touching this rule.
+The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records an exception against the binding convention rather than touching this rule.
 
 **Reviewed for:** Each dispatch site calls the command entry point or the query entry point, with no unified bus.
 
@@ -245,7 +245,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** Each `calls` effect MUST run in an event handler or automation through the port operation its record names, after the commit of the command that raised its trigger.
 
-**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a provider call runs in an event handler or automation after the commit. The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`. A provider call whose result the command needs before it can answer is a deviation: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a deviation naming the compensation that undoes it.
+**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a provider call runs in an event handler or automation after the commit. The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`. A provider call whose result the command needs before it can answer is a departure: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records an exception naming the compensation that undoes it.
 
 **Example:** An event handler that calls an expense payout operation names it through the record's `calls` entry and the port method; a direct provider call fails the check.
 
@@ -293,7 +293,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** A handler MUST read a setting record through a typed options value, or through stored tenant data where the record's `setBy` is `tenant`.
 
-**Rationale:** A setting record owns its type, its default, its range, its unit, and what happens at the bound. Founder-set and operator-set values bind to typed options the host validates at startup, so a bad value fails before traffic arrives. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant. A raw configuration lookup bypasses the type, the range, and the bound, so no handler uses one.
+**Rationale:** A setting record owns its type, its default, its range, its unit, and what happens at the bound. Decider-set and operator-set values bind to typed options the host validates at startup, so a bad value fails before traffic arrives. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant. A raw configuration lookup bypasses the type, the range, and the bound, so no handler uses one.
 
 **Example:** The receipt threshold binds to a spending options value; the handler reads the bound and refuses past it with `atBound: refuse`.
 
@@ -451,7 +451,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The submit-expense aggregate raises its submitted fact, and an event handler sends the approver notice after the commit.
 
-**Checked by:** `litespec model check` reports `effect-timing-invalid` (tier S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
+**Checked by:** `litespec model check` reports `effect-timing-invalid` (level S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
 
 ### Run Heavy Work as a Request Then a Build
 
@@ -475,7 +475,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
 
-**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (tier A) for a handler or automation taking more than ten constructor dependencies.
+**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (level A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (level A) for a handler or automation taking more than ten constructor dependencies.
 
 ### Read No Repository Inside a Loop
 
@@ -487,7 +487,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reminder automation loads due loans with one scoped query instead of reading each loan inside its loop.
 
-**Checked by:** `litespec model check` reports `repository-read-invalid` (tier A) for a repository read inside a loop body.
+**Checked by:** `litespec model check` reports `repository-read-invalid` (level A) for a repository read inside a loop body.
 
 ## Conventions
 

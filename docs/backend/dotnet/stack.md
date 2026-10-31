@@ -22,11 +22,11 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
-**Rationale:** Each S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. S checks block where this reader is qualified and report elsewhere.
+**Rationale:** Each level S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`: a repository serves the aggregate its implementing class names in an `implements` mark, or, with no such mark, the aggregate its interface names. Returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unreached` and `use-case-scenario-missing` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. Level S checks block where this reader is qualified and report elsewhere.
 
 **Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the event handler class carries `/// <implements>automation/spending.send-approver-reminder-on-expense-submitted</implements>`.
 
-**Checked by:** `litespec model check` reports its tier beside each S finding read from C# code and test results.
+**Checked by:** `litespec model check` reports its level beside each level S finding read from C# code and test results.
 
 ### Write Each Mark in the Declared Style
 
@@ -53,7 +53,7 @@ In the `attribute` style:
 internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
 ```
 
-**Checked by:** `litespec model check` reports `mark-style-invalid` (tier S), and `dotnet build` reports `LS5004`, for a mark written in the style the project did not declare.
+**Checked by:** `litespec model check` reports `mark-style-invalid` (level S), and `dotnet build` reports `LS5004`, for a mark written in the style the project did not declare.
 
 ### Generate Runtime Values from the Records
 
@@ -72,7 +72,7 @@ public sealed partial record ExpenseSubmittedEvent(ExpenseId ExpenseId, Money Am
 
 The generated part holds `public const string Classification = "event/expense.submitted";`.
 
-**Checked by:** `litespec model check` reports `runtime-value-drift` (tier S) for a hand-written value that differs from its record, and `dotnet build` reports `LS5005` for the same value.
+**Checked by:** `litespec model check` reports `runtime-value-drift` (level S) for a hand-written value that differs from its record, and `dotnet build` reports `LS5005` for the same value.
 
 ### Generate the Registry, Permissions, and Roles from the Records
 
@@ -96,7 +96,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Example:** `public sealed partial record ExpenseSubmittedEvent(...)` takes its generated `Classification`; the same record without `partial` is reported.
 
-**Checked by:** `litespec model check` reports `partial-missing` (tier S), and `dotnet build` reports `LS5006`, for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
+**Checked by:** `litespec model check` reports `partial-missing` (level S), and `dotnet build` reports `LS5006`, for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
 
 ### Write Test Results the Model Builder Reads
 
@@ -104,9 +104,9 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 
-**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, verifies no scenario even when every test passes.
+**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes.
 
-**Checked by:** `litespec model check` reports no scenario verified when no result file exists.
+**Checked by:** `litespec model check` reports no scenario proved when no result file exists.
 
 ## Conventions
 

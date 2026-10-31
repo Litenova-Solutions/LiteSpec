@@ -192,7 +192,7 @@ static partial class OperationsChecks
 
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
-    ///     the carried release on an applied page, or a decision or deviation that
+    ///     the carried release on an applied page, or a decision or exception that
     ///     is not retired.
     /// </summary>
     private static void CheckOperationsFollows(ProjectModel model, string relative, OperationsMark mark, List<Finding> findings)
@@ -216,11 +216,11 @@ static partial class OperationsChecks
             return;
         }
 
-        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("deviation/", StringComparison.Ordinal))
+        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("exception/", StringComparison.Ordinal))
         {
-            if (!model.ById.TryGetValue(id, out var record) || (record.Type != "decision" && record.Type != "deviation"))
+            if (!model.ById.TryGetValue(id, out var record) || (record.Type != "decision" && record.Type != "exception"))
             {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or deviation.", mark.File, mark.Line, id));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or exception.", mark.File, mark.Line, id));
             }
             else if (record.Status == "retired")
             {
@@ -232,11 +232,11 @@ static partial class OperationsChecks
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or deviation.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or exception.", mark.File, mark.Line, id));
         }
         else
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or deviation.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or exception.", mark.File, mark.Line, id));
         }
     }
 

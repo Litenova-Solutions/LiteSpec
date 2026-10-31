@@ -92,18 +92,17 @@ static partial class ConsumerValidator
     {
         if (entry is JsonValue && AsString(entry) is string id)
         {
-            return new Selection(id, id, null, null, []);
+            return new Selection(id, id, null, null);
         }
 
         if (entry is JsonObject container)
         {
             var selectedId = PropString(container, "id");
-            var deferred = container["deferredProvisions"] is JsonArray provisions ? provisions.ToList() : new List<JsonNode?>();
 
-            return new Selection(selectedId, PropText(container, "id"), PropString(container, "reviewBy"), PropString(container, "releaseStage"), deferred);
+            return new Selection(selectedId, PropText(container, "id"), PropString(container, "reviewBy"), PropString(container, "releaseStage"));
         }
 
-        return new Selection(null, "undefined", null, null, []);
+        return new Selection(null, "undefined", null, null);
     }
 
     /// <summary>
@@ -274,56 +273,72 @@ static partial class ConsumerValidator
             }
         }
 
-        // The schema refuses a stage selection without a release stage. A deferral
-        // naming no provision defers nothing, one past its date has drifted, and a
-        // production project defers nothing at all.
-        var stage = run.Selections.FirstOrDefault(selection => selection.Id == "stage");
-        var deferrals = stage?.DeferredProvisions ?? [];
+        // The schema refuses a stage selection without a release stage. Deferrals
+        // live in departure exception records, checked after the page scan.
+    }
 
-        if (stage?.ReleaseStage == "production" && deferrals.Count > 0)
+    /// <summary>
+    ///     Holds stage deferrals to their exception records: each departure names its
+    ///     deferred provision in covers, so a deferral of an unknown provision and any
+    ///     deferral under production are refused here. A deferral past its date belongs
+    ///     to the model check, which reports exception-expired.
+    /// </summary>
+    static void CheckStageDeferrals(RunState run)
+    {
+        var stage = run.Selections.FirstOrDefault(selection => selection.Id == "stage");
+
+        if (stage is null)
+        {
+            return;
+        }
+
+        // The page scan already reported every malformed block, so this pass reads
+        // quietly and keeps the departure exceptions only.
+        var deferrals = new List<(string Relative, string Id, string? Provision)>();
+
+        foreach (var file in run.Files)
+        {
+            var relative = run.Relative(file);
+            var meta = ParseBlock(run.ReadText(file), relative, _ => { });
+
+            if (meta is JsonObject page
+                && PropString(page, "type") == "exception"
+                && PropString(page, "kind") == "departure")
+            {
+                deferrals.Add((relative, PropText(page, "id"), AsString(page["covers"])));
+            }
+        }
+
+        if (stage.ReleaseStage == "production" && deferrals.Count > 0)
         {
             run.Err($"litespec.project.json: extensions 'stage' declares production and still defers {deferrals.Count} provision(s); the promotion decision ends every deferral");
         }
 
-        if (deferrals.Count > 0)
+        if (deferrals.Count == 0)
         {
-            var indexFile = Path.Combine(run.StandardsRoot, "docs", "reference", "provisions.md");
-            var knownProvisions = new HashSet<string>(StringComparer.Ordinal);
+            return;
+        }
 
-            if (File.Exists(indexFile))
+        var indexFile = Path.Combine(run.StandardsRoot, "docs", "reference", "provisions.md");
+        var knownProvisions = new HashSet<string>(StringComparer.Ordinal);
+
+        if (File.Exists(indexFile))
+        {
+            foreach (Match match in ProvisionRow.Matches(run.ReadText(indexFile)))
             {
-                foreach (Match match in ProvisionRow.Matches(run.ReadText(indexFile)))
-                {
-                    knownProvisions.Add(match.Groups[1].Value);
-                }
+                knownProvisions.Add(match.Groups[1].Value);
+            }
+        }
+
+        foreach (var (relative, id, provision) in deferrals)
+        {
+            // A covers that is no string already failed the record schema beside this page.
+            if (provision is null || knownProvisions.Contains(provision))
+            {
+                continue;
             }
 
-            foreach (var deferral in deferrals)
-            {
-                var detail = deferral as JsonObject;
-                var provision = detail is not null
-                    && detail.TryGetPropertyValue("provision", out var provisionValue)
-                    && IsTruthy(provisionValue)
-                    ? JsText(provisionValue)
-                    : null;
-
-                if (provision is null)
-                {
-                    continue;
-                }
-
-                if (!knownProvisions.Contains(provision))
-                {
-                    run.Err($"litespec.project.json: extensions 'stage' defers '{provision}', which is not a provision in the pinned LiteSpec release");
-                }
-
-                var until = PropString(detail, "until");
-
-                if (!string.IsNullOrEmpty(until) && string.CompareOrdinal(until, run.Today) < 0)
-                {
-                    run.Err($"litespec.project.json: extensions 'stage' deferral of '{provision}' ended on {until}; apply the provision or record a new deferral");
-                }
-            }
+            run.Err($"{relative}: exception '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release");
         }
     }
 

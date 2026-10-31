@@ -6,7 +6,7 @@ A specification is a tree, and no reader reads the whole tree at once. This page
 
 ## Why Before How
 
-Read Intent before Behavior. Start at the product: the brief, the goals, the problems, the features, the constraints, the decisions, and the requirements. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the reactions, jobs, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
+Read Intent before Behavior. Start at the product: the brief, the goals, the problems, the features, the constraints, the decisions, and the requirements. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the automations, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
 
 A reviewer who reads Behavior first meets behavior with no reason. A reviewer who reads Intent first meets each use case as the answer to a requirement, and each requirement as the answer to a problem or goal.
 
@@ -19,7 +19,7 @@ Follow one journey from its goal to its proof. Product readers take this track t
 3. Each step's serving use cases: one line of goal each, with the Then clauses of their scenarios as context.
 4. The consequences box as context: new refusals in product words, data kept and for how long, and money effects.
 5. The open questions on the journey and its requirements, grouped in their ballots.
-6. The proof: the tests the model links to each scenario, and whether each reads verified.
+6. The proof: the tests the model links to each scenario, and whether each use case reads verified.
 
 For example, follow the journey that carries an expense from submission to reimbursement: its steps run through use cases such as Submit expense, each result names how its step ends, and each scenario is proven by a passing test. When every scenario on the journey is proven, the journey holds.
 
@@ -31,7 +31,7 @@ Follow one module from its aggregates to its proof. Developers take this track t
 2. Each aggregate: its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data.
 3. The rules that govern the aggregates, and the domain and integration events they raise and translate.
 4. Each use case with its access, consistency, effects, results, and scenarios.
-5. The reactions, jobs, notifications, and settings that surround the use cases, and the retention row that schedules each data class.
+5. The automations, notifications, and settings that surround the use cases, and the retention row that schedules each data class.
 6. The proof: the tests the model links to each scenario.
 
 For example, the spending module holds the expense aggregate with its states and transitions, the rules that govern it, and use cases such as Submit expense. When every scenario in the module is proven, the module holds.
@@ -63,8 +63,7 @@ Every record uses the same structural words: the record types, the links between
 | use case | One command or query. |
 | result | One way a use case ends: success, or refusal with a code. |
 | scenario | One example in given, when, then that proves a result. |
-| reaction | When an event fires, issue a use case or send a notification. |
-| job | Scheduled, one-off, or operator work that issues use cases. |
+| automation | Event, scheduled, or manual work that runs use cases. |
 | notification | One person-facing message with its addresses, channel, and consent. |
 | setting | One tunable with its default, range, setter, and bound behavior. |
 | actor | One person, organization, or system that acts. |
@@ -74,8 +73,7 @@ Every record uses the same structural words: the record types, the links between
 | external system | One outside system the product talks to, with its operations and erasure. |
 | retention schedule | When each data class is erased and what enforces it. |
 | runbook | What to do when a trigger fires. |
-| deviation | One departure from a provision, with a review date. |
-| known gap | One accepted problem, with an owner and an end date. |
+| exception | One departure from a provision, or one check staying red, with an owner and an expiry date. |
 
 ### Links
 
@@ -83,21 +81,20 @@ Every record uses the same structural words: the record types, the links between
 |:---|:---|
 | solves | The feature answers this problem. |
 | advances | The feature advances this goal. |
-| serves | The journey serves this goal; the use case, reaction, job, or screen serves this journey step. |
+| serves | The journey serves this goal; the use case or screen serves this journey step. |
 | fulfills | This record answers the requirement it names. |
-| basedOn | The evidence or record this one builds on. |
-| cites | The records behind this requirement or journey. |
+| cites | The records behind this requirement, journey, or widened read. |
 | decides | The decision settles this record. |
 | replaces | The decision overturns this earlier decision. |
 | governs | The rule binds this use case or aggregate. |
-| access | The auth kinds, grant, and tenant scope this use case declares. |
+| access | The grant and tenant scope this use case declares. |
 | reachedThrough | Readers reach the use case through this entry point. |
-| raises | The use case emits this event. |
-| issues | This reaction, job, or effect runs this use case. |
-| sends | This reaction or effect sends this notification. |
-| publishes | This effect emits this integration event. |
+| raises | The use case raises this event. |
+| runs | This automation or effect runs this use case. |
+| sends | This automation or effect sends this notification. |
+| emits | This effect emits this integration event. |
 | calls | This effect calls this external-system operation. |
-| on | The event this reaction answers. |
+| triggeredBy | The event, schedule, or manual start this automation answers. |
 | holds | The actor carries this role at a scope. |
 | allows | The role grants this permission. |
 
@@ -110,16 +107,16 @@ Every record uses the same structural words: the record types, the links between
 | reviewed | The Behavior record holds. |
 | retired | A newer record replaced it. |
 | implemented | The builder found code for it. |
-| verified | Passing tests prove it. |
+| verified | A use case whose every scenario has a passing proof. |
 | stale | Its proof predates its latest semantic change. |
 | reachable | A transition leads into the state. |
 | command, query | The two use case kinds: change, ask. |
 | invariant, precondition, calculation, cross-aggregate, atomicity, reservation, commercial-data, default | The eight rule kinds. |
 | functional, quality, policy | The three requirement kinds: behavior, measure, terms and dates. |
 | success, refusal | The two result outcomes: it worked, or it ended with a code. |
-| scheduled, one-off, operator | The three job kinds. |
+| event, schedule, manual | The three automation triggers. |
 | inline, after-commit, async | The three effect timings. |
-| atomic, per-record, compensated, best-effort | The four consistency modes. |
+| atomic, per-record, compensated | The three consistency modes. |
 | planned, shipped, later, refused | The four feature states. |
 
 ## Which Track to Take

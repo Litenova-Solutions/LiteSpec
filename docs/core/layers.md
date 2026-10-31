@@ -17,7 +17,7 @@ LiteSpec work moves through four record layers. Each record layer answers one qu
 | Implementation | How is it built? | Agents | Check level S; developers sample |
 | Proof | How do we know it holds? | The builder | Check levels G and S |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance records, `deviation` and `known-gap`, attach to any record layer.
+The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
 
 ### Translation Rules
 
@@ -83,7 +83,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each scenario MUST be proved by one test through the public boundary.
 
-**Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof. A proof goes stale when its scenario's semantic hash changes, while rewording prose leaves the proof green.
+**Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof. A proof goes stale when its scenario hash or its test-body hash changes, while rewording prose leaves the proof green.
 
 **Checked by:** `litespec model check` emits no `use-case-scenario-missing` or `proves-unreached` finding across scenarios and tests.
 
@@ -121,15 +121,15 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Reviewed for:** Which records with a changed parent still show a passing review and proof? Look at the flagged records beside their updated parents.
 
-### Close Incident Deviations Within Seven Days
+### Close Incident Exceptions Within Seven Days
 
-**ID:** `litespec/core/layers#close-incident-deviations-within-seven-days`
+**ID:** `litespec/core/layers#close-incident-exceptions-within-seven-days`
 
-**Statement:** A production incident fix that ships before its question is answered MUST carry a time-boxed incident deviation that becomes a draft question within seven days.
+**Statement:** A production incident fix that ships before its question is answered MUST carry a time-boxed incident exception that becomes a draft question within seven days.
 
-**Rationale:** A production incident ships its fix before any question is answered, at 02:00 if that is when the page fires. The time-boxed incident deviation records what shipped and why, and turning it into a draft question within seven days returns the choice to an accountable person. The release gate counts aged incident deviations, so a forgotten deviation stays visible.
+**Rationale:** A production incident ships its fix before any question is answered, at 02:00 if that is when the page fires. The time-boxed incident exception records what shipped and why, and turning it into a draft question within seven days returns the choice to an accountable person. One person may approve it. The release gate counts aged incident exceptions, so a forgotten exception stays visible.
 
-**Reviewed for:** Which incident fixes lack a deviation, or carry one older than seven days without a draft question? Look in the deviations records beside the release gate.
+**Reviewed for:** Which incident fixes lack an exception, or carry one older than seven days without a draft question? Look in the exception records beside the release gate.
 
 ### Record Changed Provider Behavior as Observed Research
 

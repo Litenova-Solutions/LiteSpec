@@ -16,7 +16,7 @@ litespec model check --root apps/cli/tests/LiteSpec.Cli.Tests/Fixtures/Model/sma
 
 ## Fixtures
 
-- `small/` is a library loans system at size small. It holds one module, three aggregates, eight use cases, results, rules, events, actors, roles, permissions, entry points, terms, one deviation, and one known gap. It has no goals, problems, features, journeys, scenarios, constraints, research, settings, reactions, jobs, notifications, or runbooks. Seven use cases have handlers. The eighth is covered by the open known gap.
+- `small/` is a library loans system at size small. It holds one module, three aggregates, eight use cases, results, rules, events, actors, roles, permissions, entry points, terms, and two exceptions. It has no goals, problems, features, journeys, scenarios, constraints, research, settings, reactions, jobs, notifications, or runbooks. Seven use cases have handlers. The eighth is covered by the open exception.
 - `large/` holds the same records plus one goal, problems, features, one journey, one scenario per use case, constraints, research, one setting, one reaction, one job, one notification, runbooks, one external system, and a frontend route that imports a generated client operation. Each scenario has one proving test.
 
 Both fixtures exit 0 under `check`. Each names the same owner, reviews every Behavior record, approves every Intent record, stamps every approval hash, and resolves every citation.
@@ -38,12 +38,12 @@ The builder and the suite use these codes:
 - `erasure-undeclared`
 - `except-fallback-missing`
 - `exemption-expired`
-- `gap-finding-unknown`
+- `exception-finding-unknown`
 - `identifier-duplicate`
 - `identifier-invalid`
 - `field-invalid`
 - `use-case-journey-missing`
-- `known-gap-expired`
+- `exception-expired`
 - `link-unknown`
 - `notification-sender-missing`
 - `job-guard-missing`
@@ -84,4 +84,4 @@ The builder and the suite use these codes:
 
 `broken/<code>/` holds only the files that differ from `large/`. The suite copies `large/` to a temporary folder, copies the overlay files over it, deletes the paths listed in `DELETES.txt` when that file exists, and removes `DELETES.txt` before running the check. Each overlay exits 1 with its one finding code.
 
-An open known gap that names the finding code and the subject reports the finding as known and exits 0. An expired gap exits 1.
+An open exception that names the finding codes and the subject reports the finding as excepted and exits 0. An expired exception exits 1.

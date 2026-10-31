@@ -136,6 +136,12 @@ Source: DDD.
 
 These terms name the records and domain concepts a specification is written in.
 
+### Access
+
+One risk value marking records that decide who may act.
+
+Source: LiteSpec.
+
 ### Actor
 
 One person, organization, or system that acts in the product.
@@ -300,16 +306,6 @@ Layer: Intent.
 
 Source: decision records.
 
-### Deviation
-
-One recorded departure from a provision, with reason and review date.
-
-Layer: Intent or Behavior.
-
-Source: compliance and quality practice.
-
-Rejected: override and standards override, which sound permanent where a deviation expires.
-
 ### Domain
 
 The real-world knowledge, language, rules, state, and behavior the software models.
@@ -357,6 +353,16 @@ Source: plain English.
 One Markdown table of rows a scenario walks through, holding the values the parts argue about.
 
 Source: BDD.
+
+### Exception
+
+One recorded departure from a provision or one check held red, with its reason, owner, and expiry date.
+
+Layer: Intent or Behavior.
+
+Source: LiteSpec.
+
+Rejected: deviation and known gap, which named two records where one holds both.
 
 ### External System
 
@@ -442,14 +448,6 @@ Layer: Intent.
 
 Source: plain English.
 
-### Known Gap
-
-One known missing piece with an owner and an end date. A draft past its decide-by date that cannot auto-approve is reported as one.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
-
 ### Lifecycle
 
 The planned, shipped, later, or refused span of one feature.
@@ -474,6 +472,12 @@ Layer: Behavior.
 
 Source: DDD.
 
+### Money
+
+One risk value marking records that move, hold, or decide money.
+
+Source: LiteSpec.
+
 ### Notification
 
 One person-facing message with its addresses, channel, consent, and claims.
@@ -497,6 +501,18 @@ One allowed action from the shared closed list.
 Layer: Behavior.
 
 Source: RBAC.
+
+### Personal Data
+
+One risk value marking records that keep personal or sensitive data.
+
+Source: LiteSpec.
+
+### Physical Access
+
+One risk value marking records that control who passes a physical boundary.
+
+Source: LiteSpec.
 
 ### Policy Requirement
 
@@ -922,7 +938,7 @@ Source: LiteSpec.
 
 ### Exercised
 
-The computed state of a journey step that a scenario shows.
+The computed state of a journey step with a passing proof of a use case serving it.
 
 Source: LiteSpec.
 
@@ -941,6 +957,18 @@ Source: LiteSpec.
 ### Finding
 
 One issue litespec model check or litespec consumer reports, with its level, code, message, path, and line.
+
+Source: LiteSpec.
+
+### Flaky
+
+The computed state of a proof whose test both passed and failed within the runs read.
+
+Source: LiteSpec.
+
+### Governance
+
+The group of records beside the four record layers, holding exceptions.
 
 Source: LiteSpec.
 
@@ -998,7 +1026,7 @@ Rejected: anchor and tag, which name the link by one of its forms.
 
 ### Met
 
-The computed state of a requirement everything fulfilling it proves.
+The computed state of a requirement everything fulfilling it verifies, with its measure's check passing.
 
 Source: LiteSpec.
 
@@ -1116,13 +1144,13 @@ Source: security practice.
 
 ### Security Queue
 
-The list in the behavior diff of access widenings, new outside calls, and new personal-data flows awaiting the security reviewer.
+The list in the behavior diff of access widenings, new outside calls, and new personal-data flows; a list the security reviewer reads, not a gate.
 
 Source: LiteSpec.
 
 ### Security Reviewer
 
-The named role reviewing tier-1 access and data changes, held in review.securityReviewer.
+The optional role reading tier-1 access and data changes, named in review.securityReviewer where the project names one.
 
 Source: LiteSpec.
 
@@ -1166,7 +1194,7 @@ Source: LiteSpec.
 
 ### Stale
 
-The computed state of a proof whose scenario changed after its test last passed.
+The computed state of a proof whose scenario or test body changed after its test last passed.
 
 Source: LiteSpec.
 
@@ -1188,9 +1216,15 @@ One provider processing personal data for the product.
 
 Source: the GDPR.
 
+### Task Authorizer
+
+The person who gave the agent its task; in a one-person team, the owner.
+
+Source: LiteSpec.
+
 ### Tested
 
-A passing test carrying an assertion.
+The computed state of a record with a passing test that asserts something linking to it.
 
 Source: LiteSpec.
 
@@ -1208,7 +1242,7 @@ Source: LiteSpec.
 
 ### Verified
 
-The computed state of a use case every scenario proves.
+The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale.
 
 Source: LiteSpec.
 

@@ -4,46 +4,11 @@ using System.Collections.Generic;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The project phase a check runs in, from check.phase in litespec.project.json.
-/// </summary>
-public enum ProjectPhase
-{
-    /// <summary>The project moves code and tests together; proof findings block as their tier states.</summary>
-    Working = 0,
-
-    /// <summary>The project holds its tests still; proof findings report without blocking.</summary>
-    Frozen = 1,
-}
-
-/// <summary>Writes a <see cref="ProjectPhase" /> back to its project file value.</summary>
-/// <follows>litespec/core/model#hold-proof-findings-while-tests-are-frozen</follows>
-public static class ProjectPhaseExtensions
-{
-    /// <summary>Returns <c>working</c> or <c>frozen</c> for the phase.</summary>
-    /// <param name="phase">The phase to write.</param>
-    /// <returns>The project file value.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The phase is not a known value.</exception>
-    public static string ToProjectValue(this ProjectPhase phase)
-    {
-        switch (phase)
-        {
-            case ProjectPhase.Working:
-                return "working";
-            case ProjectPhase.Frozen:
-                return "frozen";
-            default:
-                throw new ArgumentOutOfRangeException(nameof(phase), phase, "Unknown project phase.");
-        }
-    }
-}
-
-/// <summary>
-///     The check settings a host reads from litespec.project.json: the mark style, the check phase,
+///     The check settings a host reads from litespec.project.json: the mark style
 ///     and the domain verbs the project adds to the baseline use-case vocabulary.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
-/// <param name="Phase">The declared check phase.</param>
-public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
+public sealed record ProjectSettings(MarkStyle Marks)
 {
     /// <summary>The domain verbs the project adds to the baseline vocabulary.</summary>
     public IReadOnlyList<string> Verbs { get; init; } = Array.Empty<string>();
@@ -56,8 +21,8 @@ public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
 
     /// <summary>
     ///     Reads the settings from the project file text. A missing value reads as its
-    ///     default: xml marks and the working phase. An unknown value is an error the
-    ///     host prints, never a silent default.
+    ///     default: xml marks. An unknown value is an error the host prints,
+    ///     never a silent default.
     /// </summary>
     /// <param name="text">The project file text.</param>
     /// <param name="settings">The parsed settings, or the defaults when parsing fails.</param>
@@ -65,7 +30,7 @@ public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
     /// <returns>Whether the text holds known settings.</returns>
     public static bool TryParse(string text, out ProjectSettings settings, out string? error)
     {
-        settings = new ProjectSettings(MarkStyle.Xml, ProjectPhase.Working);
+        settings = new ProjectSettings(MarkStyle.Xml);
         error = null;
 
         JsonText root;
@@ -91,12 +56,7 @@ public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
             return false;
         }
 
-        if (!TryReadPhase(root, out var phase, out error))
-        {
-            return false;
-        }
-
-        settings = new ProjectSettings(marks, phase)
+        settings = new ProjectSettings(marks)
         {
             Verbs = VocabularyNames(root, "verbs"),
             QueryVerbs = VocabularyNames(root, "queryVerbs"),
@@ -146,64 +106,6 @@ public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
         error = value.GetString() is string named
             ? "litespec.project.json: unknown marks \"" + named + "\"; expected \"xml\" or \"attribute\"."
             : "litespec.project.json: marks must be \"xml\" or \"attribute\".";
-        return false;
-    }
-
-    private static bool TryReadPhase(JsonText root, out ProjectPhase phase, out string? error)
-    {
-        phase = ProjectPhase.Working;
-        error = null;
-
-        if (!root.TryGetProperty("check", out var check) || check.Kind == JsonKind.Null)
-        {
-            return true;
-        }
-
-        if (check.Kind != JsonKind.Object)
-        {
-            error = "litespec.project.json: check must be an object with phase \"working\" or \"frozen\".";
-            return false;
-        }
-
-        if (!check.TryGetProperty("phase", out var value) || value.Kind == JsonKind.Null)
-        {
-            return true;
-        }
-
-        if (value.GetString() is string text && TryParsePhase(text, out phase))
-        {
-            return true;
-        }
-
-        error = value.GetString() is string named
-            ? "litespec.project.json: unknown check.phase \"" + named + "\"; expected \"working\" or \"frozen\"."
-            : "litespec.project.json: check.phase must be \"working\" or \"frozen\".";
-        return false;
-    }
-
-    private static bool TryParsePhase(string? value, out ProjectPhase phase)
-    {
-        if (value is null || value.Trim().Length == 0)
-        {
-            phase = ProjectPhase.Working;
-            return true;
-        }
-
-        var text = value.Trim();
-
-        if (text.Equals("working", StringComparison.OrdinalIgnoreCase))
-        {
-            phase = ProjectPhase.Working;
-            return true;
-        }
-
-        if (text.Equals("frozen", StringComparison.OrdinalIgnoreCase))
-        {
-            phase = ProjectPhase.Frozen;
-            return true;
-        }
-
-        phase = ProjectPhase.Working;
         return false;
     }
 

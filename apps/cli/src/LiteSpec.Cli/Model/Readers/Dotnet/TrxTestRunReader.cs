@@ -60,10 +60,7 @@ sealed class TrxTestRunReader : ITestRunReader
 
                 foreach (var method in NamesOf(name))
                 {
-                    if (!run.OutcomeByMethod.TryGetValue(method, out var kept) || kept != "Failed")
-                    {
-                        run.OutcomeByMethod[method] = outcome;
-                    }
+                    run.MergeOutcome(run.OutcomeByMethod, method, outcome);
                 }
             }
 

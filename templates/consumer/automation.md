@@ -53,7 +53,7 @@
     "surfacesIn": "<entry-point/<name>, or remove this line>",
     "runbook": "<runbook/<name>, or remove this line>"
   },
-  "risk": ["<money|door|personal-data|access, or remove this line>"],
+  "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
   "records": [
     {
       "type": "scenario",

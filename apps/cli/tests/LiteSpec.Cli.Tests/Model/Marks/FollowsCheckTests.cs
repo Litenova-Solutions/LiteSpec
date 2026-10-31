@@ -135,7 +135,7 @@ public sealed class FollowsCheckTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanIndexer.cs");
 
-        Assert.Contains("which matches no decision or deviation.", finding.Message);
+        Assert.Contains("which matches no decision or exception.", finding.Message);
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>

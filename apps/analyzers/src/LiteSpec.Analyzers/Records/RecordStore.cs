@@ -68,7 +68,7 @@ public sealed class RecordStore
         }
     }
 
-    /// <summary>The check settings from the project file: the mark style and the phase.</summary>
+    /// <summary>The check settings from the project file: the mark style.</summary>
     public ProjectSettings Settings { get; }
 
     /// <summary>The records read from the pages under the docs roots.</summary>
@@ -154,7 +154,7 @@ public sealed class RecordStore
     }
 
     /// <summary>
-    ///     Whether an open known gap or an in-date approved deviation covers the
+    ///     Whether an approved exception inside its expiry date covers the
     ///     finding, as <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
     /// </summary>
     /// <param name="finding">The finding to test.</param>

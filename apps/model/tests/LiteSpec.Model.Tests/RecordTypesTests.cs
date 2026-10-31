@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the topic and automation record types and the link verbs are registered.</summary>
+/// <summary>Proves the topic, automation and exception record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic is an Intent record type, and the requirement page style is gone.</summary>
@@ -49,6 +49,17 @@ public sealed class RecordTypesTests
         Assert.Contains("automation", RecordTypes.WithHome);
         Assert.DoesNotContain("reaction", RecordTypes.All);
         Assert.DoesNotContain("job", RecordTypes.All);
+    }
+
+    /// <summary>The exception is a Governance record type, and deviation and known gap are gone.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void Exception_Is_A_Governance_Record_Type()
+    {
+        Assert.Contains("exception", RecordTypes.All);
+        Assert.Equal("governance", RecordTypes.LayerByType["exception"]);
+        Assert.DoesNotContain("deviation", RecordTypes.All);
+        Assert.DoesNotContain("known-gap", RecordTypes.All);
     }
 
     /// <summary>The effect verbs link the records each effect reaches, with no retired verb left.</summary>

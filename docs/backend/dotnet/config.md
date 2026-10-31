@@ -70,13 +70,13 @@ Backend settings bind to named options classes that the host validates at startu
 
 **ID:** `litespec/backend/dotnet/config#bind-setting-records-to-options`
 
-**Statement:** A setting record set by the founder or the operator MUST bind to a named options class validated at startup.
+**Statement:** A setting record set by the decider or the operator MUST bind to a named options class validated at startup.
 
 **Rationale:** The setting record owns its value type, its default, its range, its unit, and what happens at the bound, and the options class carries them with checks for required fields, ranges, and formats. A `secret` setting binds from secret storage, never from a committed file. A tenant-set setting is stored data, not configuration: the handler reads it per tenant, and no options class carries it.
 
 **Example:** The receipt threshold binds to `SpendingOptions` with its range; startup fails when the configured value leaves the range.
 
-**Reviewed for:** Each founder-set or operator-set setting binds a named options class validated at startup; tenant-set values live in stored tenant state.
+**Reviewed for:** Each decider-set or operator-set setting binds a named options class validated at startup; tenant-set values live in stored tenant state.
 
 ## Conventions
 

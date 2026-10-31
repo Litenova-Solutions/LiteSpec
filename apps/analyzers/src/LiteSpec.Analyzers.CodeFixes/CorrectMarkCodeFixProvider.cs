@@ -120,13 +120,13 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
         return records;
     }
 
-    /// <summary>The decision and deviation records a <c>follows</c> mark may name.</summary>
+    /// <summary>The decision and exception records a <c>follows</c> mark may name.</summary>
     private static IReadOnlyList<IRecordFacts> FollowsRecords(TraceabilityFix fix)
     {
         var records = new List<IRecordFacts>();
 
         records.AddRange(fix.Store.Index.ByType("decision"));
-        records.AddRange(fix.Store.Index.ByType("deviation"));
+        records.AddRange(fix.Store.Index.ByType("exception"));
 
         return records;
     }

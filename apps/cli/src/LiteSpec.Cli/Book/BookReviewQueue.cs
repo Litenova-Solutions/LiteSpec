@@ -5,15 +5,21 @@ using LiteSpec.Model;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     The review batches the review page shows: every draft and every reopened
-///     record from the book index, computed by the shared review queue.
+///     The review batches the queue shard shows: the batches the model carries,
+///     or every draft and every reopened record from the book index, computed by
+///     the shared review queue while the model holds none.
 /// </summary>
 /// <follows>litespec/core/release#compute-the-review-queue-from-the-model</follows>
 static class BookReviewQueue
 {
-    /// <summary>Computes the review batches from the book index, in review order.</summary>
-    public static IReadOnlyList<ReviewBatch> Compute(BookIndex index, string root, JsonNode? findingsFile, DateOnly today)
+    /// <summary>Reads the review batches from the book index, in review order.</summary>
+    public static IReadOnlyList<BookBatch> Compute(BookIndex index, string root, JsonNode? findingsFile, DateOnly today)
     {
+        if (index.StoredBatches is { } stored)
+        {
+            return StoredOf(stored);
+        }
+
         var model = Rebuild(index, root);
         return ReviewQueue.ComputeBatches(
             model.Records,
@@ -22,7 +28,60 @@ static class BookReviewQueue
             model.Stale,
             FindingsBySubject(findingsFile),
             model.Config,
-            today);
+            today).Select(ToBatch).ToList();
+    }
+
+    /// <summary>One computed batch as a queue-shard batch: the selector, kind, tier and queued record ids.</summary>
+    static BookBatch ToBatch(ReviewBatch batch) =>
+        new(
+            batch.Selector,
+            batch.Kind,
+            batch.Tier,
+            batch.Deciders,
+            batch.DecideBy,
+            batch.Awaiting,
+            batch.Records.Select(entry => entry.Record.Id).ToList());
+
+    /// <summary>The stored batches of a model carrying them, skipping entries that name no selector.</summary>
+    static IReadOnlyList<BookBatch> StoredOf(JsonArray stored)
+    {
+        var batches = new List<BookBatch>();
+        foreach (var entry in stored.OfType<JsonObject>())
+        {
+            if (BookRender.StrProp(entry, "selector") is not { Length: > 0 } selector)
+            {
+                continue;
+            }
+
+            var deciders = new List<string>();
+            foreach (var decider in entry["deciders"] as JsonArray ?? [])
+            {
+                if (decider is JsonValue scalar && scalar.TryGetValue<string>(out var name) && name is { Length: > 0 })
+                {
+                    deciders.Add(name);
+                }
+            }
+
+            var records = new List<string>();
+            foreach (var record in entry["records"] as JsonArray ?? [])
+            {
+                if (record is JsonValue id && id.TryGetValue<string>(out var name) && name is { Length: > 0 })
+                {
+                    records.Add(name);
+                }
+            }
+
+            batches.Add(new BookBatch(
+                selector,
+                BookRender.StrProp(entry, "kind") ?? "",
+                entry["tier"] is JsonValue tier && tier.TryGetValue<int>(out var level) ? level : 3,
+                deciders,
+                BookRender.StrProp(entry, "decideBy"),
+                entry["awaiting"] is JsonValue waiting && waiting.TryGetValue<int>(out var count) ? count : 0,
+                records));
+        }
+
+        return batches;
     }
 
     /// <summary>Rebuilds the project model the queue helpers read from the book index.</summary>

@@ -90,6 +90,23 @@ public sealed class AuthorityTests
         Assert.Equal("draft", effective["topic/holds"]);
     }
 
+    /// <summary>An exception takes its own status, like every other Governance record.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Exception_Takes_Its_Own_Status()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("exception", "exception/list-loans-unimplemented", "approved"),
+            new FakeRecord("exception", "exception/export-review-bypass", "draft"),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("approved", effective["exception/list-loans-unimplemented"]);
+        Assert.Equal("draft", effective["exception/export-review-bypass"]);
+    }
+
     /// <summary>A draft screen is draft.</summary>
     /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]

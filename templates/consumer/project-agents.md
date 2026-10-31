@@ -18,7 +18,7 @@ Declare every edge between use cases, automations, notifications, integration ev
 
 Send Intent changes to the decider, Behavior changes to developers, and access widenings, new outside calls, and new personal-data flows to the security reviewer. Tier-1 questions need explicit approval, and tier-3 questions auto-approve after the veto window.
 
-A project Deviation record overrides a Standard only when it names the provision ID, with reason and review date. (litespec/core/agent#apply-guidance-precedence)
+A project Exception record overrides a Standard only when it names the provision ID, with reason and expiry date. (litespec/core/agent#apply-guidance-precedence)
 
 An explicit project convention can replace a baseline Convention when local documentation cites its ID. (litespec/core/agent#apply-guidance-precedence)
 
@@ -47,4 +47,4 @@ Cite every path of every use case a route calls in a test title, or record an ex
 
 Run `dotnet litespec ui` after changing UI configuration, vocabulary, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/web/ui#prove-ui-behavior-and-appearance, litespec/frontend/web/ui#check-every-route-in-a-browser)
 
-Record a deviation before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record an exception before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)

@@ -13,7 +13,7 @@ A use case is one goal a single test proves through the public boundary: a page 
 | Field | Meaning |
 |:---|:---|
 | `access` | `{ grant, tenant }`: grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`; tenant of `own`, `cross`, `public`, or `none`. The door the call arrives through declares `auth`, as the [Access page](access.md) states. |
-| `input` | `{ name, meaning, type, of, required, rules, origin, classification }` entries; `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, or `id`; `of` names the record an `id` refers to or the choices of a `choice`; `required` states whether the caller sends the field; origin is `caller`, `claim`, or `derived`. |
+| `input` | `{ name, meaning, type, of, many, required, rules, origin, classification }` entries; `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, or `id`; `of` names the record an `id` refers to or the choices of a `choice`; `many` is true when the field holds a list of values of its type; `required` states whether the caller sends the field; origin is `caller`, `claim`, or `derived`. |
 | `changes`, `reads` | Aggregate ids changed, and aggregate and setting ids read, including `store` aggregates. |
 | `consistency` | `{ mode, cites }`: mode of `atomic`, `per-record`, or `compensated`. An atomic write across aggregates cites its `atomicity` rule in `cites`. |
 | `effects` | `{ runs / sends / emits / calls, timing, onFailure, onExhausted, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`. |

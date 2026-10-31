@@ -38,7 +38,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the scoped session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
 
-**Checked by:** `litespec model check` reports `repository-unimplemented` (tier S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
+**Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
 
 ### Query Through the Read Session
 
@@ -178,7 +178,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The list-expenses query passes its employee scope and page to the repository, while a handler applying `Where` to a `ListAsync` result is reported.
 
-**Checked by:** `litespec model check` reports `query-filter-invalid` (tier A) for a query handler filtering a repository list in memory.
+**Checked by:** `litespec model check` reports `query-filter-invalid` (level A) for a query handler filtering a repository list in memory.
 
 ### Assign Document Numbers from a Sequence
 

@@ -25,7 +25,7 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 
 ### Measured Checks by Kind
 
-Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows verified when its check passes. Availability and latency objectives are evidenced in production only: Sloth validates the OpenSLO files in CI, and the dashboards show whether the objectives hold.
+Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows met when its check passes. Availability and latency objectives are evidenced in production only: Sloth validates the OpenSLO files in CI, and the dashboards show whether the objectives hold.
 
 | Kind | Tool | Evidence |
 |:---|:---|:---|
@@ -47,7 +47,7 @@ CODEOWNERS maps record areas to owners: product pages to the product owner and e
 
 ### The Supply-Chain Gate
 
-The supply-chain job groups every check that keeps third-party code safe to ship: which dependencies are scanned, how versions are pinned and reviewed, how workflow actions are pinned, which inventory ships beside the artifact, and how licenses and advisories block a release. The table below defines each part. The manifest it names is `litespec.manifest.json`, which pins the baseline stack, and a deviation is a recorded departure from a provision, with a reason and a review date.
+The supply-chain job groups every check that keeps third-party code safe to ship: which dependencies are scanned, how versions are pinned and reviewed, how workflow actions are pinned, which inventory ships beside the artifact, and how licenses and advisories block a release. The table below defines each part. The manifest it names is `litespec.manifest.json`, which pins the baseline stack, and an exception is a recorded departure from a provision or a check staying red until a date, with a reason, an owner, and an expiry date.
 
 | Part | Definition |
 |:---|:---|
@@ -56,7 +56,7 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 | Pin review | Install scripts, transitive changes, source reputation, maintenance status, and advisories before a pin changes. |
 | Action pins | Every action pinned to an immutable reference. |
 | Inventory | A component inventory beside each promoted artifact, listing resolved direct and transitive components with versions. |
-| High-severity advisory | A documented deviation before the release proceeds. |
+| High-severity advisory | A documented exception before the release proceeds. |
 | License review | Every dependency carries a license the project approves. |
 | Advisory evidence | OSV-Scanner matches dependencies against OSV.dev advisories. |
 | Secret evidence | Gitleaks scans the repository for leaked secrets. |
@@ -119,7 +119,7 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Statement:** Every pull request MUST show zero surviving mutants on its changed lines.
 
-**Rationale:** Mutation testing judges test strength where the change is: Stryker.NET `--since` scopes the backend run and StrykerJS `--incremental` scopes the frontend run, so the gate costs minutes per pull request. A project-wide percentage is confounded by suite size, so a large suite hides weak new tests behind a high score, while a full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 and StrykerJS 9.x are free and maintained under Apache-2.0. The .NET form lives on `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`. A surviving mutant no test can kill is decided once by a person through the equivalent-mutant escape hatch, recorded as a deviation naming this provision.
+**Rationale:** Mutation testing judges test strength where the change is: Stryker.NET `--since` scopes the backend run and StrykerJS `--incremental` scopes the frontend run, so the gate costs minutes per pull request. A project-wide percentage is confounded by suite size, so a large suite hides weak new tests behind a high score, while a full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 and StrykerJS 9.x are free and maintained under Apache-2.0. The .NET form lives on `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`. A surviving mutant no test can kill is decided once by a person through the equivalent-mutant escape hatch, recorded as an exception naming this provision.
 
 **Reviewed for:** The mutation job report for the pull request shows zero surviving mutants on its changed lines.
 
@@ -143,7 +143,7 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Example:** The build job that produces the artifact generates the inventory from the same frozen lockfile. It stores the inventory beside the artifact, under the release version.
 
-**Reviewed for:** The supply-chain report shows scan, pin, inventory, and license evidence with a deviation for each unhandled high-severity advisory.
+**Reviewed for:** The supply-chain report shows scan, pin, inventory, and license evidence with an exception for each unhandled high-severity advisory.
 
 ### Publish the Intent Diff on Every Pull Request
 

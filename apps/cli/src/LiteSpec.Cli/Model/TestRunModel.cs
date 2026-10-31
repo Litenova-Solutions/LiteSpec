@@ -24,6 +24,12 @@ sealed class TestRun
     /// </summary>
     public Dictionary<string, string> OutcomeByTitle { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>
+    ///     The tests that both passed and failed within the runs read, by fully
+    ///     qualified method name or browser title, as the proves links name them.
+    /// </summary>
+    public HashSet<string> Flaky { get; } = new(StringComparer.Ordinal);
+
     public int Total { get; set; }
     public int Passed { get; set; }
     public int Failed { get; set; }
@@ -38,6 +44,29 @@ sealed class TestRun
     /// </summary>
     public bool? PassingOfTitle(string title) =>
         OutcomeByTitle.TryGetValue(title, out var outcome) ? outcome == "Passed" : null;
+
+    /// <summary>
+    ///     Merges one outcome into the map: a failure wins over any earlier outcome,
+    ///     and a test seen both passed and failed is recorded as flaky. A skipped
+    ///     outcome never marks a test flaky.
+    /// </summary>
+    public void MergeOutcome(Dictionary<string, string> map, string key, string outcome)
+    {
+        if (map.TryGetValue(key, out var kept))
+        {
+            if ((kept == "Passed" && outcome == "Failed") || (kept == "Failed" && outcome == "Passed"))
+            {
+                Flaky.Add(key);
+            }
+
+            if (kept == "Failed")
+            {
+                return;
+            }
+        }
+
+        map[key] = outcome;
+    }
 
     /// <summary>
     ///     The browser title a JUnit case answers to, or null when it is no browser

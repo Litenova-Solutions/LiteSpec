@@ -115,14 +115,57 @@ public sealed class BookReviewBatchesTests
         Assert.Equal("Who approves shared copies?", Str(questions[0]!.AsObject(), "question"));
     }
 
-    static string WriteModel(TempFolder temp, string records, string proves, string stale)
+    /// <summary>A model carrying review batches renders them in stored order with their stored fields.</summary>
+    /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
+    [Fact]
+    public void Stored_Review_Batches_Render_In_Stored_Order()
+    {
+        using var temp = Cli.Temp("book-batches");
+        var batches = """[{"selector":"use-case/lending.borrow-copy","kind":"use-case","tier":1,"deciders":["Ada"],"decideBy":"2026-11-15","awaiting":2,"records":["use-case/lending.borrow-copy","result/borrow-copy.borrowed"]}]""";
+        var model = WriteModel(temp, string.Join(",", BorrowCopyUseCase, BorrowedResult, BorrowingScenario), "[]", "[]", batches);
+        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+        var queue = ReadShard(Path.Combine(Out(temp), "data", "queue.js"), "queue");
+        var order = queue["order"]!.AsArray().Select(node => node!.GetValue<string>()).ToList();
+        Assert.Equal(new[] { "use-case/lending.borrow-copy" }, order);
+        var batch = queue["batches"]!.AsObject()["use-case/lending.borrow-copy"]!.AsObject();
+        Assert.Equal("use-case/lending.borrow-copy", Str(batch, "selector"));
+        Assert.Equal("use-case", Str(batch, "kind"));
+        Assert.Equal(1, batch["tier"]?.GetValue<int>());
+        Assert.Equal(2, batch["n"]?.GetValue<int>());
+        Assert.Equal(2, batch["awaiting"]?.GetValue<int>());
+        Assert.Equal("2026-11-15", Str(batch, "decideBy"));
+        Assert.Equal(
+            new[] { "use-case/lending.borrow-copy", "result/borrow-copy.borrowed" },
+            batch["records"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+    }
+
+    /// <summary>A model carrying review settings renders the stored veto window and security reviewer.</summary>
+    /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
+    [Fact]
+    public void Stored_Review_Settings_Render_As_Stored()
+    {
+        using var temp = Cli.Temp("book-batches");
+        var model = WriteModel(temp, BorrowCopyUseCase, "[]", "[]", null, """{"vetoWindowDays":14,"securityReviewer":"Ada"}""");
+        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+        var queue = ReadShard(Path.Combine(Out(temp), "data", "queue.js"), "queue");
+        var review = queue["review"]!.AsObject();
+        Assert.Equal(14, review["vetoWindowDays"]!.GetValue<int>());
+        Assert.Equal("Ada", Str(review, "securityReviewer"));
+    }
+
+    static string WriteModel(TempFolder temp, string records, string proves, string stale, string? reviewBatches = null, string? review = null)
     {
         var path = Path.Combine(temp.Path, "model.json");
         File.WriteAllText(
             path,
             "{\"records\":[" + records + "],"
                 + "\"links\":{\"proves\":" + proves + "},"
-                + "\"status\":{},\"requirementStatus\":{},\"reachableStates\":{},\"stale\":" + stale + "}");
+                + "\"status\":{},\"requirementStatus\":{},\"reachableStates\":{},\"stale\":" + stale
+                + (reviewBatches is null ? "" : ",\"reviewBatches\":" + reviewBatches)
+                + (review is null ? "" : ",\"review\":" + review)
+                + "}");
         return path;
     }
 

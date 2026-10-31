@@ -8,7 +8,7 @@
 
 ```bash
 litespec model build [--root <consumer>] [--out <file>]
-litespec model check [--root <consumer>] [--format json] [--staged]
+litespec model check [--root <consumer>] [--format json] [--staged] [--release] [--since <ref>]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
 litespec model names [--root <consumer>] [--format text|json]
@@ -25,7 +25,7 @@ The model builder reads the written records, the code marks, the routes, the tes
 
 Each screen in `screens` lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. `links.calls` carries one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
-A proof goes stale when its scenario changes after the proof passed. The first time the builder reads a passing run of a scenario's proof, it records the scenario semantic hash and the run's date in `.model/proofs.json`, beside `model.json`. On every later build against the same run, a scenario whose semantic hash differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
+A proof goes stale when its scenario changes after the proof passed. `docs/proof/proofs.json` is committed: for each scenario it holds the scenario hash and its test body's hash at the last passing run. On every later build, a scenario whose hash or test body differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
 `approve` writes approval data onto the named records, or with `--all` onto every approved or reviewed record that carries no `approvedHash`. It sets `approvedBy` (from `--by`, else the record decider, else its owner) and `approvedOn` (from `--on`, else today) when they are missing, and always writes `approvedHash`, the builder hash over the record semantic fields. A person runs it when they approve or review a record; agents run it only with `--by "auto (veto window)"` for a tier-3 question past its veto window. With `--dry-run` it writes nothing and prints what it would do: each record that would be stamped for carrying no `approvedHash`, and each record that would be reopened for a semantic hash that differs from it. [The approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type.
 
@@ -42,7 +42,7 @@ Aggregate transitions and data, and scenario examples, may be written as Markdow
 The eight subcommands share one reader:
 
 - `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`.
-- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2. With `--release` the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a tier 1 record. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report.
 - `render` rewrites the fenced generated regions and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
 - `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, automation facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
@@ -72,9 +72,9 @@ A change breaks approved intent when it removes or narrows an approved requireme
 
 Every reason except `refusal-path-added` fires only on approved or reviewed records.
 
-A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
+A finding that an approved exception covers is reported as known and exits zero. A gap covers a finding when its `covers` lists the finding code; a departure covers the finding codes its provision's Checked by line names. The exception covers a finding only on its `subject` records or its `paths` files, and only before its `expiresOn` date passes. An exception on a use case also covers the findings about the scenarios and results it holds. An expired exception fails the check.
 
-Every check has a level. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent (topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment); a missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record. The finding codes are:
+Every check has a level. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent (topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment); a missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record. The finding codes are:
 
 | Code | Level | Meaning | Fix |
 |:---|:---|:---|:---|
@@ -102,8 +102,8 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `calculation-table-missing` | G | A calculation rule has no scenario examples table. | Add the scenario examples table to the rule. |
 | `table-drift` | A | A handwritten body table holds transitions, data fields or retention rows that differ from the frontmatter. | Keep the fact in frontmatter and render the table as a generated region. |
 | `rule-name-invalid` | G | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
-| `known-gap-expired` | G | A known gap passed its end date with its check still red. | Fix the finding, or extend the gap with a new end date. |
-| `gap-finding-unknown` | G | A known gap names a check that no check uses. | Name a finding code a check emits. |
+| `exception-expired` | G | An exception stands past its expiresOn date. | Fix the finding, or extend the exception with a new expiresOn date. |
+| `exception-finding-unknown` | G | An exception names a finding code no check emits. | Name a finding code a check emits. |
 | `aggregate-name-clash` | G | Two aggregates share one name across the project. | Give one aggregate a new name. |
 | `use-case-name-clash` | G | Two use cases share one name across the project. | Give one use case a new name. |
 | `use-case-verb-unknown` | G | A use-case name starts with a verb neither the baseline nor the project vocabulary declares; a retired synonym names its replacement. | Start the name with a declared verb, or declare the verb. |
@@ -146,7 +146,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `atomic-group-invalid` | A | An atomic group binds more than 4 aggregates. | Extract a saga for the group. |
 | `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, an engine step that maps to no use case, or (the frontend case) a route with no screen mark or a mark naming no screen is named by no record. | Delete the code, or write its parent record from a requirement, drafting the requirement when none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. | Add the mark the marks table names. |
-| `mark-unknown` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply. | Point the mark at a record its element takes, or remove the mark. |
+| `mark-unknown` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or exception, a retired record, or a provision on a page the project's stacks do not apply. | Point the mark at a record its element takes, or remove the mark. |
 | `decision-unimplemented` | S | A technical decision under `docs/implementation/decisions/` is followed by no code element. | Follow the decision from a code element, or retire the decision. |
 | `decision-basis-missing` | A | A technical decision names no constraint or requirement in `basedOn`. | Name the constraint or requirement in `basedOn`. |
 | `constituent-parent-missing` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. | Move the type under its aggregate, or mark it. |
@@ -169,11 +169,13 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `step-screen-missing` | G | A journey step a browser or device use case serves is served by no screen. Its pair `step-use-case-missing` names a step no use case serves. | Serve the step from a screen. |
 | `refusal-sentence-missing` | A | A refusal a screen can reach has neither a dictionary sentence nor a browser test asserting its code. | Write the dictionary sentence and the browser test. |
 | `reader-missing` | S | A frontend reader could not run: Node is absent, its handshake names another protocol, or it failed; the finding names the cause, and that frontend's S findings report instead of blocking. | Restore the reader: install Node, match the handshake, or fix the failure the finding names. |
-| `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. | Implement the use case, or record a known gap. |
+| `use-case-unimplemented` | S | No code implements the use case and no exception covers it. | Implement the use case, or record an exception. |
 | `refusal-unimplemented` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. | Throw the named code, or remove the refusal result. |
 | `proves-duplicate` | A | A scenario carries `proves` marks on more than one test. | Keep the `proves` mark on one test. |
 | `proves-unreached` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. The frontend case: a browser test reaches no screen offering the claimed scenario's use case by a `page.goto` literal or template matching the screen's `address`, or no assertion in the same test holds the refusal code or the success result's declared text or code. A step reaches a use case when it belongs to the use case's steps class, calls its generated-client operation, requests its endpoint route through its own helpers, or looks its argument up in a probe table of routes in its steps class. A scenario proves the use case a when step reaches; the use case a given step reaches, when a later when step and then step observe it; or a use case a when step sets off through a declared producer, whose effects run it or whose event an automation running it reacts to, with an effect asserted. Codes and statuses asserted inside a then step's method count as the scenario's own. | Prove the scenario from a test that reaches its use case and asserts its outcome. |
 | `use-case-scenario-missing` | S | A use case has no scenario. It runs at large size only. | Write a scenario for the use case. |
+| `use-case-unverified` | A | A use case holds scenarios with no passing proof. | Prove every scenario through the public boundary. |
+| `proof-invalid` | A | A test passed and failed within the runs read. | Stabilize the test so it passes on every run. |
 | `write-undeclared` | S | The code writes an aggregate outside `changes`. | Declare the aggregate in `changes`, or stop writing it. |
 | `result-undeclared` | S | The code returns an outcome no result declares. | Declare the outcome in a result, or stop returning it. |
 | `effect-undeclared` | S | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
@@ -187,7 +189,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `operation-use-case-drift` | S | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. | Name the endpoint use case in `x-litespec-use-case`, or fix the unreadable contract. |
 | `alert-link-missing` | S | An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook. | Label the alert rule with the requirement and the runbook. |
 | `alert-threshold-drift` | A | An alert rule's own text carries none of the decimal numbers its requirement's `measure` names. | Carry a decimal number from the `measure` in the alert text. |
-| `quality-alert-missing` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open known gap covers. | Name the requirement from an alert, or record a known gap. |
+| `quality-alert-missing` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open exception covers. | Name the requirement from an alert, or record an exception. |
 | `setting-key-missing` | G | A setting with `setBy: operator` names no `key`. | Name the `key` of the setting. |
 | `setting-unimplemented` | S | A setting with a `key` is marked by no options class. | Mark an options class with the setting. |
 | `setting-key-drift` | S | A marked options class's `SectionName` and property do not spell the setting's `key`. | Spell the setting `key` in the `SectionName` and property. |
@@ -237,6 +239,8 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | `--second-reviewer <owner>\|agent` | none | Only `approve --batch` reads it. Names the second reading of a tier 1 batch: another owner, or `agent` with `--review-report`. It applies to every batch in the run. |
 | `--review-report <file>` | none | Only `approve --batch` reads it, with `--second-reviewer agent`. The agent review report the manifest cites; the file must exist. A report named in a `--batches` file overrides it for that batch. |
 | `--staged` | off | Only `check` reads it. Reports the staged scope only: staged records, their direct links, and the records staged code implements. |
+| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a tier 1 record. |
+| `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -244,7 +248,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | Code | Meaning |
 |:---|:---|
 | `0` | The command finished with no open blocking finding. |
-| `1` | `check` found an open blocking finding or an expired known gap, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `backfill` named a module with no use-case or automation records, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
+| `1` | `check` found an open blocking finding or an expired exception, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `backfill` named a module with no use-case or automation records, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
 | `2` | The arguments are wrong, the root holds no project record, the diff base is neither a consumer folder nor a git revision, or `check --staged` runs outside git. |
 
 ## Examples
@@ -295,6 +299,18 @@ Check only the staged records and their links before committing:
 
 ```bash
 litespec model check --root ../consumer --staged
+```
+
+Check for release, with the release-readiness findings blocking:
+
+```bash
+litespec model check --root ../consumer --release
+```
+
+Block only on the findings changed since the main branch:
+
+```bash
+litespec model check --root ../consumer --since main
 ```
 
 Draft the missing spending frontmatter from code during adoption:

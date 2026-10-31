@@ -184,6 +184,55 @@ public sealed class StackReaderTests
             root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));
     }
 
+    /// <summary>A browser success proof asserting another string confirms nothing.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Playwright_Results_Asserting_Another_String_Do_Not_Verify()
+    {
+        using var temp = ModelFixture.Prepare("large");
+
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans.md"),
+            ReviewLoansPage);
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans-browser-scenario.md"),
+            ReviewLoansScenarioPage);
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "screens", "library-app.loan-review.md"),
+            LoanReviewScreenPage);
+
+        var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
+        Directory.CreateDirectory(specsFolder);
+        File.WriteAllText(Path.Combine(specsFolder, "loans.spec.ts"), LoansSpecAssertingAnotherString);
+
+        var resultsFolder = Path.Combine(temp.Path, "TestResults");
+        Directory.CreateDirectory(resultsFolder);
+        File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
+
+        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
+        Assert.Equal(0, built.Status);
+
+        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        var root = document.RootElement;
+
+        Assert.False(root.GetProperty("status").GetProperty("use-case/lending.review-loans").GetProperty("verified").GetBoolean());
+        Assert.False(ProvesLink(root, "scenario/review-loans.reviewing-loans-succeeds").GetProperty("confirmed").GetBoolean());
+    }
+
+    static JsonElement ProvesLink(JsonElement root, string claim)
+    {
+        foreach (var link in root.GetProperty("links").GetProperty("proves").EnumerateArray())
+        {
+            if (link.GetProperty("claim").GetString() == claim)
+            {
+                return link;
+            }
+        }
+
+        throw new InvalidOperationException($"No proves link claims '{claim}'.");
+    }
+
     const string BorrowScenarioPage = """
         ---
         {
@@ -344,6 +393,17 @@ public sealed class StackReaderTests
         """;
 
     const string LoansSpec = """
+        import { test, expect } from '@playwright/test';
+
+        test.describe('loans list', () => {
+          test('lists the loans', proves("scenario/review-loans.reviewing-loans-succeeds"), async ({ page }) => {
+            await page.goto('/loans');
+            await expect(page.getByText('The loans are listed.')).toBeVisible();
+          });
+        });
+        """;
+
+    const string LoansSpecAssertingAnotherString = """
         import { test, expect } from '@playwright/test';
 
         test.describe('loans list', () => {

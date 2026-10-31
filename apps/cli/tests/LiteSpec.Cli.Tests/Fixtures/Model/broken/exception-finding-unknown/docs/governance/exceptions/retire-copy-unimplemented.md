@@ -1,22 +1,27 @@
 ---
 {
-  "type": "known-gap",
-  "id": "known-gap/retire-copy-unimplemented",
+  "type": "exception",
+  "id": "exception/retire-copy-unimplemented",
   "title": "Retire copy unimplemented",
   "owner": "lending-team",
   "status": "approved",
-  "check": "use-case-unimplemented",
+  "kind": "gap",
+  "covers": [
+    "no-such-check"
+  ],
   "subject": [
     "use-case/lending.retire-copy"
   ],
-  "endsBy": "2020-01-01",
   "reason": "Retirement waits for the weeding policy.",
+  "expiresOn": "2027-06-01",
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "318fdd7b"
+  "approvedHash": "4c6cf233"
 }
 ---
 
 # Retire copy unimplemented
 
-Retiring a copy has no handler yet.
+## Exit
+
+Retiring a copy has no handler yet. The gap closes when the weeding policy lands.

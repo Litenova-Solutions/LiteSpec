@@ -7,89 +7,213 @@ using System.Linq;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Partitions findings from known gaps and deviations, shared by every check host.
+///     Partitions findings from exceptions, shared by every check host.
 /// </summary>
 /// <follows>litespec/core/model#apply-guidance-precedence</follows>
-/// <follows>litespec/core/model#record-accepted-gaps-as-known-gaps</follows>
 public static class Suppression
 {
     /// <summary>
-    ///     Splits findings into reported and known. An approved deviation inside its review date
-    ///     holds the findings on the code files and the records it names. A gap naming a use case
-    ///     also covers findings about the scenarios and results it holds.
+    ///     Splits findings into reported and known. An approved exception inside its expiry date
+    ///     holds the findings it covers on the subjects and paths it names: a gap names its
+    ///     finding codes, and a departure names the provision whose codes it follows through
+    ///     <paramref name="codesOfProvision" />. An exception naming a use case also covers
+    ///     findings about the scenarios and results it holds. An expiry finding is never held.
     /// </summary>
     /// <param name="findings">Every finding, in report order.</param>
     /// <param name="records">Every record.</param>
     /// <param name="root">The project root.</param>
     /// <param name="today">Today's date.</param>
     /// <param name="useCaseOfHome">The id of the use case a home names, when one holds it.</param>
+    /// <param name="codesOfProvision">The finding codes a provision governs, by provision id; a departure covers nothing without it.</param>
     /// <returns>The reported findings and the known ones, each in report order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Partition(
         IReadOnlyList<Finding> findings,
         IReadOnlyList<IRecordFacts> records,
         string root,
         DateTime today,
-        Func<string, string?> useCaseOfHome)
+        Func<string, string?> useCaseOfHome,
+        Func<string, IReadOnlyList<string>>? codesOfProvision = null)
     {
-        var gaps = records.Where(record => record.Type == "known-gap").ToList();
-
-        // An approved deviation inside its review date holds the findings on the code files and the
-        // records it names.
-        var deviations = records
-            .Where(record => record.Type == "deviation"
+        // An approved exception inside its expiry date holds the findings it covers on the
+        // subjects and paths it names.
+        var live = records
+            .Where(record => record.Type == "exception"
                 && record.Status == "approved"
-                && record.Field("reviewBy") is string reviewBy
-                && IsoDate(reviewBy, out var review)
-                && today <= review)
+                && record.Field("expiresOn") is string expiresOn
+                && IsoDate(expiresOn, out var expires)
+                && today <= expires)
+            .Select(exception => new LiveException(exception, codesOfProvision))
             .ToList();
-        var heldFiles = new HashSet<string>(
-            deviations
-                .SelectMany(record => record.Ids("code"))
-                .Select(path => path.Replace('\\', '/')),
-            StringComparer.Ordinal);
-        var heldSubjects = new HashSet<string>(
-            deviations.SelectMany(record => record.Ids("subject")),
-            StringComparer.Ordinal);
         var kept = new List<Finding>();
         var known = new List<Finding>();
 
         foreach (var finding in findings)
         {
-            if (finding.Code != "known-gap-expired" && heldFiles.Contains(RootRelative(root, finding.Path)))
-            {
-                known.Add(finding);
-                continue;
-            }
-
-            if (finding.Code == "known-gap-expired" || finding.Subject is null)
+            if (finding.Code == "exception-expired")
             {
                 kept.Add(finding);
                 continue;
             }
 
-            // A gap naming a use case also covers findings about the scenarios and results it holds.
-            var subjects = new List<string> { finding.Subject };
+            // An exception naming a use case also covers findings about the scenarios and results it holds.
+            var subjects = new List<string>();
 
-            if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
-                && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
-                && home is not null
-                && useCaseOfHome(home) is string holder)
+            if (finding.Subject is not null)
             {
-                subjects.Add(holder);
+                subjects.Add(finding.Subject);
+
+                if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
+                    && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
+                    && home is not null
+                    && useCaseOfHome(home) is string holder)
+                {
+                    subjects.Add(holder);
+                }
             }
 
-            var covered = subjects.Any(heldSubjects.Contains) || gaps.Any(gap =>
-                gap.Field("check") == finding.Code
-                && gap.Ids("subject").Any(subject => subjects.Contains(subject, StringComparer.Ordinal))
-                && gap.Status != "retired"
-                && gap.Field("endsBy") is string endsBy
-                && IsoDate(endsBy, out var ends)
-                && today <= ends);
+            var relative = RootRelative(root, finding.Path);
+            var covered = live.Any(exception =>
+                exception.Codes.Contains(finding.Code)
+                && (subjects.Any(subject => exception.Subjects.Contains(subject))
+                    || exception.Paths.Any(pattern => GlobMatches(pattern, relative))));
 
             (covered ? known : kept).Add(finding);
         }
 
         return (kept, known);
+    }
+
+    /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
+    private sealed class LiveException
+    {
+        public LiveException(IRecordFacts exception, Func<string, IReadOnlyList<string>>? codesOfProvision)
+        {
+            Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
+            Paths = exception.Ids("paths");
+            Codes = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var covered in exception.Ids("covers"))
+            {
+                Codes.Add(covered);
+
+                if (codesOfProvision is not null)
+                {
+                    foreach (var governed in codesOfProvision(covered))
+                    {
+                        Codes.Add(governed);
+                    }
+                }
+            }
+        }
+
+        public HashSet<string> Subjects { get; }
+
+        public IReadOnlyList<string> Paths { get; }
+
+        public HashSet<string> Codes { get; }
+    }
+
+    /// <summary>
+    ///     Whether the glob matches the forward-slash path from the project root:
+    ///     <c>**</c> spans folders, <c>*</c> and <c>?</c> stay inside one segment,
+    ///     and a trailing slash holds the whole folder.
+    /// </summary>
+    private static bool GlobMatches(string pattern, string path)
+    {
+        var glob = pattern.Replace('\\', '/');
+
+        if (glob.StartsWith("/", StringComparison.Ordinal))
+        {
+            glob = glob.Substring(1);
+        }
+
+        if (glob.EndsWith("/", StringComparison.Ordinal))
+        {
+            glob += "**";
+        }
+
+        return GlobSegments(
+            glob.Split(new char[] { '/' }, StringSplitOptions.None),
+            0,
+            path.Split(new char[] { '/' }, StringSplitOptions.None),
+            0);
+    }
+
+    /// <summary>Whether the trailing pattern segments match the trailing path segments.</summary>
+    private static bool GlobSegments(string[] pattern, int nextPattern, string[] path, int nextPath)
+    {
+        while (nextPattern < pattern.Length && nextPath <= path.Length)
+        {
+            if (string.Equals(pattern[nextPattern], "**", StringComparison.Ordinal))
+            {
+                for (var skip = nextPath; skip <= path.Length; skip++)
+                {
+                    if (GlobSegments(pattern, nextPattern + 1, path, skip))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            if (nextPath == path.Length || !GlobSegment(pattern[nextPattern], path[nextPath]))
+            {
+                return false;
+            }
+
+            nextPattern++;
+            nextPath++;
+        }
+
+        while (nextPattern < pattern.Length && string.Equals(pattern[nextPattern], "**", StringComparison.Ordinal))
+        {
+            nextPattern++;
+        }
+
+        return nextPattern == pattern.Length && nextPath == path.Length;
+    }
+
+    /// <summary>Whether the segment pattern matches the path segment: <c>*</c> spans, <c>?</c> takes one.</summary>
+    private static bool GlobSegment(string pattern, string text)
+    {
+        var nextPattern = 0;
+        var nextText = 0;
+        var star = -1;
+        var mark = 0;
+
+        while (nextText < text.Length)
+        {
+            if (nextPattern < pattern.Length
+                && (pattern[nextPattern] == '?' || pattern[nextPattern] == text[nextText]))
+            {
+                nextPattern++;
+                nextText++;
+            }
+            else if (nextPattern < pattern.Length && pattern[nextPattern] == '*')
+            {
+                star = nextPattern;
+                mark = nextText;
+                nextPattern++;
+            }
+            else if (star >= 0)
+            {
+                mark++;
+                nextText = mark;
+                nextPattern = star + 1;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        while (nextPattern < pattern.Length && pattern[nextPattern] == '*')
+        {
+            nextPattern++;
+        }
+
+        return nextPattern == pattern.Length;
     }
 
     /// <summary>A finding's file as a forward-slash path from the project root.</summary>

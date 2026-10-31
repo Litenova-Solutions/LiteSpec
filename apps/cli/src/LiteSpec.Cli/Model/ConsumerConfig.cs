@@ -175,9 +175,6 @@ sealed class ConsumerConfig
     /// <summary>The mark style the project declares.</summary>
     public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
 
-    /// <summary>The check phase the project declares.</summary>
-    public ProjectPhase Phase { get; private set; } = ProjectPhase.Working;
-
     /// <summary>Whether the CI environment variable is set, so reader-missing blocks.</summary>
     public bool IsContinuousIntegration { get; private set; }
 
@@ -217,7 +214,6 @@ sealed class ConsumerConfig
         }
 
         config.Marks = settings.Marks;
-        config.Phase = settings.Phase;
 
         var paths = document.RootElement.TryGetProperty("paths", out var found)
             && found.ValueKind == JsonValueKind.Object

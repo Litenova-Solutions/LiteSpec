@@ -621,9 +621,14 @@ static class BookEnrich
         };
     }
 
-    /// <summary>One scenario or rule proof state, with norun while the model holds no run.</summary>
+    /// <summary>One scenario or rule proof state: the stored state, or the proves links while the model holds none.</summary>
     static string ProofState(BookIndex index, string id)
     {
+        if (index.ScenarioStatus.TryGetValue(id, out var stored) && stored is { Length: > 0 })
+        {
+            return stored;
+        }
+
         if (!BookModel.HasTestRun(index))
         {
             return "norun";
@@ -639,14 +644,14 @@ static class BookEnrich
         {
             "proved-passing" => "passing",
             "proved-failing" => "failing",
-            "proved-indirect" => "passing",
+            "proved-indirect" => "indirect",
             "awaiting-run" => "awaiting",
-            "not-run" => "norun",
+            "norun" => "norun",
             _ => proof.Claimed ? "unconfirmed" : "unproved",
         };
     }
 
-    /// <summary>Adds the machine state of one use case or requirement.</summary>
+    /// <summary>Adds the machine state of one record: verified use cases, met requirements, tested proof targets.</summary>
     static void AddMachine(JsonObject detail, BookIndex index, string id, string type)
     {
         if (type == "use-case")
@@ -664,10 +669,24 @@ static class BookEnrich
             var measure = entry?["measurePassed"];
             var passed = measure is JsonValue scalar && scalar.TryGetValue<bool>(out var flag) ? flag : (bool?)null;
             JsonNode? measureNode = passed.HasValue ? JsonValue.Create(passed.Value) : null;
+            var machine = new JsonObject
+            {
+                ["met"] = BookRender.IsTrue(entry?["verified"]),
+                ["measurePassed"] = measureNode,
+            };
+            if (index.Tested.TryGetValue(id, out var tested))
+            {
+                machine["tested"] = tested;
+            }
+
+            detail["machine"] = machine;
+        }
+        else if (type is "decision" or "external-system" or "integration-event"
+            && index.Tested.TryGetValue(id, out var tested))
+        {
             detail["machine"] = new JsonObject
             {
-                ["verified"] = BookRender.IsTrue(entry?["verified"]),
-                ["measurePassed"] = measureNode,
+                ["tested"] = tested,
             };
         }
     }

@@ -90,7 +90,7 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Example:** Claimwick's `decision/0005-render-receipts-as-pdf` chooses a PDF library over an HTML-to-PDF browser and admits `nuget:PdfSharp` with layer `Infrastructure`, license `MIT`, location `in-process`, account owner `none`, failure behavior "the receipt download fails and the expense stays readable", and operating cost `none`.
 
-**Checked by:** `litespec model check` reports `dependency-undeclared` (tier S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-invalid` (tier G) for an `admits` entry missing any of its six facts.
+**Checked by:** `litespec model check` reports `dependency-undeclared` (level S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-invalid` (level G) for an `admits` entry missing any of its six facts.
 
 ### Match Every Shipped Package to Its Pin
 
@@ -102,7 +102,7 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Example:** Claimwick's bill of materials sits at `docs/proof/sbom/api.spdx.json`, the project file names that folder in `paths.sbom`, and a direct `pkg:nuget/Marten` at a version other than the manifest pin is reported.
 
-**Checked by:** `litespec model check` reports `dependency-version-drift` (tier S) for a direct package whose version differs from its manifest pin.
+**Checked by:** `litespec model check` reports `dependency-version-drift` (level S) for a direct package whose version differs from its manifest pin.
 
 ### Accept Every Shipped Package License Explicitly
 
@@ -114,7 +114,7 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licenses`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
 
-**Checked by:** `litespec model check` reports `dependency-license-unknown` (tier S) for a direct package whose license the project does not accept and no `admits` entry names.
+**Checked by:** `litespec model check` reports `dependency-license-unknown` (level S) for a direct package whose license the project does not accept and no `admits` entry names.
 
 ### Keep Frontend Applications Isolated
 

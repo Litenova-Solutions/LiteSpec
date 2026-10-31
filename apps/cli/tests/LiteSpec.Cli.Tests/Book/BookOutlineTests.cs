@@ -530,14 +530,14 @@ public sealed class BookOutlineTests
             Record("topic", "topic/borrowing", "Borrowing", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("term", "term/loan", "Loan", "approved"),
-            Record("deviation", "deviation/kiosk-cache", "Kiosk Cache", "approved"));
+            Record("exception", "exception/kiosk-cache", "Kiosk Cache", "approved"));
 
         Assert.Null(BookParents.ParentOf(model, "product/library"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "topic/borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "module/lending"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "term/loan"));
-        Assert.Equal("product/library", BookParents.ParentOf(model, "deviation/kiosk-cache"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "exception/kiosk-cache"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);

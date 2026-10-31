@@ -5,15 +5,15 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     Reports one traceability diagnostic with the severity the shared core
-///     decides: a finding covered by an open known gap or an in-date approved
-///     deviation stays silent, then <see cref="Severity.Of" /> maps the outcome
+///     decides: a finding covered by an approved exception inside its expiry
+///     date stays silent, then <see cref="Severity.Of" /> maps the outcome
 ///     to an error, a warning, or silence.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class TraceabilityReporter
 {
     /// <summary>
-    ///     Reports the finding unless a gap or deviation covers it or its
+    ///     Reports the finding unless an exception covers it or its
     ///     outcome is silent. The message names the code element and the record id.
     /// </summary>
     /// <param name="state">The compilation's traceability context.</param>
@@ -44,7 +44,7 @@ internal static class TraceabilityReporter
         }
 
         var severity = Severity.Of(
-            finding, state.Store.EffectiveStatus(subject), state.OnTest, PhaseOf(state), readerQualified: true);
+            finding, state.Store.EffectiveStatus(subject), readerQualified: true);
 
         if (severity.Outcome == Outcome.Silent)
         {
@@ -55,6 +55,4 @@ internal static class TraceabilityReporter
 
         report(Diagnostic.Create(descriptor, location, effective, null, null, messageArgs));
     }
-
-    private static string PhaseOf(TraceabilityContext state) => state.Store.Settings.Phase.ToProjectValue();
 }

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -208,16 +210,16 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement listed by an open known gap reports as known.</summary>
+    /// <summary>A quality requirement an approved exception covers reports as known.</summary>
     /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_Covered_By_Known_Gap_Reports_Known()
+    public void Quality_Covered_By_Exception_Reports_Known()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
         Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
-        Write(temp.Path, GapFile, GapPage);
+        Write(temp.Path, ExceptionFile, ExceptionPage());
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -341,7 +343,7 @@ public sealed class OperationsCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);
         Assert.Contains("decision/0099-no-such-thing", unresolved, StringComparison.Ordinal);
-        Assert.Contains("matches no decision or deviation", unresolved, StringComparison.Ordinal);
+        Assert.Contains("matches no decision or exception", unresolved, StringComparison.Ordinal);
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
@@ -432,7 +434,7 @@ public sealed class OperationsCheckTests
     const string CheckResultsDir = "docs/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = "docs/behavior/operations/limits.md";
-    const string GapFile = "docs/known-gaps/list-loans-latency-unwatched.md";
+    const string ExceptionFile = "docs/governance/exceptions/list-loans-latency-unwatched.md";
 
     const string RequirementPage = """
         ---
@@ -681,29 +683,42 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string GapPage = """
-        ---
+    // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
+    // The approval hash is stamped over the written fields, so the exception itself reports nothing.
+    static string ExceptionPage()
+    {
+        var frontmatter =
+            "{\n"
+            + "  \"type\": \"exception\",\n"
+            + "  \"id\": \"exception/list-loans-latency-unwatched\",\n"
+            + "  \"title\": \"List loans latency unwatched\",\n"
+            + "  \"owner\": \"lending-team\",\n"
+            + "  \"status\": \"approved\",\n"
+            + "  \"kind\": \"gap\",\n"
+            + "  \"covers\": [\n"
+            + "    \"quality-alert-missing\"\n"
+            + "  ],\n"
+            + "  \"subject\": [\n"
+            + "    \"requirement/performance.list-loans-latency\"\n"
+            + "  ],\n"
+            + "  \"expiresOn\": \"2027-06-01\",\n"
+            + "  \"reason\": \"The listing alert ships with the search index.\"\n"
+            + "}\n";
+
+        using var document = JsonDocument.Parse(frontmatter);
+        var record = new LiteSpec.Model.Record
         {
-          "type": "known-gap",
-          "id": "known-gap/list-loans-latency-unwatched",
-          "title": "List loans latency unwatched",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
-          "check": "quality-alert-missing",
-          "subject": [
-            "requirement/performance.list-loans-latency"
-          ],
-          "endsBy": "2027-06-01",
-          "reason": "The listing alert ships with the search index."
-        }
-        ---
+            Type = "exception",
+            Id = "exception/list-loans-latency-unwatched",
+            Raw = document.RootElement.Clone(),
+        };
+        var hash = Checker.SemanticHash(record);
+        var stamped = frontmatter.Replace(
+            "\n}",
+            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
 
-        # List loans latency unwatched
-
-        Listing latency has no alert yet.
-        """;
+        return "---\n" + stamped + "---\n" + "\n" + "# List loans latency unwatched\n" + "\n" + "Listing latency has no alert yet.\n";
+    }
 
     const string LimitsPage = """
         # Limits

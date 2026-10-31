@@ -48,13 +48,13 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A provider call SHOULD run from an event handler or an automation, never from a command handler.
 
-**Deviation:** A project that keeps an inline provider call records a deviation naming the compensation that undoes it.
+**Deviation:** A project that keeps an inline provider call records an exception naming the compensation that undoes it.
 
-**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or an automation calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a deviation naming the compensation that undoes it.
+**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or an automation calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records an exception naming the compensation that undoes it.
 
 **Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 
-**Reviewed for:** Each provider call runs from an event handler or an automation, and each inline call carries a deviation naming its compensation.
+**Reviewed for:** Each provider call runs from an event handler or an automation, and each inline call carries an exception naming its compensation.
 
 ### Define Business-Action Ports
 

@@ -19,7 +19,7 @@
   ],
   "choice": "<The selected option name, set on approval>",
   "reopenedWhen": "<the measure crosses its threshold>",
-  "decides": ["<requirement, feature, rule, constraint, permission, role, actor, deviation, entry-point, setting, or decision id>"],
+  "decides": ["<requirement, feature, rule, constraint, permission, role, actor, exception, entry-point, setting, or decision id>"],
   "basedOn": ["<constraint or research id; a technical decision also names the requirements it serves>"],
   "replaces": "<decision id, or remove this line>",
   "terms": ["term/<term-name>"],

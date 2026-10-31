@@ -23,7 +23,7 @@
     }
   ],
   "fulfills": ["requirement/<topic>.<name>"],
-  "risk": ["<money|door|personal-data|access, or remove this line>"],
+  "risk": ["<money|physical-access|personal-data|access, or remove this line>"],
   "terms": ["term/<term-name>"],
   "questions": [
     {

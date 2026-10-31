@@ -12,10 +12,10 @@ An automation is work that runs without a request: on a domain or integration ev
 
 | Field | Meaning |
 |:---|:---|
-| `triggeredBy` | Exactly one of `{ "event": "event/<...>" }` or `{ "event": "integration-event/<...>" }`, `{ "schedule": { "every": "PT1M" } }` or `{ "schedule": { "cron": "0 3 * * *", "timezone": "..." } }`, `{ "manual": true }`. |
+| `triggeredBy` | Exactly one of `{ "event": "event/<...>" }`, `{ "event": ["event/<...>", ...] }`, or the `integration-event/...` forms, `{ "schedule": { "every": "PT1M" } }`, `{ "schedule": { "cron": "0 3 * * *", "timezone": "..." } }`, `{ "schedule": { "at": "startup" } }`, `{ "manual": true }`. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
 | `effects` | `{ runs / sends / emits / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states; a schedule or manual automation states `timing` on each entry, and an event automation may omit it, which reads as `async`. |
-| `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize` | Schedule or manual triggers only: the runbook answering the run, where it runs, the guard it runs under, where resume state lives, what each run selects, the lock with its duration, and how many items per batch. `guard` is required with `manual`. |
+| `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, `evidence` | Schedule or manual triggers only: the runbook answering the run, where it runs, the guard it runs under, where resume state lives, what each run selects, the lock with its duration, how many items per batch, the promised service level, and the evidence the run leaves. `guard` is required with `manual`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads`, `changes` | The requirements carried, the journey steps served, the failure handling, the idempotency, and the aggregates read and changed, as on a use case. |
 | `onFailure` | `{ mode, retry, then, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `then` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
 | `idempotency` | The idempotency mode, usually `state`; a `key` templates `{field}` placeholders over the triggering event or run window fields, which the record does not list. |
@@ -34,11 +34,11 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each automation MUST declare exactly one trigger in `triggeredBy`: an event, a schedule, or manual.
 
-**Rationale:** An automation without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the trigger states when the behavior fires: the domain or integration event it answers, the schedule with its `every` duration or `cron` expression and timezone, or `manual` for work a person starts. A `skippedWhen` clause states when it skips.
+**Rationale:** An automation without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the trigger states when the behavior fires: the domain or integration events it answers, one id or a list, the schedule with its `every` duration, `cron` expression and timezone, or `at: startup` for a run once at deployment start, or `manual` for work a person starts. A `skippedWhen` clause states when it skips.
 
 **Example:** The send-due-notice automation answers the loan-borrowed domain event and runs the send-due-notice command, while the expire-lapsed-holds automation runs every six hours over open holds past their window.
 
-**Checked by:** `litespec model check` reports `automation-trigger-unknown` (level G) for a trigger naming an unknown event and `schedule-invalid` (level G) for a schedule neither an `every` duration nor a `cron` expression; `litespec consumer` fails an automation without exactly one trigger.
+**Checked by:** `litespec model check` reports `automation-trigger-unknown` (level G) for a trigger naming an unknown event and `schedule-invalid` (level G) for a schedule neither an `every` duration, a `cron` expression, nor `at: startup`; `litespec consumer` fails an automation without exactly one trigger.
 
 ### Declare Every Automation Edge in Effects
 
@@ -106,13 +106,13 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#keep-scheduled-fields-off-event-automations`
 
-**Statement:** An automation with an event trigger MUST NOT carry `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, or `batchSize`.
+**Statement:** An automation with an event trigger MUST NOT carry `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
-**Rationale:** Run fields describe work over time: what each run selects, how many items per batch, the lock, where resume state lives, where it runs, and the guard it runs under. An event automation answers one event and carries none of that, so a run field on it claims a schedule the trigger never states.
+**Rationale:** Run fields describe work over time: what each run selects, how many items per batch, the lock, where resume state lives, where it runs, the guard it runs under, the promised service level, and the evidence the run leaves. An event automation answers one event and carries none of that, so a run field on it claims a schedule the trigger never states.
 
 **Example:** The send-due-notice automation answers its event with no `selection` and no `guard`.
 
-**Checked by:** `litespec consumer` fails an event automation carrying `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, or `batchSize`.
+**Checked by:** `litespec consumer` fails an event automation carrying `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
 ### Guard Every Manual Automation
 

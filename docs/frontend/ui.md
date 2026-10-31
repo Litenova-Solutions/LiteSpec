@@ -99,7 +99,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package.
 
-**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a deviation recorded against this provision.
+**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.
 
 **Reviewed for:** The shared UI package installs the pinned manifest baseline once, and applications install none. Look in the shared package manifest and lock, and the application manifests.
 
@@ -214,11 +214,11 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#hold-the-declared-base-color`
 
-**Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded deviation.
+**Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded exception.
 
-**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded deviation keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
+**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded exception keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
 
-**Reviewed for:** Token definitions carry only declared baseline values, with each departure recorded as a deviation. Look in the token definitions and the deviation records.
+**Reviewed for:** Token definitions carry only declared baseline values, with each departure recorded as an exception. Look in the token definitions and the exception records.
 
 ### Keep Separators at the Subtle Step
 
@@ -270,7 +270,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Example:** The expense form's screen reaches `spending.receipt-missing` through its computed `calls`, and that refusal has a sentence in the Claimwick web dictionary.
 
-**Checked by:** `litespec model check` reports `refusal-sentence-missing` (tier A) for a refusal reachable through a screen's computed `calls` with neither a dictionary sentence nor a browser test asserting its code.
+**Checked by:** `litespec model check` reports `refusal-sentence-missing` (level A) for a refusal reachable through a screen's computed `calls` with neither a dictionary sentence nor a browser test asserting its code.
 
 ### Restrict Styling to Semantic Tokens
 

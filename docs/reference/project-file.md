@@ -34,7 +34,6 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `owners` | array of string or object | no | none |
 | `review` | object | no | none |
 | `marks` | string | no | `"xml"` |
-| `check` | object | no | none |
 | `adoption` | object | no | none |
 | `refusals` | object | no | the default codes |
 | `reviewedLiteSpecVersion` | string | yes | none |
@@ -57,7 +56,6 @@ What each field means and what reads it:
 - `owners` is the closed list of names a record owner comes from. Each entry is a plain name, such as `"shop-team"`, or an object mapping a readable name to its CODEOWNERS handles, such as `{"name": "Shop engineering", "codeowners": ["@shop/team"]}`. The model builder reads the list and reports whether one is declared. See the `owners` entry below.
 - `review` names the review settings: the veto window and the security reviewer. See the `review` object below.
 - `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
-- `check` names how the checks treat the project. See the `check` object below.
 - `adoption` names the decision that ends transcription mode. See the `adoption` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
 - `vocabulary` adds the project domain verbs to the baseline use-case vocabulary. See the `vocabulary` object below.
@@ -114,7 +112,7 @@ This object is included once the project states which outside constraints apply 
 What each field means and what reads it:
 
 - `vetoWindowDays` is the days after `decideBy` in which a question on a tier 3 record carrying `recommendation` auto-approves, recorded as `answeredBy: auto (veto window)` on the question, as `litespec/core/model#answer-each-question-on-its-record` states. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
-- `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
+- `securityReviewer` is the owner name holding the security reviewer role, where the project names one. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. The queue is a list to read, not a gate.
 - `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
 ### The `dependencies` Object
@@ -124,14 +122,6 @@ What each field means and what reads it:
 | `licenses` | array of strings | no | none |
 
 - `licenses` lists the SPDX license identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other license needs an admitting decision that names it.
-
-### The `check` Object
-
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `phase` | string | no | `"working"` |
-
-`phase` is `working` or `frozen`. In `frozen` the project holds its tests still while the code moves: `litespec model check` reports proof findings without blocking and marks them `frozen`, and the analyzers report them as warnings. In `working` they block as their level states.
 
 ### The `adoption` Object
 
@@ -186,6 +176,8 @@ What each field means and what reads it:
 - `codeowners` lists the CODEOWNERS handles the name maps to, such as `["@shop/team"]`. Each entry is one handle from the CODEOWNERS file.
 - A record's owner covers a path when the owner itself, or any handle its `owners` entry lists, is an owner of the last CODEOWNERS rule matching that path. `litespec model check` reports `owner-unknown` otherwise.
 
+A project whose owners list holds one name needs no second reviewer.
+
 ### The `paths` Object
 
 | Field | Type | Required | Default |
@@ -218,7 +210,7 @@ What each field means and what reads it:
 - `glossaryScan` holds glob patterns that name the non-Markdown surfaces the vocabulary reaches: source, interface copy, the API contract, and acceptance tests. Each pattern matches repository-relative paths and matches at least one file, or `litespec consumer` reports that the check over that surface did not run.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
 - `behaviorDocs` and `uiDocs` name the behavior and UI documentation roots. Both are required.
-- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `automation`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
+- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `automation`, `notification`, `setting`, `integration-event`, `runbook`, `exception`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -315,7 +307,6 @@ The generator is `astro`. The [site extension](../ext/site.md) states when a pub
 | `criterion` | string | yes | none |
 | `reviewBy` | string | yes | none |
 | `releaseStage` | string | no | none |
-| `deferredProvisions` | array of object | no | none |
 
 What each field means and what reads it:
 
@@ -323,7 +314,6 @@ What each field means and what reads it:
 - `criterion` states the criterion that was met, such as `"The product ships in English and Dutch."`. `litespec/core/scope#record-selected-extensions` requires the entry, and `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting an extension only when its criteria apply.
 - `reviewBy` is the date the selection is next reviewed, in `YYYY-MM-DD` form. `litespec consumer` reports a selection whose date has passed, because a selection that costs nothing to keep still expires.
 - `releaseStage` belongs to the `stage` extension only. It is `pre-production` or `production`.
-- `deferredProvisions` belongs to the `stage` extension only. Each entry holds `provision`, which is the deferred provision ID, and `until`, which is the date the deferral ends in `YYYY-MM-DD` form. A production project defers nothing.
 
 ### Placeholders and the Init Fill
 

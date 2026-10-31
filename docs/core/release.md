@@ -2,13 +2,13 @@
 
 ## Intent
 
-A product release is the verified behavior a team ships after Intent, Behavior, and security review approve it. This page states who reviews each diff, how tiers and the veto window work, which checks each changed boundary runs, and what the written release record lists for its artifact. A release that follows it ships only reviewed and proven behavior with recovery, visibility, and delivery evidence attached.
+A product release is the verified behavior a team ships after Intent and Behavior review approve it, with the security queue read where the project names a reviewer. This page states who reviews each diff, how tiers and the veto window work, which checks each changed boundary runs, and what the written release record lists for its artifact. A release that follows it ships only reviewed and proven behavior with recovery, visibility, and delivery evidence attached.
 
 ## Concepts
 
 ### The Review Flow
 
-Each change flows from the builder through checks into three review views: the Intent diff with its ballots for product people, the Behavior diff for developers, and the security queue for the security reviewer. The Intent diff shows changes in product words, the Behavior diff shows the records developers judge, and the security queue lists cross access, new outside calls, and new personal or sensitive data classes. The release gate admits the change only when every view it touches is reviewed and every check it selects is green.
+Each change flows from the builder through checks into three review views: the Intent diff with its ballots for product people, the Behavior diff for developers, and the security queue, a list to read for the security reviewer where the project names one. The Intent diff shows changes in product words, the Behavior diff shows the records developers judge, and the security queue lists cross access, new outside calls, and new personal or sensitive data classes. The release gate admits the change only when every view it touches is reviewed and every check it selects is green; the security queue is read beside the Behavior diff, not gated.
 
 ### Intent Review
 
@@ -16,31 +16,31 @@ Product people review the Intent diff and answer its ballots. Questions on tier 
 
 ### Behavior Review
 
-Developers review the Behavior diff. A tier 1 change ships with passing scenarios plus an advisory agent review, and it ships on no self review alone. Tier 3 changes are sampled, so a developer reads a sample rather than every line.
+Developers review the Behavior diff. A tier 1 change ships with passing scenarios and a recorded second reading, and it ships on no self review alone. An agent reading counts as that second reading, with its report kept beside the manifest. Tier 3 changes are sampled, so a developer reads a sample rather than every line.
 
 ### The Security Queue
 
-The security reviewer is the role named in `securityReviewer` in the project file. The queue lists every change to cross tenant access, every new `calls` edge, and every new personal or sensitive data class. Security review stands separately from reviewed status: a record can be reviewed and still wait in the queue, and the queue decision is recorded beside the change rather than in the status.
+The security reviewer is the role a project may name in `review.securityReviewer` in the project file. The queue lists every change to cross tenant access, every new `calls` edge, and every new personal or sensitive data class. The queue is a list to read beside the Behavior diff, not a gate: a record can be reviewed and still wait in the queue, and the read is recorded beside the change rather than in the status.
 
 ### Single Operator Mode
 
-A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-expired` check, so nothing silently blocks.
+A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-expired` check, so nothing silently blocks. A project whose owners list holds one name needs no `--second-reviewer`.
 
 ### Batch Review
 
 A project with thousands of drafts is reviewed in batches, never record by record. `litespec model review` computes the review queue from the model: every draft and every reopened record, with its decider, tier, `decideBy`, effective status, the drafts awaiting it, and its evidence (scenario proofs and open findings), grouped into batches. A result or a scenario takes the tier of its use case. A batch is one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type. A reopened record carrying a `risk` value, an `access` grant, or requirement `values` is marked `fullReRead`, because the hash says only that its promise moved, not which part.
 
-`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios and a cleared security queue. No record auto-approves: only a question auto-approves after its `decideBy` plus the veto window, as `litespec/core/model#answer-each-question-on-its-record` states, because a question carries a recommendation the window can settle, while a record is a promise that carries a person's name.
+`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios, with the security queue read beside the Behavior diff. No record auto-approves: only a question auto-approves after its `decideBy` plus the veto window, as `litespec/core/model#answer-each-question-on-its-record` states, because a question carries a recommendation the window can settle, while a record is a promise that carries a person's name.
 
 The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's. The report is a page in the `review-report` style under `docs/proof/reviews/`.
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its questions on tier 1 records are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check levels, and the boundary table below states which checks each changed boundary selects.
+The gate admits a release when its G checks are green, its questions on tier 1 records are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check levels, and the boundary table below states which checks each changed boundary selects. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
 
 ### Agents Advise
 
-Agents draft records, propose answers, and review as advisers. No agent decision gates a release: approval and review come from the named people and roles, with agent output recorded as advice beside the decision.
+Agents draft records, propose answers, and review as advisers. An agent reading counts as the tier 1 second reading, with the reading's report kept beside the manifest; approval stays with the named person.
 
 ### Checker Qualification
 
@@ -48,7 +48,7 @@ A stack reader is qualified by fixtures: a known good tree it passes and a known
 
 ### Verified Behavior and Journey Evidence
 
-Implemented and verified are different claims. A use case is implemented when its handler exists, and verified when every one of its scenarios passes its proof through the public boundary. A journey test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
+Implemented and verified are different claims. A use case is implemented when its handler exists, and verified when every one of its scenarios has a passing proof through the public boundary that is not stale, as the proof words table on the [model page](model.md) states. A journey test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
 
 ### The Release Record
 
@@ -68,7 +68,7 @@ Each changed boundary adds the checks that cover its risk. A change that touches
 
 ### Debt, Gaps, and the First Release
 
-Accepted debt never sits as an untracked compromise: it lives as a known gap with an owner and an end date, whose check reports until the date and fails after it. The [model page](model.md) states the known gap shape.
+Accepted debt never sits as an untracked compromise: it lives as an exception of kind `gap` with an owner and an expiry date, whose findings report until the date and whose `exception-expired` reports after it. The [model page](model.md) states the exception shape. Governance is a group of records beside the four record layers, not a fifth layer.
 
 A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. Before its first production release, the consumer keeps a readiness record instead, with dated rehearsals, green gates, and a rehearsal owner who owns the backup and restore rehearsal.
 
@@ -118,7 +118,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A tier 1 Behavior change MUST show passing scenarios and an advisory agent review before it ships.
 
-**Rationale:** Tier 1 records carry money, physical-access, personal data, or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change.
+**Rationale:** Tier 1 records carry money, physical-access, personal data, or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change. The advisory review counts as the tier 1 second reading.
 
 **Example:** A cross tenant search ships only after its scenarios pass and the agent advice on its grant is recorded.
 
@@ -130,11 +130,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A tier 1 Behavior change MUST NOT ship on self review alone.
 
-**Rationale:** A reviewer who wrote the change reads what they meant rather than what the records say, which is where tier 1 risk hides. A second reviewer beside the author keeps one pair of eyes from being the whole gate.
+**Rationale:** A reviewer who wrote the change reads what they meant rather than what the records say, which is where tier 1 risk hides. A second reviewer beside the author keeps one pair of eyes from being the whole gate. A project whose owners list holds one name needs no second reviewer.
 
 **Example:** An author who drafts a money rule waits for another developer read before the change leaves the gate. In a project with one person, an independent agent review whose report the batch manifest cites stands as that read.
 
-**Checked by:** `litespec model approve --batch` refuses a batch holding a tier 1 record when `--second-reviewer` is missing or names the approver, or names `agent` with no `--review-report`, and records the second review in the batch manifest.
+**Checked by:** `litespec model approve --batch` refuses a batch holding a tier 1 record when `--second-reviewer` is missing or names the approver, or names `agent` with no `--review-report`, unless the owners list holds one name, and records the second review in the batch manifest.
 
 ### Sample Tier 3 Behavior Reviews
 
@@ -248,25 +248,25 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#name-the-security-reviewer-in-the-project-file`
 
-**Statement:** A project MUST name its security reviewer in `securityReviewer` in the project file.
+**Statement:** A project MAY name its security reviewer in `review.securityReviewer` in the project file.
 
-**Rationale:** The security queue calls for one owner who answers for cross access, new outside calls, and new personal or sensitive data classes. Naming the role in the project file tells every diff where to route the queue, instead of leaving queued access waiting for whoever notices it.
+**Rationale:** The security queue calls for one reader for cross access, new outside calls, and new personal or sensitive data classes. Naming the role in the project file tells every diff where to route the queue, instead of leaving queued access waiting for whoever notices it. The queue is a list to read beside the Behavior diff, not a gate.
 
 **Example:** A project file carrying `"securityReviewer": "cara"` routes the queue to Cara until someone else holds the role.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a project file without `securityReviewer`.
+**Reviewed for:** Which security queues lack a named reader where the project wants one? Look at `review.securityReviewer` beside the behavior diff.
 
 ### Review the Security Queue Separately from Reviewed
 
 **ID:** `litespec/core/release#review-the-security-queue-separately-from-reviewed`
 
-**Statement:** Each security queue item MUST face security review separately from reviewed status.
+**Statement:** Each security queue item MUST be read separately from reviewed status.
 
-**Rationale:** Reviewed status says developers accepted the Behavior, while the queue asks whether cross access, a new outside call, or a new personal or sensitive data class is safe to ship. Judging the queue inside reviewed status would let a developer sample approve access risk, so the security reviewer records the queue decision beside the change.
+**Rationale:** Reviewed status says developers accepted the Behavior, while the queue asks whether cross access, a new outside call, or a new personal or sensitive data class is safe to ship. Judging the queue inside reviewed status would let a developer sample approve access risk, so the security reviewer reads each item beside the change where the project names one. The queue is a list to read, not a gate.
 
-**Example:** A reviewed staff search with cross scope waits in the queue until the security reviewer accepts the grant.
+**Example:** A reviewed staff search with cross scope waits in the queue until the security reviewer reads the grant.
 
-**Reviewed for:** Which cross, calls, or data class changes shipped without a recorded security decision? Look at the security queue beside the Behavior diff.
+**Reviewed for:** Which cross, calls, or data class changes shipped without the queue being read? Look at the security queue beside the Behavior diff.
 
 ### Verify Connected Journeys
 
@@ -324,7 +324,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** An Intent or Behavior change MUST pass the G checks with the book and diffs.
 
-**Rationale:** G checks read records only: shape, references, links, drafts, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book and diffs render a graph that no longer holds.
+**Rationale:** G checks read records only: shape, references, links, drafts, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book and diffs render a graph that no longer holds. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 **Checked by:** `litespec model check` exits zero with no G finding.
 
@@ -364,23 +364,23 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A release MUST show green G checks, answered questions on tier 1 records, verified scenarios, and green S checks where the reader is qualified.
 
-**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered questions on tier 1 records prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged.
+**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered questions on tier 1 records prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
 
 **Example:** A reimbursement release shows green G checks, no open questions on tier 1 records, every scenario verified, and green S checks on the .NET reader.
 
-**Reviewed for:** Which releases lack green G checks, answered questions on tier 1 records, verified scenarios, or qualified S results? Look at the gate evidence beside the release.
+**Checked by:** `litespec model check --release` blocks on `use-case-unverified` and on unanswered questions on tier 1 records.
 
 ### Advise Without Gating as an Agent
 
 **ID:** `litespec/core/release#advise-without-gating-as-an-agent`
 
-**Statement:** An agent MUST advise without gating a release.
+**Statement:** A recorded agent reading MUST count as the tier 1 second reading.
 
-**Rationale:** Agents draft, check, and review at speed, but no agent carries the product or security accountability a release carries. Advice recorded beside the decision helps the named reviewer judge, while a gate held by an agent would let a release ship on no human approval. An independent agent review recorded as the second reading of a tier 1 batch in a one-person project is still advice: the person approves, and the agent only reads.
+**Rationale:** One-person teams cannot staff a second person, so a recorded agent reading stands as the tier 1 second reading. The reading stays advice: the person approves, and the agent only reads, with the reading's report kept beside the manifest. Approval and review come from the named people and roles.
 
-**Example:** An agent review of a tier 1 grant is recorded as advice, and the developer review beside it gates the change.
+**Example:** An agent review of a tier 1 grant is recorded as the second reading beside the person's approval, and the report is kept beside the manifest.
 
-**Reviewed for:** Which releases show an agent as the gating reviewer? Look at the recorded reviewers beside each approval.
+**Reviewed for:** Which tier 1 approvals lack a recorded second reading beside the person approval? Look at the second readings and reports beside each approval.
 
 ### Qualify the Checker with Known Good and Known Bad Fixtures
 
@@ -514,15 +514,17 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which release records restate a specification or copy a scenario? Look at the record body beside the linked specifications.
 
-### Record Accepted Debt as a Known Gap
+### Record Accepted Debt as an Exception
 
-**ID:** `litespec/core/release#record-accepted-debt-as-a-known-gap`
+**ID:** `litespec/core/release#record-accepted-debt-as-an-exception`
 
-**Statement:** Accepted debt MUST live as a known gap with an owner and an end date.
+**Statement:** Accepted debt MUST live as an exception of kind `gap` with an owner and an expiry date.
 
-**Rationale:** Accepted debt with no owner and no end date is forgotten work. A known gap with both turns it into a dated promise whose check reports until the date and fails after it. The [model page](model.md) states the known gap shape.
+**Rationale:** Accepted debt with no owner and no expiry date is forgotten work. An exception of kind `gap` with both turns it into a dated promise whose findings report until the date and whose `exception-expired` reports after it. The [model page](model.md) states the exception shape. One person may approve it.
 
-**Reviewed for:** Which accepted debts lack a known gap with owner and end date? Look at the known gaps beside each debt.
+**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as an exception of kind `gap` with the finance owner and an `expiresOn` of 2027-03-01; `exception-expired` reports it after that date.
+
+**Reviewed for:** Which accepted debts lack an exception of kind `gap` with owner and expiry date? Look at the exceptions beside each debt.
 
 ### Keep a First-Release Readiness Record
 
