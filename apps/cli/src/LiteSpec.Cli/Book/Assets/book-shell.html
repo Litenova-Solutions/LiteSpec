@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>{{title}}</title>
+<link rel="stylesheet" href="assets/book-fonts.css">
+<link rel="stylesheet" href="assets/book.css">
+<link rel="stylesheet" href="assets/book-extra.css">
+<script>
+window.BookData = (function () {
+"use strict";
+var data = {}, pending = {};
+function put(key, value) {
+  data[key] = value;
+  var list = pending[key] || [];
+  delete pending[key];
+  list.forEach(function (resolve) { resolve(value); });
+}
+function get(key) { return data[key]; }
+function load(key) {
+  if (data[key] !== undefined) return Promise.resolve(data[key]);
+  if (pending[key]) return new Promise(function (resolve) { pending[key].push(resolve); });
+  pending[key] = [];
+  return new Promise(function (resolve, reject) {
+    pending[key].push(resolve);
+    if (document.querySelector('script[data-shard="' + key + '"]')) return;
+    var script = document.createElement("script");
+    script.setAttribute("data-shard", key);
+    script.src = "data/" + key + ".js";
+    script.async = true;
+    script.onerror = function () { delete pending[key]; reject(new Error("Cannot load " + key)); };
+    document.head.appendChild(script);
+  });
+}
+return { put: put, get: get, load: load };
+})();
+</script>
+<script src="data/manifest.js" data-shard="manifest"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 128 128" aria-hidden="true"><g fill="none" stroke="var(--stroke)" stroke-linecap="round" stroke-width="9"><path d="M18 28h92"/><path d="M18 64h92"/><path d="M18 100h92"/></g><path d="M36 28 78 64 52 100" fill="none" stroke="#f8c258" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/><g fill="#f8c258" stroke="var(--stroke)" stroke-width="5"><circle cx="36" cy="28" r="8"/><circle cx="78" cy="64" r="8"/><circle cx="52" cy="100" r="8"/></g></svg>
+    <b id="projName"></b><span class="sep">/</span><span class="sub">Book</span>
+  </div>
+  <div class="search">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Find a record by title or text" aria-label="Filter the navigation" autocomplete="off">
+    <span class="kbd" aria-hidden="true">/</span>
+  </div>
+  <div class="spacer"></div>
+  <span class="run" id="run"></span>
+  <span class="prog" id="prog"></span>
+  <button class="btn ol" type="button" data-wide="1">Intent tree</button>
+  <div class="recent"><button class="btn ol" id="recentBtn" type="button" aria-haspopup="true" aria-expanded="false">Recent</button><div class="menu" id="recentMenu" hidden></div></div>
+  <button class="btn ol" id="dl" type="button"></button>
+  <button class="btn gh ic" id="keysBtn" type="button" aria-label="Keyboard shortcuts">?</button>
+  <button class="btn gh ic" id="theme" type="button" aria-label="Switch to dark theme"></button>
+</header>
+<noscript>{{noscript}}</noscript>
+<div class="app">
+  <aside class="side" aria-label="Navigation">
+    <div class="views">
+      <div class="vtabs" role="tablist" aria-label="View" id="vtabs"></div>
+      <div class="tools" id="tools"></div>
+      <div id="facetPanel"></div>
+      <div class="chips" id="chips"></div>
+      <div class="shown" id="shown"></div>
+    </div>
+    <div class="navbody" id="nav"></div>
+  </aside>
+  <main class="main" id="mainCol">
+    <article class="detail" id="detail"></article>
+    <div class="vbar" id="vbar"></div>
+  </main>
+  <aside class="conn" id="conn" aria-label="Connections"></aside>
+  <section class="itree-wrap" id="itreeBody"></section>
+</div>
+<div class="xpop" id="xpop" role="tooltip" hidden></div>
+<div class="overlay" id="keys" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="keysT"><h2 id="keysT">Keyboard shortcuts</h2><dl>
+  <dt><kbd>/</kbd> or <kbd>Ctrl K</kbd></dt><dd>Filter the navigation</dd>
+  <dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>Next and previous record in the navigation</dd>
+  <dt><kbd>u</kbd></dt><dd>Up to the parent record</dd>
+  <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>Previous and next sibling</dd>
+  <dt><kbd>n</kbd></dt><dd>Next record that needs review</dd>
+  <dt><kbd>a</kbd></dt><dd>Approve or mark reviewed</dd>
+  <dt><kbd>1</kbd> to <kbd>4</kbd></dt><dd>Outline, Review queue, Security, Ballots</dd>
+  <dt><kbd>e</kbd> <kbd>c</kbd></dt><dd>Expand or collapse the outline</dd>
+  <dt><kbd>Alt</kbd> <kbd>&larr;</kbd></dt><dd>Back to the previous record</dd>
+  <dt><kbd>Esc</kbd></dt><dd>Clear the filter, close this</dd>
+</dl></div></div>
+<script src="assets/book.js"></script>
+</body>
+</html>

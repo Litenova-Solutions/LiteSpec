@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -8,15 +10,16 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class RequirementStatusTests
 {
     /// <summary>A measured requirement verifies on a verified fulfiller and a passing check.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Measured_Requirement_With_A_Passing_Check_Verifies()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/borrow-copy-proof-scenario.md", ScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/JUnit/JUnitScenarios.cs", ScenariosFile);
-        Write(temp.Path, "docs/product/lending/performance.md", RequirementPage);
-        Write(temp.Path, "docs/product/journeys/borrow-and-return.md", JourneyPage);
-        Fulfill(temp.Path, "requirement/borrowing.borrow-latency", "requirement/borrowing.borrow-errors");
+        TestRecords.Write(temp.Path, "docs/intent/lending/performance.yaml", RequirementJson);
+        TestRecords.Write(temp.Path, "docs/intent/journeys/borrow-and-return.yaml", JourneyJson);
+        Fulfill(temp.Path, "requirement/performance.borrow-latency", "requirement/performance.borrow-errors", "requirement/performance.borrow-journey");
 
         var results = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(results);
@@ -28,11 +31,11 @@ public sealed class RequirementStatusTests
 
         Assert.True(root.GetProperty("status").GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
 
-        var latency = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-latency");
+        var latency = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-latency");
         Assert.True(latency.GetProperty("verified").GetBoolean());
         Assert.True(latency.GetProperty("measurePassed").GetBoolean());
 
-        var errors = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-errors");
+        var errors = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-errors");
         Assert.False(errors.GetProperty("verified").GetBoolean());
         Assert.False(errors.GetProperty("measurePassed").GetBoolean());
 
@@ -40,19 +43,33 @@ public sealed class RequirementStatusTests
         Assert.False(loans.GetProperty("verified").GetBoolean());
         Assert.Equal(JsonValueKind.Null, loans.GetProperty("measurePassed").ValueKind);
 
-        var journey = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-journey");
+        var journey = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-journey");
         Assert.True(journey.GetProperty("verified").GetBoolean());
         Assert.Equal(JsonValueKind.Null, journey.GetProperty("measurePassed").ValueKind);
     }
 
     static void Fulfill(string root, params string[] requirements)
     {
-        var page = Path.Combine(root, "docs", "domain", "modules", "lending", "loans", "borrow-copy.md");
-        var text = File.ReadAllText(page);
-        var joined = "\"requirement/borrowing.max-active-loans\",\n        \""
-            + string.Join("\",\n        \"", requirements) + "\"";
+        PatchRecord(root, "docs/behavior/modules/lending/loans/borrow-copy.yaml", front =>
+        {
+            var fulfills = front["fulfills"]!.AsArray();
 
-        File.WriteAllText(page, text.Replace("\"requirement/borrowing.max-active-loans\"", joined));
+            foreach (var requirement in requirements)
+            {
+                fulfills.Add(requirement);
+            }
+
+            front["serves"] = new JsonArray("journey/borrow-and-return#s1");
+        });
+    }
+
+    static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
+    {
+        var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+        var node = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
+
+        mutate(node);
+        File.WriteAllText(path, RecordFile.Write(node));
     }
 
     static JsonDocument Build(string root)
@@ -71,24 +88,18 @@ public sealed class RequirementStatusTests
         File.WriteAllText(path, text);
     }
 
-    const string ScenarioPage = """
-        ---
+    const string ScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
           "title": "Borrowing an available copy succeeds",
           "owner": "lending-team",
-          "status": "approved",
+          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
     const string ScenariosFile = """
@@ -104,10 +115,10 @@ public sealed class RequirementStatusTests
         }
         """;
 
-    const string RequirementPage = """
-        ---
+    const string RequirementJson = """
         {
-          "type": "requirement-page",
+          "type": "topic",
+          "id": "topic/performance",
           "title": "Borrowing performance",
           "owner": "lending-team",
           "status": "approved",
@@ -115,49 +126,54 @@ public sealed class RequirementStatusTests
           "records": [
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-latency",
+              "id": "requirement/performance.borrow-latency",
               "title": "Borrow latency",
               "owner": "lending-team",
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing answers fast.",
+              "rationale": "Readers leave when borrowing is slow.",
+              "stimulus": "One hundred readers borrow in the first hour of the term.",
+              "environment": "Normal operation, the catalog index warm.",
+              "response": "Each borrow is recorded and confirmed.",
               "measure": "p95 latency of borrowing",
-              "by": "2026-12-01",
-              "check": "k6 http_req_duration p(95)<200"
+              "dueBy": "2026-12-01",
+              "check": "k6 http_req_duration p(95)<200",
+              "cites": ["goal/more-borrowing"]
             },
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-errors",
+              "id": "requirement/performance.borrow-errors",
               "title": "Borrow errors",
               "owner": "lending-team",
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing rarely fails.",
+              "rationale": "Readers trust borrowing that rarely fails.",
+              "stimulus": "One hundred readers borrow in the first hour of the term.",
+              "environment": "Normal operation, the catalog index warm.",
+              "response": "Each borrow either completes or reports its refusal.",
               "measure": "failed borrows",
-              "by": "2026-12-01",
-              "check": "k6 http_req_failed rate<0.05"
+              "dueBy": "2026-12-01",
+              "check": "k6 http_req_failed rate<0.05",
+              "cites": ["goal/more-borrowing"]
             },
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-journey",
+              "id": "requirement/performance.borrow-journey",
               "title": "Borrow journey",
               "owner": "lending-team",
               "status": "approved",
               "kind": "functional",
               "statement": "A reader borrows through the app.",
-              "basedOn": []
+              "rationale": "Readers borrow from home.",
+              "cites": ["goal/more-borrowing"]
             }
           ]
         }
-        ---
-
-        # Borrowing performance
-
-        Borrowing stays fast and certain.
         """;
 
-    const string JourneyPage = """
-        ---
+    const string JourneyJson = """
         {
           "type": "journey",
           "id": "journey/borrow-and-return",
@@ -165,20 +181,20 @@ public sealed class RequirementStatusTests
           "owner": "lending-team",
           "status": "approved",
           "actor": "actor/reader",
-          "goal": "Borrow a copy.",
+          "serves": [
+            "goal/more-borrowing"
+          ],
+          "finishedWhen": "The reader holds the copy.",
           "steps": [
             {
-              "useCase": "use-case/lending.borrow-copy"
+              "id": "s1",
+              "statement": "The reader borrows the copy from the shelf.",
+              "actor": "actor/reader"
             }
           ],
-          "fulfills": [
-            "requirement/borrowing.borrow-journey"
+          "cites": [
+            "requirement/performance.borrow-journey"
           ]
         }
-        ---
-
-        # Borrow and return
-
-        A reader borrows a copy.
         """;
 }

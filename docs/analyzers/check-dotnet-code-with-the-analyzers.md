@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the 5 backend projects and their tests, shows how to read and fix the first errors, and records a deviation for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
+The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records an exception for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ Start with:
 
 - The .NET 9.0.300 SDK, or Visual Studio 17.14 or later, whose compiler the analyzer package targets.
 - A solution with the five application projects that [the .NET architecture page](../backend/dotnet/architecture.md#use-five-application-projects) requires: Domain, Application.Abstractions, Application, Infrastructure, and WebApi.
-- One shared build file that all five projects import, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
+- One shared build file that every application project imports, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
 
 ## Procedure
 
@@ -20,21 +20,21 @@ Add one `PackageReference` in `apps/api/Directory.Build.props` so every project 
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="2.0.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="3.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 `PrivateAssets="all"` keeps the analyzer out of any package you publish. Keep the version in one central place to satisfy `litespec/backend/dotnet/packages#pin-every-dependency-centrally`: with central package management, put the version in `apps/api/Directory.Packages.props` instead:
 
 ```xml
-<PackageVersion Include="LiteSpec.Analyzers" Version="2.0.0" />
+<PackageVersion Include="LiteSpec.Analyzers" Version="3.0.0" />
 ```
 
 and omit `Version` from the `PackageReference`. Never add a second copy in a project file.
 
 ### 2. Confirm Each Project Layer
 
-Each rule runs only in the layers its provision covers, and the analyzers read the layer from the assembly name suffix. `Shop.Domain` resolves as Domain, `Shop.Application.Abstractions` as Application.Abstractions, and the same suffix rule maps Application, Infrastructure, and WebApi. Test projects resolve as Test: `Shop.Domain.Tests` and any assembly ending in `.Tests` or `.Test`. An assembly whose name carries no layer suffix is not analyzed. The resolver checks the two-part `Application.Abstractions` suffix before `Application`, so `Shop.Application.Abstractions` never resolves as Application.
+Each rule runs only in the layers its provision covers, and the analyzers read the layer from the assembly name suffix. `Shop.Domain` resolves as Domain, `Shop.Application.Abstractions` as Application.Abstractions, and the same suffix rule maps Application, Infrastructure, WebApi, and Worker. Test projects resolve as Test: `Shop.Domain.Tests` and any assembly ending in `.Tests` or `.Test`. An assembly whose name carries no layer suffix is not analyzed. The resolver checks the two-part `Application.Abstractions` suffix before `Application`, so `Shop.Application.Abstractions` never resolves as Application.
 
 When a project name does not end in a layer name, set the layer in its project file:
 
@@ -44,7 +44,7 @@ When a project name does not end in a layer name, set the layer in its project f
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Test`, and `None`. Set `None` to opt a project out, for example a Worker. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
+The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out: opting out turns off the whole package, so no analyzer rule runs and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
 
 ### 3. Build and Read the First Diagnostics
 
@@ -57,7 +57,7 @@ dotnet build apps/api/Shop.slnx
 Each finding is an error by default, fails the build, and names the provision it enforces. A typical first line reads:
 
 ```text
-error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/2.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
+error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/3.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
 ```
 
 The trailing address is the help link: it opens the provision the rule enforces, here `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. In Visual Studio the same error appears in the Error List with its ID, file, and line, and the tooltip carries the help link. In the terminal, `dotnet build` prints the line above.
@@ -137,14 +137,14 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where a deviation allows it, as the next step describes.
+Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where an exception allows it, as the next step describes.
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record a deviation that cites the provision, with its reason and review date, as [the model page](../core/model.md) describes. Keep the record at `docs/deviations/<name>.md`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record an exception of kind `departure` that covers the provision, with its reason, owner, and expiry date, as [the model page](../core/model.md) describes. Keep the record at `docs/governance/exceptions/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // deviation: docs/deviations/domain-docs-deferred.md
+#pragma warning disable LS1011 // exception: docs/governance/exceptions/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```
@@ -162,6 +162,6 @@ The example above quiets `litespec/backend/dotnet/domain#document-every-public-d
 
 Confirm the setup with these checks:
 
-- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones a deviation covers.
+- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones an exception covers.
 - Add a temporary enum to the Domain project and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class CoverageTests
 {
     /// <summary>Cobertura and lcov files list each unreached line once, with its member.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Coverage_Files_List_Unreached_Lines_For_Triage()
     {
@@ -34,6 +35,7 @@ public sealed class CoverageTests
     }
 
     /// <summary>Without a coverage file the model holds null, not an empty report.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Missing_Coverage_Files_Write_Null_Unreached_Code()
     {

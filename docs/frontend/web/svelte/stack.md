@@ -8,7 +8,7 @@ A Svelte frontend takes one of 3 rendering modes, chosen by who reads it: a stat
 
 ### Structure Bindings
 
-The shared web pages state each rule once; this stack names the values that differ per stack. Svelte frontends hold one folder per address in `src/routes`, and the frame and use-case code in `src/lib/app` and `src/lib/modules`. The toolkit generates the route types from the folders under `src/routes`. A page holds its parameters, its load, and its component. Imports resolve through the `$lib` alias, which points at `src/lib`, and shared files use the `.svelte` extension. Route groups keep their parenthesized names, because those names are router syntax.
+The shared web pages state each rule once; this stack names the values that differ per stack. Svelte frontends hold one folder per address in `src/routes`, and the frame and use-case code in `src/lib/app` and `src/lib/modules`. The toolkit generates the route types from the folders under `src/routes`. A page holds its parameters, its load, and its component. Imports resolve through the `#lib` alias, which the frontend declares in the `imports` field of its `package.json` as `"#lib/*": "./src/lib/*"`, and each import names its module's file extension (`#lib/app/words.ts`), as SvelteKit 3 requires; shared files use the `.svelte` extension. Route groups keep their parenthesized names, because those names are router syntax.
 
 ### Rendering Bindings
 
@@ -19,6 +19,10 @@ In Svelte terms: a page is a route file, a load is a loader, and a query creator
 ### Component Bindings
 
 A class or style binding spells `class`, `class:`, `style`, or `style:`. A file holding a drawing no composite makes ends with `*.visual.svelte`. Raw HTML reaches the page only through `{@html}`. The route error surface is the route error page, which draws the shared problem state. Component authoring follows [Svelte Components](components.md). The page-code lint applies the same restrictions through the Svelte ESLint processor, with visual files allowlisted.
+
+### Route Entry Bindings
+
+A route entry is the folder under `src/routes` that holds a `+page.svelte`. Its screen mark sits in the `<script module>` of that `+page.svelte`, as the same typed constant a use-case module exports, because SvelteKit refuses any export from a `+page.ts` other than its own options and `_`-prefixed names. Layout files (`+layout.svelte`, `+layout.ts`), error pages (`+error.svelte`), and route groups (parenthesized folders) are not route entries and carry no screen mark.
 
 ### Data Bindings
 
@@ -36,26 +40,26 @@ The registry build command is `shadcn-svelte build`. The state-to-tone table liv
 
 ### Select a Rendering Mode by Audience
 
+**ID:** `litespec/frontend/web/svelte/stack#select-a-rendering-mode-by-audience`
+
 **Statement:** A Svelte frontend MUST render as a static application when it is a console, and on the server when a public page is indexed.
 
 **Rationale:** A console opens inside the application a signed-in user already has, so its first response has nothing to index and ships as static files. A public page arrives by message or search result, so its title and links belong in the first response and it renders on the server. A page counts as indexed when its readers reach it from a message or a search result. A device client asks one question over and over and takes a static page with no router.
 
-**Example:** A back-office console and an internal admin console ship as static files. A public storefront runs as a Node server that hydrates in the browser. A warehouse handheld client ships as one static page.
+**Example:** A back-office console and an internal admin console ship as static files. A public marketing site runs as a Node server that hydrates in the browser. A receipt-scan client ships as one static page.
+
+**Reviewed for:** Which frontends render in a mode their audience does not require? Look in the frontend rendering configuration.
 
 ### Build a Device Client as One Static Page
+
+**ID:** `litespec/frontend/web/svelte/stack#build-a-device-client-as-one-static-page`
 
 **Statement:** A device client MUST ship as one static page with no router.
 
 **Rationale:** A device client shows one answer on repeat: one question, one screen, no navigation. A router would add downloads for destinations the client never visits. One static page carries exactly what the device needs.
 
+**Reviewed for:** Which device clients ship more than one page, or with a router? Look in the device client output.
 
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/svelte/stack#select-a-rendering-mode-by-audience | guidance | Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page. |
-| litespec/frontend/web/svelte/stack#build-a-device-client-as-one-static-page | guidance | Each device client ships as one static page with no router. |

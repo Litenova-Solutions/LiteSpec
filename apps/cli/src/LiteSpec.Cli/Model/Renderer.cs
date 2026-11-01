@@ -5,9 +5,12 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Rewrites the fenced generated regions, leaving all other text untouched.
 /// </summary>
+/// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
 static partial class Renderer
 {
     /// <summary>Renders every known region, returning the changed files.</summary>
+    /// <param name="model">The built project model the regions render from.</param>
+    /// <returns>The pages rewritten, relative to the root, in read order.</returns>
     public static IReadOnlyList<string> Render(ProjectModel model)
     {
         var changed = new List<string>();
@@ -30,7 +33,8 @@ static partial class Renderer
 
                     var newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
 
-                    return $"<!-- generated:{name} -->{newline}{content}{newline}<!-- /generated:{name} -->";
+                    // The region keeps the page's own line ending, so a CRLF page never gains LF lines.
+                    return $"<!-- generated:{name} -->{newline}{content.ReplaceLineEndings(newline)}{newline}<!-- /generated:{name} -->";
                 });
 
                 if (rewritten != text)
@@ -48,17 +52,25 @@ static partial class Renderer
     public static readonly HashSet<string> KnownRegions = new(StringComparer.Ordinal)
     {
         "history", "use-case-coverage", "sub-processors", "runbook-index", "rule-map",
-        "operations-log", "open-questions", "journeys", "glossary", "deviations", "census",
-        "aggregate-map", "audit-register", "alert-inventory", "counts",
+        "operations-log", "open-questions", "journeys", "glossary", "exceptions", "census",
+        "aggregate-map", "audit-register", "alert-inventory", "counts", "what-it-requires",
+        "retention-schedule",
     };
 
     /// <summary>One region fence: its name and the offset where it opens.</summary>
     public sealed record RegionFence(string Name, int Index);
 
     /// <summary>Every generated-region fence the text carries.</summary>
+    /// <param name="text">The page text to scan.</param>
+    /// <returns>Every fence in text order, with its offset.</returns>
     public static IReadOnlyList<RegionFence> Regions(string text) =>
         [.. Region().Matches(text).Select(match => new RegionFence(match.Groups["name"].Value, match.Index))];
 
+    /// <summary>The rendered content of one region on one page.</summary>
+    /// <param name="model">The built project model the region renders from.</param>
+    /// <param name="file">The page the region sits on.</param>
+    /// <param name="name">The region name inside its fence.</param>
+    /// <returns>The region content, or null when the name names no known region.</returns>
     private static string? ContentFor(ProjectModel model, string file, string name) =>
         name switch
         {
@@ -71,15 +83,20 @@ static partial class Renderer
             "open-questions" => OpenQuestions(model),
             "journeys" => Journeys(model, file),
             "glossary" => Glossary(model),
-            "deviations" => Deviations(model, file),
+            "exceptions" => Exceptions(model, file),
             "census" => Census(model),
             "aggregate-map" => AggregateMap(model),
             "audit-register" => AuditRegister(model),
             "alert-inventory" => AlertInventory(model, file),
             "counts" => Counts(model),
+            "what-it-requires" => WhatItRequires(model, file),
+            "retention-schedule" => RetentionSchedule(model),
             _ => null,
         };
 
+    /// <summary>Renders the glossary table of terms, meanings and translations.</summary>
+    /// <param name="model">The built project model holding the terms.</param>
+    /// <returns>The glossary table as Markdown lines.</returns>
     private static string Glossary(ProjectModel model)
     {
         var lines = new List<string>
@@ -89,10 +106,10 @@ static partial class Renderer
         };
 
         foreach (var term in model.Records
-                     .Where(record => record.Type == "term")
+                     .Where(record => record.Type == RecordTypes.Term)
                      .OrderBy(record => record.Title, StringComparer.Ordinal))
         {
-            var labels = term.Raw.TryGetProperty("labels", out var held) ? held : (System.Text.Json.JsonElement?)null;
+            var labels = term.Raw.TryGetProperty(RecordFields.Labels, out var held) ? held : (System.Text.Json.JsonElement?)null;
 
             string Label(string language) =>
                 labels is not null
@@ -102,12 +119,15 @@ static partial class Renderer
                     ? value.GetString() ?? ""
                     : "";
 
-            lines.Add($"| {Cell(term.Title)} | {Cell(term.Field("meaning") ?? "")} | {Cell(Label("nl"))} | {Cell(Label("de"))} |");
+            lines.Add($"| {Cell(term.Title)} | {Cell(term.Field(RecordFields.Meaning) ?? "")} | {Cell(Label("nl"))} | {Cell(Label("de"))} |");
         }
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the coverage table of use cases with their status marks.</summary>
+    /// <param name="model">The built project model holding the use cases and statuses.</param>
+    /// <returns>The coverage table as Markdown lines.</returns>
     private static string UseCaseCoverage(ProjectModel model)
     {
         var lines = new List<string>
@@ -117,7 +137,7 @@ static partial class Renderer
         };
 
         foreach (var useCase in model.Records
-                     .Where(record => record.Type == "use-case")
+                     .Where(record => record.Type == RecordTypes.UseCase)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var status = model.Status.TryGetValue(useCase.Id, out var held)
@@ -130,6 +150,10 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the table of organization actors and what data they hold.</summary>
+    /// <param name="model">The built project model holding the actors.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The sub-processor table as Markdown lines.</returns>
     private static string SubProcessors(ProjectModel model, string file)
     {
         var lines = new List<string>
@@ -139,7 +163,7 @@ static partial class Renderer
         };
 
         foreach (var actor in model.Records
-                     .Where(record => record.Type == "actor" && record.Field("kind") == "organization")
+                     .Where(record => record.Type == RecordTypes.Actor && record.Field(RecordFields.Kind) == "organization")
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var holds = ModelBuilder.TargetsOf(Holds(actor));
@@ -150,15 +174,19 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the index list of runbooks with their triggers.</summary>
+    /// <param name="model">The built project model holding the runbooks.</param>
+    /// <param name="file">The page the list sits on, for relative links.</param>
+    /// <returns>The runbook index as Markdown lines.</returns>
     private static string RunbookIndex(ProjectModel model, string file)
     {
         var lines = new List<string>();
 
         foreach (var runbook in model.Records
-                     .Where(record => record.Type == "runbook")
+                     .Where(record => record.Type == RecordTypes.Runbook)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            var trigger = runbook.Field("trigger") ?? "";
+            var trigger = runbook.Field(RecordFields.Trigger) ?? "";
 
             lines.Add($"- [{runbook.Title}]({RelativeLink(file, runbook.File)}): {trigger}");
         }
@@ -166,15 +194,18 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders rules grouped by the aggregate they govern, with unplaced rules last.</summary>
+    /// <param name="model">The built project model holding the rules and aggregates.</param>
+    /// <returns>The rule map as Markdown lines.</returns>
     private static string RuleMap(ProjectModel model)
     {
         var lines = new List<string>();
         var rules = model.Records
-            .Where(record => record.Type == "rule")
+            .Where(record => record.Type == RecordTypes.Rule)
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
         var records = model.Records
-            .Where(record => record.Type == "aggregate")
+            .Where(record => record.Type == RecordTypes.Aggregate)
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
         var placed = new HashSet<string>(StringComparer.Ordinal);
@@ -198,7 +229,7 @@ static partial class Renderer
             foreach (var rule in own)
             {
                 placed.Add(rule.Id);
-                lines.Add($"| `{rule.Id}` | {rule.Field("kind") ?? ""} | {Cell(rule.Field("statement") ?? "")} |");
+                lines.Add($"| `{rule.Id}` | {rule.Field(RecordFields.Kind) ?? ""} | {Cell(rule.Field(RecordFields.Statement) ?? "")} |");
             }
 
             lines.Add(string.Empty);
@@ -215,16 +246,21 @@ static partial class Renderer
 
             foreach (var rule in rest)
             {
-                lines.Add($"| `{rule.Id}` | {rule.Field("kind") ?? ""} | {Cell(rule.Field("statement") ?? "")} |");
+                lines.Add($"| `{rule.Id}` | {rule.Field(RecordFields.Kind) ?? ""} | {Cell(rule.Field(RecordFields.Statement) ?? "")} |");
             }
         }
 
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Tests whether a rule governs an aggregate directly, through a use case, or by home.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="rule">The rule to test.</param>
+    /// <param name="record">The aggregate to test.</param>
+    /// <returns>True when the rule governs the aggregate.</returns>
     private static bool Governs(ProjectModel model, Record rule, Record record)
     {
-        foreach (var target in rule.Ids("governs"))
+        foreach (var target in rule.Ids(RecordFields.Governs))
         {
             if (target == record.Id)
             {
@@ -232,7 +268,7 @@ static partial class Renderer
             }
 
             if (model.ById.TryGetValue(target, out var governed)
-                && governed.Type == "use-case"
+                && governed.Type == RecordTypes.UseCase
                 && ModelBuilder.AggregateOf(model, governed)?.Id == record.Id)
             {
                 return true;
@@ -245,6 +281,9 @@ static partial class Renderer
             && home == name;
     }
 
+    /// <summary>Renders links to the sibling month pages of an operations log.</summary>
+    /// <param name="file">The operations log page the list sits on.</param>
+    /// <returns>The month link list as Markdown lines.</returns>
     private static string OperationsLog(string file)
     {
         var folder = Path.GetDirectoryName(file)!;
@@ -262,14 +301,17 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the open modeling questions of every aggregate page.</summary>
+    /// <param name="model">The built project model holding the pages.</param>
+    /// <returns>The questions sections with their aggregate headings, as Markdown lines.</returns>
     private static string OpenQuestions(ProjectModel model)
     {
         var lines = new List<string>();
 
         foreach (var body in model.Bodies
                      .Where(candidate => model.ById.TryGetValue(candidate.PageId ?? "", out var page)
-                         && page.Type == "aggregate"
-                         && string.Equals(page.File, candidate.File, StringComparison.Ordinal))
+                         && page.Type == RecordTypes.Aggregate
+                         && string.Equals(page.File, RecordFile.RecordPathOf(candidate.File), StringComparison.Ordinal))
                      .OrderBy(candidate => candidate.PageId, StringComparer.Ordinal))
         {
             if (QuestionsSection(body.Body) is not { } section)
@@ -286,6 +328,9 @@ static partial class Renderer
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Extracts the open modeling questions section from one page body.</summary>
+    /// <param name="body">The page body to search.</param>
+    /// <returns>The section text, or null when the page holds no section or the section says none.</returns>
     private static string? QuestionsSection(string body)
     {
         var lines = body.Split('\n');
@@ -326,68 +371,83 @@ static partial class Renderer
             : text;
     }
 
+    /// <summary>Renders the list of journeys with links and finish conditions.</summary>
+    /// <param name="model">The built project model holding the journeys.</param>
+    /// <param name="file">The page the list sits on, for relative links.</param>
+    /// <returns>The journey list as Markdown lines.</returns>
     private static string Journeys(ProjectModel model, string file)
     {
         var lines = new List<string>();
 
         foreach (var journey in model.Records
-                     .Where(record => record.Type == "journey")
+                     .Where(record => record.Type == RecordTypes.Journey)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Path.GetFileNameWithoutExtension(journey.File);
 
-            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("goal") ?? ""}");
+            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field(RecordFields.FinishedWhen) ?? ""}");
         }
 
         return string.Join('\n', lines);
     }
 
-    private static string Deviations(ProjectModel model, string file)
+    /// <summary>Renders the table of exceptions and the findings each one covers.</summary>
+    /// <param name="model">The built project model holding the exceptions.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The exception table as Markdown lines.</returns>
+    private static string Exceptions(ProjectModel model, string file)
     {
         var lines = new List<string>
         {
-            "| Deviation | Provision |",
+            "| Exception | Covers |",
             "|:---|:---|",
         };
 
-        foreach (var deviation in model.Records
-                     .Where(record => record.Type == "deviation")
+        foreach (var exception in model.Records
+                     .Where(record => record.Type == RecordTypes.Exception)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            var name = Path.GetFileNameWithoutExtension(deviation.File);
+            var name = Path.GetFileNameWithoutExtension(exception.File);
+            var covers = string.Join(", ", exception.Ids(RecordFields.Covers).Select(code => $"`{code}`"));
 
-            lines.Add($"| [{name}]({RelativeLink(file, deviation.File)}) | `{deviation.Field("provision") ?? ""}` |");
+            lines.Add($"| [{name}]({RelativeLink(file, exception.File)}) | {covers} |");
         }
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the census list of headline project counts.</summary>
+    /// <param name="model">The built project model to count.</param>
+    /// <returns>The census list as Markdown lines.</returns>
     private static string Census(ProjectModel model)
     {
         var lines = new List<string>
         {
-            $"- workspace applications: {model.Records.Count(record => record.Type == "entry-point" && record.Has("path"))}",
-            $"- domain modules: {model.Records.Count(record => record.Type == "module")}",
-            $"- aggregate roots: {model.Records.Count(record => record.Type == "aggregate")}",
-            $"- use cases: {model.Records.Count(record => record.Type == "use-case")}",
-            $"- reactions: {model.Code.Reactions.Count(reaction => reaction.Kind == "reaction")}",
-            $"- recurring commands: {model.Code.Reactions.Count(reaction => reaction.Kind == "job" && !reaction.Class.EndsWith("Worker", StringComparison.Ordinal))}",
-            $"- workers: {model.Code.Reactions.Count(reaction => reaction.Kind == "job" && reaction.Class.EndsWith("Worker", StringComparison.Ordinal))}",
+            $"- workspace applications: {model.Records.Count(record => record.Type == RecordTypes.EntryPoint && record.Has(RecordFields.Path))}",
+            $"- domain modules: {model.Records.Count(record => record.Type == RecordTypes.Module)}",
+            $"- aggregate roots: {model.Records.Count(record => record.Type == RecordTypes.Aggregate)}",
+            $"- use cases: {model.Records.Count(record => record.Type == RecordTypes.UseCase)}",
+            $"- reactions: {model.Code.Reactions.Count}",
+            $"- recurring commands: {model.Code.Jobs.Count(job => !job.Class.EndsWith("Worker", StringComparison.Ordinal))}",
+            $"- workers: {model.Code.Jobs.Count(job => job.Class.EndsWith("Worker", StringComparison.Ordinal))}",
             $"- HTTP operations: {model.Code.Endpoints.Count}",
-            $"- published events: {model.Records.Count(record => record.Type == "event")}",
+            $"- published events: {model.Records.Count(record => record.Type == RecordTypes.Event)}",
             $"- frontend routes: {model.Screens.Count}",
         };
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders aggregates grouped under their modules, with their use cases.</summary>
+    /// <param name="model">The built project model holding the modules and aggregates.</param>
+    /// <returns>The aggregate map as Markdown lines.</returns>
     private static string AggregateMap(ProjectModel model)
     {
         var lines = new List<string>();
-        var records = model.Records.Where(record => record.Type == "aggregate").ToList();
+        var records = model.Records.Where(record => record.Type == RecordTypes.Aggregate).ToList();
 
         foreach (var module in model.Records
-                     .Where(record => record.Type == "module")
+                     .Where(record => record.Type == RecordTypes.Module)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Identifiers.TrySplit(module.Id, out _, out _, out var moduleName) ? moduleName : module.Id;
@@ -409,7 +469,7 @@ static partial class Renderer
             foreach (var record in own)
             {
                 var uses = model.Records
-                    .Where(candidate => candidate.Type == "use-case"
+                    .Where(candidate => candidate.Type == RecordTypes.UseCase
                         && ModelBuilder.AggregateOf(model, candidate)?.Id == record.Id)
                     .OrderBy(candidate => candidate.Id, StringComparer.Ordinal)
                     .Select(candidate => $"`{candidate.Id}`");
@@ -423,6 +483,9 @@ static partial class Renderer
         return string.Join('\n', lines).TrimEnd();
     }
 
+    /// <summary>Renders the register of use cases that need auditing or carry an authorization refusal.</summary>
+    /// <param name="model">The built project model holding the use cases and results.</param>
+    /// <returns>The audit register table as Markdown lines.</returns>
     private static string AuditRegister(ProjectModel model)
     {
         var lines = new List<string>
@@ -431,65 +494,98 @@ static partial class Renderer
             "|:---|:---|:---|",
         };
         var resultsByHome = model.Records
-            .Where(record => record.Type == "result")
+            .Where(record => record.Type == RecordTypes.Result)
             .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
             .Where(entry => entry.Home is not null)
             .GroupBy(entry => entry.Home!, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.Select(entry => entry.Record).ToList(), StringComparer.Ordinal);
 
         foreach (var useCase in model.Records
-                     .Where(record => record.Type == "use-case")
+                     .Where(record => record.Type == RecordTypes.UseCase)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Identifiers.TrySplit(useCase.Id, out _, out _, out var useCaseName) ? useCaseName : null;
             var authorization = name is not null
                 && resultsByHome.TryGetValue(name, out var results)
-                && results.Any(result => result.Field("code")?.StartsWith("authorization.", StringComparison.Ordinal) == true);
+                && results.Any(result => result.Field(RecordFields.Code)?.StartsWith("authorization.", StringComparison.Ordinal) == true);
 
-            if (useCase.Ids("needs").Count == 0 && !authorization)
+            if (useCase.Ids(RecordFields.Needs).Count == 0 && !authorization)
             {
                 continue;
             }
 
-            lines.Add($"| `{useCase.Id}` | {Cell(useCase.Title)} | {Cell(string.Join(", ", useCase.Ids("needs")))} |");
+            lines.Add($"| `{useCase.Id}` | {Cell(useCase.Title)} | {Cell(string.Join(", ", useCase.Ids(RecordFields.Needs)))} |");
         }
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders the inventory of alert rules with their linked records.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The page the table sits on, for relative links.</param>
+    /// <returns>The alert inventory table as Markdown lines.</returns>
     private static string AlertInventory(ProjectModel model, string file)
     {
         var lines = new List<string>
         {
-            "| Limit | Bound | Value | Runbook |",
-            "|:---|:---|:---|:---|",
+            "| Requirement | Alert | Runbook | Severity | File |",
+            "|:---|:---|:---|:---|:---|",
         };
 
-        foreach (var limit in model.Records
-                     .Where(record => record.Type == "limit")
-                     .OrderBy(record => record.Id, StringComparer.Ordinal))
+        foreach (var rule in Readers.Operations.AlertRuleReader.Read(model.Config)
+                     .OrderBy(rule => RuleLabel(rule, "requirement"), StringComparer.Ordinal)
+                     .ThenBy(rule => rule.Name, StringComparer.Ordinal))
         {
-            var runbook = limit.Ids("runbook")
-                .Select(id => model.ById.TryGetValue(id, out var record) && record.Type == "runbook"
-                    ? $"[{Path.GetFileNameWithoutExtension(record.File)}]({RelativeLink(file, record.File)})"
-                    : $"`{id}`")
-                .ToList();
+            var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), RecordTypes.Requirement);
+            var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), RecordTypes.Runbook);
+            var severity = Cell(RuleLabel(rule, "severity"));
+            var source = Cell(model.Config.Relative(rule.File));
 
-            lines.Add($"| `{limit.Id}` | {Cell(limit.Field("bound") ?? "")} | {Cell(limit.Field("value") ?? "")} | {string.Join(", ", runbook)} |");
+            lines.Add($"| {requirement} | {Cell(rule.Name)} | {runbook} | {severity} | {source} |");
         }
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>One rule label, or empty when the rule carries no value for the key.</summary>
+    /// <param name="rule">The alert rule to read a label from.</param>
+    /// <param name="key">The label key to read.</param>
+    /// <returns>The label value, or empty when the rule carries no value for the key.</returns>
+    private static string RuleLabel(Readers.Operations.AlertRule rule, string key) =>
+        rule.Labels.TryGetValue(key, out var value) ? value : "";
+
+    /// <summary>One inventory record cell: a link when the id resolves, a code span when not, empty when missing.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The page the cell sits on, for the relative link.</param>
+    /// <param name="id">The record id the cell names.</param>
+    /// <param name="type">The record type the id must resolve to for a link.</param>
+    /// <returns>A linked code span when the id resolves to that type, a bare code span otherwise, or empty for no id.</returns>
+    private static string RecordCell(ProjectModel model, string file, string id, string type) =>
+        id.Length == 0
+            ? ""
+            : model.ById.TryGetValue(id, out var record) && record.Type == type
+                ? $"[`{id}`]({RelativeLink(file, record.File)})"
+                : $"`{id}`";
+
+    /// <summary>Reads the raw holds value an actor declares.</summary>
+    /// <param name="actor">The actor record to read.</param>
+    /// <returns>The holds element, or a default element when the actor declares none.</returns>
     private static System.Text.Json.JsonElement Holds(Record actor) =>
         actor.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
-        && actor.Raw.TryGetProperty("holds", out var holds)
+        && actor.Raw.TryGetProperty(RecordFields.Holds, out var holds)
             ? holds
             : default;
 
+    /// <summary>Builds the link target from one page to another file.</summary>
+    /// <param name="from">The page the link sits on.</param>
+    /// <param name="to">The file the link points at.</param>
+    /// <returns>The relative path from the page folder to the target, with forward slashes.</returns>
     private static string RelativeLink(string from, string to) =>
         Path.GetRelativePath(Path.GetDirectoryName(from)!, to).Replace(Path.DirectorySeparatorChar, '/');
 
+    /// <summary>Renders record counts by type with use-case progress lines.</summary>
+    /// <param name="model">The built project model to count.</param>
+    /// <returns>The count list as Markdown lines.</returns>
     private static string Counts(ProjectModel model)
     {
         var lines = new List<string>();
@@ -510,30 +606,167 @@ static partial class Renderer
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders decisions that decide records on the page, with their approval state.</summary>
+    /// <param name="model">The built project model holding the decisions.</param>
+    /// <param name="file">The page whose carried records scope the table.</param>
+    /// <returns>The decision history table as Markdown lines.</returns>
     private static string History(ProjectModel model, string file)
     {
         var carried = model.Records
-            .Where(record => record.IsEntry && record.File == file)
+            .Where(record => record.IsEntry && record.File == RecordFile.RecordPathOf(file))
             .Select(record => record.Id)
             .ToHashSet(StringComparer.Ordinal);
 
         var lines = new List<string>
         {
-            "| Decision | Status | Decided |",
+            "| Decision | Status | Approved |",
             "|:---|:---|:---|",
         };
 
         foreach (var decision in model.Records
-                     .Where(record => record.Type == "decision"
-                         && record.Ids("decides").Any(carried.Contains))
+                     .Where(record => record.Type == RecordTypes.Decision
+                         && record.Ids(RecordFields.Decides).Any(carried.Contains))
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.Field("decided") ?? ""} |");
+            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.ApprovedOn ?? ""} |");
         }
 
         return string.Join('\n', lines);
     }
 
+    /// <summary>Renders every data class with its retention basis, period and enforcement.</summary>
+    /// <param name="model">The built project model holding the aggregates.</param>
+    /// <returns>The retention schedule table as Markdown lines, or None when no data class exists.</returns>
+    private static string RetentionSchedule(ProjectModel model)
+    {
+        var rows = new List<(string Class, string Aggregate, string Classification, string Purpose, string Basis, string Period, string EnforcedBy)>();
+
+        foreach (var aggregate in model.Records
+                     .Where(record => record.Type == RecordTypes.Aggregate)
+                     .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            foreach (var entry in ArrayField(aggregate, RecordFields.DataClasses))
+            {
+                rows.Add((
+                    Str(entry, RecordFields.Name) ?? "",
+                    aggregate.Id,
+                    Str(entry, RecordFields.Classification) ?? "",
+                    Str(entry, RecordFields.Purpose) ?? "",
+                    Str(entry, RecordFields.Basis) ?? "",
+                    PeriodText(entry),
+                    Str(entry, RecordFields.EnforcedBy) ?? ""));
+            }
+        }
+
+        if (rows.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>
+        {
+            "| Data Class | Aggregate | Classification | Purpose | Basis | Period | Enforced By |",
+            "|:---|:---|:---|:---|:---|:---|:---|",
+        };
+
+        foreach (var row in rows.OrderBy(row => row.Aggregate, StringComparer.Ordinal).ThenBy(row => row.Class, StringComparer.Ordinal))
+        {
+            lines.Add($"| {Cell(row.Class)} | `{row.Aggregate}` | {Cell(row.Classification)} | {Cell(row.Purpose)} | {Cell(row.Basis)} | {Cell(row.Period)} | {Cell(row.EnforcedBy)} |");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>One period as readers see it: a duration as written, or none with its reason.</summary>
+    /// <param name="entry">The data class entry carrying the period.</param>
+    /// <returns>The period as written, its mode with any reason, or empty when it declares none.</returns>
+    private static string PeriodText(System.Text.Json.JsonElement entry)
+    {
+        if (!entry.TryGetProperty(RecordFields.Period, out var period))
+        {
+            return "";
+        }
+
+        if (period.ValueKind == System.Text.Json.JsonValueKind.String)
+        {
+            return period.GetString() ?? "";
+        }
+
+        if (period.ValueKind == System.Text.Json.JsonValueKind.Object
+            && period.TryGetProperty(RecordFields.Mode, out var mode)
+            && mode.ValueKind == System.Text.Json.JsonValueKind.String
+            && mode.GetString() is { } name)
+        {
+            var reason = Str(period, RecordFields.Reason);
+
+            return reason is { Length: > 0 } ? $"{name} ({reason})" : name;
+        }
+
+        return "";
+    }
+
+    /// <summary>One array field as its object entries, or empty when the field is missing or no array.</summary>
+    /// <param name="record">The record to read the array field from.</param>
+    /// <param name="name">The array field name.</param>
+    /// <returns>The object entries of the array field, or an empty list when the field is missing or no array.</returns>
+    private static List<System.Text.Json.JsonElement> ArrayField(Record record, string name) =>
+        record.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
+        && record.Raw.TryGetProperty(name, out var value)
+        && value.ValueKind == System.Text.Json.JsonValueKind.Array
+            ? value.EnumerateArray().Where(entry => entry.ValueKind == System.Text.Json.JsonValueKind.Object).ToList()
+            : [];
+
+    /// <summary>One string property of an element, or null when missing or no string.</summary>
+    /// <param name="element">The element to read.</param>
+    /// <param name="name">The property name to read.</param>
+    /// <returns>The property string value, or null when the property is missing or not a string.</returns>
+    private static string? Str(System.Text.Json.JsonElement element, string name) =>
+        element.ValueKind == System.Text.Json.JsonValueKind.Object
+        && element.TryGetProperty(name, out var value)
+        && value.ValueKind == System.Text.Json.JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    /// <summary>Renders requirements citing the constraint on the page.</summary>
+    /// <param name="model">The built project model holding the records.</param>
+    /// <param name="file">The constraint page the list sits on.</param>
+    /// <returns>Linked citing requirements, or None when nothing cites the constraint.</returns>
+    private static string WhatItRequires(ProjectModel model, string file)
+    {
+        var constraint = model.Records
+            .FirstOrDefault(record => record.Type == RecordTypes.Constraint
+                && string.Equals(record.File, RecordFile.RecordPathOf(file), StringComparison.Ordinal)
+                && !record.IsEntry);
+
+        if (constraint is null)
+        {
+            return "None.";
+        }
+
+        var citing = model.Records
+            .Where(record => record.Type == RecordTypes.Requirement
+                && record.Ids(RecordFields.Cites).Contains(constraint.Id, StringComparer.Ordinal))
+            .OrderBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+        if (citing.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>();
+
+        foreach (var requirement in citing)
+        {
+            lines.Add($"- [`{requirement.Id}`]({RelativeLink(file, requirement.File)}): {Cell(requirement.Title)}");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>Escapes one cell for a Markdown table row.</summary>
+    /// <param name="text">The cell text to escape.</param>
+    /// <returns>The text with bars escaped and line breaks flattened to spaces.</returns>
     private static string Cell(string text) => text.Replace("|", "\\|", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal).Replace("\r", "", StringComparison.Ordinal);
 
     [GeneratedRegex(@"<!-- generated:(?<name>[A-Za-z0-9-]+) -->(?<body>.*?)<!-- /generated:\k<name> -->", RegexOptions.Singleline)]

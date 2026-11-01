@@ -1,0 +1,16 @@
+type: exception
+id: exception/export-expenses-unimplemented
+title: Export Expenses Unimplemented
+owner: claimwick-team
+status: approved
+kind: gap
+covers:
+  - use-case-unimplemented
+subject:
+  - use-case/spending.export-expenses
+reason: Export waits for the finance file format.
+exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
+expiresOn: 2027-06-01
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: b9ddbb02

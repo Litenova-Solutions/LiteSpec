@@ -1,0 +1,1 @@
+{"reader":"1.0.0","data":{"ok":true,"tests":[{"line":4,"title":"lists the expenses","proves":["scenario/list-expenses.listing-shows-own-expenses"],"journey":null,"gotos":["/expenses"],"codes":["spending.receipt-missing"],"texts":[]}]}}

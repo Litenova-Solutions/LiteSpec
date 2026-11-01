@@ -1,1 +1,2 @@
-docs/domain/modules/lending/loans/list-loans.md
+docs/behavior/modules/lending/loans/list-loans.yaml
+docs/behavior/modules/lending/loans/list-loans.md

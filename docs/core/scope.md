@@ -14,21 +14,27 @@ Size decides the record set and the test projects. A small project carries the c
 
 Shape decides the deployment boundary: `server` for a project with its own backend, `client-only` for one without. A server project names one backend stack. A client-only project names none, and records which backend surfaces stay uncovered.
 
-Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, or blazor for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
+Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
 
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds; caching, durable messaging, and multitenancy are examples. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `litespec.project.json` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. The Behavior extensions are `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai`, beside the existing `tenancy`, `compat`, `jobs`, `outbox`, `audit`, and `stage` extensions. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `litespec.project.json` whether any constraint applies, and an empty answer records that none does.
 
-Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
+Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
+
+### Review and Adoption Settings
+
+The project record carries its review settings under `review`: the veto window in days and, where the project names one, the security reviewer. Questions on tier 3 records with a recommendation auto-approve after the veto window, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Approval stays loose: an agent reading counts as the tier 1 second reading, a project whose owners list holds one name needs no second reviewer, and the security queue is a list to read, not a gate. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
 
 ### What Claiming Conformance Means
 
-A consumer claims conformance when it applies every page its size, shape, and stacks select, selects every extension whose criteria hold, records each deviation against the provision it departs from with its reason and review date, and passes the checks its changed boundaries select. A project outside the supported boundary, or one that skips an applicable page or check, makes no conformance claim.
+A consumer claims conformance when it applies every page its size, shape, and stacks select, selects every extension whose criteria hold, records each exception it relies on with its reason and expiry date, and passes the checks its changed boundaries select. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips an applicable page or check, makes no conformance claim.
 
 ## Standards
 
 ### Select a Size, a Shape and Stacks
+
+**ID:** `litespec/core/scope#select-a-size-a-shape-and-stacks`
 
 **Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only.
 
@@ -43,7 +49,7 @@ The running Claimwick example declares large with a server shape and two stacks 
   "size": "large",
   "shape": "server",
   "stacks": ["dotnet", "svelte"],
-  "optionalTypes": ["constraint", "research", "limit", "runbook"]
+  "optionalTypes": ["constraint", "research", "setting", "runbook"]
 }
 ```
 
@@ -53,7 +59,11 @@ The diagram shows the three project choices and what each decides.
 
 ![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)
 
+**Checked by:** `litespec consumer` refuses a shape whose backend stack count is wrong and a platform that names no frontend stack.
+
 ### Keep One Bounded Context
+
+**ID:** `litespec/core/scope#keep-one-bounded-context`
 
 **Statement:** A consumer MUST keep one business language and deployment boundary.
 
@@ -61,7 +71,11 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** Posts, Authors, and Comments can be modules in one publishing context.
 
+**Reviewed for:** Module pages and `litespec.project.json` name one business language and one deployment boundary, with no second of either.
+
 ### Select Conditional Extensions Explicitly
+
+**ID:** `litespec/core/scope#select-conditional-extensions-explicitly`
 
 **Statement:** A consumer MUST select every extension whose activation criteria apply, and no extension whose criteria do not.
 
@@ -69,7 +83,11 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** Caching, durable messaging, and multitenancy are extensions; the extension index lists each with its activation criteria.
 
+**Reviewed for:** Each entry in `selectedExtensions` carries a criterion that holds, and no applicable extension from the extension catalog stays unselected.
+
 ### Record Selected Extensions
+
+**ID:** `litespec/core/scope#record-selected-extensions`
 
 **Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `litespec.project.json`, each with its criterion and review date.
 
@@ -81,7 +99,11 @@ The diagram shows the three project choices and what each decides.
 { "id": "cache", "criterion": "expense reads miss the latency target", "reviewBy": "2027-01-15" }
 ```
 
+**Checked by:** `litespec consumer` rejects a selection without a criterion or review date.
+
 ### Answer the Constraints Question
+
+**ID:** `litespec/core/scope#answer-the-constraints-question`
 
 **Statement:** A consumer MUST state in `litespec.project.json` whether any outside constraint applies to the project.
 
@@ -89,7 +111,11 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** A clinic booking system records that medical-device regulation does not apply to appointment scheduling.
 
+**Reviewed for:** `litespec.project.json` states which outside constraints apply, or records an empty answer.
+
 ### Declare a Consumer That Has No Backend
+
+**ID:** `litespec/core/scope#declare-a-consumer-that-has-no-backend`
 
 **Statement:** A consumer with no server of its own MUST declare the `client-only` shape and record a decision naming the surfaces left without coverage.
 
@@ -97,23 +123,83 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request` already permits skipping a gate whose surface does not exist, so a missing backend gate is a recorded consequence rather than an unexplained absence.
 
+**Checked by:** `litespec consumer` refuses a `client-only` project that names a backend stack.
+
 ### Record Unsupported Scope Decisions
 
-**Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, or large pipelines.
+**ID:** `litespec/core/scope#record-unsupported-scope-decisions`
 
-**Rationale:** Microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, and large pipelines each change the assumptions this page rests on: one language, one deployment, one API and database. A separate project decision records that the team saw the boundary and chose deliberately. Without it, the project drifts outside the supported scope while claiming its checks still apply.
+**Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, or large pipelines.
+
+**Rationale:** Microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines each change the assumptions this page rests on: one language, one deployment, one API and database. A separate project decision records that the team saw the boundary and chose deliberately. Without it, the project drifts outside the supported scope while claiming its checks still apply.
+
+**Reviewed for:** A project decision names each architecture outside the supported boundary the project adopts.
 
 ### Claim Conformance Only When Every Applicable Provision Holds
 
+**ID:** `litespec/core/scope#claim-conformance-only-when-every-applicable-provision-holds`
+
 **Statement:** A consumer MUST meet every applicable provision before claiming conformance to LiteSpec.
 
-**Rationale:** A conformance claim tells a reader that the whole selected contract holds, not only the parts the project chose to follow. A recorded deviation whose review date has not passed outranks the provision it cites, so a project that records its deviations still meets this provision; an unrecorded departure breaks the claim.
+**Rationale:** A conformance claim tells a reader that the whole selected contract holds, not only the parts the project chose to follow. A recorded exception whose expiry date has not passed outranks the provision or findings it covers, so a project that records its exceptions still meets this provision; an unrecorded departure breaks the claim.
 
-**Example:** A consumer that selects the dotnet stack and the caching extension claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as a deviation.
+**Example:** A consumer that selects the dotnet stack and the caching extension claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as an exception.
+
+**Reviewed for:** `litespec.project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to an exception record under `docs/governance/exceptions/`, and the selected checks pass.
+
+### Record the Review Configuration
+
+**ID:** `litespec/core/scope#record-the-review-configuration`
+
+**Statement:** A consumer MAY record its veto window and its security reviewer in `review` in `litespec.project.json`.
+
+**Rationale:** The security reviewer reads access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on tier 3 records. The security queue is a list to read, not a gate.
+
+**Example:**
+
+```json
+{ "review": { "vetoWindowDays": 7, "securityReviewer": "__OWNER__" } }
+```
+
+**Reviewed for:** Which recommendations lack a veto window, and which security queues lack a named reader where the project wants one? Look at `review` in `litespec.project.json` beside the ballots and the behavior diff.
+
+### Record the Transcription Endpoint
+
+**ID:** `litespec/core/scope#record-the-transcription-endpoint`
+
+**Statement:** A consumer that transcribes Behavior from code MUST record `adoption.transcriptionEndsWith` in `litespec.project.json`.
+
+**Rationale:** Transcription mode ends when one named decision is approved, so every transcribed record has a date by which it gains an approved Intent parent or fails. Without the named endpoint, transcribed drafts linger beside reviewed records with nobody able to tell the mode is over.
+
+**Example:**
+
+```json
+{ "adoption": { "transcriptionEndsWith": "decision/end-transcription" } }
+```
+
+**Checked by:** `litespec consumer` rejects a transcribed record in a project without `adoption.transcriptionEndsWith`.
+
+### Point Behavior Docs at the Behavior Root
+
+**ID:** `litespec/core/scope#point-behavior-docs-at-the-behavior-root`
+
+**Statement:** A consumer MUST set `paths.behaviorDocs` in `litespec.project.json` to the folder that holds its Behavior records.
+
+**Rationale:** The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.
+
+**Example:**
+
+```json
+{ "paths": { "behaviorDocs": "docs/behavior" } }
+```
+
+**Checked by:** `litespec consumer` rejects a project record without `paths.behaviorDocs`.
 
 ## Conventions
 
 ### Start with One API and Database
+
+**ID:** `litespec/core/scope#start-with-one-api-and-database`
 
 **Default:** Use one API deployable and one database.
 
@@ -121,7 +207,11 @@ The diagram shows the three project choices and what each decides.
 
 **Rationale:** One API deployable and one database keep the first architecture reviewable and operable by a small team. Each additional deployable or store adds deployment, data-consistency, and operations work that a project rarely needs at the start. A background job appears only when a process continues without an HTTP request.
 
+**Reviewed for:** The topology holds one API deployable and one database, or a topology convention records what runs instead.
+
 ### Measure Capacity Before Expansion
+
+**ID:** `litespec/core/scope#measure-capacity-before-expansion`
 
 **Default:** Record current load, latency target, and observed constraint before adding caches, replicas, queues, or partitioning.
 
@@ -129,23 +219,10 @@ The diagram shows the three project choices and what each decides.
 
 **Rationale:** Caches, replicas, queues, and partitioning each answer a different limitation, and only measurements show which one the project hit. Recording current load, the latency target, and the observed constraint before expanding proves the added capacity answers the observed limit. Expanding first and measuring later adds machinery that can hide the real bottleneck.
 
+**Reviewed for:** Each added cache, replica, queue, or partition follows recorded load, latency target, and observed constraint, or a capacity convention.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/core/scope#select-a-size-a-shape-and-stacks` and `litespec/core/scope#select-conditional-extensions-explicitly`.
 
 A publishing product supports sign-in, draft creation, publication, and public reading inside one bounded context. Multi-tenant publication, live editing, and bulk analytics each fall inside a selected extension boundary with its own activation criterion.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/scope#select-a-size-a-shape-and-stacks | checkable | `litespec consumer` refuses a shape whose backend stack count is wrong and a platform that names no frontend stack. |
-| litespec/core/scope#keep-one-bounded-context | guidance | Module pages and `litespec.project.json` name one business language and one deployment boundary, with no second of either. |
-| litespec/core/scope#select-conditional-extensions-explicitly | guidance | Each entry in `selectedExtensions` carries a criterion that holds, and no applicable extension from the extension catalog stays unselected. |
-| litespec/core/scope#record-selected-extensions | checkable | `litespec consumer` rejects a selection without a criterion or review date. |
-| litespec/core/scope#answer-the-constraints-question | guidance | `litespec.project.json` states which outside constraints apply, or records an empty answer. |
-| litespec/core/scope#declare-a-consumer-that-has-no-backend | checkable | `litespec consumer` refuses a `client-only` project that names a backend stack. |
-| litespec/core/scope#record-unsupported-scope-decisions | guidance | A project decision names each architecture outside the supported boundary the project adopts. |
-| litespec/core/scope#claim-conformance-only-when-every-applicable-provision-holds | guidance | `litespec.project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to a deviation record under `docs/deviations/`, and the selected checks pass. |
-| litespec/core/scope#start-with-one-api-and-database | guidance | The topology holds one API deployable and one database, or a topology convention records what runs instead. |
-| litespec/core/scope#measure-capacity-before-expansion | guidance | Each added cache, replica, queue, or partition follows recorded load, latency target, and observed constraint, or a capacity convention. |

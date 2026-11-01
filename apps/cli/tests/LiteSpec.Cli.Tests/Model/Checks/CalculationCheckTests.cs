@@ -4,9 +4,11 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the calculation-without-table check against hand-built models.</summary>
+/// <summary>Proves the calculation-table-missing check against hand-built models.</summary>
 public sealed class CalculationCheckTests
 {
+    /// <summary>Calculation Without An Examples Table Reports.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_Without_An_Examples_Table_Reports()
     {
@@ -21,9 +23,11 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"given": "A copy sits available.", "when": "The reader borrows it.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
 
-        Assert.Contains("calculation-without-table", TestModel.Codes(model));
+        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Calculation With An Examples Table Passes.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_With_An_Examples_Table_Passes()
     {
@@ -38,9 +42,11 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Calculation Governing An Aggregate Reads The Scenarios Beside It.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Calculation_Governing_An_Aggregate_Reads_The_Scenarios_Beside_It()
     {
@@ -65,9 +71,11 @@ public sealed class CalculationCheckTests
                 Path.Combine(folder, "borrow.md"),
                 """{"given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Invariant Without An Examples Table Passes.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Invariant_Without_An_Examples_Table_Passes()
     {
@@ -81,9 +89,11 @@ public sealed class CalculationCheckTests
                 """{"kind": "invariant", "statement": "A loan has one borrower.", "governs": ["use-case/lending.borrow-copy"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Retired Scenario With Examples Does Not Cover.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Retired_Scenario_With_Examples_Does_Not_Cover()
     {
@@ -98,7 +108,7 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"status": "retired", "given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.Contains("calculation-without-table", TestModel.Codes(model));
+        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
     static Record Rule(string root) =>

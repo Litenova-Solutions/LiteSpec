@@ -2,33 +2,33 @@
 
 ## Intent
 
-A use case is one command, query, or reaction with its permissions, results, and scenarios. Implementing one means turning its written record into code in the layer that owns each part. Claimwick is the example product the docs follow, in which employees submit work expenses with receipts; this page follows its Submit expense use case from the written record into .NET code, naming where each file lives across the backend projects, then showing the Expense aggregate, the command and its handler, the endpoint, and the acceptance scenario that proves the code matches the record.
+A use case is one command or query with its access, results, and scenarios. Implementing one means turning its written record into code in the layer that owns each part. Claimwick is the example product the docs follow, in which employees submit work expenses with receipts; this page follows its Submit expense use case from the written record into .NET code, naming where each file lives across the backend projects, then showing the Expense aggregate, the command and its handler, the endpoint, and the acceptance scenario that proves the code matches the record.
 
 ## Where Each File Lives
 
 A .NET backend holds 5 projects: Domain, Application.Abstractions, Application, Infrastructure, and WebApi (`litespec/backend/dotnet/architecture#use-five-application-projects`). The [.NET Architecture](../backend/dotnet/architecture.md) page states the 5 projects. The use-case record itself, with its results and scenarios, is shown on [Modules and Records](modules-and-records.md).
 
-Every layer organizes its folders by module, then aggregate, then use case (`litespec/backend/architecture#organize-every-layer-by-module-and-use-case`). The [Backend Architecture](../backend/architecture.md) page states the folder rule. The example groups Spending into Expenses, Policies, and Receipts folders, so Submit expense nests under Spending, then Expenses, then SubmitExpense. The project's `litespec.project.json` points the model builder at these roots through its `application`, `domain`, and `webapi` stack paths with `testRoots` beside them. The folders below sit under `examples/claimwick/apps/api/`.
+Every layer organizes its folders by module, then aggregate, then use case (`litespec/backend/architecture#organize-every-layer-by-module-and-use-case`). The [Backend Architecture](../backend/architecture.md) page states the folder rule. The example groups Spending into Expenses, Policies, and Receipts folders, so Submit expense nests under Spending, then Expenses, then SubmitExpense. The folders mirror the records so a reader finds the code; the marks on the code point up to the records it serves (`litespec/core/system#point-code-and-tests-up-to-records`). The project's `litespec.project.json` points the model builder at the solution through its `stackConfig` with `testRoots` beside it. The folders below sit under `examples/claimwick/apps/api/`.
 
 | Project | Submit expense files |
 |:---|:---|
-| `Claimwick.Domain` | `Spending/Expenses/` with the aggregate, its states, events, exceptions, and repository interface, plus `Spending/Policies/IPolicyRepository.cs` for the active policy |
+| `Claimwick.Domain` | `Spending/Expenses/` with the aggregate, its states, events, exceptions, and repository interface |
 | `Claimwick.Application.Abstractions` | `IClock.cs`, the shared clock contract; it holds only contracts more than one module names |
-| `Claimwick.Application` | `Spending/Expenses/SubmitExpense/` with the command, the handler, and the result |
+| `Claimwick.Application` | `Spending/Expenses/SubmitExpense/` with the command, the handler, the validator, and the result, plus `Spending/IPolicyStore.cs` for the policy store port |
 | `Claimwick.Infrastructure` | The example holds no Infrastructure project; in a project, the repository implementation sits under one persistence folder |
 | `Claimwick.WebApi` | `Endpoints/Spending/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs`, with `SubmitExpenseRequestModel.cs` and `SubmitExpenseResponseModel.cs` beside it |
 
 Each C# file takes its primary type's name (`litespec/backend/dotnet/naming#match-c-files-and-primary-types`). The [.NET Naming and Code Style](../backend/dotnet/naming.md) page states the file rule. The repository implementation sits with the other persistence types under one persistence folder (`litespec/backend/dotnet/persistence#use-this-infrastructure-layout`). The [.NET Persistence](../backend/dotnet/persistence.md) page states that layout.
 
-The code on this page shows the shape the stack pages require and is not a compiled solution: the example holds no project or solution files, and its samples exist to give the model builder its anchors. The example holds the Domain and Application declarations with the endpoint and the acceptance and integration tests; it holds no Infrastructure project.
+The code on this page shows the shape the stack pages require and is not a compiled solution: the example holds no project or solution files, and its samples exist to give the model builder its marks. The example holds the Domain and Application declarations with the endpoint and the acceptance and integration tests; it holds no Infrastructure project.
 
 ## The Expense Aggregate
 
-The aggregate `aggregate/spending.expense` gives Expense 4 states: Submitted, Approved, Rejected, and Reimbursed. Each aggregate takes a folder named with its plural root name, holding its own states, events, exceptions, and concepts (`litespec/backend/domain#organize-a-module-by-aggregate-and-concept`). The [Domain Layer](../backend/domain.md) page states the module layout.
+The aggregate `aggregate/spending.expense` gives Expense 4 states: Submitted, Approved, Refused, and Reimbursed. Each aggregate takes a folder named with its plural root name, holding its own states, events, exceptions, and concepts (`litespec/backend/domain#organize-a-module-by-aggregate-and-concept`). The [Domain Layer](../backend/domain.md) page states the module layout.
 
 Every public member carries XML documentation stating the business fact it represents (`litespec/backend/dotnet/domain#document-every-public-domain-contract`). The [.NET Domain Layer](../backend/dotnet/domain.md) page states the documentation rule.
 
-The aggregate exposes its lifecycle only through one `State` property, backed by an abstract `ExpenseState` record with one sealed record per state (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`). The submitted state carries no data; the approved and rejected states carry who decided and when, the rejected state also carries the reason, and the reimbursed state carries the reimbursement time.
+The aggregate exposes its lifecycle only through one `State` property, backed by an abstract `ExpenseState` record with one sealed record per state (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`). The submitted state carries no data; the approved and refused states carry who decided and when, the refused state also carries the reason, and the reimbursed state carries the reimbursement time.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses;
@@ -42,17 +42,22 @@ public sealed record ExpenseSubmittedState : ExpenseState;
 /// <summary>The expense was approved.</summary>
 public sealed record ExpenseApprovedState(Guid ApprovedBy, DateTimeOffset DecidedAt) : ExpenseState;
 
-/// <summary>The expense was rejected.</summary>
-public sealed record ExpenseRejectedState(Guid RejectedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
+/// <summary>The expense was refused.</summary>
+public sealed record ExpenseRefusedState(Guid RefusedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
 
 /// <summary>The expense was reimbursed.</summary>
 public sealed record ExpenseReimbursedState(DateTimeOffset ReimbursedAt) : ExpenseState;
 ```
 
-The named factory `Submit` is the only way to create an expense. It creates one submitted expense for one employee, names the employee by ID only (`litespec/backend/domain#reference-other-aggregates-by-id`), and starts the expense in the submitted state. It refuses an expense above the receipt threshold that carries no receipt, and the threshold it checks against is the active policy's `ReceiptThreshold`, the 25 EUR that `decision/0001-receipt-threshold` sets.
+The named factory `Submit` is the only way to create an expense. The root carries a mark naming `aggregate/spending.expense`, and `Submit` carries a mark naming `use-case/spending.submit-expense`, the use case whose act it performs. It creates one submitted expense for one employee, names the employee by ID only (`litespec/backend/domain#reference-other-aggregates-by-id`), and starts the expense in the submitted state. It refuses an expense above the receipt threshold that carries no receipt, and the threshold it checks against is the policy store's `ReceiptThreshold`, defaulted to the 25 EUR that `decision/0001-receipt-threshold` sets and bounded by `setting/spending.receipt-threshold`.
 
 ```csharp
+/// <summary>One work cost an employee submitted for approval.</summary>
+/// <implements>aggregate/spending.expense</implements>
+public sealed class Expense : AggregateRoot<ExpenseId>
+{
     /// <summary>Submits one expense, refusing one above the receipt threshold that carries no receipt.</summary>
+    /// <implements>use-case/spending.submit-expense</implements>
     public static Expense Submit(Guid id, Guid employeeId, Money total, Guid? receiptId, Money receiptThreshold)
     {
         if (receiptId is null && total.Amount > receiptThreshold.Amount)
@@ -62,32 +67,31 @@ The named factory `Submit` is the only way to create an expense. It creates one 
 
         return new Expense(id, employeeId, total, receiptId);
     }
+}
 ```
 
-A rejected business rule throws its own `DomainException` type, named for the aggregate and the failed rule and carrying a stable code (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`, `litespec/workspace/naming#name-exceptions-by-failed-rule`). The [Naming and Code Style](../workspace/naming.md) page states the exception name. The code below is the refusal result's code from the use-case record.
+A rejected business rule throws its own `DomainException` type, named for the aggregate and the failed rule and carrying a stable code (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`, `litespec/workspace/naming#name-exceptions-by-failed-rule`). The [Naming and Code Style](../workspace/naming.md) page states the exception name. The type carries a mark naming its rule and is declared `partial`; the generator writes its `Code` from the refusal result the rule names.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>An expense above the receipt threshold carries no receipt.</summary>
-public sealed class ExpenseReceiptMissingException()
-    : DomainException("An expense above the receipt threshold carries no receipt.")
-{
-    /// <summary>The stable failure code.</summary>
-    public override string Code => "spending.receipt-missing";
-}
+/// <implements>rule/expense.receipt-required-above-threshold</implements>
+public sealed partial class ExpenseReceiptMissingException()
+    : DomainException("An expense above the receipt threshold carries no receipt.");
 ```
 
-The submitted fact is an immutable record named for its aggregate and fact, carrying business data only: the expense and employee identities with the amount and currency (`litespec/backend/dotnet/domain#raise-immutable-domain-facts`).
+The submitted fact is an immutable record named for its aggregate and fact, carrying business data only: the expense and employee identities with the amount and currency (`litespec/backend/dotnet/domain#raise-immutable-domain-facts`). It carries a mark naming its event record and is declared `partial`, so the generator writes its `Classification` from the record.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses.Events;
 
 /// <summary>An expense was submitted.</summary>
-public sealed record ExpenseSubmittedEvent(Guid ExpenseId, decimal Amount, string Currency, Guid EmployeeId) : IDomainEvent;
+/// <implements>event/expense.submitted</implements>
+public sealed partial record ExpenseSubmittedEvent(Guid ExpenseId, decimal Amount, string Currency, Guid EmployeeId) : IDomainEvent;
 ```
 
-Domain owns one repository interface per aggregate serving that aggregate only, with Domain types and no query surface (`litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`). `IExpenseRepository` loads, stages, and deletes expenses, and `IPolicyRepository` loads the active policy that carries the receipt threshold.
+Domain owns one repository interface per aggregate serving that aggregate only, with Domain types and no query surface (`litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`). `IExpenseRepository` loads, stages, and deletes expenses.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses;
@@ -95,8 +99,8 @@ namespace Claimwick.Domain.Spending.Expenses;
 /// <summary>Loads and stages expenses; queries read through the read session instead.</summary>
 public interface IExpenseRepository
 {
-    /// <summary>Loads one expense by its identity.</summary>
-    Task<Expense> GetAsync(Guid id, CancellationToken cancellationToken);
+    /// <summary>Loads one expense by its identity, throwing ExpenseNotFoundException when no expense matches.</summary>
+    Task<Expense> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>Stages a new or changed expense for the pipeline's one commit.</summary>
     void Store(Expense expense);
@@ -106,23 +110,25 @@ public interface IExpenseRepository
 }
 ```
 
+The policy is a store, so it reaches code through a port instead of a repository (`litespec/backend/application#expose-store-state-through-ports`). `IPolicyStore` reads and writes the current threshold: the submit handler reads it, and the change-receipt-threshold handler writes it.
+
 ```csharp
-namespace Claimwick.Domain.Spending.Policies;
+namespace Claimwick.Application.Spending;
 
-/// <summary>Loads and stages the company spending policy.</summary>
-public interface IPolicyRepository
+/// <summary>Reads and writes the current receipt threshold.</summary>
+public interface IPolicyStore
 {
-    /// <summary>Loads the active policy.</summary>
-    Task<Policy> GetActiveAsync(CancellationToken cancellationToken);
+    /// <summary>Reads the current receipt threshold.</summary>
+    Task<Money> GetReceiptThresholdAsync(CancellationToken cancellationToken);
 
-    /// <summary>Stages a changed policy for the pipeline's one commit.</summary>
-    void Store(Policy policy);
+    /// <summary>Stores a changed receipt threshold.</summary>
+    Task SetReceiptThresholdAsync(Money threshold, CancellationToken cancellationToken);
 }
 ```
 
 ## The Command and Its Handler
 
-Submit expense owns one use-case folder with its command, handler, and result (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-operation-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
+Submit expense owns one use-case folder with its command, handler, validator, and result (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-operation-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
 
 ```csharp
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
@@ -130,34 +136,35 @@ namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
 public sealed record SubmitExpenseCommand(Guid ExpenseId, Guid EmployeeId, decimal Amount, string Currency, Guid? ReceiptId);
 ```
 
-The receipt precondition is enforced where the aggregate is created: the `Expense.Submit` factory throws, so the handler carries no rule logic of its own. The record needs `permission/submit-expense`, and the authorization guard checks that permission from the message, so the handler holds no authorization logic either (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`).
+The receipt precondition is enforced where the aggregate is created: the `Expense.Submit` factory throws, so the handler carries no rule logic of its own. The record grants `permission/submit-expense` in its access, and the authorization guard checks that permission from the message, so the handler holds no authorization logic either (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`).
 
-The handler is internal and sealed (`litespec/backend/dotnet/architecture#keep-implementation-types-internal`). Its method ends in `Async` and takes its cancellation token last (`litespec/backend/dotnet/naming#name-asynchronous-methods-completely`). The handler loads the active policy through its repository (`litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`), calls `Expense.Submit`, stages the new expense, and returns a `SubmitExpenseCommandResult`, leaving commit, error mapping, and authorization to their owners (`litespec/backend/application#keep-command-handlers-narrow`). Exactly one post-handler commits after it (`litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`).
+The handler is internal and sealed (`litespec/backend/dotnet/architecture#keep-implementation-types-internal`). It carries a mark naming `use-case/spending.submit-expense`. Its method ends in `Async` and takes its cancellation token last (`litespec/backend/dotnet/naming#name-asynchronous-methods-completely`). The validator parses the amount and currency into `Money` first (`litespec/backend/application#parse-input-in-the-validator`), so the handler reconstructs it without a check. The handler reads the receipt threshold through the policy store port (`litespec/backend/application#expose-store-state-through-ports`), creates the expense with `Expense.Submit`, stages it through its repository (`litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`), and returns a `SubmitExpenseCommandResult`, leaving commit, error mapping, and authorization to their owners (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`). Exactly one post-handler commits after it (`litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`).
 
 ```csharp
+using Claimwick.Application.Spending;
 using Claimwick.Domain;
 using Claimwick.Domain.Spending.Expenses;
-using Claimwick.Domain.Spending.Policies;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
 
+/// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseCommandHandler(
-    IExpenseRepository expenses,
-    IPolicyRepository policies) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+    IExpenseRepository expenseRepository,
+    IPolicyStore policyStore) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
 {
     public async Task<SubmitExpenseCommandResult> HandleAsync(
         SubmitExpenseCommand command,
         CancellationToken cancellationToken)
     {
-        var policy = await policies.GetActiveAsync(cancellationToken);
+        var threshold = await policyStore.GetReceiptThresholdAsync(cancellationToken);
         var expense = Expense.Submit(
             command.ExpenseId,
             command.EmployeeId,
             Money.Create(command.Amount, command.Currency),
             command.ReceiptId,
-            policy.ReceiptThreshold);
-        expenses.Store(expense);
+            threshold);
+        expenseRepository.Store(expense);
         return new SubmitExpenseCommandResult(expense.Id);
     }
 }
@@ -175,7 +182,7 @@ public sealed record SubmitExpenseCommandResult(Guid ExpenseId);
 
 The endpoint lives at `Claimwick.WebApi/Endpoints/Spending/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs`, with its request and response models beside it (`litespec/backend/api#use-this-endpoint-layout`). The [HTTP API](../backend/api.md) page states the endpoint layout.
 
-One class owns one route: it converts HTTP input to the command, dispatches through the command mediator, and maps the result back to HTTP (`litespec/backend/dotnet/api#use-one-endpoint-per-operation`). The [.NET HTTP API](../backend/dotnet/api.md) page states the endpoint contract. The submitter is the signed-in employee, read from verified claims rather than from the request body (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and the server creates the new expense's identity. The command travels through `ICommandMediator.SendAsync` (`litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`). Submitting creates an expense resource, so the route names that resource (`litespec/backend/api#keep-routes-resource-oriented`).
+One class owns one route: it carries a mark naming its use case, converts HTTP input to the command, dispatches through the command mediator, and maps the result back to HTTP (`litespec/backend/dotnet/api#use-one-endpoint-per-operation`). The [.NET HTTP API](../backend/dotnet/api.md) page states the endpoint contract. The submitter is the signed-in employee, read from verified claims rather than from the request body (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and the server creates the new expense's identity. The command travels through `ICommandMediator.SendAsync` (`litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`). Submitting creates an expense resource, so the route names that resource (`litespec/backend/api#keep-routes-resource-oriented`).
 
 ```csharp
 using System.Security.Claims;
@@ -184,6 +191,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.WebApi.Endpoints.Spending.Expenses.SubmitExpense;
 
+/// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpoints)
@@ -220,7 +228,7 @@ The operation declares a stable operation ID, a summary, and its success and fai
 
 A large backend proves its behavior with an Acceptance suite (`litespec/backend/testing#keep-the-test-suites-the-size-requires`). The [Backend Testing](../backend/testing.md) page states the suites, and the [.NET Testing](../backend/dotnet/testing.md) page states their .NET form. The scenario path mirrors the production folders (`litespec/backend/testing#mirror-production-module-names`): `examples/claimwick/apps/api/tests/Claimwick.Acceptance.Tests/Spending/Expenses/SubmitExpense/SubmitExpenseScenarios.cs`.
 
-The scenario below is the example's file. Its `proves` tag names the scenario, and its When step belongs to the `SubmitExpenseSteps` use case steps class (`litespec/backend/testing#tag-the-test-that-proves-each-scenario`, `litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case`). The tag is the test's only record citation.
+The scenario below is the example's file. Its proves mark points the test up to its scenario, and its When step belongs to the `SubmitExpenseSteps` use case steps class (`litespec/backend/testing#mark-the-test-that-proves-each-scenario`, `litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case`). The mark is the test's only record citation, and the level S checks confirm the claim by reading the code: the handler writes only inside `changes`, the codes it returns stay inside the declared results and refusals, and it honors the declared effects.
 
 ```csharp
 namespace Claimwick.Acceptance.Tests.Spending.Expenses.SubmitExpense;

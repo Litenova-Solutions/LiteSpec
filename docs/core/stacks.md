@@ -8,7 +8,7 @@ A stack binds the specification to one technology: a backend stack lives under `
 
 ### What a Stack Folder Holds
 
-Each stack lives in one folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, and `docs/frontend/blazor/` are the current stacks. The `stack.md` states what the stack adds: its provisions, its version pins, and its checks.
+Each stack lives in one folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/`, and `docs/frontend/mobile/android/` are the current stacks. The `stack.md` states what the stack adds: its provisions, its version pins, and its checks.
 
 Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. A stack folder is one with a `stack.md` page: `frontend/patterns/` has none, so it applies with `frontend/`, while `frontend/web/` applies only through its stacks. [Supported scope](scope.md) states how size, shape, and stacks combine into one selection.
 
@@ -16,31 +16,56 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 Every SDK, framework, and package version resolves from `litespec.manifest.json`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
 
-When an extension or a consumer override replaces baseline behavior, it names every baseline provision ID it replaces. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named.
+When an extension or a consumer override replaces baseline behavior, it names every baseline provision ID it replaces. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+
+### Selection Diagnostics
+
+These checks report a manifest selection no page can apply, so they are listed here instead of beside a provision.
+
+| Family | Meaning | Codes |
+|:---|:---|:---|
+| `STACK_*` | A stack folder is outside the backend or frontend docs, is missing, holds no `stack.md`, or requires or pairs with a stack the manifest does not ship. | `STACK_FOLDER`, `STACK_REFERENCE` |
+| `SHAPE_PAGE` | A shape backend page is not a page directly in `docs/backend/`. | `SHAPE_PAGE` |
+| `LAYER_*` | A page sits in no known docs area, or no stack selection applies it. | `LAYER_UNLISTED`, `LAYER_UNREACHABLE` |
+| `EXTENSION_*` | An extension sits outside its declared path, is missing from the manifest, or lacks its activation scope, kinds, criterion, baseline, or dependencies, or it replaces an unknown provision or restates one it replaces. | `EXTENSION_LOCATION`, `EXTENSION_UNLISTED`, `EXTENSION_SCOPE`, `EXTENSION_KIND`, `EXTENSION_ACTIVATION`, `EXTENSION_BASELINE`, `EXTENSION_DEPENDENCIES`, `EXTENSION_REPLACES_UNKNOWN`, `EXTENSION_REPLACES_ENFORCED` |
 
 ## Standards
 
 ### Apply the Complete Stack
 
+**ID:** `litespec/core/stacks#apply-the-complete-stack`
+
 **Statement:** A consumer selecting a stack MUST apply the pages in its folder, every folder above it, and their subfolders that hold no stack.
 
 **Rationale:** The stack is the unit of conformance: a consumer cannot claim a stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces only the provisions it names, so everything it leaves unnamed keeps applying.
 
+**Reviewed for:** The consumer file set covers every page in its stack folders, the folders above them, and their stackless subfolders.
+
 ### Use Manifest Version Pins
+
+**ID:** `litespec/core/stacks#use-manifest-version-pins`
 
 **Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.json`.
 
 **Rationale:** The manifest owns every pin, so resolving versions anywhere else produces builds the standard never described. A version copied from prose, an example, a package search, or agent memory drifts from the pin with the next edit. One resolution source keeps every consumer on the same tested combination.
 
+**Reviewed for:** Each resolved SDK, framework, and package version matches its pin in `litespec.manifest.json`.
+
 ### Declare Replacements
+
+**ID:** `litespec/core/stacks#declare-replacements`
 
 **Statement:** An extension or consumer override MUST name every baseline provision ID it replaces.
 
 **Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
 
+**Reviewed for:** Each extension or override names every baseline provision ID it replaces, with the rest staying active.
+
 ## Conventions
 
 ### Keep the Stack Visible
+
+**ID:** `litespec/core/stacks#keep-the-stack-visible`
 
 **Default:** Name each selected stack in `litespec.project.json` and the solution, applications, and commands in the root `AGENTS.md`.
 
@@ -48,11 +73,4 @@ When an extension or a consumer override replaces baseline behavior, it names ev
 
 **Rationale:** Naming each selected stack in `litespec.project.json` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/stacks#apply-the-complete-stack | guidance | The consumer file set covers every page in its stack folders, the folders above them, and their stackless subfolders. |
-| litespec/core/stacks#use-manifest-version-pins | guidance | Each resolved SDK, framework, and package version matches its pin in `litespec.manifest.json`. |
-| litespec/core/stacks#declare-replacements | guidance | Each extension or override names every baseline provision ID it replaces, with the rest staying active. |
-| litespec/core/stacks#keep-the-stack-visible | guidance | `litespec.project.json` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands. |
+**Reviewed for:** `litespec.project.json` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.

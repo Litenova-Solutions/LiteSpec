@@ -12,7 +12,7 @@ import "../../styles/docs.css";
 import "../../styles/prose.css";
 import "../../styles/code.css";
 import { folderLabel, folderOverview, foldersOf, pageName, sectionHome, sectionOf, sections } from "../../lib/areas";
-import { breadcrumbs, lastModified, techArticle } from "../../lib/seo";
+import { breadcrumbs, lastModified, pageTitle, techArticle } from "../../lib/seo";
 import { htmlPath, pageByFile, pages, pageUrl, rawUrl, version, type Page } from "../../lib/spec";
 import { renderPage } from "../../lib/render-markdown";
 
@@ -77,7 +77,7 @@ const active: "docs" | "patterns" =
 ---
 
 <Base
-  title={`${pageName(page)} - LiteSpec ${version}`}
+  title={pageTitle(pageName(page), section.label)}
   description={description}
   rawUrl={markdownUrl}
   active={active}
@@ -86,8 +86,8 @@ const active: "docs" | "patterns" =
     techArticle({ title: pageName(page), description, path: pageUrl(page), modified: lastModified(page.file), section: section.label }),
     breadcrumbs([
       { name: "LiteSpec", path: "/" },
-      ...crumbs.filter((crumb) => crumb.url !== null).map((crumb) => ({ name: crumb.name, path: crumb.url! })),
-      { name: pageName(page), path: pageUrl(page) },
+      ...crumbs.map((crumb) => ({ name: crumb.name, path: crumb.url })),
+      { name: page.title, path: pageUrl(page) },
     ]),
   ]}
 >

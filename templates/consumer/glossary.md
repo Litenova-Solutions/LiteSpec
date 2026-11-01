@@ -1,16 +1,14 @@
 ---
-{
-  "type": "glossary",
-  "title": "<Project> glossary",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: glossary
+title: Claimwick Glossary
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Project> Glossary
+# Claimwick Glossary
 
-This page renders from the Term entries in `docs/glossary.json`. Edit terms there, never here.
+This page renders from the Term entries in `docs/glossary.yaml`. Edit terms there, never here.
 
 <!-- generated:glossary -->
 <!-- /generated:glossary -->

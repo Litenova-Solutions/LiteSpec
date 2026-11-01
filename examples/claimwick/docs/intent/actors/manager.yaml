@@ -1,0 +1,13 @@
+type: actor
+id: actor/manager
+title: Manager
+owner: claimwick-team
+status: approved
+summary: A manager approves or rejects expenses.
+kind: person
+holds:
+  - role: role/approver
+    scope: team
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: 986a3be2

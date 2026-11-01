@@ -1,9 +1,11 @@
+using Claimwick.Domain.Shared;
 using Claimwick.Domain.Spending.Policies.Exceptions;
 
 namespace Claimwick.Domain.Spending.Policies;
 
 /// <summary>The company spending policy and its receipt threshold.</summary>
-public sealed class Policy
+/// <implements>aggregate/spending.policy</implements>
+public sealed class Policy : AggregateRoot<Guid>
 {
     private Policy(Money threshold)
     {
@@ -28,6 +30,7 @@ public sealed class Policy
     }
 
     /// <summary>Sets the receipt threshold.</summary>
+    /// <implements>use-case/spending.change-receipt-threshold</implements>
     public void SetThreshold(Money threshold)
     {
         if (threshold.Amount < 0)
@@ -36,11 +39,5 @@ public sealed class Policy
         }
 
         State = new PolicyActiveState(threshold);
-    }
-
-    /// <summary>Retires the policy.</summary>
-    public void Retire(DateTimeOffset retiredAt)
-    {
-        State = new PolicyRetiredState(retiredAt);
     }
 }

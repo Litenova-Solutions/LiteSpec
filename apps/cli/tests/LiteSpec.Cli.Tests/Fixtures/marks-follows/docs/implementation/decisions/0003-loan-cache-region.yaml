@@ -1,0 +1,13 @@
+type: decision
+id: decision/0003-loan-cache-region
+title: Loan cache region
+owner: lending-team
+status: draft
+decider: lending-team
+decideBy: 2030-01-31
+options:
+  - name: One region
+    pros: Eviction stays simple
+    cons: Hot loans evict cold ones
+consequences: No code follows this decision yet.
+reopenedWhen: Cache misses pass one percent

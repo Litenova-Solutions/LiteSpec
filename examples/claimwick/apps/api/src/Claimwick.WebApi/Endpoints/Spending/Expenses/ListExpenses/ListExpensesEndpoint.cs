@@ -4,6 +4,7 @@ using LiteBus.Queries.Abstractions;
 
 namespace Claimwick.WebApi.Endpoints.Spending.Expenses.ListExpenses;
 
+/// <implements>use-case/spending.list-expenses</implements>
 internal sealed class ListExpensesEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpoints)

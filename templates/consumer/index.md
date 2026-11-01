@@ -1,14 +1,12 @@
 ---
-{
-  "type": "index",
-  "title": "<Section title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: index
+title: Spending Records
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Section title>
+# Spending Records
 
 State what this directory holds and which records live elsewhere.
 

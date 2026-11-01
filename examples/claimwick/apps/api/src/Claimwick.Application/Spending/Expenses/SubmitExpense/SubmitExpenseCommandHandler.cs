@@ -1,10 +1,11 @@
-using Claimwick.Domain;
+using Claimwick.Domain.Shared;
 using Claimwick.Domain.Spending.Expenses;
 using Claimwick.Domain.Spending.Policies;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
 
+/// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseCommandHandler(
     IExpenseRepository expenses,
     IPolicyRepository policies) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>

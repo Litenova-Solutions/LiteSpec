@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -29,16 +31,6 @@ static class ModelFixture
             temp.Dispose();
             throw;
         }
-    }
-
-    /// <summary>Writes the known-gap record covering <c>use-case-unimplemented</c>.</summary>
-    /// <param name="root">The prepared fixture folder.</param>
-    /// <param name="endsBy">The gap's end date, <c>yyyy-MM-dd</c>.</param>
-    public static void WriteKnownGap(string root, string endsBy)
-    {
-        var folder = Path.Combine(root, "docs", "known-gaps");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, "list-loans-unimplemented.md"), GapFile(endsBy));
     }
 
     static void CopyContents(string source, string target)
@@ -92,25 +84,20 @@ static class ModelFixture
         }
     }
 
-    // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
-    static string GapFile(string endsBy) =>
-        "---\n"
-        + "{\n"
-        + "  \"type\": \"known-gap\",\n"
-        + "  \"id\": \"known-gap/list-loans-unimplemented\",\n"
-        + "  \"title\": \"List loans unimplemented\",\n"
-        + "  \"owner\": \"lending-team\",\n"
-        + "  \"status\": \"approved\",\n"
-        + "  \"check\": \"use-case-unimplemented\",\n"
-        + "  \"subject\": [\n"
-        + "    \"use-case/lending.list-loans\"\n"
-        + "  ],\n"
-        + $"  \"endsBy\": \"{endsBy}\",\n"
-        + "  \"reason\": \"Listing waits for the search index.\"\n"
-        + "}\n"
-        + "---\n"
-        + "\n"
-        + "# List loans unimplemented\n"
-        + "\n"
-        + "Listing loans has no handler yet.\n";
+    /// <summary>
+    ///     Removes the <c>transitions</c> field from the record file of one lending aggregate page, so a
+    ///     test can start from an aggregate whose lifecycle is not yet written. The page's approval reopens,
+    ///     so a test that runs the check stamps the aggregate again.
+    /// </summary>
+    /// <param name="root">The prepared fixture folder.</param>
+    /// <param name="folder">The aggregate's folder under <c>docs/behavior/modules/lending</c>, such as <c>loans</c>.</param>
+    public static void RemoveTransitions(string root, string folder)
+    {
+        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", folder, "aggregate.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
+
+        record.Remove("transitions");
+
+        File.WriteAllText(page, RecordFile.Write(record));
+    }
 }

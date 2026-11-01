@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1011, documentation of public Domain contracts.</summary>
 public sealed class DomainDocumentationAnalyzerTests
 {
+    /// <summary>LS1011 accepts a documented type and member.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 accepts a documented type and member")]
     public Task AcceptsDocumentedTypeAndMember() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -19,6 +22,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 reads /// comments in a build without a documentation file.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reads /// comments in a build without a documentation file")]
     public Task ReadsCommentsWithoutADocumentationFile() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -40,6 +46,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """, documentationFile: false);
 
+    /// <summary>LS1011 reports an undocumented type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an undocumented type")]
     public Task ReportsUndocumentedType() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -50,6 +59,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 reports an undocumented member.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an undocumented member")]
     public Task ReportsUndocumentedMember() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -64,6 +76,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 reports an empty summary.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an empty summary")]
     public Task ReportsEmptySummary() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -84,6 +99,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 accepts inherited and block documentation.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 accepts inherited and block documentation")]
     public Task AcceptsInheritedAndBlockDocumentation() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -100,6 +118,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 ignores an internal class.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 ignores an internal class")]
     public Task IgnoresInternalClass() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -113,6 +134,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 ignores an override and an explicit implementation.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 ignores an override and an explicit implementation")]
     public Task IgnoresOverrideAndExplicitImplementation() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -131,6 +155,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 reports an undocumented field, property, event and constructor.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an undocumented field, property, event and constructor")]
     public Task ReportsUndocumentedFieldPropertyEventAndConstructor() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -159,6 +186,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 reports an undocumented record with a primary constructor.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an undocumented record with a primary constructor")]
     public Task ReportsUndocumentedRecordWithPrimaryConstructor() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -169,6 +199,9 @@ public sealed class DomainDocumentationAnalyzerTests
             public sealed record {|LS1011:Order|}(Guid Id);
             """);
 
+    /// <summary>LS1011 reports an undocumented interface member.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 reports an undocumented interface member")]
     public Task ReportsUndocumentedInterfaceMember() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -186,6 +219,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """);
 
+    /// <summary>LS1011 ignores undocumented contracts outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 ignores undocumented contracts outside Domain")]
     public Task IgnoresUndocumentedContractsOutsideDomain() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""
@@ -199,6 +235,9 @@ public sealed class DomainDocumentationAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1011 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#document-every-public-domain-contract</proves>
     [Fact(DisplayName = "LS1011 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<DomainDocumentationAnalyzer>("""

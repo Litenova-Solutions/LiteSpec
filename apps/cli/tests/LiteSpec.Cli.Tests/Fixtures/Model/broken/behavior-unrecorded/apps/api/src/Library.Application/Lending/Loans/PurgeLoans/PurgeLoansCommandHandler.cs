@@ -1,6 +1,7 @@
 namespace Library.Application.Lending.Loans.PurgeLoans;
 
-public sealed class PurgeLoansCommandHandler
+/// <implements>use-case/lending.purge-loans</implements>
+public sealed class PurgeLoansCommandHandler : ICommandHandler<PurgeLoansCommand>
 {
     public Task Handle(PurgeLoansCommand command) => Task.CompletedTask;
 }

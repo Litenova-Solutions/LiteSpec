@@ -1,0 +1,11 @@
+type: decision
+id: decision/0004-legacy-loan-export
+title: Legacy loan export
+owner: lending-team
+status: retired
+options:
+  - name: Nightly file
+    pros: The old program reads files
+    cons: Exports lag a day
+consequences: Retired with the old program.
+reopenedWhen: The old program is switched off

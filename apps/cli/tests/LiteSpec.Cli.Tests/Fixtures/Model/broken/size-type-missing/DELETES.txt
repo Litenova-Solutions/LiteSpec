@@ -1,1 +1,2 @@
+docs/product/features/hold-queue.yaml
 docs/product/features/hold-queue.md

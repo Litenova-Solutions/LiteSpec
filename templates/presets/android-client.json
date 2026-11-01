@@ -1,0 +1,13 @@
+{
+  "shape": "client-only",
+  "stacks": ["android"],
+  "paths": {
+    "frontends": [
+      {
+        "name": "android",
+        "path": "apps/mobile/src/__PROJECT__.Android",
+        "platform": "android"
+      }
+    ]
+  }
+}

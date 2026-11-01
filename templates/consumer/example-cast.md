@@ -1,14 +1,12 @@
 ---
-{
-  "type": "example-cast",
-  "title": "<Cast title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: example-cast
+title: Claimwick Cast
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Cast Title>
+# Claimwick Cast
 
 Every `Example` section in this documentation draws its people, place, dates, and amounts from this page. One fixed cast makes those sections cumulative.
 

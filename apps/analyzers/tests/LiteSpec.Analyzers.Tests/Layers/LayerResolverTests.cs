@@ -5,6 +5,10 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for reading a project's layer.</summary>
 public sealed class LayerResolverTests
 {
+    /// <summary>The assembly name suffix names the layer.</summary>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="expected">The expected result for the case.</param>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "the assembly name suffix names the layer")]
     [InlineData("Shop.Domain", "Domain")]
     [InlineData("Shop.Application.Abstractions", "ApplicationAbstractions")]
@@ -16,10 +20,14 @@ public sealed class LayerResolverTests
     [InlineData("Shop.Domain.Tests", "Test")]
     [InlineData("Shop.Integration.Tests", "Test")]
     [InlineData("Shop.Architecture.Test", "Test")]
-    [InlineData("Shop.Worker", "None")]
+    [InlineData("Shop.Worker", "Worker")]
     public void ReadsTheAssemblyName(string assemblyName, string expected) =>
         Assert.Equal(Enum.Parse<Layer>(expected), LayerResolver.FromAssemblyName(assemblyName));
 
+    /// <summary>A declared layer name parses with or without its dot.</summary>
+    /// <param name="value">The declared layer name to parse.</param>
+    /// <param name="expected">The expected result for the case.</param>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "a declared layer name parses with or without its dot")]
     [InlineData("Domain", "Domain")]
     [InlineData("Application.Abstractions", "ApplicationAbstractions")]
@@ -28,7 +36,8 @@ public sealed class LayerResolverTests
     [InlineData("Test", "Test")]
     [InlineData("Tests", "Test")]
     [InlineData("None", "None")]
-    [InlineData("Worker", "None")]
+    [InlineData("Worker", "Worker")]
+    [InlineData("Staging", "None")]
     public void ParsesADeclaredLayer(string value, string expected) =>
         Assert.Equal(Enum.Parse<Layer>(expected), LayerResolver.Parse(value));
 }

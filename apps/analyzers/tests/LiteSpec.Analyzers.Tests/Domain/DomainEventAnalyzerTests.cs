@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1007, domain events.</summary>
 public sealed class DomainEventAnalyzerTests
 {
+    /// <summary>LS1007 accepts an immutable record event.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 accepts an immutable record event")]
     public Task AcceptsImmutableRecordEvent() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -20,6 +23,9 @@ public sealed class DomainEventAnalyzerTests
             public sealed record OrderPlacedEvent(OrderId OrderId) : IDomainEvent;
             """);
 
+    /// <summary>LS1007 reports a class event.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports a class event")]
     public Task ReportsClassEvent() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -32,6 +38,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """);
 
+    /// <summary>LS1007 reports an event with a settable property.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports an event with a settable property")]
     public Task ReportsSettableProperty() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -45,6 +54,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """);
 
+    /// <summary>LS1007 reports an event with a name lacking the suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports an event with a name lacking the suffix")]
     public Task ReportsMisnamedEvent() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -55,6 +67,9 @@ public sealed class DomainEventAnalyzerTests
             public sealed record {|LS1007:OrderPlaced|}(string Note) : IDomainEvent;
             """);
 
+    /// <summary>LS1007 accepts an event with init, readonly and const members.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 accepts an event with init, readonly and const members")]
     public Task AcceptsInitReadonlyAndConst() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -72,6 +87,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """);
 
+    /// <summary>LS1007 ignores an interface deriving IDomainEvent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 ignores an interface deriving IDomainEvent")]
     public Task IgnoresDerivedInterface() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -82,6 +100,9 @@ public sealed class DomainEventAnalyzerTests
             public interface IOrderEvent : IDomainEvent;
             """);
 
+    /// <summary>LS1007 reports an event with a mutable field.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports an event with a mutable field")]
     public Task ReportsMutableField() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -95,6 +116,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """);
 
+    /// <summary>LS1007 ignores an event outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 ignores an event outside Domain")]
     public Task IgnoresEventOutsideDomain() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -108,6 +132,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1007 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -120,6 +147,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <summary>LS1007 reports a multiply breaching event once.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports a multiply breaching event once")]
     public Task ReportsMultipleBreachesOnce() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""
@@ -133,6 +163,9 @@ public sealed class DomainEventAnalyzerTests
             }
             """);
 
+    /// <summary>LS1007 reports a record struct event.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#raise-immutable-domain-facts</proves>
     [Fact(DisplayName = "LS1007 reports a record struct event")]
     public Task ReportsRecordStructEvent() =>
         Verify.AnalyzerAsync<DomainEventAnalyzer>("""

@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1012, strongly typed identifiers.</summary>
 public sealed class TypedIdentifierAnalyzerTests
 {
+    /// <summary>LS1012 accepts a readonly record struct wrapping one Guid.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 accepts a readonly record struct wrapping one Guid")]
     public Task AcceptsAReadonlyRecordStruct() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -27,6 +30,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 reports a record class identifier.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports a record class identifier")]
     public Task ReportsARecordClass() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -48,6 +54,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 reports a record struct without readonly.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports a record struct without readonly")]
     public Task ReportsARecordStructWithoutReadonly() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -58,6 +67,9 @@ public sealed class TypedIdentifierAnalyzerTests
             public record struct {|LS1012:OrderId|}(Guid Value);
             """);
 
+    /// <summary>LS1012 reports an identifier wrapping two values.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports an identifier wrapping two values")]
     public Task ReportsAnIdentifierWithTwoValues() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -68,6 +80,9 @@ public sealed class TypedIdentifierAnalyzerTests
             public readonly record struct {|LS1012:OrderId|}(Guid First, Guid Second);
             """);
 
+    /// <summary>LS1012 reports an identifier wrapping a string.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports an identifier wrapping a string")]
     public Task ReportsAnIdentifierWithAStringValue() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -76,6 +91,9 @@ public sealed class TypedIdentifierAnalyzerTests
             public readonly record struct {|LS1012:OrderId|}(string Value);
             """);
 
+    /// <summary>LS1012 reports an identifier with an implicit conversion.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports an identifier with an implicit conversion")]
     public Task ReportsAnIdentifierWithAnImplicitConversion() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -89,6 +107,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 accepts an identifier with an explicit conversion.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 accepts an identifier with an explicit conversion")]
     public Task AcceptsAnIdentifierWithAnExplicitConversion() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -102,6 +123,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 reports a Guid used directly as the identity.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports a Guid used directly as the identity")]
     public Task ReportsAGuidUsedDirectlyAsTheIdentity() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -121,6 +145,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 accepts a child entity with a typed identity.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 accepts a child entity with a typed identity")]
     public Task AcceptsAChildEntityWithATypedIdentity() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -142,6 +169,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 reports a Guid used directly as a child entity identity.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 reports a Guid used directly as a child entity identity")]
     public Task ReportsAGuidUsedDirectlyAsAChildEntityIdentity() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -161,6 +191,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """);
 
+    /// <summary>LS1012 ignores identifiers outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 ignores identifiers outside Domain")]
     public Task IgnoresIdentifiersOutsideDomain() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""
@@ -182,6 +215,9 @@ public sealed class TypedIdentifierAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1012 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</proves>
     [Fact(DisplayName = "LS1012 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<TypedIdentifierAnalyzer>("""

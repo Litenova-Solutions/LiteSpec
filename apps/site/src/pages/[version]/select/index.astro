@@ -2,7 +2,7 @@
 /* The project selection page: /[version]/select/. Static HTML with defaults,
    plus the SelectForm island for live updates. */
 import fs from "node:fs";
-import { breadcrumbs } from "../../../lib/seo";
+import { breadcrumbs, pageTitle, webPage } from "../../../lib/seo";
 import path from "node:path";
 import Base from "../../../layouts/Base.astro";
 import SelectForm from "../../../components/SelectForm.astro";
@@ -111,12 +111,12 @@ const starterPrompt = [
   "then fetch only the pages each task touches.",
 ].join("\n");
 
-const title = `Use with Agents - LiteSpec ${version}`;
+const title = pageTitle("Use with Agents");
 const description =
   "Set up an AI coding agent to follow LiteSpec: read how it works, start a session with one prompt, or answer four questions and commit the block they produce to your project's AGENTS.md file.";
 ---
 
-<Base title={title} description={description} active="agents" jsonLd={[breadcrumbs([{ name: "LiteSpec", path: "/" }, { name: "Use with Agents", path: `/${version}/select/` }])]}>
+<Base title={title} description={description} active="agents" jsonLd={[webPage({ title: "Use with Agents", description, path: `/${version}/select/` }), breadcrumbs([{ name: "LiteSpec", path: "/" }, { name: "Use with Agents", path: `/${version}/select/` }])]}>
   <div class="select-page">
     <span class="ver">{version}</span>
     <h1>Use with Agents</h1>

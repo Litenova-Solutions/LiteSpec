@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Diff;
 public sealed class DiffTests
 {
     /// <summary>Identical models print empty sections and exit 0.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Identical_Models_Print_Empty_Sections()
     {
@@ -22,6 +23,7 @@ public sealed class DiffTests
     }
 
     /// <summary>The breaking overlay prints every section in review order with breaking markers.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Breaking_Overlay_Prints_Sections_In_Review_Order()
     {
@@ -56,6 +58,7 @@ public sealed class DiffTests
     }
 
     /// <summary>The breaking overlay exits 1 with --fail-on breaking.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Breaking_Overlay_Fails_On_Breaking()
     {
@@ -67,6 +70,7 @@ public sealed class DiffTests
     }
 
     /// <summary>The nonbreaking overlay exits 0 with --fail-on breaking and names no breaking change.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Nonbreaking_Overlay_Passes_Fail_On_Breaking()
     {
@@ -81,7 +85,55 @@ public sealed class DiffTests
         Assert.DoesNotContain("Maximum active loans", result.Output);
     }
 
+    /// <summary>--intent shows the intent changes alone: the requirement removals and edits.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    [Fact]
+    public void Intent_View_Shows_Intent_Changes_Alone()
+    {
+        using var folders = Prepare("breaking");
+        var result = Cli.Run("model", "diff", folders.Base.Path, "--root", folders.Head.Path, "--intent");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("Intent diff:", result.Output);
+        Assert.Contains("(3 breaking, 2 removed, 2 modified, 0 added)", result.Output);
+        Assert.Contains("Max active loans", result.Output);
+        Assert.DoesNotContain("Borrow copy", result.Output);
+    }
+
+    /// <summary>--behavior shows the behavior changes alone: states, rules, results and scenarios.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    [Fact]
+    public void Behavior_View_Shows_Behavior_Changes_Alone()
+    {
+        using var folders = Prepare("breaking");
+        var result = Cli.Run("model", "diff", folders.Base.Path, "--root", folders.Head.Path, "--behavior");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("Behavior diff:", result.Output);
+        Assert.Contains("(11 breaking, 5 removed, 4 modified, 3 added)", result.Output);
+        Assert.Contains("Borrow copy", result.Output);
+        Assert.DoesNotContain("Max active loans", result.Output);
+    }
+
+    /// <summary>The security queue lists tenant widening, new calls effects and new personal classes.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    [Fact]
+    public void Security_Queue_Lists_Tenant_Widening_Calls_And_Personal_Classes()
+    {
+        using var folders = Prepare("security");
+        var result = Cli.Run("model", "diff", folders.Base.Path, "--root", folders.Head.Path, "--fail-on", "breaking");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("(0 breaking, 0 removed, 2 modified, 0 added)", result.Output);
+        Assert.Contains("Tenant scope changed from own to cross.", result.Output);
+        Assert.Contains("SECURITY QUEUE (3)", result.Output);
+        Assert.Contains("Access tenant scope widened from own to cross.", result.Output);
+        Assert.Contains("New calls effect: calls external-system/sms-gateway (async).", result.Output);
+        Assert.Contains("New personal data class: Borrower identity.", result.Output);
+    }
+
     /// <summary>Markdown renders the comment surfaces: a title, sections and families.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Markdown_Renders_Comment_Surfaces()
     {
@@ -98,6 +150,7 @@ public sealed class DiffTests
     }
 
     /// <summary>JSON carries the summary, the ordered changes and stable fingerprints.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Json_Carries_Summary_Ordered_Changes_And_Fingerprints()
     {
@@ -134,6 +187,7 @@ public sealed class DiffTests
     }
 
     /// <summary>--breaking-only keeps the full counts and shows breaking entries alone.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Breaking_Only_Shows_Breaking_Entries_Alone()
     {
@@ -148,6 +202,7 @@ public sealed class DiffTests
     }
 
     /// <summary>A base that is neither a folder nor a revision exits 2.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Unknown_Base_Exits_2()
     {
@@ -159,6 +214,7 @@ public sealed class DiffTests
     }
 
     /// <summary>An unknown --fail-on value exits 2.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Unknown_Fail_On_Exits_2()
     {
@@ -170,6 +226,7 @@ public sealed class DiffTests
     }
 
     /// <summary>An unknown --format value exits 2.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Unknown_Format_Exits_2()
     {
@@ -181,6 +238,7 @@ public sealed class DiffTests
     }
 
     /// <summary>A missing base exits 2.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Missing_Base_Exits_2()
     {
@@ -192,6 +250,7 @@ public sealed class DiffTests
     }
 
     /// <summary>A git revision base diffs the worktree against the revision.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Git_Revision_Base_Diffs_Against_The_Revision()
     {

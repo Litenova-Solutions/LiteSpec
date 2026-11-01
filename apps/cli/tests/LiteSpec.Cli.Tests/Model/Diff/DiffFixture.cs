@@ -42,6 +42,8 @@ static class DiffFixture
     }
 
     /// <summary>Copies the overlay files over the target, then deletes the paths DELETES.txt lists.</summary>
+    /// <param name="overlayName">The overlay folder name under the diff fixtures.</param>
+    /// <param name="target">The folder to apply the overlay to.</param>
     public static void ApplyOverlay(string overlayName, string target)
     {
         var overlay = Cli.Fixture($"Diff/changed/{overlayName}");

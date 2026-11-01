@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Rules;
 ///     The base of every LiteSpec analyzer: resolves the compilation's layer once, skips
 ///     generated code, and registers the rule only in the layers it applies to.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public abstract class LayerAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
@@ -25,8 +26,11 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Whether the rule runs in a project of this layer.</summary>
+    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected abstract bool AppliesTo(Layer layer);
 
     /// <summary>Registers the rule's actions for one compilation.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected abstract void Register(CompilationStartAnalysisContext context);
 }

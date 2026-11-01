@@ -14,15 +14,16 @@ litespec init --preset <name> --size <small|large> [--root <path>] [--name <proj
 
 This command writes `litespec.project.json` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, then writes the project size, name, and `reviewedLiteSpecVersion`. It refuses to overwrite an existing project file.
 
-It also copies the starting agent context, glossary, and example cast beside the project file, leaving existing files alone. A fresh `AGENTS.md` carries the `## LiteSpec` block filled with the release, size, shape, stacks, and selection index of the new project. It writes `.config/dotnet-tools.json` pinning the `LiteSpec.Cli` tool at the release, leaving an existing tool manifest alone.
+It also copies the starting agent context, the glossary at `docs/glossary.yaml`, and the example cast beside the project file, leaving existing files alone. A fresh `AGENTS.md` carries the `## LiteSpec` block filled with the release, size, shape, stacks, and selection index of the new project. It writes `.config/dotnet-tools.json` pinning the `LiteSpec.Cli` tool at the release, leaving an existing tool manifest alone.
 
-Three presets ship with the release:
+Four presets ship with the release:
 
 | Preset | Shape | Stacks | Frontend |
 |:---|:---|:---|:---|
 | `dotnet-react` | `server` | `dotnet`, `react` | `web` at `apps/web` on `react` |
 | `dotnet-svelte` | `server` | `dotnet`, `svelte` | `web` at `apps/web` on `svelte` |
 | `blazor-client` | `client-only` | `blazor` | `app` at `apps/app` on `blazor` |
+| `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` |
 
 Run this command once in an empty folder, then run `litespec consumer` to validate the new project.
 
@@ -34,7 +35,7 @@ None.
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--preset <name>` | required | Selects the preset: `blazor-client`, `dotnet-react`, or `dotnet-svelte`. |
+| `--preset <name>` | required | Selects the preset: `android-client`, `blazor-client`, `dotnet-react`, or `dotnet-svelte`. |
 | `--size <size>` | required | Sets the project size: `small` or `large`. |
 | `--root <path>` | the working directory | Selects the consumer repository to write into. |
 | `--name <project>` | the root folder's name | Sets the project name. |
@@ -46,7 +47,7 @@ None.
 |:---|:---|
 | `0` | The project file was written. |
 | `1` | The release holds no readable template, preset, scaffold file, or version. |
-| `2` | The project file exists, the preset or size is invalid, or an option is unknown. |
+| `2` | The project file exists, the preset or size is invalid, or an option is unknown, repeated, or empty. A usage error is reported before `--help` is honoured. |
 
 ## Examples
 
@@ -64,4 +65,4 @@ litespec init --preset blazor-client --size large --name shop
 
 ## Underneath
 
-This command merges `templates/consumer/litespec.project.json` with `templates/presets/<name>.json` from the release the tool carries and writes the result. Nothing beneath it is separately runnable. Validate the written file with `litespec consumer`.
+This command merges `templates/consumer/litespec.project.json` with `templates/presets/<name>.json` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `docs/glossary.yaml`. Nothing beneath it is separately runnable. Validate the written file with `litespec consumer`.

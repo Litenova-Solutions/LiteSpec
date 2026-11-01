@@ -3,8 +3,9 @@ using System.Text.Json;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The JSON frontmatter a record page carries between two fence lines.
+///     The YAML frontmatter a document carries between two fence lines.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class Frontmatter
 {
     /// <summary>
@@ -52,19 +53,20 @@ static class Frontmatter
             return false;
         }
 
-        var json = string.Join('\n', lines[1..closing]);
+        var yaml = string.Join('\n', lines[1..closing]);
 
         try
         {
-            using var document = JsonDocument.Parse(json);
+            var tree = YamlText.Parse(yaml);
+            using var document = JsonDocument.Parse(tree.ToJson());
             var body = string.Join('\n', lines[(closing + 1)..]);
 
             parsed = new Parsed(document.RootElement.Clone(), body, closing + 2);
             return true;
         }
-        catch (JsonException exception)
+        catch (JsonTextException exception)
         {
-            error = $"frontmatter is not JSON: {exception.Message}";
+            error = $"frontmatter is not YAML: {exception.Message}";
             return false;
         }
     }

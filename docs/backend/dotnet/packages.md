@@ -18,9 +18,11 @@ Every version resolves through central package management or the committed lockf
 
 ### Use the Project Reference Graph
 
+**ID:** `litespec/backend/dotnet/packages#use-the-project-reference-graph`
+
 **Statement:** A project reference MUST follow the graph in the table in this section and add no other edge.
 
-**Rationale:** An undeclared reference lets a layer reach past its boundary, and review has no ground to refuse what no graph forbids. The table names every permitted edge, so composition stays in the hosts and each project names only the layers its job needs. This provision states the .NET form of `litespec/workspace/dependencies#follow-the-declared-dependency-graph`.
+**Rationale:** An undeclared reference lets a layer reach past its boundary, and review has no ground to refuse what no graph forbids. The table names every permitted edge, so composition stays in the hosts and each project names only the layers its job needs. A small project merged under `litespec/backend/dotnet/architecture#use-five-application-projects` has no Application.Abstractions row; its remaining rows still bind. This provision states the .NET form of `litespec/workspace/dependencies#follow-the-declared-dependency-graph`.
 
 **Example:**
 
@@ -37,19 +39,31 @@ Every version resolves through central package management or the committed lockf
 
 `WebApi` references Infrastructure for composition in `Program.cs`. Endpoint implementations take their dependencies from Application abstractions, not from Infrastructure repositories, sessions, or provider clients.
 
+**Reviewed for:** Which project files add a reference outside the permitted edges of the graph table? Look at each project file beside the graph table.
+
 ### Keep Domain Package-Free
+
+**ID:** `litespec/backend/dotnet/packages#keep-domain-package-free`
 
 **Statement:** The Domain project MUST reference no package beyond the .NET base class library.
 
 **Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, EF Core, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
 
+**Reviewed for:** Which Domain project files reference a package beyond the base class library? Look at the Domain project file.
+
 ### Keep Application Dependencies Narrow
+
+**ID:** `litespec/backend/dotnet/packages#keep-application-dependencies-narrow`
 
 **Statement:** Application MUST reference only LiteBus command and query abstractions, required read abstractions, and needed Microsoft abstractions, plus the `IQuerySession` read boundary.
 
 **Rationale:** Application coordinates; Infrastructure hides technology. A provider package in Application makes the coordination layer depend on the technology it was meant to stay free of. The Statement names the one permitted read boundary; everything else provider-shaped stays out. This provision states the .NET form of `litespec/workspace/dependencies#keep-application-free-of-provider-packages`.
 
+**Reviewed for:** Which Application project files reference beyond the permitted abstractions and the one read boundary? Look at the Application project file.
+
 ### Pin Every Dependency Centrally
+
+**ID:** `litespec/backend/dotnet/packages#pin-every-dependency-centrally`
 
 **Statement:** Every NuGet and npm version MUST resolve through central management or the committed lockfile, using the pin `litespec.manifest.json` states when it states one.
 
@@ -59,9 +73,13 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 
 **Example:** A consumer generating invoices pins its PDF library in `Directory.Packages.props` with a decision record. The manifest does not name it, and the pin is still central.
 
+**Reviewed for:** Which project files carry versions, or resolve outside central management or the lockfile? Look at each project file beside the central pins.
+
 ## Conventions
 
 ### Reference Only the LiteBus Module Required
+
+**ID:** `litespec/backend/dotnet/packages#reference-only-the-litebus-module-required`
 
 **Default:** Reference the LiteBus command, query, or event module that the code actually uses.
 
@@ -69,7 +87,11 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 
 **Rationale:** A unified bus package pulls contracts for commands, queries, and events into a layer that dispatches only some of them. Referencing only the module the code uses keeps each layer's dispatch surface exact.
 
+**Reviewed for:** Which project files reference a LiteBus module their code never dispatches? Look at each project file.
+
 ### Use This Baseline Package Ownership
+
+**ID:** `litespec/backend/dotnet/packages#use-this-baseline-package-ownership`
 
 **Default:** Assign each baseline package to the owning layer named in the table in this section.
 
@@ -86,26 +108,30 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 | Application | Required LiteBus module abstractions; `Marten` for the selected `IQuerySession` read boundary; Microsoft abstractions used by public ports |
 | Infrastructure | `Marten`; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |
 | WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |
-| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted jobs need |
+| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |
 | ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |
 | AppHost | Aspire AppHost and resource hosting packages |
 | Domain.Tests | xUnit v3, assertions, and FsCheck |
 | Application.Tests | xUnit v3, assertions, and NSubstitute |
 | Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |
-| Architecture.Tests | xUnit v3, assertions, and NetArchTest |
+| Architecture.Tests | xUnit v3, assertions, and ArchUnitNET |
 | Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |
 
-Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck for the property tests that `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables` names and the model-based tests that `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions` names.
+Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.json` states for the property tests that `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables` names and the model-based tests that `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions` names.
 
 The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates.
 
+**Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
+
 ### Run LiteSpec.Analyzers in Every Application Project
+
+**ID:** `litespec/backend/dotnet/packages#run-litespecanalyzers-in-every-application-project`
 
 **Default:** Reference `LiteSpec.Analyzers` at the manifest pin, with `PrivateAssets="all"`, from every Domain, Application.Abstractions, Application, Infrastructure, and WebApi project.
 
 **Replacement:** A project names the projects its analyzer run covers in its project documentation.
 
-**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
+**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. `LS2016` reports a pipeline-owned collaborator in a handler constructor; its default list covers the LiteBus unit of work, idempotency store, and outbox, and a project adds its uniqueness claim service. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
 
 **Example:**
 
@@ -115,20 +141,31 @@ The example adds a package to the narrowest owning project. A central version en
 </ItemGroup>
 ```
 
+**Reviewed for:** Which application project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each application project file.
+
+### Raise the LiteBus Handler Analyzers to Errors
+
+**ID:** `litespec/backend/dotnet/packages#raise-the-litebus-handler-analyzers-to-errors`
+
+**Default:** A project using LiteBus sets `LB1023` and `LB1024` to `error` in `.editorconfig` and lists its outside-world client types in `litebus.LB1024.forbidden_types`.
+
+**Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
+
+**Rationale:** Both LiteBus rules are off by default. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project's pipeline-owned collaborators under the key the [Configuration section of the LS2016 rule page](../../analyzers/rules/ls2016.md#configuration) names, such as its uniqueness claim service.
+
+**Example:**
+
+```text
+dotnet_diagnostic.LB1023.severity = error
+dotnet_diagnostic.LB1024.severity = error
+litebus.LB1024.forbidden_types = Claimwick.Infrastructure.Payout.PayoutBankClient
+litespec.LS2016.pipeline_owned_types = Claimwick.Infrastructure.Uniqueness.ExpenseKeyClaims
+```
+
+**Reviewed for:** Does `.editorconfig` set `LB1023` and `LB1024` to error and list `litebus.LB1024.forbidden_types`? Look at `.editorconfig`.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/backend/dotnet/packages#keep-application-dependencies-narrow` and `litespec/backend/dotnet/packages#use-the-project-reference-graph`.
 
 An Application query handler may inject `IQuerySession` because Marten is the selected read model. An Application command handler receives `IPostRepository`, because the Domain owns the aggregate boundary and Infrastructure owns the Marten implementation.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/packages#use-the-project-reference-graph | guidance | Each project file's references match the permitted edges of the graph table, with no added edge. |
-| litespec/backend/dotnet/packages#keep-domain-package-free | guidance | The Domain project file references no package beyond the base class library. |
-| litespec/backend/dotnet/packages#keep-application-dependencies-narrow | guidance | The Application project file references only the permitted abstractions and the one read boundary. |
-| litespec/backend/dotnet/packages#pin-every-dependency-centrally | guidance | Every project file names packages without versions; each version resolves through central management or the lockfile at the manifest or consumer pin. |
-| litespec/backend/dotnet/packages#reference-only-the-litebus-module-required | guidance | Each project file references only the LiteBus modules its code dispatches. |
-| litespec/backend/dotnet/packages#use-this-baseline-package-ownership | guidance | Each baseline package reference sits in the project the ownership table assigns. |
-| litespec/backend/dotnet/packages#run-litespecanalyzers-in-every-application-project | guidance | Each of the five application project files references `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`. |

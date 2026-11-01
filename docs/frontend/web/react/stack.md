@@ -18,6 +18,10 @@ React routes are files using the router's file convention, and the router builds
 
 A class or style binding spells `className` or `style`. A file holding a drawing no composite makes ends with `*.visual.tsx`. Raw HTML reaches the page only through `dangerouslySetInnerHTML`. The route error surface is the route error component, which draws the shared problem state. Component authoring follows [React Components](components.md). The page-code lint applies import restrictions and JSX element restrictions in route and module folders, with visual files allowlisted.
 
+### Route Entry Bindings
+
+A route entry is one file under `src/routes` that declares a route for an address. Its screen mark sits in that route file itself as the same typed constant a use-case module exports. Pathless layout routes (files whose name starts with an underscore), error components, and route groups are not route entries and carry no screen mark.
+
 ### Data Bindings
 
 The frame root, holding client configuration and cross-route values, is `src/app`. The client generator adds the `@tanstack/react-query` plugin. The component's own state is local component state. The dictionary library meets the locale-dictionary contract the localization rule states. The shared package's form entry point is its form hook.
@@ -34,26 +38,26 @@ The registry build command is `shadcn build`. The state-to-tone table lives in `
 
 ### Select a Rendering Mode by Audience
 
+**ID:** `litespec/frontend/web/react/stack#select-a-rendering-mode-by-audience`
+
 **Statement:** A React frontend MUST render as a static application when it is a console, and on the server when a public page is indexed.
 
 **Rationale:** A console opens inside the application a signed-in user already has, so its first response has nothing to index and ships as static files. A public page arrives by message or search result, so its title and links belong in the first response and it renders on the server. A page counts as indexed when its readers reach it from a message or a search result. A device client asks one question over and over and takes a static page with no router.
 
-**Example:** A back-office console and an internal admin console ship as static files. A public storefront runs as a Node server that hydrates in the browser. A warehouse handheld client ships as one static page.
+**Example:** A back-office console and an internal admin console ship as static files. A public marketing site runs as a Node server that hydrates in the browser. A receipt-scan client ships as one static page.
+
+**Reviewed for:** Which frontends render in a mode their audience does not require? Look in the frontend rendering configuration.
 
 ### Build a Device Client as One Static Page
+
+**ID:** `litespec/frontend/web/react/stack#build-a-device-client-as-one-static-page`
 
 **Statement:** A device client MUST ship as one static page with no router.
 
 **Rationale:** A device client shows one answer on repeat: one question, one screen, no navigation. A router would add downloads for destinations the client never visits. One static page carries exactly what the device needs.
 
+**Reviewed for:** Which device clients ship more than one page, or with a router? Look in the device client output.
 
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/react/stack#select-a-rendering-mode-by-audience | guidance | Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page. |
-| litespec/frontend/web/react/stack#build-a-device-client-as-one-static-page | guidance | Each device client ships as one static page with no router. |

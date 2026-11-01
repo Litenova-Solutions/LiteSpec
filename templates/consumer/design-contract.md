@@ -1,12 +1,12 @@
 ---
-{
-  "kind": "design-contract",
-  "schemaVersion": 1,
-  "package": "@__PROJECT__/ui",
-  "profile": "application-balanced",
-  "shell": "application-shell/default",
-  "patterns": ["list-page", "entity-page"]
-}
+kind: design-contract
+schemaVersion: 1
+package: "@__PROJECT__/ui"
+profile: application-balanced
+shell: application-shell/default
+patterns:
+  - list-page
+  - entity-page
 ---
 
 # __PROJECT__ shared UI package design contract

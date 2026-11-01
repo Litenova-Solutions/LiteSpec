@@ -1,14 +1,12 @@
 ---
-{
-  "type": "tutorial",
-  "title": "<Tutorial title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: tutorial
+title: Submit Your First Expense
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Tutorial title>
+# Submit Your First Expense
 
 ## Purpose
 

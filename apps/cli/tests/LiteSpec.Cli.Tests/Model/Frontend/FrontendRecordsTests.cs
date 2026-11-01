@@ -1,0 +1,112 @@
+using LiteSpec.Model;
+using LiteSpec.Tests.Support;
+
+namespace LiteSpec.Tests.Model.Frontend;
+
+/// <summary>Proves <c>litespec model build</c> writes the records file each web frontend imports from its frame.</summary>
+public sealed class FrontendRecordsTests
+{
+    /// <summary>Build Writes The Records File Into Each Frame.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Build_Writes_The_Records_File_Into_Each_Frame()
+    {
+        using var fixture = FrontendMarksFixture.Prepare("clean");
+        var result = Cli.Run("model", "build", "--root", fixture.Path);
+        Assert.Equal(0, result.Status);
+
+        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
+        var console = Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts");
+
+        // The fixture holds no proof records, so the proof union is LiteSpec's frontend provisions.
+        foreach (var file in new[] { web, console })
+        {
+            var text = File.ReadAllText(file);
+
+            Assert.Contains("  | \"litespec/frontend/web/ui#check-every-route-in-a-browser\"", text);
+            Assert.Equal(
+                // The tool writes the file with LF; the raw literal takes the test file's line ending.
+                ExpectedUnion.ReplaceLineEndings("\n") + "\n",
+                System.Text.RegularExpressions.Regex.Replace(
+                    text, "export type ProofTargetId =\n(  \\| \"[^\"]+\"\n)*?  \\| \"[^\"]+\";\n", "export type ProofTargetId = never;\n"));
+        }
+        Assert.Contains("apps/web/src/lib/app/litespec-records.ts", result.Stdout);
+        Assert.Contains("apps/console/src/app/litespec-records.ts", result.Stdout);
+    }
+
+    /// <summary>Build Leaves Out Use Cases With No Browser Entry Point.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Build_Leaves_Out_Use_Cases_With_No_Browser_Entry_Point()
+    {
+        using var fixture = FrontendMarksFixture.Prepare("clean");
+        var result = Cli.Run("model", "build", "--root", fixture.Path);
+        Assert.Equal(0, result.Status);
+
+        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
+
+        Assert.DoesNotContain("use-case/lending.register-copy", File.ReadAllText(web));
+    }
+
+    /// <summary>Check Writes No Records File.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Check_Writes_No_Records_File()
+    {
+        using var fixture = FrontendMarksFixture.Prepare("clean");
+        Cli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts")));
+        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts")));
+    }
+
+    /// <summary>Render Writes Never For No Ids.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Render_Writes_Never_For_No_Ids()
+    {
+        var text = FrontendRecords.Render([], [], []);
+
+        Assert.Contains("export type UseCaseId = never;", text);
+        Assert.Contains("export type ScreenId = never;", text);
+        Assert.Contains("export type ProofTargetId = never;", text);
+        Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }", text);
+        Assert.Contains("export function proves(id: ProofTargetId)", text);
+        Assert.EndsWith("\n", text);
+    }
+
+    /// <summary>Render Breaks A Long Union One Id Per Line.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Render_Breaks_A_Long_Union_One_Id_Per_Line()
+    {
+        var ids = Enumerable.Range(1, 30).Select(number => $"use-case/lending.use-case-{number:00}").ToList();
+        var text = FrontendRecords.Render(ids, [], []);
+
+        Assert.Contains("\nexport type UseCaseId =\n  | \"use-case/lending.use-case-01\"\n", text);
+        Assert.Contains("  | \"use-case/lending.use-case-30\";\n", text);
+        Assert.Equal(text, FrontendRecords.Render(ids, [], []));
+    }
+
+    /// <summary>Render Writes The Proves Helper Typed To Proof Targets.</summary>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Render_Writes_The_Proves_Helper_Typed_To_Proof_Targets()
+    {
+        var text = FrontendRecords.Render([], [], ["scenario/list-loans.listing-succeeds"]);
+
+        Assert.Contains("export type ProofTargetId = \"scenario/list-loans.listing-succeeds\";", text);
+        Assert.Contains("return { annotation: [{ type: \"proves\", description: id }] };", text);
+    }
+
+    const string ExpectedUnion = """
+        // This file is generated by litespec model build. Do not edit it by hand.
+        export type UseCaseId = "use-case/lending.borrow-copy" | "use-case/lending.list-loans";
+        export type ScreenId = never;
+        export type ProofTargetId = never;
+        export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
+        export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
+          return { annotation: [{ type: "proves", description: id }] };
+        }
+        """;
+}

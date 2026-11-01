@@ -1,7 +1,9 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the release stage and its deferral exceptions.</summary>
 public sealed partial class ConsumerValidatorTests
 {
     static JsonObject StageSelection(Action<JsonObject>? extend = null)
@@ -16,12 +18,25 @@ public sealed partial class ConsumerValidatorTests
         return selection;
     }
 
-    static JsonObject LiveDeferral() => new()
-    {
-        ["provision"] = "litespec/core/scope#select-a-size-a-shape-and-stacks",
-        ["until"] = "2999-01-01",
-    };
+    /// <summary>
+    ///     Writes a departure exception deferring the provision until the date: the
+    ///     record shape a pre-production consumer defers with. Every sentence stays
+    ///     inside the prose measures, so the cases prove the checks.
+    /// </summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="provision">The provision id the deferral covers.</param>
+    /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
+    static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
+        TestRecords.Write(root, "docs/governance/exceptions/stage-deferral.yaml",
+            "{\"type\":\"exception\",\"id\":\"exception/stage-deferral\",\"title\":\"Stage Deferral\",\"owner\":\"fixture\",\"status\":\"approved\","
+            + "\"approvedBy\":\"fixture\",\"approvedOn\":\"2026-10-01\",\"approvedHash\":\"00000000\",\"kind\":\"departure\","
+            + $"\"covers\":\"{provision}\",\"subject\":[\"use-case/orders.cancel-order\"],"
+            + "\"consequences\":\"The shop defers the provision until promotion.\","
+            + $"\"reason\":\"No deployment holds customer data yet.\",\"expiresOn\":\"{expiresOn}\"}}");
 
+    /// <summary>Stage selection with its release stage and a live deferral.</summary>
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "stage selection with its release stage and a live deferral")]
     public void StageSelectionWithItsReleaseStageAndALiveDeferral()
     {
@@ -31,12 +46,14 @@ public sealed partial class ConsumerValidatorTests
             project["selectedExtensions"] = new JsonArray(StageSelection(selection =>
             {
                 selection["releaseStage"] = "pre-production";
-                selection["deferredProvisions"] = new JsonArray(LiveDeferral());
             }));
         });
+        WriteDeferral(folder.Path, "litespec/core/scope#select-a-size-a-shape-and-stacks");
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Stage selection without a release stage.</summary>
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection without a release stage")]
     public void StageSelectionWithoutAReleaseStage()
     {
@@ -48,6 +65,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "releaseStage");
     }
 
+    /// <summary>Stage selection with an unknown release stage.</summary>
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection with an unknown release stage")]
     public void StageSelectionWithAnUnknownReleaseStage()
     {
@@ -62,6 +81,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/releaseStage");
     }
 
+    /// <summary>Release stage on another extension.</summary>
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "release stage on another extension")]
     public void ReleaseStageOnAnotherExtension()
     {
@@ -80,6 +101,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/id");
     }
 
+    /// <summary>Production stage that still defers.</summary>
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "production stage that still defers")]
     public void ProductionStageThatStillDefers()
     {
@@ -89,12 +112,14 @@ public sealed partial class ConsumerValidatorTests
             project["selectedExtensions"] = new JsonArray(StageSelection(selection =>
             {
                 selection["releaseStage"] = "production";
-                selection["deferredProvisions"] = new JsonArray(LiveDeferral());
             }));
         });
+        WriteDeferral(folder.Path, "litespec/core/scope#select-a-size-a-shape-and-stacks");
         AssertProblem(RunConsumer(folder.Path), "declares production and still defers");
     }
 
+    /// <summary>Deferral of a provision the standards do not hold.</summary>
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "deferral of a provision the standards do not hold")]
     public void DeferralOfAProvisionTheStandardsDoNotHold()
     {
@@ -104,31 +129,28 @@ public sealed partial class ConsumerValidatorTests
             project["selectedExtensions"] = new JsonArray(StageSelection(selection =>
             {
                 selection["releaseStage"] = "pre-production";
-                selection["deferredProvisions"] = new JsonArray(
-                    new JsonObject
-                    {
-                        ["provision"] = "litespec/core/scope#no-such-provision",
-                        ["until"] = "2999-01-01",
-                    });
             }));
         });
+        WriteDeferral(folder.Path, "litespec/core/scope#no-such-provision");
         AssertProblem(RunConsumer(folder.Path), "is not a provision in the pinned LiteSpec release");
     }
 
-    [Fact(DisplayName = "deferral past its end date")]
-    public void DeferralPastItsEndDate()
+    /// <summary>Deferral past its end date stays silent here.</summary>
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
+    [Fact(DisplayName = "deferral past its end date stays silent here")]
+    public void DeferralPastItsEndDateStaysSilentHere()
     {
+        // Expiry belongs to the model check, which reports exception-expired:
+        // the consumer holds the deferral's shape and provision only.
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            var deferral = LiveDeferral();
-            deferral["until"] = "2020-01-01";
             project["selectedExtensions"] = new JsonArray(StageSelection(selection =>
             {
                 selection["releaseStage"] = "pre-production";
-                selection["deferredProvisions"] = new JsonArray(deferral);
             }));
         });
-        AssertProblem(RunConsumer(folder.Path), "ended on 2020-01-01");
+        WriteDeferral(folder.Path, "litespec/core/scope#select-a-size-a-shape-and-stacks", "2020-01-01");
+        AssertClean(RunConsumer(folder.Path));
     }
 }

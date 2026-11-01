@@ -1,0 +1,69 @@
+type: job
+id: job/spending.send-approver-reminders
+title: Send Approver Reminders
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+purpose: No expense waits past its decision deadline.
+whatHappens: The job resends reminders for expenses still undecided after five days.
+kind: scheduled
+schedule:
+  every: PT1H
+selection: Expenses undecided for five days.
+batchSize: 500
+lease:
+  name: send-approver-reminders
+  duration: PT15M
+cursor: The reminder ledger holds the last run.
+runbook: runbook/clear-stuck-reimbursements
+runsWhere: The API worker.
+guard: The operator confirms the batch.
+serviceLevel: Reminders leave within one hour of schedule.
+evidence: Each run logs the reminded expenses.
+effects:
+  - sends: notification/spending.approval-reminder
+    timing: async
+fulfills:
+  - requirement/approval.decided-within-five-days
+serves:
+  - journey/submit-and-reimburse#s2
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 3
+    initialDelay: PT10S
+    maxDelay: PT5M
+    backoff: exponential
+  then: dead-letter
+  deadLetter:
+    after: P30D
+    action: The on-call engineer replays the dead letter.
+  surfacesIn: entry-point/claimwick-app
+  runbook: runbook/clear-stuck-reimbursements
+idempotency:
+  mode: key
+  key: reminder-{expenseId}
+  scope: tenant
+reads:
+  - aggregate/spending.expense
+changes:
+  - aggregate/spending.expense
+risk:
+  - personal-data
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.
+records:
+  - type: scenario
+    id: scenario/send-approver-reminders.undecided-expenses-reminded
+    title: Undecided Expenses Reminded
+    given: Undecided expenses pass five days.
+    when: The schedule fires.
+    then: The approvers receive reminders.
+    result: result/submit-expense.submitted

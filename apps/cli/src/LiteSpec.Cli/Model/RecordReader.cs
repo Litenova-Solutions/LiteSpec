@@ -1,45 +1,37 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
 
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One page's body, kept for citation and generated-region reads.
-/// </summary>
-/// <param name="File">The absolute path.</param>
-/// <param name="Body">The text after the frontmatter.</param>
-/// <param name="BodyStartLine">The body's first line, 1-based.</param>
-/// <param name="PageId">The page record's id, when the page carries one.</param>
-sealed record PageBody(string File, string Body, int BodyStartLine, string? PageId);
-
-/// <summary>
-///     What the record read found: records, bodies, provisions and problems.
-/// </summary>
-/// <param name="Records">Every written record.</param>
-/// <param name="Bodies">Every page body under the record roots.</param>
-/// <param name="Provisions">The shared provision ids, from the release the tool carries.</param>
-/// <param name="Problems">Files the reader could not read.</param>
-sealed record RecordRead(
-    IReadOnlyList<Record> Records,
-    IReadOnlyList<PageBody> Bodies,
-    IReadOnlySet<string> Provisions,
-    IReadOnlyList<Finding> Problems);
-
-/// <summary>
 ///     Finds every written record: page records, entries and terms.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordReader
 {
+    /// <summary>Container page styles: record files that hold entries but no page record.</summary>
+    static readonly HashSet<string> ContainerStyles = new(StringComparer.Ordinal)
+    {
+        RecordTypes.PermissionList,
+        RecordTypes.EntryPointList,
+        RecordTypes.SettingSet,
+        RecordTypes.RuleSet,
+        RecordTypes.RetentionSchedule,
+    };
+
     /// <summary>Reads every record under the configured roots.</summary>
+    /// <param name="config">The consumer configuration holding the record roots and glossary.</param>
+    /// <returns>The records, bodies, provisions and problems the read found, each sorted by file and line.</returns>
     public static RecordRead Read(ConsumerConfig config)
     {
         var files = new List<string>();
 
         foreach (var root in config.RecordRoots)
         {
-            files.AddRange(SourceTree.Files(root, ".md"));
+            files.AddRange(SourceTree.Files(root, RecordFile.Extension, RecordFile.ExplanationExtension));
         }
+
+        files.RemoveAll(file => file.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase));
 
         var records = new List<Record>();
         var bodies = new List<PageBody>();
@@ -51,7 +43,16 @@ static class RecordReader
             () => (Records: new List<Record>(), Bodies: new List<PageBody>(), Problems: new List<Finding>()),
             (file, _, local) =>
             {
-                ReadPage(config, file, local.Records, local.Bodies, local.Problems);
+                // SourceTree matches extensions without regard to case: a record file in any
+                // casing still reads as one.
+                if (file.EndsWith(RecordFile.Extension, StringComparison.OrdinalIgnoreCase))
+                {
+                    ReadRecordFile(file, local.Records, local.Bodies, local.Problems);
+                }
+                else
+                {
+                    ReadDocument(config, file, local.Bodies, local.Problems);
+                }
 
                 return local;
             },
@@ -80,12 +81,27 @@ static class RecordReader
         });
 
         ReadTerms(config, records, problems);
+        DeriveResults(records, config.ForbiddenCode, config.InvalidInputCode);
 
         return new RecordRead(records, bodies, ReadProvisions(), problems);
     }
 
-    private static void ReadPage(
-        ConsumerConfig config,
+    /// <summary>Whether the document opens with a frontmatter fence line, so a parse failure is reported.</summary>
+    /// <param name="text">The page text to test.</param>
+    /// <returns>True when the first line of the text is the frontmatter fence.</returns>
+    private static bool HasFrontmatterFence(string text)
+    {
+        var firstLine = text.Split('\n')[0].TrimEnd('\r');
+
+        return string.Equals(firstLine, "---", StringComparison.Ordinal);
+    }
+
+    /// <summary>Reads one record file into records, an explanation body and problems, all appended in place.</summary>
+    /// <param name="file">The absolute path of the record file to read.</param>
+    /// <param name="records">The records read so far, appended in place.</param>
+    /// <param name="bodies">The explanation and document bodies read so far, appended in place.</param>
+    /// <param name="problems">The problems found so far, appended in place.</param>
+    private static void ReadRecordFile(
         string file,
         List<Record> records,
         List<PageBody> bodies,
@@ -93,9 +109,14 @@ static class RecordReader
     {
         var text = SourceTree.Read(file);
 
-        if (!Frontmatter.TryParse(text, out var parsed, out _))
+        if (!RecordFile.TryParse(text, out var root, out var tree, out var parseError))
         {
-            bodies.Add(new PageBody(file, text, 1, null));
+            problems.Add(new Finding(
+                "record-invalid",
+                $"Record file '{file}' could not be read: {parseError}",
+                file,
+                ErrorLine(parseError),
+                null));
             return;
         }
 
@@ -105,613 +126,152 @@ static class RecordReader
         string? pageDecider = null;
         string? pageDecideBy = null;
 
-        if (parsed.Root.ValueKind == JsonValueKind.Object
-            && parsed.Root.TryGetProperty("type", out var typeValue)
-            && typeValue.ValueKind == JsonValueKind.String
-            && typeValue.GetString() is { } type)
+        var type = root.ValueKind == JsonValueKind.Object ? StringField(root, RecordFields.Type) : null;
+
+        if (type is null || (!RecordTypes.All.Contains(type) && !ContainerStyles.Contains(type)))
         {
-            var tables = TablesOf(parsed.Body);
+            problems.Add(new Finding(
+                "record-invalid",
+                type is null
+                    ? $"Record file '{file}' holds no record: its top level names no record type."
+                    : $"Record file '{file}' holds no record: type '{type}' is neither a record type nor a container page style.",
+                file,
+                1,
+                null));
+        }
+        else if (RecordTypes.All.Contains(type))
+        {
+            var explanationFile = RecordFile.ExplanationPathOf(file);
+            var explanation = File.Exists(explanationFile) ? SourceTree.Read(explanationFile) : null;
+            var record = BuildRecord(
+                root, file, 1, false, null, null, null, null, null,
+                explanation is null ? null : explanationFile, explanation);
 
-            if (RecordTypes.All.Contains(type))
+            pageId = record.Id;
+            pageOwner = record.Owner;
+            pageStatus = record.Status;
+            pageDecider = record.Decider;
+            pageDecideBy = record.DecideBy;
+            records.Add(record);
+
+            if (explanation is not null)
             {
-                var record = BuildRecord(
-                    PatchedPage(parsed.Root, tables), file, LineOf(text, "\"type\""), false, null,
-                    null, null, null, null);
-
-                pageId = record.Id;
-                pageOwner = record.Owner;
-                pageStatus = record.Status;
-                pageDecider = record.Decider;
-                pageDecideBy = record.DecideBy;
-                records.Add(record);
+                bodies.Add(new PageBody(explanationFile, explanation, 1, pageId));
             }
-            else if (!RecordTypes.PageStyles.Contains(type))
+        }
+        else
+        {
+            pageOwner = StringField(root, RecordFields.Owner);
+            pageStatus = StringField(root, RecordFields.Status);
+            pageDecider = StringField(root, RecordFields.Decider);
+            pageDecideBy = StringField(root, RecordFields.DecideBy);
+
+            var explanationFile = RecordFile.ExplanationPathOf(file);
+
+            if (File.Exists(explanationFile))
+            {
+                bodies.Add(new PageBody(explanationFile, SourceTree.Read(explanationFile), 1, null));
+            }
+        }
+
+        if (root.ValueKind == JsonValueKind.Object
+            && root.TryGetProperty(RecordFields.Records, out var entries)
+            && entries.ValueKind == JsonValueKind.Array)
+        {
+            var lines = tree.TryGetProperty(RecordFields.Records, out var treeRecords)
+                && treeRecords.Kind == JsonKind.Array
+                    ? treeRecords.Items
+                    : null;
+            var index = 0;
+
+            foreach (var entry in entries.EnumerateArray())
+            {
+                var line = lines is not null && index < lines.Count ? lines[index].Line : 1;
+                index++;
+
+                if (entry.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                var entryType = StringField(entry, RecordFields.Type);
+
+                if (!RecordTypes.All.Contains(entryType ?? ""))
+                {
+                    problems.Add(new Finding(
+                        "field-invalid",
+                        $"Entry type '{entryType ?? "missing"}' is not a record type.",
+                        file,
+                        line,
+                        pageId));
+                    continue;
+                }
+
+                records.Add(BuildRecord(
+                    entry, file, line, true, pageId,
+                    pageOwner, pageStatus, pageDecider, pageDecideBy, null, null));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reads one document into a body and problems, all appended in place. An explanation
+    ///     file is skipped: its record file's read yields its body.
+    /// </summary>
+    /// <param name="config">The consumer configuration holding the glossary path.</param>
+    /// <param name="file">The absolute path of the document to read.</param>
+    /// <param name="bodies">The explanation and document bodies read so far, appended in place.</param>
+    /// <param name="problems">The problems found so far, appended in place.</param>
+    private static void ReadDocument(
+        ConsumerConfig config,
+        string file,
+        List<PageBody> bodies,
+        List<Finding> problems)
+    {
+        var recordPath = RecordFile.RecordPathOf(file);
+
+        if (!recordPath.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase) && File.Exists(recordPath))
+        {
+            return;
+        }
+
+        var text = SourceTree.Read(file);
+
+        if (!Frontmatter.TryParse(text, out var parsed, out var parseError))
+        {
+            if (HasFrontmatterFence(text))
             {
                 problems.Add(new Finding(
-                    "invalid-field",
-                    $"Page type '{type}' is neither a record type nor a page style.",
+                    "record-invalid",
+                    $"Document '{file}' could not be read: {parseError}",
                     file,
-                    LineOf(text, "\"type\""),
+                    1,
                     null));
             }
-            else
-            {
-                pageOwner = StringField(parsed.Root, "owner");
-                pageStatus = StringField(parsed.Root, "status");
-                pageDecider = StringField(parsed.Root, "decider");
-                pageDecideBy = StringField(parsed.Root, "decideBy");
-            }
 
-            if (parsed.Root.TryGetProperty("records", out var entries)
-                && entries.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var entry in entries.EnumerateArray())
-                {
-                    if (entry.ValueKind != JsonValueKind.Object)
-                    {
-                        continue;
-                    }
-
-                    var entryType = StringField(entry, "type");
-                    var line = StringField(entry, "id") is { } entryId
-                        ? LineOf(text, entryId)
-                        : LineOf(text, "\"records\"");
-
-                    if (!RecordTypes.All.Contains(entryType ?? ""))
-                    {
-                        problems.Add(new Finding(
-                            "invalid-field",
-                            $"Entry type '{entryType ?? "missing"}' is not a record type.",
-                            file,
-                            line,
-                            pageId));
-                        continue;
-                    }
-
-                    records.Add(BuildRecord(
-                        PatchedEntry(entry, entries, tables), file, line, true, pageId,
-                        pageOwner, pageStatus, pageDecider, pageDecideBy));
-                }
-            }
+            bodies.Add(new PageBody(file, text, 1, null));
+            return;
         }
 
-        bodies.Add(new PageBody(file, parsed.Body, parsed.BodyStartLine, pageId));
-    }
-
-    /// <summary>One Markdown table and the heading above it.</summary>
-    sealed record MarkdownTable(
-        IReadOnlyList<string> Headers,
-        IReadOnlyList<IReadOnlyList<string>> Rows,
-        string Heading);
-
-    static readonly Regex TableDelimiter = new(
-        @"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$",
-        RegexOptions.CultureInvariant);
-
-    /// <summary>
-    ///     The page element with table fields added: transitions and data on an
-    ///     aggregate, examples on a scenario. A front-matter field wins over a table.
-    /// </summary>
-    private static JsonElement PatchedPage(JsonElement element, IReadOnlyList<MarkdownTable> tables)
-    {
-        if (StringField(element, "type") == "aggregate")
-        {
-            var transitions = TransitionsOf(tables);
-
-            if (transitions.Count > 0 && FieldMissing(element, "transitions"))
-            {
-                element = WithField(element, "transitions", writer => WriteTransitions(writer, transitions));
-            }
-
-            var data = DataOf(tables);
-
-            if (data.Count > 0 && FieldMissing(element, "data"))
-            {
-                element = WithField(element, "data", writer => WriteData(writer, data));
-            }
-        }
-        else if (StringField(element, "type") == "scenario")
-        {
-            var examples = FirstExamples(tables);
-
-            if (examples.Count > 0 && FieldMissing(element, "examples"))
-            {
-                element = WithField(element, "examples", writer => WriteExamples(writer, examples));
-            }
-        }
-
-        return element;
-    }
-
-    /// <summary>
-    ///     A scenario entry with its examples table added. On a page with one
-    ///     scenario the first plain table wins; with several, a table belongs to the
-    ///     scenario its heading names. A front-matter field wins over a table.
-    /// </summary>
-    private static JsonElement PatchedEntry(
-        JsonElement entry,
-        JsonElement siblings,
-        IReadOnlyList<MarkdownTable> tables)
-    {
-        if (StringField(entry, "type") != "scenario" || !FieldMissing(entry, "examples"))
-        {
-            return entry;
-        }
-
-        var examples = ExamplesFor(entry, siblings, tables);
-
-        return examples.Count > 0
-            ? WithField(entry, "examples", writer => WriteExamples(writer, examples))
-            : entry;
-    }
-
-    private static bool FieldMissing(JsonElement element, string field) =>
-        !element.TryGetProperty(field, out var value) || value.ValueKind == JsonValueKind.Null;
-
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> ExamplesFor(
-        JsonElement entry,
-        JsonElement siblings,
-        IReadOnlyList<MarkdownTable> tables)
-    {
-        var scenarios = 0;
-
-        foreach (var sibling in siblings.EnumerateArray())
-        {
-            if (sibling.ValueKind == JsonValueKind.Object && StringField(sibling, "type") == "scenario")
-            {
-                scenarios++;
-            }
-        }
-
-        if (scenarios <= 1)
-        {
-            return FirstExamples(tables);
-        }
-
-        var id = StringField(entry, "id") ?? "";
-        var title = StringField(entry, "title") ?? "";
-        var rows = new List<IReadOnlyDictionary<string, string>>();
-
-        foreach (var table in tables)
-        {
-            if (!IsTransitions(table.Headers)
-                && !IsData(table.Headers)
-                && HeadingNames(table.Heading, id, title))
-            {
-                rows.AddRange(ExamplesOf(table));
-            }
-        }
-
-        return rows;
-    }
-
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> FirstExamples(
-        IReadOnlyList<MarkdownTable> tables)
-    {
-        foreach (var table in tables)
-        {
-            if (!IsTransitions(table.Headers) && !IsData(table.Headers))
-            {
-                return ExamplesOf(table);
-            }
-        }
-
-        return [];
-    }
-
-    /// <summary>Every From and To row of every transitions table, in order; By aliases Triggered By.</summary>
-    private static IReadOnlyList<(string From, string To, string? By)> TransitionsOf(
-        IReadOnlyList<MarkdownTable> tables)
-    {
-        var rows = new List<(string From, string To, string? By)>();
-
-        foreach (var table in tables)
-        {
-            var from = ColumnOf(table.Headers, "from");
-            var to = ColumnOf(table.Headers, "to");
-
-            if (from < 0 || to < 0)
-            {
-                continue;
-            }
-
-            var by = ColumnOf(table.Headers, "triggeredby");
-
-            if (by < 0)
-            {
-                by = ColumnOf(table.Headers, "by");
-            }
-
-            foreach (var cells in table.Rows)
-            {
-                var start = CleanCell(CellOf(cells, from), false);
-                var end = CleanCell(CellOf(cells, to), false);
-
-                if (IsEmptyCell(end))
-                {
-                    continue;
-                }
-
-                // An empty From is a creation: the row names the state an instance starts in.
-                if (IsEmptyCell(start))
-                {
-                    start = Creation;
-                }
-
-                string? trigger = null;
-
-                if (by >= 0)
-                {
-                    var cause = CleanCell(CellOf(cells, by), true);
-                    trigger = IsEmptyCell(cause) ? null : cause;
-                }
-
-                rows.Add((start, end, trigger));
-            }
-        }
-
-        return rows;
-    }
-
-    /// <summary>Every named row of every data table, in order.</summary>
-    private static IReadOnlyList<(string Name, string Meaning, string Classification)> DataOf(
-        IReadOnlyList<MarkdownTable> tables)
-    {
-        var rows = new List<(string Name, string Meaning, string Classification)>();
-
-        foreach (var table in tables)
-        {
-            var name = ColumnOf(table.Headers, "name");
-            var meaning = ColumnOf(table.Headers, "meaning");
-            var classification = ColumnOf(table.Headers, "classification");
-
-            if (name < 0 || meaning < 0 || classification < 0)
-            {
-                continue;
-            }
-
-            foreach (var cells in table.Rows)
-            {
-                var item = CleanCell(CellOf(cells, name), false);
-
-                if (IsEmptyCell(item))
-                {
-                    continue;
-                }
-
-                var sense = CleanCell(CellOf(cells, meaning), false);
-                var level = CleanCell(CellOf(cells, classification), false);
-
-                rows.Add((item, IsEmptyCell(sense) ? "" : sense, IsEmptyCell(level) ? "" : level.ToLowerInvariant()));
-            }
-        }
-
-        return rows;
-    }
-
-    /// <summary>
-    ///     The table rows as examples: headers become the keys verbatim, a blank
-    ///     header becomes column plus its 1-based position, and a repeated header
-    ///     keeps its last value.
-    /// </summary>
-    private static IReadOnlyList<IReadOnlyDictionary<string, string>> ExamplesOf(MarkdownTable table)
-    {
-        var rows = new List<IReadOnlyDictionary<string, string>>();
-
-        foreach (var cells in table.Rows)
-        {
-            var row = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            for (var index = 0; index < table.Headers.Count; index++)
-            {
-                var header = CleanCell(table.Headers[index], false);
-                var key = header.Length == 0 ? $"column{index + 1}" : header;
-                var value = CleanCell(CellOf(cells, index), false);
-                row[key] = IsEmptyCell(value) ? "" : value;
-            }
-
-            if (row.Count > 0)
-            {
-                rows.Add(row);
-            }
-        }
-
-        return rows;
-    }
-
-    private static bool IsTransitions(IReadOnlyList<string> headers) =>
-        ColumnOf(headers, "from") >= 0 && ColumnOf(headers, "to") >= 0;
-
-    private static bool IsData(IReadOnlyList<string> headers) =>
-        ColumnOf(headers, "name") >= 0
-        && ColumnOf(headers, "meaning") >= 0
-        && ColumnOf(headers, "classification") >= 0;
-
-    private static int ColumnOf(IReadOnlyList<string> headers, string target)
-    {
-        for (var index = 0; index < headers.Count; index++)
-        {
-            if (Norm(headers[index]) == target)
-            {
-                return index;
-            }
-        }
-
-        return -1;
-    }
-
-    private static string CellOf(IReadOnlyList<string> cells, int index) =>
-        index < cells.Count ? cells[index] : "";
-
-    /// <summary>Headers compare case-insensitively, ignoring spaces, dashes and underscores.</summary>
-    private static string Norm(string value) =>
-        value.Replace(" ", "").Replace("-", "").Replace("_", "").Replace("\t", "").ToLowerInvariant();
-
-    /// <summary>Whether the heading names the scenario by id, title or kebab name.</summary>
-    private static bool HeadingNames(string heading, string id, string title)
-    {
-        if (heading.Length == 0)
-        {
-            return false;
-        }
-
-        var text = heading.ToLowerInvariant();
-
-        if (id.Length > 0 && text.Contains(id.ToLowerInvariant(), StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (title.Length > 0 && text.Contains(title.ToLowerInvariant(), StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        var name = id.Contains('.') ? id[(id.LastIndexOf('.') + 1)..] : id;
-        name = name.Contains('/') ? name[(name.LastIndexOf('/') + 1)..] : name;
-        var words = name.Replace('-', ' ').Replace('_', ' ').ToLowerInvariant();
-
-        return words.Length > 0 && text.Contains(words, StringComparison.Ordinal);
-    }
-
-    /// <summary>Trimmed text: code ticks stripped, a lone link reduced to its label, or its target for an id.</summary>
-    private static string CleanCell(string cell, bool preferTarget)
-    {
-        var text = cell.Trim();
-
-        while (text.Length >= 2 && text.StartsWith('`') && text.EndsWith('`'))
-        {
-            text = text[1..^1].Trim();
-        }
-
-        if (LinkOf(text) is { } link)
-        {
-            if (preferTarget && link.Target.Contains('/'))
-            {
-                return link.Target.Trim();
-            }
-
-            return link.Label.Trim();
-        }
-
-        return text;
-    }
-
-    private static (string Label, string Target)? LinkOf(string text)
-    {
-        if (!text.StartsWith('['))
-        {
-            return null;
-        }
-
-        var labelEnd = text.IndexOf("](", StringComparison.Ordinal);
-
-        if (labelEnd < 0)
-        {
-            return null;
-        }
-
-        var targetEnd = text.IndexOf(')', labelEnd + 2);
-
-        if (targetEnd != text.Length - 1)
-        {
-            return null;
-        }
-
-        var target = text[(labelEnd + 2)..targetEnd];
-        var space = target.IndexOfAny([' ', '\t', '"', '\'']);
-
-        return (text[1..labelEnd], space < 0 ? target : target[..space]);
+        bodies.Add(new PageBody(file, parsed.Body, parsed.BodyStartLine, null));
     }
 
     /// <summary>The From of a transition that creates the instance.</summary>
     public const string Creation = "-";
 
-    private static bool IsEmptyCell(string text) =>
-        text.Length == 0
-        || text is "-" or "--" or "—"
-        || text.Equals("n/a", StringComparison.OrdinalIgnoreCase)
-        || text.Equals("none", StringComparison.OrdinalIgnoreCase)
-        || text.Equals("none.", StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>Every Markdown table outside fenced code, each with the heading above it.</summary>
-    private static IReadOnlyList<MarkdownTable> TablesOf(string body)
-    {
-        var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        var tables = new List<MarkdownTable>();
-        var heading = "";
-        var inFence = false;
-        var index = 0;
-
-        while (index < lines.Length)
-        {
-            var line = lines[index];
-            var trimmed = line.Trim();
-
-            if (trimmed.StartsWith("```", StringComparison.Ordinal)
-                || trimmed.StartsWith("~~~", StringComparison.Ordinal))
-            {
-                inFence = !inFence;
-                index++;
-                continue;
-            }
-
-            if (inFence)
-            {
-                index++;
-                continue;
-            }
-
-            if (HeadingText(trimmed) is { } text)
-            {
-                heading = text;
-                index++;
-                continue;
-            }
-
-            if (index + 1 < lines.Length
-                && line.Contains('|')
-                && trimmed.Length > 0
-                && TableDelimiter.IsMatch(lines[index + 1]))
-            {
-                var headers = Cells(line);
-                var rows = new List<IReadOnlyList<string>>();
-                var row = index + 2;
-
-                while (row < lines.Length
-                       && lines[row].Contains('|')
-                       && lines[row].Trim().Length > 0
-                       && HeadingText(lines[row].Trim()) is null
-                       && !lines[row].Trim().StartsWith("```", StringComparison.Ordinal)
-                       && !lines[row].Trim().StartsWith("~~~", StringComparison.Ordinal))
-                {
-                    rows.Add(Cells(lines[row]));
-                    row++;
-                }
-
-                if (headers.Count > 0)
-                {
-                    tables.Add(new MarkdownTable(headers, rows, heading));
-                }
-
-                index = row;
-                continue;
-            }
-
-            index++;
-        }
-
-        return tables;
-    }
-
-    private static string? HeadingText(string trimmed)
-    {
-        if (!trimmed.StartsWith('#'))
-        {
-            return null;
-        }
-
-        var hashes = 0;
-
-        while (hashes < trimmed.Length && trimmed[hashes] == '#')
-        {
-            hashes++;
-        }
-
-        if (hashes > 6 || (hashes < trimmed.Length && trimmed[hashes] != ' ' && trimmed[hashes] != '\t'))
-        {
-            return null;
-        }
-
-        return trimmed[hashes..].Trim().TrimEnd('#').Trim();
-    }
-
-    private static IReadOnlyList<string> Cells(string line)
-    {
-        var cells = line.Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToList();
-
-        return cells is [{ Length: 0 }] ? [] : cells;
-    }
-
-    private static JsonElement WithField(JsonElement element, string field, Action<Utf8JsonWriter> writeValue)
-    {
-        using var stream = new MemoryStream();
-
-        using (var writer = new Utf8JsonWriter(stream))
-        {
-            writer.WriteStartObject();
-
-            foreach (var property in element.EnumerateObject())
-            {
-                property.WriteTo(writer);
-            }
-
-            writer.WritePropertyName(field);
-            writeValue(writer);
-            writer.WriteEndObject();
-        }
-
-        using var document = JsonDocument.Parse(stream.ToArray());
-
-        return document.RootElement.Clone();
-    }
-
-    private static void WriteTransitions(Utf8JsonWriter writer, IReadOnlyList<(string From, string To, string? By)> rows)
-    {
-        writer.WriteStartArray();
-
-        foreach (var (from, to, by) in rows)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("from", from);
-            writer.WriteString("to", to);
-
-            if (by is not null)
-            {
-                writer.WriteString("by", by);
-            }
-
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-    }
-
-    private static void WriteData(Utf8JsonWriter writer, IReadOnlyList<(string Name, string Meaning, string Classification)> rows)
-    {
-        writer.WriteStartArray();
-
-        foreach (var (name, meaning, classification) in rows)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("name", name);
-            writer.WriteString("meaning", meaning);
-            writer.WriteString("classification", classification);
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-    }
-
-    private static void WriteExamples(Utf8JsonWriter writer, IReadOnlyList<IReadOnlyDictionary<string, string>> rows)
-    {
-        writer.WriteStartArray();
-
-        foreach (var row in rows)
-        {
-            writer.WriteStartObject();
-
-            foreach (var (key, value) in row)
-            {
-                writer.WriteString(key, value);
-            }
-
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
-    }
-
+    /// <summary>Builds one record from its element, inheriting page owner, status, decider and decide-by.</summary>
+    /// <param name="element">The written element carrying the record fields.</param>
+    /// <param name="file">The absolute path of the record file.</param>
+    /// <param name="line">The 1-based line of the record in its file.</param>
+    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
+    /// <param name="pageId">The id of the carrying page, or null for a page record.</param>
+    /// <param name="pageOwner">The page owner inherited when the record names none.</param>
+    /// <param name="pageStatus">The page status inherited when the record names none.</param>
+    /// <param name="pageDecider">The page decider inherited when the record names none.</param>
+    /// <param name="pageDecideBy">The page decide-by date inherited when the record names none.</param>
+    /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
+    /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
+    /// <returns>The built record.</returns>
     private static Record BuildRecord(
         JsonElement element,
         string file,
@@ -721,23 +281,122 @@ static class RecordReader
         string? pageOwner,
         string? pageStatus,
         string? pageDecider,
-        string? pageDecideBy) =>
+        string? pageDecideBy,
+        string? explanationFile,
+        string? explanation) =>
         new()
         {
-            Type = StringField(element, "type") ?? "",
-            Id = StringField(element, "id") ?? "",
-            Title = StringField(element, "title") ?? "",
-            Owner = StringField(element, "owner") ?? pageOwner,
-            Status = StringField(element, "status") ?? pageStatus,
-            Decider = StringField(element, "decider") ?? pageDecider,
-            DecideBy = StringField(element, "decideBy") ?? pageDecideBy,
+            Type = StringField(element, RecordFields.Type) ?? "",
+            Id = StringField(element, RecordFields.Id) ?? "",
+            Title = StringField(element, RecordFields.Title) ?? "",
+            Owner = StringField(element, RecordFields.Owner) ?? pageOwner,
+            Status = StringField(element, RecordFields.Status) ?? pageStatus,
+            Decider = StringField(element, RecordFields.Decider) ?? pageDecider,
+            DecideBy = StringField(element, RecordFields.DecideBy) ?? pageDecideBy,
+            ApprovedBy = StringField(element, RecordFields.ApprovedBy),
+            ApprovedOn = StringField(element, RecordFields.ApprovedOn),
+            ApprovedHash = StringField(element, RecordFields.ApprovedHash),
             File = file,
             Line = line,
+            ExplanationFile = explanationFile,
+            Explanation = explanation,
             IsEntry = isEntry,
             PageId = pageId,
             Raw = element.Clone(),
         };
 
+    /// <summary>
+    ///     Derives the generic refusal results: forbidden for every use case with a permission
+    ///     grant, and invalid-input for every use case with a validated input. Scenarios and
+    ///     tests point at them; they are never written as records.
+    /// </summary>
+    /// <param name="records">The written records, appended in place with the derived results.</param>
+    /// <param name="forbiddenCode">The refusal code the derived forbidden results carry.</param>
+    /// <param name="invalidInputCode">The refusal code the derived invalid-input results carry.</param>
+    private static void DeriveResults(List<Record> records, string forbiddenCode, string invalidInputCode)
+    {
+        var taken = records
+            .Where(record => record.Id.Length > 0)
+            .Select(record => record.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var derived = new List<Record>();
+
+        foreach (var useCase in records.Where(record => record.Type == RecordTypes.UseCase))
+        {
+            if (!Identifiers.TrySplit(useCase.Id, out _, out var home, out var name) || home is null)
+            {
+                continue;
+            }
+
+            if (ModelBuilder.GrantedPermission(useCase) is not null
+                && taken.Add($"result/{name}.forbidden"))
+            {
+                derived.Add(DerivedResult(
+                    useCase,
+                    $"result/{name}.forbidden",
+                    "Forbidden",
+                    "The caller lacks the grant the use case requires.",
+                    forbiddenCode));
+            }
+
+            if (ModelBuilder.HasValidatedInput(useCase)
+                && taken.Add($"result/{name}.invalid-input"))
+            {
+                derived.Add(DerivedResult(
+                    useCase,
+                    $"result/{name}.invalid-input",
+                    "Invalid input",
+                    "An input value breaks the rules the use case declares.",
+                    invalidInputCode));
+            }
+        }
+
+        records.AddRange(derived);
+    }
+
+    /// <summary>One derived generic result, carried by its use case's page.</summary>
+    /// <param name="useCase">The use case the derived result belongs to.</param>
+    /// <param name="id">The derived result id.</param>
+    /// <param name="title">The derived result title.</param>
+    /// <param name="meaning">The derived result meaning sentence.</param>
+    /// <param name="code">The refusal code the derived result carries.</param>
+    /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
+    private static Record DerivedResult(Record useCase, string id, string title, string meaning, string code)
+    {
+        var json = JsonSerializer.Serialize(new Dictionary<string, string?>(StringComparer.Ordinal)
+        {
+            [RecordFields.Type] = RecordTypes.Result,
+            [RecordFields.Id] = id,
+            [RecordFields.Title] = title,
+            [RecordFields.Outcome] = "refusal",
+            [RecordFields.Code] = code,
+            [RecordFields.Meaning] = meaning,
+        });
+
+        using var document = JsonDocument.Parse(json);
+
+        return new Record
+        {
+            Type = RecordTypes.Result,
+            Id = id,
+            Title = title,
+            Owner = useCase.Owner,
+            Status = useCase.Status,
+            Decider = useCase.Decider,
+            DecideBy = useCase.DecideBy,
+            File = useCase.File,
+            Line = useCase.Line,
+            IsEntry = true,
+            PageId = useCase.Id,
+            Derived = true,
+            Raw = document.RootElement.Clone(),
+        };
+    }
+
+    /// <summary>Reads the glossary terms into records, reporting a glossary that is not YAML.</summary>
+    /// <param name="config">The consumer configuration holding the glossary path.</param>
+    /// <param name="records">The records read so far, appended in place.</param>
+    /// <param name="problems">The problems found so far, appended in place.</param>
     private static void ReadTerms(ConsumerConfig config, List<Record> records, List<Finding> problems)
     {
         if (!File.Exists(config.GlossaryPath))
@@ -747,55 +406,60 @@ static class RecordReader
 
         var text = SourceTree.Read(config.GlossaryPath);
 
-        JsonDocument document;
-
-        try
-        {
-            document = JsonDocument.Parse(text);
-        }
-        catch (JsonException exception)
+        if (!RecordFile.TryParse(text, out var root, out var tree, out var error))
         {
             problems.Add(new Finding(
-                "invalid-field", $"The glossary is not JSON: {exception.Message}",
-                config.GlossaryPath, 1, null));
+                "field-invalid", $"The glossary is not YAML: {error}",
+                config.GlossaryPath, ErrorLine(error), null));
             return;
         }
 
-        using (document)
+        if (root.ValueKind != JsonValueKind.Object
+            || !root.TryGetProperty(RecordFields.Terms, out var terms)
+            || terms.ValueKind != JsonValueKind.Array)
         {
-            if (!document.RootElement.TryGetProperty("terms", out var terms)
-                || terms.ValueKind != JsonValueKind.Array)
+            return;
+        }
+
+        var lines = tree.TryGetProperty(RecordFields.Terms, out var treeTerms)
+            && treeTerms.Kind == JsonKind.Array
+                ? treeTerms.Items
+                : null;
+        var index = 0;
+
+        foreach (var term in terms.EnumerateArray())
+        {
+            var line = lines is not null && index < lines.Count ? lines[index].Line : 1;
+            index++;
+
+            if (term.ValueKind != JsonValueKind.Object)
             {
-                return;
+                continue;
             }
 
-            foreach (var term in terms.EnumerateArray())
+            records.Add(new Record
             {
-                if (term.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var id = StringField(term, "id") ?? "";
-                var line = id.Length > 0 ? LineOf(text, id) : 1;
-
-                records.Add(new Record
-                {
-                    Type = "term",
-                    Id = id,
-                    Title = StringField(term, "term") ?? "",
-                    Owner = StringField(term, "owner"),
-                    Status = StringField(term, "status"),
-                    File = config.GlossaryPath,
-                    Line = line,
-                    IsEntry = true,
-                    Raw = term.Clone(),
-                });
-            }
+                Type = RecordTypes.Term,
+                Id = StringField(term, RecordFields.Id) ?? "",
+                Title = StringField(term, RecordFields.Term) ?? "",
+                Owner = StringField(term, RecordFields.Owner),
+                Status = StringField(term, RecordFields.Status),
+                Decider = StringField(term, RecordFields.Decider),
+                DecideBy = StringField(term, RecordFields.DecideBy),
+                ApprovedBy = StringField(term, RecordFields.ApprovedBy),
+                ApprovedOn = StringField(term, RecordFields.ApprovedOn),
+                ApprovedHash = StringField(term, RecordFields.ApprovedHash),
+                File = config.GlossaryPath,
+                Line = line,
+                IsEntry = true,
+                Raw = term.Clone(),
+            });
         }
     }
 
-    private static IReadOnlySet<string> ReadProvisions()
+    /// <summary>Reads the provision ids of the carried LiteSpec release.</summary>
+    /// <returns>The provision ids, or an empty set when no release is found.</returns>
+    private static HashSet<string> ReadProvisions()
     {
         var home = LiteSpecHome.Root;
 
@@ -809,6 +473,10 @@ static class RecordReader
             StringComparer.Ordinal);
     }
 
+    /// <summary>Reads one optional string field of an element.</summary>
+    /// <param name="element">The element to read.</param>
+    /// <param name="name">The field name to read.</param>
+    /// <returns>The field string value, or null when the field is missing or not a string.</returns>
     private static string? StringField(JsonElement element, string name) =>
         element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty(name, out var value)
@@ -816,26 +484,18 @@ static class RecordReader
             ? value.GetString()
             : null;
 
-    /// <summary>The 1-based line where the needle first occurs, or 1.</summary>
-    public static int LineOf(string text, string needle)
+    /// <summary>The 1-based line a parse error names, or 1 when it names none.</summary>
+    /// <param name="error">The parse error, ending in "at line N.".</param>
+    /// <returns>The named line, or 1.</returns>
+    private static int ErrorLine(string error)
     {
-        var at = text.IndexOf(needle, StringComparison.Ordinal);
+        const string marker = "at line ";
+        var at = error.LastIndexOf(marker, StringComparison.Ordinal);
 
-        if (at < 0)
-        {
-            return 1;
-        }
-
-        var line = 1;
-
-        for (var index = 0; index < at; index++)
-        {
-            if (text[index] == '\n')
-            {
-                line++;
-            }
-        }
-
-        return line;
+        return at >= 0
+            && int.TryParse(error[(at + marker.Length)..].TrimEnd('.'), out var line)
+            && line > 0
+                ? line
+                : 1;
     }
 }

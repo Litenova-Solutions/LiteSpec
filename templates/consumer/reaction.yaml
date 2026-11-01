@@ -1,0 +1,58 @@
+type: reaction
+id: reaction/spending.send-approver-reminder-on-expense-submitted
+title: Send Approver Reminder on Expense Submitted
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+purpose: The approver decides every new expense within five days.
+whatHappens: The reaction sends the approval reminder to the approver.
+triggeredBy:
+  - event/expense.submitted
+skippedWhen: The expense is already decided.
+effects:
+  - sends: notification/spending.approval-reminder
+    timing: async
+fulfills:
+  - requirement/approval.decided-within-five-days
+serves:
+  - journey/submit-and-reimburse#s2
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 3
+    initialDelay: PT10S
+    maxDelay: PT5M
+    backoff: exponential
+  then: dead-letter
+  deadLetter:
+    after: P30D
+    action: The on-call engineer replays the dead letter.
+  surfacesIn: entry-point/claimwick-app
+  runbook: runbook/clear-stuck-reimbursements
+idempotency:
+  mode: key
+  key: reminder-{expenseId}
+  scope: tenant
+reads:
+  - aggregate/spending.expense
+changes:
+  - aggregate/spending.expense
+risk:
+  - personal-data
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.
+records:
+  - type: scenario
+    id: scenario/send-approver-reminder-on-expense-submitted.reminder-sent
+    title: Reminder Sent on Submission
+    given: An expense is submitted.
+    when: The submission event fires.
+    then: The approver receives a reminder.
+    result: result/submit-expense.submitted

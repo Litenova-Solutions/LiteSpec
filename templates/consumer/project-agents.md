@@ -12,13 +12,19 @@ Query the model builder for the records a task touches, with their links and the
 
 `dotnet litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
 
-A project Deviation record overrides a Standard only when it names the provision ID, with reason and review date. (litespec/core/agent#apply-guidance-precedence)
+Write each layer from the layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. Never compute a record from code.
+
+Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
+
+Send Intent changes to the decider, Behavior changes to developers, and access widenings, new outside calls, and new personal-data flows to the security reviewer. Tier-1 questions need explicit approval, and tier-3 questions auto-approve after the veto window.
+
+A project Exception record overrides a Standard only when it names the provision ID, with reason and expiry date. (litespec/core/agent#apply-guidance-precedence)
 
 An explicit project convention can replace a baseline Convention when local documentation cites its ID. (litespec/core/agent#apply-guidance-precedence)
 
-Read `docs/product/brief.md` and the affected requirement pages before changing behavior that touches price, money, markets, customers, or terms. (litespec/core/product#load-product-intent-before-commercial-work)
+Read `docs/intent/brief.md` and the affected topic pages before changing behavior that touches price, money, markets, customers, or terms. (litespec/core/intent#keep-intent-in-its-homes)
 
-Draft a product decision for any changed business choice, and leave its approval to the accountable person. Research outside `docs/` is source material, never authority. (litespec/core/product#name-the-person-who-approved-a-decision, litespec/core/product#treat-generated-research-as-source-material)
+Draft a product decision for any changed business choice, and leave its approval to the accountable person. Research outside `docs/` is source material, never authority. (litespec/core/intent#name-the-person-who-approved-a-decision, litespec/core/intent#treat-generated-research-as-source-material)
 
 ## Project Commands
 
@@ -31,9 +37,7 @@ dotnet test <api-solution> --configuration Release --no-build
 
 Run the root pnpm gates for every changed frontend in `litespec.project.json`. (litespec/core/release#run-boundary-selected-checks)
 
-Run metadata and model checks for each changed record, source, test, or generated contract. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/authoring#declare-structured-specification-metadata)
-
-Run `dotnet litespec model render` after adding, approving, or retiring a record, so generated regions match the model. (litespec/core/system#update-records-with-behavior)
+Run metadata and model checks for each changed record, source, or test. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/authoring#declare-structured-specification-metadata)
 
 Report every skipped check with its reason. (litespec/core/release#report-verification-exactly)
 
@@ -43,4 +47,4 @@ Cite every path of every use case a route calls in a test title, or record an ex
 
 Run `dotnet litespec ui` after changing UI configuration, vocabulary, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/web/ui#prove-ui-behavior-and-appearance, litespec/frontend/web/ui#check-every-route-in-a-browser)
 
-Record a deviation before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record an exception before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)

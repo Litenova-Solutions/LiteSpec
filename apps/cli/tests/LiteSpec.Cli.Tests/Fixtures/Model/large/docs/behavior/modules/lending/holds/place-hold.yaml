@@ -1,0 +1,52 @@
+type: use-case
+id: use-case/lending.place-hold
+title: Place hold
+owner: lending-team
+status: reviewed
+kind: command
+access:
+  grant: permission/place-hold
+  tenant: own
+serves:
+  - journey/borrow-and-return#s6
+fulfills:
+  - requirement/borrowing.hold-pickup-window
+reachedThrough:
+  - entry-point/library-app
+raises:
+  - event/hold.hold-placed
+records:
+  - type: result
+    id: result/place-hold.placed
+    title: Placed
+    owner: lending-team
+    outcome: success
+    meaning: The hold is placed.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: f1314eda
+  - type: result
+    id: result/place-hold.hold-already-waiting
+    title: Hold already waiting
+    owner: lending-team
+    outcome: refusal
+    code: lending.hold-already-waiting
+    meaning: A hold is already waiting.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: 7b186cbc
+  - type: scenario
+    id: scenario/place-hold.placing-a-hold-succeeds
+    title: Placing a hold succeeds
+    owner: lending-team
+    status: reviewed
+    given: A copy is on loan to another reader.
+    when: The reader places a hold.
+    then: The hold is placed.
+    result: result/place-hold.placed
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: 19e264b2
+approvedBy: lending-team
+approvedOn: 2026-10-31
+approvedHash: 9119e7f1

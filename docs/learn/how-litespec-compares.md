@@ -16,9 +16,9 @@ The two sides combine: a team can run a per-feature workflow or behavior example
 
 ### LiteSpec
 
-LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records of intent, and a model builder that joins records to code, screens, tests, and test runs.
+LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records written top down through Intent, Behavior, Implementation, and Proof, and a model builder that follows the marks by which code and tests point up to records and renders the book product people read.
 
-A project selects one size, one shape, and its stacks from .NET, React, Svelte, and Blazor, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, and conformance is checked by the `litespec` CLI, Roslyn analyzers, and model findings. A project pins one release, as [How the Tools Fit Together](the-tooling.md) describes.
+A project selects one size, one shape, and its stacks from .NET, React, Svelte, Blazor, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, and conformance is checked by the `litespec` CLI, Roslyn analyzers, and model findings. A project pins one release, as [How the Tools Fit Together](the-tooling.md) describes.
 
 ### GitHub Spec Kit
 
@@ -80,9 +80,9 @@ An ADR captures a single architectural decision and its rationale, and the colle
 
 ### Architecture Tests
 
-Architecture tests ([ArchUnit](https://www.archunit.org/), [NetArchTest](https://github.com/BenMorris/NetArchTest)) check whole-codebase structure, from package and layer dependencies to cycles, naming, and sealing, with rules written as test code.
+Architecture tests ([ArchUnit](https://www.archunit.org/), [ArchUnitNET](https://github.com/TNG/ArchUnitNET)) check whole-codebase structure, from package and layer dependencies to cycles, naming, and sealing, with rules written as test code.
 
-ArchUnit is a free, simple, and extensible library for checking Java architecture with any plain Java unit test framework. NetArchTest is a fluent .NET Standard API that enforces architectural rules in unit tests. Both enforce application-specific conventions beyond generic static analysis, and their rules execute as unit tests in the build pipeline. NetArchTest is MIT licensed and NuGet distributed, and ArchUnit covers Java bytecode with a linked .NET port.
+ArchUnit is a free, simple, and extensible library for checking Java architecture with any plain Java unit test framework. ArchUnitNET is a C# library that states architecture rules and asserts them in automated tests. Both enforce application-specific conventions beyond generic static analysis, and their rules execute as unit tests in the build pipeline. ArchUnitNET is Apache 2.0 licensed and NuGet distributed, and ArchUnit covers Java bytecode.
 
 ## Side-by-Side Comparison
 
@@ -90,7 +90,7 @@ The table summarizes each approach on the same dimensions, as described on the o
 
 | Approach | Unit of specification | Ships rules or process | Stable rule IDs | Verified by tools | Versioned rules | Intent linked to code | Stack coverage |
 |:---|:---|:---|:---|:---|:---|:---|:---|
-| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | CLI, analyzers, model | Pinned releases | Implements, calls, proves | .NET, React, Svelte, Blazor |
+| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | CLI, analyzers, model checks at three levels | Pinned releases | Marks up, computed Proof statuses | .NET, React, Svelte, Blazor, Android |
 | GitHub Spec Kit | Feature, bug, idea | Process, templates | None described | Converge gates, review | Pinned CLI; specs in the repository | None described | Neutral; Linux, macOS, Windows |
 | Kiro | Feature, bug fix | Process, design docs | None described | Requirements analysis, correctness tests | Project files | Tasks tracked in IDE | Neutral |
 | Tessl tile | Task; org-wide skills | Process, format rules, library tiles | Named skills, rules | Spec lint, link checks, evals | Tiles versioned in registry | `[@test]` links, `targets` | Neutral; MCP agents |
@@ -111,10 +111,10 @@ The diagram places each approach by scope against verification.
 Each property below names the page that states it.
 
 - A standing product standard. LiteSpec ships the whole rulebook for one bounded-context application, while per-feature approaches ship a workflow the team fills in. The [supported scope page](../core/scope.md) states the boundary.
-- Citable rules. Every rule has a provision ID of page plus heading slug, so a review comment, an agent report, or a deviation cites exactly one rule, such as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. The [authoring page](../core/authoring.md) defines the grammar.
-- Automated verification in three layers. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unthrown refusals, unresolved references, and expired gaps. Its `implements`, `calls`, and `proves` links are recomputed on every build, so they cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [model page](../tools/model.md) lists every finding code.
+- Citable rules. Every rule has a provision ID of page plus heading slug, so a review comment, an agent report, or an exception cites exactly one rule, such as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. The [authoring page](../core/authoring.md) defines the grammar.
+- Automated verification in three levels. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unthrown refusals, undeclared edges, unresolved references, and expired exceptions, each with a level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Code and tests point up to records through their marks, and the builder computes Proof statuses from those marks on every build, so they cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [model page](../tools/model.md) lists every finding code.
 - A versioned contract. Each release states every active provision, a project pins one release, and adoption is recorded in `reviewedLiteSpecVersion`. The [authoring page](../core/authoring.md) states the release model, and [How LiteSpec Works](how-litespec-works.md) shows the pin.
-- Stack depth where it applies. The fixed application shape allows concrete rules such as five backend projects, one way to model a lifecycle, and one way to report a refused command. The [supported scope page](../core/scope.md) states the selection, and the [.NET](../backend/dotnet/stack.md), [React](../frontend/web/react/stack.md), [Svelte](../frontend/web/svelte/stack.md), and [Blazor](../frontend/blazor/stack.md) stack pages carry the per-stack rules.
+- Stack depth where it applies. The fixed application shape allows concrete rules such as five backend projects, one way to model a lifecycle, and one way to report a refused command. The [supported scope page](../core/scope.md) states the selection, and the [.NET](../backend/dotnet/stack.md), [React](../frontend/web/react/stack.md), [Svelte](../frontend/web/svelte/stack.md), [Blazor](../frontend/blazor/stack.md), and [Android](../frontend/mobile/android/stack.md) stack pages carry the per-stack rules.
 - An enforced agent protocol. Agents start from per-selection `llms.txt` indexes, query one record with `litespec model query`, and finish with check-backed reports, stopping on conflicts with both rule IDs quoted. [Work with Agents](working-with-agents.md) describes how an agent finds the rules, and the [agent page](../core/agent.md) states the task order.
 
 ## Reasons for Another Approach
@@ -122,11 +122,11 @@ Each property below names the page that states it.
 LiteSpec is not the right answer everywhere. The points below favor another approach, stated in the makers' own terms.
 
 - A team that wants a light per-feature flow can use OpenSpec, Spec Kit, or Kiro. OpenSpec is brownfield-first across 30 or more tools, Spec Kit pairs a constitution with per-feature commands and convergence gates, and Kiro turns requirements into design and tasks.
-- A team on another stack can use a neutral approach. LiteSpec supports .NET with React, Svelte, or Blazor, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
+- A team on another stack can use a neutral approach. LiteSpec supports .NET with React, Svelte, Blazor, or Android, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
 - A team with strong conventions to keep can use Agent OS or plain instruction files. Agent OS discovers, deploys, and indexes the team's standards, and instruction files carry whatever the team writes.
 - A team whose agents misuse library APIs can use Tessl tiles. The registry holds library-usage tiles per ecosystem alongside the methodology tile, while LiteSpec pins package versions without teaching API surfaces.
 - A team that wants architecture documentation for readers rather than checks for machines can use ADRs, arc42, and C4. ADRs keep the decision log, arc42 gives the 12-section template, and C4 diagrams the system from context to code.
-- A team with an existing suite that wants behavior or structural checks can add Cucumber, Reqnroll, NetArchTest, or ArchUnit. Cucumber validates plain-text specifications per scenario, Reqnroll automates Given-When-Then scenarios for .NET, and architecture tests enforce structural rules as unit tests.
+- A team with an existing suite that wants behavior or structural checks can add Cucumber, Reqnroll, ArchUnitNET, or ArchUnit. Cucumber validates plain-text specifications per scenario, Reqnroll automates Given-When-Then scenarios for .NET, and architecture tests enforce structural rules as unit tests.
 
 ## Combined Use
 
@@ -134,7 +134,7 @@ LiteSpec acts as the product standard, and the others work inside it.
 
 - With AGENTS.md. A short `AGENTS.md` block points agents at the selection index and raw pages: instruction files carry the pointer, and LiteSpec carries the rules. [Work with Agents](working-with-agents.md) shows the block.
 - With BDD. The manifest pins Reqnroll and LightBDD, and the `bdd` extension states how executable acceptance tests prove LiteSpec scenarios. The [BDD extension](../backend/dotnet/ext/bdd.md) states the provisions, including `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`.
-- With architecture tests. The manifest pins `NetArchTest.Rules`, so suite-level structural rules run beside the Roslyn analyzers. The [analyzer reference](../analyzers/README.md) documents the analyzer side.
+- With architecture tests. The manifest pins `ArchUnitNET`, so suite-level structural rules run beside the Roslyn analyzers. The [analyzer reference](../analyzers/README.md) documents the analyzer side.
 - With ADRs, arc42, and C4. A team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec enforces. One side records for humans, and the other checks for machines.
 - With a per-feature workflow. A team can shape a change with Spec Kit, OpenSpec, Kiro, BMAD, or the Tessl tile, then carry the result into LiteSpec use-case and result records. The workflow handles one change, and LiteSpec holds the product around it.
 
@@ -164,7 +164,7 @@ Every address below was read on 2026-10-21.
 - https://arc42.org/ (2026-10-21).
 - https://c4model.com/ (2026-10-21).
 - https://www.archunit.org/ (2026-10-21).
-- https://github.com/BenMorris/NetArchTest (2026-10-21).
+- https://github.com/TNG/ArchUnitNET (2026-10-31).
 
 ## Next
 

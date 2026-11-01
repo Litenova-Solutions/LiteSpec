@@ -22,33 +22,51 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 ### Map One Operation per Endpoint
 
+**ID:** `litespec/backend/api#map-one-operation-per-endpoint`
+
 **Statement:** An endpoint MUST map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
 **Rationale:** One endpoint class per route operation gives each route a single owner, so its input mapping, dispatch, and result mapping live in one place. An endpoint that served several operations would mix their mappings and force one class to change for unrelated routes.
 
 **Example:** At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform's own reflection and dependency injection. It needs no separate scanning package.
 
+**Reviewed for:** Which mapped routes resolve outside one endpoint type with one mediator dispatch? Look at the route table in the WebApi project.
+
 ### Keep Endpoint Dependencies Transport-Focused
+
+**ID:** `litespec/backend/api#keep-endpoint-dependencies-transport-focused`
 
 **Statement:** An endpoint MUST NOT take an aggregate repository, a persistence session or context, a provider client, or an application service.
 
 **Rationale:** An endpoint that took a repository, session, provider, or application service could reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; handlers take mediators and HTTP-boundary services such as an actor accessor.
 
+**Reviewed for:** Which endpoint constructors take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the WebApi project.
+
 ### Defer Error Mapping to the Global Handler
+
+**ID:** `litespec/backend/api#defer-error-mapping-to-the-global-handler`
 
 **Statement:** An endpoint MUST NOT catch a use-case failure, a domain failure, or a validation failure.
 
 **Rationale:** One global handler produces every error response from every failure type. An endpoint that caught a failure would create a second mapping for the same failure, and the two would diverge: the same refusal would answer different statuses or codes depending on which endpoint raised it.
 
+**Reviewed for:** Which endpoint bodies catch a use-case, domain, or validation failure? Look at the endpoint bodies beside the global handler.
+
 ### Apply Only Coarse Policies at the Endpoint
+
+**ID:** `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`
 
 **Statement:** A WebApi endpoint MUST enforce only coarse authenticated, role, or scope policies, leaving target decisions to the application guard.
 
-**Rationale:** Authentication establishes who is calling, not whether the caller is allowed to act on this specific resource. Coarse policies at the endpoint check the caller; the application guard decides the target from the permissions the use case needs. An endpoint that decided target authorization would duplicate business data access the guard already owns. Target authorization lives in `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
+**Rationale:** Authentication establishes who is calling, not whether the caller is allowed to act on this specific resource. Coarse policies at the endpoint check the caller; the application guard decides the target from the `access` the use-case record declares. An endpoint that decided target authorization would duplicate business data access the guard already owns. Target authorization lives in `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
 
 An operation applies a stable forbidden or not-found policy when revealing that a resource exists would leak information.
 
+**Reviewed for:** Which endpoint policies decide target authorization instead of coarse authentication, role, or scope? Look at the endpoint policies beside the application guard.
+
 ### Return Stable Problem Details
+
+**ID:** `litespec/backend/api#return-stable-problem-details`
 
 **Statement:** An error response MUST use [RFC 9457](https://datatracker.ietf.org/doc/html/rfc9457) Problem Details carrying a stable application `code`, the current `traceId`, and an `errors` entry for each field failure.
 
@@ -79,7 +97,7 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 
 WebApi maps Application member names to their public JSON field names. `traceId` carries the trace identifier from the current [W3C Trace Context](https://www.w3.org/TR/trace-context/) `traceparent`, with the request identifier as fallback. The same shape applies to authentication and authorization failures.
 
-The global handler maps validation failures to 400, missing targets through the operation's disclosure policy, and forbidden failures to 403 or the declared 404. It maps conflicts and state rejections to 409, and unexpected failures to 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
+The global handler maps validation failures to 400, missing targets through the operation's disclosure policy, and forbidden failures to 403 or the declared 404. The derived `invalid-input` refusal answers 400, and the derived `forbidden` refusal answers 403 or the declared 404. It maps conflicts and state rejections to 409, and unexpected failures to 500 with code `internal-error`. It maps each known domain failure individually. It does not report cancellation from a disconnected request as an application error.
 
 In the Claimwick product, reimbursing an expense that is not approved ends with `result/reimburse-expense.not-approved`, which carries the code `spending.not-approved` and the status 409. For example, the global handler answers:
 
@@ -99,7 +117,11 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 ![A domain failure or a validation failure reaches the global handler, which no endpoint preempts. The handler selects the HTTP status and returns a Problem Details body carrying the stable code, the trace identifier, and one entry per field failure.](../assets/diagrams/backend-error-flow.svg)
 
+**Reviewed for:** Which error responses miss the stable code, the traceId, or one errors entry per field failure? Look at the error responses at the API boundary.
+
 ### Use Consistent Status Codes
+
+**ID:** `litespec/backend/api#use-consistent-status-codes`
 
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
@@ -118,10 +140,63 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Authenticated but forbidden | 403 |
 | Resource unavailable under the disclosure policy | 404 |
 | State, version, or idempotency conflict | 409 |
+| Abuse limit exceeded | 429 with a `Retry-After` header |
 | Accepted background operation | 202 with status location |
 | Unexpected failure | 500 |
 
+**Reviewed for:** Which operation responses return a status outside the outcome table? Look at each response beside the outcome table.
+
+### Bound Every File Upload
+
+**ID:** `litespec/backend/api#bound-every-file-upload`
+
+**Statement:** A file upload operation MUST accept no file larger than the size its use-case record declares and no media type outside the media types its use-case record declares.
+
+**Rationale:** An upload without a declared size or media-type bound lets one caller send work the server never agreed to store or inspect. Declaring both bounds on the use-case record lets the server refuse an oversize file or an undeclared type before storage, and lets a reviewer see the limit beside the use case that owns the file.
+
+**Example:** The Claimwick submit-expense upload declares the size and the image media types a receipt photo may carry, and the server refuses a larger file or another media type before it stores anything.
+
+**Reviewed for:** Which upload operations lack a declared size or media-type bound, or accept a file outside either bound? Look at each upload endpoint beside its use-case record.
+
+### Prove Every Upload Type from Its Content
+
+**ID:** `litespec/backend/api#prove-every-upload-type-from-its-content`
+
+**Statement:** A file upload operation MUST determine the file type from the file content rather than the media type or file name the client claims.
+
+**Rationale:** A claimed media type and a file name are caller input, so either one can name an image while the bytes carry anything else. Reading the type from the content itself keeps the declared media-type bound honest, because the check runs on what the server stores rather than on what the caller says it sent.
+
+**Example:** A Claimwick receipt photo named as an image is stored as an image only when its bytes read as one of the declared image types, and bytes of another type are refused even when the name and claimed type agree.
+
+**Reviewed for:** Which upload operations trust a claimed media type or file name over the file bytes? Look at the type check of each upload endpoint beside the declared media types.
+
+### Store Every Upload Through Infrastructure
+
+**ID:** `litespec/backend/api#store-every-upload-through-infrastructure`
+
+**Statement:** File storage for an upload MUST live in Infrastructure.
+
+**Rationale:** Storing a file is provider work, like storing an aggregate, so the endpoint stays a transport adapter and the handler stays on behavior. Infrastructure owns the storage provider, its configuration, and its errors, so a project can change where files live without touching an endpoint or a handler.
+
+**Example:** The Claimwick endpoint for a receipt photo converts the request to its command and dispatches it, the handler stages the expense, and Infrastructure writes the photo bytes to the configured store.
+
+**Reviewed for:** Which endpoints or handlers write file bytes to a storage provider directly? Look at the upload endpoints and handlers beside the Infrastructure storage code.
+
+### Authorize Every File Download Through Its Owning Use Case
+
+**ID:** `litespec/backend/api#authorize-every-file-download-through-its-owning-use-case`
+
+**Statement:** A caller MUST reach a stored file only through a download use case authorized from the access that use case declares.
+
+**Rationale:** A stored file carries the data of the record it belongs to, so a direct storage address would serve that data to anyone holding the address and skip the owning use case's grant and tenant scope. Routing each download through its owning use case keeps one authorization decision for the file and for the record it belongs to.
+
+**Example:** A Claimwick receipt photo downloads through the use case that owns the expense, so only an actor its access allows reads the photo, and no storage address serves it on its own.
+
+**Reviewed for:** Which stored files are reachable outside a download use case and its declared access? Look at the download endpoints and the storage addresses beside each owning use case.
+
 ### Require the Marker Header on Cookie-Authenticated Writes
+
+**ID:** `litespec/backend/api#require-the-marker-header-on-cookie-authenticated-writes`
 
 **Statement:** The API MUST refuse a cookie-authenticated write without the project's marker header.
 
@@ -129,7 +204,11 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 The refused request is unauthenticated, so it answers 401 under `litespec/backend/api#use-consistent-status-codes`. The frontend pages own sending the header. This rule owns the API refusal.
 
+**Reviewed for:** Which cookie-authenticated writes without the marker header escape the 401 answer? Look at the write requests with cookie authentication.
+
 ### Keep Routes Resource-Oriented
+
+**ID:** `litespec/backend/api#keep-routes-resource-oriented`
 
 **Statement:** A route MUST use lowercase plural resource segments, kebab-case subresources, route parameters for identity, query parameters for filtering, and the body for command data.
 
@@ -137,7 +216,11 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Example:** A route carries the authenticated actor identifier only when that actor is intentionally addressing another actor as a resource.
 
+**Reviewed for:** Which routes break the plural segments, kebab-case subresources, identity parameters, filter queries, or body command data? Look at the route table entries.
+
 ### State an Unexpressible Transition as a Custom Method
+
+**ID:** `litespec/backend/api#state-an-unexpressible-transition-as-a-custom-method`
 
 **Statement:** A WebApi route MUST express a state transition the five HTTP verbs cannot carry as a POST custom method ending in a colon-suffixed verb.
 
@@ -153,7 +236,11 @@ POST /api/orders/{orderId}/refund-requests/{refundId}:decide
 
 The `operationId` keeps its verb-noun form, so `CancelShipment` names the same transition the path states.
 
+**Reviewed for:** Which transitions beyond the five verbs escape the POST custom method with a colon-suffixed verb? Look at the route table.
+
 ### Apply PATCH to a Partial Update
+
+**ID:** `litespec/backend/api#apply-patch-to-a-partial-update`
 
 **Statement:** A WebApi operation MUST apply a partial update with PATCH and the `application/merge-patch+json` media type.
 
@@ -161,7 +248,11 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT keeps replacing the whole resource, and DELETE stays a hard-state transition.
 
+**Reviewed for:** Which partial updates arrive outside PATCH with the merge-patch media type? Look at the partial update requests.
+
 ### Use PUT for a Whole Replacement
+
+**ID:** `litespec/backend/api#use-put-for-a-whole-replacement`
 
 **Statement:** A PUT operation MUST replace the whole resource or sub-resource its path names.
 
@@ -169,11 +260,15 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **Example:** A whole replacement sends every editable member, and an omitted member removes its value rather than keeping the stored one.
 
+**Reviewed for:** Which PUT requests keep omitted members instead of removing them? Look at the PUT handlers.
+
 ### Bound Collection Queries
 
-**Statement:** A collection endpoint MUST apply deterministic ordering, a default limit of 20, and the use case's declared maximum limit of 100 or lower.
+**ID:** `litespec/backend/api#bound-collection-queries`
 
-**Rationale:** An unbounded collection read turns one caller into a source of unbounded database and serialization work. Deterministic ordering keeps pages stable, the default limit of 20 bounds the common case, and the declared maximum of 100 or lower caps the worst case. Cursor mechanics live in `litespec/backend/api#use-opaque-cursors-for-collection-paging` and `litespec/backend/api#version-cursors-with-stable-sort-values`.
+**Statement:** A collection endpoint MUST apply deterministic ordering, its record's declared default limit, and its record's declared maximum limit of 100 or lower.
+
+**Rationale:** An unbounded collection read turns one caller into a source of unbounded database and serialization work. Deterministic ordering keeps pages stable, the declared default limit bounds the common case, and the declared maximum of 100 or lower caps the worst case. The use-case record declares its paging with order, cursor or offset, default limit, and maximum limit, and the endpoint applies exactly that. Cursor mechanics live in `litespec/backend/api#use-opaque-cursors-for-collection-paging` and `litespec/backend/api#version-cursors-with-stable-sort-values`.
 
 **Example:** A request uses `after` as an opaque cursor and `limit` as a positive integer. The implementation fetches one record beyond the requested limit to determine whether another page exists. The response uses one shape:
 
@@ -188,19 +283,31 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 }
 ```
 
+**Reviewed for:** Which collection responses lack deterministic order, or exceed the declared default or maximum limit? Look at the collection responses beside their records.
+
 ### Use Opaque Cursors for Collection Paging
+
+**ID:** `litespec/backend/api#use-opaque-cursors-for-collection-paging`
 
 **Statement:** A collection endpoint MUST page with an opaque cursor and refuse a malformed cursor with 400 and code `invalid-cursor`.
 
 **Rationale:** A cursor that exposed offsets or internals lets callers craft requests against storage details and breaks when those details change. An opaque cursor keeps paging state server-defined, and the endpoint treats it as untrusted input: a malformed cursor, or an unsupported cursor version, answers 400 with code `invalid-cursor`.
 
+**Reviewed for:** Which malformed cursors escape the 400 answer with code invalid-cursor? Look at the collection endpoints.
+
 ### Version Cursors with Stable Sort Values
+
+**ID:** `litespec/backend/api#version-cursors-with-stable-sort-values`
 
 **Statement:** A paging cursor MUST carry a version and the last stable sort values, including a unique tie-breaker, and no sensitive value in readable form.
 
 **Rationale:** Paging walks a sorted sequence, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the walk exact when values repeat. The tie-breaker matches the query's stable order under `litespec/backend/api#bound-collection-queries`. No sensitive value travels in readable form, because callers store and replay cursors.
 
+**Reviewed for:** Which cursor payloads miss a version, the last sort values, or a unique tie-breaker, or leak a readable secret? Look at the cursor payloads.
+
 ### Treat OpenAPI as a Generated Contract
+
+**ID:** `litespec/backend/api#treat-openapi-as-a-generated-contract`
 
 **Statement:** A WebApi project MUST generate its OpenAPI document during the Release build.
 
@@ -219,27 +326,55 @@ Generation without hosted dependencies follows `litespec/backend/api#generate-th
 
 When a typed consumer reads the API, the pinned generator reads the source artifact. The generated client, its model types, its request schemas, and its query options are one workspace package, because every frontend and every command reads them.
 
+**Reviewed for:** Which Release builds skip regenerating the OpenAPI artifact, or which contract gates pass on a changed tree? Look at the Release build output and the contract gate.
+
 ### Declare Stable Operation Metadata in the Contract
+
+**ID:** `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`
 
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and a summary.
 
 **Rationale:** Generated clients name their methods from `operationId`, so an unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.
 
+**Reviewed for:** Which operations in the generated contract miss operationId, authorization, request, success, failure, or summary entries? Look at the operations in the generated contract.
+
+### Name the Use Case on Every Published Operation
+
+**ID:** `litespec/backend/api#name-the-use-case-on-every-published-operation`
+
+**Statement:** Every operation in the generated contract MUST carry `x-litespec-use-case` naming the use case its endpoint implements.
+
+**Rationale:** The `operationId` names an operation for client code and keeps its casing for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
+
+**Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
+
+**Checked by:** `litespec model check` reports `operation-use-case-drift` (level S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
+
 ### Commit the Generated Contract Its Consumers Read
+
+**ID:** `litespec/backend/api#commit-the-generated-contract-its-consumers-read`
 
 **Statement:** A WebApi project MUST commit its generated OpenAPI artifact when a frontend or external consumer reads it.
 
 **Rationale:** A committed artifact makes every contract change visible in review and lets CI fail when the document was not regenerated. Without the committed file, a breaking contract change hides inside a code change. Consumers read the artifact through the generated client, model, schema, and query-option packages.
 
+**Reviewed for:** Which frontends or external consumers read an uncommitted or stale OpenAPI artifact? Look at the committed artifact beside its consumers.
+
 ### Reflect Enforced Authentication in the Contract
+
+**ID:** `litespec/backend/api#reflect-enforced-authentication-in-the-contract`
 
 **Statement:** A generated OpenAPI document MUST declare the security scheme and per-operation security requirement for every endpoint that enforces authentication.
 
 **Rationale:** A consumer that learns an authentication requirement from a runtime 401 has already built the wrong client: declared security schemes and per-operation requirements let it build the right one. Handwritten security metadata drifts from registered schemes, so the document derives them from the registered authentication schemes.
 
-**Example:** The implementation reads the registered authentication schemes and adds the matching `securitySchemes` and `security` entries. Handwritten security metadata drifts from registered schemes. An intentionally anonymous operation declares no security requirement.
+**Example:** The implementation reads the registered authentication schemes and adds the matching `securitySchemes` and `security` entries. Handwritten security metadata drifts from registered schemes. An operation whose `access` grant is `anonymous` declares no security requirement.
+
+**Reviewed for:** Which authenticated operations miss their security schemes and requirements in the generated contract? Look at the operations in the generated contract.
 
 ### Publish Precise, Complete Schemas
+
+**ID:** `litespec/backend/api#publish-precise-complete-schemas`
 
 **Statement:** A generated schema MUST declare the closed value set, bounds, format, and required control headers of each field and parameter it describes.
 
@@ -249,13 +384,21 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 An operation requiring a control header declares it as a required parameter, for example `Idempotency-Key` or `If-Match`. The implementation prefers results, enums, and parameter metadata derived from code over handwritten schemas that drift from code.
 
+**Reviewed for:** Which contract schemas miss value sets, bounds, formats, or required control headers for a field? Look at the schemas in the generated contract.
+
 ### Expose Development Tooling in Development Only
+
+**ID:** `litespec/backend/api#expose-development-tooling-in-development-only`
 
 **Statement:** A WebApi project MUST map its API exploration and diagnostic endpoints only when the host runs in the Development environment.
 
 **Rationale:** Development tooling exposes the full API surface for exploration, which is what development needs and what a hosted environment leaves unoffered. Mapping it in Development only keeps exploration local while hosted environments serve only the API.
 
+**Reviewed for:** Which hosted environments serve exploration tooling, or which Development hosts hide it? Look at the mapped endpoints in each environment.
+
 ### Mirror a Domain Closed Set as a Transport Model of the Same Shape
+
+**ID:** `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`
 
 **Statement:** A WebApi transport model for a Domain closed set MUST preserve the shape of that set.
 
@@ -263,13 +406,21 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Example:** A label-only set maps to a string `enum`. A data-bearing set maps to a polymorphic model with one case per variant, published as `oneOf` with a discriminator.
 
+**Reviewed for:** Which transport models drop a case or its data from their Domain set? Look at each transport model beside its Domain set.
+
 ### Publish Label-Only Sets as String Enums
+
+**ID:** `litespec/backend/api#publish-label-only-sets-as-string-enums`
 
 **Statement:** A transport model for a label-only set MUST publish its values as an OpenAPI string `enum`.
 
 **Rationale:** A label-only set carries no case data, so its labels are the complete contract and a string enum carries them exactly. The permission to use a plain enum for this one situation lives in `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`.
 
+**Reviewed for:** Which label-only sets escape the string enum in the contract? Look at the label-only sets in the contract.
+
 ### Mark Polymorphic Models with Discriminators
+
+**ID:** `litespec/backend/api#mark-polymorphic-models-with-discriminators`
 
 **Statement:** A data-bearing set MUST map to a polymorphic model with one case per variant, published as `oneOf` with a string discriminator.
 
@@ -283,15 +434,35 @@ An operation requiring a control header declares it as a required parameter, for
 - Opt cases in explicitly, so an unregistered subtype fails serialization.
 - A document or schema transformer completes discriminator metadata that the generator omits.
 
+**Reviewed for:** Which data-bearing sets escape the oneOf model with a required string discriminator? Look at the data-bearing sets in the contract.
+
 ### Reject a Collapsed or Borrowed Wire Contract
+
+**ID:** `litespec/backend/api#reject-a-collapsed-or-borrowed-wire-contract`
 
 **Statement:** A WebApi transport model MUST NOT collapse a data-bearing set into an `enum` or reuse a Domain or Application type as the wire contract.
 
 **Rationale:** Collapsing a data-bearing set into an enum discards the data that distinguishes its cases, and reusing a Domain or Application type as the wire contract couples the public contract to inner shapes. Each layer owns its own contract type per `litespec/backend/architecture#own-each-layers-contract-types`, so the wire contract is always a dedicated transport model. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`.
 
+**Reviewed for:** Which wire contracts collapse a data-bearing set into an enum or reuse a Domain or Application type? Look at each wire contract.
+
+### Keep One Name for a Use Case Across Layers
+
+**ID:** `litespec/backend/api#keep-one-name-for-a-use-case-across-layers`
+
+**Statement:** Each use case MUST carry its name unchanged in its message type, operation id, and audit action.
+
+**Rationale:** A use case that reads one way in its record, another in its message type, and a third in its audit action forces every trace across layers through a translation table only the author holds. The record id is the name; the message type, the endpoint operation id, and the audit action repeat it in their own casing, so a reader follows one name from the page to the wire to the audit log.
+
+**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
+
+**Checked by:** `litespec model check` reports `name-drift` (level A) for a message type, operation id or audit action differing from the use-case name, and `operation-id-duplicate` (level S) for two endpoints declaring one operation id.
+
 ## Conventions
 
 ### Use This Endpoint Layout
+
+**ID:** `litespec/backend/api#use-this-endpoint-layout`
 
 **Default:** Group endpoint folders by module, then aggregate, then use case, following `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
@@ -319,7 +490,11 @@ WebApi/
 
 Module nesting, including the single-aggregate flat form, follows the cited folder rule.
 
+**Reviewed for:** Which endpoint folders break the module, aggregate, and use case grouping? Look at the endpoint folders.
+
 ### Name Transport Types by Their Boundary Role
+
+**ID:** `litespec/backend/api#name-transport-types-by-their-boundary-role`
 
 **Default:** Transport types take the names the suffix table assigns their roles.
 
@@ -329,11 +504,17 @@ Module nesting, including the single-aggregate flat form, follows the cited fold
 
 **Example:** A passive HTTP DTO names its boundary role and ends in `Model`.
 
+**Reviewed for:** Which transport type names miss the suffix their boundary role assigns? Look at the transport type names.
+
 ### Name Routes from Resources
+
+**ID:** `litespec/backend/api#name-routes-from-resources`
 
 **Default:** Derive each route from its resource and subresource, and use an action segment only when the operation maps to neither.
 
 **Replacement:** A project names its route shape in its backend documentation.
+
+**Rationale:** A route derived from its resource reads the same for every operation: the caller knows the record before opening the handler. An action segment reserved for operations that map to neither resource nor subresource keeps the exception visible instead of spreading verb-led routes.
 
 **Example:**
 
@@ -344,7 +525,30 @@ GET    /api/posts/{postId}/publication
 GET    /api/posts?after={cursor}&limit=20
 ```
 
+**Reviewed for:** Which routes derive outside their resource and subresource, or carry an action segment where either fits? Look at the route table.
+
+### Shape Command Routes from the Aggregate and the Verb
+
+**ID:** `litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb`
+
+**Default:** A command route carries the aggregate plural, and a custom action ends with the use-case verb as its last segment; a POST to the collection, a PUT, PATCH or DELETE on one resource, and a verb the HTTP method already says (POST for create, add and register; PUT or PATCH for change; DELETE for remove) keep the plain resource route.
+
+**Replacement:** A project names its route shape in its backend documentation.
+
+**Rationale:** A route that names the aggregate plural, its identity, and the verb as the last segment reads the same for every command: the reader knows the record and the act before opening the handler. A route that repeats the noun or hides the verb makes each command route a fresh puzzle.
+
+**Example:**
+
+```text
+POST   /api/expenses/{id}/reimburse
+POST   /api/holds/{holdId}/cancel
+```
+
+**Checked by:** `litespec model check` reports `route-invalid` (level A) for a command route ending outside its verb or carrying no aggregate plural.
+
 ### Keep Numeric Transport Types Precise
+
+**ID:** `litespec/backend/api#keep-numeric-transport-types-precise`
 
 **Default:** Emit a plain numeric schema for an `int32` or `double` field, and reserve a string-or-number union for `int64` values beyond the JSON safe integer range.
 
@@ -352,7 +556,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Rationale:** A plain numeric schema lets consumers read `int32` and `double` directly. A string-or-number union is reserved for `int64` values beyond the JSON safe integer range, because an over-broad union forces every consumer to coerce plain numbers.
 
+**Reviewed for:** Which numeric fields publish outside plain schemas, or reserve the int64 union wrongly? Look at the numeric fields in the contract.
+
 ### Model a Monetary Value as One Object
+
+**ID:** `litespec/backend/api#model-a-monetary-value-as-one-object`
 
 **Default:** Carry a monetary value as one `Money` object in a response model and in a request where the caller chooses the currency.
 
@@ -362,7 +570,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `unitPrice` and `currencyCode` become `price` of type `Money`. A request that references an account with a fixed currency carries `amount` alone.
 
+**Reviewed for:** Which monetary values travel outside one Money object, or carry currency where the caller has no choice? Look at the monetary fields in the contract.
+
 ### Name Boolean Fields as Conditions
+
+**ID:** `litespec/backend/api#name-boolean-fields-as-conditions`
 
 **Default:** Boolean fields use the same condition names as code, in camel case.
 
@@ -372,7 +584,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `IsBuyable` in code becomes `isBuyable` on the wire.
 
+**Reviewed for:** Which boolean fields break the camel-case condition names of their code names? Look at the boolean fields in the contract.
+
 ### Name Time Fields with At
+
+**ID:** `litespec/backend/api#name-time-fields-with-at`
 
 **Default:** Time fields end in `At`, following [AIP-142](https://google.aip.dev/142).
 
@@ -382,7 +598,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `createdAt` names the creation time.
 
+**Reviewed for:** Which time fields in contract schemas end outside At? Look at the time fields.
+
 ### Use Standard Field Vocabulary
+
+**ID:** `litespec/backend/api#use-standard-field-vocabulary`
 
 **Default:** Field names use `created` over `placed`, `languageTag` over `locale`, and `displayName` over `keyName`.
 
@@ -392,7 +612,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `defaultLanguageTag` replaces `defaultLocaleTag`.
 
+**Reviewed for:** Which fields use placed, locale, or keyName over the standard vocabulary? Look at the field names in the contract.
+
 ### Name Failure Pairs Code and Reason
+
+**ID:** `litespec/backend/api#name-failure-pairs-code-and-reason`
 
 **Default:** A request body names a failure with `code` for the class and `reason` for the explanation.
 
@@ -400,7 +624,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Rationale:** A request body names failures the same way responses do: `code` for the class, `reason` for the explanation, mirroring the Problem Details code and detail under `litespec/backend/api#return-stable-problem-details`. One pair in both directions lets clients reuse their failure handling.
 
+**Reviewed for:** Which request bodies name failures outside code and reason? Look at the failure pairs in request bodies.
+
 ### Name Path Parameters per Resource
+
+**ID:** `litespec/backend/api#name-path-parameters-per-resource`
 
 **Default:** Each path parameter names its own resource identity, and a `details` segment takes the aggregate name.
 
@@ -410,7 +638,11 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `/api/posts/{postId}` names the post; `/details` takes the aggregate name.
 
+**Reviewed for:** Which path parameters miss their own resource identity? Look at the path parameters.
+
 ### Avoid Noise Words in Field Names
+
+**ID:** `litespec/backend/api#avoid-noise-words-in-field-names`
 
 **Default:** Field names carry no type prefix and no noise word.
 
@@ -420,29 +652,43 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Example:** `customerInfo` becomes `customer`.
 
+**Reviewed for:** Which field names in contract schemas carry a type prefix or noise word? Look at the field names.
+
 ### Declare a Smaller Collection Maximum
 
-**Default:** A use case with stricter needs declares its smaller maximum on its collection query message and states the reason on its use-case record.
+**ID:** `litespec/backend/api#declare-a-smaller-collection-maximum`
+
+**Default:** A use case with stricter needs declares its smaller maximum in its record's `paging` and states the reason on its use-case record.
 
 **Replacement:** A project names its collection limit shape in its backend documentation.
 
-**Rationale:** Some collections cost more per item than others. A use case with stricter needs declares its smaller maximum on its collection query message with the reason on its use-case record, and the endpoint enforces it under `litespec/backend/api#bound-collection-queries`.
+**Rationale:** Some collections cost more per item than others. A use case with stricter needs declares its smaller maximum in its record's `paging` with the reason on its use-case record, and the endpoint enforces it under `litespec/backend/api#bound-collection-queries`.
+
+**Reviewed for:** Which lowered collection maxima miss their value and reason on the use-case record? Look at each lowered maximum.
 
 ### Use Offsets for Proven Bounded Datasets
 
-**Default:** A collection over a proven bounded dataset pages with an offset while the public contract stays cursor-shaped.
+**ID:** `litespec/backend/api#use-offsets-for-proven-bounded-datasets`
+
+**Default:** A collection over a proven bounded dataset declares offset paging in its record while the public contract stays cursor-shaped.
 
 **Replacement:** A project names its paging shape in its backend documentation.
 
-**Rationale:** Offsets skip rows the database still scans, so they stay cheap only while the dataset stays small. A collection over a proven bounded dataset pages with an offset internally while the public contract stays cursor-shaped, and the use-case record states the bound that makes it safe.
+**Rationale:** Offsets skip rows the database still scans, so they stay cheap only while the dataset stays small. A collection over a proven bounded dataset declares offset paging while the public contract stays cursor-shaped, and the use-case record states the bound that makes it safe.
+
+**Reviewed for:** Which offset paging lacks the bound making it safe on the use-case record? Look at each offset-paged collection.
 
 ### Generate the Contract Without Hosted Dependencies
+
+**ID:** `litespec/backend/api#generate-the-contract-without-hosted-dependencies`
 
 **Default:** The generation run contacts no hosted dependency and runs no schema change, and the project records its chosen answer.
 
 **Replacement:** A project names its generation setup in its backend documentation.
 
 **Rationale:** Build-time generation boots the host, and a boot that needs a secret, a certificate, or a reachable dependency fails on a clean checkout. The project records which answer it uses: a generation environment that wires no hosted dependency for the generation run, or a deferred guard that moves each startup refusal from composition to first use. The document reflects the generation environment's endpoint set, and with a deferred guard a misconfiguration surfaces on the first request instead of at boot.
+
+**Reviewed for:** Which generation runs contact a hosted dependency, or lack a recorded answer? Look at the generation runs beside the project record.
 
 ## Reference Example
 
@@ -451,46 +697,3 @@ This informative example demonstrates `litespec/backend/api#keep-endpoint-depend
 A create endpoint reads the author from claims. It maps the request model to the command through the endpoint mappings. It sends the command through the command mediator. It maps the result to the response model with the new resource location. A read endpoint maps the query result through its own mappings. No endpoint calls the aggregate factory or the Domain repository.
 
 A refund outcome is a closed set whose cases carry different data. Domain models it once. Application mirrors it per `litespec/backend/application#mirror-a-domain-closed-set-in-the-result`, and WebApi mirrors it again as a polymorphic transport model rather than serializing either inner type.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/api#map-one-operation-per-endpoint | guidance | Each mapped route in the WebApi project resolves to one endpoint type with one mediator dispatch. |
-| litespec/backend/api#keep-endpoint-dependencies-transport-focused | guidance | Endpoint constructors in the WebApi project take mediators and HTTP-boundary services only. |
-| litespec/backend/api#defer-error-mapping-to-the-global-handler | guidance | Endpoint bodies in the WebApi project catch no failure, with mapping centralized in the global handler. |
-| litespec/backend/api#apply-only-coarse-policies-at-the-endpoint | guidance | Endpoint policies in the WebApi project check authentication, role, or scope, with target decisions in the application guard. |
-| litespec/backend/api#return-stable-problem-details | guidance | Error responses captured at the API boundary carry code, traceId, and one errors entry per field failure. |
-| litespec/backend/api#use-consistent-status-codes | guidance | Operation responses at the API boundary return the status the outcome table assigns their result. |
-| litespec/backend/api#require-the-marker-header-on-cookie-authenticated-writes | guidance | A cookie-authenticated write sent without the marker header answers 401. |
-| litespec/backend/api#keep-routes-resource-oriented | guidance | Route table entries use plural segments, kebab-case subresources, identity parameters, filter queries, and body command data. |
-| litespec/backend/api#state-an-unexpressible-transition-as-a-custom-method | guidance | Transitions beyond the five verbs appear as POST routes with a colon-suffixed verb. |
-| litespec/backend/api#apply-patch-to-a-partial-update | guidance | Partial updates arrive as PATCH requests with the merge-patch media type. |
-| litespec/backend/api#use-put-for-a-whole-replacement | guidance | PUT requests replace the whole resource their path names, with omitted members removed. |
-| litespec/backend/api#bound-collection-queries | guidance | Collection responses carry deterministic order with default limit 20 inside the declared maximum. |
-| litespec/backend/api#use-opaque-cursors-for-collection-paging | guidance | A malformed cursor sent to a collection endpoint answers 400 with code invalid-cursor. |
-| litespec/backend/api#version-cursors-with-stable-sort-values | guidance | Cursor payloads carry a version with the last sort values and a unique tie-breaker, and no readable secret. |
-| litespec/backend/api#treat-openapi-as-a-generated-contract | guidance | The Release build regenerates the OpenAPI artifact, with the contract gate failing on a changed tree. |
-| litespec/backend/api#declare-stable-operation-metadata-in-the-contract | guidance | Operations in the generated contract declare operationId, authorization, request, success, failure, and summary entries. |
-| litespec/backend/api#commit-the-generated-contract-its-consumers-read | guidance | The generated OpenAPI artifact sits committed and current for each consumer. |
-| litespec/backend/api#reflect-enforced-authentication-in-the-contract | guidance | Authenticated operations in the generated contract declare their security schemes and requirements. |
-| litespec/backend/api#publish-precise-complete-schemas | guidance | Contract schemas declare value sets, bounds, formats, and required control headers for each field. |
-| litespec/backend/api#expose-development-tooling-in-development-only | guidance | Hosted environments serve the API without exploration tooling, which appears in Development only. |
-| litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape | guidance | Transport models carry every case and its data from their Domain set. |
-| litespec/backend/api#publish-label-only-sets-as-string-enums | guidance | Label-only sets appear in the contract as string enums. |
-| litespec/backend/api#mark-polymorphic-models-with-discriminators | guidance | Data-bearing sets appear as oneOf models with a required string discriminator. |
-| litespec/backend/api#reject-a-collapsed-or-borrowed-wire-contract | guidance | Wire contracts hold dedicated transport models, with no enum-collapsed set or reused inner type. |
-| litespec/backend/api#use-this-endpoint-layout | guidance | Endpoint folders group by module, aggregate, and use case. |
-| litespec/backend/api#name-transport-types-by-their-boundary-role | guidance | Transport type names end in the suffix their boundary role assigns. |
-| litespec/backend/api#name-routes-from-resources | guidance | Routes derive from their resource and subresource, with action segments only where neither fits. |
-| litespec/backend/api#keep-numeric-transport-types-precise | guidance | Numeric fields publish plain schemas, except int64 unions beyond the JSON safe integer range. |
-| litespec/backend/api#model-a-monetary-value-as-one-object | guidance | Monetary values travel as one Money object, or amount alone where the caller has no currency choice. |
-| litespec/backend/api#name-boolean-fields-as-conditions | guidance | Boolean fields use camel-case condition names matching their code names. |
-| litespec/backend/api#name-time-fields-with-at | guidance | Time fields in contract schemas end in At. |
-| litespec/backend/api#use-standard-field-vocabulary | guidance | Fields use created, languageTag, and displayName over their rejected synonyms. |
-| litespec/backend/api#name-failure-pairs-code-and-reason | guidance | Request bodies name failures with code for the class and reason for the explanation. |
-| litespec/backend/api#name-path-parameters-per-resource | guidance | Path parameters name their own resource identity. |
-| litespec/backend/api#avoid-noise-words-in-field-names | guidance | Field names in contract schemas carry no type prefix or noise word. |
-| litespec/backend/api#declare-a-smaller-collection-maximum | guidance | Lowered collection maxima state their value and reason on the use-case record. |
-| litespec/backend/api#use-offsets-for-proven-bounded-datasets | guidance | Offset paging cites the bound making it safe on the use-case record. |
-| litespec/backend/api#generate-the-contract-without-hosted-dependencies | guidance | Generation runs contact no hosted dependency, with the chosen answer recorded. |

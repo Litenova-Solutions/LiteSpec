@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="b2c3d4e5-0000-4000-8000-000000000001" name="Proof targets fixture run" runUser="fixture" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-01T00:00:00.0000000+00:00" queuing="2026-10-01T00:00:00.0000000+00:00" start="2026-10-01T00:00:00.0000000+00:00" finish="2026-10-01T00:00:01.0000000+00:00" />
+  <Results>
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.AggregateProofTests.Loan_holds" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000011" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.DecisionProofTests.Loans_round_trip_as_documents" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000012" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.ExternalSystemProofTests.Sends_texts" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000013" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.FunctionalProofTests.Borrowing_through_the_app" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000014" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.IntegrationEventProofTests.Publishes_loan_borrowed" outcome="Failed" testId="b2c3d4e5-0000-4000-8000-000000000015" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.MultiProofTests.Month_end_texts_stay_fast" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000016" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.ProductDecisionProofTests.Threshold_decided" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000017" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.ProvisionProofTests.Commits_once" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000018" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.QualityProofTests.Borrowing_stays_fast" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000019" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.RuleProofTests.Borrowed_copy_is_available" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000020" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.ScenarioProofTests.Borrowing_an_available_copy_succeeds" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000021" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.UnappliedProvisionProofTests.Bounds_storage" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000022" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+    <UnitTestResult testName="Library.Acceptance.Tests.Proof.UnknownProvisionProofTests.Keeps_structure" outcome="Passed" testId="b2c3d4e5-0000-4000-8000-000000000023" startTime="2026-10-01T00:00:00.0000000+00:00" endTime="2026-10-01T00:00:00.1000000+00:00" />
+  </Results>
+</TestRun>

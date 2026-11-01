@@ -20,6 +20,8 @@ The OpenAPI generator builds the published contract from metadata declared on ea
 
 ### Use One Endpoint per Operation
 
+**ID:** `litespec/backend/dotnet/api#use-one-endpoint-per-operation`
+
 **Statement:** A WebApi endpoint MUST implement `IEndpoint`, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
 **Rationale:** When one class owns one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place, and no route drifts into a second pattern unnoticed. Without that rule, operations share classes or helpers, and a change to one route silently affects another. This provision states the .NET form of `litespec/backend/api#map-one-operation-per-endpoint`.
@@ -35,23 +37,35 @@ internal interface IEndpoint
 
 At startup, WebApi scans its own assembly for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
 
+**Reviewed for:** Which mapped routes escape one `IEndpoint` type converting input, dispatching, and mapping the result? Look at the endpoints in the WebApi project.
+
 ### Exclude MVC Controllers from the Stack
+
+**ID:** `litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack`
 
 **Statement:** A WebApi project MUST NOT route requests through MVC controllers or `ControllerBase`.
 
 **Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. One model means one place defines how requests reach handlers and how failures reach clients.
 
+**Checked by:** `dotnet build` reports `LS2003` for a WebApi class deriving from `ControllerBase` or carrying `ApiController`.
+
 ### Declare Operation Metadata in the Contract
+
+**ID:** `litespec/backend/dotnet/api#declare-operation-metadata-in-the-contract`
 
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and typed results or `Produces` metadata, and a summary.
 
 **Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary and description are declared explicitly. This provision states the .NET form of `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`.
 
+**Reviewed for:** Which operations miss a stable `operationId`, authorization, request, success, or Problem Details metadata, typed results or `Produces` entries, or a summary? Look at each operation.
+
 ### Derive HTTP Statuses from Refusal Codes
+
+**ID:** `litespec/backend/dotnet/api#derive-http-statuses-from-refusal-codes`
 
 **Statement:** WebApi MUST map each refusal code to its HTTP status in one global handler.
 
-**Rationale:** The specification records each refusal with its stable `code` and no transport status, so the stack derives the status its transport needs. The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`: validation failures answer 400, missing targets answer through the operation's 404 policy, forbidden failures answer 403 or the declared 404 disclosure policy, conflicts and state rejections answer 409, and unexpected failures answer 500 with code `internal_error`. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error. The outcome-to-status assignment lives in `litespec/backend/api#use-consistent-status-codes`; this provision states its .NET form.
+**Rationale:** The specification records each refusal with its stable `code` and no transport status, so the stack derives the status its transport needs. The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`: validation failures answer 400, missing targets answer through the operation's 404 policy, forbidden failures answer 403 or the declared 404 disclosure policy, conflicts and state rejections answer 409, and unexpected failures answer 500 with code `internal_error`. The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error. The outcome-to-status assignment lives in `litespec/backend/api#use-consistent-status-codes`; this provision states its .NET form.
 
 **Example:** The handler registers through the framework's Problem Details services:
 
@@ -62,7 +76,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 The handler maps each known exception type to its status and code, and answers 500 with code `internal_error` for the rest.
 
+**Reviewed for:** Which refusal codes escape the one `IExceptionHandler`, or map outside their outcome-table status? Look at the WebApi global handler.
+
 ### Mark Polymorphic Transport Models with Discriminators
+
+**ID:** `litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators`
 
 **Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
 
@@ -76,15 +94,19 @@ The handler maps each known exception type to its status and code, and answers 5
 - Opt derived types in explicitly, so an unregistered runtime subtype fails serialization.
 - Complete discriminator metadata that the generator omits with a document or schema transformer.
 
+**Reviewed for:** Which data-bearing sets escape the abstract base record with one sealed record per case and the `oneOf` string discriminator? Look at each data-bearing set.
+
 ## Conventions
 
 ### Use the Endpoint Folder Layout
+
+**ID:** `litespec/backend/dotnet/api#use-the-endpoint-folder-layout`
 
 **Default:** Place each endpoint in a folder named for its use case under its module and aggregate, with the files this provision names.
 
 **Replacement:** A project names its endpoint layout in its WebApi documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping lives in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
+**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping lives in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Response models carry the query's declared `include` groups. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
 **Example:** The endpoint layout is:
 
@@ -121,7 +143,11 @@ The handler maps each known exception type to its status and code, and answers 5
   Program.cs
 ```
 
+**Reviewed for:** Which endpoint folders miss the endpoint, request and response models, or mappings named for the use case? Look at each endpoint folder.
+
 ### Keep Program.cs as Composition
+
+**ID:** `litespec/backend/dotnet/api#keep-programcs-as-composition`
 
 **Default:** `Program.cs` holds module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup, ending with an empty partial `Program` class.
 
@@ -131,14 +157,4 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Example:** The visible order is trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/api#use-one-endpoint-per-operation | guidance | Each mapped route: one `IEndpoint` type converting input, dispatching through its mediator, and mapping the result. |
-| litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack | checkable | `dotnet build` of the WebApi project reports no LiteSpec.Analyzers LS2003 diagnostic. |
-| litespec/backend/dotnet/api#declare-operation-metadata-in-the-contract | guidance | Each operation: a stable `operationId`, authorization, request, success, and Problem Details metadata, typed results or `Produces` entries, and a summary. |
-| litespec/backend/dotnet/api#derive-http-statuses-from-refusal-codes | guidance | The WebApi global handler: one `IExceptionHandler` mapping each refusal code to its outcome-table status. |
-| litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators | guidance | Each data-bearing set: an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator. |
-| litespec/backend/dotnet/api#use-the-endpoint-folder-layout | guidance | Each endpoint folder under its module and aggregate: the endpoint, request and response models, and mappings named for the use case. |
-| litespec/backend/dotnet/api#keep-programcs-as-composition | guidance | `Program.cs`: module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup in the recorded order. |
+**Reviewed for:** Which `Program.cs` files break the recorded composition order or miss a step? Look at `Program.cs`.

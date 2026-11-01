@@ -1,6 +1,7 @@
 namespace Library.Domain.Lending.Holds.Exceptions;
 
 /// <summary>The hold is already waiting.</summary>
+/// <implements>rule/hold.names-one-copy</implements>
 public sealed class HoldAlreadyWaitingException()
     : DomainException("The hold is already waiting.")
 {

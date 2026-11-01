@@ -8,25 +8,26 @@ A product records its UI pattern choices in one catalog, and each chosen pattern
 
 ### Implement a Chosen Pattern Once
 
+**ID:** `litespec/frontend/web/patterns#implement-a-chosen-pattern-once`
+
 **Statement:** The shared web UI packages MUST implement each chosen pattern once at the source paths the catalog names for `react` and `svelte`.
 
 **Rationale:** Each web platform implements a chosen pattern once, at the source path the catalog names for `react` or `svelte`, so every React and Svelte route composes the same behavior. A route that redraws the pattern instead creates a second decision the catalog cannot track, and the two copies diverge. This realizes litespec/frontend/patterns#implement-a-chosen-pattern-once.
 
 **Example:** The catalog names `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every invoice route composes one of them.
 
+**Checked by:** `litespec ui` reports each named React or Svelte component path that does not exist.
+
 ## Conventions
 
 ### Keep a Visual Registry
 
-**Default:** Review LiteSpec options in `litespec patterns preview` at 390 and 1200 CSS pixels, and draw only product-specific options in a product registry at 390 and 1280.
+**ID:** `litespec/frontend/web/patterns#keep-a-visual-registry`
+
+**Default:** Review LiteSpec options at 390 and 1200 CSS pixels on the pattern's page on the LiteSpec site, and draw only product-specific options in a product registry at 390 and 1280.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** An option judged beside its rivals is judged on appearance rather than description, so review happens in `litespec patterns preview` at 390 and 1200 CSS pixels. The preview already draws every LiteSpec option, so a product registry draws only the patterns and options the product added, at 390 and 1280. The catalog `registry` field holds the product registry command or path. This realizes litespec/frontend/patterns#keep-a-visual-registry.
+**Rationale:** An option judged beside its rivals is judged on appearance rather than description, so review happens on the pattern's page on the LiteSpec site at 390 and 1200 CSS pixels. The site page already draws every LiteSpec option, so a product registry draws only the patterns and options the product added, at 390 and 1280. The catalog `registry` field holds the product registry command or path. This realizes litespec/frontend/patterns#keep-a-visual-registry.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/patterns#implement-a-chosen-pattern-once | checkable | `litespec ui` reports each named React or Svelte component path that does not exist. |
-| litespec/frontend/web/patterns#keep-a-visual-registry | guidance | The product registry renders every product-added option at 390 and 1280 pixels, and `litespec patterns preview` draws every LiteSpec option at 390 and 1200. |
+**Reviewed for:** Which product-added options miss the product registry at 390 or 1280 pixels? Look at the registry command or path the catalog names.

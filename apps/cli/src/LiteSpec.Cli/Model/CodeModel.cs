@@ -1,45 +1,47 @@
 namespace LiteSpec.Model;
 
-/// <summary>One use-case handler, read out of the folder path that registers it.</summary>
-sealed record HandlerInfo(
-    string UseCaseId,
-    string Module,
-    string Name,
-    string Operation,
-    string Kind,
-    string File);
-
-/// <summary>One reaction or job class.</summary>
-sealed record ReactionInfo(
-    string Class,
-    string File,
-    int Line,
-    string Kind,
-    string? UseCaseId);
-
-/// <summary>One domain event class.</summary>
-sealed record DomainEventInfo(string Class, string File, int Line, string? EventId);
-
-/// <summary>
-///     One refusal code literal in code. <paramref name="Declares" /> is true when the literal
-///     sits where code declares a refusal code, so an unrecorded code is reported only there;
-///     any literal still counts as evidence that a recorded code is thrown.
-/// </summary>
-sealed record CodeLiteral(string Value, string File, int Line, string? Class, bool Declares = true);
-
-/// <summary>One comment in code, with its line.</summary>
-sealed record CodeComment(string Text, string File, int Line);
-
-/// <summary>One endpoint operation mapped to its use case.</summary>
-sealed record EndpointOperation(string Operation, string UseCaseId, string Method, string Route, string File);
-
 /// <summary>What the backend source says.</summary>
 sealed class CodeModel
 {
+    /// <summary>Gets every use-case handler the backend read found, in read order.</summary>
     public List<HandlerInfo> Handlers { get; } = [];
+
+    /// <summary>Gets every event handler the backend read found, in read order.</summary>
     public List<ReactionInfo> Reactions { get; } = [];
+
+    /// <summary>Gets every job host the backend read found, in read order.</summary>
+    public List<JobInfo> Jobs { get; } = [];
+
+    /// <summary>Gets every domain event class the backend read found, in read order.</summary>
     public List<DomainEventInfo> Events { get; } = [];
+
+    /// <summary>Gets every refusal code literal the backend read found, in read order.</summary>
     public List<CodeLiteral> Literals { get; } = [];
+
+    /// <summary>Gets every recognized element of the backend projects, sorted by file then line.</summary>
+    public List<MarkedElement> Elements { get; } = [];
+
+    /// <summary>Gets every marked element of no known kind, sorted by file then line.</summary>
+    public List<StrayMark> StrayMarks { get; } = [];
+
+    /// <summary>Gets every kebab-case string literal in the code, the keys a composed refusal code is built from.</summary>
+    public HashSet<string> KeyLiterals { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets every comment in the backend code, in read order.</summary>
     public List<CodeComment> Comments { get; } = [];
+
+    /// <summary>Gets every endpoint operation mapped to its use case, in read order.</summary>
     public List<EndpointOperation> Endpoints { get; } = [];
+
+    /// <summary>Gets every public aggregate method with the events it raises, in read order.</summary>
+    public List<AggregateMethod> AggregateMethods { get; } = [];
+
+    /// <summary>Gets every audit action literal a command message declares, in read order.</summary>
+    public List<CodeAuditAction> AuditActions { get; } = [];
+
+    /// <summary>Gets every top-level type declared in the Domain project, merged across partial parts.</summary>
+    public List<DomainType> DomainTypes { get; } = [];
+
+    /// <summary>Gets every Infrastructure class implementing a domain repository interface, sorted by file then line.</summary>
+    public List<CodeRepositoryImplementation> RepositoryImplementations { get; } = [];
 }

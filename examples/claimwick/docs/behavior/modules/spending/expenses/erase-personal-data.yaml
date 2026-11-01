@@ -1,0 +1,54 @@
+type: use-case
+id: use-case/spending.erase-personal-data
+title: Erase Personal Data
+owner: claimwick-team
+status: reviewed
+purpose: Finance erases the personal data of an old expense so nothing personal is kept past its need.
+whatHappens: Finance names a decided expense whose retention ended. Spending erases the personal data the expense holds and keeps the bare business facts. The bare facts stay for the tax file.
+exposure: "Personal data is erased here: erasing the wrong expense cannot be undone. Finance names one expense at a time, and only past its retention."
+kind: command
+access:
+  grant: permission/erase-personal-data
+  tenant: own
+serves:
+  - journey/submit-and-reimburse#s8
+fulfills:
+  - requirement/approval.erase-after-retention
+reachedThrough:
+  - entry-point/claimwick-app
+raises: []
+changes:
+  - aggregate/spending.expense
+idempotency:
+  mode: none
+  reason: the first call deletes the expense, so a repeat finds nothing to erase
+audit:
+  level: none
+  target: no audit trail; the example stores no audit entry
+risk:
+  - personal-data
+records:
+  - type: result
+    id: result/erase-personal-data.erased
+    title: Erased
+    owner: claimwick-team
+    outcome: success
+    meaning: The personal data of the expense is erased.
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: 621f4965
+  - type: scenario
+    id: scenario/erase-personal-data.erasing-personal-data-succeeds
+    title: Erasing Personal Data Succeeds
+    owner: claimwick-team
+    status: reviewed
+    given: An expense was reimbursed and its retention ended.
+    when: Finance erases the personal data of the expense.
+    then: The personal data of the expense is erased.
+    result: result/erase-personal-data.erased
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: 8f6cf1e9
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: 106ecf5d

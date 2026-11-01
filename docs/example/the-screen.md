@@ -6,13 +6,13 @@ The expenses screen is one screen of the Claimwick product, the example product 
 
 ## The Expenses Route
 
-The screen lives at `apps/web/src/routes/expenses/+page.svelte` in the Claimwick example. A Svelte frontend holds one folder per address under `src/routes`, with the frame and the use-case code in `src/lib/app` and `src/lib/modules`, as [Web Structure](../frontend/web/structure.md) states. The route mirrors its use case path in kebab case, per `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` on [Frontend Structure](../frontend/structure.md): the folder `expenses` answers the List expenses use case that [Modules and Records](modules-and-records.md) describes.
+The screen lives at `apps/web/src/routes/expenses/+page.svelte` in the Claimwick example. A Svelte frontend holds one folder per address under `src/routes`, with the frame and the use-case code in `src/lib/app` and `src/lib/modules`, as [Web Structure](../frontend/web/structure.md) states. The use-case code mirrors its backend path in kebab case, per `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` on [Frontend Structure](../frontend/structure.md): `lib/modules/spending/expenses/list-expenses` mirrors the List expenses use case path that [Modules and Records](modules-and-records.md) describes. The route folder names the address, not the use case. Its mark sits in the `<script module>` of `apps/web/src/routes/expenses/+page.svelte`, naming `screen/claimwick-app.expense-list`, and the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` proves `scenario/list-expenses.listing-own-expenses-succeeds`.
 
 A route file holds its input, its load, and its component, with no reusable logic and no import of another route file, per `litespec/frontend/web/structure#keep-a-route-file-thin`. The expenses route therefore validates its search, prefetches its read, and composes its view, while shared code lives in the module folder or the frame. Imports point from the route to a module to the frame to a shared package, per `litespec/frontend/web/structure#keep-imports-directional`, so the route reads the client from the frame and the generated operations from the shared API package.
 
 ## Reading Through the Generated Client
 
-The screen never duplicates the API contract. The workspace generates its client, types, schemas, and query options from the published OpenAPI document, per `litespec/frontend/web/data#generate-the-client-from-the-published-contract` on [Web Data and State](../frontend/web/data.md), which follows `litespec/frontend/data#generate-the-client-from-the-published-contract` on [Frontend Data and State](../frontend/data.md). The generated client lives in `packages/api`, and the list reads through its `listExpenses` operation in `packages/api/src/generated/sdk.gen.ts`:
+The screen never duplicates the API contract. The workspace generates its client, types, schemas, and query options from the published OpenAPI document, per `litespec/frontend/web/data#generate-the-client-from-the-published-contract` on [Web Data and State](../frontend/web/data.md), which follows `litespec/frontend/data#generate-the-client-from-the-published-contract` on [Frontend Data and State](../frontend/data.md). The generated client lives in `packages/api`, and the list reads through its `listExpenses` operation in `packages/api/src/generated/sdk.gen.ts`, which returns the `rows` include group the List expenses query declares: identity, amount, state, and submission time, newest first, read fresh:
 
 ```ts
 export const listExpenses = <ThrowOnError extends boolean = false>(options: Options<never, ThrowOnError> = {}) =>
@@ -40,7 +40,7 @@ The search schema keeps the filters and the page in the address, per `litespec/f
 The screen composes the shared UI package `@claimwick/ui` at `packages/ui`, which the project declares in `paths.uiPackage` of `litespec.project.json`. The package pins its baseline in the source lock at `packages/ui/ui-source-lock.json`: generator `shadcn-svelte`, CLI `1.7.0`, with the `button` and `skeleton` components at baseline status. `litespec ui` checks the package, its source lock and digests, its design contract, its stylesheets, each frontend boundary, and each route suite, per [Validate Controlled UI](../tools/ui.md). Against the Claimwick example it reports this, and exits zero:
 
 ```text
-Consumer: ../LiteSpec\examples\expenses
+Consumer: ../expenses
 Shared UI package: @claimwick/ui at packages/ui
 Controlled frontends: 1
 

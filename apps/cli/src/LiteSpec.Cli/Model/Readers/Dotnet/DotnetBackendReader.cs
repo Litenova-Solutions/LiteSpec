@@ -1,28 +1,68 @@
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Model.Readers.Dotnet;
 
 /// <summary>
-///     Reads the backend through the parser: handlers by folder, reactions and jobs
-///     by interface, events by name, failure codes from Code members, and comments as text.
+///     Reads the backend through the parser: every element through the shared mark and kind
+///     readers, each record link from the mark the code carries, failure codes from Code
+///     members, and comments as text.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 sealed class DotnetBackendReader : IBackendReader
 {
     /// <summary>Reads every configured source root, parsing each file once.</summary>
-    public CodeModel Read(ConsumerConfig config)
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The code model.</returns>
+    public CodeModel Read(ConsumerConfig config) => Read(config, onParsed: null);
+
+    /// <summary>
+    ///     Reads every configured source root from one parse of each file: the
+    ///     kind closure, the helper index and the parallel read all share the
+    ///     same cached syntax trees.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
+    /// <returns>The code model.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Read is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
+    public CodeModel Read(ConsumerConfig config, Action<string>? onParsed) =>
+        ReadWithProblems(config, onParsed).Code;
+
+    /// <summary>Reads the backend through the backend reader interface, with its problems.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The code model and the reader problems.</returns>
+    BackendRead IBackendReader.Read(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
+
+    /// <summary>Reads every configured source root, with one problem per file that could not be read or parsed.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The code model and the reader problems.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "ReadWithProblems is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
+    public BackendRead ReadWithProblems(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
+
+    /// <summary>Reads every configured source root, with its problems and a parse callback.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
+    /// <returns>The code model and the reader problems.</returns>
+    private static BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
     {
         var model = new CodeModel();
 
-        ReadHandlers(config, model);
-
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
+
+        var (trees, problems) = SyntaxTreeCache.Parse(files, onParsed);
+        var (context, qualified) = KindClosure.Of(config, trees);
+
+        var helpers = HelperIndex.Build(config, trees, qualified);
+        var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
+        var holders = RepositoryImplementationReader.RepositoryHoldersOf(config, trees);
 
         var merged = new CodeModel();
         var gate = new object();
@@ -32,7 +72,10 @@ sealed class DotnetBackendReader : IBackendReader
             () => new CodeModel(),
             (file, _, local) =>
             {
-                ReadFile(config, file, local);
+                if (trees.TryGetValue(file, out var tree))
+                {
+                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders);
+                }
 
                 return local;
             },
@@ -42,17 +85,42 @@ sealed class DotnetBackendReader : IBackendReader
                 {
                     merged.Handlers.AddRange(local.Handlers);
                     merged.Reactions.AddRange(local.Reactions);
+                    merged.Jobs.AddRange(local.Jobs);
                     merged.Events.AddRange(local.Events);
+                    merged.Elements.AddRange(local.Elements);
+                    merged.StrayMarks.AddRange(local.StrayMarks);
                     merged.Literals.AddRange(local.Literals);
+                    merged.KeyLiterals.UnionWith(local.KeyLiterals);
                     merged.Comments.AddRange(local.Comments);
                     merged.Endpoints.AddRange(local.Endpoints);
+                    merged.AggregateMethods.AddRange(local.AggregateMethods);
+                    merged.AuditActions.AddRange(local.AuditActions);
+                    merged.DomainTypes.AddRange(local.DomainTypes);
+                    merged.RepositoryImplementations.AddRange(local.RepositoryImplementations);
                 }
             });
 
+        model.Handlers.AddRange(merged.Handlers
+            .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
+        model.Elements.AddRange(ElementKindCorrection.MergeTechnicalPartials(merged.Elements
+            .OrderBy(element => element.File, StringComparer.Ordinal)
+            .ThenBy(element => element.Line)
+            .ThenBy(element => element.Class, StringComparer.Ordinal)
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList()));
+        model.StrayMarks.AddRange(merged.StrayMarks
+            .OrderBy(stray => stray.File, StringComparer.Ordinal)
+            .ThenBy(stray => stray.Line)
+            .ThenBy(stray => stray.Class, StringComparer.Ordinal)
+            .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal));
         model.Reactions.AddRange(merged.Reactions
             .OrderBy(reaction => reaction.File, StringComparer.Ordinal)
             .ThenBy(reaction => reaction.Line)
             .ThenBy(reaction => reaction.Class, StringComparer.Ordinal));
+        model.Jobs.AddRange(merged.Jobs
+            .OrderBy(job => job.File, StringComparer.Ordinal)
+            .ThenBy(job => job.Line)
+            .ThenBy(job => job.Class, StringComparer.Ordinal));
         model.Events.AddRange(merged.Events
             .OrderBy(domainEvent => domainEvent.File, StringComparer.Ordinal)
             .ThenBy(domainEvent => domainEvent.Line)
@@ -61,6 +129,7 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(literal => literal.File, StringComparer.Ordinal)
             .ThenBy(literal => literal.Line)
             .ThenBy(literal => literal.Value, StringComparer.Ordinal));
+        model.KeyLiterals.UnionWith(merged.KeyLiterals);
         model.Comments.AddRange(merged.Comments
             .OrderBy(comment => comment.File, StringComparer.Ordinal)
             .ThenBy(comment => comment.Line));
@@ -68,89 +137,85 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(endpoint => endpoint.File, StringComparer.Ordinal)
             .ThenBy(endpoint => endpoint.Operation, StringComparer.Ordinal)
             .ThenBy(endpoint => endpoint.Route, StringComparer.Ordinal));
+        model.AggregateMethods.AddRange(merged.AggregateMethods
+            .OrderBy(method => method.File, StringComparer.Ordinal)
+            .ThenBy(method => method.Line)
+            .ThenBy(method => method.Aggregate, StringComparer.Ordinal)
+            .ThenBy(method => method.Method, StringComparer.Ordinal));
+        model.AuditActions.AddRange(merged.AuditActions
+            .OrderBy(action => action.File, StringComparer.Ordinal)
+            .ThenBy(action => action.Line)
+            .ThenBy(action => action.Operation, StringComparer.Ordinal));
+        model.DomainTypes.AddRange(DomainTypeReader.MergeDomainPartials(merged.DomainTypes
+            .OrderBy(type => type.File, StringComparer.Ordinal)
+            .ThenBy(type => type.Line)
+            .ThenBy(type => type.Name, StringComparer.Ordinal)
+            .ToList()));
+        model.RepositoryImplementations.AddRange(merged.RepositoryImplementations
+            .OrderBy(entry => entry.File, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Line)
+            .ThenBy(entry => entry.Interface, StringComparer.Ordinal)
+            .ToList());
 
-        return model;
+        problems.Sort((left, right) =>
+        {
+            var file = string.Compare(left.Path, right.Path, StringComparison.Ordinal);
+
+            return file != 0 ? file : left.Line.CompareTo(right.Line);
+        });
+
+        return new BackendRead(model, problems);
     }
 
-    /// <summary>
-    ///     The use case whose Application folder holds a file: <c>&lt;Module&gt;/&lt;Aggregate&gt;/&lt;UseCase&gt;/</c>
-    ///     names <c>use-case/&lt;module&gt;.&lt;use-case&gt;</c>, as for a handler. A reaction or job without an
-    ///     implements tag belongs to the use case whose folder holds it; outside such a folder it belongs to none.
-    /// </summary>
-    private static string? UseCaseOfFolder(ConsumerConfig config, string file)
+    /// <summary>Reads one file into the model: its elements, aggregate methods, audit actions, domain types, repository implementations, literals, and comments.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="file">The file.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="model">The code model the file adds to.</param>
+    /// <param name="context">The cross-file names the host collected.</param>
+    /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="helpers">The helper index of this read.</param>
+    /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
+    /// <param name="holders">The classes whose constructor takes a repository.</param>
+    private static void ReadFile(
+        ConsumerConfig config,
+        string file,
+        SyntaxTree tree,
+        CodeModel model,
+        KindContext context,
+        QualifiedKinds qualified,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders)
     {
-        var relative = Path.GetRelativePath(config.ApplicationRoot, file);
-
-        if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
-        {
-            return null;
-        }
-
-        var parts = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        return parts.Length < 4 ? null : $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[2])}";
-    }
-
-    private static void ReadHandlers(ConsumerConfig config, CodeModel model)
-    {
-        foreach (var file in SourceTree.Files(config.ApplicationRoot, ".cs"))
-        {
-            var name = Path.GetFileName(file);
-
-            if (!name.EndsWith("Handler.cs", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            var parts = Path.GetRelativePath(config.ApplicationRoot, file)
-                            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-            if (parts.Length < 4)
-            {
-                continue;
-            }
-
-            var module = Naming.Kebab(parts[0]);
-            var operation = parts[2];
-
-            model.Handlers.Add(new HandlerInfo(
-                $"use-case/{module}.{Naming.Kebab(operation)}",
-                module,
-                Naming.Kebab(operation),
-                operation,
-                name.EndsWith("QueryHandler.cs", StringComparison.Ordinal) ? "query" : "command",
-                file));
-        }
-
-        model.Handlers.Sort((left, right) => string.Compare(left.UseCaseId, right.UseCaseId, StringComparison.Ordinal));
-    }
-
-    private static void ReadFile(ConsumerConfig config, string file, CodeModel model)
-    {
-        SyntaxTree tree;
-
-        try
-        {
-            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-        }
-        catch (IOException)
-        {
-            return;
-        }
-
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
+        var readElements = MarkFacts.Read(tree, context, SourceRoots.ProjectOf(config, file));
+        var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .ToDictionary(type => type.Identifier.Span, type => type);
+        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .ToDictionary(method => method.Identifier.Span, method => method);
+        var elements = ElementKindCorrection.CorrectElements(readElements, types, methods, qualified);
 
-        ReadEvent(config, file, tree, classes, model);
-        ReadEndpoint(config, file, root, model);
+        ElementReader.ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified);
+        AggregateMethodReader.ReadAggregateMethods(file, tree, elements, types, model);
+        AuditActionReader.ReadAuditActions(file, tree, classes, model);
+        DomainTypeReader.ReadDomainTypes(config, file, tree, model);
+        RepositoryImplementationReader.ReadRepositoryImplementations(config, file, tree, model);
 
         foreach (var token in root.DescendantTokens())
         {
-            if (LiteralText(token) is { } literal)
+            if (RefusalLiterals.LiteralText(token) is { } literal)
             {
                 // Every dotted literal is evidence that a recorded code is thrown, but only
                 // a literal in a declaring position states a code of its own. Elsewhere a
                 // dotted string is an audit name, a field key, a host or a file name.
-                var declares = Declares(token);
+                var declares = RefusalLiterals.Declares(token);
+
+                if (RefusalLiterals.KeyLiteralShape.IsMatch(literal))
+                {
+                    model.KeyLiterals.Add(literal);
+                }
 
                 foreach (System.Text.RegularExpressions.Match match in Identifiers.RefusalCode().Matches(literal))
                 {
@@ -158,7 +223,7 @@ sealed class DotnetBackendReader : IBackendReader
                         match.Value,
                         file,
                         tree.GetLineSpan(token.Span).StartLinePosition.Line + 1,
-                        EnclosingClass(token),
+                        RefusalLiterals.EnclosingClass(token),
                         declares && match.Value == literal));
                 }
             }
@@ -177,257 +242,5 @@ sealed class DotnetBackendReader : IBackendReader
                 }
             }
         }
-
-        foreach (var declared in classes)
-        {
-            var bases = declared is TypeDeclarationSyntax typed && typed.BaseList is not null
-                ? typed.BaseList.Types.Select(type => BaseName(type.Type)).ToList()
-                : [];
-
-            var tags = Identifiers.ImplementsTag()
-                .Matches(declared.GetLeadingTrivia().ToString())
-                .Cast<System.Text.RegularExpressions.Match>()
-                .Select(match => match.Groups["id"].Value)
-                .ToList();
-
-            // A hosted service named for the host rather than the job still runs a use case
-            // when its implements tag says so.
-            var kind = Classify(declared.Identifier.ValueText, bases)
-                ?? (tags.Count > 0 && bases.Any(baseName =>
-                        baseName is "BackgroundService" or "IHostedService"
-                        || baseName.StartsWith("BackgroundService<", StringComparison.Ordinal))
-                    ? "job"
-                    : null);
-
-            if (kind is not null)
-            {
-
-                model.Reactions.Add(new ReactionInfo(
-                    declared.Identifier.ValueText,
-                    file,
-                    tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-                    kind,
-                    tags.FirstOrDefault() ?? UseCaseOfFolder(config, file)));
-            }
-        }
-    }
-
-    private static void ReadEvent(
-        ConsumerConfig config,
-        string file,
-        SyntaxTree tree,
-        IReadOnlyList<BaseTypeDeclarationSyntax> classes,
-        CodeModel model)
-    {
-        if (!IsUnder(config.DomainRoot, file)
-            || !file.Contains($"{Path.DirectorySeparatorChar}Events{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var name = Path.GetFileNameWithoutExtension(file);
-
-        if (!name.EndsWith("Event", StringComparison.Ordinal) || name.Length <= 5)
-        {
-            return;
-        }
-
-        var declared = classes.FirstOrDefault();
-
-        // An event class that states its record id in a string literal names its record
-        // outright; the builder falls back to the class name when none is stated.
-        var stated = declared?.DescendantTokens()
-            .Select(LiteralText)
-            .FirstOrDefault(text => text is not null && Identifiers.EventId().IsMatch(text));
-
-        model.Events.Add(new DomainEventInfo(
-            declared?.Identifier.ValueText ?? name,
-            file,
-            declared is null ? 1 : tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-            stated));
-    }
-
-    private static void ReadEndpoint(ConsumerConfig config, string file, SyntaxNode root, CodeModel model)
-    {
-        if (!Path.GetFileName(file).EndsWith("Endpoint.cs", StringComparison.Ordinal)
-            || !IsUnder(config.WebApiRoot, file))
-        {
-            return;
-        }
-
-        var parts = Path.GetRelativePath(config.WebApiRoot, file)
-                        .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                        .SkipWhile(part => part == "Endpoints")
-                        .ToArray();
-
-        // Module/Aggregate/UseCase/XEndpoint.cs, or the single-aggregate flat form Module/UseCase/XEndpoint.cs.
-        string useCase;
-
-        if (parts.Length >= 4)
-        {
-            useCase = $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[2])}";
-        }
-        else if (parts.Length == 3)
-        {
-            useCase = $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[1])}";
-        }
-        else
-        {
-            return;
-        }
-
-        foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
-        {
-            var called = CalledName(invocation);
-
-            if (called == "WithName" && FirstLiteral(invocation) is { } operation)
-            {
-                model.Endpoints.Add(new EndpointOperation(operation, useCase, "", "", file));
-            }
-            else if (called is "MapGet" or "MapPost" or "MapPut" or "MapDelete" or "MapPatch"
-                && FirstLiteral(invocation) is { } route)
-            {
-                model.Endpoints.Add(new EndpointOperation(
-                    "", useCase, called["Map".Length..].ToUpperInvariant(), route, file));
-            }
-        }
-    }
-
-    private static bool IsUnder(string root, string file)
-    {
-        var relative = Path.GetRelativePath(root, file);
-
-        return !relative.StartsWith("..", StringComparison.Ordinal)
-            && !Path.IsPathRooted(relative);
-    }
-
-    private static string? LiteralText(SyntaxToken token) =>
-        token.Kind() switch
-        {
-            SyntaxKind.StringLiteralToken
-                or SyntaxKind.Utf8StringLiteralToken
-                or SyntaxKind.SingleLineRawStringLiteralToken
-                or SyntaxKind.MultiLineRawStringLiteralToken
-                when token.Value is string text => text,
-            SyntaxKind.InterpolatedStringTextToken => token.ValueText,
-            _ => null,
-        };
-
-    /// <summary>
-    ///     Whether a literal sits where code declares a refusal code: inside a property, field or
-    ///     constant named <c>Code</c>, as an argument of a <c>new ...Exception(...)</c>, or as a
-    ///     value named <c>code</c> (a named argument, an anonymous object member or an assignment).
-    /// </summary>
-    private static bool Declares(SyntaxToken token)
-    {
-        foreach (var node in token.Parent?.AncestorsAndSelf() ?? [])
-        {
-            switch (node)
-            {
-                case PropertyDeclarationSyntax property:
-                    return property.Identifier.ValueText == "Code" && RefusalType(property);
-                case FieldDeclarationSyntax field:
-                    return field.Declaration.Variables.Any(variable => variable.Identifier.ValueText == "Code") && RefusalType(field);
-                case ArgumentSyntax { NameColon.Name.Identifier.ValueText: var name } when IsCodeName(name):
-                    return true;
-                case AnonymousObjectMemberDeclaratorSyntax { NameEquals.Name.Identifier.ValueText: var name }:
-                    return IsCodeName(name);
-                case AssignmentExpressionSyntax { Left: IdentifierNameSyntax or MemberAccessExpressionSyntax or ElementAccessExpressionSyntax } assignment:
-                    return IsCodeName(LastName(assignment.Left));
-                case BaseObjectCreationExpressionSyntax creation:
-                    return creation is ObjectCreationExpressionSyntax { Type: var type }
-                        && LastName(type).EndsWith("Exception", StringComparison.Ordinal);
-                case StatementSyntax or MemberDeclarationSyntax:
-                    return false;
-            }
-        }
-
-        return false;
-
-        // A Code member declares a refusal on a type named for one; on a closed set of
-        // features or kinds the same member name holds a label instead.
-        static bool RefusalType(SyntaxNode member) =>
-            member.Parent is BaseTypeDeclarationSyntax type
-            && (type.Identifier.ValueText.EndsWith("Exception", StringComparison.Ordinal)
-                || type.Identifier.ValueText.EndsWith("Failure", StringComparison.Ordinal)
-                || type.Identifier.ValueText.EndsWith("Refusal", StringComparison.Ordinal));
-
-        static bool IsCodeName(string name) => string.Equals(name, "code", StringComparison.OrdinalIgnoreCase);
-
-        static string LastName(SyntaxNode node) => node switch
-        {
-            GenericNameSyntax generic => generic.Identifier.ValueText,
-            IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
-            QualifiedNameSyntax qualified => qualified.Right.Identifier.ValueText,
-            MemberAccessExpressionSyntax access => access.Name.Identifier.ValueText,
-            ElementAccessExpressionSyntax element => element.ArgumentList.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax key
-                ? key.Token.ValueText
-                : "",
-            _ => "",
-        };
-    }
-
-    private static string? Classify(string name, List<string> bases)
-    {
-        // A job is named as one. A hosted service that wires the host at startup (a schema
-        // check, a topology, a probe) is plumbing, and a type that only mentions recurring
-        // work (its options, its model) runs nothing.
-        if (name.EndsWith("Job", StringComparison.Ordinal)
-            || name.EndsWith("Worker", StringComparison.Ordinal))
-        {
-            return "job";
-        }
-
-        if (bases.Any(baseName =>
-            baseName.StartsWith("IEventHandler<", StringComparison.Ordinal)
-            || baseName is "IDomainEventReaction"))
-        {
-            return "reaction";
-        }
-
-        if (name.EndsWith("Reaction", StringComparison.Ordinal))
-        {
-            return "reaction";
-        }
-
-        return null;
-    }
-
-    private static string BaseName(TypeSyntax type) => type switch
-    {
-        GenericNameSyntax generic => $"{generic.Identifier.ValueText}<{string.Join(",", generic.TypeArgumentList.Arguments)}>",
-        IdentifierNameSyntax plain => plain.Identifier.ValueText,
-        QualifiedNameSyntax qualified => qualified.Right.ToString(),
-        _ => type.ToString(),
-    };
-
-    private static string? EnclosingClass(SyntaxToken token)
-    {
-        var parent = token.Parent;
-
-        while (parent is not null && parent is not BaseTypeDeclarationSyntax)
-        {
-            parent = parent.Parent;
-        }
-
-        return (parent as BaseTypeDeclarationSyntax)?.Identifier.ValueText;
-    }
-
-    private static string? CalledName(InvocationExpressionSyntax invocation) =>
-        invocation.Expression switch
-        {
-            MemberAccessExpressionSyntax member => member.Name.Identifier.ValueText,
-            IdentifierNameSyntax plain => plain.Identifier.ValueText,
-            _ => null,
-        };
-
-    private static string? FirstLiteral(InvocationExpressionSyntax invocation)
-    {
-        var first = invocation.ArgumentList.Arguments.FirstOrDefault();
-
-        return first?.Expression is LiteralExpressionSyntax literal
-            && literal.Token.Value is string text
-                ? text
-                : null;
     }
 }

@@ -11,18 +11,26 @@ public sealed class ClaimwickExampleTests
 {
     static readonly string Root = Path.Combine(Cli.Repository, "examples", "claimwick");
 
+    /// <summary>The Claimwick example passes the consumer check.</summary>
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "the Claimwick example passes the consumer check")]
     public void PassesConsumer() => AssertPasses(Cli.Run("consumer", "--root", Root));
 
+    /// <summary>The Claimwick example passes the UI check.</summary>
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "the Claimwick example passes the UI check")]
     public void PassesUi() => AssertPasses(Cli.Run("ui", "--root", Root));
 
-    [Fact(DisplayName = "the Claimwick example passes the model check with its one known gap")]
+    /// <summary>The Claimwick example passes the model check with only known findings.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact(DisplayName = "the Claimwick example passes the model check with only known findings")]
     public void PassesModelCheck()
     {
         var result = Cli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        Assert.Contains("0 findings, 1 known.", result.Output);
+        // 17 long-standing known findings plus the 9 use-case-unverified findings the
+        // no-test-run gap exception holds: the example ships code and proofs but no run.
+        Assert.Contains("0 findings, 0 blocking, 26 known.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

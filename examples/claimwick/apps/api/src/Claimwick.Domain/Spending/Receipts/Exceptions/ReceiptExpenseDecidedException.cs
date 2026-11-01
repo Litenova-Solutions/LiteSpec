@@ -1,6 +1,9 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Receipts.Exceptions;
 
 /// <summary>The expense is already decided.</summary>
+/// <implements>rule/receipt.attaches-before-decision</implements>
 public sealed class ReceiptExpenseDecidedException()
     : DomainException("The expense is already decided.")
 {

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ProofIdentityTests
 {
     /// <summary>A passing run for another class's same-named method leaves the scenario awaiting its run.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Same_Method_Name_In_Another_Class_Does_Not_Verify()
     {
@@ -28,6 +29,7 @@ public sealed class ProofIdentityTests
     }
 
     /// <summary>A data-row suffix on the run's test name still matches the scenario's test.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Data_Row_Arguments_Are_Ignored_In_Proof_Identity()
     {
@@ -48,7 +50,7 @@ public sealed class ProofIdentityTests
     }
 
     static void WriteScenario(string root) =>
-        Write(root, "docs/domain/modules/lending/loans/borrow-copy-proof-scenario.md", ScenarioPage);
+        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
 
     static void WriteProof(string root) =>
         Write(root, "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs", ProofFile);
@@ -97,24 +99,18 @@ public sealed class ProofIdentityTests
         + "  </Results>\n"
         + "</TestRun>\n";
 
-    const string ScenarioPage = """
-        ---
+    const string ScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
           "title": "Borrowing an available copy succeeds",
           "owner": "lending-team",
-          "status": "approved",
+          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
     const string ProofFile = """

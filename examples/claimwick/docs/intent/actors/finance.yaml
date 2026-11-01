@@ -1,0 +1,13 @@
+type: actor
+id: actor/finance
+title: Finance
+owner: claimwick-team
+status: approved
+summary: Finance reimburses approved expenses.
+kind: person
+holds:
+  - role: role/finance
+    scope: platform
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: 49a9765c

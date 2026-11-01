@@ -8,8 +8,8 @@
         <ToolCommandName>litespec</ToolCommandName>
         <PackageId>LiteSpec.Cli</PackageId>
         <!-- The package version is the release version: keep it equal to version in litespec.manifest.json. -->
-        <Version>2.0.0</Version>
-        <Description>The LiteSpec command line: authoring checks, the provision index, consumer and UI validation, the project model, and the project book. The package carries the LiteSpec release it checks against.</Description>
+        <Version>3.0.0</Version>
+        <Description>The LiteSpec command line: consumer and UI validation, the project model, and the project book. The package carries the LiteSpec release it checks against.</Description>
         <Authors>Litenova Solutions</Authors>
         <PackageTags>litespec;specification;architecture;dotnet-tool;ddd</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -24,7 +24,23 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The TypeScript frontend reader, bundled by the build script in apps/cli/fe-reader, copied beside the tool when it has been built. -->
+        <Content Include="../../fe-reader/dist/litespec-fe-reader.mjs" Link="litespec-fe-reader.mjs" Pack="false" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" />
+    </ItemGroup>
+
+    <!-- A package without the reader would report every frontend as unreadable, so it is never packed. -->
+    <Target Name="RequireFrontendReader" BeforeTargets="GenerateNuspec">
+        <Error Condition="!Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" Text="The frontend reader bundle is missing; build it in apps/cli/fe-reader before packing the tool." />
+    </Target>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

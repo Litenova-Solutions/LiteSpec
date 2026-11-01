@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1013, domain event placement in the Events folder.</summary>
 public sealed class DomainEventLocationAnalyzerTests
 {
+    /// <summary>LS1013 accepts an event under the Events folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 accepts an event under the Events folder")]
     public Task AcceptsAnEventUnderTheEventsFolder() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(
@@ -17,6 +20,9 @@ public sealed class DomainEventLocationAnalyzerTests
                 public sealed record OrderPlacedEvent(int OrderId) : IDomainEvent;
                 """)]);
 
+    /// <summary>LS1013 reports an event outside the Events folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 reports an event outside the Events folder")]
     public Task ReportsAnEventOutsideTheEventsFolder() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(
@@ -28,6 +34,9 @@ public sealed class DomainEventLocationAnalyzerTests
                 public sealed record {|LS1013:OrderPlacedEvent|}(int OrderId) : IDomainEvent;
                 """)]);
 
+    /// <summary>LS1013 ignores an interface deriving IDomainEvent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 ignores an interface deriving IDomainEvent")]
     public Task IgnoresDerivedInterface() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(
@@ -39,6 +48,9 @@ public sealed class DomainEventLocationAnalyzerTests
                 public interface IOrderEvent : IDomainEvent;
                 """)]);
 
+    /// <summary>LS1013 ignores a type that is not an event.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 ignores a type that is not an event")]
     public Task IgnoresANonEvent() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(
@@ -50,6 +62,9 @@ public sealed class DomainEventLocationAnalyzerTests
                 }
                 """)]);
 
+    /// <summary>LS1013 ignores an event outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 ignores an event outside Domain")]
     public Task IgnoresEventOutsideDomain() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(
@@ -62,6 +77,9 @@ public sealed class DomainEventLocationAnalyzerTests
                 """)],
             assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1013 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</proves>
     [Fact(DisplayName = "LS1013 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<DomainEventLocationAnalyzer>(

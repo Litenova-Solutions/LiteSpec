@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
@@ -9,7 +10,8 @@ namespace LiteSpec.Tests.Consumer;
 /// Builds the throwaway small consumer every consumer case validates: a library-style shop with
 /// one module, one aggregate, one use case with its results, one rule and
 /// one event, actors, roles, permissions, entry points, one requirement, one
-/// decision, and one page per page style. Every test owns its own folder.
+/// decision, and one page per document style. Records live in record files with
+/// explanations beside them; guides and tools are documents. Every test owns its own folder.
 /// </summary>
 static class ConsumerFixture
 {
@@ -22,41 +24,34 @@ static class ConsumerFixture
 
     static readonly Lazy<ManifestInfo> Manifest = new(ReadManifest);
 
-    /// <summary>The pinned release the fixture project reviews, from the tracked manifest.</summary>
+    /// <summary>Gets the pinned release the fixture project reviews, from the tracked manifest.</summary>
     public static string ManifestVersion => Manifest.Value.Version;
 
-    /// <summary>The first extension id in the tracked manifest, or <c>outbox</c>.</summary>
+    /// <summary>Gets the first extension id in the tracked manifest, or <c>outbox</c>.</summary>
     public static string KnownExtension => Manifest.Value.KnownExtension;
 
-    /// <summary>One fixture page: repository-relative path, frontmatter JSON, body.</summary>
-    sealed record PageSpec(string Relative, string Meta, string Body);
+    /// <summary>One fixture record: repository-relative record path, fields JSON, explanation Markdown or null.</summary>
+    sealed record RecordSpec(string Relative, string Fields, string? Explanation);
 
-    // Every body sentence stays inside the prose measures, so the baseline case
-    // proves the checks rather than the fixture prose.
-    static readonly PageSpec[] Pages =
+    /// <summary>One fixture document: repository-relative path, frontmatter JSON, body.</summary>
+    sealed record DocumentSpec(string Relative, string Meta, string Body);
+
+    // Every prose sentence stays inside the prose measures and every record
+    // carries its required fields, so the baseline case proves the checks
+    // rather than the fixture.
+    static readonly RecordSpec[] Records =
     [
-        new("docs/product/brief.md",
+        new("docs/product/brief.yaml",
             """
-            {"type":"product","id":"product/fixture","title":"Fixture Shop","owner":"fixture","status":"approved","boundary":"The shop sells printed books to readers.","neverDoes":["The shop never sells ebooks."],"audience":["actor/customer"]}
+            {"type":"product","id":"product/fixture","title":"Fixture Shop","owner":"fixture","status":"approved","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","exclusions":["The shop never sells ebooks."],"addresses":["actor/customer"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
+            null),
+        new("docs/product/pricing.yaml",
             """
-            # Fixture Shop
-
-            ## Summary
-
-            The shop sells printed books to readers in one city.
-
-            """),
-        new("docs/product/pricing.md",
-            """
-            {"type":"requirement-page","id":"pricing","title":"Pricing","owner":"fixture","status":"approved","reviewBy":"2027-04-01","records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"business","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}]}]}
+            {"type":"topic","id":"topic/pricing","title":"Pricing","owner":"fixture","status":"approved","summary":"Every order carries a flat fee of one euro.","position":"The shop holds the flat fee until delivery costs move.","reviewBy":"2027-04-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000","records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","owner":"fixture","status":"approved","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
             """
             # Pricing
-
-            ## Summary
-
-            Every order carries a flat fee of one euro.
 
             ## The Situation
 
@@ -82,18 +77,10 @@ static class ConsumerFixture
 
             The launch plan states the fee with high confidence.
 
-            ## Position
-
-            The shop holds the flat fee until delivery costs move.
-
-            ## Refusals
-
-            The shop refuses a percentage fee on every order.
-
             """),
-        new("docs/product/decisions/0001-launch.md",
+        new("docs/product/decisions/0001-launch.yaml",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","decided":"2026-01-01","options":[{"name":"Flat fee","for":"Every receipt shows the same fee line.","against":"Large orders pay too little for delivery."},{"name":"Percentage","for":"Large orders carry their delivery cost.","against":"Every receipt needs its own math."}],"chosen":"Flat fee","changeWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[]}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Launch with a Flat Fee
@@ -106,62 +93,39 @@ static class ConsumerFixture
 
             The shop charges a flat fee on every order.
 
-            ## Consequences
-
-            Every receipt shows the same fee line.
-
             ## Evidence with Confidence
 
             The launch plan states the fee on its first page.
 
             """),
-        new("docs/domain/actors/customer.md",
+        new("docs/behavior/actors/customer.yaml",
             """
-            {"type":"actor","id":"actor/customer","title":"Customer","owner":"fixture","status":"approved","kind":"person","holds":[{"role":"role/customer","scope":"self"}]}
+            {"type":"actor","id":"actor/customer","title":"Customer","owner":"fixture","status":"approved","kind":"person","summary":"A customer buys books from the shop.","holds":[{"role":"role/customer","scope":"self"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Customer
-
-            ## Summary
 
             A customer buys books from the shop.
 
             """),
-        new("docs/domain/roles/customer.md",
+        new("docs/behavior/roles/customer.yaml",
             """
-            {"type":"role","id":"role/customer","title":"Customer","owner":"fixture","status":"approved","scope":"self","allows":["permission/cancel-order"]}
+            {"type":"role","id":"role/customer","title":"Customer","owner":"fixture","status":"reviewed","summary":"A customer holds this role on their own orders.","scope":"self","allows":["permission/cancel-order"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
+            null),
+        new("docs/behavior/permissions.yaml",
             """
-            # Customer
-
-            ## Summary
-
-            A customer holds this role on their own orders.
-
-            """),
-        new("docs/domain/permissions.md",
-            """
-            {"type":"permission-list","id":"permissions","title":"Permissions","owner":"fixture","status":"approved","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed."}]}
+            {"type":"permission-list","id":"permissions","title":"Permissions","owner":"fixture","status":"reviewed","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","scope":"self","meaning":"The holder cancels an order they placed.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
+            null),
+        new("docs/behavior/entry-points.yaml",
             """
-            # Permissions
-
-            The list below names every action the shop grants.
-
-            """),
-        new("docs/domain/entry-points.md",
-            """
-            {"type":"entry-point-list","id":"entry-points","title":"Entry points","owner":"fixture","status":"approved","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","kind":"app","path":"apps/web"}]}
+            {"type":"entry-point-list","id":"entry-points","title":"Entry points","owner":"fixture","status":"reviewed","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","owner":"fixture","status":"reviewed","kind":"browser","auth":["session"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
+            null),
+        new("docs/behavior/modules/orders/module.yaml",
             """
-            # Entry Points
-
-            Customers reach the shop through the web shop.
-
-            """),
-        new("docs/domain/modules/orders/README.md",
-            """
-            {"type":"module","id":"module/orders","title":"Orders","owner":"fixture","status":"approved","dependsOn":[]}
+            {"type":"module","id":"module/orders","title":"Orders","owner":"fixture","status":"reviewed","dependsOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Orders
@@ -169,42 +133,39 @@ static class ConsumerFixture
             The orders module keeps every order claim.
 
             """),
-        new("docs/domain/modules/orders/order-claims/README.md",
+        new("docs/behavior/modules/orders/order-claims/aggregate.yaml",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","owner":"fixture","status":"approved","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":["orderId"]}]}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","owner":"fixture","status":"reviewed","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","owner":"fixture","status":"reviewed","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","owner":"fixture","status":"reviewed","meaning":"An order claim was canceled.","carries":["orderId"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Order Claim
 
             ## Transitions
 
+            <!-- generated:transitions -->
             | From | To | Triggered By |
             |:---|:---|:---|
-            | Draft | Canceled | Cancel order |
+            | Draft | Canceled | use-case/orders.cancel-order |
+            <!-- /generated:transitions -->
 
             ## Data
 
-            | Name | Meaning | Classification |
-            |:---|:---|:---|
-            | orderId | The order this claim states. | internal |
+            <!-- generated:data -->
+            | Name | Meaning | Data Class | Classification |
+            |:---|:---|:---|:---|
+            | orderId | The order this claim states. |  | internal |
+            <!-- /generated:data -->
 
             """),
-        new("docs/domain/modules/orders/cancel-order.md",
+        new("docs/behavior/modules/orders/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"approved","kind":"command","needs":["permission/cancel-order"],"reachedThrough":["entry-point/web"],"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","purpose":"A customer cancels an order claim before shipment.","whatHappens":"The customer asks to cancel the claim. The shop refuses the cancel when the shipment already left.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
-            """
-            # Cancel Order
+            null),
+    ];
 
-            ## Goal
-
-            A customer cancels an order claim before shipment.
-
-            ## What Happens
-
-            The customer asks to cancel the claim. The shop refuses the cancel when the shipment already left.
-
-            """),
+    static readonly DocumentSpec[] Documents =
+    [
         new("docs/guide/first-run.md",
             """
             {"type":"tutorial","id":"first-run","title":"Run It For The First Time","owner":"fixture","status":"approved"}
@@ -346,7 +307,7 @@ static class ConsumerFixture
     ];
 
     const string GlossaryJsonText = """
-        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}],"owner":"fixture","status":"approved"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
+        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}],"owner":"fixture","status":"approved"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
         """;
 
     sealed record ManifestInfo(string Version, string KnownExtension);
@@ -362,15 +323,24 @@ static class ConsumerFixture
     }
 
     /// <summary>Serializes a JSON value with two-space indent and relaxed escaping.</summary>
+    /// <param name="node">The JSON value to serialize.</param>
+    /// <returns>The indented JSON text.</returns>
     public static string Stringify(JsonNode? node) => node!.ToJsonString(Json);
 
     /// <summary>Parses inline JSON into a JSON value.</summary>
+    /// <param name="json">The inline JSON text to parse.</param>
+    /// <returns>The parsed JSON value.</returns>
     public static JsonNode Meta(string json) => JsonNode.Parse(json)!;
 
-    /// <summary>Combines frontmatter JSON and a body into one page.</summary>
-    public static string Page(JsonNode meta, string body) => $"---\n{Stringify(meta)}\n---\n{body}";
+    /// <summary>Combines frontmatter JSON and a body into one document.</summary>
+    /// <param name="meta">The frontmatter JSON value.</param>
+    /// <param name="body">The document body text after the frontmatter.</param>
+    /// <returns>The complete document text.</returns>
+    public static string Page(JsonNode meta, string body) =>
+        $"---\n{YamlWriter.Write(JsonText.Parse(meta.ToJsonString()))}---\n{body}";
 
     /// <summary>Builds a fresh fixture consumer in its own temporary folder.</summary>
+    /// <returns>The temporary folder holding the fixture consumer.</returns>
     public static TempFolder Create()
     {
         var folder = Cli.Temp("consumer");
@@ -385,7 +355,7 @@ static class ConsumerFixture
             ["paths"] = new JsonObject
             {
                 ["docs"] = "docs",
-                ["domainDocs"] = "docs/domain",
+                ["behaviorDocs"] = "docs/behavior",
                 ["uiDocs"] = "docs/ui",
                 ["frontends"] = new JsonArray(),
             },
@@ -395,12 +365,22 @@ static class ConsumerFixture
             ["optionalTypes"] = new JsonArray(),
         };
         WriteFile(folder.Path, "litespec.project.json", $"{Stringify(project)}\n");
-        foreach (var page in Pages)
+        foreach (var record in Records)
         {
-            WriteFile(folder.Path, page.Relative, Page(Meta(page.Meta), page.Body));
+            TestRecords.Write(folder.Path, record.Relative, record.Fields);
+
+            if (record.Explanation is not null)
+            {
+                TestRecords.Explain(folder.Path, Path.ChangeExtension(record.Relative, ".md"), record.Explanation);
+            }
         }
 
-        WriteFile(folder.Path, "docs/glossary.json", $"{Stringify(Meta(GlossaryJsonText))}\n");
+        foreach (var document in Documents)
+        {
+            WriteFile(folder.Path, document.Relative, Page(Meta(document.Meta), document.Body));
+        }
+
+        TestRecords.Write(folder.Path, "docs/glossary.yaml", GlossaryJsonText);
         return folder;
     }
 
@@ -408,6 +388,8 @@ static class ConsumerFixture
     ///     Builds a throwaway LiteSpec release a test points the tool at with
     ///     <c>LITESPEC_HOME</c>: the tracked manifest with its schemas, mutated in place.
     /// </summary>
+    /// <param name="mutateManifest">The change to apply to the copied manifest, or null to keep it as tracked.</param>
+    /// <returns>The temporary folder holding the throwaway LiteSpec release.</returns>
     public static TempFolder CreateHome(Action<JsonObject>? mutateManifest = null)
     {
         var home = Cli.Temp("consumer-home");
@@ -432,6 +414,9 @@ static class ConsumerFixture
     }
 
     /// <summary>Writes a file under the fixture root, creating its directory.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <param name="contents">The file contents to write.</param>
     public static void WriteFile(string root, string relative, string contents)
     {
         var file = Resolve(root, relative);
@@ -440,20 +425,32 @@ static class ConsumerFixture
     }
 
     /// <summary>Reads a file under the fixture root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <returns>The file text.</returns>
     public static string ReadFile(string root, string relative) => File.ReadAllText(Resolve(root, relative));
 
-    /// <summary>Mutates one page's frontmatter, leaving its body alone.</summary>
+    /// <summary>Mutates one record file's fields, leaving its explanation alone.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The record file path under the root.</param>
+    /// <param name="mutate">The change to apply to the fields object.</param>
     public static void MutateMeta(string root, string relative, Action<JsonObject> mutate)
     {
-        var raw = ReadFile(root, relative);
-        var end = raw.IndexOf("\n---", 3, StringComparison.Ordinal);
-        var meta = (JsonObject)JsonNode.Parse(raw.Substring(3, end - 3).Trim())!;
-        var body = raw.Substring(end + 4);
-        mutate(meta);
-        WriteFile(root, relative, $"---\n{Stringify(meta)}\n---{body}");
+        var node = (JsonObject)JsonNode.Parse(YamlText.Parse(ReadFile(root, relative)).ToJson())!;
+        mutate(node);
+        WriteFile(root, relative, RecordFile.Write(node));
     }
 
+    /// <summary>Mutates one YAML data file under the fixture root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The YAML file path under the root.</param>
+    /// <param name="mutate">The change to apply to the YAML object.</param>
+    public static void MutateYaml(string root, string relative, Action<JsonObject> mutate) =>
+        MutateMeta(root, relative, mutate);
+
     /// <summary>Mutates <c>litespec.project.json</c>.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="mutate">The change to apply to the project object.</param>
     public static void MutateProject(string root, Action<JsonObject> mutate)
     {
         var project = (JsonObject)JsonNode.Parse(ReadFile(root, "litespec.project.json"))!;
@@ -461,15 +458,10 @@ static class ConsumerFixture
         WriteFile(root, "litespec.project.json", $"{Stringify(project)}\n");
     }
 
-    /// <summary>Mutates one JSON file under the fixture root.</summary>
-    public static void MutateJson(string root, string relative, Action<JsonObject> mutate)
-    {
-        var value = (JsonObject)JsonNode.Parse(ReadFile(root, relative))!;
-        mutate(value);
-        WriteFile(root, relative, $"{Stringify(value)}\n");
-    }
-
     /// <summary>Rewrites one file's text through a transform.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="relative">The file path under the root.</param>
+    /// <param name="transform">The change to apply to the file text.</param>
     public static void MutateBody(string root, string relative, Func<string, string> transform) =>
         WriteFile(root, relative, transform(ReadFile(root, relative)));
 

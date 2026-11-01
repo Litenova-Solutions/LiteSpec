@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/2.0.0/schemas/litespec-manifest.schema.json",
+  "$id": "https://litespec.dev/3.0.0/schemas/litespec-manifest.schema.json",
   "title": "LiteSpec Manifest",
   "type": "object",
   "additionalProperties": false,
@@ -420,6 +420,7 @@
         "research",
         "goal",
         "decision",
+        "topic",
         "requirement",
         "problem",
         "feature",
@@ -436,10 +437,13 @@
         "event",
         "entry-point",
         "external-system",
-        "limit",
+        "reaction",
+        "job",
+        "notification",
+        "setting",
+        "integration-event",
         "runbook",
-        "deviation",
-        "known-gap",
+        "exception",
         "term"
       ]
     },

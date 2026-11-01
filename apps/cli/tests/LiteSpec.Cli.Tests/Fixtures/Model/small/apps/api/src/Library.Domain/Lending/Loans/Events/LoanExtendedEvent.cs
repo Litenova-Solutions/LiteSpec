@@ -1,3 +1,4 @@
 namespace Library.Domain.Lending.Loans.Events;
 
-public sealed record LoanExtendedEvent(Guid LoanId, DateOnly NewDueDate);
+/// <implements>event/loan.loan-extended</implements>
+public sealed record LoanExtendedEvent(Guid LoanId, DateOnly NewDueDate) : IDomainEvent;

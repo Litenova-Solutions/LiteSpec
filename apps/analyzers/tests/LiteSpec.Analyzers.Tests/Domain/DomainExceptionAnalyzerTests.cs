@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1005 and LS1006, Domain exceptions.</summary>
 public sealed class DomainExceptionAnalyzerTests
 {
+    /// <summary>LS1005 reports a throw of a non-Domain exception.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 reports a throw of a non-Domain exception")]
     public Task ReportsThrowOfNonDomainException() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -22,6 +25,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1005 reports a throw expression in a coalescing expression.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 reports a throw expression in a coalescing expression")]
     public Task ReportsThrowExpressionInCoalescing() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -40,6 +46,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1005 accepts a throw of a DomainException subclass.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 accepts a throw of a DomainException subclass")]
     public Task AcceptsThrowOfDomainException() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -63,6 +72,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1005 accepts argument guards and unreachable throws.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 accepts argument guards and unreachable throws")]
     public Task AcceptsArgumentGuards() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -92,6 +104,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1005 accepts a rethrow and a thrown caught variable.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 accepts a rethrow and a thrown caught variable")]
     public Task AcceptsRethrowAndCaughtVariable() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -119,6 +134,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1005 and LS1006 ignore breaches outside Domain.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 and LS1006 ignore breaches outside Domain")]
     public Task IgnoreBreachesOutsideDomain() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -142,6 +160,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <summary>LS1006 reports an unsealed exception deriving indirectly.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1006 reports an unsealed exception deriving indirectly")]
     public Task ReportsUnsealedIndirectException() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -159,6 +180,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1006 reports a sealed exception with a name lacking the suffix.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1006 reports a sealed exception with a name lacking the suffix")]
     public Task ReportsMisnamedException() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -174,6 +198,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """);
 
+    /// <summary>LS1006 accepts a sealed exception and an abstract intermediate.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1006 accepts a sealed exception and an abstract intermediate")]
     public Task AcceptsSealedExceptionAndAbstractIntermediate() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -188,6 +215,9 @@ public sealed class DomainExceptionAnalyzerTests
             public sealed class OrderAlreadyPlacedException() : OrderException("The order is already placed.");
             """);
 
+    /// <summary>LS1005 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1005 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -204,6 +234,9 @@ public sealed class DomainExceptionAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <summary>LS1006 reports an unsealed misnamed exception once.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
     [Fact(DisplayName = "LS1006 reports an unsealed misnamed exception once")]
     public Task ReportsDoubleBreachOnce() =>
         Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
@@ -216,6 +249,125 @@ public sealed class DomainExceptionAnalyzerTests
             public class {|LS1006:OrderRuleFailure|} : DomainException
             {
                 public OrderRuleFailure() : base("Broken.") { }
+            }
+            """);
+
+    /// <summary>LS1005 accepts a conditional of two DomainExceptions.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1005 accepts a conditional of two DomainExceptions")]
+    public Task AcceptsConditionalOfTwoDomainExceptions() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(bool retired)
+                {
+                    throw retired ? new AccessCodeRetiredException() : new AccessCodeExhaustedException();
+                }
+            }
+            """);
+
+    /// <summary>LS1005 reports the non-Domain branch of a conditional throw.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1005 reports the non-Domain branch of a conditional throw")]
+    public Task ReportsNonDomainBranchOfConditionalThrow() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(bool retired)
+                {
+                    throw retired ? new AccessCodeRetiredException() : {|LS1005:new InvalidOperationException()|};
+                }
+            }
+            """);
+
+    /// <summary>LS1005 accepts a switch expression of DomainExceptions.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1005 accepts a switch expression of DomainExceptions")]
+    public Task AcceptsSwitchExpressionOfDomainExceptions() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(int kind)
+                {
+                    throw kind switch
+                    {
+                        0 => new AccessCodeRetiredException(),
+                        _ => new AccessCodeExhaustedException(),
+                    };
+                }
+            }
+            """);
+
+    /// <summary>LS1005 accepts a coalescing throw of a DomainException.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1005 accepts a coalescing throw of a DomainException")]
+    public Task AcceptsCoalescingThrowOfDomainException() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(Exception? cause)
+                {
+                    throw cause ?? new AccessCodeExhaustedException();
+                }
+            }
+            """);
+
+    /// <summary>LS1005 reports the non-Domain branch of a coalescing throw.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</proves>
+    [Fact(DisplayName = "LS1005 reports the non-Domain branch of a coalescing throw")]
+    public Task ReportsNonDomainBranchOfCoalescingThrow() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public sealed class AccessCode
+            {
+                public void Reject(Exception? cause)
+                {
+                    throw cause ?? {|LS1005:new InvalidOperationException()|};
+                }
             }
             """);
 }

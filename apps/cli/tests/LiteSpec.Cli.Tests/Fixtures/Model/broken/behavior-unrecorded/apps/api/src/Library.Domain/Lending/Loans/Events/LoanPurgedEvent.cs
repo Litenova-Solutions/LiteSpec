@@ -1,3 +1,4 @@
 namespace Library.Domain.Lending.Loans.Events;
 
-public sealed record LoanPurgedEvent(Guid LoanId);
+/// <implements>event/loan.loan-purged</implements>
+public sealed record LoanPurgedEvent(Guid LoanId) : IDomainEvent;

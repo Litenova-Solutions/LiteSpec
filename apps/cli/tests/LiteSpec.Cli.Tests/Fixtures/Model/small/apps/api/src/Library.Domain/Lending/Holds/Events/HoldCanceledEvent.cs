@@ -1,3 +1,4 @@
 namespace Library.Domain.Lending.Holds.Events;
 
-public sealed record HoldCanceledEvent(Guid HoldId);
+/// <implements>event/hold.hold-canceled</implements>
+public sealed record HoldCanceledEvent(Guid HoldId) : IDomainEvent;

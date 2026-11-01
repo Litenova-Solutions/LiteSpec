@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/2.0.0/schemas/litespec-project.schema.json",
+  "$id": "https://litespec.dev/3.0.0/schemas/litespec-project.schema.json",
   "title": "LiteSpec Consumer Project",
   "type": "object",
   "additionalProperties": false,
@@ -12,18 +12,7 @@
       "additionalProperties": false,
       "required": ["name"],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "identifierSource": {
-          "description": "The source segment this project's own identifiers carry in a cross-source citation. Defaults to the project name in lower kebab case.",
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
-        },
-        "citedSources": {
-          "description": "Other sources a citation in this project may name, beyond owasp, rfc, and litespec.",
-          "type": "array",
-          "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
-        }
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "size": {
@@ -38,12 +27,12 @@
       "default": "server"
     },
     "stacks": {
-      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform.",
+      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android).",
       "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "enum": ["dotnet", "react", "svelte", "blazor"]
+        "enum": ["dotnet", "react", "svelte", "blazor", "android"]
       }
     },
     "optionalTypes": {
@@ -52,7 +41,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "enum": ["constraint", "research", "limit", "runbook", "goal", "external-system"]
+        "enum": ["constraint", "research", "setting", "runbook", "goal", "external-system"]
       }
     },
     "stackConfig": {
@@ -80,8 +69,20 @@
               "description": "The WebApi project the model builder reads. Defaults to apps/api/src/*.WebApi.",
               "$ref": "#/$defs/projectPath"
             },
+            "worker": {
+              "description": "The Worker project the model builder reads. Defaults to apps/api/src/*.Worker.",
+              "$ref": "#/$defs/projectPath"
+            },
             "apiSolution": {
               "description": "Path to the API solution. A consumer with no backend omits it and records the decision that it has none.",
+              "$ref": "#/$defs/projectPath"
+            },
+            "sharedKernel": {
+              "description": "The one folder holding the domain shared kernel, where reasonless names are allowed. Defaults to none.",
+              "$ref": "#/$defs/projectPath"
+            },
+            "templateStore": {
+              "description": "The one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as {{PascalCaseName}}. Defaults to none, which leaves the template checks silent.",
               "$ref": "#/$defs/projectPath"
             }
           }
@@ -105,6 +106,147 @@
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" }
+        }
+      }
+    },
+    "marks": {
+      "description": "The mark style every code element and test uses to name its record: xml for documentation tags, attribute for generated attributes. Defaults to xml.",
+      "enum": ["xml", "attribute"],
+      "default": "xml"
+    },
+    "dependencies": {
+      "description": "The dependency gate: the licenses every shipped package may carry without an admitting decision.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "licenses": {
+          "description": "SPDX license identifiers the project accepts, such as MIT and Apache-2.0.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "review": {
+      "description": "How this project reviews record changes: the veto window after which a tier-3 draft question carrying a recommendation auto-approves, and the optional security reviewer who reads the security queue.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vetoWindowDays": {
+          "description": "Days after decideBy before a tier-3 draft question carrying a recommendation auto-approves. Defaults to 7.",
+          "type": "integer",
+          "default": 7
+        },
+        "sampleShare": {
+          "description": "The share of a tier-3 batch that batch approval samples, drawn from the records with the lowest semantic hashes and at least one record. Defaults to 0.1.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "default": 0.1
+        },
+        "securityReviewer": {
+          "description": "Optional owner who reads the security queue of access widenings, new outside calls and new personal-data flows.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "refusals": {
+      "description": "The refusal codes the derived generic results carry, with the HTTP status and client vocabulary each declared code answers in.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "forbidden": {
+          "description": "The code the derived forbidden result carries. Defaults to authorization.forbidden.",
+          "type": "string",
+          "minLength": 1,
+          "default": "authorization.forbidden"
+        },
+        "invalidInput": {
+          "description": "The code the derived invalid-input result carries. Defaults to request.validation-failed.",
+          "type": "string",
+          "minLength": 1,
+          "default": "request.validation-failed"
+        },
+        "statuses": {
+          "description": "The HTTP status each declared refusal code answers with, by refusal code. A test asserting the status confirms the refusal.",
+          "type": "object",
+          "propertyNames": { "minLength": 1 },
+          "additionalProperties": { "type": "integer", "minimum": 100, "maximum": 599 }
+        },
+        "aliases": {
+          "description": "The client refusal vocabulary translated to declared codes, by client code. A test asserting the client code confirms the declared refusal.",
+          "type": "object",
+          "propertyNames": { "minLength": 1 },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "prefixes": {
+          "description": "Refusal-code prefixes the project shares across modules, such as a shared kernel, beside every declared module and the generic request, authorization and client prefixes.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+        },
+        "composed": {
+          "description": "Refusal codes the project builds at run time from a key, each a template with one {key} placeholder after a prefix and a dot, such as uniqueness.{key}-taken for a lost uniqueness key. A code matching a template is raised where its key is a literal in the code.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*\\.[a-z0-9-]*\\{key\\}[a-z0-9-]*$" }
+        }
+      }
+    },
+    "vocabulary": {
+      "description": "The domain verbs, phrasal verbs and retired synonyms the project adds to the baseline use-case vocabulary LiteSpec ships. Every use-case name opens with a baseline or project verb.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verbs": {
+          "description": "The single-word domain verbs the project adds to the baseline; they name either kind.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "queryVerbs": {
+          "description": "Project verbs that open only a query, beside the baseline reading verbs.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "phrasal": {
+          "description": "Multi-word verbs counted as one opening, such as check-in.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$" }
+        },
+        "retired": {
+          "description": "Retired synonyms mapped to their replacement verb, beside the synonyms the baseline retires.",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "lookalikeIgnore": {
+          "description": "Lookalike pairs the term-clash check skips, each naming both forms as \"a|b\", such as \"online|on-line\" for a compound that splits into real words by accident.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[^|]+\\|[^|]+$" }
+        },
+        "pastTense": {
+          "description": "The past tense of project domain verbs, by verb, beside the baseline table. A verb with no entry tenses regularly.",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" }
+        }
+      }
+    },
+    "adoption": {
+      "description": "The adoption transcription mode this project still runs under, if any. After the named decision is approved, no Behavior record may stay transcribed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transcriptionEndsWith"],
+      "properties": {
+        "transcriptionEndsWith": {
+          "description": "The decision whose approval ends transcription mode.",
+          "type": "string",
+          "pattern": "^decision/[0-9]+-[a-z0-9][a-z0-9-]*$"
         }
       }
     },
@@ -148,14 +290,15 @@
     "paths": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["domainDocs", "uiDocs", "frontends"],
+      "required": ["behaviorDocs", "uiDocs", "frontends"],
       "properties": {
         "docs": {
           "description": "Root of the specification tree. Every Markdown file under it carries a metadata block unless the path is listed in unstructuredDocs.",
           "$ref": "#/$defs/projectPath"
         },
         "glossary": {
-          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to glossary.json under the documentation root.",
+          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to docs/glossary.yaml.",
+          "default": "docs/glossary.yaml",
           "$ref": "#/$defs/projectPath"
         },
         "glossaryScan": {
@@ -175,12 +318,12 @@
             "$ref": "#/$defs/projectPath"
           }
         },
-        "domainDocs": { "$ref": "#/$defs/projectPath" },
+        "behaviorDocs": { "$ref": "#/$defs/projectPath" },
         "records": {
           "description": "Home folders per record type, where they differ from the defaults the model states.",
           "type": "object",
           "propertyNames": {
-            "pattern": "^(product|goal|constraint|research|decision|requirement|problem|feature|actor|role|permission|journey|module|aggregate|rule|use-case|result|scenario|event|entry-point|external-system|limit|runbook|deviation|known-gap|term)$"
+            "pattern": "^(product|goal|constraint|research|decision|requirement|problem|feature|actor|role|permission|journey|module|aggregate|rule|use-case|result|scenario|event|entry-point|external-system|reaction|job|notification|setting|integration-event|runbook|exception|term)$"
           },
           "additionalProperties": { "$ref": "#/$defs/projectPath" }
         },
@@ -194,12 +337,38 @@
           "description": "Where the latest test run results live, so passing and failing proof is read from them. Defaults to the test result files under the test roots.",
           "$ref": "#/$defs/projectPath"
         },
+        "alerts": {
+          "description": "The alert rule files or folders: YAML in the shape Prometheus rule files and Grafana alert provisioning share, groups[].rules[] with labels.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "operations": {
+          "description": "The deployment, proxy, host and CI workflow files or folders that carry follows marks in their # comments.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "checkResults": {
+          "description": "Where drill and harness check results live as JSON files. Defaults to docs/proof/checks.",
+          "$ref": "#/$defs/projectPath"
+        },
+        "sbom": {
+          "description": "The bill of materials files or folders: SPDX or CycloneDX JSON the CI generates.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "contract": {
+          "description": "The committed OpenAPI document, so the model check compares each operation's x-litespec-use-case with its endpoint's mark.",
+          "$ref": "#/$defs/projectPath"
+        },
         "apiClient": {
           "description": "The generated API client the frontends import, so route calls resolve to the use cases they reach.",
           "$ref": "#/$defs/projectPath"
         },
         "surfaces": {
-          "description": "The surfaces outside paths.frontends that invoke a use case: a command-line tool, a distributed server, a background host, an event reaction. Each frontend is already a surface under its own name. A Consumers row names one of these.",
+          "description": "The surfaces outside paths.frontends that invoke a use case: a command-line tool, a distributed server, a background host, a reaction or a job. Each frontend is already a surface under its own name. A Consumers row names one of these.",
           "type": "array",
           "uniqueItems": true,
           "items": {
@@ -234,7 +403,24 @@
               "platform": {
                 "description": "The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.",
                 "type": "string",
-                "enum": ["react", "svelte", "blazor"]
+                "enum": ["react", "svelte", "blazor", "android"]
+              },
+              "entryPoint": {
+                "description": "The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.",
+                "type": "string",
+                "pattern": "^entry-point/[a-z0-9][a-z0-9-]*$"
+              },
+              "refusalDictionary": {
+                "description": "The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which refusal-sentence-missing reads.",
+                "$ref": "#/$defs/projectPath"
+              },
+              "routeSuite": {
+                "description": "The route suite for this frontend: the file or folder the route-suite check reads.",
+                "$ref": "#/$defs/projectPath"
+              },
+              "visualGoldens": {
+                "description": "The visual golden folder for this frontend: the folder holding the visual goldens the route-suite check reads.",
+                "$ref": "#/$defs/projectPath"
               },
               "ui": { "$ref": "#/$defs/ui" }
             },
@@ -298,17 +484,8 @@
       "description": "The word bound an Example section stays within. Omitted, the recorded default of 120 applies, and the validator refuses a value below 40.",
       "type": "integer"
     },
-    "prohibitedKinds": {
-      "description": "Record types or page styles this consumer does not use. A page declaring one is refused.",
-      "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9-]*$"
-      }
-    },
     "selectedExtensions": {
-      "description": "Extensions active for this project. Each entry records the criterion that was met and the date the selection is next reviewed, so a selection that costs nothing to keep still expires.",
+      "description": "Extensions active for this project. Each entry records the criterion that was met and the date the selection is next reviewed, so a selection that costs nothing to keep still expires. The 3.0 extensions are privacy, devices, automation, workflow-engine, pipeline, queues and ai.",
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -322,30 +499,9 @@
           "releaseStage": {
             "description": "The release stage the stage extension declares: pre-production until a deployment holds customer data, production after the promotion decision.",
             "enum": ["pre-production", "production"]
-          },
-          "deferredProvisions": {
-            "description": "The provisions this selection defers, each with the date the deferral ends. Only the stage extension defers provisions.",
-            "type": "array",
-            "uniqueItems": true,
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["provision", "until"],
-              "properties": {
-                "provision": { "type": "string", "pattern": "^litespec/[a-z0-9]+(-[a-z0-9]+)*(/[a-z0-9]+(-[a-z0-9]+)*)*#[a-z0-9]+(-[a-z0-9]+)*$" },
-                "until": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
-              }
-            }
           }
         },
         "allOf": [
-          {
-            "if": { "required": ["deferredProvisions"] },
-            "then": {
-              "required": ["id"],
-              "properties": { "id": { "const": "stage" } }
-            }
-          },
           {
             "if": { "required": ["releaseStage"] },
             "then": {

@@ -2,8 +2,11 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the shared UI package and API contracts.</summary>
 public sealed partial class ConsumerValidatorTests
 {
+    /// <summary>Controlled frontend without its shared package.</summary>
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
     {
@@ -17,6 +20,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "no 'paths.uiPackage'");
     }
 
+    /// <summary>Frontend outside the controlled contract stays quiet.</summary>
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
     {
@@ -25,11 +30,13 @@ public sealed partial class ConsumerValidatorTests
         {
             project["stacks"] = new JsonArray("dotnet", "blazor");
             PathsOf(project)["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "door", ["path"] = "apps/door", ["platform"] = "blazor" });
+                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
         });
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }
 
+    /// <summary>Child validator findings merge with their prefix.</summary>
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
     {
@@ -68,6 +75,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "controlled UI:");
     }
 
+    /// <summary>Malformed project file keeps the machine-readable contract.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "malformed project file keeps the machine-readable contract")]
     public void MalformedProjectFileKeepsTheMachineReadableContract()
     {
@@ -80,6 +89,8 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains("not valid JSON", parsed["problems"]?.ToJsonString() ?? string.Empty, StringComparison.Ordinal);
     }
 
+    /// <summary>Failing run writes its problems as an array.</summary>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
     {
@@ -87,23 +98,43 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateBody(
             folder.Path,
             "docs/product/decisions/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Decision", "## Notes"));
+            raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         Assert.Equal(false, (bool?)parsed["ok"]);
         Assert.Equal("consumer", (string?)parsed["tool"]);
         var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty);
-        Assert.Contains(problems, problem => problem.Contains("requires an H2 'Decision'", StringComparison.Ordinal));
+        Assert.Contains(problems, problem => problem.Contains("requires an H2 'Context'", StringComparison.Ordinal));
     }
 
+    /// <summary>Machine-readable problems carry their level.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact(DisplayName = "machine-readable problems carry their level")]
+    public void MachineReadableProblemsCarryTheirLevel()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            "docs/product/decisions/0001-launch.md",
+            raw => ReplaceFirst(raw, "## Context", "## Notes"));
+        var result = RunConsumer(folder.Path, "--format", "json");
+        Assert.Equal(1, result.Status);
+        var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
+        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty).ToList();
+        Assert.NotEmpty(problems);
+        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
+    }
+
+    /// <summary>Page with a leading byte-order mark.</summary>
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/domain/modules/orders/bom-page.md",
+            "docs/behavior/modules/orders/bom-page.md",
             char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.Page(
                 ConsumerFixture.Meta("""{"type":"reference","id":"bom-page","title":"BOM Page","owner":"fixture","status":"approved"}"""),
                 """
@@ -123,6 +154,8 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Project file with a leading byte-order mark.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "project file with a leading byte-order mark")]
     public void ProjectFileWithALeadingByteOrderMark()
     {

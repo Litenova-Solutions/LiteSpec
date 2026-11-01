@@ -1,2 +1,13 @@
-# Shell scripts run on Linux runners, where a carriage return breaks the shebang.
-*.sh text eol=lf
+# Every text file is LF in the repository and in every checkout, on every operating system,
+# whatever core.autocrlf a clone sets. The tools write LF, readers accept either, and a file
+# never changes shape between a Windows editor, a Linux runner and a tool rewrite.
+* text=auto eol=lf
+
+# Binary files pass through untouched.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.nupkg binary
+*.zip binary

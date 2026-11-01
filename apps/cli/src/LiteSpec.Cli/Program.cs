@@ -4,7 +4,6 @@ using LiteSpec.Book;
 using LiteSpec.Consumer;
 using LiteSpec.Init;
 using LiteSpec.Model;
-using LiteSpec.Patterns;
 using LiteSpec.Ui;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
@@ -14,19 +13,14 @@ Console.OutputEncoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Ident
 const string usage = """
     Usage: litespec <command> [options]
 
-    Commands in the LiteSpec repository:
-      validate      Check the authoring contract of the LiteSpec repository.
-      provisions    Write or check docs/reference/provisions.md.
-
     Commands in a consumer repository:
       init          Write litespec.project.json from a preset.
+      new           Scaffold a record page and reserve its identifier.
+      rename        Rename a record identifier and rewrite every link.
       consumer      Validate the consumer's project file, records and language.
       ui            Validate the controlled web UI contract.
       model         Build, check, render or query the project model.
       book          Generate the project book from model.json.
-
-    Commands anywhere:
-      patterns      Draw, print or check the UI pattern wireframes.
 
     Run 'litespec <command> --help' for a command's options.
     'litespec --version' prints the LiteSpec release this tool ships in.
@@ -40,20 +34,21 @@ if (args.Length == 0)
 
 var rest = args[1..];
 
-return args[0] switch
-{
-    "--help" or "-h" or "help" => Help(),
-    "--version" => Version(),
-    "validate" => StandardsValidator.Run(rest),
-    "provisions" => ProvisionsCommand.Run(rest),
-    "init" => InitCommand.Run(rest),
-    "consumer" => ConsumerValidator.Run(rest),
-    "ui" => UiValidator.Run(rest),
-    "model" => ModelCommand.Run(rest),
-    "book" => BookCommand.Run(rest),
-    "patterns" => PatternsCommand.Run(rest),
-    _ => Unknown(args[0]),
-};
+return LastResort.Run(
+    () => args[0] switch
+    {
+        "--help" or "-h" or "help" => Help(),
+        "--version" => Version(),
+        "init" => InitCommand.Run(rest),
+        "new" => NewCommand.Run(rest),
+        "rename" => RenameCommand.Run(rest),
+        "consumer" => ConsumerValidator.Run(rest),
+        "ui" => UiValidator.Run(rest),
+        "model" => ModelCommand.Run(rest),
+        "book" => BookCommand.Run(rest),
+        _ => Unknown(args[0]),
+    },
+    args);
 
 int Help()
 {

@@ -1,7 +1,7 @@
 // Search and sharing metadata: canonical URLs, meta descriptions, the social image,
 // and the schema.org objects every page writes as JSON-LD.
 import { execFileSync } from "node:child_process";
-import { root, version } from "./spec";
+import { root, version } from "./spec.ts";
 
 export const siteUrl = "https://litespec.dev";
 const github = "https://github.com/Litenova-Solutions/LiteSpec";
@@ -9,6 +9,23 @@ const github = "https://github.com/Litenova-Solutions/LiteSpec";
 /** The absolute URL of a site path. */
 export function absoluteUrl(pathname: string): string {
   return new URL(pathname, siteUrl).toString();
+}
+
+/** The build date as YYYY-MM-DD, used when no git date is available. */
+export function buildDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * A page title as "Page - Section - LiteSpec", or "Page - LiteSpec" without a
+ * section. The section is dropped when the full form passes 60 characters, so
+ * the page title itself is never truncated and titles stay unique.
+ */
+export function pageTitle(title: string, section?: string): string {
+  const clean = title.replace(/\s+/g, " ").trim();
+  const withSection = section ? `${clean} - ${section} - LiteSpec` : `${clean} - LiteSpec`;
+  if (withSection.length <= 60) return withSection;
+  return `${clean} - LiteSpec`;
 }
 
 /**
@@ -62,16 +79,35 @@ export const softwareSource = {
   author: { "@id": `${siteUrl}/#organization` },
 };
 
-/** A breadcrumb trail, each item a name and a site path. */
-export function breadcrumbs(items: { name: string; path: string }[]): Record<string, unknown> {
+/** A breadcrumb trail, each item a name and an optional site path. An item
+ * without a path is a visible crumb that is not a link, so it carries no item. */
+export function breadcrumbs(items: { name: string; path?: string | null }[]): Record<string, unknown> {
   return {
     "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: absoluteUrl(item.path),
+      ...(item.path ? { item: absoluteUrl(item.path) } : {}),
     })),
+  };
+}
+
+/** A non-article page of the LiteSpec website, such as the selection page. */
+export function webPage(options: {
+  title: string;
+  description: string;
+  path: string;
+}): Record<string, unknown> {
+  return {
+    "@type": "WebPage",
+    "@id": `${absoluteUrl(options.path)}#webpage`,
+    name: options.title,
+    description: metaDescription(options.description),
+    url: absoluteUrl(options.path),
+    inLanguage: "en",
+    isPartOf: { "@id": `${siteUrl}/#website` },
+    publisher: { "@id": `${siteUrl}/#organization` },
   };
 }
 
@@ -92,7 +128,8 @@ export function techArticle(options: {
     inLanguage: "en",
     articleSection: options.section,
     version,
-    ...(options.modified ? { dateModified: options.modified } : {}),
+    dateModified: options.modified ?? buildDate(),
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${absoluteUrl(options.path)}#webpage` },
     image: socialImage.url,
     isPartOf: { "@id": `${siteUrl}/#website` },
     publisher: { "@id": `${siteUrl}/#organization` },

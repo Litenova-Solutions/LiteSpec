@@ -1,0 +1,257 @@
+using System.Text.Json.Nodes;
+
+namespace LiteSpec.Model;
+
+/// <summary>
+///     Writes approval data onto records: who approved or reviewed each one, when, and the
+///     semantic hash of what they approved, so a later change inside it reopens the approval.
+/// </summary>
+/// <follows>litespec/core/model#record-approval-as-data</follows>
+static class Approver
+{
+    /// <summary>
+    ///     Computes the approval hash over the record's semantic fields.
+    ///     Every written field feeds the hash except the fields the exclusion set
+    ///     <c>ApprovalExcluded</c> on <c>Checker</c> names, canonicalized and hashed
+    ///     to eight hex characters.
+    /// </summary>
+    /// <param name="record">The record whose semantic fields are hashed.</param>
+    /// <returns>The eight-hex-character hash of the record semantic fields.</returns>
+    public static string SemanticHash(Record record) => Checker.SemanticHash(record);
+
+    /// <summary>
+    ///     Plans an approval without writing: each target with no approvedHash, or whose
+    ///     semantic fields no longer match it. Returns the record with its reason: either
+    ///     <c>no approvedHash</c> or <c>approvedHash differs</c>.
+    /// </summary>
+    /// <param name="targets">The records an approval would stamp.</param>
+    /// <returns>Each target that needs stamping, with the reason it needs it, in target order.</returns>
+    public static IReadOnlyList<(Record Record, string Reason)> DryRun(IReadOnlyList<Record> targets)
+    {
+        var planned = new List<(Record, string)>();
+
+        foreach (var record in targets)
+        {
+            if (record.ApprovedHash is not { Length: > 0 })
+            {
+                planned.Add((record, "no approvedHash"));
+            }
+            else if (SemanticHash(record) != record.ApprovedHash)
+            {
+                planned.Add((record, "approvedHash differs"));
+            }
+        }
+
+        return planned;
+    }
+
+    /// <summary>
+    ///     Stamps each record: a draft takes its layer status, reviewed for behavior
+    ///     and approved otherwise, and the approver, the date and the semantic hash
+    ///     are always written, so re-approval carries the new approver and date.
+    ///     Returns the records stamped and the ids no written record holds.
+    /// </summary>
+    /// <param name="model">The built project model the targets belong to.</param>
+    /// <param name="targets">The records to stamp, grouped by their file for writing.</param>
+    /// <param name="by">The approver name to write, or null to fall back to each record decider or owner.</param>
+    /// <param name="on">The approval date to write, in ISO date form.</param>
+    /// <returns>The records stamped and the ids of the targets no written record holds.</returns>
+    public static (IReadOnlyList<Record> Stamped, IReadOnlyList<string> Missing) Approve(
+        ProjectModel model, IReadOnlyList<Record> targets, string? by, string on)
+    {
+        var stamped = new List<Record>();
+        var missing = new List<string>();
+
+        foreach (var group in targets.GroupBy(record => record.File, StringComparer.OrdinalIgnoreCase))
+        {
+            var text = File.ReadAllText(group.Key);
+
+            if (!RecordFile.TryParse(text, out _, out var tree, out _))
+            {
+                missing.AddRange(group.Select(record => record.Id));
+                continue;
+            }
+
+            var node = JsonNode.Parse(tree.ToJson());
+
+            if (node is null)
+            {
+                missing.AddRange(group.Select(record => record.Id));
+                continue;
+            }
+
+            var pageBefore = (node as JsonObject)?.DeepClone() as JsonObject;
+
+            foreach (var record in group)
+            {
+                if (Find(node, record.Id) is not JsonObject target)
+                {
+                    missing.Add(record.Id);
+                    continue;
+                }
+
+                if (record.Status == "draft")
+                {
+                    target["status"] = ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved";
+                }
+
+                target["approvedBy"] = by ?? record.Decider ?? record.Owner ?? "unknown";
+                target["approvedOn"] = on;
+                target["approvedHash"] = SemanticHash(record);
+                stamped.Add(record);
+            }
+
+            KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(record => record.Id).ToHashSet(StringComparer.Ordinal));
+
+            File.WriteAllText(group.Key, RecordFile.Write(node));
+        }
+
+        return (stamped, missing);
+    }
+
+    /// <summary>One batch stamp: the record with the status and approval it takes.</summary>
+    /// <param name="Record">The record to stamp.</param>
+    /// <param name="Status">The status to write: approved or reviewed.</param>
+    /// <param name="By">The approver to write.</param>
+    /// <param name="On">The approval date to write.</param>
+    public sealed record BatchStamp(Record Record, string Status, string By, string On);
+
+    /// <summary>
+    ///     Stamps each record of a batch approval: the target status, the approver, the
+    ///     date, and the semantic hash, always. Returns the records stamped.
+    /// </summary>
+    /// <param name="stamps">The batch stamps to write, grouped by each record file for writing.</param>
+    /// <returns>The records stamped, in file-group order.</returns>
+    public static IReadOnlyList<Record> StampBatch(IReadOnlyList<BatchStamp> stamps)
+    {
+        var stamped = new List<Record>();
+
+        foreach (var group in stamps.GroupBy(stamp => stamp.Record.File, StringComparer.OrdinalIgnoreCase))
+        {
+            var text = File.ReadAllText(group.Key);
+
+            if (!RecordFile.TryParse(text, out _, out var tree, out _))
+            {
+                continue;
+            }
+
+            var node = JsonNode.Parse(tree.ToJson());
+
+            if (node is null)
+            {
+                continue;
+            }
+
+            var pageBefore = (node as JsonObject)?.DeepClone() as JsonObject;
+
+            foreach (var stamp in group)
+            {
+                if (Find(node, stamp.Record.Id) is not JsonObject target)
+                {
+                    continue;
+                }
+
+                target["status"] = stamp.Status;
+                target["approvedBy"] = stamp.By;
+                target["approvedOn"] = stamp.On;
+                target["approvedHash"] = SemanticHash(stamp.Record);
+                stamped.Add(stamp.Record);
+            }
+
+            KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(stamp => stamp.Record.Id).ToHashSet(StringComparer.Ordinal));
+
+            File.WriteAllText(group.Key, RecordFile.Write(node));
+        }
+
+        return stamped;
+    }
+
+    /// <summary>
+    ///     Keeps the status an entry inherited from its page when the page is stamped and the
+    ///     entry is not: the entry gains the page's former status, decider and decide-by date
+    ///     as its own, so a page approval never promotes an entry its batch did not hold.
+    /// </summary>
+    /// <param name="before">A deep clone of the page object before stamping, or null for a JSON page without one.</param>
+    /// <param name="page">The page object after stamping, or null when the page holds no object.</param>
+    /// <param name="stamped">The ids of the records stamped on the page.</param>
+    static void KeepInheritedStatus(JsonObject? before, JsonObject? page, HashSet<string> stamped)
+    {
+        if (before is null || page is null || page["records"] is not JsonArray entries)
+        {
+            return;
+        }
+
+        var status = before["status"]?.GetValue<string>();
+
+        if (status is null || status == page["status"]?.GetValue<string>())
+        {
+            return;
+        }
+
+        foreach (var entry in entries.OfType<JsonObject>())
+        {
+            if (entry["status"] is not null
+                || entry["id"]?.GetValue<string>() is not { } id
+                || stamped.Contains(id))
+            {
+                continue;
+            }
+
+            entry["status"] = status;
+
+            // A result carries no decider of its own: it is decided with its use case.
+            if (entry["type"]?.GetValue<string>() == "result")
+            {
+                continue;
+            }
+
+            foreach (var name in new[] { "decider", "decideBy" })
+            {
+                if (entry[name] is null && before[name] is { } value)
+                {
+                    entry[name] = value.DeepClone();
+                }
+            }
+        }
+    }
+
+    /// <summary>The object carrying the id: the page itself, an entry, or a nested entry.</summary>
+    /// <param name="node">The JSON node to search, with its children searched recursively.</param>
+    /// <param name="id">The record id to find.</param>
+    /// <returns>The object carrying the id, or null when no object in the tree carries it.</returns>
+    static JsonNode? Find(JsonNode node, string id)
+    {
+        switch (node)
+        {
+            case JsonObject obj:
+                if (obj["id"] is JsonValue value && value.TryGetValue<string>(out var own) && own == id)
+                {
+                    return obj;
+                }
+
+                foreach (var (_, child) in obj)
+                {
+                    if (child is not null && Find(child, id) is { } found)
+                    {
+                        return found;
+                    }
+                }
+
+                return null;
+
+            case JsonArray array:
+                foreach (var child in array)
+                {
+                    if (child is not null && Find(child, id) is { } found)
+                    {
+                        return found;
+                    }
+                }
+
+                return null;
+
+            default:
+                return null;
+        }
+    }
+}

@@ -22,6 +22,8 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 ### Organize a Frontend into Frame, Routes, and Modules
 
+**ID:** `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`
+
 **Statement:** A frontend MUST organize its code into a frame, routes, and use-case modules.
 
 **Rationale:** Three parts give every file one home by answering one question: is it cross-cutting, is it an address, or does it serve one use case. Without the split, shared values hide inside routes, use-case code hides inside shared folders, and no author can tell where a new file belongs. The three parts make the answer mechanical.
@@ -35,9 +37,13 @@ Imports point one way: routes import modules, modules import the frame, and the 
   modules/   one folder per backend module, aggregate, and use case
 ```
 
+**Reviewed for:** Which frontend files sit outside the frame, routes, and use-case modules split? Look in the frontend folder roots.
+
 ### Mirror the Backend Use Case Path in Kebab Case
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, resolving to the backend folder of the same three names.
+**ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
+
+**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/reads/{use-case}/` for a query describing no one aggregate, resolving to the backend folder of the same names.
 
 **Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case id resolves its frontend folder by rule. The frontend structure test holds the mirror on every build under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
@@ -48,34 +54,48 @@ Imports point one way: routes import modules, modules import the frame, and the 
 <frontend>/modules/orders/orders/search-merchant-orders/
 ```
 
-For example, the Claimwick product submits an expense through `use-case/spending.submit-expense`, implemented in the backend under `Spending/Expenses/SubmitExpense`. The web frontend serves it from the same path in kebab case.
+For example, the Claimwick product lists expenses through `use-case/spending.list-expenses`, implemented in the backend under `Spending/Expenses/ListExpenses`. The web frontend serves it from the same path in kebab case: `lib/modules/spending/expenses/list-expenses` in the Claimwick example, beside the screen record `screen/claimwick-app.expense-list`.
 
 ```text
-<backend>/Spending/Expenses/SubmitExpense/
-<frontend>/modules/spending/expenses/submit-expense/
+<backend>/Spending/Expenses/ListExpenses/
+<frontend>/modules/spending/expenses/list-expenses/
 ```
 
-The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and SubmitExpense.
+The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and ListExpenses.
+
+A query that describes no one aggregate has its record home under `reads/` beside its module, so its folder mirrors that home with two names instead of three: a query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/reads/read-spending-summary/` and `<backend>/Spending/Reads/ReadSpendingSummary/`. The running Claimwick example holds no such reads query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
 ![The backend folder Spending, Expenses, SubmitExpense beside the frontend folders spending, expenses, submit-expense, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
+**Reviewed for:** Which use-case folders sit outside `{module}/{aggregate}/{use-case}/` in kebab case, or resolve to no backend folder of the same names? Look in the module tree and the structure test proving the mirror.
+
 ### Keep a Use Case Folder Flat
+
+**ID:** `litespec/frontend/structure#keep-a-use-case-folder-flat`
 
 **Statement:** A folder named for one use case MUST hold files and no subfolder.
 
 **Rationale:** A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the mirror checkable to the bottom.
 
+**Reviewed for:** Which use-case folders hold a subfolder? Look in the module tree.
+
 ### Place a Shared File in the Folder That Owns It
+
+**ID:** `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`
 
 **Statement:** A file read by several use cases of one aggregate MUST sit flat in that aggregate's folder.
 
 **Rationale:** A file read by several use cases of one aggregate belongs flat in that aggregate's folder: the lowest folder holding every reader. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the aggregate. A file read by several aggregates rises one more level, to the module folder, by the same rule.
 
-**Example:** Three order queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
+**Example:** Three expense queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
+
+**Reviewed for:** Which files read by several use cases sit outside the narrowest folder holding every reader? Look in the aggregate and module folders.
 
 ### Reject a Folder Name That Owns Nothing
+
+**ID:** `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`
 
 **Statement:** A folder under `src` MUST NOT be named `shared`, `common`, `utils`, `util`, `helpers`, `misc`, `components`, `hooks`, `types`, or `services`.
 
@@ -83,15 +103,35 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Example:** A shared query three use cases read sits flat in the aggregate folder, not in a `shared/` folder beside them.
 
+**Reviewed for:** Which folders under `src` carry a refused name? Look in the folder tree.
+
 ### Keep a Route Entry Thin
+
+**ID:** `litespec/frontend/structure#keep-a-route-entry-thin`
 
 **Statement:** A route entry MUST hold its input, its load, and its component, with no reusable logic and no reference to another route entry.
 
 **Rationale:** A route entry serves one address: its input, its load, and its component. A column definition or validation rule written there is unreachable from the second route that needs it, so the second route writes its own copy. A reference from one route entry to another makes one address depend on another, so changing the first breaks the second. Reusable logic belongs in modules, where both routes import it.
 
-**Example:** An order list route validates its search, prefetches its read, and composes one screen from module components.
+**Example:** An expense list route validates its search, prefetches its read, and composes one screen from module components.
+
+**Reviewed for:** Which route entries hold reusable logic or reference another route entry? Look in the route entries.
+
+### Mark Each Route with Its Screen
+
+**ID:** `litespec/frontend/structure#mark-each-route-with-its-screen`
+
+**Statement:** A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.
+
+**Rationale:** The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable: a web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran, and a Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.
+
+**Example:** The `<script module>` of the Claimwick expense list page exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`.
+
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a route entry with no mark, `mark-count-invalid` (level S) for one with more than one, and `mark-unknown` (level S) for a mark naming no screen of the route's entry point.
 
 ### Order Imports from Routes to Shared Packages
+
+**ID:** `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`
 
 **Statement:** An import MUST point from a route to a module to the frame to a shared package, and never in the reverse direction.
 
@@ -105,27 +145,43 @@ Routes -> modules -> frame -> shared packages
 
 The direction refuses three imports: a module reaching a route, a shared package reaching an application, and a frame module reaching into one module's use-case folder for a second module's data.
 
+**Reviewed for:** Which imports point against the route to module to frame to shared package direction? Look in the import statements.
+
 ### Keep Applications Independent
+
+**ID:** `litespec/frontend/structure#keep-applications-independent`
 
 **Statement:** A frontend MUST NOT import source from another frontend.
 
 **Rationale:** Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. An import from another application's source ties the two together: a change to one breaks or redeploys the other. Code two applications genuinely share moves down into a shared package, which names neither application.
 
+**Reviewed for:** Which frontends import source from another frontend? Look in the import statements.
+
 ### Keep Shared Packages Non Application Specific
+
+**ID:** `litespec/frontend/structure#keep-shared-packages-non-application-specific`
 
 **Statement:** A shared package MUST NOT contain page composition, feature state, authentication policy, or application components.
 
 **Rationale:** Shared packages hold what serves every frontend and names none of them: the generated client, the shared UI package, the locale dictionaries, and the frontend tooling. Page composition, feature state, authentication policy, or application components kept there would bind every application to one application's choices. Application-specific code stays in the application, where it can change without touching the rest.
 
+**Reviewed for:** Which shared packages hold page composition, feature state, authentication policy, or application components? Look in the shared package sources.
+
 ### Locate Cross-Route Values in the Frame
+
+**ID:** `litespec/frontend/structure#locate-cross-route-values-in-the-frame`
 
 **Statement:** A frontend MUST place cross-route values in its frame: client configuration, session read, language choice, permissions, formatting, and shell data.
 
 **Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. A route holding one of them holds a copy beside every other route's copy, with nothing keeping the copies equal. The frame holds each once, where every route reaches it. A browser API a use-case module needs belongs in the frame too, because a module renders and reads data rather than touching the device.
 
+**Reviewed for:** Which client configuration, session read, language choice, permissions, formatting, shell data, or browser uses sit outside the frame? Look in the frame.
+
 ## Conventions
 
 ### Use Explicit Public Entry Points for Shared Packages
+
+**ID:** `litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages`
 
 **Default:** Expose a shared package only through its documented public entry points.
 
@@ -133,7 +189,11 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** A shared package is free to rearrange its internals between releases. An application importing an internal path couples itself to that layout, so the next rearrangement breaks the application. Documented public entry points are the stable surface the package keeps.
 
+**Reviewed for:** Which application imports reach past the documented public entry points of shared packages? Look in the application imports and the package manifests.
+
 ### Place Tests at Their Ownership Boundary
+
+**ID:** `litespec/frontend/structure#place-tests-at-their-ownership-boundary`
 
 **Default:** Place a logic test beside its module, and keep browser suites under one tests root per frontend.
 
@@ -141,25 +201,10 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Rationale:** A logic test beside its module is found from the code it covers and runs with it. Browser suites instead share one fixture set and one deployment per frontend, so scattering them beside modules would split the fixtures and the runs. One tests root per frontend keeps the browser suites together.
 
+**Reviewed for:** Which logic tests sit outside their module, and which browser suites sit outside the one tests root per frontend? Look in the module folders and the tests roots.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`, `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`, and `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`.
 
 A search use case folder holds its query definition and its table. The aggregate folder holds the tab strip its three sibling use cases share. Nothing sits in a `shared/` folder, because that name owns nothing.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules | guidance | Frontends separate frame, routes, and use-case modules. Look in the frontend folder roots. |
-| litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case | guidance | Use-case folders sit at `{module}/{aggregate}/{use-case}/` in kebab case and resolve to the backend folder of the same names. Look in the module tree and the structure test proving the mirror. |
-| litespec/frontend/structure#keep-a-use-case-folder-flat | guidance | Use-case folders hold files and no subfolder. Look in the module tree. |
-| litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it | guidance | Files read by several use cases sit flat in the narrowest folder holding every reader. Look in the aggregate and module folders. |
-| litespec/frontend/structure#reject-a-folder-name-that-owns-nothing | guidance | No folder under `src` carries a refused name. Look in the folder tree. |
-| litespec/frontend/structure#keep-a-route-entry-thin | guidance | Route entries hold input, load, and component, with reusable logic in modules and no route-to-route reference. Look in the route entries. |
-| litespec/frontend/structure#order-imports-from-routes-to-shared-packages | guidance | Imports point from routes to modules to the frame to shared packages. Look in the import statements. |
-| litespec/frontend/structure#keep-applications-independent | guidance | Frontends import no source from another frontend. Look in the import statements. |
-| litespec/frontend/structure#keep-shared-packages-non-application-specific | guidance | Shared packages hold no page composition, feature state, authentication policy, or application components. Look in the shared package sources. |
-| litespec/frontend/structure#locate-cross-route-values-in-the-frame | guidance | The frame holds client configuration, session read, language choice, permissions, formatting, shell data, and browser uses. Look in the frame. |
-| litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages | guidance | Applications import only documented public entry points of shared packages. Look in the application imports and the package manifests. |
-| litespec/frontend/structure#place-tests-at-their-ownership-boundary | guidance | Logic tests sit beside their module, and browser suites share one tests root per frontend. Look in the module folders and the tests roots. |

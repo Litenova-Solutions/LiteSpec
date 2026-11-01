@@ -9,6 +9,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class UnmatchedCallTests
 {
     /// <summary>An operation with no endpoint lands in unmatched calls with an empty use case list.</summary>
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Screen_Operation_With_No_Endpoint_Is_Reported()
     {

@@ -1,24 +1,31 @@
+using System.Text.Json.Nodes;
+using LiteSpec.Tests.Support;
+
 namespace LiteSpec.Tests.Consumer;
 
+/// <summary>Consumer validator cases for the required sections of each page kind.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string BriefPage = "docs/product/brief.md";
-    const string RequirementPage = "docs/product/pricing.md";
-    const string DecisionPage = "docs/product/decisions/0001-launch.md";
-    const string ActorPage = "docs/domain/actors/customer.md";
+    const string BriefPage = "docs/product/brief.yaml";
+    const string RequirementPage = "docs/product/pricing.yaml";
+    const string RequirementExplanation = "docs/product/pricing.md";
+    const string DecisionPage = "docs/product/decisions/0001-launch.yaml";
+    const string DecisionExplanation = "docs/product/decisions/0001-launch.md";
+    const string ActorPage = "docs/behavior/actors/customer.yaml";
+    const string ActorExplanation = "docs/behavior/actors/customer.md";
     const string TutorialPage = "docs/guide/first-run.md";
     const string HowToPage = "docs/guide/add-a-pack.md";
     const string CommandPage = "docs/tools/fixture-up.md";
     const string ReferencePage = "docs/reference/ports.md";
     const string ConfigurationPage = "docs/tools/configuration.md";
-    const string UseCasePage = "docs/domain/modules/orders/cancel-order.md";
-    const string AggregatePage = "docs/domain/modules/orders/order-claims/README.md";
-    const string ModulePage = "docs/domain/modules/orders/README.md";
+    const string UseCasePage = "docs/behavior/modules/orders/cancel-order.yaml";
+    const string AggregateExplanation = "docs/behavior/modules/orders/order-claims/aggregate.md";
+    const string ModuleExplanation = "docs/behavior/modules/orders/module.md";
 
     static string ReplaceFirst(string raw, string oldValue, string newValue)
     {
         var index = raw.IndexOf(oldValue, StringComparison.Ordinal);
-        return raw.Substring(0, index) + newValue + raw.Substring(index + oldValue.Length);
+        return string.Concat(raw.AsSpan(0, index), newValue, raw.AsSpan(index + oldValue.Length));
     }
 
     static string WithoutSection(string raw, string name)
@@ -26,46 +33,70 @@ public sealed partial class ConsumerValidatorTests
         return ReplaceFirst(raw, $"## {name}", "## Notes");
     }
 
+    /// <summary>Product brief that omits its summary.</summary>
+    /// <proves>litespec/core/intent#state-one-product</proves>
     [Fact(DisplayName = "product brief that omits its summary")]
     public void ProductBriefThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, BriefPage, raw => WithoutSection(raw, "Summary"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
+        ConsumerFixture.MutateMeta(folder.Path, BriefPage, meta => meta.Remove("summary"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
+    /// <summary>Consumer findings carry their level.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact(DisplayName = "consumer findings carry their level")]
+    public void ConsumerFindingsCarryTheirLevel()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(folder.Path, BriefPage, meta => meta.Remove("summary"));
+        var problems = Problems(RunConsumer(folder.Path));
+        Assert.NotEmpty(problems);
+        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
+    }
+
+    /// <summary>Requirement page that omits its example.</summary>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "requirement page that omits its example")]
     public void RequirementPageThatOmitsItsExample()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, RequirementPage, raw => WithoutSection(raw, "Example"));
+        ConsumerFixture.MutateBody(folder.Path, RequirementExplanation, raw => WithoutSection(raw, "Example"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
 
+    /// <summary>Requirement page that omits its position.</summary>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "requirement page that omits its position")]
     public void RequirementPageThatOmitsItsPosition()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, RequirementPage, raw => WithoutSection(raw, "Position"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Position'");
+        ConsumerFixture.MutateMeta(folder.Path, RequirementPage, meta => meta.Remove("position"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'position'");
     }
 
-    [Fact(DisplayName = "decision that omits its decision")]
-    public void DecisionThatOmitsItsDecision()
+    /// <summary>Decision that omits its context.</summary>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    [Fact(DisplayName = "decision that omits its context")]
+    public void DecisionThatOmitsItsContext()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, DecisionPage, raw => WithoutSection(raw, "Decision"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Decision'");
+        ConsumerFixture.MutateBody(folder.Path, DecisionExplanation, raw => WithoutSection(raw, "Context"));
+        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Context'");
     }
 
+    /// <summary>Decision that omits its consequences.</summary>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "decision that omits its consequences")]
     public void DecisionThatOmitsItsConsequences()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, DecisionPage, raw => WithoutSection(raw, "Consequences"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
+        ConsumerFixture.MutateMeta(folder.Path, DecisionPage, meta => meta.Remove("consequences"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'consequences'");
     }
 
+    /// <summary>Decision without an options section.</summary>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "decision without an options section")]
     public void DecisionWithoutAnOptionsSection()
     {
@@ -73,211 +104,273 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path), "requires an H2 'Options'");
     }
 
+    /// <summary>Actor that omits its summary.</summary>
+    /// <proves>litespec/core/access#write-a-summary-on-every-actor-and-role-page</proves>
     [Fact(DisplayName = "actor that omits its summary")]
     public void ActorThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ActorPage, raw => WithoutSection(raw, "Summary"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
+        ConsumerFixture.MutateMeta(folder.Path, ActorPage, meta => meta.Remove("summary"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
-    [Fact(DisplayName = "aggregate that omits its transitions table")]
-    public void AggregateThatOmitsItsTransitionsTable()
+    /// <summary>Aggregate without transitions and data sections.</summary>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
+    [Fact(DisplayName = "aggregate without transitions and data sections")]
+    public void AggregateWithoutTransitionsAndDataSections()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, AggregatePage, raw => WithoutSection(raw, "Transitions"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Transitions'");
-    }
-
-    [Fact(DisplayName = "aggregate that omits its data table")]
-    public void AggregateThatOmitsItsDataTable()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, AggregatePage, raw => WithoutSection(raw, "Data"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Data'");
-    }
-
-    [Fact(DisplayName = "use case that omits its goal")]
-    public void UseCaseThatOmitsItsGoal()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "Goal"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Goal'");
-    }
-
-    [Fact(DisplayName = "command that omits what happens")]
-    public void CommandThatOmitsWhatHappens()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "What Happens"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'What Happens'");
-    }
-
-    [Fact(DisplayName = "query without what happens")]
-    public void QueryWithoutWhatHappens()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, UseCasePage, meta => meta["kind"] = "query");
-        ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "What Happens"));
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            AggregateExplanation,
+            raw => WithoutSection(WithoutSection(raw, "Transitions"), "Data"));
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Significant query without what happens.</summary>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "significant query without what happens")]
+    public void SignificantQueryWithoutWhatHappens()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            UseCasePage,
+            meta =>
+            {
+                AsQuery(meta);
+                meta.Remove("whatHappens");
+            });
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>Plain use case without goal and what happens.</summary>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "plain use case without goal and what happens")]
+    public void PlainUseCaseWithoutGoalAndWhatHappens()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            UseCasePage,
+            meta =>
+            {
+                DropRefusals(meta);
+                meta.Remove("purpose");
+                meta.Remove("whatHappens");
+            });
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>Retired use case without goal and what happens.</summary>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "retired use case without goal and what happens")]
+    public void RetiredUseCaseWithoutGoalAndWhatHappens()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            UseCasePage,
+            meta =>
+            {
+                meta["status"] = "retired";
+                meta.Remove("purpose");
+                meta.Remove("whatHappens");
+            });
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>Makes the page a query with an immediate output group.</summary>
+    /// <param name="meta">The page record fields to mutate.</param>
+    static void AsQuery(JsonObject meta)
+    {
+        meta["kind"] = "query";
+        meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":{"mode":"immediate"}}}}""");
+    }
+
+    /// <summary>Drops every refusal result from the page's records, leaving successes.</summary>
+    /// <param name="meta">The page record fields to mutate.</param>
+    static void DropRefusals(JsonObject meta)
+    {
+        if (meta["records"] is not JsonArray records)
+        {
+            return;
+        }
+
+        for (var index = records.Count - 1; index >= 0; index--)
+        {
+            if (records[index] is JsonObject entry
+                && (string?)entry["type"] == "result"
+                && (string?)entry["outcome"] == "refusal")
+            {
+                records.RemoveAt(index);
+            }
+        }
+    }
+
+    /// <summary>Goal that omits why it matters.</summary>
+    /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
     [Fact(DisplayName = "goal that omits why it matters")]
     public void GoalThatOmitsWhyItMatters()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/goals/faster-delivery.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","by":"2026-12-31"}"""),
-                "# Faster Delivery\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Why It Matters'");
+            "docs/product/goals/faster-delivery.yaml",
+            """{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","dueBy":"2026-12-31","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'whyItMatters'");
     }
 
-    [Fact(DisplayName = "problem that omits its evidence")]
-    public void ProblemThatOmitsItsEvidence()
+    /// <summary>Problem that omits its situation.</summary>
+    /// <proves>litespec/core/intent#state-each-problem-with-its-evidence</proves>
+    [Fact(DisplayName = "problem that omits its situation")]
+    public void ProblemThatOmitsItsSituation()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/problems/slow-delivery.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","owner":"fixture","status":"approved","statement":"Orders take weeks to arrive."}"""),
-                "# Slow Delivery\n\n## Situation\n\nOrders take weeks to arrive.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Evidence'");
+            "docs/product/problems/slow-delivery.yaml",
+            """{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","owner":"fixture","status":"approved","statement":"Orders take weeks to arrive.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'situation'");
     }
 
+    /// <summary>Feature that omits its offering.</summary>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact(DisplayName = "feature that omits its offering")]
     public void FeatureThatOmitsItsOffering()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/features/approval-reminders.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","state":"shipped"}"""),
-                "# Approval Reminders\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Offering'");
+            "docs/product/features/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 
-    [Fact(DisplayName = "constraint that omits what it requires")]
-    public void ConstraintThatOmitsWhatItRequires()
+    /// <summary>Constraint that omits its summary.</summary>
+    /// <proves>litespec/core/intent#answer-every-constraint</proves>
+    [Fact(DisplayName = "constraint that omits its summary")]
+    public void ConstraintThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/constraints/tax-retention.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","source":"Tax office guidance.","category":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}"""),
-                "# Tax Retention\n\n## Summary\n\nThe guidance states the retention duty.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'What It Requires'");
+            "docs/product/constraints/tax-retention.yaml",
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
+    /// <summary>Research that omits its answer.</summary>
+    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact(DisplayName = "research that omits its answer")]
     public void ResearchThatOmitsItsAnswer()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/research/delivery-benchmarks.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","sources":[{"url":"https://example.com/benchmarks","read":"2026-01-01"}]}"""),
-                "# Delivery Benchmarks\n"));
+            "docs/research/delivery-benchmarks.yaml",
+            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        TestRecords.Explain(folder.Path, "docs/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
 
-    [Fact(DisplayName = "journey that omits its example")]
-    public void JourneyThatOmitsItsExample()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
-            folder.Path,
-            "docs/product/journeys/submit-and-reimburse.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","goal":"The customer is reimbursed.","steps":[{"useCase":"use-case/orders.cancel-order"}]}"""),
-                "# Submit and Reimburse\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
-    }
-
+    /// <summary>Journey that omits between the steps.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "journey that omits between the steps")]
     public void JourneyThatOmitsBetweenTheSteps()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/journeys/submit-and-reimburse.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","goal":"The customer is reimbursed.","steps":[{"useCase":"use-case/orders.cancel-order"}]}"""),
-                "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Between the Steps'");
+            "docs/product/journeys/submit-and-reimburse.yaml",
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'betweenSteps'");
     }
 
+    /// <summary>Rule set that omits its summary.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "rule set that omits its summary")]
     public void RuleSetThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/domain/rules/spending-standards.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"rule-set","id":"spending-standards","title":"Spending Standards","owner":"fixture","status":"approved"}"""),
-                "# Spending Standards\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
+            "docs/behavior/rules/spending-standards.yaml",
+            """{"type":"rule-set","id":"spending-standards","title":"Spending Standards","owner":"fixture","status":"approved"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
+    /// <summary>External system that omits its summary.</summary>
+    /// <proves>litespec/core/access#write-a-summary-on-every-external-system-page</proves>
     [Fact(DisplayName = "external system that omits its summary")]
     public void ExternalSystemThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/domain/systems/payout-bank.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank","owner":"fixture","status":"approved","actor":"actor/customer"}"""),
-                "# Payout Bank\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
+            "docs/behavior/systems/payout-bank.yaml",
+            """{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank","owner":"fixture","status":"reviewed","actor":"actor/customer","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
+    /// <summary>Runbook that omits its escalation.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "runbook that omits its escalation")]
     public void RunbookThatOmitsItsEscalation()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/runbooks/clear-stuck-reimbursements.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","owner":"fixture","status":"approved","trigger":"A reimbursement sits past its date."}"""),
-                "# Clear Stuck Reimbursements\n\n## Impact\n\nStuck claims block payment.\n\n## Prerequisites\n\nThe reader holds the payments role.\n\n## Procedure\n\nClear the stuck claim and rerun payment.\n\n## Verification\n\nThe claim leaves the stuck list.\n\n## Rollback or Recovery\n\nRestore the claim from its snapshot.\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Escalation'");
+            "docs/runbooks/clear-stuck-reimbursements.yaml",
+            """{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","owner":"fixture","status":"reviewed","trigger":"A reimbursement sits past its date.","impact":"Stuck claims block payment.","prerequisites":"The reader holds the payments role.","procedure":"Clear the stuck claim and rerun payment.","verification":"The claim leaves the stuck list.","recovery":"Restore the claim from its snapshot.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'escalation'");
     }
 
-    [Fact(DisplayName = "deviation that omits its consequences")]
-    public void DeviationThatOmitsItsConsequences()
+    /// <summary>Departure that omits its consequences.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
+    [Fact(DisplayName = "departure that omits its consequences")]
+    public void DepartureThatOmitsItsConsequences()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/deviations/export-review-bypass.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"deviation","id":"deviation/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","provision":"litespec/core/scope#select-a-size-a-shape-and-stacks","reason":"The export runs once.","reviewBy":"2027-01-01","removeWhen":"The export is removed."}"""),
-                "# Export Review Bypass\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
+            "docs/governance/exceptions/export-review-bypass.yaml",
+            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'consequences'");
     }
 
-    [Fact(DisplayName = "known gap that omits its exit")]
-    public void KnownGapThatOmitsItsExit()
+    /// <summary>Gap that omits its exit.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
+    [Fact(DisplayName = "gap that omits its exit")]
+    public void GapThatOmitsItsExit()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/known-gaps/export-unimplemented.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"known-gap","id":"known-gap/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","check":"behavior-unrecorded","subject":["use-case/orders.cancel-order"],"endsBy":"2027-01-01","reason":"The export ships later."}"""),
-                "# Export Unimplemented\n"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Exit'");
+            "docs/governance/exceptions/export-unimplemented.yaml",
+            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'exit'");
     }
 
+    /// <summary>Exception carrying its kind's section.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
+    [Fact(DisplayName = "exception carrying its kind's section")]
+    public void ExceptionCarryingItsKindsSection()
+    {
+        using var folder = ConsumerFixture.Create();
+        TestRecords.Write(
+            folder.Path,
+            "docs/governance/exceptions/export-review-bypass.yaml",
+            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        TestRecords.Write(
+            folder.Path,
+            "docs/governance/exceptions/export-unimplemented.yaml",
+            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertAbsent(RunConsumer(folder.Path), "requires an H2");
+    }
+
+    /// <summary>Example cast that omits its people.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "example cast that omits its people")]
     public void ExampleCastThatOmitsItsPeople()
     {
@@ -291,6 +384,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'The People'");
     }
 
+    /// <summary>Tutorial that omits what the reader built.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "tutorial that omits what the reader built")]
     public void TutorialThatOmitsWhatTheReaderBuilt()
     {
@@ -299,6 +394,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What You Built'");
     }
 
+    /// <summary>How-to with no check.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "how-to with no check")]
     public void HowToWithNoCheck()
     {
@@ -307,6 +404,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Check'");
     }
 
+    /// <summary>Command page hiding its mechanism.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandPageHidingItsMechanism()
     {
@@ -318,6 +417,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Underneath'");
     }
 
+    /// <summary>Reference page with no reference section.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "reference page with no reference section")]
     public void ReferencePageWithNoReferenceSection()
     {
@@ -326,6 +427,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Reference'");
     }
 
+    /// <summary>Configuration page with no precedence.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "configuration page with no precedence")]
     public void ConfigurationPageWithNoPrecedence()
     {
@@ -334,38 +437,48 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Precedence'");
     }
 
+    /// <summary>Module page keeps free body prose.</summary>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "module page keeps free body prose")]
     public void ModulePageKeepsFreeBodyProse()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ModulePage, raw => $"{raw}\nA note with no heading.\n");
+        ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\nA note with no heading.\n");
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Page title outside Title Case.</summary>
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "page title outside Title Case")]
     public void PageTitleOutsideTitleCase()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ActorPage, raw => ReplaceFirst(raw, "# Customer", "# customer"));
+        ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# customer"));
         AssertProblem(RunConsumer(folder.Path), "H1 'customer' must use Title Case");
     }
 
+    /// <summary>Section heading outside Title Case.</summary>
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "section heading outside Title Case")]
     public void SectionHeadingOutsideTitleCase()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ModulePage, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
+        ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
         AssertProblem(RunConsumer(folder.Path), "H2 'known limits' must use Title Case");
     }
 
+    /// <summary>Small word capitalized in the middle.</summary>
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "small word capitalized in the middle")]
     public void SmallWordCapitalizedInTheMiddle()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, ActorPage, raw => ReplaceFirst(raw, "# Customer", "# Customer Of The Shop"));
+        ConsumerFixture.MutateBody(folder.Path, ActorExplanation, raw => ReplaceFirst(raw, "# Customer", "# Customer Of The Shop"));
         AssertProblem(RunConsumer(folder.Path), "must use Title Case");
     }
 
+    /// <summary>Example longer than the bound.</summary>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example longer than the bound")]
     public void ExampleLongerThanTheBound()
     {
@@ -373,11 +486,13 @@ public sealed partial class ConsumerValidatorTests
         var longExample = string.Join(" ", Enumerable.Repeat("word", 121));
         ConsumerFixture.MutateBody(
             folder.Path,
-            RequirementPage,
+            RequirementExplanation,
             raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
         AssertProblem(RunConsumer(folder.Path), "over the 120 word bound");
     }
 
+    /// <summary>Example bound below forty.</summary>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example bound below forty")]
     public void ExampleBoundBelowForty()
     {
@@ -386,6 +501,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "exampleWordLimit '20' is below 40");
     }
 
+    /// <summary>Example bound the project raises.</summary>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example bound the project raises")]
     public void ExampleBoundTheProjectRaises()
     {
@@ -394,7 +511,7 @@ public sealed partial class ConsumerValidatorTests
         var longExample = string.Join(" ", Enumerable.Repeat("word", 60));
         ConsumerFixture.MutateBody(
             folder.Path,
-            RequirementPage,
+            RequirementExplanation,
             raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
         AssertProblem(RunConsumer(folder.Path), "over the 50 word bound");
     }

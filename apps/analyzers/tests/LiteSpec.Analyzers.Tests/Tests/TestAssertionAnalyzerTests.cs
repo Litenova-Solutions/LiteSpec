@@ -6,6 +6,9 @@ namespace LiteSpec.Analyzers.Tests.Tests;
 /// <summary>Tests for LS4001, assertion presence in tests.</summary>
 public sealed class TestAssertionAnalyzerTests
 {
+    /// <summary>LS4001 reports a test without an assertion.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 reports a test without an assertion")]
     public Task ReportsATestWithoutAnAssertion() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -31,6 +34,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS4001 accepts a test that asserts.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 accepts a test that asserts")]
     public Task AcceptsATestThatAsserts() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -64,6 +70,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS4001 accepts a test calling a custom Assert helper.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 accepts a test calling a custom Assert helper")]
     public Task AcceptsACustomAssertHelper() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -92,6 +101,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS4001 accepts a theory that asserts.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 accepts a theory that asserts")]
     public Task AcceptsATheoryThatAsserts() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -116,6 +128,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Integration.Tests");
 
+    /// <summary>LS4001 ignores a helper without a test attribute.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 ignores a helper without a test attribute")]
     public Task IgnoresAHelperWithoutAnAttribute() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -136,6 +151,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Domain.Tests");
 
+    /// <summary>LS4001 ignores a test outside test projects.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 ignores a test outside test projects")]
     public Task IgnoresATestOutsideTestProjects() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -161,6 +179,9 @@ public sealed class TestAssertionAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <summary>LS4001 follows the LiteSpecLayer property over the assembly name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
     [Fact(DisplayName = "LS4001 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -185,4 +206,75 @@ public sealed class TestAssertionAnalyzerTests
                 }
             }
             """, assemblyName: "Shop.Core", layer: "Test");
+
+    /// <summary>LS4001 reports a scenario whose steps assert nothing.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    [Fact(DisplayName = "LS4001 reports a scenario whose steps assert nothing")]
+    public Task ReportsAScenarioWithoutAnAssertion() =>
+        Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
+            using System;
+
+            namespace Shop.Orders.Tests;
+
+            public sealed class ScenarioAttribute : Attribute;
+
+            public sealed class OrderSteps
+            {
+                public void Given_a_draft_order() { }
+
+                public void When_the_order_is_placed() { }
+            }
+
+            public sealed class PlaceOrderScenarios
+            {
+                private readonly OrderSteps _steps = new();
+
+                [Scenario]
+                public void {|LS4001:Placing_a_draft_order_succeeds|}()
+                {
+                    _steps.Given_a_draft_order();
+                    _steps.When_the_order_is_placed();
+                }
+            }
+            """, assemblyName: "Shop.Acceptance.Tests");
+
+    /// <summary>LS4001 accepts a scenario whose step asserts.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    [Fact(DisplayName = "LS4001 accepts a scenario whose step asserts")]
+    public Task AcceptsAScenarioWhoseStepAsserts() =>
+        Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
+            using System;
+
+            namespace Shop.Orders.Tests;
+
+            public sealed class ScenarioAttribute : Attribute;
+
+            public static class Assert
+            {
+                public static void True(bool condition) { }
+            }
+
+            public sealed class OrderSteps
+            {
+                public bool Placed { get; private set; }
+
+                public void When_the_order_is_placed() => Placed = true;
+
+                public void Then_the_order_is_placed() => Assert.True(Placed);
+            }
+
+            public sealed class PlaceOrderScenarios
+            {
+                private readonly OrderSteps _steps = new();
+
+                [Scenario]
+                public void Placing_a_draft_order_succeeds()
+                {
+                    _steps.When_the_order_is_placed();
+                    _steps.Then_the_order_is_placed();
+                }
+            }
+            """, assemblyName: "Shop.Acceptance.Tests");
 }

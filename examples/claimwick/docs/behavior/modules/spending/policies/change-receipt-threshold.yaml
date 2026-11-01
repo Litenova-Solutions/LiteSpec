@@ -1,0 +1,73 @@
+type: use-case
+id: use-case/spending.change-receipt-threshold
+title: Change Receipt Threshold
+owner: claimwick-team
+status: reviewed
+purpose: A manager sets the receipt threshold so small expenses stay light to submit.
+whatHappens: The manager sends the new threshold with its currency. Spending refuses a negative threshold. Otherwise the policy carries the new threshold from now on.
+kind: command
+access:
+  grant: permission/manage-policy
+  tenant: own
+serves:
+  - journey/submit-and-reimburse#s6
+fulfills:
+  - requirement/approval.receipt-over-threshold
+reachedThrough:
+  - entry-point/claimwick-app
+raises: []
+changes:
+  - aggregate/spending.policy
+idempotency:
+  mode: none
+  reason: a repeat sets the same threshold on the policy, leaving the same value in place
+audit:
+  level: none
+  target: no audit trail; the example stores no audit entry
+records:
+  - type: result
+    id: result/change-receipt-threshold.threshold-set
+    title: Threshold Set
+    owner: claimwick-team
+    outcome: success
+    meaning: The receipt threshold is set.
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: bac7afcc
+  - type: result
+    id: result/change-receipt-threshold.negative-threshold
+    title: Negative Threshold
+    owner: claimwick-team
+    outcome: refusal
+    code: spending.negative-threshold
+    meaning: The threshold is negative.
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: 6688dc4e
+  - type: scenario
+    id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
+    title: Setting the Threshold Succeeds
+    owner: claimwick-team
+    status: reviewed
+    given: Finance agreed a new receipt threshold with the managers.
+    when: The manager sets the receipt threshold.
+    then: The receipt threshold is set.
+    result: result/change-receipt-threshold.threshold-set
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: e8e0ca4b
+  - type: scenario
+    id: scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused
+    title: Setting a Negative Threshold Is Refused
+    owner: claimwick-team
+    status: reviewed
+    given: Finance agreed a new receipt threshold with the managers.
+    when: The manager sets a negative receipt threshold.
+    then: The change is refused because the threshold is negative.
+    result: result/change-receipt-threshold.negative-threshold
+    approvedBy: claimwick-team
+    approvedOn: 2026-10-01
+    approvedHash: 198f0aae
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: 7f6f845f

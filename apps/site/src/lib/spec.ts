@@ -4,6 +4,10 @@
 // release it is built from cannot disagree.
 import fs from "node:fs";
 import path from "node:path";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { gfm } from "micromark-extension-gfm";
+import { gfmFromMarkdown } from "mdast-util-gfm";
+import type { Heading, Paragraph, RootContent } from "mdast";
 // The repository root is the nearest folder above the working directory that holds
 // litespec.manifest.json. A bundled build moves this file, so its own URL cannot be used.
 function findRoot(): string {
@@ -50,12 +54,13 @@ export interface Provision {
   slug: string;
   heading: string;
   kind: ProvisionKind;
-  /** The Verification mark, or empty when the page has no row for it. */
+  /** The inline verification mark: checkable for a Checked by line, guidance for a Reviewed for line. */
   mark: string;
+  /** The inline verification evidence: the text after the verification label. */
   evidence: string;
 }
 
-export type PageStyle = "topic" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary";
+export type PageStyle = "topic" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
 
 export interface Page {
   /** Repository-relative file path, such as docs/backend/domain.md. */
@@ -80,8 +85,10 @@ function styleOf(rel: string): PageStyle {
   if (rel.endsWith("/README.md")) return "index";
   if (rel === "docs/reference/glossary.md") return "glossary";
   if (rel.includes("/ext/")) return "extension";
+  if (rel.startsWith("docs/intent/research/")) return "research";
+  if (rel.startsWith("docs/intent/decisions/") || rel.startsWith("docs/implementation/decisions/")) return "decision";
   if (rel.startsWith("docs/frontend/patterns/")) return "pattern";
-  if (segments[1] === "tools") return "command";
+  if (segments[1] === "tools" || segments[1] === "maintain") return "command";
   if (segments[1] === "reference") return "reference";
   if (segments[1] === "tutorial") return "tutorial";
   if (segments[1] === "guide") return "how-to";
@@ -91,76 +98,122 @@ function styleOf(rel: string): PageStyle {
   return "topic";
 }
 
-function firstParagraph(lines: string[], section: string): string {
-  const start = lines.findIndex((line) => line.replace(/\s+\{#[^}]+\}\s*$/, "").trim() === `## ${section}`);
-  if (start < 0) return "";
-  const body: string[] = [];
-  for (const line of lines.slice(start + 1)) {
-    if (line.startsWith("## ")) break;
-    if (line.trim() === "") {
-      if (body.length > 0) break;
-      continue;
-    }
-    body.push(line.trim());
-  }
-  return body.join(" ");
+/** The source text of a heading after its opening hashes, trimmed. */
+function headingText(node: Heading, lines: string[]): string {
+  const line = lines[node.position!.start.line - 1] ?? "";
+  let hashes = 0;
+  while (line[hashes] === "#") hashes += 1;
+  return line.slice(hashes).trim();
 }
 
-function parsePage(rel: string): Page {
-  const markdown = fs.readFileSync(path.join(root, rel), "utf8").replace(/\r\n/g, "\n");
-  const lines = markdown.split("\n");
+/** An H2 section title with a trailing `{#id}` dropped. */
+function sectionTitle(node: Heading, lines: string[]): string {
+  const raw = headingText(node, lines);
+  const id = raw.indexOf("{#");
+  if (id > 0 && raw.endsWith("}")) return raw.slice(0, id).trim();
+  return raw;
+}
+
+/** The verification mark and evidence when a paragraph opens with a verification label. */
+function verificationOf(node: Paragraph, lines: string[]): { mark: string; evidence: string } | null {
+  const first = node.children[0];
+  if (first === undefined || first.type !== "strong") return null;
+  const label = first.children.map((child) => (child.type === "text" ? child.value : "")).join("");
+  const mark = label === "Checked by:" ? "checkable" : label === "Reviewed for:" ? "guidance" : null;
+  if (mark === null || first.position === undefined || node.position === undefined) return null;
+  const start = node.position.start.line;
+  const end = node.position.end.line;
+  const head = (lines[start - 1] ?? "").slice(first.position.end.column - 1).trim();
+  const rest = lines.slice(start, end).map((line) => line.trim());
+  const evidence = (head === "" ? rest : [head, ...rest]).join(" ").trim();
+  return { mark, evidence };
+}
+
+/** The first paragraph under an H2 section, as one line of source text. */
+function sectionParagraph(children: RootContent[], lines: string[], section: string): string {
+  let inside = false;
+  for (const node of children) {
+    if (node.type === "heading" && node.depth === 2) {
+      if (inside) break;
+      if (sectionTitle(node, lines) === section) inside = true;
+    } else if (inside && node.type === "paragraph" && node.position !== undefined) {
+      const start = node.position.start.line;
+      const end = node.position.end.line;
+      return lines.slice(start - 1, end).map((line) => line.trim()).join(" ");
+    }
+  }
+  return "";
+}
+
+/** Blanks a leading record frontmatter block, keeping line numbers, so its fences never parse as headings. */
+function blankFrontmatter(text: string): string {
+  if (!text.startsWith("---\n")) return text;
+  const end = text.indexOf("\n---\n", 3);
+  if (end < 0) return text;
+  const block = text.slice(0, end + "\n---".length);
+  return block.replace(/[^\n]/g, "") + text.slice(block.length);
+}
+
+/** Parses one page from its Markdown source. Exported for the parser tests. */
+export function parsePageContent(rel: string, markdown: string): Page {
+  const text = markdown.replace(/\r\n/g, "\n");
+  const body = blankFrontmatter(text);
+  const lines = body.split("\n");
+  const children = fromMarkdown(body, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }).children;
   const pagePath = rel.slice("docs/".length, -".md".length);
   const style = styleOf(rel);
   const sections: string[] = [];
   const provisions: Provision[] = [];
-  const marks = new Map<string, { mark: string; evidence: string }>();
+  let title: string | null = null;
   let section = "";
-  let fenced = false;
+  let current: Provision | null = null;
 
-  for (const line of lines) {
-    if (/^\s*```/.test(line)) {
-      fenced = !fenced;
-      continue;
-    }
-    if (fenced) continue;
-    const h2 = /^##\s+(.+?)\s*(?:\{#.*\})?\s*$/.exec(line);
-    if (h2 && !line.startsWith("###")) {
-      section = h2[1].trim();
-      sections.push(section);
-      continue;
-    }
-    const h3 = /^###\s+(.+?)\s*$/.exec(line);
-    if (h3 && !line.startsWith("####")) {
-      const kind: ProvisionKind | null = section === "Standards" ? "rule" : section === "Conventions" ? "convention" : section === "Patterns" && style === "pattern" ? "pattern" : null;
-      if (kind && style !== "index" && !["reference", "command", "tutorial", "how-to"].includes(style)) {
-        const s = slug(h3[1]);
-        provisions.push({ id: `litespec/${pagePath}#${s}`, slug: s, heading: h3[1].trim(), kind, mark: "", evidence: "" });
+  for (const node of children) {
+    if (node.type === "heading") {
+      if (node.depth === 1) {
+        title ??= headingText(node, lines);
+      } else if (node.depth === 2) {
+        section = sectionTitle(node, lines);
+        sections.push(section);
+        current = null;
+      } else if (node.depth === 3) {
+        const kind: ProvisionKind | null = section === "Standards" ? "rule" : section === "Conventions" ? "convention" : section === "Patterns" && style === "pattern" ? "pattern" : null;
+        if (kind && style !== "index" && !["reference", "command", "tutorial", "how-to"].includes(style)) {
+          const heading = headingText(node, lines);
+          const s = slug(heading);
+          current = { id: `litespec/${pagePath}#${s}`, slug: s, heading, kind, mark: "", evidence: "" };
+          provisions.push(current);
+        } else {
+          current = null;
+        }
       }
       continue;
     }
-    if (section === "Verification") {
-      const row = /^\|\s*(litespec\/[^|\s]+)\s*\|\s*([^|]*?)\s*\|\s*(.*?)\s*\|\s*$/.exec(line);
-      if (row) marks.set(row[1], { mark: row[2], evidence: row[3] });
+    // The verification paragraph closes the provision: its label names the mark.
+    if (node.type === "paragraph" && current !== null) {
+      const verification = verificationOf(node, lines);
+      if (verification) {
+        current.mark = verification.mark;
+        current.evidence = verification.evidence;
+      }
     }
   }
 
-  for (const provision of provisions) {
-    const found = marks.get(provision.id);
-    if (found) Object.assign(provision, found);
-  }
-
-  const h1 = lines.find((line) => line.startsWith("# "));
   return {
     file: rel,
     path: pagePath,
     style,
     area: pagePath.split("/")[0],
-    title: h1 ? h1.slice(2).trim() : pagePath,
-    intent: firstParagraph(lines, "Intent") || firstParagraph(lines, "Purpose") || firstParagraph(lines, "Name"),
+    title: title ?? pagePath,
+    intent: sectionParagraph(children, lines, "Intent") || sectionParagraph(children, lines, "Purpose") || sectionParagraph(children, lines, "Name"),
     sections,
     provisions,
-    markdown,
+    markdown: text,
   };
+}
+
+function parsePage(rel: string): Page {
+  return parsePageContent(rel, fs.readFileSync(path.join(root, rel), "utf8"));
 }
 
 function walk(dir: string): string[] {

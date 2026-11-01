@@ -4,12 +4,15 @@
   },
   "size": "large",
   "shape": "server",
-  "stacks": ["dotnet", "svelte"],
-  "reviewedLiteSpecVersion": "2.0.0",
+  "stacks": [
+    "dotnet",
+    "svelte"
+  ],
+  "reviewedLiteSpecVersion": "3.0.0",
   "optionalTypes": [
     "constraint",
     "research",
-    "limit",
+    "setting",
     "runbook"
   ],
   "constraints": {
@@ -20,9 +23,9 @@
   ],
   "paths": {
     "docs": "docs",
-    "domainDocs": "docs/domain",
+    "behaviorDocs": "docs/behavior",
     "uiDocs": "docs/ui",
-    "glossary": "docs/glossary.json",
+    "glossary": "docs/glossary.yaml",
     "testRoots": [
       "apps/api/tests"
     ],
@@ -58,5 +61,15 @@
       "webapi": "apps/api/src/Library.WebApi"
     }
   },
-  "selectedExtensions": []
+  "selectedExtensions": [],
+  "vocabulary": {
+    "verbs": [
+      "borrow",
+      "extend",
+      "nightly",
+      "place",
+      "register",
+      "return"
+    ]
+  }
 }

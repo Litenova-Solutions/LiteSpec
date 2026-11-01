@@ -16,11 +16,13 @@ The project selects `plans` when it sells more than one tier, or gates behavior 
 
 This extension replaces no baseline provision. It sits beside the [multitenancy extension](tenancy.md): tenancy isolates each tenant's data, while plans state what each tenant's tier allows.
 
-It switches on no record type: plans live as business requirements, gated behavior resolves through permissions, and gated amounts resolve through limits, which the [product page](../core/product.md), the [access page](../core/access.md), and the [model page](../core/model.md) state.
+It switches on no record type: plans live as policy requirements, gated behavior resolves through permissions, and gated amounts resolve through settings, which the [intent page](../core/intent.md), the [access page](../core/access.md), and the [behavior page](../core/behavior.md) state.
 
 ## Standards
 
 ### Record Each Plan Once
+
+**ID:** `litespec/ext/plans#record-each-plan-once`
 
 **Statement:** A consumer selecting `plans` MUST record each plan once with its name, price, billing period, and entitlements.
 
@@ -28,39 +30,65 @@ It switches on no record type: plans live as business requirements, gated behavi
 
 **Example:** The monthly plan names its fee, its month period, and the use cases and amounts it unlocks.
 
+**Reviewed for:** The requirement pages under `docs/intent/` hold one record per plan with its price, billing period, and entitlements.
+
 ### Gate Behavior Through Permissions
 
-**Statement:** A gated use case MUST need a permission that only an entitled plan grants.
+**ID:** `litespec/ext/plans#gate-behavior-through-permissions`
 
-**Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case needs it, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other instead of a second access system beside the first.
+**Statement:** A gated use case MUST declare a permission that only an entitled plan grants.
 
-### Bound Plan Amounts in Limits
+**Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other instead of a second access system beside the first.
 
-**Statement:** Each amount a plan allows MUST live as a limit the gated use case names.
+**Reviewed for:** Each gated use case declares a permission in its grant that only an entitled plan grants.
 
-**Rationale:** An allowance buried in code changes only with a release, and each plan's number hides in a different branch. A limit the gated use case names holds each allowance beside the use case it bounds, so raising a tier edits the limit instead of the code.
+### Bound Plan Amounts in Settings
+
+**ID:** `litespec/ext/plans#bound-plan-amounts-in-settings`
+
+**Statement:** Each amount a plan allows MUST live as a setting the gated use case cites.
+
+**Rationale:** An allowance buried in code changes only with a release, and each plan's number hides in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
+
+**Example:** The export-row cap lives as `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
+
+**Reviewed for:** Each plan allowance lives as a setting the gated use case cites.
 
 ### Refuse Runs Beyond Entitlement
 
+**ID:** `litespec/ext/plans#refuse-runs-beyond-entitlement`
+
 **Statement:** A use case run past its plan MUST end in the refusal result the use case names for that run.
 
-**Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [domain page](../core/domain.md) states, so callers branch on one code instead of guessing from an error page. The code stays stable while prices and allowances move.
+**Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states, so callers branch on one code instead of guessing from an error page. The code stays stable while prices and allowances move.
+
+**Reviewed for:** A run past its plan ends in the named refusal result in the use case tests.
 
 ### Resolve the Acting Plan from Trusted Context
+
+**ID:** `litespec/ext/plans#resolve-the-acting-plan-from-trusted-context`
 
 **Statement:** The product MUST resolve the acting plan from verified subscription state, never from caller input.
 
 **Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
 
+**Reviewed for:** The acting plan resolves from verified subscription state, with no plan taken from caller input in code.
+
 ### Hide Unentitled Actions on Screens
+
+**ID:** `litespec/ext/plans#hide-unentitled-actions-on-screens`
 
 **Statement:** A screen MUST NOT offer an action the acting plan does not entitle.
 
 **Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call: a button for an unentitled action invites a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
 
+**Reviewed for:** Each screen shows only actions the acting plan entitles.
+
 ## Conventions
 
 ### Resolve the Acting Plan in the Authorization Pipeline
+
+**ID:** `litespec/ext/plans#resolve-the-acting-plan-in-the-authorization-pipeline`
 
 **Default:** Resolve the acting plan where the pipeline authorizes the use case.
 
@@ -68,13 +96,19 @@ It switches on no record type: plans live as business requirements, gated behavi
 
 **Rationale:** Authorization already runs in the pipeline with the actor and the target in hand. Resolving the plan there gives every use case the same answer from the same verified state, instead of each handler querying subscriptions its own way.
 
-### Record Plan Prices as Business Requirement Values
+**Reviewed for:** The authorization pipeline resolves the acting plan, or the plan-resolution convention names where use cases find it.
 
-**Default:** Record each plan price as values on its business requirement.
+### Record Plan Prices as Policy Requirement Values
+
+**ID:** `litespec/ext/plans#record-plan-prices-as-business-requirement-values`
+
+**Default:** Record each plan price as values on its policy requirement.
 
 **Replacement:** A consumer records a plan-price convention naming where its plan prices live.
 
-**Rationale:** A business requirement carries its values with effective dates, as the [product page](../core/product.md) states, so each price shows when it holds. Recording each plan price there keeps the commercial fact with the commitment it prices.
+**Rationale:** A policy requirement carries its values with effective dates, as the [intent page](../core/intent.md) states, so each price shows when it holds. Recording each plan price there keeps the commercial fact with the commitment it prices.
+
+**Reviewed for:** Each plan price sits as values on its policy requirement, or the plan-price convention names where prices live.
 
 ## Dependencies
 
@@ -83,16 +117,3 @@ Packages: None.
 Related extensions: The `tenancy` extension owns tenant isolation when tenants buy different tiers. The `audit` extension owns tamper-resistant evidence when an entitlement decision needs a record.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/plans#record-each-plan-once | guidance | The requirement pages under `docs/product/` hold one record per plan with its price, billing period, and entitlements. |
-| litespec/ext/plans#gate-behavior-through-permissions | guidance | Each gated use case names a permission in `needs` that only an entitled plan grants. |
-| litespec/ext/plans#bound-plan-amounts-in-limits | guidance | Each plan allowance lives as a limit the gated use case names. |
-| litespec/ext/plans#refuse-runs-beyond-entitlement | guidance | A run past its plan ends in the named refusal result in the use case tests. |
-| litespec/ext/plans#resolve-the-acting-plan-from-trusted-context | guidance | The acting plan resolves from verified subscription state, with no plan taken from caller input in code. |
-| litespec/ext/plans#hide-unentitled-actions-on-screens | guidance | Each screen shows only actions the acting plan entitles. |
-| litespec/ext/plans#resolve-the-acting-plan-in-the-authorization-pipeline | guidance | The authorization pipeline resolves the acting plan, or the plan-resolution convention names where use cases find it. |
-| litespec/ext/plans#record-plan-prices-as-business-requirement-values | guidance | Each plan price sits as values on its business requirement, or the plan-price convention names where prices live. |

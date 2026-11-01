@@ -8,11 +8,12 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ProofStrengthTests
 {
     /// <summary>A steps test without a then step proves nothing.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Steps_Test_Without_Then_Step_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/success-scenario.md", SuccessScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/NoThenScenarios.cs", NoThenFile);
 
         using var document = Build(temp.Path);
@@ -21,11 +22,12 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code in setup, outside any assertion, proves no refusal.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Code_Outside_An_Assertion_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/SetupCodeScenarios.cs", SetupCodeFile);
 
         using var document = Build(temp.Path);
@@ -34,11 +36,12 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code inside an assertion, sent through the message, confirms.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Code_Inside_An_Assertion_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RefusalAssertionTests.cs", RefusalAssertionFile);
 
         using var document = Build(temp.Path);
@@ -47,11 +50,12 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A test constructing the handler directly proves nothing.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Test_Constructing_A_Handler_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/success-scenario.md", SuccessScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/DirectScenarios.cs", DirectFile);
 
         using var document = Build(temp.Path);
@@ -60,6 +64,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim without a scenario claim never confirms.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Rule_Claim_Without_A_Scenario_Does_Not_Confirm()
     {
@@ -72,11 +77,12 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim confirms when the test also proves a governed scenario.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Rule_Claim_With_A_Proving_Scenario_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/domain/modules/lending/loans/success-scenario.md", SuccessScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/RuleAndScenarioScenarios.cs", RuleAndScenarioFile);
 
         using var document = Build(temp.Path);
@@ -115,44 +121,32 @@ public sealed class ProofStrengthTests
         File.WriteAllText(path, text);
     }
 
-    const string SuccessScenarioPage = """
-        ---
+    const string SuccessScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
           "title": "Borrowing an available copy succeeds",
           "owner": "lending-team",
-          "status": "approved",
+          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
-    const string RefusalScenarioPage = """
-        ---
+    const string RefusalScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-unavailable-copy-refuses",
           "title": "Borrowing an unavailable copy refuses",
           "owner": "lending-team",
-          "status": "approved",
+          "status": "reviewed",
           "given": "A copy is lent out.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.copy-unavailable",
           "then": "The copy stays shelved."
         }
-        ---
-
-        # Borrowing an unavailable copy refuses
-
-        A reader borrows a copy that is lent out.
         """;
 
     const string NoThenFile = """

@@ -1,0 +1,23 @@
+type: runbook
+id: runbook/clear-stuck-reimbursements
+title: Clear Stuck Reimbursements
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+trigger: The stuck-payout alert fires.
+severity: Stuck reimbursements block payouts.
+impact: Stuck reimbursements block employee payouts and breach the two-day promise.
+prerequisites: The on-call engineer holds production database access and the team channel is open.
+procedure: Record the stuck batch, rerun its payout, then verify every reimbursement.
+verification: The payout ledger shows every stuck reimbursement as paid.
+recovery: Rerun the payout from the last recorded checkpoint, and queued payouts resume on their own.
+escalation: Page the spending owner with the stuck batch id when the rerun fails twice.
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.

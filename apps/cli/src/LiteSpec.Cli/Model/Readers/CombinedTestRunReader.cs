@@ -3,9 +3,12 @@ namespace LiteSpec.Model.Readers;
 /// <summary>
 ///     Reads one run across several result formats. Absent when no reader finds a result file.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunReader
 {
     /// <summary>Reads and merges every reader's run, in order.</summary>
+    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <returns>The merged test run, or null when no reader found a run.</returns>
     public TestRun? Read(ConsumerConfig config)
     {
         TestRun? merged = null;
@@ -29,11 +32,15 @@ sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunRe
 
             foreach (var (method, outcome) in run.OutcomeByMethod)
             {
-                if (!merged.OutcomeByMethod.TryGetValue(method, out var kept) || kept != "Failed")
-                {
-                    merged.OutcomeByMethod[method] = outcome;
-                }
+                merged.MergeOutcome(merged.OutcomeByMethod, method, outcome);
             }
+
+            foreach (var (title, outcome) in run.OutcomeByTitle)
+            {
+                merged.MergeOutcome(merged.OutcomeByTitle, title, outcome);
+            }
+
+            merged.Flaky.UnionWith(run.Flaky);
 
             merged.Total += run.Total;
             merged.Passed += run.Passed;

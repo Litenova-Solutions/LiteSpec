@@ -8,7 +8,7 @@ Install the tool in the project, at the release the project follows:
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --local --version 2.0.0
+dotnet tool install LiteSpec.Cli --local --version 3.0.0
 ```
 
 A teammate or a build restores it with `dotnet tool restore`.
@@ -31,12 +31,13 @@ dotnet litespec model check
 | `ui` | Checks the shared UI package and each controlled web frontend. |
 | `model` | Builds the project model from the records, the code, the screens and the tests; `check` reports where they disagree, `render` writes the generated page regions, `query` prints one record with its links. |
 | `book` | Generates a static site of the records for reviewers. |
-| `patterns` | Draws the UI pattern wireframes to choose from. |
+| `new` | Scaffolds a record page and reserves its identifier, or appends a result, scenario, or list entry to its owning page. |
+| `rename` | Renames a record identifier and rewrites every link. |
 
 Every command accepts `--help`, and the checks accept `--format json`.
 
 ## Learn More
 
-- [Adopting LiteSpec](https://litespec.dev/2.0.0/learn/adopting-litespec/)
-- [The command reference](https://litespec.dev/2.0.0/tools/)
+- [Adopting LiteSpec](https://litespec.dev/3.0.0/learn/adopting-litespec/)
+- [The command reference](https://litespec.dev/3.0.0/tools/)
 - [The source and issues](https://github.com/Litenova-Solutions/LiteSpec)

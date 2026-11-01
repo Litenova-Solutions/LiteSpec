@@ -3,6 +3,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Receipts.AttachReceipt;
 
+/// <implements>use-case/spending.attach-receipt</implements>
 internal sealed class AttachReceiptCommandHandler(
     IExpenseRepository expenses) : ICommandHandler<AttachReceiptCommand, AttachReceiptCommandResult>
 {

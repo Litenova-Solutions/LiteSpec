@@ -10,6 +10,7 @@ Start with:
 
 - The `audit` extension selected in the consumer's `litespec.project.json`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
+- The `audit` field on each command record, set to its reason and target or left at its default of audited with reason `none`.
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.json`.
@@ -53,10 +54,10 @@ The shape carries no person name, no address, no message body, and no state snap
 
 ### Declare the Selection on Each Command
 
-Attach the values fixed per use case (action identity, target kind, category) to the command type with an attribute, as `litespec/ext/audit#declare-audit-selection-beside-the-command` requires.
+Attach the values fixed per use case (action identity, target kind, category) to the command type with an attribute, as `litespec/ext/audit#declare-audit-selection-beside-the-command` requires. Declare the audit target and reason beside the message: the attribute names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial. The command record's `audit` field selects which use cases are audited and why; async work audits at request time.
 
 ```csharp
-[Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration)]
+[Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration, Target = nameof(AddProductCommand.ProductId), Reason = nameof(AddProductCommand.Reason))]
 public sealed record AddProductCommand(...) : ICommand<AddProductCommandResult>;
 
 [NotAudited("A public catalog read discloses no tenant-owned data.")]
@@ -95,11 +96,11 @@ internal sealed class OpenAuditScopePreHandler(IAuditScopeFactory factory) : ICo
 
 ### Enrich from the Handler
 
-Let the command handler contribute only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. A generated identity and a composed reason are the usual two.
+Let the command handler contribute only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. A generated identity and a reason value composed from loaded state are the usual two.
 
 ```csharp
 var product = Product.Create(ProductId.New(), ...);
-products.Store(product);
+productRepository.Store(product);
 audit.Target(product.Id);
 ```
 
@@ -163,7 +164,7 @@ Declare that query audited: reading the evidence is itself a sensitive action un
 
 ## Check
 
-Work through the verification table in [the audit extension](../ext/audit.md#verification); it names one evidence row for each provision this guide implements.
+Work through the provisions in [the audit extension](../ext/audit.md); each one this guide implements ends with the evidence to check.
 
 Confirm four behaviors by test before review:
 

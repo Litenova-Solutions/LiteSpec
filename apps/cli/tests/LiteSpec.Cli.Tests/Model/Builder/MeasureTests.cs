@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class MeasureTests
 {
     /// <summary>Each result file yields its checks with their pass and value.</summary>
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Measure_Files_Feed_The_Model()
     {
@@ -45,6 +46,7 @@ public sealed class MeasureTests
     }
 
     /// <summary>Without a result file the model holds no measure.</summary>
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Missing_Measure_Files_Write_Empty_Measures()
     {

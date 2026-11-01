@@ -12,7 +12,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageId>LiteSpec.Analyzers</PackageId>
-        <Version>2.0.0</Version>
+        <Version>3.0.0</Version>
         <Authors>Litenova Solutions</Authors>
         <Description>Roslyn analyzers that check a .NET application against the LiteSpec standard: layer boundaries, Domain modeling and naming. Every diagnostic links to the provision it enforces.</Description>
         <PackageTags>litespec;analyzers;roslyn;ddd;architecture</PackageTags>
@@ -37,8 +37,21 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The shared rule library and the mark reader load beside the analyzers, so they ship in the analyzer folder. -->
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
         <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
         <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The provision ids LS5002 reads for follows marks, embedded at build time. -->
+        <EmbeddedResource Include="..\..\..\..\docs\reference\provisions.md">
+            <LogicalName>LiteSpec.Provisions.md</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -47,8 +60,20 @@
 
     <ItemGroup>
         <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <!-- The code fixes build in their own project, which references this one; pack the solution build of it. -->
+        <None Include="../LiteSpec.Analyzers.CodeFixes/$(OutputPath)LiteSpec.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="build/LiteSpec.Analyzers.props" Pack="true" PackagePath="build" />
         <None Include="README.md" Pack="true" PackagePath="/" />
     </ItemGroup>
+
+    <!--
+        The code fixes reference this project, so this project cannot reference them back. Pack builds them
+        in the configuration being packed first, so the package never depends on an earlier build having run.
+    -->
+    <Target Name="BuildCodeFixesForPack" BeforeTargets="_GetPackageFiles">
+        <MSBuild Projects="../LiteSpec.Analyzers.CodeFixes/LiteSpec.Analyzers.CodeFixes.csproj" Targets="Build" Properties="Configuration=$(Configuration)" />
+    </Target>
 
 </Project>

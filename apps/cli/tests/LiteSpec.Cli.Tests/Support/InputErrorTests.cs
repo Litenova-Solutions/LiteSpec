@@ -8,32 +8,8 @@ namespace LiteSpec.Tests.Support;
 /// </summary>
 public sealed class InputErrorTests
 {
-    [Fact]
-    public void A_Malformed_Percent_Escape_In_A_Link_Is_A_Broken_Link()
-    {
-        using var folder = Cli.Temp("escape");
-        Directory.CreateDirectory(Path.Combine(folder.Path, "docs"));
-        File.WriteAllText(Path.Combine(folder.Path, "docs", "page.md"), "# Page\n\nSee [the guide](guide%zz.md).\n");
-
-        var result = Cli.Run("validate", "--root", folder.Path);
-
-        Assert.Equal(1, result.Status);
-        Assert.Contains("[LINK_BROKEN] link target 'guide%zz.md' holds a malformed percent escape", result.Output, StringComparison.Ordinal);
-        Assert.DoesNotContain("Unhandled exception", result.Output, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Provisions_Refuses_A_Root_Without_Docs()
-    {
-        using var folder = Cli.Temp("provisions");
-
-        var result = Cli.Run("provisions", "--root", Path.Combine(folder.Path, "missing"));
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("holds no docs folder", result.Stderr, StringComparison.Ordinal);
-        Assert.False(Directory.Exists(Path.Combine(folder.Path, "missing")));
-    }
-
+    /// <summary>Model Reports A Malformed Project File As A Usage Error.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Model_Reports_A_Malformed_Project_File_As_A_Usage_Error()
     {
@@ -46,6 +22,8 @@ public sealed class InputErrorTests
         Assert.Contains("litespec.project.json is not valid JSON", result.Stderr, StringComparison.Ordinal);
     }
 
+    /// <summary>Model Refuses A Root Without A Project File.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Model_Refuses_A_Root_Without_A_Project_File()
     {
@@ -57,6 +35,8 @@ public sealed class InputErrorTests
         Assert.Contains("holds no litespec.project.json", result.Stderr, StringComparison.Ordinal);
     }
 
+    /// <summary>Book Accepts An Option Written With An Equals Sign.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Accepts_An_Option_Written_With_An_Equals_Sign()
     {

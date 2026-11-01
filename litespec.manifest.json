@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/litespec-manifest.schema.json",
   "schemaVersion": 5,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "name": "litespec",
   "agentsEntry": "AGENTS.md",
   "stacks": {
@@ -16,6 +16,9 @@
     },
     "blazor": {
       "folder": "docs/frontend/blazor"
+    },
+    "android": {
+      "folder": "docs/frontend/mobile/android"
     }
   },
   "shapes": {
@@ -59,7 +62,7 @@
       ],
       "replaces": [],
       "switchesOn": [
-        "limit"
+        "setting"
       ]
     },
     "concurrency": {
@@ -72,7 +75,7 @@
       ],
       "replaces": [],
       "switchesOn": [
-        "limit"
+        "setting"
       ]
     },
     "lifecycle": {
@@ -84,7 +87,7 @@
       ],
       "replaces": [],
       "switchesOn": [
-        "limit"
+        "setting"
       ]
     },
     "containers": {
@@ -92,7 +95,7 @@
       "activationScope": "project",
       "replaces": [],
       "switchesOn": [
-        "limit",
+        "setting",
         "runbook"
       ]
     },
@@ -151,7 +154,7 @@
       ],
       "switchesOn": [
         "event",
-        "limit",
+        "setting",
         "runbook"
       ]
     },
@@ -182,7 +185,7 @@
       "replaces": [],
       "switchesOn": [
         "event",
-        "limit"
+        "setting"
       ]
     },
     "report": {
@@ -193,19 +196,22 @@
       ],
       "replaces": [],
       "switchesOn": [
-        "limit"
+        "setting"
       ]
     },
     "jobs": {
       "path": "docs/ext/jobs.md",
       "activationScope": "local",
       "applicableKinds": [
+        "job",
         "use-case",
         "journey"
       ],
-      "replaces": [],
+      "replaces": [
+        "litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request"
+      ],
       "switchesOn": [
-        "limit",
+        "setting",
         "runbook"
       ]
     },
@@ -226,40 +232,100 @@
       "activationScope": "project",
       "replaces": [],
       "switchesOn": []
+    },
+    "privacy": {
+      "path": "docs/ext/privacy.md",
+      "activationScope": "project",
+      "replaces": [],
+      "switchesOn": []
+    },
+    "devices": {
+      "path": "docs/ext/devices.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "entry-point"
+      ],
+      "replaces": [],
+      "switchesOn": []
+    },
+    "automation": {
+      "path": "docs/ext/automation.md",
+      "activationScope": "project",
+      "replaces": [],
+      "switchesOn": []
+    },
+    "workflow-engine": {
+      "path": "docs/ext/workflow-engine.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "aggregate"
+      ],
+      "replaces": [],
+      "switchesOn": []
+    },
+    "pipeline": {
+      "path": "docs/ext/pipeline.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "job"
+      ],
+      "replaces": [],
+      "switchesOn": []
+    },
+    "queues": {
+      "path": "docs/ext/queues.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "use-case"
+      ],
+      "replaces": [],
+      "switchesOn": []
+    },
+    "ai": {
+      "path": "docs/ext/ai.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "use-case"
+      ],
+      "replaces": [],
+      "switchesOn": []
     }
   },
   "stack": {
     "dotnet": "10",
+    "android": "36",
     "postgresql": "18",
     "node": "24.22.0",
     "pnpm": "11.28.5"
   },
   "packages": {
     "nuget": {
+      "ArchUnitNET": "0.13.5",
       "Aspire.Hosting.AppHost": "13.6.1",
       "Aspire.Hosting.JavaScript": "13.6.1",
       "Aspire.Hosting.PostgreSQL": "13.6.1",
       "AwesomeAssertions": "9.6.0",
       "EFCore.NamingConventions": "10.0.1",
+      "FsCheck": "3.6.0",
       "LightBDD.XUnit3": "3.12.1",
-      "LiteBus.Analyzers": "7.0.0-preview.6",
-      "LiteBus.Commands": "7.0.0-preview.6",
-      "LiteBus.Commands.Abstractions": "7.0.0-preview.6",
-      "LiteBus.Commands.Recurring": "7.0.0-preview.6",
-      "LiteBus.Events": "7.0.0-preview.6",
-      "LiteBus.Events.Abstractions": "7.0.0-preview.6",
-      "LiteBus.Extensions.Microsoft.DependencyInjection": "7.0.0-preview.6",
-      "LiteBus.Messaging": "7.0.0-preview.6",
-      "LiteBus.Messaging.Abstractions": "7.0.0-preview.6",
-      "LiteBus.Outbox": "7.0.0-preview.6",
-      "LiteBus.Outbox.Abstractions": "7.0.0-preview.6",
-      "LiteBus.Outbox.Dispatch.InProcess": "7.0.0-preview.6",
-      "LiteBus.Outbox.Storage.PostgreSql": "7.0.0-preview.6",
-      "LiteBus.Queries": "7.0.0-preview.6",
-      "LiteBus.Queries.Abstractions": "7.0.0-preview.6",
-      "LiteBus.Storage.PostgreSql": "7.0.0-preview.6",
-      "LiteBus.Testing.Mediation": "7.0.0-preview.6",
-      "LiteSpec.Analyzers": "2.0.0",
+      "LiteBus.Analyzers": "7.0.0",
+      "LiteBus.Commands": "7.0.0",
+      "LiteBus.Commands.Abstractions": "7.0.0",
+      "LiteBus.Commands.Recurring": "7.0.0",
+      "LiteBus.Events": "7.0.0",
+      "LiteBus.Events.Abstractions": "7.0.0",
+      "LiteBus.Extensions.Microsoft.DependencyInjection": "7.0.0",
+      "LiteBus.Messaging": "7.0.0",
+      "LiteBus.Messaging.Abstractions": "7.0.0",
+      "LiteBus.Outbox": "7.0.0",
+      "LiteBus.Outbox.Abstractions": "7.0.0",
+      "LiteBus.Outbox.Dispatch.InProcess": "7.0.0",
+      "LiteBus.Outbox.Storage.PostgreSql": "7.0.0",
+      "LiteBus.Queries": "7.0.0",
+      "LiteBus.Queries.Abstractions": "7.0.0",
+      "LiteBus.Storage.PostgreSql": "7.0.0",
+      "LiteBus.Testing.Mediation": "7.0.0",
+      "LiteSpec.Analyzers": "3.0.0",
       "Marten": "9.50.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
       "Microsoft.AspNetCore.DataProtection": "10.0.13",
@@ -281,7 +347,6 @@
       "Microsoft.Testing.Extensions.CodeCoverage": "18.12.0",
       "Microsoft.Testing.Extensions.TrxReport": "2.5.1",
       "NSubstitute": "6.2.0",
-      "NetArchTest.Rules": "1.3.2",
       "Npgsql": "10.0.3",
       "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.3",
       "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.19.1",
@@ -310,7 +375,6 @@
       "@lucide/svelte": "1.57.0",
       "@modelcontextprotocol/server": "2.3.1",
       "@playwright/test": "1.64.1",
-      "@preact/preset-vite": "2.10.6",
       "@sveltejs/adapter-node": "6.0.0",
       "@sveltejs/adapter-static": "4.0.0",
       "@sveltejs/kit": "3.0.1",
@@ -340,8 +404,8 @@
       "@vitejs/plugin-react": "6.1.2",
       "bits-ui": "2.19.5",
       "class-variance-authority": "0.7.1",
+      "clsx": "2.1.1",
       "cmdk": "1.1.1",
-      "cn": "0.4.0",
       "date-fns": "4.4.0",
       "eslint": "10.12.0",
       "eslint-plugin-jsx-a11y": "6.10.2",
@@ -353,7 +417,6 @@
       "jsqr": "1.4.0",
       "lucide-react": "1.57.0",
       "msw": "3.0.3",
-      "preact": "11.0.1",
       "react": "19.3.0",
       "react-day-picker": "10.0.2",
       "react-dom": "19.3.0",
@@ -364,6 +427,7 @@
       "svelte": "5.57.2",
       "svelte-check": "4.7.6",
       "svelte-i18n": "4.0.1",
+      "tailwind-merge": "3.7.0",
       "tailwindcss": "4.3.3",
       "tw-animate-css": "1.4.0",
       "typescript": "6.0.3",

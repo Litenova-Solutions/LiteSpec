@@ -1,0 +1,13 @@
+type: notification
+id: notification/lending.loan-due
+title: Loan due
+owner: lending-team
+status: reviewed
+template: loan-due-reader
+addresses:
+  - actor/reader
+channel:
+  - email
+consent: Readers accept notices at signup.
+frequency: once
+sender: The library desk

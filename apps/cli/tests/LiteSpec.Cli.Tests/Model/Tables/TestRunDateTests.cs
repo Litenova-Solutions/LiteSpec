@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class TestRunDateTests
 {
     /// <summary>A TRX run writes its finish day.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Trx_Run_Writes_Its_Finish_Day()
     {
@@ -20,6 +21,7 @@ public sealed class TestRunDateTests
     }
 
     /// <summary>A JUnit run writes its suite timestamp day.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void JUnit_Run_Writes_Its_Suite_Timestamp_Day()
     {
@@ -34,6 +36,7 @@ public sealed class TestRunDateTests
     }
 
     /// <summary>A JUnit run without a timestamp writes its file day.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void JUnit_Run_Without_A_Timestamp_Writes_The_File_Day()
     {
@@ -47,6 +50,7 @@ public sealed class TestRunDateTests
     }
 
     /// <summary>A combined run writes the latest day across formats.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Combined_Run_Writes_The_Latest_Day()
     {
