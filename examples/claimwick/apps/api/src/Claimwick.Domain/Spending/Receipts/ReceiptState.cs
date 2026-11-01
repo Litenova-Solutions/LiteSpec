@@ -5,4 +5,3 @@ public abstract record ReceiptState;
 
 /// <summary>The receipt is attached to an expense.</summary>
 public sealed record ReceiptAttachedState(Guid ExpenseId, DateTimeOffset AttachedAt) : ReceiptState;
-

@@ -7,4 +7,3 @@ public abstract record PolicyState;
 
 /// <summary>The policy holds with its threshold.</summary>
 public sealed record PolicyActiveState(Money Threshold) : PolicyState;
-

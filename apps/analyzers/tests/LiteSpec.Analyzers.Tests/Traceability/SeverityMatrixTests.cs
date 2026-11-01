@@ -242,4 +242,3 @@ public sealed class SeverityMatrixTests
         return store!;
     }
 }
-
