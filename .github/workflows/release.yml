@@ -73,7 +73,7 @@ jobs:
       - name: Pack the tool and the analyzers
         run: |
           dotnet pack apps/cli/src/LiteSpec.Cli --configuration Release --output artifacts/packages
-          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration Release --no-build --output artifacts/packages
+          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration Release --output artifacts/packages
 
       - name: Run the packed tool the way a consumer installs it
         run: .github/scripts/smoke-tool.sh artifacts/packages
