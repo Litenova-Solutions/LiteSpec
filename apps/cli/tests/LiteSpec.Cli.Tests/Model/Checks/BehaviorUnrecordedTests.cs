@@ -32,7 +32,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.ghost", "lending", "ghost", "Ghost", "command",
             Path.Combine(temp.Path, "GhostHandler.cs")));
@@ -116,7 +116,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, "use-case/lending.ghost"));
 
@@ -148,7 +148,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("event", "event/ghost.raised", Path.Combine(temp.Path, "ghost.md"), """{"meaning": "A ghost was raised.", "carries": []}"""));
+            TestModel.Record("event", "event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
         model.Code.Events.Add(new DomainEventInfo(
             "GhostRaisedEvent", Path.Combine(temp.Path, "GhostRaisedEvent.cs"), 3, "event/ghost.raised"));
 
@@ -230,7 +230,7 @@ public sealed class BehaviorUnrecordedTests
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), "{}"));
+        model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), "{}"));
         model.Code.Endpoints.Add(new EndpointOperation(
             "", "use-case/lending.ghost", "POST", "/api/lending/ghost-op",
             Path.Combine(temp.Path, "GhostEndpoint.cs")));
@@ -251,7 +251,7 @@ public sealed class BehaviorUnrecordedTests
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), "{}"));
+        model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), "{}"));
         model.Code.Endpoints.Add(new EndpointOperation(
             "GhostOp", "use-case/lending.ghost", "", "",
             Path.Combine(temp.Path, "GhostEndpoint.cs")));
@@ -290,7 +290,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
@@ -309,7 +309,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2000-01-01"}"""));
+            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2000-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));

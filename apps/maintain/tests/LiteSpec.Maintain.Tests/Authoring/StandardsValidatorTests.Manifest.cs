@@ -590,7 +590,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "analyzer pin behind the analyzer project")]
     public void AnalyzerPinBehindProject() => Check(
-        root => AnalyzerPinFiles(root, "2.0.0"),
+        root => AnalyzerPinFiles(root, "0.1.0"),
         ["MANIFEST_ANALYZER_PIN"]);
 
     /// <summary>Analyzer pin matching the analyzer project.</summary>

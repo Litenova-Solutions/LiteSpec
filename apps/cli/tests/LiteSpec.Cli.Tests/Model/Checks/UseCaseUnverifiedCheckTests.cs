@@ -14,8 +14,8 @@ public sealed class UseCaseUnverifiedCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(Implemented: true, Verified: false);
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "use-case-unverified");
@@ -32,8 +32,8 @@ public sealed class UseCaseUnverifiedCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(Implemented: true, Verified: true);
 
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
@@ -47,7 +47,7 @@ public sealed class UseCaseUnverifiedCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""));
         model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(Implemented: true, Verified: false);
 
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
@@ -61,8 +61,8 @@ public sealed class UseCaseUnverifiedCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
 
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
     }

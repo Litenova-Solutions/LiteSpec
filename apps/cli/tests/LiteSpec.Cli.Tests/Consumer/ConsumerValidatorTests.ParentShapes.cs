@@ -23,17 +23,17 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Journey carrying the retired goal sentence.</summary>
+    /// <summary>Journey carrying a field its type does not declare.</summary>
     /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
-    [Fact(DisplayName = "journey carrying the retired goal sentence")]
-    public void JourneyCarryingTheRetiredGoalSentence()
+    [Fact(DisplayName = "journey carrying a field its type does not declare")]
+    public void JourneyCarryingAnUndeclaredField()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
-        AssertProblem(RunConsumer(folder.Path), "unknown property 'goal'");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        AssertProblem(RunConsumer(folder.Path), "unknown property 'destination'");
     }
 
     /// <summary>Feature carrying its lifecycle and advances.</summary>
@@ -49,10 +49,10 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Feature carrying the retired state field.</summary>
+    /// <summary>Feature carrying a field its type does not declare.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
-    [Fact(DisplayName = "feature carrying the retired state field")]
-    public void FeatureCarryingTheRetiredStateField()
+    [Fact(DisplayName = "feature carrying a field its type does not declare")]
+    public void FeatureCarryingAnUndeclaredField()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(

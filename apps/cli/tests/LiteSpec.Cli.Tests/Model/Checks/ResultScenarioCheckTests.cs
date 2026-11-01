@@ -16,9 +16,9 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.md"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is submitted.", "result": "result/submit-expense.submitted"}"""));
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
+            TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is submitted.", "result": "result/submit-expense.submitted"}"""));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }
@@ -31,8 +31,8 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""));
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "result-scenario-missing").ToList();
         var finding = Assert.Single(findings);
@@ -50,8 +50,8 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "refusal", "code": "spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "result-scenario-missing").ToList();
         var finding = Assert.Single(findings);
@@ -69,7 +69,7 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
             Entry("result", "result/submit-expense.forbidden", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.forbidden", "meaning": "The caller lacks the grant the use case requires."}""", "use-case/spending.submit-expense", true));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
@@ -83,9 +83,9 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.md"), """{"triggeredBy": ["event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
+            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
             Entry("scenario", "scenario/submit-expense.clerk-emailed-on-submission", Path.Combine(temp.Path, "notify.md"), """{"given": "An expense was submitted.", "when": "The clerk is emailed.", "then": "The clerk holds the submitted expense.", "result": "result/submit-expense.submitted"}""", "reaction/spending.email-clerk-on-expense-submitted"));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
@@ -99,9 +99,9 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("job", "job/spending.submit-due-expenses", Path.Combine(temp.Path, "submit-due.md"), """{"kind": "scheduled", "schedule": {"every": "P1D"}, "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
+            TestModel.Record("job", "job/spending.submit-due-expenses", Path.Combine(temp.Path, "submit-due.yaml"), """{"kind": "scheduled", "schedule": {"every": "P1D"}, "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
             Entry("scenario", "scenario/submit-expense.due-expenses-submitted-by-job", Path.Combine(temp.Path, "submit-due.md"), """{"given": "Due expenses wait.", "when": "The job submits them.", "then": "The expenses are submitted.", "result": "result/submit-expense.submitted"}""", "job/spending.submit-due-expenses"));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
@@ -115,7 +115,7 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""));
 
         Assert.True(Identifiers.TrySplit("result/submit-expense.forbidden", out _, out var home, out _));
         var holder = ModelBuilder.UseCaseOf(model, home!);
@@ -131,10 +131,10 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
-            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/approve-expense.approved", Path.Combine(temp.Path, "approve.md"), """{"outcome": "success", "meaning": "The expense is approved."}"""),
-            TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.md"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is approved.", "result": "result/approve-expense.approved"}"""));
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/approve-expense.approved", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "success", "meaning": "The expense is approved."}"""),
+            TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is approved.", "result": "result/approve-expense.approved"}"""));
 
         Assert.Contains("scenario-result-unknown", TestModel.Codes(model));
     }
@@ -147,9 +147,9 @@ public sealed class ResultScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
             Entry("result", "result/submit-expense.forbidden", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.forbidden", "meaning": "The caller lacks the grant the use case requires."}""", "use-case/spending.submit-expense", true),
-            TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-grant-is-refused", Path.Combine(temp.Path, "submit.md"), """{"given": "An employee holds no grant to submit expenses.", "when": "The employee submits the expense.", "then": "The expense is refused.", "result": "result/submit-expense.forbidden"}"""));
+            TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-grant-is-refused", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee holds no grant to submit expenses.", "when": "The employee submits the expense.", "then": "The expense is refused.", "result": "result/submit-expense.forbidden"}"""));
 
         Assert.DoesNotContain("scenario-result-unknown", TestModel.Codes(model));
     }

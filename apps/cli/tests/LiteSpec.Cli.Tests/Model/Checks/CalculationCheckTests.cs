@@ -16,7 +16,7 @@ public sealed class CalculationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Rule(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
                 "scenario",
                 "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -35,7 +35,7 @@ public sealed class CalculationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Rule(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
                 "scenario",
                 "scenario/borrow-copy.late-fee-examples-hold",
@@ -64,7 +64,7 @@ public sealed class CalculationCheckTests
                 "aggregate/lending.loan",
                 Path.Combine(folder, "README.md"),
                 """{"states": [{"name": "Active", "meaning": "The loan is open."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(folder, "borrow.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(folder, "borrow.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
                 "scenario",
                 "scenario/borrow-copy.late-fee-examples-hold",
@@ -87,7 +87,7 @@ public sealed class CalculationCheckTests
                 "rule/loan.has-one-borrower",
                 Path.Combine(temp.Path, "loan.md"),
                 """{"kind": "invariant", "statement": "A loan has one borrower.", "governs": ["use-case/lending.borrow-copy"]}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
@@ -101,7 +101,7 @@ public sealed class CalculationCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Rule(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
                 "scenario",
                 "scenario/borrow-copy.late-fee-examples-hold",

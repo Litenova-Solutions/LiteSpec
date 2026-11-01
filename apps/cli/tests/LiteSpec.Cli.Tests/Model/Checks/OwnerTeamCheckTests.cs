@@ -17,7 +17,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -32,7 +32,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("no team", message, StringComparison.Ordinal);
@@ -47,7 +47,7 @@ public sealed class OwnerTeamCheckTests
         WriteProject(temp.Path, "lending-team", "catalog-team");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -62,7 +62,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/product/** @acme/product-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -77,7 +77,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/** @acme/team-a\ndocs/behavior/** @acme/team-b\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "team-a"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "team-a"}"""));
 
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }
@@ -92,7 +92,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "stranger"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "stranger"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("owner list", message, StringComparison.Ordinal);
@@ -108,7 +108,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -123,7 +123,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "* @a-shafie\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("no team", message, StringComparison.Ordinal);
@@ -139,7 +139,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }

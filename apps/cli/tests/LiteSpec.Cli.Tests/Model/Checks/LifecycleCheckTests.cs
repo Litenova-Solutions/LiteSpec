@@ -149,7 +149,7 @@ public sealed class LifecycleCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
-            TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
@@ -166,6 +166,6 @@ public sealed class LifecycleCheckTests
             ? $$"""{"states": [{{states}}]}"""
             : $$"""{"states": [{{states}}], "transitions": [{{string.Join(", ", transitions)}}]}""";
 
-        return TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(root, "loan.md"), json);
+        return TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(root, "loan.yaml"), json);
     }
 }

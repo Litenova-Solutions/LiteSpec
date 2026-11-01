@@ -22,7 +22,7 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
             TestModel.Record(type, FulfillerId(type), Path.Combine(temp.Path, "fulfiller.md"), """{"fulfills": ["requirement/borrowing.max-active-loans"]}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
@@ -36,8 +36,8 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}], "cites": ["requirement/borrowing.max-active-loans"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}], "cites": ["requirement/borrowing.max-active-loans"]}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -50,7 +50,7 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -63,7 +63,7 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-fulfillment-missing");
         Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' is fulfilled by no rule, use case, reaction, job, notification or setting.", finding.Message);
@@ -78,7 +78,7 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -91,8 +91,8 @@ public sealed class FulfillmentTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/hold-requests"]}"""),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/hold-requests"]}"""),
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }

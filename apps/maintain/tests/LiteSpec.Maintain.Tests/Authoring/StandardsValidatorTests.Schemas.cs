@@ -21,7 +21,7 @@ public sealed partial class StandardsValidatorTests
     public void SchemaIdNamingAnotherRelease() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$id\":\"https://example.com/schemas/record.schema.json\",\"type\":\"object\"}");
         },
         ["SCHEMA_ID"]);
@@ -33,8 +33,8 @@ public sealed partial class StandardsValidatorTests
     {
         using var temp = Cli.Temp("standards");
         StandardsFixture.Base(temp.Path);
-        StandardsFixture.Write(temp.Path, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
-        StandardsFixture.Write(temp.Path, "schemas/record.schema.json", "{\"$id\":\"https://litespec.dev/2.0.0/schemas/record.schema.json\",\"type\":\"object\"}");
+        StandardsFixture.Write(temp.Path, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
+        StandardsFixture.Write(temp.Path, "schemas/record.schema.json", "{\"$id\":\"https://litespec.dev/3.0.0/schemas/record.schema.json\",\"type\":\"object\"}");
 
         var result = StandardsValidator.Validate(temp.Path);
 
@@ -47,7 +47,7 @@ public sealed partial class StandardsValidatorTests
     public void SchemaFileThatDoesNotParse() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.json", "{");
         },
         ["SCHEMA_JSON"]);
@@ -58,7 +58,7 @@ public sealed partial class StandardsValidatorTests
     public void SchemaWithNoId() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.json", "{\"type\":\"object\"}");
         },
         ["SCHEMA_ID"]);
@@ -70,7 +70,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"required\":[\"version\"],\"properties\":{\"version\":{\"const\":\"1.0.0\"}},\"additionalProperties\":false}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"1.17.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -114,7 +114,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"properties\":{\"version\":{\"type\":\"string\",\"maxLength\":3}}}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"1.16.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -125,7 +125,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"properties\":{\"version\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"boolean\"}]}}}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"1.16.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -136,7 +136,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"dependentRequired\":{\"version\":[\"name\"]}}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"1.16.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -147,7 +147,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"propertyNames\":{\"pattern\":\"^[a-z]+$\"}}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"Version\":\"1.16.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"Version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -158,7 +158,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"patternProperties\":{\"^v\":{\"type\":\"integer\"}},\"additionalProperties\":false}");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"1.16.0\"}");
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"3.0.0\"}");
         },
         ["SCHEMA_INVALID"]);
 

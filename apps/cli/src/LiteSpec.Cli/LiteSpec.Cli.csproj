@@ -16,11 +16,13 @@
         <PackageProjectUrl>https://litespec.dev</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Litenova-Solutions/LiteSpec</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- The NuGet listing shows this page; it is written for a consumer installing the tool. -->
         <None Include="PACKAGE.md" Pack="true" PackagePath="README.md" />
+        <None Include="../../../../assets/litespec-icon.png" Pack="true" PackagePath="icon.png" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>

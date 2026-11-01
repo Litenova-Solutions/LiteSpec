@@ -14,7 +14,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"]}"""));
 
         var findings = Checker.Check(model).Findings.Where(found => found.Code == "prose-missing").ToList();
         var purpose = Assert.Single(findings, found => found.Message.Contains("no purpose field", StringComparison.Ordinal));
@@ -35,7 +35,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader borrows an available copy."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader borrows an available copy."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
         Assert.Equal("A", finding.Tier);
@@ -51,7 +51,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "loans.md"), """{"status": "reviewed", "kind": "query", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader lists their loans."}"""));
+            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "loans.yaml"), """{"status": "reviewed", "kind": "query", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader lists their loans."}"""));
 
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
@@ -64,7 +64,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
 
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
@@ -77,7 +77,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
 
         Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
     }
@@ -90,7 +90,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan"]}}"""));
 
         Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
     }
@@ -103,7 +103,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
@@ -119,7 +119,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.DoesNotContain("question-expired", TestModel.Codes(model));
     }
@@ -132,7 +132,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
@@ -148,7 +148,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "answer": "Yes, with a guardian.", "answeredBy": "lending-team", "answeredOn": "2020-01-02"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "answer": "Yes, with a guardian.", "answeredBy": "lending-team", "answeredOn": "2020-01-02"}]}"""));
 
         Assert.DoesNotContain("question-expired", TestModel.Codes(model));
         Assert.DoesNotContain(
@@ -164,7 +164,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
@@ -180,7 +180,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
@@ -196,7 +196,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
 
         var finding = Assert.Single(
             Checker.Check(model).Findings,
@@ -213,7 +213,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
@@ -228,7 +228,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.Contains(
             Checker.Check(model).Findings,
@@ -243,7 +243,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,

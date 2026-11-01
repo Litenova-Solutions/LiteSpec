@@ -15,7 +15,7 @@ public sealed class ImplementsLinkTests
         using var temp = Cli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, null));
         model.Implements.Add(new ImplementsLink("GhostReaction.cs", "use-case/lending.ghost", "reaction"));
@@ -31,7 +31,7 @@ public sealed class ImplementsLinkTests
         using var temp = Cli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.md"), """{"triggeredBy": ["event/loan.overdue"]}"""));
+            TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.yaml"), """{"triggeredBy": ["event/loan.overdue"]}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "SendNoticeOnLoanOverdueHandler", Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs"), 3, null));
         model.Implements.Add(new ImplementsLink("SendNoticeOnLoanOverdueHandler.cs", "reaction/lending.send-notice-on-loan-overdue", "reaction"));
@@ -47,7 +47,7 @@ public sealed class ImplementsLinkTests
         using var temp = Cli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"states": [{"name": "Open", "meaning": "The loan is open."}]}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Open", "meaning": "The loan is open."}]}"""));
         var file = Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs");
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "SendNoticeOnLoanOverdueHandler", null, file, 3,
@@ -68,7 +68,7 @@ public sealed class ImplementsLinkTests
         using var temp = Cli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
         model.Code.Jobs.Add(new JobInfo(
             "NightlyJob", Path.Combine(temp.Path, "NightlyJob.cs"), 5, null));
         model.Implements.Add(new ImplementsLink("NightlyJob.cs", "use-case/lending.ghost", "job"));
@@ -103,7 +103,7 @@ public sealed class ImplementsLinkTests
         using var temp = Cli.Temp("tables");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "GhostReaction.cs"), 3, [], InTests: false));

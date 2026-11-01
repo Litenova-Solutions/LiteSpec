@@ -92,8 +92,8 @@ public sealed class RepositoryCheckTests
     static ProjectModel ChangedLoanModel(string root) =>
         TestModel.Model(
             TestModel.Config(root),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(root, "loan.md"), """{"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan"]}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(root, "loan.yaml"), """{"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
 
     /// <summary>The loan's domain repository interface as the Domain reader reports it.</summary>
     /// <param name="root">The fixture root folder the interface file sits under.</param>

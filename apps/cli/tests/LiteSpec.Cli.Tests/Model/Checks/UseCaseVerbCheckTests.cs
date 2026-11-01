@@ -16,7 +16,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
@@ -30,7 +30,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.list", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list.md"), """{"kind": "query"}"""));
+            TestModel.Record("use-case", "use-case/lending.list", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list.yaml"), """{"kind": "query"}"""));
 
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
@@ -44,7 +44,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.check-in-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "check-in-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.check-in-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "check-in-copy.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
@@ -58,7 +58,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.yaml"), """{"kind": "command"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-verb-unknown").Message;
         Assert.Contains("starts with 'fetch'", message, StringComparison.Ordinal);
@@ -73,7 +73,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.listing-loans", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "listing-loans.md"), """{"kind": "query"}"""));
+            TestModel.Record("use-case", "use-case/lending.listing-loans", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "listing-loans.yaml"), """{"kind": "query"}"""));
 
         Assert.Contains("use-case-verb-unknown", TestModel.Codes(model));
     }
@@ -87,7 +87,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.update-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "update-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.update-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "update-copy.yaml"), """{"kind": "command"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-verb-unknown").Message;
         Assert.Contains("starts with 'update' and 'change' replaces it", message, StringComparison.Ordinal);
@@ -102,8 +102,8 @@ public sealed class UseCaseVerbCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.md"), """{"kind": "query"}"""),
-            TestModel.Record("use-case", "use-case/lending.read-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "read-copy.md"), """{"kind": "query"}"""));
+            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.yaml"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/lending.read-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "read-copy.yaml"), """{"kind": "query"}"""));
 
         var unknown = Checker.Check(model).Findings.Where(finding => finding.Code == "use-case-verb-unknown").ToList();
 
@@ -120,8 +120,8 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.change-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "change-copy.md"), """{"kind": "query"}"""),
-            TestModel.Record("use-case", "use-case/lending.list-copies", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list-copies.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.change-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "change-copy.yaml"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/lending.list-copies", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list-copies.yaml"), """{"kind": "command"}"""));
 
         Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-invalid"));
     }
@@ -135,7 +135,7 @@ public sealed class UseCaseVerbCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"vocabulary": {"queryVerbs": ["trace"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.trace-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "trace-loan.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.trace-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "trace-loan.yaml"), """{"kind": "command"}"""));
 
         Assert.Contains("use-case-verb-invalid", TestModel.Codes(model));
     }
@@ -149,8 +149,8 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "notify-borrower.md"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "notify-borrower.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""));
 
         var form = Checker.Check(model).Findings.Where(finding => finding.Code == "reaction-name-invalid").ToList();
 
@@ -167,9 +167,9 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "holds", "expire-holds.md"), """{"kind": "command"}"""),
-            TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.md"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""),
-            TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "sweep-holds.md"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "holds", "expire-holds.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""),
+            TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "sweep-holds.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""));
 
         var form = Checker.Check(model).Findings.Where(finding => finding.Code == "job-name-invalid").ToList();
 

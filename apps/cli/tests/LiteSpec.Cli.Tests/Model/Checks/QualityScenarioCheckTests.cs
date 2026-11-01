@@ -21,7 +21,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson(field)));
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson(field)));
 
         Assert.True(Reports(model, "record-invalid", $"has no {field}"));
     }
@@ -34,7 +34,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()));
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -47,7 +47,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -61,7 +61,7 @@ public sealed class QualityScenarioCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
@@ -75,7 +75,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()));
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -89,7 +89,7 @@ public sealed class QualityScenarioCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()),
             TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));

@@ -20,6 +20,7 @@
         <PackageProjectUrl>https://litespec.dev</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Litenova-Solutions/LiteSpec</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
         <DevelopmentDependency>true</DevelopmentDependency>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
@@ -66,6 +67,7 @@
         <None Include="../LiteSpec.Analyzers.CodeFixes/$(OutputPath)LiteSpec.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="build/LiteSpec.Analyzers.props" Pack="true" PackagePath="build" />
         <None Include="README.md" Pack="true" PackagePath="/" />
+        <None Include="../../../../assets/litespec-icon.png" Pack="true" PackagePath="icon.png" Visible="false" />
     </ItemGroup>
 
     <!--

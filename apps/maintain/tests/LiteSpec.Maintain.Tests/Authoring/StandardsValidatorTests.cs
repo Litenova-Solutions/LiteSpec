@@ -18,13 +18,12 @@ public sealed partial class StandardsValidatorTests
     /// <param name="mutate">The change to apply to the fixture repository, or null for a passing case.</param>
     /// <param name="expected">The diagnostic codes the run must report.</param>
     /// <param name="forbidden">The diagnostic codes the run must not report.</param>
-    /// <param name="releasedIds">The released provision identifiers, or null to read them from git.</param>
-    static void Check(Action<string>? mutate, string[] expected, string[] forbidden, HashSet<string>? releasedIds = null)
+    static void Check(Action<string>? mutate, string[] expected, string[] forbidden)
     {
         using var temp = Cli.Temp("standards");
         StandardsFixture.Base(temp.Path);
         mutate?.Invoke(temp.Path);
-        var result = StandardsValidator.Validate(temp.Path, releasedIds);
+        var result = StandardsValidator.Validate(temp.Path);
         var codes = result.Diagnostics.Select(item => item.Code).ToHashSet(StringComparer.Ordinal);
         foreach (var code in expected)
         {
@@ -353,9 +352,6 @@ public sealed partial class StandardsValidatorTests
             "ID_LINE_MISSING",
             "ID_LINE_MISMATCH",
             "ID_PAGE_FILENAME",
-            "ID_REMOVED_STILL_PRESENT",
-            "ID_REMOVED_UNRECORDED",
-            "ID_RENAME_TARGET_MISSING",
             "ID_UNKNOWN_REFERENCE",
             "INDEX_CONTAINS_PROCEDURE",
             "INDEX_INTENT",

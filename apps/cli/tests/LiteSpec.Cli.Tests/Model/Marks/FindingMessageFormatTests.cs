@@ -143,9 +143,9 @@ public sealed class FindingMessageFormatTests
         Directory.CreateDirectory(Path.Combine(root, "src", "Infrastructure"));
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
-        model.Records.Add(Rec("use-case", "use-case/lending.void-order", Path.Combine(root, "void.md"), """{"status": "reviewed", "kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
-        model.Records.Add(Rec("aggregate", "aggregate/lending.order", Path.Combine(root, "order.md"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The order runs."}]}"""));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.order"]}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.void-order", Path.Combine(root, "void.yaml"), """{"status": "reviewed", "kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
+        model.Records.Add(Rec("aggregate", "aggregate/lending.order", Path.Combine(root, "order.yaml"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The order runs."}]}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.order"]}"""));
 
         var handlerFile = Path.Combine(root, "src", "App", "Shared", "VoidOrderCommandHandler.cs");
         model.Code.Handlers.Add(new HandlerInfo(
@@ -182,16 +182,16 @@ public sealed class FindingMessageFormatTests
             """);
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
-        model.Records.Add(Rec("entry-point", "entry-point/app", Path.Combine(root, "app.md"), """{"status": "reviewed", "kind": "browser"}"""));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.md"), """{"status": "reviewed", "kind": "query", "reachedThrough": ["entry-point/app"], "serves": ["journey/walk#s1"]}"""));
-        model.Records.Add(Rec("journey", "journey/walk", Path.Combine(root, "walk.md"), """{"status": "reviewed", "actor": ["actor/employee"], "steps": [{"id": "s1", "useCase": "use-case/lending.list-loans"}]}"""));
-        model.Records.Add(Rec("result", "result/list-loans.refused", Path.Combine(root, "list.md"), """{"status": "reviewed", "outcome": "refusal", "meaning": "The listing is refused.", "code": "lending.refused"}"""));
-        model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", Path.Combine(root, "list.md"), """{"status": "reviewed", "given": "A loan.", "when": "The employee lists loans.", "then": "Both are listed.", "result": "result/list-loans.listed"}"""));
-        model.Records.Add(Rec("result", "result/list-loans.listed", Path.Combine(root, "list.md"), """{"status": "reviewed", "outcome": "success", "meaning": "The loans are listed."}"""));
-        model.Records.Add(Rec("screen", "screen/app.loans", Path.Combine(root, "loans.md"), """{"status": "reviewed", "entryPoint": ["entry-point/app"], "offers": ["use-case/lending.list-loans"], "serves": []}"""));
-        model.Records.Add(Rec("setting", "setting/lending.loan-limit", Path.Combine(root, "limit.md"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer"}"""));
-        model.Records.Add(Rec("setting", "setting/lending.hold-window", Path.Combine(root, "window.md"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer", "key": "Lending:HoldWindow"}"""));
-        model.Records.Add(Rec("requirement", "requirement/performance.list-loans-latency", Path.Combine(root, "latency.md"), """{"status": "reviewed", "kind": "quality", "statement": "Listing loans answers fast.", "measure": "p99 under 300 ms."}"""));
+        model.Records.Add(Rec("entry-point", "entry-point/app", Path.Combine(root, "app.yaml"), """{"status": "reviewed", "kind": "browser"}"""));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "kind": "query", "reachedThrough": ["entry-point/app"], "serves": ["journey/walk#s1"]}"""));
+        model.Records.Add(Rec("journey", "journey/walk", Path.Combine(root, "walk.yaml"), """{"status": "reviewed", "actor": ["actor/employee"], "steps": [{"id": "s1", "useCase": "use-case/lending.list-loans"}]}"""));
+        model.Records.Add(Rec("result", "result/list-loans.refused", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "refusal", "meaning": "The listing is refused.", "code": "lending.refused"}"""));
+        model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "given": "A loan.", "when": "The employee lists loans.", "then": "Both are listed.", "result": "result/list-loans.listed"}"""));
+        model.Records.Add(Rec("result", "result/list-loans.listed", Path.Combine(root, "list.yaml"), """{"status": "reviewed", "outcome": "success", "meaning": "The loans are listed."}"""));
+        model.Records.Add(Rec("screen", "screen/app.loans", Path.Combine(root, "loans.yaml"), """{"status": "reviewed", "entryPoint": ["entry-point/app"], "offers": ["use-case/lending.list-loans"], "serves": []}"""));
+        model.Records.Add(Rec("setting", "setting/lending.loan-limit", Path.Combine(root, "limit.yaml"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer"}"""));
+        model.Records.Add(Rec("setting", "setting/lending.hold-window", Path.Combine(root, "window.yaml"), """{"status": "reviewed", "setBy": "operator", "valueType": "integer", "key": "Lending:HoldWindow"}"""));
+        model.Records.Add(Rec("requirement", "requirement/performance.list-loans-latency", Path.Combine(root, "latency.yaml"), """{"status": "reviewed", "kind": "quality", "statement": "Listing loans answers fast.", "measure": "p99 under 300 ms."}"""));
         model.Records.Add(Rec(
             "decision", "decision/0002-store-loans-as-documents",
             Path.Combine(root, "docs", "implementation", "decisions", "0002-store-loans-as-documents.md"),

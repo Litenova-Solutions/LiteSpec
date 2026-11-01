@@ -14,7 +14,7 @@ public sealed class StepCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"serves": ["journey/borrow-and-return#s1"]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
@@ -26,7 +26,7 @@ public sealed class StepCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.scan-overdue-on-loan-due", Path.Combine(temp.Path, "scan.md"), """{"triggeredBy": ["event/loan.loan-due"], "serves": ["journey/borrow-and-return#s1"]}"""));
+            TestModel.Record("reaction", "reaction/lending.scan-overdue-on-loan-due", Path.Combine(temp.Path, "scan.yaml"), """{"triggeredBy": ["event/loan.loan-due"], "serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
@@ -38,7 +38,7 @@ public sealed class StepCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
-            TestModel.Record("job", "job/lending.scan-overdue", Path.Combine(temp.Path, "scan.md"), """{"kind": "manual", "guard": "An operator starts the scan.", "serves": ["journey/borrow-and-return#s1"]}"""));
+            TestModel.Record("job", "job/lending.scan-overdue", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
@@ -63,7 +63,7 @@ public sealed class StepCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "retired", "serves": ["journey/borrow-and-return#s1"]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "retired", "serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.Contains("step-use-case-missing", TestModel.Codes(model));
     }
@@ -72,5 +72,5 @@ public sealed class StepCheckTests
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <returns>The journey record holding the step.</returns>
     static Record Journey(string root) =>
-        TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow-and-return.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}""");
+        TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow-and-return.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}""");
 }

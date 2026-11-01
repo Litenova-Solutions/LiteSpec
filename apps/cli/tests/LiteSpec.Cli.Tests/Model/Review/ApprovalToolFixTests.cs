@@ -212,8 +212,8 @@ public sealed class ApprovalToolFixTests
     {
         using var temp = Cli.Temp("review");
         var config = LiteSpec.Tests.Model.Checks.TestModel.Config(temp.Path);
-        var faster = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"serves": ["goal/faster-pickup"]}""");
-        var wider = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/join-the-library", Path.Combine(temp.Path, "join.md"), """{"serves": ["goal/more-readers"]}""");
+        var faster = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"serves": ["goal/faster-pickup"]}""");
+        var wider = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/join-the-library", Path.Combine(temp.Path, "join.yaml"), """{"serves": ["goal/more-readers"]}""");
         var model = LiteSpec.Tests.Model.Checks.TestModel.Model(config, faster, wider);
 
         Assert.Equal("faster-pickup", LiteSpec.Model.ReviewQueue.ModuleOf(model, faster));

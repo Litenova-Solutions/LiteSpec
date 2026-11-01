@@ -23,7 +23,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             Saga(temp.Path, """{"id": "release", "runs": "use-case/booking.release-hold"}"""));
 
         Assert.True(Reports(model, "field-invalid", "holds step 'release' with no compensation"));
@@ -35,7 +35,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             Saga(temp.Path, """{"id": "release", "runs": "use-case/booking.release-hold", "compensation": {"mode": "none"}}"""));
 
         Assert.True(Reports(model, "field-invalid", "with a none compensation naming no reason"));
@@ -47,7 +47,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             DrivenSaga(temp.Path, """{"job": "job/booking.no-such-job"}"""));
 
         Assert.True(Reports(model, "reference-unknown", "is driven by 'job/booking.no-such-job'"));
@@ -59,7 +59,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             DrivenSaga(temp.Path, """{"job": "use-case/booking.release-hold"}"""));
 
         Assert.True(Reports(model, "field-invalid", "is driven by 'use-case/booking.release-hold', which is a use-case"));
@@ -71,7 +71,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             DrivenSaga(temp.Path, """{"job": "job/booking.refund-on-cancellation", "reaction": "reaction/booking.refund-on-cancellation"}"""));
 
         Assert.True(Reports(model, "field-invalid", "naming no single job, reaction or person"));
@@ -83,8 +83,8 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/booking.refund-on-cancellation", Path.Combine(temp.Path, "refund.md"), """{"triggeredBy": ["event/booking.stay-cancelled"]}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/booking.refund-on-cancellation", Path.Combine(temp.Path, "refund.yaml"), """{"triggeredBy": ["event/booking.stay-cancelled"]}"""),
             DrivenSaga(temp.Path, """{"reaction": "reaction/booking.refund-on-cancellation"}"""));
 
         Assert.False(Reports(model, "reference-unknown", "is driven by"));
@@ -97,7 +97,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
             DrivenSaga(temp.Path, """{"person": "actor/clerk", "dueWithin": "P1D"}"""));
 
         Assert.True(Reports(model, "field-invalid", "is driven by a person with no runbook"));
@@ -109,8 +109,8 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.md"), """{"kind": "command"}"""),
-            TestModel.Record("runbook", "runbook/refund-stay", Path.Combine(temp.Path, "refund.md"), """{"trigger": "A guest cancels after payment."}"""),
+            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("runbook", "runbook/refund-stay", Path.Combine(temp.Path, "refund.yaml"), """{"trigger": "A guest cancels after payment."}"""),
             DrivenSaga(temp.Path, """{"person": "actor/clerk", "runbook": "runbook/refund-stay", "dueWithin": "one day"}"""));
 
         Assert.True(Reports(model, "field-invalid", "with dueWithin 'one day', which is not an ISO 8601 duration"));
@@ -122,7 +122,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "required": true}]}"""));
 
         Assert.True(Reports(model, "field-invalid", "holds input field 'nights' with no type"));
     }
@@ -133,7 +133,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "type": "count", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "type": "count", "required": true}]}"""));
 
         Assert.True(Reports(model, "field-invalid", "with type 'count' outside"));
     }
@@ -144,7 +144,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
 
         Assert.True(Reports(model, "field-invalid", "of type id with no of record"));
     }
@@ -155,7 +155,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.no-such-room", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.no-such-room", "required": true}]}"""));
 
         Assert.True(Reports(model, "reference-unknown", "of 'aggregate/inventory.no-such-room', which no record holds"));
     }
@@ -166,7 +166,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
 
         Assert.True(Reports(model, "field-invalid", "of type choice with no of choices"));
     }
@@ -177,8 +177,8 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.md"), """{"kind": "entity", "states": [{"name": "Free", "meaning": "The room is free."}]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "of": ["single", "double"], "required": false}]}"""));
+            TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.yaml"), """{"kind": "entity", "states": [{"name": "Free", "meaning": "The room is free."}]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.room", "required": true}, {"name": "nights", "meaning": "The nights to hold.", "type": "integer", "required": true}, {"name": "bed", "meaning": "The bed shape.", "type": "choice", "of": ["single", "double"], "required": false}]}"""));
 
         Assert.False(Reports(model, "field-invalid", "holds input field"));
     }
@@ -189,7 +189,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/booking-held", Path.Combine(temp.Path, "held.md"), """{"dataschema": "not a url"}"""));
+            TestModel.Record("integration-event", "integration-event/booking-held", Path.Combine(temp.Path, "held.yaml"), """{"dataschema": "not a url"}"""));
 
         Assert.True(Reports(model, "field-invalid", "holds dataschema 'not a url', which is no URL"));
     }
@@ -200,8 +200,8 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold.md"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.no-such-rule"]}"""));
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold.yaml"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.no-such-rule"]}"""));
 
         Assert.True(Reports(model, "reference-unknown", "exercises 'rule/hold.no-such-rule'"));
     }
@@ -212,9 +212,9 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/hold.one-hold-per-room-night", Path.Combine(temp.Path, "hold.md"), """{"kind": "invariant", "statement": "A room night holds one hold.", "governs": ["aggregate/booking.hold"]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold-room.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold-room.md"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.one-hold-per-room-night"]}"""));
+            TestModel.Record("rule", "rule/hold.one-hold-per-room-night", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "invariant", "statement": "A room night holds one hold.", "governs": ["aggregate/booking.hold"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold-room.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/hold-room.second-hold-is-refused", Path.Combine(temp.Path, "hold-room.yaml"), """{"given": "Ben already holds the room.", "when": "Ana holds the room.", "then": "The hold is refused.", "result": "result/hold-room.refused", "exercises": ["rule/hold.one-hold-per-room-night"]}"""));
 
         Assert.False(Reports(model, "reference-unknown", "exercises"));
         Assert.False(Reports(model, "field-invalid", "exercises"));
@@ -226,7 +226,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"kind": "browser", "auth": ["anonymous"]}"""));
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["anonymous"]}"""));
 
         Assert.True(Reports(model, "field-invalid", "holds auth 'anonymous' outside"));
     }
@@ -237,7 +237,7 @@ public sealed class BehaviorContractCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"kind": "browser", "auth": ["session", "none"]}"""));
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["session", "none"]}"""));
 
         Assert.False(Reports(model, "field-invalid", "holds auth"));
     }

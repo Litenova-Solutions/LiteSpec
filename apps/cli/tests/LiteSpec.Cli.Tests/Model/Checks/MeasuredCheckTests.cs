@@ -96,7 +96,7 @@ public sealed class MeasuredCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-measure-missing");
         Assert.Equal("A", finding.Tier);
@@ -112,7 +112,7 @@ public sealed class MeasuredCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
     }
@@ -125,8 +125,8 @@ public sealed class MeasuredCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "reopenedWhen": "Queues pass one hundred a day."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "reopenedWhen": "Queues pass one hundred a day."}"""));
 
         Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
     }

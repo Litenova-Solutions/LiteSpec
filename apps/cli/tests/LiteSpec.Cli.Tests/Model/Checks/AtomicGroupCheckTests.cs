@@ -12,8 +12,8 @@ public sealed class AtomicGroupCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.md"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "changes": ["aggregate/booking.booking", "aggregate/booking.invoice"], "consistency": {"mode": "atomic", "cites": ["rule/booking.room-still-free"]}}"""));
+            TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.yaml"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "changes": ["aggregate/booking.booking", "aggregate/booking.invoice"], "consistency": {"mode": "atomic", "cites": ["rule/booking.room-still-free"]}}"""));
 
         Assert.Contains("atomic-group-drift", TestModel.Codes(model));
     }
@@ -24,8 +24,8 @@ public sealed class AtomicGroupCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.md"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
-            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.md"), """{"kind": "command", "changes": ["aggregate/booking.booking", "aggregate/inventory.room-night"], "consistency": {"mode": "atomic", "cites": ["rule/booking.room-still-free"]}}"""));
+            TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.yaml"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
+            TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "changes": ["aggregate/booking.booking", "aggregate/inventory.room-night"], "consistency": {"mode": "atomic", "cites": ["rule/booking.room-still-free"]}}"""));
 
         Assert.DoesNotContain("atomic-group-drift", TestModel.Codes(model));
     }
@@ -36,7 +36,7 @@ public sealed class AtomicGroupCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.md"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"]}"""));
+            TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.yaml"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "atomic-group-invalid");
         Assert.Equal("Rule 'rule/sales.big-order' binds 5 aggregates.", finding.Message);
@@ -49,7 +49,7 @@ public sealed class AtomicGroupCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.md"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment"]}"""));
+            TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.yaml"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment"]}"""));
 
         Assert.DoesNotContain("atomic-group-invalid", TestModel.Codes(model));
     }
@@ -60,7 +60,7 @@ public sealed class AtomicGroupCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/sales.place-order", Path.Combine(temp.Path, "order.md"), """{"kind": "command", "changes": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"], "consistency": {"mode": "atomic"}}"""));
+            TestModel.Record("use-case", "use-case/sales.place-order", Path.Combine(temp.Path, "order.yaml"), """{"kind": "command", "changes": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"], "consistency": {"mode": "atomic"}}"""));
 
         Assert.Contains("atomic-group-invalid", TestModel.Codes(model));
     }

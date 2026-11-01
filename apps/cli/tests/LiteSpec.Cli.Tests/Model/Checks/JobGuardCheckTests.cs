@@ -12,7 +12,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "manual", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.Contains("job-guard-missing", TestModel.Codes(model));
     }
@@ -23,7 +23,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
@@ -34,7 +34,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
@@ -45,7 +45,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.True(Reports(model, "schedule-invalid", "runs on time with no structured schedule"));
     }
@@ -56,7 +56,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.Contains("schedule-invalid", TestModel.Codes(model));
     }
@@ -67,7 +67,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"cron": "0 3 * * *"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"cron": "0 3 * * *"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.DoesNotContain("schedule-invalid", TestModel.Codes(model));
     }
@@ -78,7 +78,7 @@ public sealed class JobGuardCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
 
         Assert.True(Reports(model, "schedule-invalid", "carries a schedule no tool can read"));
     }

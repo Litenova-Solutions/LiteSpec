@@ -162,10 +162,10 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Retired use case without goal and what happens.</summary>
+    /// <summary>Retired use case without purpose and whatHappens.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
-    [Fact(DisplayName = "retired use case without goal and what happens")]
-    public void RetiredUseCaseWithoutGoalAndWhatHappens()
+    [Fact(DisplayName = "retired use case without purpose and whatHappens")]
+    public void RetiredUseCaseWithoutPurposeAndWhatHappens()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(

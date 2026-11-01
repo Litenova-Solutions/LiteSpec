@@ -14,9 +14,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -29,7 +29,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -45,7 +45,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -61,8 +61,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/checkout", Path.Combine(temp.Path, "checkout.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/checkout", Path.Combine(temp.Path, "checkout.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -78,8 +78,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/no-such-feature"]}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/no-such-feature"]}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
         Assert.Contains("reference-unknown", TestModel.Codes(model));
@@ -93,8 +93,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-invalid");
         Assert.Equal("G", finding.Tier);
@@ -110,8 +110,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
         Assert.DoesNotContain("identifier-invalid", TestModel.Codes(model));
     }
@@ -124,7 +124,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/overdue-loans-pile-up"], "refusedBecause": "The desk handles holds by hand."}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/overdue-loans-pile-up"], "refusedBecause": "The desk handles holds by hand."}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -137,7 +137,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "refused", "refusedBecause": "The desk handles holds by hand."}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "refused", "refusedBecause": "The desk handles holds by hand."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -153,8 +153,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -167,9 +167,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("journey", "journey/renew-loan", Path.Combine(temp.Path, "renew.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("journey", "journey/renew-loan", Path.Combine(temp.Path, "renew.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -185,7 +185,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -201,7 +201,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
         Assert.Contains("reference-unknown", TestModel.Codes(model));
@@ -215,10 +215,10 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, "borrow.md"), """{"outcome": "success", "meaning": "The copy is lent."}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow.md"), """{"given": "A copy sits available on its shelf.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, "borrow.yaml"), """{"outcome": "success", "meaning": "The copy is lent."}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow.yaml"), """{"given": "A copy sits available on its shelf.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -231,9 +231,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow.md"), """{"given": "A copy sits available on its shelf.", "when": "The reader borrows the copy.", "then": "The loan is active."}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow.yaml"), """{"given": "A copy sits available on its shelf.", "when": "The reader borrows the copy.", "then": "The loan is active."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -249,7 +249,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("scenario", "scenario/no-such-case.filing-succeeds", Path.Combine(temp.Path, "file.md"), """{"given": "A clerk holds a filed copy.", "when": "The clerk files the copy.", "then": "The copy is filed.", "result": "result/no-such-case.filed"}"""));
+            TestModel.Record("scenario", "scenario/no-such-case.filing-succeeds", Path.Combine(temp.Path, "file.yaml"), """{"given": "A clerk holds a filed copy.", "when": "The clerk files the copy.", "then": "The copy is filed.", "result": "result/no-such-case.filed"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -265,9 +265,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, "borrow.md"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, "borrow.yaml"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -280,7 +280,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("result", "result/no-such-case.filed", Path.Combine(temp.Path, "file.md"), """{"outcome": "success", "meaning": "The copy is filed."}"""));
+            TestModel.Record("result", "result/no-such-case.filed", Path.Combine(temp.Path, "file.yaml"), """{"outcome": "success", "meaning": "The copy is filed."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -296,8 +296,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"entryPoint": "entry-point/library-app", "address": "/loans"}"""),
-            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"kind": "browser"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"entryPoint": "entry-point/library-app", "address": "/loans"}"""),
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -310,7 +310,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"address": "/loans"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"address": "/loans"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -326,8 +326,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"entryPoint": ["entry-point/kiosk"], "address": "/loans"}"""),
-            TestModel.Record("entry-point", "entry-point/kiosk", Path.Combine(temp.Path, "entry.md"), """{"kind": "device"}"""));
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"entryPoint": ["entry-point/kiosk"], "address": "/loans"}"""),
+            TestModel.Record("entry-point", "entry-point/kiosk", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "device"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -343,8 +343,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -357,7 +357,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/nope.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/nope.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -373,7 +373,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/nope.loan", Path.Combine(temp.Path, "loan.md"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
+            TestModel.Record("aggregate", "aggregate/nope.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -389,9 +389,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
-            TestModel.Record("rule", "rule/loan.loan-period", Path.Combine(temp.Path, "rules.md"), """{"kind": "invariant", "statement": "A loan lasts 21 days.", "governs": ["aggregate/lending.loan"]}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
+            TestModel.Record("rule", "rule/loan.loan-period", Path.Combine(temp.Path, "rules.yaml"), """{"kind": "invariant", "statement": "A loan lasts 21 days.", "governs": ["aggregate/lending.loan"]}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -404,7 +404,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/nope.loan-period", Path.Combine(temp.Path, "rules.md"), """{"kind": "invariant", "statement": "A loan lasts 21 days.", "governs": ["aggregate/lending.loan"]}"""));
+            TestModel.Record("rule", "rule/nope.loan-period", Path.Combine(temp.Path, "rules.yaml"), """{"kind": "invariant", "statement": "A loan lasts 21 days.", "governs": ["aggregate/lending.loan"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -420,9 +420,9 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.md"), """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
-            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""),
+            TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -435,7 +435,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("event", "event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"meaning": "The copy is lent.", "carries": []}"""));
+            TestModel.Record("event", "event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -451,7 +451,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.md"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -467,7 +467,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/nope.scan-due", Path.Combine(temp.Path, "scan.md"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due"}]}"""));
+            TestModel.Record("job", "job/nope.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -483,7 +483,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/nope.loan-due", Path.Combine(temp.Path, "notify.md"), """{"template": "loan-due"}"""));
+            TestModel.Record("notification", "notification/nope.loan-due", Path.Combine(temp.Path, "notify.yaml"), """{"template": "loan-due"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -499,7 +499,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("setting", "setting/nope.max-renewals", Path.Combine(temp.Path, "settings.md"), """{}"""));
+            TestModel.Record("setting", "setting/nope.max-renewals", Path.Combine(temp.Path, "settings.yaml"), """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -515,7 +515,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -528,7 +528,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
@@ -541,7 +541,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("result", "result/borrowed", Path.Combine(temp.Path, "borrow.md"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
+            TestModel.Record("result", "result/borrowed", Path.Combine(temp.Path, "borrow.yaml"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -558,7 +558,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow.copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow.copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -575,7 +575,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.Contains("identifier-invalid", TestModel.Codes(model));
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));

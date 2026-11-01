@@ -722,7 +722,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}, {"calls": "external-system/billing#void", "timing": "after-commit"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}, {"calls": "external-system/billing#void", "timing": "after-commit"}]}"""));
 
         Assert.DoesNotContain("effect-timing-invalid", TestModel.Codes(model));
     }
@@ -735,7 +735,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
 
         var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-timing-invalid");
 
@@ -753,8 +753,8 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.md"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "approved", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
+            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"status": "approved", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 
@@ -771,8 +771,8 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.md"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "draft", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
+            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"status": "draft", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Contains("effect-timing-invalid", TestModel.Codes(model));
     }
@@ -785,7 +785,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"calls": "external-system/billing#void", "timing": "inline"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/billing#void", "timing": "inline"}]}"""));
 
         var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-timing-invalid");
 
@@ -802,7 +802,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "list.md"), """{"kind": "query", "effects": [{"sends": "notification/lending.listed", "timing": "inline"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "list.yaml"), """{"kind": "query", "effects": [{"sends": "notification/lending.listed", "timing": "inline"}]}"""));
 
         Assert.DoesNotContain("effect-timing-invalid", TestModel.Codes(model));
     }
@@ -861,8 +861,8 @@ public sealed class HandlerShapeCheckTests
         var folder = Path.Combine(root, "docs", "behavior", "modules", "lending", "orders");
         var model = TestModel.Model(
             TestModel.Config(root),
-            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(folder, "void-order.md"), $$"""{"kind": "{{kind}}"}"""),
-            TestModel.Record("aggregate", "aggregate/lending.order", Path.Combine(folder, "aggregate.md"), """{"states": [{"name": "Open", "meaning": "The order is open."}]}"""));
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(folder, "void-order.yaml"), $$"""{"kind": "{{kind}}"}"""),
+            TestModel.Record("aggregate", "aggregate/lending.order", Path.Combine(folder, "aggregate.yaml"), """{"states": [{"name": "Open", "meaning": "The order is open."}]}"""));
         model.Code.Endpoints.Add(new EndpointOperation("", "use-case/lending.void-order", method, route, Path.Combine(root, "VoidOrderEndpoint.cs")));
         return model;
     }

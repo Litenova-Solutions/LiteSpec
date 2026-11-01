@@ -15,7 +15,7 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("requirement/checkout.receipt-on-request")));
 
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
@@ -30,7 +30,7 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), DecisionJson("requirement/checkout.receipt-on-request")));
 
         Assert.True(Reports(model, "field-invalid", "links basedOn to 'requirement/checkout.receipt-on-request', which is a requirement"));
@@ -44,8 +44,8 @@ public sealed class DecisionBasisCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
-            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak."}"""));
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
+            TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak."}"""));
 
         Assert.True(Reports(model, "field-invalid", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
     }
@@ -77,7 +77,7 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.md"), """{"authority": "Tax code, article 9.", "kind": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""),
+            TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.yaml"), """{"authority": "Tax code, article 9.", "kind": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("constraint/receipts-stay-in-the-eu")));
 
         Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));
@@ -92,7 +92,7 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
 
         Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));

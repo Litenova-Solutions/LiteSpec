@@ -16,7 +16,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedProblem(temp.Path, changed: true),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
@@ -33,7 +33,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedProblem(temp.Path, changed: true),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("A", finding.Tier);
@@ -50,7 +50,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedProblem(temp.Path, changed: false),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""));
 
         Assert.DoesNotContain("parent-reopened", TestModel.Codes(model));
     }
@@ -64,7 +64,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedRequirement(temp.Path),
-            TestModel.Record("rule", "rule/lending.allow-renewal", Path.Combine(temp.Path, "lending.md"), """{"fulfills": ["requirement/borrowing.max-active-loans"]}"""));
+            TestModel.Record("rule", "rule/lending.allow-renewal", Path.Combine(temp.Path, "lending.yaml"), """{"fulfills": ["requirement/borrowing.max-active-loans"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
@@ -81,7 +81,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedGoal(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
@@ -108,7 +108,7 @@ public sealed class ParentChangedCheckTests
     /// <returns>The stamped problem record.</returns>
     static Record ChangedProblem(string root, bool changed) =>
         Stamped(
-            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(root, "problems.md"), """{"status": "approved", "affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(root, "problems.yaml"), """{"status": "approved", "affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
             changed);
 
     /// <summary>A requirement whose approved hash misses its fields.</summary>
@@ -116,7 +116,7 @@ public sealed class ParentChangedCheckTests
     /// <returns>The stamped requirement record with a stale hash.</returns>
     static Record ChangedRequirement(string root) =>
         Stamped(
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(root, "borrowing.md"), """{"status": "approved", "kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(root, "borrowing.yaml"), """{"status": "approved", "kind": "functional", "statement": "A reader holds at most five active loans."}"""),
             changed: true);
 
     /// <summary>A goal whose approved hash misses its fields.</summary>
@@ -124,7 +124,7 @@ public sealed class ParentChangedCheckTests
     /// <returns>The stamped goal record with a stale hash.</returns>
     static Record ChangedGoal(string root) =>
         Stamped(
-            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(root, "goals.md"), """{"status": "approved", "statement": "Readers pick up holds faster.", "measure": "Median pickup wait.", "target": "Two days.", "dueBy": "2027-01-01"}"""),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(root, "goals.yaml"), """{"status": "approved", "statement": "Readers pick up holds faster.", "measure": "Median pickup wait.", "target": "Two days.", "dueBy": "2027-01-01"}"""),
             changed: true);
 
     /// <summary>The record with its approved hash stamped, flipped when the record changed.</summary>

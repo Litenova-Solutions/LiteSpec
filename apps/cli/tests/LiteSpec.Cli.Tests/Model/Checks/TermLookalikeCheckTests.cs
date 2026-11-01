@@ -15,8 +15,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
-            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
+            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""),
+            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.yaml"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
@@ -36,7 +36,7 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""));
+            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""));
 
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
@@ -50,8 +50,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"vocabulary": {"lookalikeIgnore": ["soldout|sold-out"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
-            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
+            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""),
+            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.yaml"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
 
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
@@ -65,8 +65,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/test.colour-check", Path.Combine(temp.Path, "colour.md"), """{"kind": "invariant", "statement": "Each flag carries a colour.", "governs": []}"""),
-            TestModel.Record("rule", "rule/test.color-check", Path.Combine(temp.Path, "color.md"), """{"kind": "invariant", "statement": "Each flag carries a color.", "governs": []}"""));
+            TestModel.Record("rule", "rule/test.colour-check", Path.Combine(temp.Path, "colour.yaml"), """{"kind": "invariant", "statement": "Each flag carries a colour.", "governs": []}"""),
+            TestModel.Record("rule", "rule/test.color-check", Path.Combine(temp.Path, "color.yaml"), """{"kind": "invariant", "statement": "Each flag carries a color.", "governs": []}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
@@ -86,8 +86,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/test.copy", Path.Combine(temp.Path, "copy.md"), """{"states": []}"""),
-            TestModel.Record("aggregate", "aggregate/test.copies", Path.Combine(temp.Path, "copies.md"), """{"states": []}"""));
+            TestModel.Record("aggregate", "aggregate/test.copy", Path.Combine(temp.Path, "copy.yaml"), """{"states": []}"""),
+            TestModel.Record("aggregate", "aggregate/test.copies", Path.Combine(temp.Path, "copies.yaml"), """{"states": []}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
@@ -116,8 +116,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
-            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
+            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.yaml"), """{"template": "notice"}"""),
+            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.yaml"), """{"template": "notice"}"""));
 
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
@@ -139,8 +139,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
-            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
+            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.yaml"), """{"template": "notice"}"""),
+            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.yaml"), """{"template": "notice"}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
@@ -158,8 +158,8 @@ public sealed class TermLookalikeCheckTests
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("rule", "rule/test.behaviour-check", Path.Combine(temp.Path, "behaviour.md"), """{"kind": "invariant", "statement": "Each flag carries a behaviour.", "governs": []}"""),
-            TestModel.Record("rule", "rule/test.behavior-check", Path.Combine(temp.Path, "behavior.md"), """{"kind": "invariant", "statement": "Each flag carries a behavior.", "governs": []}"""));
+            TestModel.Record("rule", "rule/test.behaviour-check", Path.Combine(temp.Path, "behaviour.yaml"), """{"kind": "invariant", "statement": "Each flag carries a behaviour.", "governs": []}"""),
+            TestModel.Record("rule", "rule/test.behavior-check", Path.Combine(temp.Path, "behavior.yaml"), """{"kind": "invariant", "statement": "Each flag carries a behavior.", "governs": []}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);

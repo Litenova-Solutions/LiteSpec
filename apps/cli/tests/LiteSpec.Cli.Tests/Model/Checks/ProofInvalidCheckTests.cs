@@ -18,7 +18,7 @@ public sealed class ProofInvalidCheckTests
         var file = Path.Combine(temp.Path, "ProofScenarios.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.TestRun = new TestRun();
         model.TestRun.Flaky.Add(TestName);
         model.Tests.Add(new ScenarioInfo(
@@ -55,7 +55,7 @@ public sealed class ProofInvalidCheckTests
         var file = Path.Combine(temp.Path, "ProofScenarios.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.TestRun = new TestRun();
         model.Tests.Add(new ScenarioInfo(
             TestName,
@@ -85,7 +85,7 @@ public sealed class ProofInvalidCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.md"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+            TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
 
         Assert.Null(model.TestRun);
         Assert.DoesNotContain("proof-invalid", TestModel.Codes(model));

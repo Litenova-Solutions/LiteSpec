@@ -99,7 +99,7 @@ public sealed partial class ConsumerValidatorTests
     public void ReviewedVersionOutsideItsForm()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = "v2");
+        ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = "v3");
         AssertProblem(RunConsumer(folder.Path), "/reviewedLiteSpecVersion");
     }
 

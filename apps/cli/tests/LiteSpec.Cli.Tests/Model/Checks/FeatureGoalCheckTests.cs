@@ -14,7 +14,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"]}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"]}"""));
 
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
@@ -27,7 +27,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-goal-missing");
         Assert.Equal("A", finding.Tier);
@@ -43,7 +43,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "risk": ["money"]}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "risk": ["money"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-goal-missing");
         Assert.Equal("G", finding.Tier);
@@ -59,7 +59,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/hold-delays"], "refusedBecause": "The desk handles holds by hand."}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/hold-delays"], "refusedBecause": "The desk handles holds by hand."}"""));
 
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
@@ -72,7 +72,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "retired", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "retired", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
@@ -85,7 +85,7 @@ public sealed class FeatureGoalCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"], "serves": ["goal/faster-checkout"]}"""));
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"], "serves": ["goal/faster-checkout"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message.Contains("names serves", StringComparison.Ordinal));
         Assert.Equal("Feature 'feature/hold-requests' names serves and advances holds its goal.", finding.Message);

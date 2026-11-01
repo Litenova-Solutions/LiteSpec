@@ -749,7 +749,7 @@ public sealed class BookViewsTests
         var useCase = Obj(details["use-case/lending.borrow-copy"], "sections");
         Assert.Equal("", Str(useCase, "intro"));
         Assert.Equal(
-            new[] { "Goal", "What Happens" },
+            new[] { "Example", "Notes" },
             useCase["list"]!.AsArray().Select(node => Str(node!.AsObject(), "h")).ToList());
     }
 

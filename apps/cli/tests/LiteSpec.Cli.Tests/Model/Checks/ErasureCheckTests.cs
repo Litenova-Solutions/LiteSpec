@@ -15,7 +15,7 @@ public sealed class ErasureCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """
                 {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
                  "dataClasses": [{"name": "Borrower identity", "classification": "personal"}]}
                 """));
@@ -59,7 +59,7 @@ public sealed class ErasureCheckTests
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), json));
 
         Assert.DoesNotContain("erasure-undeclared", TestModel.Codes(model));
     }
@@ -79,7 +79,7 @@ public sealed class ErasureCheckTests
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), json));
 
         Assert.DoesNotContain("erasure-undeclared", TestModel.Codes(model));
         Assert.DoesNotContain("retention-enforcement-missing", TestModel.Codes(model));
@@ -100,7 +100,7 @@ public sealed class ErasureCheckTests
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), json));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "erasure-undeclared");
     }
@@ -118,7 +118,7 @@ public sealed class ErasureCheckTests
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), json));
 
         Assert.Contains("retention-enforcement-missing", TestModel.Codes(model));
     }

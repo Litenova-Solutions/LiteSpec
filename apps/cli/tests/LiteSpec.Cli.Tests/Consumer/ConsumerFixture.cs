@@ -315,7 +315,7 @@ static class ConsumerFixture
     static ManifestInfo ReadManifest()
     {
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(Cli.Repository, "litespec.manifest.json")))!;
-        var version = (string?)manifest["version"] ?? "2.0.0";
+        var version = (string?)manifest["version"] ?? throw new InvalidOperationException("The manifest names no version.");
         var known = manifest["extensions"] is JsonObject extensions && extensions.Count > 0
             ? extensions.Select(pair => pair.Key).First()
             : "outbox";

@@ -27,7 +27,7 @@ public sealed class BookEnrichTests
         Assert.Null(fields["status"]);
         Assert.NotNull(fields["summary"]);
         var src = Obj(loan, "src");
-        Assert.Equal("docs/behavior/modules/lending/loans/README.md", Str(src, "path"));
+        Assert.Equal("docs/behavior/modules/lending/loans/aggregate.yaml", Str(src, "path"));
         Assert.Equal(3, src["line"]?.GetValue<int>());
     }
 

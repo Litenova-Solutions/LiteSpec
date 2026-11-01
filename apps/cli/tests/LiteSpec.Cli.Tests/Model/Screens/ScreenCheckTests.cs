@@ -437,7 +437,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"],"serves":["journey/walk#s1"]}""", root));
         model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/app"],"serves":["journey/walk#s1"]}""", root));
-        model.Records.Add(Rec("journey", "journey/walk", """{"actor":["actor/employee"],"goal":"Borrow a copy.","steps":[{"id":"s1","useCase":"use-case/lending.list-loans"},{"id":"s2","useCase":"use-case/lending.list-loans"}]}""", root));
+        model.Records.Add(Rec("journey", "journey/walk", """{"actor":["actor/employee"],"steps":[{"id":"s1","useCase":"use-case/lending.list-loans"},{"id":"s2","useCase":"use-case/lending.list-loans"}]}""", root));
         model.Records.Add(Rec("result", "result/list-loans.listed", """{"outcome":"success","meaning":"The loans are listed."}""", root));
         model.Records.Add(Rec("result", "result/list-loans.refused", """{"outcome":"refusal","meaning":"The listing is refused.","code":"lending.refused"}""", root));
         model.Records.Add(Rec("scenario", "scenario/list-loans.listing-succeeds", """{"given":"A loan.","when":"The employee lists loans.","then":"Both are listed.","result":"result/list-loans.listed"}""", root));

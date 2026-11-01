@@ -414,7 +414,6 @@ internal static class SchemaChecks
 
             case RecordTypes.Reaction:
             case RecordTypes.Job:
-                CheckLegacyEdges(record, [RecordFields.Runs, RecordFields.Sends, RecordFields.Emits, RecordFields.Calls], findings);
                 RequireArray(record, RecordFields.Effects, 1, findings);
                 CheckIdempotency(record, findings);
                 CheckFailurePolicy(record, findings);
@@ -888,24 +887,6 @@ internal static class SchemaChecks
         else if (!Regex.IsMatch(value, pattern))
         {
             findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}', which is not {shape}.", record.File, record.Line, SubjectOf(record)));
-        }
-    }
-
-    /// <summary>
-    ///     Flags the retired top-level edge fields on a reaction or job: edges live in
-    ///     the effects array, under one grammar for every record that has edges.
-    /// </summary>
-    /// <param name="record">The reaction or job record whose top-level fields are judged.</param>
-    /// <param name="fields">The retired top-level edge field names.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckLegacyEdges(Record record, string[] fields, List<Finding> findings)
-    {
-        foreach (var field in fields)
-        {
-            if (record.Has(field))
-            {
-                findings.Add(new Finding("record-invalid", $"{Label(record.Type)} '{record.Id}' holds top-level {field} outside effects.", record.File, record.Line, SubjectOf(record)));
-            }
         }
     }
 

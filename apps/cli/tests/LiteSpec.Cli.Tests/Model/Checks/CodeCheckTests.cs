@@ -15,7 +15,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Repositories: [new CodeRepository("IHoldRepository", file, 5)]));
@@ -32,8 +32,8 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "reads": ["aggregate/lending.hold"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.hold", Path.Combine(temp.Path, "hold.md"), """{"status": "reviewed", "states": [{"name": "Waiting", "meaning": "The hold waits."}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "reads": ["aggregate/lending.hold"]}"""),
+            TestModel.Record("aggregate", "aggregate/lending.hold", Path.Combine(temp.Path, "hold.yaml"), """{"status": "reviewed", "states": [{"name": "Waiting", "meaning": "The hold waits."}]}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Repositories: [new CodeRepository("IHoldRepository", file, 5)]));
@@ -51,8 +51,8 @@ public sealed class CodeCheckTests
         var repositoryFile = Path.Combine(temp.Path, "LoanBookRepository.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The loan runs."}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan"]}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The loan runs."}]}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", handlerFile,
             Repositories: [new CodeRepository("ILoanBookRepository", handlerFile, 5)]));
@@ -74,7 +74,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Refusals: [new CodeRefusal("lending.ghost-refusal", file, 9)]));
@@ -91,7 +91,7 @@ public sealed class CodeCheckTests
         var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Literals.Add(new CodeLiteral(
             "lending.ghost-refusal", Path.Combine(temp.Path, "LoanGhostRefusalException.cs"), 8, "LoanGhostRefusalException"));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -110,7 +110,7 @@ public sealed class CodeCheckTests
         var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""),
             TestModel.Record(
                 "result",
                 "result/borrow-copy.copy-unavailable",
@@ -134,7 +134,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "access": {"auth": ["session"], "grant": "permission/borrow-copy", "tenant": "own"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "access": {"auth": ["session"], "grant": "permission/borrow-copy", "tenant": "own"}}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Refusals: [new CodeRefusal("authorization.forbidden", file, 9)]));
@@ -154,7 +154,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "access": {"auth": ["session"], "grant": "permission/borrow-copy", "tenant": "own"}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "access": {"auth": ["session"], "grant": "permission/borrow-copy", "tenant": "own"}}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Refusals: [new CodeRefusal("library.forbidden", file, 9)]));
@@ -171,7 +171,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Dispatches: [new CodeDispatch("runs", "PurgeLoansCommand", "", file, 13)]));
@@ -188,8 +188,8 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "effects": [{"runs": "use-case/lending.purge-loans", "timing": "async"}]}"""),
-            TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "effects": [{"runs": "use-case/lending.purge-loans", "timing": "async"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Dispatches: [new CodeDispatch("runs", "PurgeLoansCommand", "", file, 13)]));
@@ -206,8 +206,8 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "runs": ["use-case/lending.borrow-copy"]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "runs": ["use-case/lending.borrow-copy"]}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
@@ -224,8 +224,8 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
@@ -242,8 +242,8 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyOnRequestReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "BorrowCopyOnRequestReaction", file, 3, "use-case/lending.borrow-copy",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9), new CodeDispatch("runs", "PurgeLoansCommand", "", file, 12)]));
@@ -263,7 +263,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "PushPassOnLoanReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
         model.Code.Reactions.Add(new ReactionInfo(
             "PushPassOnLoanReaction", file, 3, null, "reaction/lending.push-pass-on-loan",
             Dispatches: [new CodeDispatch("calls", "PushAsync", "IWalletPasses", file, 9)]));
@@ -280,7 +280,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Dispatches: [new CodeDispatch("runs", "PurgeLoansCommand", "", file, 13, "LoanFanout.RetryAsync")]));
@@ -301,7 +301,7 @@ public sealed class CodeCheckTests
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", file,
             Dispatches: [new CodeDispatch("runs", "PurgeLoansCommand", "", file, 13)]));

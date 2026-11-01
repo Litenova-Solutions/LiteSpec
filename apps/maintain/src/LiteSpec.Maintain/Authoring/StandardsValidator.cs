@@ -54,9 +54,6 @@ internal static class StandardsValidator
         "ID_LINE_MISSING",
         "ID_LINE_MISMATCH",
         "ID_PAGE_FILENAME",
-        "ID_REMOVED_STILL_PRESENT",
-        "ID_REMOVED_UNRECORDED",
-        "ID_RENAME_TARGET_MISSING",
         "ID_UNKNOWN_REFERENCE",
         "INDEX_CONTAINS_PROCEDURE",
         "INDEX_INTENT",
@@ -134,24 +131,11 @@ internal static class StandardsValidator
     public static readonly IReadOnlyList<string> WarningDiagnosticCodes =
     [];
 
-    /// <summary>
-    ///     Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.
-    ///     The released provision identifiers come from the highest release tag.
-    /// </summary>
+    /// <summary>Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.</summary>
     /// <param name="root">The repository root.</param>
-    /// <returns>The validation result.</returns>
-    public static StandardsResult Validate(string root) => Validate(root, null);
-
-    /// <summary>
-    ///     Validates the repository at <paramref name="root"/> against the given released
-    ///     provision identifiers, or the highest release tag when <paramref name="releasedIds"/>
-    ///     is null. Tests pass explicit identifiers so the removal check needs no git history.
-    /// </summary>
-    /// <param name="root">The repository root.</param>
-    /// <param name="releasedIds">The released provision identifiers, or null.</param>
     /// <returns>The validation result.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Validate reports an unreadable repository root or input walk as a result error instead of crashing the validation run on malformed repository input.")]
-    internal static StandardsResult Validate(string root, HashSet<string>? releasedIds)
+    public static StandardsResult Validate(string root)
     {
         var resolved = Path.GetFullPath(root.Length == 0 ? "." : root);
         var diagnostics = new List<StandardsDiagnostic>();
@@ -225,7 +209,6 @@ internal static class StandardsValidator
         var activeIds = new HashSet<string>(context.GlobalIds.Keys, StringComparer.Ordinal);
         context.Repository.CheckCitations(parsedPages, activeIds);
         context.Marks.CheckMarks(activeIds);
-        context.Repository.CheckRemovedProvisions(activeIds, releasedIds);
 
         context.Repository.CheckAuthoringTemplates();
         context.Repository.CheckLinks(current);

@@ -14,7 +14,7 @@ public sealed class IntentShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no rationale."));
     }
@@ -27,7 +27,7 @@ public sealed class IntentShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
 
         Assert.True(Reports(model, "field-invalid", "has setBy 'founder' outside decider, operator, tenant."));
     }
@@ -40,7 +40,7 @@ public sealed class IntentShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days"}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days"}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no reopenedWhen."));
     }
@@ -53,7 +53,7 @@ public sealed class IntentShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day."}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day."}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no choice."));
     }
@@ -66,7 +66,7 @@ public sealed class IntentShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved"}"""));
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved"}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no reviewBy."));
     }

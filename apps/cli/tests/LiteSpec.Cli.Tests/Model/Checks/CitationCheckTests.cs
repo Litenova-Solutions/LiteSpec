@@ -14,7 +14,7 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-cites-missing");
         Assert.Equal("A", finding.Tier);
@@ -30,7 +30,7 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "risk": ["money"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "risk": ["money"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-cites-missing");
         Assert.Equal("G", finding.Tier);
@@ -46,8 +46,8 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
     }
@@ -60,7 +60,7 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
     }
@@ -73,9 +73,9 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
-            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(temp.Path, "problems.md"), """{"affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(temp.Path, "problems.yaml"), """{"affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "constraint-unreached");
         Assert.Equal("G", finding.Tier);
@@ -91,8 +91,8 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
@@ -105,9 +105,9 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
-            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(temp.Path, "problems.md"), """{"affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": false, "appliesBecause": "The library keeps no records yet."}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", Path.Combine(temp.Path, "problems.yaml"), """{"affects": ["actor/reader"], "statement": "Overdue loans pile up on the shelves."}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": false, "appliesBecause": "The library keeps no records yet."}"""));
 
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
@@ -120,7 +120,7 @@ public sealed class CitationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"status": "retired", "authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"status": "retired", "authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
