@@ -16,11 +16,60 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same pull request or branch replaces the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  cli:
+  # The test suites, sharded on Linux and Windows.
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  # Packs the tool and the analyzers and installs the tool the way a consumer does.
+  package:
     runs-on: ubuntu-24.04
     # The default step timeout is six hours. A hung check would hold a runner
     # for that long and report nothing useful at the end of it.
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
+      # the pack that ships it beside the tool.
+      - name: Configure Node.js for the frontend reader
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Build the frontend reader bundle
+        run: |
+          npm install --global pnpm@11.28.5
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+
+      - name: Pack the tool and the analyzers
+        run: |
+          dotnet pack apps/cli/src/LiteSpec.Cli --output artifacts
+          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --output artifacts
+
+      # A consumer installs the tool from a package and runs it outside this repository,
+      # where nothing but the release inside the package can answer.
+      - name: Run the packed tool the way a consumer installs it
+        run: .github/scripts/smoke-tool.sh artifacts
+
+  # Checks the standard itself: the provision index, the repository validation and whitespace.
+  standards:
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out the repository
@@ -32,38 +81,11 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
 
-      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
-      # the tests that call it and before the pack that ships it beside the tool.
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
-
-      - name: Install pnpm for the frontend reader
-        run: npm install --global pnpm@11.28.5
-
-      - name: Build the frontend reader bundle
-        run: |
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-
-      - name: Build the CLI and the analyzers
-        run: dotnet build LiteSpec.slnx
-
-      - name: Run the CLI and analyzer test suites
-        run: dotnet test --solution LiteSpec.slnx --no-build
-
-      - name: Pack the tool and the analyzers
-        run: |
-          dotnet pack apps/cli/src/LiteSpec.Cli --output artifacts
-          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --output artifacts
-
-      # A consumer installs the tool from a package and runs it outside this repository,
-      # where nothing but the release inside the package can answer.
-      - name: Run the packed tool the way a consumer installs it
-        run: .github/scripts/smoke-tool.sh artifacts
+      - name: Build the maintainer tool
+        run: dotnet build apps/maintain/src/LiteSpec.Maintain
 
       - name: Check the generated provision index
         run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --no-build -- provisions --check
@@ -84,40 +106,6 @@ jobs:
           elif [ "$GITHUB_EVENT_NAME" = "push" ] && git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
             git diff --check HEAD~1 HEAD
           fi
-
-  cli-windows:
-    runs-on: windows-latest
-    timeout-minutes: 15
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-
-      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
-      # the tests that call it and before the pack that ships it beside the tool.
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
-
-      - name: Install pnpm for the frontend reader
-        run: npm install --global pnpm@11.28.5
-
-      - name: Build the frontend reader bundle
-        run: |
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-
-      - name: Build the CLI and the analyzers
-        run: dotnet build LiteSpec.slnx
-
-      - name: Run the CLI and analyzer test suites
-        run: dotnet test --solution LiteSpec.slnx
 
   site:
     runs-on: ubuntu-24.04

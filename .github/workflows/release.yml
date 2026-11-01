@@ -15,6 +15,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The same sharded suites a pull request runs, in the Release configuration.
+  tests:
+    uses: ./.github/workflows/tests.yml
+    with:
+      configuration: Release
+
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -28,6 +34,8 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
 
       # The tag, the manifest and both packages name one release. The version test in
       # the suite holds the manifest, the packages, the changelog and the templates
@@ -43,7 +51,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
-      # the tests that call it and before the pack that ships it beside the tool.
+      # the pack that ships it beside the tool.
       - name: Configure Node.js for the frontend reader
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -60,9 +68,6 @@ jobs:
 
       - name: Build
         run: dotnet build LiteSpec.slnx --configuration Release
-
-      - name: Run the CLI and analyzer test suites
-        run: dotnet test --solution LiteSpec.slnx --configuration Release --no-build
 
       - name: Check the generated provision index
         run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --configuration Release --no-build -- provisions --check
@@ -86,7 +91,7 @@ jobs:
           if-no-files-found: error
 
   nuget:
-    needs: verify
+    needs: [tests, verify]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     # Trusted publishing: nuget.org exchanges this run's OIDC token for a short-lived key,

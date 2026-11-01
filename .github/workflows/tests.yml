@@ -1,0 +1,137 @@
+name: Tests
+
+# The test suites, sharded so each shard finishes in a minute or two. The pull request,
+# branch and release workflows all call this one, so every gate runs the same shards.
+#
+# The CLI suite splits by namespace, and its two largest namespaces split again by the
+# first letter of the class name, A to Z, so a new class always lands in a shard. The
+# last CLI shard runs every namespace the others leave, so a new namespace is never
+# skipped. Filters of one kind join with OR, while class and namespace filters join with
+# AND, so each shard filters by one kind only. The three smaller suites share one shard.
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        description: The build configuration to test.
+        type: string
+        default: Debug
+
+permissions:
+  contents: read
+
+env:
+  CLI_TESTS: apps/cli/tests/LiteSpec.Cli.Tests/LiteSpec.Cli.Tests.csproj
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / ${{ matrix.shard.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        shard:
+          - name: checks a-e
+            filter: >-
+              --filter-class "LiteSpec.Tests.Model.Checks.A*" --filter-class "LiteSpec.Tests.Model.Checks.B*"
+              --filter-class "LiteSpec.Tests.Model.Checks.C*" --filter-class "LiteSpec.Tests.Model.Checks.D*"
+              --filter-class "LiteSpec.Tests.Model.Checks.E*"
+          - name: checks f-o
+            filter: >-
+              --filter-class "LiteSpec.Tests.Model.Checks.F*" --filter-class "LiteSpec.Tests.Model.Checks.G*"
+              --filter-class "LiteSpec.Tests.Model.Checks.H*" --filter-class "LiteSpec.Tests.Model.Checks.I*"
+              --filter-class "LiteSpec.Tests.Model.Checks.J*" --filter-class "LiteSpec.Tests.Model.Checks.K*"
+              --filter-class "LiteSpec.Tests.Model.Checks.L*" --filter-class "LiteSpec.Tests.Model.Checks.M*"
+              --filter-class "LiteSpec.Tests.Model.Checks.N*" --filter-class "LiteSpec.Tests.Model.Checks.O*"
+          - name: checks p-z
+            filter: >-
+              --filter-class "LiteSpec.Tests.Model.Checks.P*" --filter-class "LiteSpec.Tests.Model.Checks.Q*"
+              --filter-class "LiteSpec.Tests.Model.Checks.R*" --filter-class "LiteSpec.Tests.Model.Checks.S*"
+              --filter-class "LiteSpec.Tests.Model.Checks.T*" --filter-class "LiteSpec.Tests.Model.Checks.U*"
+              --filter-class "LiteSpec.Tests.Model.Checks.V*" --filter-class "LiteSpec.Tests.Model.Checks.W*"
+              --filter-class "LiteSpec.Tests.Model.Checks.X*" --filter-class "LiteSpec.Tests.Model.Checks.Y*"
+              --filter-class "LiteSpec.Tests.Model.Checks.Z*"
+          - name: marks a-f
+            filter: >-
+              --filter-class "LiteSpec.Tests.Model.Marks.A*" --filter-class "LiteSpec.Tests.Model.Marks.B*"
+              --filter-class "LiteSpec.Tests.Model.Marks.C*" --filter-class "LiteSpec.Tests.Model.Marks.D*"
+              --filter-class "LiteSpec.Tests.Model.Marks.E*" --filter-class "LiteSpec.Tests.Model.Marks.F*"
+          - name: marks g-z
+            filter: >-
+              --filter-class "LiteSpec.Tests.Model.Marks.G*" --filter-class "LiteSpec.Tests.Model.Marks.H*"
+              --filter-class "LiteSpec.Tests.Model.Marks.I*" --filter-class "LiteSpec.Tests.Model.Marks.J*"
+              --filter-class "LiteSpec.Tests.Model.Marks.K*" --filter-class "LiteSpec.Tests.Model.Marks.L*"
+              --filter-class "LiteSpec.Tests.Model.Marks.M*" --filter-class "LiteSpec.Tests.Model.Marks.N*"
+              --filter-class "LiteSpec.Tests.Model.Marks.O*" --filter-class "LiteSpec.Tests.Model.Marks.P*"
+              --filter-class "LiteSpec.Tests.Model.Marks.Q*" --filter-class "LiteSpec.Tests.Model.Marks.R*"
+              --filter-class "LiteSpec.Tests.Model.Marks.S*" --filter-class "LiteSpec.Tests.Model.Marks.T*"
+              --filter-class "LiteSpec.Tests.Model.Marks.U*" --filter-class "LiteSpec.Tests.Model.Marks.V*"
+              --filter-class "LiteSpec.Tests.Model.Marks.W*" --filter-class "LiteSpec.Tests.Model.Marks.X*"
+              --filter-class "LiteSpec.Tests.Model.Marks.Y*" --filter-class "LiteSpec.Tests.Model.Marks.Z*"
+          - name: model
+            filter: --filter-namespace "LiteSpec.Tests.Model"
+          - name: review, diff, readers, tables, screens
+            filter: >-
+              --filter-namespace "LiteSpec.Tests.Model.Review" --filter-namespace "LiteSpec.Tests.Model.Diff"
+              --filter-namespace "LiteSpec.Tests.Model.Readers" --filter-namespace "LiteSpec.Tests.Model.Tables"
+              --filter-namespace "LiteSpec.Tests.Model.Screens"
+          - name: builder, book, frontend
+            filter: >-
+              --filter-namespace "LiteSpec.Tests.Model.Builder" --filter-namespace "LiteSpec.Tests.Book"
+              --filter-namespace "LiteSpec.Tests.Model.Frontend"
+          - name: everything else in the CLI suite
+            filter: >-
+              --filter-not-namespace "LiteSpec.Tests.Model.Checks" --filter-not-namespace "LiteSpec.Tests.Model.Marks"
+              --filter-not-namespace "LiteSpec.Tests.Model.Screens" --filter-not-namespace "LiteSpec.Tests.Model.Frontend"
+              --filter-not-namespace "LiteSpec.Tests.Model" --filter-not-namespace "LiteSpec.Tests.Model.Review"
+              --filter-not-namespace "LiteSpec.Tests.Model.Diff" --filter-not-namespace "LiteSpec.Tests.Model.Readers"
+              --filter-not-namespace "LiteSpec.Tests.Model.Tables" --filter-not-namespace "LiteSpec.Tests.Model.Builder"
+              --filter-not-namespace "LiteSpec.Tests.Book"
+          - name: model core, analyzers, maintainer
+            projects: >-
+              apps/model/tests/LiteSpec.Model.Tests/LiteSpec.Model.Tests.csproj
+              apps/analyzers/tests/LiteSpec.Analyzers.Tests/LiteSpec.Analyzers.Tests.csproj
+              apps/maintain/tests/LiteSpec.Maintain.Tests/LiteSpec.Maintain.Tests.csproj
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      # The CLI runs the frontend reader as a Node bundle, which the CLI tests call.
+      - name: Configure Node.js for the frontend reader
+        if: ${{ !matrix.shard.projects }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Build the frontend reader bundle
+        if: ${{ !matrix.shard.projects }}
+        run: |
+          npm install --global pnpm@11.28.5
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+
+      - name: Run the CLI shard
+        if: ${{ !matrix.shard.projects }}
+        run: |
+          dotnet build "$CLI_TESTS" --configuration ${{ inputs.configuration }}
+          dotnet test --project "$CLI_TESTS" --configuration ${{ inputs.configuration }} --no-build ${{ matrix.shard.filter }}
+
+      - name: Run the model core, analyzer and maintainer suites
+        if: ${{ matrix.shard.projects }}
+        run: |
+          for project in ${{ matrix.shard.projects }}; do
+            dotnet build "$project" --configuration ${{ inputs.configuration }}
+            dotnet test --project "$project" --configuration ${{ inputs.configuration }} --no-build
+          done
