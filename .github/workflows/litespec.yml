@@ -57,6 +57,10 @@ jobs:
           pnpm --dir apps/cli/fe-reader install --frozen-lockfile
           pnpm --dir apps/cli/fe-reader build
 
+      # The analyzers package carries the code fixes, which only a solution build produces.
+      - name: Build the CLI and the analyzers
+        run: dotnet build LiteSpec.slnx
+
       - name: Pack the tool and the analyzers
         run: |
           dotnet pack apps/cli/src/LiteSpec.Cli --output artifacts
