@@ -14,8 +14,8 @@
     "deploy": "wrangler deploy --config ../../wrangler.jsonc"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "7.3.1",
-    "astro": "7.3.5",
+    "@astrojs/markdown-remark": "7.3.5",
+    "astro": "7.4.4",
     "mdast-util-from-markdown": "2.1.0",
     "mdast-util-gfm": "3.1.0",
     "micromark-extension-gfm": "3.0.0"
@@ -23,6 +23,6 @@
   "devDependencies": {
     "@types/mdast": "4.0.4",
     "pagefind": "1.5.2",
-    "wrangler": "4.151.3"
+    "wrangler": "4.156.0"
   }
 }
