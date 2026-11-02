@@ -26,9 +26,39 @@
             <LiteSpecRecords Include=".litespec/**/*.yaml" />
         Nothing is added when no project file is in reach.
     -->
+    <!--
+        MSBuild finds files above a folder only by bare name, so the walk up to the first
+        folder holding .litespec/project.json is spelled out one level at a time.
+    -->
     <PropertyGroup>
-        <LiteSpecProjectFile>$([MSBuild]::GetPathOfFileAbove(.litespec/project.json, $(MSBuildProjectDirectory)))</LiteSpecProjectFile>
-        <LiteSpecProjectDirectory Condition="'$(LiteSpecProjectFile)' != ''">$([System.IO.Path]::GetDirectoryName($(LiteSpecProjectFile)))</LiteSpecProjectDirectory>
+        <_LiteSpecDir0>$(MSBuildProjectDirectory)</_LiteSpecDir0>
+        <LiteSpecRoot Condition="Exists('$(_LiteSpecDir0)/.litespec/project.json')">$(_LiteSpecDir0)</LiteSpecRoot>
+        <_LiteSpecDir1 Condition="'$(_LiteSpecDir0)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir0)'))</_LiteSpecDir1>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir1)' != '' and Exists('$(_LiteSpecDir1)/.litespec/project.json')">$(_LiteSpecDir1)</LiteSpecRoot>
+        <_LiteSpecDir2 Condition="'$(_LiteSpecDir1)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir1)'))</_LiteSpecDir2>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir2)' != '' and Exists('$(_LiteSpecDir2)/.litespec/project.json')">$(_LiteSpecDir2)</LiteSpecRoot>
+        <_LiteSpecDir3 Condition="'$(_LiteSpecDir2)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir2)'))</_LiteSpecDir3>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir3)' != '' and Exists('$(_LiteSpecDir3)/.litespec/project.json')">$(_LiteSpecDir3)</LiteSpecRoot>
+        <_LiteSpecDir4 Condition="'$(_LiteSpecDir3)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir3)'))</_LiteSpecDir4>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir4)' != '' and Exists('$(_LiteSpecDir4)/.litespec/project.json')">$(_LiteSpecDir4)</LiteSpecRoot>
+        <_LiteSpecDir5 Condition="'$(_LiteSpecDir4)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir4)'))</_LiteSpecDir5>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir5)' != '' and Exists('$(_LiteSpecDir5)/.litespec/project.json')">$(_LiteSpecDir5)</LiteSpecRoot>
+        <_LiteSpecDir6 Condition="'$(_LiteSpecDir5)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir5)'))</_LiteSpecDir6>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir6)' != '' and Exists('$(_LiteSpecDir6)/.litespec/project.json')">$(_LiteSpecDir6)</LiteSpecRoot>
+        <_LiteSpecDir7 Condition="'$(_LiteSpecDir6)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir6)'))</_LiteSpecDir7>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir7)' != '' and Exists('$(_LiteSpecDir7)/.litespec/project.json')">$(_LiteSpecDir7)</LiteSpecRoot>
+        <_LiteSpecDir8 Condition="'$(_LiteSpecDir7)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir7)'))</_LiteSpecDir8>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir8)' != '' and Exists('$(_LiteSpecDir8)/.litespec/project.json')">$(_LiteSpecDir8)</LiteSpecRoot>
+        <_LiteSpecDir9 Condition="'$(_LiteSpecDir8)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir8)'))</_LiteSpecDir9>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir9)' != '' and Exists('$(_LiteSpecDir9)/.litespec/project.json')">$(_LiteSpecDir9)</LiteSpecRoot>
+        <_LiteSpecDir10 Condition="'$(_LiteSpecDir9)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir9)'))</_LiteSpecDir10>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir10)' != '' and Exists('$(_LiteSpecDir10)/.litespec/project.json')">$(_LiteSpecDir10)</LiteSpecRoot>
+        <_LiteSpecDir11 Condition="'$(_LiteSpecDir10)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir10)'))</_LiteSpecDir11>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir11)' != '' and Exists('$(_LiteSpecDir11)/.litespec/project.json')">$(_LiteSpecDir11)</LiteSpecRoot>
+        <_LiteSpecDir12 Condition="'$(_LiteSpecDir11)' != ''">$([System.IO.Path]::GetDirectoryName('$(_LiteSpecDir11)'))</_LiteSpecDir12>
+        <LiteSpecRoot Condition="'$(LiteSpecRoot)' == '' and '$(_LiteSpecDir12)' != '' and Exists('$(_LiteSpecDir12)/.litespec/project.json')">$(_LiteSpecDir12)</LiteSpecRoot>
+        <LiteSpecProjectFile Condition="'$(LiteSpecRoot)' != ''">$(LiteSpecRoot)/.litespec/project.json</LiteSpecProjectFile>
+        <LiteSpecProjectDirectory Condition="'$(LiteSpecProjectFile)' != ''">$(LiteSpecRoot)/.litespec</LiteSpecProjectDirectory>
     </PropertyGroup>
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != ''">
         <AdditionalFiles Include="$(LiteSpecProjectFile)" />
