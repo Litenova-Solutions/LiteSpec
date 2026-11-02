@@ -15,10 +15,10 @@ public sealed class RequirementStatusTests
     public void Measured_Requirement_With_A_Passing_Check_Verifies()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/JUnit/JUnitScenarios.cs", ScenariosFile);
-        TestRecords.Write(temp.Path, "docs/intent/lending/performance.yaml", RequirementJson);
-        TestRecords.Write(temp.Path, "docs/intent/journeys/borrow-and-return.yaml", JourneyJson);
+        TestRecords.Write(temp.Path, ".litespec/intent/lending/performance.yaml", RequirementJson);
+        TestRecords.Write(temp.Path, ".litespec/intent/journeys/borrow-and-return.yaml", JourneyJson);
         Fulfill(temp.Path, "requirement/performance.borrow-latency", "requirement/performance.borrow-errors", "requirement/performance.borrow-journey");
 
         var results = Path.Combine(temp.Path, "TestResults");
@@ -50,7 +50,7 @@ public sealed class RequirementStatusTests
 
     static void Fulfill(string root, params string[] requirements)
     {
-        PatchRecord(root, "docs/behavior/modules/lending/loans/borrow-copy.yaml", front =>
+        PatchRecord(root, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", front =>
         {
             var fulfills = front["fulfills"]!.AsArray();
 
@@ -74,7 +74,7 @@ public sealed class RequirementStatusTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

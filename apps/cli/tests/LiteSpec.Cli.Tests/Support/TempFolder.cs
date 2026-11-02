@@ -6,6 +6,7 @@ sealed class TempFolder : IDisposable
     public TempFolder(string prefix)
     {
         Path = Directory.CreateTempSubdirectory($"litespec-{prefix}-").FullName;
+        Directory.CreateDirectory(System.IO.Path.Combine(Path, ".litespec"));
     }
 
     /// <summary>Gets the folder's full path.</summary>

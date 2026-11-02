@@ -34,7 +34,7 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("small");
 
-        var projectFile = Path.Combine(temp.Path, "litespec.project.json");
+        var projectFile = Path.Combine(temp.Path, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("react"));
         File.WriteAllText(projectFile, project.ToJsonString());
@@ -54,7 +54,7 @@ public sealed class StackReaderTests
     public void Build_Writes_Null_Test_Run_Without_Result_Files(string fixture)
     {
         using var temp = ModelFixture.Prepare(fixture);
-        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
         Assert.Equal(0, result.Status);
 
@@ -72,19 +72,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/borrow-copy-junit-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/borrow-copy-junit-scenario.yaml",
             BorrowScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/borrow-copy-junit-scenario.md",
+            ".litespec/behavior/modules/lending/loans/borrow-copy-junit-scenario.md",
             BorrowScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/return-copy-junit-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/return-copy-junit-scenario.yaml",
             ReturnScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/return-copy-junit-scenario.md",
+            ".litespec/behavior/modules/lending/loans/return-copy-junit-scenario.md",
             ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
@@ -96,7 +96,7 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/results.xml"), Path.Combine(resultsFolder, "results.xml"));
 
-        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
         var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
         Assert.Equal(0, built.Status);
 
@@ -123,19 +123,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/borrow-copy-trx-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/borrow-copy-trx-scenario.yaml",
             BorrowScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/borrow-copy-trx-scenario.md",
+            ".litespec/behavior/modules/lending/loans/borrow-copy-trx-scenario.md",
             BorrowScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/return-copy-trx-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/return-copy-trx-scenario.yaml",
             ReturnScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/return-copy-trx-scenario.md",
+            ".litespec/behavior/modules/lending/loans/return-copy-trx-scenario.md",
             ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
@@ -147,7 +147,7 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/trx/results.trx"), Path.Combine(resultsFolder, "results.trx"));
 
-        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
         var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
         Assert.Equal(0, built.Status);
 
@@ -174,23 +174,23 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans.yaml",
+            ".litespec/behavior/modules/lending/loans/review-loans.yaml",
             ReviewLoansJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans.md",
+            ".litespec/behavior/modules/lending/loans/review-loans.md",
             ReviewLoansExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
             ReviewLoansScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.md",
             ReviewLoansScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/screens/library-app.loan-review.yaml",
+            ".litespec/behavior/screens/library-app.loan-review.yaml",
             LoanReviewScreenJson);
 
         var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
@@ -201,7 +201,7 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
-        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
         var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
         Assert.Equal(0, built.Status);
 
@@ -230,23 +230,23 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans.yaml",
+            ".litespec/behavior/modules/lending/loans/review-loans.yaml",
             ReviewLoansJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans.md",
+            ".litespec/behavior/modules/lending/loans/review-loans.md",
             ReviewLoansExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
             ReviewLoansScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.md",
             ReviewLoansScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            "docs/behavior/screens/library-app.loan-review.yaml",
+            ".litespec/behavior/screens/library-app.loan-review.yaml",
             LoanReviewScreenJson);
 
         var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
@@ -257,7 +257,7 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
-        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
         var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
         Assert.Equal(0, built.Status);
 

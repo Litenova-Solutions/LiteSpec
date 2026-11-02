@@ -431,7 +431,7 @@ public sealed class DotnetMarkLinkTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "application": "src/App", "domain": "src/Domain",

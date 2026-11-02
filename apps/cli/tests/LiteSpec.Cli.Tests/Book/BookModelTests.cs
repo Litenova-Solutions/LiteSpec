@@ -3,52 +3,46 @@ using LiteSpec.Book;
 
 namespace LiteSpec.Tests.Book;
 
-/// <summary>Proves the book index reads the builder's judgements: the stored tier, with risk as the fallback.</summary>
+/// <summary>Proves the book reads a record's risk classes by name, with no tier.</summary>
 public sealed class BookModelTests
 {
-    /// <summary>A record stating its tier reads that tier, whatever its risk says.</summary>
+    /// <summary>A record with risk reads its risk classes in model order.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tier_Prefers_The_Stored_Tier()
+    public void Risk_Classes_Read_By_Name()
     {
-        Assert.Equal(3, BookModel.TierOf(Record(3, """["money"]""")));
-        Assert.Equal(1, BookModel.TierOf(Record(1, "[]")));
+        Assert.Equal(["money"], BookModel.RiskClassesOf(Record("""["money"]""")));
+        Assert.Equal(["money", "personal-data"], BookModel.RiskClassesOf(Record("""["money","personal-data"]""")));
     }
 
-    /// <summary>Without a stored tier, any risk value makes the record tier 1, including physical access.</summary>
-    /// <param name="risk">The risk value on the record, which drives the tier 1 fallback.</param>
+    /// <summary>Every risk class reads by name, including physical access.</summary>
+    /// <param name="risk">The risk value on the record.</param>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Theory]
     [InlineData("money")]
     [InlineData("physical-access")]
     [InlineData("personal-data")]
     [InlineData("access")]
-    public void Tier_Falls_Back_To_Risk(string risk)
+    public void Risk_Class_Reads_By_Name(string risk)
     {
-        Assert.Equal(1, BookModel.TierOf(Record(null, $"[\"{risk}\"]")));
+        Assert.Equal([risk], BookModel.RiskClassesOf(Record($"[\"{risk}\"]")));
     }
 
-    /// <summary>Without a stored tier or risk, a record reads tier 3.</summary>
+    /// <summary>Without risk, a record reads no risk class and shows nothing.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tier_Without_Risk_Reads_Three()
+    public void Risk_Without_Risk_Reads_None()
     {
-        Assert.Equal(3, BookModel.TierOf(Record(null, "[]")));
+        Assert.Empty(BookModel.RiskClassesOf(Record("[]")));
     }
 
-    static JsonObject Record(int? tier, string risk)
+    static JsonObject Record(string risk)
     {
-        var record = new JsonObject
+        return new JsonObject
         {
             ["type"] = "requirement",
             ["id"] = "requirement/borrowing.max-wait",
             ["fields"] = (JsonObject)JsonNode.Parse($"{{\"risk\": {risk}}}")!,
         };
-        if (tier.HasValue)
-        {
-            record["tier"] = tier.Value;
-        }
-
-        return record;
     }
 }

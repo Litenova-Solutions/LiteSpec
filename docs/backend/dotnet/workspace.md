@@ -2,7 +2,7 @@
 
 ## Intent
 
-A .NET backend lives under `apps/api/`, with production projects under `src/`, test projects under `tests/`, and the solution beside them. This page states that .NET layout: the size and stack entries in `litespec.project.json`, the production and test split, the workspace solution, and where the AppHost lives, so every file has one fixed address. The shared workspace rules live on [Workspace Structure](../../workspace/structure.md); this page holds only their .NET form.
+A .NET backend lives under `apps/api/`, with production projects under `src/`, test projects under `tests/`, and the solution beside them. This page states that .NET layout: the size and stack entries in `.litespec/project.json`, the production and test split, the workspace solution, and where the AppHost lives, so every file has one fixed address. The shared workspace rules live on [Workspace Structure](../../workspace/structure.md); this page holds only their .NET form.
 
 ## Concepts
 
@@ -20,11 +20,11 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 **ID:** `litespec/backend/dotnet/workspace#declare-size-and-stacks-in-project-config`
 
-**Statement:** `litespec.project.json` MUST declare `size` as `small` or `large` and one stack per frontend in `paths.frontends` beside the `dotnet` backend.
+**Statement:** `.litespec/project.json` MUST declare `size` as `small` or `large` and one stack per frontend in `paths.frontends` beside the `dotnet` backend.
 
 **Rationale:** Size decides which record types and test projects apply, and each stack decides which technology pages and checks apply. An undeclared size or stack leaves tools guessing which rules bind the workspace. This provision states the .NET form of `litespec/workspace/structure#declare-size-and-application-stacks-in-project-config`.
 
-**Reviewed for:** Does `litespec.project.json` declare `size` as `small` or `large` with one stack per frontend beside the `dotnet` backend? Look at `litespec.project.json`.
+**Reviewed for:** Does `.litespec/project.json` declare `size` as `small` or `large` with one stack per frontend beside the `dotnet` backend? Look at `.litespec/project.json`.
 
 ### Keep .NET Production and Test Projects Separate
 

@@ -13,7 +13,7 @@ public sealed class RefusalProofTests
     public void Refusal_Status_Alone_Confirms_When_The_Table_Maps_It()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/StatusRefusalScenarios.cs", StatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -28,7 +28,7 @@ public sealed class RefusalProofTests
     public void Refusal_Client_Code_Confirms_When_The_Map_Translates_It()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/AliasRefusalScenarios.cs", AliasFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -43,7 +43,7 @@ public sealed class RefusalProofTests
     public void Refusal_Wrong_Status_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/WrongStatusScenarios.cs", WrongStatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -58,7 +58,7 @@ public sealed class RefusalProofTests
     public void Refusal_Unmapped_Client_Code_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/UnmappedCodeScenarios.cs", UnmappedFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -73,7 +73,7 @@ public sealed class RefusalProofTests
     public void Refusal_Status_Member_Confirms_An_Integration_Fact()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/StatusMemberRefusalTests.cs", StatusMemberFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -97,7 +97,7 @@ public sealed class RefusalProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 
@@ -113,7 +113,7 @@ public sealed class RefusalProofTests
 
     static void WriteRefusals(string root, string statuses, string aliases)
     {
-        var path = Path.Combine(root, "litespec.project.json");
+        var path = Path.Combine(root, ".litespec/project.json");
         var text = File.ReadAllText(path);
         var refusals = "\"refusals\": {\"forbidden\": \"authorization.forbidden\", \"invalidInput\": \"request.validation-failed\", \"statuses\": " + statuses + ", \"aliases\": " + aliases + "}";
         var updated = text.Replace(@"""selectedExtensions"": []", $@"""selectedExtensions"": [], {refusals}");

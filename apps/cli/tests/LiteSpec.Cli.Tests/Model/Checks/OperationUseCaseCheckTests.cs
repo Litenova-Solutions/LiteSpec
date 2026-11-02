@@ -96,7 +96,7 @@ public sealed class OperationUseCaseCheckTests
 
     static void SetContract(string root, string relative)
     {
-        var projectFile = Path.Combine(root, "litespec.project.json");
+        var projectFile = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
         project["paths"]!["contract"] = relative;
         File.WriteAllText(projectFile, project.ToJsonString());

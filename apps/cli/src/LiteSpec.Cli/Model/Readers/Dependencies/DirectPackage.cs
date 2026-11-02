@@ -9,7 +9,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 /// <param name="Version">The shipped version, or empty when the document states none.</param>
 /// <param name="License">The concluded license, or empty when the document states none.</param>
 /// <param name="File">The absolute path of the bill of materials.</param>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 sealed record DirectPackage(string Ecosystem, string Name, string Version, string License, string File)
 {
     /// <summary>Gets the package id: the ecosystem and name joined by a colon.</summary>

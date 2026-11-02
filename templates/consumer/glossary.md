@@ -8,7 +8,7 @@ decideBy: 2026-12-15
 ---
 # Claimwick Glossary
 
-This page renders from the Term entries in `docs/glossary.yaml`. Edit terms there, never here.
+This page renders from the Term entries in `.litespec/glossary.yaml`. Edit terms there, never here.
 
 <!-- generated:glossary -->
 <!-- /generated:glossary -->

@@ -124,13 +124,13 @@ public sealed class DecisionBasisCheckTests
     /// <param name="name">The decision file name without its folder.</param>
     /// <returns>The full path to the decision file.</returns>
     static string TechnicalDecisionFile(ConsumerConfig config, string name) =>
-        Path.Combine(config.Root, "docs", "implementation", "decisions", $"{name}.md");
+        Path.Combine(config.Root, ".litespec", "implementation", "decisions", $"{name}.md");
 
     /// <summary>A decision file outside the implementation decisions folder, so the check reads it as a product decision.</summary>
     /// <param name="config">The consumer config carrying the root folder.</param>
     /// <returns>The full path to the decision file.</returns>
     static string ProductDecisionFile(ConsumerConfig config) =>
-        Path.Combine(config.Root, "docs", "product", "decisions", "0001-receipt-rule.md");
+        Path.Combine(config.Root, ".litespec", "product", "decisions", "0001-receipt-rule.md");
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>

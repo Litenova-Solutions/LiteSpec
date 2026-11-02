@@ -11,7 +11,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/brief.yaml",
+      "file": ".litespec/product/brief.yaml",
       "line": 3,
       "fields": {
         "type": "product",
@@ -38,7 +38,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/goals/faster-borrowing.yaml",
+      "file": ".litespec/product/goals/faster-borrowing.yaml",
       "line": 3,
       "explanation": "# Faster Borrowing\n\n## Why It Matters\n\nShort waits bring members back.",
       "fields": {
@@ -63,7 +63,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/goals/quiet-study.yaml",
+      "file": ".litespec/product/goals/quiet-study.yaml",
       "line": 3,
       "fields": {
         "type": "goal",
@@ -84,7 +84,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/problems/slow-desk-queues.yaml",
+      "file": ".litespec/product/problems/slow-desk-queues.yaml",
       "line": 3,
       "fields": {
         "type": "problem",
@@ -109,7 +109,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": "docs/product/features/self-checkout.yaml",
+      "file": ".litespec/product/features/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -155,7 +155,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/constraints/opening-hours.yaml",
+      "file": ".litespec/product/constraints/opening-hours.yaml",
       "line": 3,
       "fields": {
         "type": "constraint",
@@ -179,7 +179,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/research/member-survey.yaml",
+      "file": ".litespec/research/member-survey.yaml",
       "line": 3,
       "fields": {
         "type": "research",
@@ -206,7 +206,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/decisions/1-self-checkout-kiosk.yaml",
+      "file": ".litespec/product/decisions/1-self-checkout-kiosk.yaml",
       "line": 3,
       "fields": {
         "type": "decision",
@@ -253,7 +253,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/borrowing.yaml",
+      "file": ".litespec/product/borrowing.yaml",
       "line": 3,
       "fields": {
         "type": "topic",
@@ -274,7 +274,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/borrowing.yaml",
+      "file": ".litespec/product/borrowing.yaml",
       "line": 12,
       "fields": {
         "type": "requirement",
@@ -320,7 +320,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/borrowing.yaml",
+      "file": ".litespec/product/borrowing.yaml",
       "line": 30,
       "fields": {
         "type": "requirement",
@@ -349,7 +349,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/borrowing.yaml",
+      "file": ".litespec/product/borrowing.yaml",
       "line": 44,
       "fields": {
         "type": "requirement",
@@ -384,7 +384,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/journeys/borrowing.yaml",
+      "file": ".litespec/product/journeys/borrowing.yaml",
       "line": 3,
       "fields": {
         "type": "journey",
@@ -429,7 +429,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/module.yaml",
+      "file": ".litespec/behavior/modules/lending/module.yaml",
       "line": 3,
       "explanation": "# Lending\n\n## Known Limits\n\nThe branch lends its own copies only.",
       "fields": {
@@ -451,7 +451,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/aggregate.yaml",
       "line": 3,
       "explanation": "# Loan\n\n## Bounds\n\nA loan covers **one copy** and *one member*. The desk kiosk prints the due slip; see use-case/lending.borrow-copy for the flow.\n\nBorrowing rules:\n\n- One copy lends to one member at a time.\n- A loan lasts `three weeks`.\n\nCounts:\n\n1. Scan the member card.\n2. Scan the copy.\n\n| Week | Loans |\n| --- | ---: |\n| First | 120 |\n| Second | 140 |\n\n```\nscan member, scan copy, print slip\n```\n\n> A loan is a promise to bring the copy back.\n\n---\n\nRead the [lending guide](https://example.com/lending) or visit https://example.com/desks.",
       "fields": {
@@ -516,7 +516,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -557,7 +557,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
       "line": 30,
       "fields": {
         "type": "rule",
@@ -593,7 +593,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 3,
       "explanation": "# Borrow Copy\n\n## Example\n\nThe member leaves the desk with the copy in under two minutes.\n\n## Notes\n\nThe kiosk scans the member card and the copy, then prints the due slip.",
       "fields": {
@@ -662,7 +662,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -695,7 +695,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/reactions/send-due-reminder-on-loan-due.yaml",
+      "file": ".litespec/behavior/modules/lending/reactions/send-due-reminder-on-loan-due.yaml",
       "line": 3,
       "fields": {
         "type": "reaction",
@@ -736,7 +736,7 @@
       "effectiveStatus": "reviewed",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/notifications/due-reminder.yaml",
+      "file": ".litespec/behavior/modules/lending/notifications/due-reminder.yaml",
       "line": 3,
       "fields": {
         "type": "notification",
@@ -771,7 +771,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 14,
       "fields": {
         "type": "result",
@@ -792,7 +792,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 20,
       "fields": {
         "type": "result",
@@ -814,7 +814,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -854,7 +854,7 @@
       "effectiveStatus": "draft",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 44,
       "fields": {
         "type": "scenario",
@@ -882,7 +882,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
       "line": 52,
       "fields": {
         "type": "event",
@@ -907,7 +907,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
       "line": 60,
       "fields": {
         "type": "event",
@@ -931,7 +931,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/actors/member.yaml",
+      "file": ".litespec/behavior/actors/member.yaml",
       "line": 3,
       "fields": {
         "type": "actor",
@@ -962,7 +962,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/roles/member.yaml",
+      "file": ".litespec/behavior/roles/member.yaml",
       "line": 3,
       "fields": {
         "type": "role",
@@ -990,7 +990,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/permissions.yaml",
+      "file": ".litespec/behavior/permissions.yaml",
       "line": 8,
       "fields": {
         "type": "permission",
@@ -1011,7 +1011,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/entry-points.yaml",
+      "file": ".litespec/behavior/entry-points.yaml",
       "line": 6,
       "fields": {
         "type": "entry-point",
@@ -1036,7 +1036,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/systems/fine-payments.yaml",
+      "file": ".litespec/behavior/systems/fine-payments.yaml",
       "line": 3,
       "explanation": "# Fine Payments\n\n## Summary\n\nFine Payments takes card payments for overdue fines.",
       "fields": {
@@ -1069,7 +1069,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/operations/limits.yaml",
+      "file": ".litespec/operations/limits.yaml",
       "line": 6,
       "fields": {
         "type": "setting",
@@ -1091,7 +1091,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/runbooks/overdue-notice.yaml",
+      "file": ".litespec/runbooks/overdue-notice.yaml",
       "line": 3,
       "explanation": "# Overdue Notice\n\n## Impact\n\nMembers keep borrowing while notices wait.\n\n## Procedure\n\n1. List overdue loans.\n2. Send reminders.\n\nLabels print as `<code>LOAN-1</code>` from the template.",
       "fields": {
@@ -1114,7 +1114,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/governance/exceptions/kiosk-cache.yaml",
+      "file": ".litespec/governance/exceptions/kiosk-cache.yaml",
       "line": 3,
       "fields": {
         "type": "exception",
@@ -1148,7 +1148,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/governance/exceptions/offline-kiosk.yaml",
+      "file": ".litespec/governance/exceptions/offline-kiosk.yaml",
       "line": 3,
       "fields": {
         "type": "exception",
@@ -1181,7 +1181,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/glossary.yaml",
+      "file": ".litespec/glossary.yaml",
       "line": 4,
       "fields": {
         "type": "term",
@@ -1221,7 +1221,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/jobs/send-overdue-notices.yaml",
+      "file": ".litespec/behavior/modules/lending/jobs/send-overdue-notices.yaml",
       "line": 3,
       "fields": {
         "type": "job",
@@ -1258,7 +1258,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/screens/library-app/search.yaml",
+      "file": ".litespec/behavior/screens/library-app/search.yaml",
       "line": 3,
       "fields": {
         "type": "screen",
@@ -1290,7 +1290,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/integration/loan-borrowed.yaml",
+      "file": ".litespec/behavior/integration/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",

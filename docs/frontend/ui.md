@@ -87,11 +87,11 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#select-one-visual-authority`
 
-**Statement:** A workspace MUST record one shared UI package in `litespec.project.json`.
+**Statement:** A workspace MUST record one shared UI package in `.litespec/project.json`.
 
-**Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `litespec.project.json` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
+**Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `.litespec/project.json` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
 
-**Checked by:** `litespec consumer` reports controlled frontends with no `paths.uiPackage` in `litespec.project.json`, and `litespec ui` reports `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run either at the consumer root.
+**Checked by:** `litespec consumer` reports controlled frontends with no `paths.uiPackage` in `.litespec/project.json`, and `litespec ui` reports `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run either at the consumer root.
 
 ### Pin the Baseline in the Shared Package
 

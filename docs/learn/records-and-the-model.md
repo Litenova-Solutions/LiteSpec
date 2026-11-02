@@ -45,7 +45,7 @@ The record types follow the questions a team asks, from why down to how:
 
 A small project keeps the rows the [model page](../core/model.md) marks small. A large project also keeps problems, features, journeys, and scenarios, which tie the product story to proven examples. Constraints and research switch on separately, and runbooks join when the product first goes into production.
 
-Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings in a settings record file, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.yaml`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+Each type has one home in the repository. Intent lives under `.litespec/intent/`, with research beside it under `.litespec/intent/research/`. Behavior lives under `.litespec/behavior/`: a module's aggregates and use cases under `.litespec/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings in a settings record file, cross-aggregate rules under `.litespec/behavior/rules/`, the retention schedule at `.litespec/behavior/retention-schedule.yaml`, and access records under `.litespec/behavior/access/`. Exceptions live under `.litespec/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
 
 ## Links Between Records
 
@@ -77,7 +77,7 @@ Every Intent and governance record carries `draft`, `approved`, or `retired`. Ev
 
 Approval is data. An approved or reviewed record carries who approved it, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, steps, and prose fields. The explanation beside a non-article record sits outside the hash, while the explanation of an article type feeds it with the record; a changed semantic hash reopens approval.
 
-Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `physical-access`, `personal-data`, and `access`. Any value makes the record tier 1, which needs explicit approval or review. A record with no risk is tier 3. A tier-3 draft question that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `litespec.project.json`, 7 days by default), recorded as `answeredBy: auto (veto window)` on the question. Questions group into ballots, so each ballot is one inbox of related decisions. An unanswered question past its date that cannot auto-approve is reported by the `question-expired` check; it never silently blocks.
+Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `physical-access`, `personal-data`, and `access`, shown by name as its risk class, with the approval the project approval table states for that class. A record with no risk shows no risk. A draft question with no risk that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `.litespec/project.json`, 7 days by default), recorded as `answeredBy: auto (veto window)` on the question. Questions group into ballots, so each ballot is one inbox of related decisions. An unanswered question past its date that cannot auto-approve is reported by the `question-expired` check; it never silently blocks.
 
 Intent flows one way, from constraint down to scenario: constraint outranks product, product outranks requirement, requirement outranks rule, rule outranks use case, use case outranks result, and result outranks scenario. When code and an approved record disagree where Intent has spoken, the spec wins. Where Intent is silent, working code is evidence for a question, never a defect to delete and never a source to transcribe silently.
 
@@ -89,8 +89,8 @@ Each layer is reviewed where it is written, by the reader it is written for:
 
 | Review | Reads | Decides |
 |:--|:--|:--|
-| Intent review | The intent diff in product words, and the Ballots view | The finance lead and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
-| Behavior review | The behavior diff | Developers; tier 1 needs passing scenarios plus advisory review, tier 3 is sampled |
+| Intent review | The intent diff in product words, and the Ballots view | The finance lead and product people, weekly; each risk class takes the approval its project table states, and a question with no risk auto-approves after the veto window |
+| Behavior review | The behavior diff | Developers; a record carrying risk needs passing scenarios plus advisory review, and a record with no risk is sampled |
 | Security review | The security queue: access widenings, new outside calls, new personal-data flows | The security reviewer when the project names one, separately from reviewed |
 | Release gate | Drafts past their date, expired exceptions, and the checks | Ships only reviewed and proven behavior |
 

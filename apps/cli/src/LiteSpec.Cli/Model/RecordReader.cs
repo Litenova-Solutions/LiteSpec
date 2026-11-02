@@ -31,6 +31,8 @@ static class RecordReader
             files.AddRange(SourceTree.Files(root, RecordFile.Extension, RecordFile.ExplanationExtension));
         }
 
+        // The generated model and book under the record root hold no records.
+        files.RemoveAll(file => IsGeneratedOutput(config, file));
         files.RemoveAll(file => file.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase));
 
         var records = new List<Record>();
@@ -84,6 +86,28 @@ static class RecordReader
         DeriveResults(records, config.ForbiddenCode, config.InvalidInputCode);
 
         return new RecordRead(records, bodies, ReadProvisions(), problems);
+    }
+
+    /// <summary>Whether the file sits in the generated model or book folder under a record root.</summary>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
+    /// <param name="file">The file to test.</param>
+    /// <returns>True when the file is generated output under <c>&lt;root&gt;/model/</c> or <c>&lt;root&gt;/book/</c>.</returns>
+    private static bool IsGeneratedOutput(ConsumerConfig config, string file)
+    {
+        foreach (var root in config.RecordRoots)
+        {
+            foreach (var folder in new[] { "model", "book" })
+            {
+                var prefix = Path.GetFullPath(Path.Combine(root, folder)) + Path.DirectorySeparatorChar;
+
+                if (file.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Whether the document opens with a frontmatter fence line, so a parse failure is reported.</summary>

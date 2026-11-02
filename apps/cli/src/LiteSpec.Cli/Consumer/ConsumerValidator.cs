@@ -1,3 +1,5 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Consumer;
 
 /// <summary>
@@ -18,9 +20,9 @@ static class ConsumerValidator
         Usage: litespec consumer [--root <path>] [--format json] [--help]
 
         Validates the consumer repository at --root, which defaults to the
-        current directory. The consumer must contain litespec.project.json.
+        current directory. The consumer must contain .litespec/project.json.
 
-          --root <path>   The consumer repository. Defaults to the current directory.
+          --root <path>   The consumer repository. Defaults to the current directory, searched upward for .litespec/project.json.
           --format json   Write one JSON object on stdout instead of human-readable lines.
           --help          Print this text and exit.
 
@@ -57,9 +59,7 @@ static class ConsumerValidator
 
         try
         {
-            run = new ConsumerRun(
-                Path.GetFullPath(string.IsNullOrEmpty(rootOption) ? Directory.GetCurrentDirectory() : rootOption),
-                parsed.Json);
+            run = new ConsumerRun(ConsumerRoot.Resolve(rootOption), parsed.Json);
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {

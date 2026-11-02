@@ -50,24 +50,24 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 
 A consumer holds three kinds of files under its documentation root: a record file, an explanation file, and a document. A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder: plain Markdown with no frontmatter that explains the record. A document is a `.md` file with no `.yaml` of the same name beside it. Anything a check reads or a reviewer approves is a field in the record file; anything that only helps someone understand goes in the explanation file. The [model page](model.md) states the file rules, the split rule, and the homes; the tables below state the per-type fields and sections.
 
-Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research, decision, and topic carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections.
+Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research, decision, and topic carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections after the fixed sections its type takes in the [writing standard](writing.md).
 
 | Type | Template | New Fields | Explanation File |
 |:---|:---|:---|:---|
 | product | `templates/consumer/product.yaml` | `summary` | Free sections only |
-| goal | `templates/consumer/goal.yaml` | `whyItMatters` | Free sections only |
-| problem | `templates/consumer/problem.yaml` | `situation` | Evidence |
-| feature | `templates/consumer/feature.yaml` | `offering` | Free sections only |
+| goal | `templates/consumer/goal.yaml` | `whyItMatters` | Why It Matters, What Counts as Done, What It Connects To, Open Questions |
+| problem | `templates/consumer/problem.yaml` | `affectsSegment`, `costToday`, `workaroundToday`, `evidence` | Who Has It, What They Do Today, Evidence, What Would Retire It |
+| feature | `templates/consumer/feature.yaml` | `offering` | Who It Serves and Why, What It Offers, What Good Looks Like, Open Questions |
 | constraint | `templates/consumer/constraint.yaml` | `summary` | Free sections only |
 | research | `templates/consumer/research.yaml`, `templates/consumer/research.md` | `key` on each source | Answer, Notes on Sources |
-| decision | `templates/consumer/decision.yaml`, `templates/consumer/decision.md` | `consequences` | Context, Decision, Evidence with Confidence |
+| decision | `templates/consumer/decision.yaml`, `templates/consumer/decision.md` | `consequences` | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
 | topic | `templates/consumer/topic.yaml`, `templates/consumer/topic.md` | `summary`, `position`, `refusals` | The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are |
-| journey | `templates/consumer/journey.yaml` | `betweenSteps` | Example, optional Before It Starts |
+| journey | `templates/consumer/journey.yaml` | `description`, `betweenSteps` | Who Walks and Why, Before It Starts (optional), Example, What It Connects To, Open Questions |
 | module | `templates/consumer/module.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
 | aggregate | `templates/consumer/aggregate.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
 | use-case | `templates/consumer/use-case.yaml` | `purpose`, `whatHappens`, `exposure` | optional Example, optional Notes |
 | rule-set | `templates/consumer/rule-set.yaml` | `summary` | optional Notes |
-| actor | `templates/consumer/actor.yaml` | `summary` | Free sections only |
+| actor | `templates/consumer/actor.yaml` | `summary`, `belongsToTeam` | Who They Are, What They Do, What They Can Reach, Open Questions |
 | role | `templates/consumer/role.yaml` | `summary` | Free sections only |
 | external-system | `templates/consumer/external-system.yaml` | `summary` | Free sections only |
 | permission-list | `templates/consumer/permission-list.yaml` | Entries only | Free sections only |
@@ -96,7 +96,7 @@ Each document style scaffolds from its template and keeps its sections in the bo
 | configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
 | index | `templates/consumer/index.md` | Intent, then navigation groups |
 
-A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type` and its common fields. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `docs/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `docs/behavior/modules/<module>/module.yaml` and an aggregate page is `docs/behavior/modules/<module>/<aggregate>/aggregate.yaml`; any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
+A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type` and its common fields. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `.litespec/behavior/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
 
 These rules apply to every Markdown page style:
 
@@ -161,7 +161,7 @@ A Convention states a default a project may replace:
 ```markdown
 ### Use the Default Location
 
-**Default:** Store the catalog at `docs/ui/patterns.json`.
+**Default:** Store the catalog at `.litespec/ui/patterns.json`.
 
 **Replacement:** A project names another path in `paths.uiPatterns`.
 
@@ -367,7 +367,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 ```json
 { "word": "docket", "reason": "one word for a payment receipt and a shipping list",
-  "scope": "^docs/domain/modules/spending/", "except": ["shipping docket"] }
+  "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
 ```
 
 **Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding inside an exempt compound.
@@ -868,7 +868,7 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#record-the-reviewed-litespec-release`
 
-**Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `litespec.project.json`.
+**Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.json`.
 
 **Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 

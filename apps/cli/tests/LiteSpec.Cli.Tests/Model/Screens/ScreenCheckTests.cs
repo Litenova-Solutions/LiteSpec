@@ -277,9 +277,9 @@ public sealed class ScreenCheckTests
     static void WriteRouteSuiteProject(string root)
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web", "tests", "routes"));
-        Directory.CreateDirectory(Path.Combine(root, "docs"));
+        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {
               "owners": ["lending-team"],
@@ -397,16 +397,16 @@ public sealed class ScreenCheckTests
     static void WriteProject(string root, string dictionary)
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
-        Directory.CreateDirectory(Path.Combine(root, "docs"));
-        File.WriteAllText(Path.Combine(root, "docs", "refusals.json"), dictionary);
+        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
+        File.WriteAllText(Path.Combine(root, ".litespec", "refusals.json"), dictionary);
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {
               "owners": ["lending-team"],
               "paths": {
                 "frontends": [
-                  { "name": "web", "path": "apps/web", "platform": "svelte", "refusalDictionary": "docs/refusals.json" }
+                  { "name": "web", "path": "apps/web", "platform": "svelte", "refusalDictionary": ".litespec/refusals.json" }
                 ]
               }
             }
@@ -415,11 +415,11 @@ public sealed class ScreenCheckTests
 
     static ProjectModel BaseModel(string root)
     {
-        if (!File.Exists(Path.Combine(root, "litespec.project.json")))
+        if (!File.Exists(Path.Combine(root, ".litespec/project.json")))
         {
-            Directory.CreateDirectory(Path.Combine(root, "docs"));
+            Directory.CreateDirectory(Path.Combine(root, ".litespec"));
             File.WriteAllText(
-                Path.Combine(root, "litespec.project.json"),
+                Path.Combine(root, ".litespec/project.json"),
                 """
                 {
                   "owners": ["lending-team"],

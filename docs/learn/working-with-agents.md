@@ -24,23 +24,23 @@ The project installs the `litespec` command line as a local .NET tool at the ado
 
 ### The Published Site
 
-An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/3.0.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
+An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/3.1.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
 
 ```markdown
 ## LiteSpec
-This project follows LiteSpec 3.0.0: size small, shape server, stacks dotnet and react, extensions none.
-Before a task, read https://litespec.dev/3.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 3.1.0: size small, shape server, stacks dotnet and react, extensions none.
+Before a task, read https://litespec.dev/3.1.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 ```
 
-That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/3.0.0/backend/domain.md`.
+That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/3.1.0/backend/domain.md`.
 
 ## The Agent Task Sequence
 
 Adding new intent to a running project follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page. This page states no second order.
 
-For any task, the agent reads the project's `AGENTS.md` and `litespec.project.json`, selects the records the task touches, reads the standards those records cite, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
+For any task, the agent reads the project's `AGENTS.md` and `.litespec/project.json`, selects the records the task touches, reads the standards those records cite, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
 
 The diagram below shows that order, and where the agent stops for a person instead of deciding alone.
 

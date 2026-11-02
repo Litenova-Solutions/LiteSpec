@@ -116,9 +116,9 @@ public sealed class ProofReaderTests
     static bool Confirmed(string claim, string scenarios, (string Path, string Text)? steps = null, bool effects = false)
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/extend-loan-proof-scenario.yaml", ScenarioJson(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/return-copy-proof-scenario.yaml", ScenarioJson(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-refusal-scenario.yaml", ScenarioJson(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/extend-loan-proof-scenario.yaml", ScenarioJson(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/return-copy-proof-scenario.yaml", ScenarioJson(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-refusal-scenario.yaml", ScenarioJson(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Harness/HarnessScenarios.cs", scenarios);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""");
 
@@ -131,7 +131,7 @@ public sealed class ProofReaderTests
         {
             PatchRecord(
                 temp.Path,
-                "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+                ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
                 front => front["effects"] = new JsonArray(
                     new JsonObject
                     {
@@ -156,7 +156,7 @@ public sealed class ProofReaderTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 
@@ -181,7 +181,7 @@ public sealed class ProofReaderTests
 
     static void WriteRefusals(string root, string statuses)
     {
-        var path = Path.Combine(root, "litespec.project.json");
+        var path = Path.Combine(root, ".litespec/project.json");
         var text = File.ReadAllText(path);
         var refusals = "\"refusals\": {\"forbidden\": \"authorization.forbidden\", \"invalidInput\": \"request.validation-failed\", \"statuses\": " + statuses + "}";
 

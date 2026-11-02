@@ -33,7 +33,7 @@ internal static class MeasuredChecks
         CheckNumberedStatement(model, findings);
     }
 
-    /// <summary>Reports a statement naming a number with no measure, at tier A.</summary>
+    /// <summary>Reports a statement naming a number with no measure, at level A.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckNumberedStatement(ProjectModel model, List<Finding> findings)

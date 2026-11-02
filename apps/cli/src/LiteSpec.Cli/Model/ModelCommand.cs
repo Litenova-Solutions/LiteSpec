@@ -18,7 +18,7 @@ static class ModelCommand
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
           litespec model names [--root <consumer>] [--format text|json]
-          litespec model review --root <consumer> [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
+          litespec model review --root <consumer> [--decider <owner>] [--risk <class>|none] [--module <module>] [--type <type>] [--format json]
           litespec model approve --root <consumer> (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model approve --root <consumer> --batch <selector> [--batch <selector>...] [--batches <file>] --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
@@ -54,7 +54,7 @@ static class ModelCommand
             {
                 "diff" => ["--root", "--out", "--format", "--fail-on"],
                 "approve" => ["--root", "--by", "--on", "--batch", "--batches", "--second-reviewer", "--review-report"],
-                "review" => ["--root", "--out", "--format", "--decider", "--tier", "--module", "--type"],
+                "review" => ["--root", "--out", "--format", "--decider", "--risk", "--module", "--type"],
                 "check" => ["--root", "--out", "--format", "--since", "--level"],
                 _ => ["--root", "--out", "--format"],
             },
@@ -84,7 +84,7 @@ static class ModelCommand
 
         try
         {
-            root = parsed.Root();
+            root = ConsumerRoot.Resolve(parsed.Value("--root"));
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
@@ -100,9 +100,9 @@ static class ModelCommand
 
         // Without a project file every path falls back to a default, and the
         // check would pass a folder that is not a consumer at all.
-        if (!File.Exists(Path.Combine(root, "litespec.project.json")))
+        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
-            Console.Error.WriteLine($"Root '{root}' holds no litespec.project.json.");
+            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
             return 2;
         }
 
@@ -114,7 +114,7 @@ static class ModelCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($"litespec.project.json is not valid JSON: {exception.Message}");
+            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
             return 2;
         }
         catch (InvalidOperationException exception)
@@ -146,7 +146,7 @@ static class ModelCommand
                         .Select(gap => AsKnownJson(config, gap))
                         .Cast<object>()
                         .ToList();
-                    var output = parsed.Value("--out") ?? Path.Combine(root, ".model", "model.json");
+                    var output = parsed.Value("--out") ?? Path.Combine(root, ".litespec", "model", "model.json");
 
                     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
                     File.WriteAllText(output, model.ToJson() + "\n");
@@ -357,24 +357,25 @@ static class ModelCommand
 
                 case "review":
                 {
-                    int? tier = null;
+                    string? risk = null;
 
-                    if (parsed.Value("--tier") is { } tierText)
+                    if (parsed.Value("--risk") is { } riskText)
                     {
-                        if (tierText is not ("1" or "3"))
+                        if (riskText != "none"
+                            && !ApprovalTable.RiskClasses.Contains(riskText, StringComparer.Ordinal))
                         {
-                            Console.Error.WriteLine($"Unknown tier '{tierText}'; use 1 or 3.");
+                            Console.Error.WriteLine($"Unknown risk class '{riskText}'; use money, personal-data, access, physical-access, or none.");
                             return 2;
                         }
 
-                        tier = tierText == "1" ? 1 : 3;
+                        risk = riskText;
                     }
 
                     var model = ModelBuilder.Build(config);
                     var batches = ReviewQueue.Filter(
                         ReviewQueue.Compute(model),
                         parsed.Value("--decider"),
-                        tier,
+                        risk,
                         parsed.Value("--module"),
                         parsed.Value("--type"));
 
@@ -809,7 +810,7 @@ static class ModelCommand
 
         foreach (var record in plan.LeftOut.OrderBy(entry => entry.Id, StringComparer.Ordinal))
         {
-            Console.WriteLine($"{record.Id}: left out (tier 1)");
+            Console.WriteLine($"{record.Id}: left out (carries a risk class)");
         }
 
         if (plan.Failures.Count > 0)
@@ -904,7 +905,7 @@ static class ModelCommand
 
     /// <summary>
     ///     Whether the finding gates a release: an unverified use case, or an
-    ///     unanswered question on a tier 1 record.
+    ///     unanswered question on a record carrying a risk class.
     /// </summary>
     /// <param name="model">The built project model the finding belongs to.</param>
     /// <param name="finding">The finding to test.</param>
@@ -953,7 +954,7 @@ static class ModelCommand
     /// <param name="severity">The decided severity of the finding.</param>
     /// <returns>The printed line for the finding.</returns>
     static string FindingLine(ConsumerConfig config, Finding finding, Severity severity) =>
-        $"{config.Relative(finding.Path)}:{finding.Line} [{TierLabel(finding, severity)}] [{finding.Code}] {finding.Message}";
+        $"{config.Relative(finding.Path)}:{finding.Line} [{LevelLabel(finding, severity)}] [{finding.Code}] {finding.Message}";
 
     /// <summary>The sort rank of a level: G first, then S, then A.</summary>
     /// <param name="level">The level letter: G, S or A.</param>
@@ -966,11 +967,11 @@ static class ModelCommand
         _ => 3,
     };
 
-    /// <summary>The printed tier: the tier plus the reason a reported finding does not block.</summary>
-    /// <param name="finding">The finding whose tier is printed.</param>
+    /// <summary>The printed level: the level plus the reason a reported finding does not block.</summary>
+    /// <param name="finding">The finding whose level is printed.</param>
     /// <param name="severity">The decided severity, whose reason is appended.</param>
-    /// <returns>The tier, with the non-blocking reason when one is recorded.</returns>
-    static string TierLabel(Finding finding, Severity severity) =>
+    /// <returns>The level, with the non-blocking reason when one is recorded.</returns>
+    static string LevelLabel(Finding finding, Severity severity) =>
         severity.Reason is null ? finding.Tier : finding.Tier + " " + severity.Reason;
 
     /// <summary>One standing finding as its JSON object.</summary>
@@ -981,7 +982,7 @@ static class ModelCommand
     static object AsJson(ConsumerConfig config, Finding finding, Severity severity) => new
     {
         code = finding.Code,
-        tier = finding.Tier,
+        level = finding.Tier,
         outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
         reason = severity.Reason,
         message = finding.Message,
@@ -997,7 +998,7 @@ static class ModelCommand
     static object AsKnownJson(ConsumerConfig config, Finding finding) => new
     {
         code = finding.Code,
-        tier = finding.Tier,
+        level = finding.Tier,
         outcome = "known",
         reason = (string?)null,
         message = finding.Message,

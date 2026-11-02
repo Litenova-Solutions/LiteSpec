@@ -128,7 +128,7 @@ static partial class AppendEntry
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
+            root = ConsumerRoot.Resolve(parsed.Value("--root"));
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
@@ -147,7 +147,7 @@ static partial class AppendEntry
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($"litespec.project.json is not valid JSON: {exception.Message}");
+            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
             return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)

@@ -146,7 +146,7 @@ public sealed class ActCheckTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -156,14 +156,14 @@ public sealed class ActCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.0.0",
+                  "reviewedLiteSpecVersion": "3.1.0",
                   "owners": [
                     "lending-team"
                   ],
                   "paths": {
-                    "docs": "docs",
-                    "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.yaml",
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -186,12 +186,12 @@ public sealed class ActCheckTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -207,12 +207,12 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/outbox/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/outbox/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.outbox",
@@ -222,12 +222,12 @@ public sealed class ActCheckTests
                   "kind": "store"
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/outbox/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/outbox/aggregate.md", """
                 # Outbox
 
                 The lending-owned table of scans awaiting dispatch.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.borrow-copy",
@@ -250,12 +250,12 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.md", """
                 # Borrow copy
 
                 A reader borrows an available copy.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/fan-out.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/fan-out.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.fan-out",
@@ -281,12 +281,12 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/fan-out.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/fan-out.md", """
                 # Fan out
 
                 A pass issues one borrow command per record.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/outbox/record-scan.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/outbox/record-scan.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.record-scan",
@@ -309,7 +309,7 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/outbox/record-scan.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/outbox/record-scan.md", """
                 # Record scan
 
                 A kiosk records each scan attempt.
@@ -392,7 +392,7 @@ public sealed class ActCheckTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -402,14 +402,14 @@ public sealed class ActCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.0.0",
+                  "reviewedLiteSpecVersion": "3.1.0",
                   "owners": [
                     "lending-team"
                   ],
                   "paths": {
-                    "docs": "docs",
-                    "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.yaml",
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -430,12 +430,12 @@ public sealed class ActCheckTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.borrow-copy",
@@ -461,12 +461,12 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.md", """
                 # Borrow copy
 
                 A reader borrows an available copy.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -494,7 +494,7 @@ public sealed class ActCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.

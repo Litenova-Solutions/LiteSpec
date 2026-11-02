@@ -56,7 +56,7 @@ public sealed class CoverageTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

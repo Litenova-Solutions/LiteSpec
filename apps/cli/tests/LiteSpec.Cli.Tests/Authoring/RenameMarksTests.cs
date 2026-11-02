@@ -71,8 +71,8 @@ public sealed class RenameMarksTests
 
         using var temp = Cli.Temp("rename-marks");
         WriteConsumer(temp.Path);
-        var intentPage = Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-documents.yaml");
-        var technicalFolder = Path.Combine(temp.Path, "docs", "implementation", "decisions");
+        var intentPage = Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-documents.yaml");
+        var technicalFolder = Path.Combine(temp.Path, ".litespec", "implementation", "decisions");
         Directory.CreateDirectory(technicalFolder);
         File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.yaml"));
 
@@ -80,7 +80,7 @@ public sealed class RenameMarksTests
 
         Assert.True(result.Status == 0, result.Output);
         Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.yaml")), result.Output);
-        Assert.False(File.Exists(Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-files.yaml")));
+        Assert.False(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-files.yaml")));
     }
 
     /// <summary>Rename Rewrites A Requirement Id Inside Proves Marks In Both Styles.</summary>
@@ -169,7 +169,7 @@ public sealed class RenameMarksTests
 
     static void WriteConsumer(string root)
     {
-        Write(Path.Combine(root, "litespec.project.json"), """
+        Write(Path.Combine(root, ".litespec/project.json"), """
             {
               "project": {
                 "name": "Rename Fixture"
@@ -179,9 +179,9 @@ public sealed class RenameMarksTests
                 "lending-team"
               ],
               "paths": {
-                "docs": "docs",
-                "behaviorDocs": "docs/behavior",
-                "glossary": "docs/glossary.yaml",
+                "docs": ".litespec",
+                "behaviorDocs": ".litespec/behavior",
+                "glossary": ".litespec/glossary.yaml",
                 "testRoots": [
                   "apps/api/tests"
                 ]
@@ -195,14 +195,14 @@ public sealed class RenameMarksTests
               }
             }
             """);
-        TestRecords.Write(root, "docs/glossary.yaml", """
+        TestRecords.Write(root, ".litespec/glossary.yaml", """
             {
               "schemaVersion": 2,
               "terms": [],
               "mannered": []
             }
             """);
-        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
@@ -212,7 +212,7 @@ public sealed class RenameMarksTests
               "kind": "command"
             }
             """);
-        TestRecords.Write(root, "docs/intent/decisions/0002-store-loans-as-documents.yaml", """
+        TestRecords.Write(root, ".litespec/intent/decisions/0002-store-loans-as-documents.yaml", """
             {
               "type": "decision",
               "id": "decision/0002-store-loans-as-documents",
@@ -266,7 +266,7 @@ public sealed class RenameMarksTests
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
             """);
-        TestRecords.Write(root, "docs/intent/borrowing/performance.yaml", """
+        TestRecords.Write(root, ".litespec/intent/borrowing/performance.yaml", """
             {
               "type": "topic",
               "id": "topic/performance",
@@ -286,7 +286,7 @@ public sealed class RenameMarksTests
               ]
             }
             """);
-        TestRecords.Write(root, "docs/behavior/external-systems/text-gateway.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/external-systems/text-gateway.yaml", """
             {
               "type": "external-system",
               "id": "external-system/text-gateway",
@@ -295,7 +295,7 @@ public sealed class RenameMarksTests
               "status": "reviewed"
             }
             """);
-        TestRecords.Write(root, "docs/behavior/integration-events/loan-borrowed.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/integration-events/loan-borrowed.yaml", """
             {
               "type": "integration-event",
               "id": "integration-event/loan-borrowed",

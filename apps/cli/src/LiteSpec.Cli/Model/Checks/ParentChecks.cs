@@ -351,7 +351,7 @@ internal static class ParentChecks
 
     /// <summary>
     ///     Reports a record citing, fulfilling or serving a record that changed
-    ///     after its approval: tier A while the record is a draft, tier G once
+    ///     after its approval: level A while the record is a draft, level G once
     ///     approved. The flag stands until the changed record is re-approved.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and its approval state.</param>

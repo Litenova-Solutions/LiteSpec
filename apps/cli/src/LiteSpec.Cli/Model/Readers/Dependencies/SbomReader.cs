@@ -9,7 +9,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 ///     SPDX nor CycloneDX, or yields no packages reports one <c>reader-missing</c> finding
 ///     naming that path. No <c>paths.sbom</c> configured stays silent.
 /// </summary>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 static class SbomReader
 {
     /// <summary>Reads every direct package of every named bill of materials, in file order, with its problems.</summary>

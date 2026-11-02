@@ -56,7 +56,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/permissions.yaml",
+            ".litespec/behavior/permissions.yaml",
             meta => FirstPermission(meta)["scope"] = "self");
         AssertClean(RunConsumer(folder.Path));
     }
@@ -69,7 +69,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/permissions.yaml",
+            ".litespec/behavior/permissions.yaml",
             meta =>
             {
                 FirstPermission(meta)["scope"] = "self";
@@ -86,7 +86,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/permissions.yaml",
+            ".litespec/behavior/permissions.yaml",
             meta => FirstPermission(meta).Remove("scope"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
     }
@@ -99,7 +99,7 @@ public sealed class PermissionScopeTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/permissions.yaml",
+            ".litespec/behavior/permissions.yaml",
             meta =>
             {
                 FirstPermission(meta)["scope"] = "self";

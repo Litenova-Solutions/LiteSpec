@@ -16,8 +16,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"vocabulary": {"verbs": ["borrow"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -31,8 +31,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list-loans.yaml"), """{"kind": "query"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "list-loans.yaml"), """{"kind": "query"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -46,8 +46,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.order", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "orders", "aggregate.yaml"), """{"parts": ["line"]}"""),
-            TestModel.Record("use-case", "use-case/lending.add-line", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "orders", "add-line.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.order", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "orders", "aggregate.yaml"), """{"parts": ["line"]}"""),
+            TestModel.Record("use-case", "use-case/lending.add-line", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "orders", "add-line.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -61,9 +61,9 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("term", "term/guest", Path.Combine(temp.Path, "docs", "glossary.yaml"), """{"term": "guest", "meaning": "A visitor without a card."}"""),
-            TestModel.Record("use-case", "use-case/lending.add-guest", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "visits", "add-guest.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
+            TestModel.Record("term", "term/guest", Path.Combine(temp.Path, ".litespec", "glossary.yaml"), """{"term": "guest", "meaning": "A visitor without a card."}"""),
+            TestModel.Record("use-case", "use-case/lending.add-guest", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "visits", "add-guest.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -77,9 +77,9 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("term", "term/guest", Path.Combine(temp.Path, "docs", "glossary.yaml"), """{"term": "guest", "meaning": "A visitor without a card."}"""),
-            TestModel.Record("use-case", "use-case/lending.list-guests", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "visits", "list-guests.yaml"), """{"kind": "query"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
+            TestModel.Record("term", "term/guest", Path.Combine(temp.Path, ".litespec", "glossary.yaml"), """{"term": "guest", "meaning": "A visitor without a card."}"""),
+            TestModel.Record("use-case", "use-case/lending.list-guests", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "visits", "list-guests.yaml"), """{"kind": "query"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -93,8 +93,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"vocabulary": {"phrasal": ["check-in"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.check-in-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "check-in-copy.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.check-in-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "check-in-copy.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
     }
@@ -108,8 +108,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"vocabulary": {"verbs": ["borrow"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-volume", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-volume.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "aggregate.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-volume", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-volume.yaml"), """{"kind": "command"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-noun-unknown").Message;
         Assert.Contains("borrow-volume", message, StringComparison.Ordinal);
@@ -124,9 +124,9 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.copy-unavailable", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "lending.copy-unavailable", "meaning": "The copy is out."}"""),
-            TestModel.Record("result", "result/borrow-copy.card-expired", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "request.card-expired", "meaning": "The card lapsed."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.copy-unavailable", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "lending.copy-unavailable", "meaning": "The copy is out."}"""),
+            TestModel.Record("result", "result/borrow-copy.card-expired", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "request.card-expired", "meaning": "The card lapsed."}"""));
 
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
@@ -140,10 +140,10 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"refusals": {"statuses": {"gateway.provider-timeout": 504}}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.provider-silent", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "gateway.provider-silent", "meaning": "The provider stayed silent."}"""),
-            TestModel.Record("result", "result/borrow-copy.provider-timeout", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "gateway.provider-timeout", "meaning": "The provider timed out."}"""),
-            TestModel.Record("result", "result/borrow-copy.bad-input", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "request.validation-failed", "meaning": "The input fails validation."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.provider-silent", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "gateway.provider-silent", "meaning": "The provider stayed silent."}"""),
+            TestModel.Record("result", "result/borrow-copy.provider-timeout", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "gateway.provider-timeout", "meaning": "The provider timed out."}"""),
+            TestModel.Record("result", "result/borrow-copy.bad-input", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "request.validation-failed", "meaning": "The input fails validation."}"""));
 
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
@@ -157,9 +157,9 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/catalog", Path.Combine(temp.Path, "docs", "behavior", "modules", "catalog", "catalog.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.title-retired", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "catalog.title-retired", "meaning": "The title is retired."}"""));
+            TestModel.Record("module", "module/catalog", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "catalog", "catalog.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.title-retired", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "catalog.title-retired", "meaning": "The title is retired."}"""));
 
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
@@ -173,8 +173,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.register-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/register-copy.barcode-taken", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.yaml"), """{"outcome": "refusal", "code": "uniqueness.copy-barcode-taken", "meaning": "Another copy holds the barcode."}"""));
+            TestModel.Record("use-case", "use-case/lending.register-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "register-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/register-copy.barcode-taken", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "copies", "register-copy.yaml"), """{"outcome": "refusal", "code": "uniqueness.copy-barcode-taken", "meaning": "Another copy holds the barcode."}"""));
 
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
@@ -188,8 +188,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{"refusals": {"prefixes": ["shared"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.locale-unknown", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "shared.locale-unknown", "meaning": "The locale is unknown."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.locale-unknown", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "shared.locale-unknown", "meaning": "The locale is unknown."}"""));
 
         Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
@@ -203,8 +203,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.copy-invalid", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "lending.copy-invalid", "meaning": "The copy is invalid."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.copy-invalid", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "lending.copy-invalid", "meaning": "The copy is invalid."}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-invalid").Message;
         Assert.Contains("invalid", message, StringComparison.Ordinal);
@@ -219,8 +219,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/borrow-copy.copy-on-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "billing.copy-on-loan", "meaning": "The copy is out."}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.copy-on-loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{"outcome": "refusal", "code": "billing.copy-on-loan", "meaning": "The copy is out."}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-invalid").Message;
         Assert.Contains("billing.copy-on-loan", message, StringComparison.Ordinal);
@@ -235,7 +235,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader", "addresses": ["actor/reader"]}"""));
 
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
@@ -249,7 +249,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "addresses": ["actor/reader"]}"""));
 
         Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
@@ -263,7 +263,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due", "addresses": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{"template": "loan-due", "addresses": ["actor/reader"]}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "template-key-invalid").Message;
         Assert.Contains("loan-due", message, StringComparison.Ordinal);
@@ -278,8 +278,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, "docs", "operations", "limits.yaml"), """{"valueType": "integer", "unit": "days"}"""),
-            TestModel.Record("setting", "setting/lending.late-fee", Path.Combine(temp.Path, "docs", "operations", "limits.yaml"), """{"valueType": "money"}"""));
+            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "integer", "unit": "days"}"""),
+            TestModel.Record("setting", "setting/lending.late-fee", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "money"}"""));
 
         Assert.DoesNotContain("setting-unit-missing", TestModel.Codes(model));
     }
@@ -293,7 +293,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, "docs", "operations", "limits.yaml"), """{"valueType": "integer"}"""));
+            TestModel.Record("setting", "setting/lending.loan-period", Path.Combine(temp.Path, ".litespec", "operations", "limits.yaml"), """{"valueType": "integer"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "setting-unit-missing").Message;
         Assert.Contains("setting/lending.loan-period", message, StringComparison.Ordinal);
@@ -308,8 +308,8 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "events", "loan-borrowed.yaml"), """{"direction": "out"}"""),
-            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, "docs", "behavior", "events", "claim-staged.yaml"), """{"direction": "in"}"""));
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "events", "loan-borrowed.yaml"), """{"direction": "out"}"""),
+            TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "claim-staged.yaml"), """{"direction": "in"}"""));
 
         Assert.DoesNotContain("integration-event-name-invalid", TestModel.Codes(model));
     }
@@ -323,12 +323,12 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, "docs", "behavior", "events", "refund-staged.yaml"), """{"direction": "out"}"""));
+            TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, ".litespec", "behavior", "events", "refund-staged.yaml"), """{"direction": "out"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "integration-event-name-invalid").Message;
         Assert.Contains("staged", message, StringComparison.Ordinal);
     }
 
     static void WriteProject(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, "litespec.project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
 }

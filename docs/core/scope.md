@@ -8,7 +8,7 @@ Every LiteSpec project starts by declaring the same three choices: its size, sha
 
 ### The Three Project Choices
 
-Three choices in `litespec.project.json` decide everything the project must produce and every page that applies to it.
+Three choices in `.litespec/project.json` decide everything the project must produce and every page that applies to it.
 
 Size decides the record set and the test projects. A small project carries the core record types with Architecture and Integration test projects. A large project adds goals, problems, features, journeys, and scenarios with the Acceptance project. A project with one web frontend and no journeys fits small; the running Claimwick example, which needs journeys, selects large.
 
@@ -16,15 +16,21 @@ Shape decides the deployment boundary: `server` for a project with its own backe
 
 Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
 
+### One Folder for Every LiteSpec File
+
+Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Inside it, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own; `project.json`, `glossary.yaml`, and the example cast sit at its top level; the tool writes its model to `model/` and its book to `book/` under it, and a `.gitignore` there keeps those two generated folders out of source control. Nothing of LiteSpec lives anywhere else in the repository, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name.
+
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds. The Behavior extensions are `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai`, beside the existing `tenancy`, `compat`, `jobs`, `outbox`, `audit`, and `stage` extensions. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `litespec.project.json` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. The Behavior extensions are `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai`, beside the existing `tenancy`, `compat`, `jobs`, `outbox`, `audit`, and `stage` extensions. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.json` whether any constraint applies, and an empty answer records that none does.
+
+LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces; company operation enters only as a constraint or as dated research.
 
 Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
 
 ### Review and Adoption Settings
 
-The project record carries its review settings under `review`: the veto window in days and, where the project names one, the security reviewer. Questions on tier 3 records with a recommendation auto-approve after the veto window, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Approval stays loose: an agent reading counts as the tier 1 second reading, a project whose owners list holds one name needs no second reviewer, and the security queue is a list to read, not a gate. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
+The project record carries its review settings under `review`: the veto window in days and, where the project names one, the security reviewer. Questions on records with no risk and with a recommendation auto-approve after the veto window, while questions on records carrying a risk class wait for explicit approval by the approver the project's approval table names for that class, as `litespec/core/model#answer-each-question-on-its-record` states. Approval stays loose: an agent reading counts as the second reading for a record carrying a risk class, a project whose owners list holds one name needs no second reviewer, and the security queue is a list to read, not a gate. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
 
 ### What Claiming Conformance Means
 
@@ -42,7 +48,7 @@ A consumer claims conformance when it applies every page its size, shape, and st
 
 **Example:** A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.
 
-The running Claimwick example declares large with a server shape and two stacks in `litespec.project.json`:
+The running Claimwick example declares large with a server shape and two stacks in `.litespec/project.json`:
 
 ```json
 {
@@ -71,7 +77,19 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** Posts, Authors, and Comments can be modules in one publishing context.
 
-**Reviewed for:** Module pages and `litespec.project.json` name one business language and one deployment boundary, with no second of either.
+**Reviewed for:** Module pages and `.litespec/project.json` name one business language and one deployment boundary, with no second of either.
+
+### Reject Company Areas in Intent
+
+**ID:** `litespec/core/scope#reject-company-areas-in-intent`
+
+**Statement:** An Intent area folder MUST NOT be named `business`, `company`, `go-to-market`, `markets` or `roadmap`.
+
+**Rationale:** Those names hold running the company: prices as an offer, markets, sales actions, launch calendars and company goals. LiteSpec specifies the product, so company material enters a consumer's records only as a constraint, a limit the application enforces or an authority imposes, or as dated research, never as an Intent area beside the product's areas.
+
+**Example:** Claimwick keeps its expense areas under product names; a folder named `markets` holding market entry plans is refused, and a market fact that binds the product enters as dated research or as a constraint citing it.
+
+**Checked by:** `litespec model check` reports `intent-area-invalid` (level G) for a record under an Intent area folder named `business`, `company`, `go-to-market`, `markets` or `roadmap`.
 
 ### Select Conditional Extensions Explicitly
 
@@ -89,7 +107,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#record-selected-extensions`
 
-**Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `litespec.project.json`, each with its criterion and review date.
+**Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.json`, each with its criterion and review date.
 
 **Rationale:** The project record determines which extension boundaries apply to the project's work. Writing each selection with its criterion and review date lets a later reader check whether the condition still holds. Without the record, extensions drift in through dependencies and prose while the checks apply a different set.
 
@@ -105,13 +123,13 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#answer-the-constraints-question`
 
-**Statement:** A consumer MUST state in `litespec.project.json` whether any outside constraint applies to the project.
+**Statement:** A consumer MUST state in `.litespec/project.json` whether any outside constraint applies to the project.
 
 **Rationale:** An outside rule the project never names is a law the product can break unknowingly. Recording the answer, even when it is empty, proves the team asked the question: an empty answer states that no outside rule binds the project. A later reader can then tell a project with no constraints from one that never looked.
 
 **Example:** A clinic booking system records that medical-device regulation does not apply to appointment scheduling.
 
-**Reviewed for:** `litespec.project.json` states which outside constraints apply, or records an empty answer.
+**Reviewed for:** `.litespec/project.json` states which outside constraints apply, or records an empty answer.
 
 ### Declare a Consumer That Has No Backend
 
@@ -145,15 +163,15 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** A consumer that selects the dotnet stack and the caching extension claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as an exception.
 
-**Reviewed for:** `litespec.project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to an exception record under `docs/governance/exceptions/`, and the selected checks pass.
+**Reviewed for:** `.litespec/project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to an exception record under `.litespec/governance/exceptions/`, and the selected checks pass.
 
 ### Record the Review Configuration
 
 **ID:** `litespec/core/scope#record-the-review-configuration`
 
-**Statement:** A consumer MAY record its veto window and its security reviewer in `review` in `litespec.project.json`.
+**Statement:** A consumer MAY record its veto window and its security reviewer in `review` in `.litespec/project.json`.
 
-**Rationale:** The security reviewer reads access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on tier 3 records. The security queue is a list to read, not a gate.
+**Rationale:** The security reviewer reads access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on records with no risk. The security queue is a list to read, not a gate.
 
 **Example:**
 
@@ -161,13 +179,13 @@ The diagram shows the three project choices and what each decides.
 { "review": { "vetoWindowDays": 7, "securityReviewer": "__OWNER__" } }
 ```
 
-**Reviewed for:** Which recommendations lack a veto window, and which security queues lack a named reader where the project wants one? Look at `review` in `litespec.project.json` beside the ballots and the behavior diff.
+**Reviewed for:** Which recommendations lack a veto window, and which security queues lack a named reader where the project wants one? Look at `review` in `.litespec/project.json` beside the ballots and the behavior diff.
 
 ### Record the Transcription Endpoint
 
 **ID:** `litespec/core/scope#record-the-transcription-endpoint`
 
-**Statement:** A consumer that transcribes Behavior from code MUST record `adoption.transcriptionEndsWith` in `litespec.project.json`.
+**Statement:** A consumer that transcribes Behavior from code MUST record `adoption.transcriptionEndsWith` in `.litespec/project.json`.
 
 **Rationale:** Transcription mode ends when one named decision is approved, so every transcribed record has a date by which it gains an approved Intent parent or fails. Without the named endpoint, transcribed drafts linger beside reviewed records with nobody able to tell the mode is over.
 
@@ -183,17 +201,29 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#point-behavior-docs-at-the-behavior-root`
 
-**Statement:** A consumer MUST set `paths.behaviorDocs` in `litespec.project.json` to the folder that holds its Behavior records.
+**Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.json` to the folder that holds its Behavior records.
 
 **Rationale:** The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.
 
 **Example:**
 
 ```json
-{ "paths": { "behaviorDocs": "docs/behavior" } }
+{ "paths": { "behaviorDocs": ".litespec/behavior" } }
 ```
 
 **Checked by:** `litespec consumer` rejects a project record without `paths.behaviorDocs`.
+
+### Keep Every LiteSpec File Under One Folder
+
+**ID:** `litespec/core/scope#keep-every-litespec-file-under-one-folder`
+
+**Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
+
+**Rationale:** One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.json` stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.json`.
+
+**Example:** Claimwick holds its project file, glossary, example cast, and the Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
+
+**Reviewed for:** Which files created, read, or governed by LiteSpec sit outside `.litespec/`, or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
 
 ## Conventions
 

@@ -27,7 +27,7 @@ public sealed partial class ConsumerValidatorTests
     /// <param name="provision">The provision id the deferral covers.</param>
     /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
     static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
-        TestRecords.Write(root, "docs/governance/exceptions/stage-deferral.yaml",
+        TestRecords.Write(root, ".litespec/governance/exceptions/stage-deferral.yaml",
             "{\"type\":\"exception\",\"id\":\"exception/stage-deferral\",\"title\":\"Stage Deferral\",\"owner\":\"fixture\",\"status\":\"approved\","
             + "\"approvedBy\":\"fixture\",\"approvedOn\":\"2026-10-01\",\"approvedHash\":\"00000000\",\"kind\":\"departure\","
             + $"\"covers\":\"{provision}\",\"subject\":[\"use-case/orders.cancel-order\"],"

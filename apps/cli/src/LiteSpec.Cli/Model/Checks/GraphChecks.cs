@@ -1150,12 +1150,13 @@ internal static class GraphChecks
 
             foreach (var entry in questions.EnumerateArray())
             {
-                // An answered question is closed. A tier-3 question with a
-                // recommendation auto-approves past the veto window, so it never
-                // ages; every other unanswered question past its decide-by date
-                // reports, tier 1 included.
+                // An answered question is closed. A question on a record with
+                // no risk class and with a recommendation auto-approves past the
+                // veto window, so it never ages; every other unanswered question
+                // past its decide-by date reports, a record carrying a risk
+                // class included.
                 if (Answered(entry)
-                    || (TierOf(record) == 3 && HasRecommendation(entry))
+                    || (!HasRisk(record) && HasRecommendation(entry))
                     || !AgedPast(entry, today))
                 {
                     continue;

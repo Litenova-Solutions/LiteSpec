@@ -19,10 +19,10 @@ public sealed class FeatureGoalCheckTests
         Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Planned Feature Without Advances Reports At Tier A.</summary>
+    /// <summary>Planned Feature Without Advances Reports At Level A.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
-    public void Planned_Feature_Without_Advances_Reports_At_Tier_A()
+    public void Planned_Feature_Without_Advances_Reports_At_Level_A()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -35,10 +35,10 @@ public sealed class FeatureGoalCheckTests
         Assert.Equal("feature/hold-requests", finding.Subject);
     }
 
-    /// <summary>Tier1 Feature Without Advances Reports At Tier G.</summary>
+    /// <summary>Feature With Risk Without Advances Reports At Level G.</summary>
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact]
-    public void Tier1_Feature_Without_Advances_Reports_At_Tier_G()
+    public void Feature_With_Risk_Without_Advances_Reports_At_Level_G()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(

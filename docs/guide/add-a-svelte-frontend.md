@@ -9,7 +9,7 @@ A product that serves its web interface from Svelte declares the same applicatio
 Start with:
 
 - A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases implemented.
-- The `svelte` stack beside the tutorial pair in the consumer's `litespec.project.json`.
+- The `svelte` stack beside the tutorial pair in the consumer's `.litespec/project.json`.
 - The Svelte toolchain release pinned in `litespec.manifest.json` at the LiteSpec root.
 
 Read the [web structure page](../frontend/web/structure.md) and the [web UI page](../frontend/web/ui.md) before this guide: they state the obligations, and this guide shows one compliant way to meet them.
@@ -18,7 +18,7 @@ Read the [web structure page](../frontend/web/structure.md) and the [web UI page
 
 ### Declare the Svelte Stack
 
-Add the `svelte` stack to `litespec.project.json`, matching the stack entries of the `dotnet-svelte` preset on the [initialize command page](../tools/init.md). This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
+Add the `svelte` stack to `.litespec/project.json`, matching the stack entries of the `dotnet-svelte` preset on the [initialize command page](../tools/init.md). This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
 
 ### Declare the Application Tree
 

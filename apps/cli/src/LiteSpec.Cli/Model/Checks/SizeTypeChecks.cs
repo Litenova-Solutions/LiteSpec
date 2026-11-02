@@ -17,7 +17,7 @@ internal static class SizeTypeChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        var declaration = Path.Combine(model.Config.Root, "litespec.project.json");
+        var declaration = ConsumerRoot.ProjectFile(model.Config.Root);
         var required = model.Config.Size == "small"
             ? RecordTypes.SmallRequired
             : RecordTypes.SmallRequired.Concat(RecordTypes.LargeAdded).ToList();

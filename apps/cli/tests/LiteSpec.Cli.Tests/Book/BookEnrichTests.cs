@@ -27,7 +27,7 @@ public sealed class BookEnrichTests
         Assert.Null(fields["status"]);
         Assert.NotNull(fields["summary"]);
         var src = Obj(loan, "src");
-        Assert.Equal("docs/behavior/modules/lending/loans/aggregate.yaml", Str(src, "path"));
+        Assert.Equal(".litespec/behavior/modules/lending/loans/aggregate.yaml", Str(src, "path"));
         Assert.Equal(3, src["line"]?.GetValue<int>());
     }
 
@@ -443,7 +443,7 @@ public sealed class BookEnrichTests
             ["tier"] = "G",
             ["message"] = "Missing handler.",
             ["subject"] = "use-case/lending.borrow-copy#step",
-            ["path"] = "docs/a.yaml",
+            ["path"] = ".litespec/a.yaml",
             ["line"] = 3,
         });
         (model["known"] as JsonArray)!.Add(new JsonObject
@@ -629,6 +629,30 @@ public sealed class BookEnrichTests
         Assert.Equal("https://example.com/schemas/loan-borrowed.json", Str(Obj(details["integration-event/loan-borrowed"], "fields"), "dataschema"));
     }
 
+    /// <summary>A record detail carries the completion, approval, captures and evidence strength the model states beside the record.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Details_Carry_Completion_Approval_Captures_And_Evidence_Strength()
+    {
+        var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
+        screen["completion"] = JsonNode.Parse("""{"stage":"implemented","proof":"unknown","heldBy":[],"counts":{}}""");
+        screen["approval"] = JsonNode.Parse("""{"by":"Ada","rule":"product owner"}""");
+        screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
+        screen["captureState"] = "captured";
+        var problem = Record("problem", "problem/slow-desk", "Slow Desk", fieldsJson: """{"statement":"The desk is slow.","evidence":[{"claim":"Desk takes a minute.","kind":"observation","source":"notes.md","readOn":"2026-11-01"}]}""");
+        problem["evidenceStrength"] = "observed";
+
+        var details = DetailsOf(NewModel(screen, problem));
+
+        var screenDetail = details["screen/home"];
+        Assert.Equal("implemented", Str(Obj(screenDetail, "completion"), "stage"));
+        Assert.Equal("unknown", Str(Obj(screenDetail, "completion"), "proof"));
+        Assert.Equal("Ada", Str(Obj(screenDetail, "approval"), "by"));
+        Assert.Single(Arr(screenDetail, "captures"));
+        Assert.Equal("captured", Str(screenDetail, "captureState"));
+        Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));
+    }
+
     static JsonObject LoadFixture(string relative) =>
         (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture(relative)))!;
 
@@ -688,7 +712,7 @@ public sealed class BookEnrichTests
             ["effectiveStatus"] = effective ?? status,
             ["decider"] = null,
             ["decideBy"] = null,
-            ["file"] = "docs/test.yaml",
+            ["file"] = ".litespec/test.yaml",
             ["line"] = 3,
             ["fields"] = (JsonObject)JsonNode.Parse(fieldsJson)!,
             ["links"] = new JsonObject(),

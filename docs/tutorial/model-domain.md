@@ -9,7 +9,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 - Finish [Start a Consumer Repository](getting-started.md) through its configuration steps.
 - Read the product brief and the requirements this module fulfills.
 - Read the decisions that constrain identity, persistence, security, or external behavior.
-- Copy the `module.yaml`, `aggregate.yaml`, and `use-case.yaml` templates from the [template index](../../templates/consumer/README.md), and open `docs/glossary.yaml` for the module terms.
+- Copy the `module.yaml`, `aggregate.yaml`, and `use-case.yaml` templates from the [template index](../../templates/consumer/README.md), and open `.litespec/glossary.yaml` for the module terms.
 
 ## Lesson
 

@@ -68,7 +68,7 @@ public sealed class ReleaseVersionTests
     public void The_Consumer_Template_Reviews_The_Manifest_Release() =>
         Assert.Equal(
             Manifest(),
-            JsonDocument.Parse(Read("templates", "consumer", "litespec.project.json")).RootElement.GetProperty("reviewedLiteSpecVersion").GetString());
+            JsonDocument.Parse(Read("templates", "consumer", "project.json")).RootElement.GetProperty("reviewedLiteSpecVersion").GetString());
 
     /// <summary>Every Schema Id Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>

@@ -4,12 +4,12 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Review;
 
-/// <summary>Proves batch approval samples tier 3 from the semantic hash and writes the manifest.</summary>
+/// <summary>Proves batch approval samples records with no risk class from the semantic hash and writes the manifest.</summary>
 /// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
 public sealed class BatchSampleTests
 {
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static readonly string[] LoanRules =
     [
@@ -50,7 +50,7 @@ public sealed class BatchSampleTests
     }
 
     /// <summary>The sample draws the lowest semantic hashes at the project share.</summary>
-    /// <proves>litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash</proves>
+    /// <proves>litespec/core/release#draw-each-no-risk-sample-from-the-semantic-hash</proves>
     [Fact]
     public void Sample_Draws_Lowest_Hashes_At_Share()
     {
@@ -66,7 +66,7 @@ public sealed class BatchSampleTests
         Assert.Equal(0, result.Status);
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
 
         Assert.Equal(0.5, manifest["sampleShare"]!.GetValue<double>());
 
@@ -77,7 +77,7 @@ public sealed class BatchSampleTests
     }
 
     /// <summary>The sample is deterministic across runs.</summary>
-    /// <proves>litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash</proves>
+    /// <proves>litespec/core/release#draw-each-no-risk-sample-from-the-semantic-hash</proves>
     [Fact]
     public void Sample_Deterministic_Across_Runs()
     {
@@ -103,7 +103,7 @@ public sealed class BatchSampleTests
     }
 
     /// <summary>The manifest records the sample share the project file names.</summary>
-    /// <proves>litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash</proves>
+    /// <proves>litespec/core/release#draw-each-no-risk-sample-from-the-semantic-hash</proves>
     [Fact]
     public void SampleShare_Read_From_Project_File()
     {
@@ -119,7 +119,7 @@ public sealed class BatchSampleTests
         Assert.Equal(0, result.Status);
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
 
         Assert.Equal(1.0, manifest["sampleShare"]!.GetValue<double>());
         Assert.Equal(4, manifest["sample"]!.AsArray().Count);
@@ -134,7 +134,7 @@ public sealed class BatchSampleTests
 
         DraftLoanRules(fixture.Path);
 
-        var folder = ReviewPages.Page(fixture.Path, "docs", "proof", "approvals");
+        var folder = ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals");
 
         Directory.CreateDirectory(folder);
 

@@ -52,15 +52,15 @@ static class BatchApprover
 
     /// <summary>
     ///     Plans the batch: the approvals in order, the records a module and type batch
-    ///     leaves out, the guard failures, and the tier 3 sample. A module and type batch
-    ///     holds each record its record guards fail and approves the rest, and fails whole
-    ///     only when no approver is named or no record passes; any other batch fails whole
-    ///     when one guard fails.
+    ///     leaves out, the guard failures, and the sample of records with no risk class.
+    ///     A module and type batch holds each record its record guards fail and approves
+    ///     the rest, and fails whole only when no approver is named or no record passes;
+    ///     any other batch fails whole when one guard fails.
     /// </summary>
     /// <param name="model">The built project model the batch belongs to.</param>
     /// <param name="batch">The queued batch to plan.</param>
     /// <param name="by">The approver name, or null when none is named.</param>
-    /// <param name="secondReviewer">The second reviewer name for tier 1, or null when none is named.</param>
+    /// <param name="secondReviewer">The second reviewer name for a record carrying a risk class, or null when none is named.</param>
     /// <param name="reviewReport">The review report path for an agent second reviewer, or null.</param>
     /// <param name="findings">The open finding count per record, or null to compute it from the model.</param>
     /// <param name="on">The approval date, or null where the plan does not stamp.</param>
@@ -88,7 +88,7 @@ static class BatchApprover
         members.Sort((left, right) => ReviewQueue.CompareRecords(anchor, left, right));
 
         var leftOut = batch.Kind == "module-type"
-            ? members.Where(record => ReviewQueue.TierOf(model, record) == 1).ToList()
+            ? members.Where(record => ReviewQueue.HasRisk(model, record)).ToList()
             : new List<Record>();
         var approvals = members.Except(leftOut).ToList();
         var ordered = approvals.Select(record => Describe(model, record, findings)).ToList();
@@ -116,7 +116,7 @@ static class BatchApprover
 
         var sample = Sample(
             model,
-            changed.Where(action => action.Tier == 3).Select(action => action.Record).ToList(),
+            changed.Where(action => !action.HasRisk).Select(action => action.Record).ToList(),
             model.Config.SampleShare);
 
         return new BatchPlan(batch, ordered, leftOut, failures, sample);
@@ -267,7 +267,7 @@ static class BatchApprover
             action,
             target,
             Checker.SemanticHash(record),
-            ReviewQueue.TierOf(model, record),
+            ReviewQueue.RiskClassesOf(model, record),
             ReviewQueue.ScenariosOf(model, record),
             findings.TryGetValue(record.Id, out var count) ? count : 0,
             []);
@@ -275,13 +275,13 @@ static class BatchApprover
 
     /// <summary>
     ///     Checks the batch guards before anything is written: every changed record
-    ///     carries a named owner approver, and every tier 1 record a second reading.
-    ///     A batch guard fails the whole batch, whatever its kind.
+    ///     carries a named owner approver, and every record carrying a risk class a
+    ///     second reading. A batch guard fails the whole batch, whatever its kind.
     /// </summary>
     /// <param name="model">The built project model the batch belongs to.</param>
     /// <param name="changed">The actions the batch changes, in approval order.</param>
     /// <param name="by">The approver name, or null when none is named.</param>
-    /// <param name="secondReviewer">The second reviewer name for tier 1, or null when none is named.</param>
+    /// <param name="secondReviewer">The second reviewer name for a record carrying a risk class, or null when none is named.</param>
     /// <param name="reviewReport">The review report path for an agent second reviewer, or null.</param>
     /// <returns>The batch guard failures, each naming its record and guard.</returns>
     static List<(string Id, string Guard)> BatchGuards(
@@ -292,9 +292,9 @@ static class BatchApprover
         string? reviewReport)
     {
         var failures = new List<(string, string)>();
-        var tier1 = changed.Where(action => action.Tier == 1).ToList();
+        var carryingRisk = changed.Where(action => action.HasRisk).ToList();
 
-        // Every record a batch changes carries a person's name, so the approver guard covers every tier.
+        // Every record a batch changes carries a person's name, so the approver guard covers every record.
         foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
         {
             if (ApproverGuard(model, by) is { } approver)
@@ -303,7 +303,7 @@ static class BatchApprover
             }
         }
 
-        foreach (var action in tier1.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
+        foreach (var action in carryingRisk.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
         {
             if (ReviewerGuard(model, by, secondReviewer, reviewReport) is { } reviewer)
             {
@@ -387,8 +387,9 @@ static class BatchApprover
     }
 
     /// <summary>
-    ///     The second-reviewer guard: tier 1 needs another reading beside the approver,
-    ///     except on a project whose owners list holds one name.
+    ///     The second-reviewer guard: a record carrying a risk class needs another
+    ///     reading beside the approver, except on a project whose owners list holds
+    ///     one name.
     /// </summary>
     /// <param name="model">The built project model holding the owners list.</param>
     /// <param name="by">The approver name, or null when none is named.</param>
@@ -404,18 +405,18 @@ static class BatchApprover
 
         if (secondReviewer is not { Length: > 0 })
         {
-            return "tier 1 needs --second-reviewer other than the approver (missing; a project whose owners list holds one name needs none)";
+            return "a record carrying a risk class needs --second-reviewer other than the approver (missing; a project whose owners list holds one name needs none)";
         }
 
         if (secondReviewer == by)
         {
-            return "tier 1 needs --second-reviewer other than the approver (names the approver)";
+            return "a record carrying a risk class needs --second-reviewer other than the approver (names the approver)";
         }
 
         if (secondReviewer == "agent"
             && (reviewReport is not { Length: > 0 } || !File.Exists(reviewReport)))
         {
-            return "tier 1 needs --second-reviewer other than the approver (agent needs an existing --review-report file)";
+            return "a record carrying a risk class needs --second-reviewer other than the approver (agent needs an existing --review-report file)";
         }
 
         return null;
@@ -576,20 +577,21 @@ static class BatchApprover
     }
 
     /// <summary>
-    ///     Draws the tier 3 sample: the records with the lowest semantic hashes read as
-    ///     hexadecimal numbers, the project's share rounded up, at least one.
+    ///     Draws the sample of records with no risk class: the records with the lowest
+    ///     semantic hashes read as hexadecimal numbers, the project's share rounded
+    ///     up, at least one.
     /// </summary>
     /// <param name="model">The built project model the records belong to, for their semantic hashes.</param>
-    /// <param name="tier3">The changed tier 3 records to sample from.</param>
-    /// <param name="share">The share of the tier 3 records to sample, rounded up to at least one.</param>
+    /// <param name="withoutRisk">The changed records with no risk class to sample from.</param>
+    /// <param name="share">The share of the records with no risk class to sample, rounded up to at least one.</param>
     /// <returns>The sampled record ids in ordinal order.</returns>
     public static IReadOnlyList<string> Sample(
-        ProjectModel model, IReadOnlyList<Record> tier3, double share) =>
-        tier3
+        ProjectModel model, IReadOnlyList<Record> withoutRisk, double share) =>
+        withoutRisk
             .Select(record => (record.Id, Hash: Checker.SemanticHash(record)))
             .OrderBy(pair => HashValue(pair.Hash))
             .ThenBy(pair => pair.Id, StringComparer.Ordinal)
-            .Take(Math.Max(1, (int)Math.Ceiling(tier3.Count * share)))
+            .Take(Math.Max(1, (int)Math.Ceiling(withoutRisk.Count * share)))
             .Select(pair => pair.Id)
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToList();
@@ -616,7 +618,7 @@ static class BatchApprover
     public static string WriteManifest(
         ProjectModel model, BatchPlan plan, string by, string? secondReviewer, string? reviewReport, string on)
     {
-        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, "docs");
+        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, ".litespec");
         var folder = Path.Combine(docs, "proof", "approvals");
 
         Directory.CreateDirectory(folder);
@@ -648,7 +650,7 @@ static class BatchApprover
                 {
                     id = action.Record.Id,
                     type = action.Record.Type,
-                    tier = action.Tier,
+                    risk = action.RiskClasses,
                     action = action.Action,
                     hash = action.Hash,
                     scenarios = new
@@ -758,7 +760,7 @@ static class BatchApprover
         var changed = plan.Ordered.Count(action => action.Action is "promoted" or "re-stamped");
         var held = plan.Ordered.Count - changed;
 
-        lines.Add($"Batch {plan.Batch.Selector} ({plan.Batch.Kind}, tier {plan.Batch.Tier}): "
+        lines.Add($"Batch {plan.Batch.Selector} ({plan.Batch.Kind}, risk {(plan.Batch.RiskClasses.Count == 0 ? "none" : string.Join(", ", plan.Batch.RiskClasses))}): "
             + $"{changed} to approve, {held} held"
             + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : "")
             + " (dry run)");
@@ -777,7 +779,7 @@ static class BatchApprover
 
         foreach (var record in plan.LeftOut.OrderBy(entry => entry.Id, StringComparer.Ordinal))
         {
-            lines.Add($"  {record.Id}: left out (tier 1)");
+            lines.Add($"  {record.Id}: left out (carries a risk class)");
         }
 
         foreach (var (id, guard) in plan.Failures)
@@ -795,17 +797,17 @@ static class BatchApprover
         return string.Join('\n', lines);
     }
 
-    /// <summary>Prints the sample: its size against the tier 3 approvals, and its ids.</summary>
+    /// <summary>Prints the sample: its size against the approvals of records with no risk class, and its ids.</summary>
     /// <param name="plan">The batch plan whose sample is printed.</param>
     /// <param name="share">The sample share printed in the line.</param>
     /// <returns>The sample line naming its size and ids.</returns>
     static string SampleLine(BatchPlan plan, double share)
     {
-        var tier3 = plan.Ordered.Count(action =>
-            action.Action is "promoted" or "re-stamped" && action.Tier == 3);
+        var withoutRisk = plan.Ordered.Count(action =>
+            action.Action is "promoted" or "re-stamped" && !action.HasRisk);
 
         return plan.Sample.Count == 0
-            ? $"Sample (0 of {tier3} at {share}): none."
-            : $"Sample ({plan.Sample.Count} of {tier3} at {share}): {string.Join(", ", plan.Sample)}.";
+            ? $"Sample (0 of {withoutRisk} at {share}): none."
+            : $"Sample ({plan.Sample.Count} of {withoutRisk} at {share}): {string.Join(", ", plan.Sample)}.";
     }
 }

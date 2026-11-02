@@ -116,7 +116,7 @@ static class ReviewPages
         front.Remove("approvedHash");
     }
 
-    /// <summary>Adds one risk value to the page, which makes it tier 1.</summary>
+    /// <summary>Adds one risk value to the page, so the page carries a risk class.</summary>
     /// <param name="path">The record file path.</param>
     /// <param name="risk">The risk value to add.</param>
     public static void AddPageRisk(string path, string risk = "money") =>
@@ -149,7 +149,7 @@ static class ReviewPages
     /// <param name="share">The sample share to write, as a fraction.</param>
     public static void SetSampleShare(string root, double share)
     {
-        var path = Path.Combine(root, "litespec.project.json");
+        var path = Path.Combine(root, ".litespec/project.json");
         var project = (JsonObject)JsonNode.Parse(File.ReadAllText(path))!;
 
         if (project["review"] is not JsonObject review)

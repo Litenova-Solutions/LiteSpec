@@ -26,7 +26,7 @@ Provider-specific provisions name the member names and configuration surface the
 
 The EF Core extension states in its own Baseline relationship section which provisions it replaces for the aggregates it owns. Each aggregate runs under exactly one provider.
 
-The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `litespec.project.json` records which choices a consumer made.
+The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.json` records which choices a consumer made.
 
 ## Standards
 

@@ -141,7 +141,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert carrying its measure's numbers reports no drift.</summary>
-    /// <proves>litespec/quality/operations#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
     [Fact]
     public void Threshold_Carrying_Measure_Numbers_Passes()
     {
@@ -155,7 +155,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert carrying none of its measure's numbers reports advisory drift.</summary>
-    /// <proves>litespec/quality/operations#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
     [Fact]
     public void Threshold_Missing_Measure_Numbers_Reports()
     {
@@ -249,7 +249,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A passing check result counts toward its requirement's measure.</summary>
-    /// <proves>litespec/quality/operations#record-each-drill-run-as-a-check-result</proves>
+    /// <proves>litespec/ext/delivery#record-each-drill-run-as-a-check-result</proves>
     [Fact]
     public void Passing_Check_Result_Counts_Toward_Measure()
     {
@@ -270,7 +270,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A failing check result leaves its requirement unmeasured but watched.</summary>
-    /// <proves>litespec/quality/operations#record-each-drill-run-as-a-check-result</proves>
+    /// <proves>litespec/ext/delivery#record-each-drill-run-as-a-check-result</proves>
     [Fact]
     public void Failing_Check_Result_Counts_Nothing()
     {
@@ -394,7 +394,7 @@ public sealed class OperationsCheckTests
 
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)
     {
-        var projectFile = Path.Combine(root, "litespec.project.json");
+        var projectFile = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
         var paths = project["paths"]!.AsObject();
 
@@ -433,18 +433,18 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string RequirementFile = "docs/product/lending/performance.yaml";
-    const string RunbookFile = "docs/behavior/runbooks/slow-listings.yaml";
-    const string OriginFile = "docs/product/decisions/0003-term-start-listing.yaml";
+    const string RequirementFile = ".litespec/product/lending/performance.yaml";
+    const string RunbookFile = ".litespec/behavior/runbooks/slow-listings.yaml";
+    const string OriginFile = ".litespec/product/decisions/0003-term-start-listing.yaml";
 
-    const string DecisionFile = "docs/implementation/decisions/0002-loan-index.yaml";
+    const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index.yaml";
     const string AlertFile = "deploy/alerts/lending.yaml";
     const string AlertDir = "deploy/alerts";
-    const string ResultFile = "docs/proof/checks/2026-11-20-list-loans-load.json";
-    const string CheckResultsDir = "docs/proof/checks";
+    const string ResultFile = ".litespec/proof/checks/2026-11-20-list-loans-load.json";
+    const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
-    const string LimitsFile = "docs/behavior/operations/limits.md";
-    const string ExceptionFile = "docs/governance/exceptions/list-loans-latency-unwatched.yaml";
+    const string LimitsFile = ".litespec/behavior/operations/limits.md";
+    const string ExceptionFile = ".litespec/governance/exceptions/list-loans-latency-unwatched.yaml";
 
     const string RequirementJson = """
         {

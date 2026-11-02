@@ -12,7 +12,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementCarryingItsScenario()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta => QualityRecord(meta, []));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta => QualityRecord(meta, []));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -29,7 +29,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta => QualityRecord(meta, [field]));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta => QualityRecord(meta, [field]));
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
@@ -39,7 +39,7 @@ public sealed partial class ConsumerValidatorTests
     public void FunctionalRequirementWithoutScenarioFields()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta =>
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta =>
         {
             var record = FirstRecord(meta);
             record["kind"] = "functional";
@@ -56,11 +56,11 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/implementation/decisions/0002-order-claim-store.yaml",
+            ".litespec/implementation/decisions/0002-order-claim-store.yaml",
             """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         TestRecords.Explain(
             folder.Path,
-            "docs/implementation/decisions/0002-order-claim-store.md",
+            ".litespec/implementation/decisions/0002-order-claim-store.md",
             """
             # Store Order Claims as Documents
 

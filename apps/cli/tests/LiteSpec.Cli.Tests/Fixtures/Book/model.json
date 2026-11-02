@@ -11,7 +11,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/actors/librarian.yaml",
+      "file": ".litespec/behavior/actors/librarian.yaml",
       "line": 3,
       "fields": {
         "type": "actor",
@@ -42,7 +42,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/actors/reader.yaml",
+      "file": ".litespec/behavior/actors/reader.yaml",
       "line": 3,
       "fields": {
         "type": "actor",
@@ -73,7 +73,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/aggregate.yaml",
       "line": 3,
       "fields": {
         "type": "aggregate",
@@ -148,7 +148,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/aggregate.yaml",
       "line": 3,
       "fields": {
         "type": "aggregate",
@@ -225,7 +225,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/aggregate.yaml",
       "line": 3,
       "fields": {
         "type": "aggregate",
@@ -332,7 +332,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -360,7 +360,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/cancel-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/cancel-hold.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -388,7 +388,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/extend-loan.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/extend-loan.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -416,7 +416,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/list-loans.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/list-loans.yaml",
       "line": 25,
       "fields": {
         "type": "scenario",
@@ -444,7 +444,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/place-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/place-hold.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -472,7 +472,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/register-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/register-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -500,7 +500,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/retire-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/retire-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -528,7 +528,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -556,7 +556,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/constraints/library-privacy-law.yaml",
+      "file": ".litespec/product/constraints/library-privacy-law.yaml",
       "line": 3,
       "fields": {
         "type": "constraint",
@@ -579,7 +579,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/decisions/0001-loan-period.yaml",
+      "file": ".litespec/product/decisions/0001-loan-period.yaml",
       "line": 3,
       "fields": {
         "type": "decision",
@@ -626,7 +626,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/entry-points.yaml",
+      "file": ".litespec/behavior/entry-points.yaml",
       "line": 10,
       "fields": {
         "type": "entry-point",
@@ -650,7 +650,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/event.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/event.yaml",
       "line": 34,
       "fields": {
         "type": "event",
@@ -675,7 +675,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/event.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/event.yaml",
       "line": 46,
       "fields": {
         "type": "event",
@@ -699,7 +699,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/event.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/event.yaml",
       "line": 48,
       "fields": {
         "type": "event",
@@ -723,7 +723,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/event.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/event.yaml",
       "line": 35,
       "fields": {
         "type": "event",
@@ -749,7 +749,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
       "line": 52,
       "fields": {
         "type": "event",
@@ -776,7 +776,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
       "line": 78,
       "fields": {
         "type": "event",
@@ -801,7 +801,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
       "line": 66,
       "fields": {
         "type": "event",
@@ -826,7 +826,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/governance/exceptions/shelf-check-bypass.yaml",
+      "file": ".litespec/governance/exceptions/shelf-check-bypass.yaml",
       "line": 3,
       "fields": {
         "type": "exception",
@@ -860,7 +860,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/features/hold-queue.yaml",
+      "file": ".litespec/product/features/hold-queue.yaml",
       "line": 3,
       "fields": {
         "type": "feature",
@@ -888,7 +888,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/journeys/borrow-and-return.yaml",
+      "file": ".litespec/product/journeys/borrow-and-return.yaml",
       "line": 3,
       "fields": {
         "type": "journey",
@@ -968,7 +968,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/governance/exceptions/retire-copy-unimplemented.yaml",
+      "file": ".litespec/governance/exceptions/retire-copy-unimplemented.yaml",
       "line": 3,
       "fields": {
         "type": "exception",
@@ -1001,7 +1001,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/operations/limits.yaml",
+      "file": ".litespec/operations/limits.yaml",
       "line": 10,
       "fields": {
         "type": "setting",
@@ -1028,7 +1028,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/module.yaml",
+      "file": ".litespec/behavior/modules/lending/module.yaml",
       "line": 3,
       "fields": {
         "type": "module",
@@ -1049,7 +1049,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/permissions.yaml",
+      "file": ".litespec/behavior/permissions.yaml",
       "line": 10,
       "fields": {
         "type": "permission",
@@ -1070,7 +1070,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/permissions.yaml",
+      "file": ".litespec/behavior/permissions.yaml",
       "line": 30,
       "fields": {
         "type": "permission",
@@ -1091,7 +1091,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/permissions.yaml",
+      "file": ".litespec/behavior/permissions.yaml",
       "line": 40,
       "fields": {
         "type": "permission",
@@ -1112,7 +1112,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/permissions.yaml",
+      "file": ".litespec/behavior/permissions.yaml",
       "line": 20,
       "fields": {
         "type": "permission",
@@ -1133,7 +1133,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/problems/overdue-loans-pile-up.yaml",
+      "file": ".litespec/product/problems/overdue-loans-pile-up.yaml",
       "line": 3,
       "fields": {
         "type": "problem",
@@ -1161,7 +1161,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/brief.yaml",
+      "file": ".litespec/product/brief.yaml",
       "line": 3,
       "fields": {
         "type": "product",
@@ -1190,7 +1190,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/lending/borrowing.yaml",
+      "file": ".litespec/product/lending/borrowing.yaml",
       "line": 3,
       "fields": {
         "type": "topic",
@@ -1211,7 +1211,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/lending/borrowing.yaml",
+      "file": ".litespec/product/lending/borrowing.yaml",
       "line": 40,
       "fields": {
         "type": "requirement",
@@ -1234,7 +1234,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/lending/borrowing.yaml",
+      "file": ".litespec/product/lending/borrowing.yaml",
       "line": 30,
       "fields": {
         "type": "requirement",
@@ -1257,7 +1257,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/lending/borrowing.yaml",
+      "file": ".litespec/product/lending/borrowing.yaml",
       "line": 20,
       "fields": {
         "type": "requirement",
@@ -1280,7 +1280,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/lending/borrowing.yaml",
+      "file": ".litespec/product/lending/borrowing.yaml",
       "line": 10,
       "fields": {
         "type": "requirement",
@@ -1303,7 +1303,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/research/loan-period-benchmarks.yaml",
+      "file": ".litespec/research/loan-period-benchmarks.yaml",
       "line": 3,
       "fields": {
         "type": "research",
@@ -1330,7 +1330,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1351,7 +1351,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1373,7 +1373,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/cancel-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/cancel-hold.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1394,7 +1394,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/cancel-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/cancel-hold.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1416,7 +1416,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/extend-loan.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/extend-loan.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1437,7 +1437,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/extend-loan.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/extend-loan.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1459,7 +1459,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/list-loans.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/list-loans.yaml",
       "line": 22,
       "fields": {
         "type": "result",
@@ -1480,7 +1480,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/place-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/place-hold.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1502,7 +1502,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/place-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/place-hold.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1523,7 +1523,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/register-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/register-copy.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1545,7 +1545,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/register-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/register-copy.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1566,7 +1566,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/retire-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/retire-copy.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1588,7 +1588,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/retire-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/retire-copy.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1609,7 +1609,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
       "line": 25,
       "fields": {
         "type": "result",
@@ -1631,7 +1631,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
       "line": 24,
       "fields": {
         "type": "result",
@@ -1652,7 +1652,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/roles/librarian.yaml",
+      "file": ".litespec/behavior/roles/librarian.yaml",
       "line": 3,
       "fields": {
         "type": "role",
@@ -1686,7 +1686,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/roles/reader.yaml",
+      "file": ".litespec/behavior/roles/reader.yaml",
       "line": 3,
       "fields": {
         "type": "role",
@@ -1718,7 +1718,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/copies/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -1754,7 +1754,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/holds/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -1794,7 +1794,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
       "line": 35,
       "fields": {
         "type": "rule",
@@ -1830,7 +1830,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -1870,7 +1870,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/runbooks/clear-stuck-holds.yaml",
+      "file": ".litespec/runbooks/clear-stuck-holds.yaml",
       "line": 3,
       "fields": {
         "type": "runbook",
@@ -1891,7 +1891,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/rules/lending-rules.yaml",
+      "file": ".litespec/behavior/rules/lending-rules.yaml",
       "line": 10,
       "fields": {
         "type": "rule",
@@ -1927,7 +1927,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/glossary.yaml",
+      "file": ".litespec/glossary.yaml",
       "line": 22,
       "fields": {
         "id": "term/copy",
@@ -1954,7 +1954,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/glossary.yaml",
+      "file": ".litespec/glossary.yaml",
       "line": 34,
       "fields": {
         "id": "term/hold",
@@ -1981,7 +1981,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/glossary.yaml",
+      "file": ".litespec/glossary.yaml",
       "line": 5,
       "fields": {
         "id": "term/loan",
@@ -2013,7 +2013,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/glossary.yaml",
+      "file": ".litespec/glossary.yaml",
       "line": 46,
       "fields": {
         "id": "term/reader",
@@ -2041,7 +2041,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2116,7 +2116,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.hold",
-      "file": "docs/behavior/modules/lending/holds/cancel-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/cancel-hold.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2191,7 +2191,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/extend-loan.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/extend-loan.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2266,7 +2266,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/list-loans.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/list-loans.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2327,7 +2327,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.hold",
-      "file": "docs/behavior/modules/lending/holds/place-hold.yaml",
+      "file": ".litespec/behavior/modules/lending/holds/place-hold.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2402,7 +2402,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.copy",
-      "file": "docs/behavior/modules/lending/copies/register-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/register-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2477,7 +2477,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.copy",
-      "file": "docs/behavior/modules/lending/copies/retire-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/copies/retire-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2552,7 +2552,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": "docs/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -2626,7 +2626,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": "docs/product/goals/faster-borrowing.yaml",
+      "file": ".litespec/product/goals/faster-borrowing.yaml",
       "line": 3,
       "fields": {
         "type": "goal",
@@ -2650,7 +2650,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/systems/fine-payments.yaml",
+      "file": ".litespec/behavior/systems/fine-payments.yaml",
       "line": 3,
       "fields": {
         "type": "external-system",
@@ -2676,7 +2676,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/integration/loan-borrowed.yaml",
+      "file": ".litespec/behavior/integration/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",
@@ -2703,7 +2703,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/jobs/send-overdue-notices.yaml",
+      "file": ".litespec/behavior/modules/lending/jobs/send-overdue-notices.yaml",
       "line": 3,
       "fields": {
         "type": "job",
@@ -2740,7 +2740,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/notifications/due-reminder.yaml",
+      "file": ".litespec/behavior/modules/lending/notifications/due-reminder.yaml",
       "line": 3,
       "fields": {
         "type": "notification",
@@ -2769,7 +2769,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/modules/lending/reactions/send-due-reminder-on-loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/reactions/send-due-reminder-on-loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "reaction",
@@ -2804,7 +2804,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": "docs/behavior/screens/library-app/search.yaml",
+      "file": ".litespec/behavior/screens/library-app/search.yaml",
       "line": 3,
       "fields": {
         "type": "screen",

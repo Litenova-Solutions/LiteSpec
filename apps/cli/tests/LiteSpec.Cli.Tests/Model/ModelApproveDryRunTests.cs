@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class ModelApproveDryRunTests
 {
     static string BorrowCopy(string root) => Path.Combine(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     /// <summary>A dry run lists the record missing its hash and writes nothing.</summary>
     /// <proves>litespec/core/model#record-approval-as-data</proves>

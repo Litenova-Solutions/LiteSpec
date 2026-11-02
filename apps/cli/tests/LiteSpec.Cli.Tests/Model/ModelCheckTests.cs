@@ -174,8 +174,8 @@ public sealed class ModelCheckTests
     static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $"docs/governance/exceptions/{name}.yaml", ExceptionJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $"docs/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/exceptions/{name}.yaml", ExceptionJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
     // Builds the stamped exception fields as JSON: the written fields, then the approval they carry.

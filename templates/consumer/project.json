@@ -1,0 +1,81 @@
+{
+  "$schema": "https://litespec.dev/3.1.0/schemas/litespec-project.schema.json",
+  "project": {
+    "name": "__PROJECT__"
+  },
+  "size": "small",
+  "shape": "server",
+  "stacks": [
+    "dotnet",
+    "react"
+  ],
+  "reviewedLiteSpecVersion": "3.1.0",
+  "optionalTypes": [],
+  "constraints": {
+    "answered": true
+  },
+  "owners": [
+    "__OWNER__"
+  ],
+  "approvals": {
+    "money": "__OWNER__",
+    "personal-data": "__OWNER__",
+    "access": "__OWNER__",
+    "physical-access": "__OWNER__",
+    "default": "agent-batch"
+  },
+  "screenshots": {
+    "galleries": [
+      "apps/web/test-results/gallery"
+    ],
+    "pattern": "{route}--{theme}--{width}.png"
+  },
+  "review": {
+    "vetoWindowDays": 7,
+    "securityReviewer": "__OWNER__"
+  },
+  "adoption": {
+    "transcriptionEndsWith": "decision/0001-promote-to-production"
+  },
+  "paths": {
+    "docs": ".litespec",
+    "behaviorDocs": ".litespec/behavior",
+    "uiDocs": ".litespec/ui",
+    "unstructuredDocs": [],
+    "testRoots": [
+      "apps/api/tests"
+    ],
+    "uiPackage": {
+      "name": "@__PROJECT__/ui",
+      "path": "packages/ui",
+      "componentsJson": "packages/ui/components.json",
+      "primitives": "packages/ui/src/components",
+      "tokens": "packages/ui/src/styles/tokens.css",
+      "sourceLock": "packages/ui/ui-source-lock.json",
+      "designContract": "packages/ui/DESIGN.md",
+      "publicExports": [
+        "@__PROJECT__/ui/floorplans"
+      ]
+    },
+    "uiPatterns": ".litespec/ui/pattern-catalog.json",
+    "frontends": [
+      {
+        "name": "web",
+        "path": "apps/web",
+        "platform": "react",
+        "ui": {
+          "profile": "application-balanced",
+          "globalCss": "apps/web/src/styles.css"
+        }
+      }
+    ],
+    "sites": [],
+    "glossaryScan": []
+  },
+  "stackConfig": {
+    "dotnet": {
+      "apiSolution": "apps/api/__PROJECT__.slnx"
+    }
+  },
+  "selectedExtensions": []
+}

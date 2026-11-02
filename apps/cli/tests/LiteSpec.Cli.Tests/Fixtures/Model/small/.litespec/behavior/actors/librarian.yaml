@@ -1,0 +1,13 @@
+type: actor
+id: actor/librarian
+title: Librarian
+owner: lending-team
+status: approved
+kind: person
+belongsToTeam: false
+holds:
+  - role: role/librarian
+    scope: platform
+approvedBy: lending-team
+approvedOn: 2026-10-01
+approvedHash: 3aa43488

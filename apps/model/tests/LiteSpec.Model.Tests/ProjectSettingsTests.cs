@@ -41,7 +41,7 @@ public sealed class ProjectSettingsTests
         Assert.False(ProjectSettings.TryParse("{\"marks\": \"yaml\"}", out var settings, out var error));
 
         Assert.Equal(MarkStyle.Xml, settings.Marks);
-        Assert.Equal("litespec.project.json: unknown marks \"yaml\"; expected \"xml\" or \"attribute\".", error);
+        Assert.Equal(".litespec/project.json: unknown marks \"yaml\"; expected \"xml\" or \"attribute\".", error);
     }
 
     /// <summary>A wrong shape is an error naming the field, never a silent default.</summary>
@@ -49,7 +49,7 @@ public sealed class ProjectSettingsTests
     /// <param name="message">The expected error message.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
-    [InlineData("{\"marks\": 5}", "litespec.project.json: marks must be \"xml\" or \"attribute\".")]
+    [InlineData("{\"marks\": 5}", ".litespec/project.json: marks must be \"xml\" or \"attribute\".")]
     public void Wrong_Shape_Errors(string text, string message)
     {
         Assert.False(ProjectSettings.TryParse(text, out _, out var error));
@@ -62,8 +62,8 @@ public sealed class ProjectSettingsTests
     /// <param name="message">The expected error message.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
-    [InlineData("{\"marks\": ", "litespec.project.json: invalid JSON on line 1: expected a value.")]
-    [InlineData("[\"xml\"]", "litespec.project.json: expected an object.")]
+    [InlineData("{\"marks\": ", ".litespec/project.json: invalid JSON on line 1: expected a value.")]
+    [InlineData("[\"xml\"]", ".litespec/project.json: expected an object.")]
     public void Broken_Text_Errors(string text, string message)
     {
         Assert.False(ProjectSettings.TryParse(text, out _, out var error));

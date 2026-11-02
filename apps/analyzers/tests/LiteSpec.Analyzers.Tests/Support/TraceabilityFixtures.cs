@@ -9,10 +9,10 @@ namespace LiteSpec.Analyzers.Tests.Support;
 internal static class TraceabilityFixtures
 {
     /// <summary>The project file path every fixture uses.</summary>
-    public const string ProjectPath = "/repo/litespec.project.json";
+    public const string ProjectPath = "/repo/.litespec/project.json";
 
     /// <summary>The docs root every record page lives under.</summary>
-    public const string DocsRoot = "/repo/docs";
+    public const string DocsRoot = "/repo/.litespec";
 
     /// <summary>A project file with the mark style.</summary>
     /// <param name="marks">The mark style name the project file declares.</param>
@@ -22,7 +22,7 @@ internal static class TraceabilityFixtures
             {
               "project": "Claimwick",
               "marks": "{{marks}}",
-              "paths": { "docs": "docs" }
+              "paths": { "docs": ".litespec" }
             }
             """);
 

@@ -69,7 +69,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] .litespec/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
@@ -100,14 +100,14 @@ public sealed partial class UiValidatorTests
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = "docs/departures" };
+            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = ".litespec/departures" };
         });
         fixture.WriteExceptionFile(
-            "docs/departures/moved.yaml",
+            ".litespec/departures/moved.yaml",
             UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"));
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/departures/moved.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] .litespec/departures/moved.yaml: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
@@ -121,7 +121,7 @@ public sealed partial class UiValidatorTests
         fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPackage"));
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] litespec.project.json: 1 controlled frontend(s) and no paths.uiPackage");
+            "[litespec/frontend/ui#select-one-visual-authority] .litespec/project.json: 1 controlled frontend(s) and no paths.uiPackage");
     }
 
     /// <summary>A Controlled Frontend With No Ui Block.</summary>
@@ -185,7 +185,7 @@ public sealed partial class UiValidatorTests
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["sourceLock"] = "docs/ui-source-lock.json";
+            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["sourceLock"] = ".litespec/ui-source-lock.json";
         });
         UiFixture.AssertProblem(fixture.Run(), "sourceLock must live inside the shared package root");
     }

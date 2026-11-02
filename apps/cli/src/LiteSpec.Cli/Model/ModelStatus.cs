@@ -68,6 +68,7 @@ static class ModelStatus
         ComputeRequirementStatus(model);
         ComputeTested(model);
         ComputeReachableStates(model);
+        CompletionCalculator.Compute(model);
     }
 
     /// <summary>

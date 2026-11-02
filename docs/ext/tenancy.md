@@ -28,7 +28,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Rationale:** Tenant source, storage model, isolation guarantee, administrative access, and evolution path interact across every boundary, so one decision records them together before code assumes any of them. Approval waits while that decision stays a draft, and the enumeration bound caps how many tenant identifiers an all-tenant record lists.
 
-**Reviewed for:** The tenant adoption decision under `docs/intent/decisions/` names source, storage model, isolation guarantee, administrative access, evolution path, and enumeration bound.
+**Reviewed for:** The tenant adoption decision under `.litespec/intent/decisions/` names source, storage model, isolation guarantee, administrative access, evolution path, and enumeration bound.
 
 ### Define Tenant Isolation
 

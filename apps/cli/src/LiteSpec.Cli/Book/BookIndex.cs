@@ -65,7 +65,7 @@ sealed class BookIndex
     /// <summary>Gets or sets a value indicating whether whether the model carries the check result the model build wrote, as findings or known.</summary>
     public bool HasFindings { get; set; }
 
-    /// <summary>Gets or sets days before a tier-3 question auto-approves; 7 when the model names none.</summary>
+    /// <summary>Gets or sets days before a question on a record with no risk auto-approves; 7 when the model names none.</summary>
     public int VetoWindowDays { get; set; } = 7;
 
     /// <summary>Gets the tested state by record id the builder wrote, or empty when the model holds none.</summary>

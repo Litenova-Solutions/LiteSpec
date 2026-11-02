@@ -351,7 +351,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS5010 = Create("LS5010", TraceabilityCategory, PermissionScope,
         "Permission opens with an undeclared verb",
         "Permission '{0}' starts with '{1}', which the use-case vocabulary does not declare",
-        "A permission opens with a verb from the use-case vocabulary, so whether it only reads follows from the verb's kind; a project verb is declared in the vocabulary of litespec.project.json.");
+        "A permission opens with a verb from the use-case vocabulary, so whether it only reads follows from the verb's kind; a project verb is declared in the vocabulary of .litespec/project.json.");
 
     /// <summary>The LS5011 descriptor: Message maps to two use cases.</summary>
     public static readonly DiagnosticDescriptor LS5011 = Create("LS5011", TraceabilityCategory, PointToRecords,

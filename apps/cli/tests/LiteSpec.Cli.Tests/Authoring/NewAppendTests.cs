@@ -479,7 +479,7 @@ public sealed class NewAppendTests
     /// <param name="root">The consumer root folder.</param>
     /// <returns>The full path to the borrow-copy use-case record file under the root.</returns>
     static string UseCasePage(string root) =>
-        Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     /// <summary>A minimal consumer holding one use-case record file.</summary>
     /// <param name="pageJson">The record file's fields as one JSON object.</param>
@@ -487,8 +487,8 @@ public sealed class NewAppendTests
     static TempFolder Consumer(string pageJson)
     {
         var temp = Cli.Temp("new-append");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", pageJson);
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", pageJson);
         return temp;
     }
 

@@ -6,7 +6,6 @@ status: draft
 decider: claimwick-team
 decideBy: 2026-12-15
 summary: The payout bank moves approved reimbursements to employee accounts.
-actor: actor/employee
 sends:
   - The payout amount and target account.
 receives:

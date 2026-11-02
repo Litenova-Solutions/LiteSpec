@@ -13,8 +13,9 @@ static class BookLexiconParsers
     /// <summary>Gets the model-page sections the book explains from, in display order.</summary>
     static IReadOnlyList<string> SectionHeadings { get; } =
     [
-        "Statuses", "Approval as Data", "Risk Tiers", "Check Levels", "Transcription Mode", "Questions and Ballots",
+        "Statuses", "Approval as Data", "Risk Classes and the Approval Table", "Check Levels", "Transcription Mode", "Questions and Ballots",
     ];
+
 
     /// <summary>The record-type table: layer and question per type, labels derived from the type.</summary>
     /// <param name="file">The carried page.</param>

@@ -25,7 +25,7 @@ Run it before writing any new record, as `litespec/core/authoring#scaffold-pages
 
 `new entry` appends one entry to a list file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, because list files carry no record identifier. The type must belong on the file: a requirement on a topic file, a rule on a rule-set file, a permission on the permission list, a setting on a setting set. The entry id is `<type>/<home>.<name>` from the file's home, or `permission/<name>`; the home is the file's existing entries' home, else the file stem for a requirement or rule and the parent modules folder for a setting. The entry lands last with every required field filled from its template; the file is written back in canonical form. The command refuses a duplicate id and an unknown file.
 
-A release record starts from `templates/consumer/release-record.md`: copy it to `docs/releases/<date>.md` and fill every placeholder. The template carries the source commit and artifact reference, the included journeys, use cases, and extensions, the evidence results, and the operating readiness a release record holds.
+A release record starts from `templates/consumer/release-record.md`: copy it to `.litespec/releases/<date>.md` and fill every placeholder. The template carries the source commit and artifact reference, the included journeys, use cases, and extensions, the evidence results, and the operating readiness a release record holds.
 
 ## Arguments
 
@@ -90,25 +90,25 @@ litespec new scenario use-case/orders.cancel-order cancelling-a-shipped-order-is
 Append a requirement to its page:
 
 ```bash
-litespec new entry docs/intent/spending/approval.yaml requirement decided-within-five-days
+litespec new entry .litespec/intent/spending/approval.yaml requirement decided-within-five-days
 ```
 
 Append a rule under the page's home:
 
 ```bash
-litespec new entry docs/behavior/rules/spending-rules.yaml rule receipt-filed-once
+litespec new entry .litespec/behavior/rules/spending-rules.yaml rule receipt-filed-once
 ```
 
 Append a permission to the permission list:
 
 ```bash
-litespec new entry docs/behavior/access/permissions.yaml permission approve-expense
+litespec new entry .litespec/behavior/access/permissions.yaml permission approve-expense
 ```
 
 Append a setting under its module:
 
 ```bash
-litespec new entry docs/behavior/modules/spending/settings.yaml setting receipt-threshold
+litespec new entry .litespec/behavior/modules/spending/settings.yaml setting receipt-threshold
 ```
 
 ## Underneath

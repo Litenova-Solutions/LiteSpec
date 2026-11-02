@@ -314,7 +314,7 @@ Sitemap: https://example.test/sitemap.xml
 {"name": "marketing", "path": "sites/marketing", "generator": "astro"}
 ```
 
-**Reviewed for:** Each static site the project ships appears as a `sites` entry in `litespec.project.json` with its name, path, and generator.
+**Reviewed for:** Each static site the project ships appears as a `sites` entry in `.litespec/project.json` with its name, path, and generator.
 
 ## Conventions
 

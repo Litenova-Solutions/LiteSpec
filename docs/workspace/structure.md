@@ -2,7 +2,7 @@
 
 ## Intent
 
-A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `litespec.project.json` declares. It applies to anyone who creates a file, and to agents locating code without asking.
+A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `.litespec/project.json` declares. It applies to anyone who creates a file, and to agents locating code without asking.
 
 ## Concepts
 
@@ -14,7 +14,7 @@ A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for 
 
 Each record type has one home in the tree: the [model page](../core/model.md) names the home, and the canonical tree below realizes it. Entries live on their home page instead of their own files, so an agent derives the path from the record type without searching.
 
-The model builder writes the generated project model under `.model/` from records, code, routes, tests, and test runs; the folder is rebuilt rather than reviewed.
+The model builder writes the generated project model under `.litespec/model/` from records, code, routes, tests, and test runs; the folder is rebuilt rather than reviewed.
 
 ## Standards
 
@@ -30,7 +30,7 @@ The model builder writes the generated project model under `.model/` from record
 {repo}/
   .config/
     dotnet-tools.json
-  .model/                      generated; ignored
+  .litespec/model/                      generated; ignored
   apps/
     api/
       <backend project manifest>
@@ -78,7 +78,7 @@ The model builder writes the generated project model under `.model/` from record
   package.json                 when a frontend or TypeScript package exists
   pnpm-lock.yaml               when a frontend or TypeScript package exists
   pnpm-workspace.yaml          when a frontend or TypeScript package exists
-  litespec.project.json
+  .litespec/project.json
 ```
 
 A backend stack binding names the files that realize the entries in angle brackets.
@@ -93,21 +93,21 @@ A record page lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#declare-size-and-application-stacks-in-project-config`
 
-**Statement:** `litespec.project.json` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
+**Statement:** `.litespec/project.json` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
 
-**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `litespec.project.json` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
+**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `.litespec/project.json` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
 
-**Reviewed for:** `litespec.project.json` at the workspace root declares `size` and one stack for the backend and for each frontend.
+**Reviewed for:** `.litespec/project.json` at the workspace root declares `size` and one stack for the backend and for each frontend.
 
 ### Keep the Generated Model Out of Source Control
 
 **ID:** `litespec/workspace/structure#keep-the-generated-model-out-of-source-control`
 
-**Statement:** The generated `.model/` folder MUST stay out of source control.
+**Statement:** The generated `.litespec/model/` folder MUST stay out of source control.
 
 **Rationale:** The model builder writes `model.json` there from records, code, routes, tests, and test runs. Tracking it would commit a derived copy beside its sources, and every commit would carry a stale model until somebody regenerates it. The folder is rebuilt rather than reviewed.
 
-**Reviewed for:** No path under `.model/` is tracked in git; `git ls-files .model` prints nothing.
+**Reviewed for:** No path under `.litespec/model/` is tracked in git; `git ls-files .model` prints nothing.
 
 ### Keep Production and Test Code Separate
 
@@ -176,23 +176,11 @@ apps/api/
 
 **Default:** Name a frontend for its audience, such as `web`, `admin`, `portal`, or `docs`.
 
-**Replacement:** A project whose frontends serve one audience records its own frontend names in `litespec.project.json` under `paths.frontends`.
+**Replacement:** A project whose frontends serve one audience records its own frontend names in `.litespec/project.json` under `paths.frontends`.
 
 **Rationale:** `apps/web` tells the reader who it serves; `apps/frontend` tells them only what it is built with. Naming each frontend for its audience keeps the folder meaningful when the technology changes. `frontend`, `client`, or `app` names the technology rather than the audience it serves.
 
-**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `paths.frontends` in `litespec.project.json` names the project's own frontend names.
-
-### Keep Scripts at the Root
-
-**ID:** `litespec/workspace/structure#keep-scripts-at-the-root`
-
-**Default:** Keep bootstrap, release, and CI helper scripts under root `scripts/`.
-
-**Replacement:** A project that organizes scripts per application records its own script layout in its project documentation.
-
-**Rationale:** Bootstrap, release, and CI helper scripts serve the whole workspace, so the root `scripts/` folder keeps them where every caller looks. An application-specific script may stay inside its application when no other workspace calls it.
-
-**Reviewed for:** Bootstrap, release, and CI helper scripts sit under root `scripts/`; where replaced, the project documentation names the project's own script layout.
+**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `paths.frontends` in `.litespec/project.json` names the project's own frontend names.
 
 ### Keep Generated API Contracts in Packages
 

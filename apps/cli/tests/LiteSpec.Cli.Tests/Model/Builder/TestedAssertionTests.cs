@@ -39,7 +39,7 @@ public sealed class TestedAssertionTests
         Assert.False(document.RootElement.GetProperty("tested").GetProperty(Requirement).GetBoolean());
     }
 
-    const string RequirementPath = "docs/intent/lending/performance.yaml";
+    const string RequirementPath = ".litespec/intent/lending/performance.yaml";
     const string ProofPath = "apps/api/tests/Library.Integration.Tests/Tested/TestedProofTests.cs";
 
     static void WriteTrx(string root, string testName)
@@ -58,7 +58,7 @@ public sealed class TestedAssertionTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

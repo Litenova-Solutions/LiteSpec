@@ -14,10 +14,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path, "lending-team", "catalog-team");
-        WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
+        WriteCodeowners(temp.Path, ".litespec/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -29,10 +29,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path, "lending-team", "catalog-team");
-        WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
+        WriteCodeowners(temp.Path, ".litespec/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("no team", message, StringComparison.Ordinal);
@@ -47,7 +47,7 @@ public sealed class OwnerTeamCheckTests
         WriteProject(temp.Path, "lending-team", "catalog-team");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -59,10 +59,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path, "lending-team", "catalog-team");
-        WriteCodeowners(temp.Path, "docs/product/** @acme/product-team\n");
+        WriteCodeowners(temp.Path, ".litespec/product/** @acme/product-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "catalog-team"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -74,10 +74,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path, "team-a", "team-b");
-        WriteCodeowners(temp.Path, "docs/** @acme/team-a\ndocs/behavior/** @acme/team-b\n");
+        WriteCodeowners(temp.Path, ".litespec/** @acme/team-a\n.litespec/behavior/** @acme/team-b\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "team-a"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "team-a"}"""));
 
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }
@@ -89,10 +89,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path, "lending-team");
-        WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
+        WriteCodeowners(temp.Path, ".litespec/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "stranger"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "stranger"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("owner list", message, StringComparison.Ordinal);
@@ -105,10 +105,10 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProjectJson(temp.Path, """{"owners": [{"name": "Lending engineering", "codeowners": ["@acme/lending-team"]}]}""");
-        WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
+        WriteCodeowners(temp.Path, ".litespec/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -123,7 +123,7 @@ public sealed class OwnerTeamCheckTests
         WriteCodeowners(temp.Path, "* @a-shafie\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("no team", message, StringComparison.Ordinal);
@@ -136,21 +136,21 @@ public sealed class OwnerTeamCheckTests
     {
         using var temp = Cli.Temp("checks");
         WriteProjectJson(temp.Path, """{"owners": [{"name": "Lending engineering", "codeowners": ["@acme/catalog-team"]}]}""");
-        WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
+        WriteCodeowners(temp.Path, ".litespec/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, ".litespec", "behavior", "actors", "reader.yaml"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }
 
     static void WriteProject(string root, params string[] owners) =>
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             "{\"owners\": [" + string.Join(", ", owners.Select(owner => "\"" + owner + "\"")) + "]}");
 
     static void WriteProjectJson(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, "litespec.project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
 
     static void WriteCodeowners(string root, string text)
     {

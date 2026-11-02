@@ -124,13 +124,13 @@ public sealed class QualityScenarioCheckTests
     /// <param name="config">The consumer config carrying the root folder.</param>
     /// <returns>The full path to the decision file.</returns>
     static string TechnicalDecisionFile(ConsumerConfig config) =>
-        Path.Combine(config.Root, "docs", "implementation", "decisions", "0002-store-orders-as-documents.md");
+        Path.Combine(config.Root, ".litespec", "implementation", "decisions", "0002-store-orders-as-documents.md");
 
     /// <summary>A decision file outside the implementation decisions folder, so the check reads it as a product decision.</summary>
     /// <param name="config">The consumer config carrying the root folder.</param>
     /// <returns>The full path to the decision file.</returns>
     static string ProductDecisionFile(ConsumerConfig config) =>
-        Path.Combine(config.Root, "docs", "product", "decisions", "0001-checkout-target.md");
+        Path.Combine(config.Root, ".litespec", "product", "decisions", "0001-checkout-target.md");
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>

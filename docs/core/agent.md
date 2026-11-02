@@ -40,7 +40,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a tier 1 record waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a record carrying a risk class waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
 3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
 4. Choose patterns and scaffold screens. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
@@ -48,7 +48,7 @@ A running project takes new intent through this one sequence. Other pages link t
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model build`, then `dotnet litespec model check`, then `dotnet litespec model render`.
 8. Diff, clear, and batch-approve. Run `dotnet litespec model diff <base> --intent` for the decider review and `dotnet litespec model diff <base> --behavior` for the developer review and the security queue, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. Clear the security queue, answer the ballots, then approve with `dotnet litespec model review` and `dotnet litespec model approve --batch <selector>`. Batch approval before a final test run is draft review only: the release gate re-reads `verified` after that final run.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green check level G checks, every tier 1 draft answered, every scenario verified, and green check level S checks where the reader is qualified.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green check level G checks, every draft question on a record carrying a risk class answered, every scenario verified, and green check level S checks where the reader is qualified.
 
 ## Standards
 
@@ -70,9 +70,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** A change touching no record that carries `risk` or an approval MAY skip the model query, reading the agent context and neighboring code instead.
 
-**Rationale:** A small edit with no risk and no approval behind it does not need the full record set: the agent context plus the neighboring file already show the approved shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a record with `risk` or an approval keeps the full query, because the query shows the tier and the open questions a one-line change would otherwise miss, and it costs seconds.
+**Rationale:** A small edit with no risk and no approval behind it does not need the full record set: the agent context plus the neighboring file already show the approved shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a record with `risk` or an approval keeps the full query, because the query shows the risk class and the open questions a one-line change would otherwise miss, and it costs seconds.
 
-**Example:** A spelling fix in a draft tier 3 setting that carries no risk reads the agent context and the sibling setting, then edits without querying the model.
+**Example:** A spelling fix in a draft setting that carries no risk reads the agent context and the sibling setting, then edits without querying the model.
 
 **Reviewed for:** The change touches no record carrying `risk` or an approval and names the local pattern it followed.
 
@@ -226,7 +226,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST report its findings as advice instead of recording approval or review.
 
-**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer reads tier 1 access and data where the project names one. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent. A recorded agent reading counts as the tier 1 second reading in a one-person project; the person still approves.
+**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer reads access and data carrying a risk class where the project names one. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent. A recorded agent reading counts as the second reading for a record carrying a risk class in a one-person project; the person still approves.
 
 **Reviewed for:** The agent output records findings as advice, with approval and review left to people.
 

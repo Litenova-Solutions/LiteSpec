@@ -19,7 +19,7 @@ static class BookCommand
         + "Options:\n"
         + "  --model <file>       The model.json written by the model builder (required).\n"
         + "  --out <folder>       The folder to write the static site to (required).\n"
-        + "  --root <folder>      The consumer root for source links. Defaults to the parent of the model's folder when the model sits in a .model folder, else the model's folder.\n"
+        + "  --root <folder>      The consumer root for source links. Defaults to the repository root when the model sits in a .litespec/model folder, else the model's folder.\n"
         + "  --editor <template>  The editor link template with {root}, {path} and {line}, or \"none\" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.\n"
         + "  --help               Print this text and exit.\n"
         + "\n"
@@ -118,6 +118,8 @@ static class BookCommand
             var dataDir = Path.Combine(outDir, "data");
             var shards = 0;
 
+            CopyCaptures(outDir, root, details);
+
             // Records first: the outline nodes and the manifest map carry the shard ids.
             var shardOf = BookShards.WriteRecords(dataDir, details);
             shards += shardOf.Values.Distinct(StringComparer.Ordinal).Count();
@@ -197,22 +199,31 @@ static class BookCommand
             return new Parsed(false, parsed.Error, null, null, null, null);
         }
 
-        if (parsed.Value("--model") is not { Length: > 0 } model)
+        var consumer = ConsumerRoot.Find(parsed.Value("--root") is { Length: > 0 } start ? start : Directory.GetCurrentDirectory());
+        string model;
+        if (parsed.Value("--model") is { Length: > 0 } modelValue)
         {
-            return new Parsed(false, "Missing --model <model.json>.", null, null, null, null);
+            model = modelValue;
+        }
+        else
+        {
+            model = Path.Combine(consumer, ConsumerRoot.FolderName, "model", "model.json");
+            if (!File.Exists(model))
+            {
+                return new Parsed(false, "No model at .litespec/model/model.json; run 'litespec model build' first or pass --model <model.json>.", null, null, null, null);
+            }
         }
 
-        if (parsed.Value("--out") is not { Length: > 0 } output)
-        {
-            return new Parsed(false, "Missing --out <folder>.", null, null, null, null);
-        }
+        var output = parsed.Value("--out") is { Length: > 0 } outputValue
+            ? outputValue
+            : Path.Combine(consumer, ConsumerRoot.FolderName, "book");
 
         return new Parsed(false, null, model, output, parsed.Value("--root"), parsed.Value("--editor"));
     }
 
     /// <summary>
-    ///     The consumer root for source links: the --root value, else the parent of
-    ///     the model's folder when the model sits in a <c>.model</c> folder, else
+    ///     The consumer root for source links: the --root value, else the repository
+    ///     root when the model sits in a <c>.litespec/model</c> folder, else
     ///     the model's folder.
     /// </summary>
     /// <param name="root">The root option value, or null or empty when the option is absent.</param>
@@ -226,8 +237,12 @@ static class BookCommand
         }
 
         var folder = Path.GetDirectoryName(Path.GetFullPath(model)) ?? ".";
-        return string.Equals(Path.GetFileName(folder), ".model", StringComparison.Ordinal)
-            ? Path.GetDirectoryName(folder) ?? folder
+        var parent = Path.GetDirectoryName(folder);
+
+        return string.Equals(Path.GetFileName(folder), "model", StringComparison.Ordinal)
+            && parent is not null
+            && string.Equals(Path.GetFileName(parent), ".litespec", StringComparison.Ordinal)
+            ? Path.GetDirectoryName(parent) ?? folder
             : folder;
     }
 
@@ -346,6 +361,7 @@ static class BookCommand
                 ["litespec"] = liteSpecRoot,
             },
             ["editor"] = editor,
+            ["approvals"] = store["approvals"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["testRun"] = store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["totals"] = totals,
             ["layers"] = layers,
@@ -383,11 +399,14 @@ static class BookCommand
                 records.Add(entry);
             }
 
+            var riskClasses = batch.RiskClasses.Count > 0 ? batch.RiskClasses : RiskClassesOf(details, batch.Records);
+            var approvers = batch.Approvers.Count > 0 ? batch.Approvers : ApproversOf(details, batch.Records);
             batches[batch.Selector] = new JsonObject
             {
                 ["selector"] = batch.Selector,
                 ["kind"] = batch.Kind,
-                ["tier"] = batch.Tier,
+                ["riskClasses"] = new JsonArray([.. riskClasses.Select(risk => (JsonNode?)risk)]),
+                ["approvers"] = new JsonArray([.. approvers.Select(name => (JsonNode?)name)]),
                 ["deciders"] = new JsonArray([.. batch.Deciders.Select(decider => (JsonNode?)decider)]),
                 ["decideBy"] = StringOrNull(batch.DecideBy),
                 ["awaiting"] = batch.Awaiting,
@@ -405,6 +424,54 @@ static class BookCommand
             ["security"] = SecurityJson(details),
             ["review"] = ReviewJson(index, root),
         };
+    }
+
+    /// <summary>The risk classes the named records carry, in first-seen order.</summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <param name="records">The record identifiers to read.</param>
+    /// <returns>The distinct risk class names of the records.</returns>
+    static List<string> RiskClassesOf(IReadOnlyDictionary<string, JsonObject> details, IReadOnlyList<string> records)
+    {
+        var classes = new List<string>();
+        foreach (var id in records)
+        {
+            if (!details.TryGetValue(id, out var detail))
+            {
+                continue;
+            }
+
+            foreach (var item in (detail["fields"] as JsonObject)?["risk"] as JsonArray ?? [])
+            {
+                if (item is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text is { Length: > 0 } && !classes.Contains(text))
+                {
+                    classes.Add(text);
+                }
+            }
+        }
+
+        return classes;
+    }
+
+    /// <summary>The approvers the project approval table names for the named records, sorted.</summary>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    /// <param name="records">The record identifiers to read.</param>
+    /// <returns>The distinct approver names of the records, sorted.</returns>
+    static List<string> ApproversOf(IReadOnlyDictionary<string, JsonObject> details, IReadOnlyList<string> records)
+    {
+        var approvers = new List<string>();
+        foreach (var id in records)
+        {
+            if (details.TryGetValue(id, out var detail)
+                && detail["approval"] is JsonObject approval
+                && StrProp(approval, "by") is { Length: > 0 } by
+                && !approvers.Contains(by))
+            {
+                approvers.Add(by);
+            }
+        }
+
+        approvers.Sort(StringComparer.Ordinal);
+        return approvers;
     }
 
     /// <summary>
@@ -435,7 +502,8 @@ static class BookCommand
                         ["q"] = new JsonObject
                         {
                             ["question"] = text,
-                            ["tier"] = BookReviewQueries.TierOf(entry),
+                            ["riskClasses"] = new JsonArray([.. BookReviewQueries.RiskClassesOf(entry).Select(risk => (JsonNode?)risk)]),
+                            ["approval"] = BookReviewQueries.ApprovalOf(entry)?.DeepClone(),
                             ["decider"] = StringOrNull(StrProp(question, "decider")),
                             ["decideBy"] = StringOrNull(StrProp(question, "decideBy")),
                             ["ballot"] = StringOrNull(StrProp(question, "ballot")),
@@ -591,6 +659,48 @@ static class BookCommand
             ["vetoWindowDays"] = index.VetoWindowDays,
             ["securityReviewer"] = StringOrNull(reviewer),
         };
+    }
+
+    /// <summary>
+    ///     Copies each screen capture the model lists into the book output under
+    ///     <c>assets/captures/&lt;screen&gt;/</c>, and records the book-relative path on
+    ///     the capture as <c>bookPath</c>. A capture whose file is missing keeps
+    ///     only its model path, so the page states the capture state instead.
+    /// </summary>
+    /// <param name="outDir">The book output folder.</param>
+    /// <param name="root">The absolute consumer root the capture paths resolve against.</param>
+    /// <param name="details">The enriched record details keyed by record identifier.</param>
+    static void CopyCaptures(string outDir, string root, IReadOnlyDictionary<string, JsonObject> details)
+    {
+        foreach (var (id, detail) in details)
+        {
+            if (StrProp(detail, "type") != "screen" || detail["captures"] is not JsonArray captures)
+            {
+                continue;
+            }
+
+            var folder = id.Replace('/', '-').Replace('.', '-');
+            foreach (var capture in captures.OfType<JsonObject>())
+            {
+                var path = StrProp(capture, "path");
+                if (path is not { Length: > 0 })
+                {
+                    continue;
+                }
+
+                var source = Path.GetFullPath(Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar)));
+                if (!File.Exists(source))
+                {
+                    continue;
+                }
+
+                var name = Path.GetFileName(source);
+                var targetDir = Path.Combine(outDir, "assets", "captures", folder);
+                Directory.CreateDirectory(targetDir);
+                File.Copy(source, Path.Combine(targetDir, name), overwrite: true);
+                capture["bookPath"] = $"assets/captures/{folder}/{name}";
+            }
+        }
     }
 
     /// <summary>Reads and parses one JSON file.</summary>

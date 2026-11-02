@@ -4,7 +4,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 ///     A package URL split into the parts the dependency gate compares: the ecosystem,
 ///     the decoded name with its scope, and the version.
 /// </summary>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 static class Purl
 {
     /// <summary>

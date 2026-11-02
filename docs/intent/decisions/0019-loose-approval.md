@@ -6,7 +6,7 @@ LiteSpec serves one-person teams, but the approval pages demand reviewers and ga
 
 ## Decision
 
-Approval stays loose: an agent's reading counts as the tier 1 second reading; a project whose owners list holds one name needs no second reviewer; `review.securityReviewer` is optional and the security queue is a list to read, not a gate; the pages say so. Two defects are fixed: single-record approval promotes the record's status, and re-approval writes the new approver and date.
+Approval stays loose: an agent's reading counts as the second reading for a record carrying a risk class; a project whose owners list holds one name needs no second reviewer; `review.securityReviewer` is optional and the security queue is a list to read, not a gate; the pages say so. Two defects are fixed: single-record approval promotes the record's status, and re-approval writes the new approver and date.
 
 ## Evidence with Confidence
 

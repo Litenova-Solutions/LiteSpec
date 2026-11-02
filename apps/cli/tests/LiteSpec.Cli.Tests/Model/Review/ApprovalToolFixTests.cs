@@ -8,22 +8,22 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class ApprovalToolFixTests
 {
     static string Screen(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "screens", "library-app.loans.yaml");
+        root, ".litespec", "behavior", "screens", "library-app.loans.yaml");
 
     static string Reaction(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
 
     static string Job(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "jobs", "nightly-due-scan.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "jobs", "nightly-due-scan.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.yaml");
+        root, ".litespec", "product", "decisions", "0001-loan-period.yaml");
 
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
     /// <summary>A screen is Behavior: the queue names its layer behavior and approval promotes it to reviewed.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
@@ -285,7 +285,7 @@ public sealed class ApprovalToolFixTests
 
         ReviewPages.DraftPage(BorrowCopy(fixture.Path));
         ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["provenance"] = "transcribed");
-        ReviewPages.DraftPage(ReviewPages.Page(fixture.Path, "docs", "product", "journeys", "borrow-and-return.yaml"));
+        ReviewPages.DraftPage(ReviewPages.Page(fixture.Path, ".litespec", "product", "journeys", "borrow-and-return.yaml"));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,

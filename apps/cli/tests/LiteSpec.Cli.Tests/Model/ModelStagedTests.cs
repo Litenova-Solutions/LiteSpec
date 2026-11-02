@@ -133,7 +133,7 @@ public sealed class ModelStagedTests
         CommitAll(fixture.Path);
         ApplyOverlay(fixture.Path, "paging-undeclared");
         ApplyOverlay(fixture.Path, "write-undeclared");
-        RunGit(fixture.Path, "add", "docs/behavior/modules/lending/loans/list-loans.yaml");
+        RunGit(fixture.Path, "add", ".litespec/behavior/modules/lending/loans/list-loans.yaml");
 
         var staged = Cli.Run("model", "check", "--root", fixture.Path, "--staged");
 
@@ -236,7 +236,7 @@ public sealed class ModelStagedTests
         Assert.Contains("write-undeclared", since.Output);
     }
 
-    /// <summary>Files the tool writes under <c>.model</c> while it builds never widen the since scope.</summary>
+    /// <summary>Files the tool writes under <c>.litespec/model</c> while it builds never widen the since scope.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Check_Since_Ignores_The_Tool_Output_Folder()
@@ -245,7 +245,7 @@ public sealed class ModelStagedTests
 
         CommitAll(fixture.Path);
 
-        var cache = Path.Combine(fixture.Path, ".model", "frontend-facts");
+        var cache = Path.Combine(fixture.Path, ".litespec/model", "frontend-facts");
         Directory.CreateDirectory(cache);
         File.WriteAllText(Path.Combine(cache, "svelte-cached.json"), "{}");
 

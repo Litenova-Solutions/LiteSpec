@@ -11,9 +11,9 @@ Intent is why the product exists and what it promises: the product, actors, goal
 | Question | Record | Write It When | Skip It When | Familiar As |
 |:---|:---|:---|:---|:---|
 | What is the product, for whom, and what will it never do? | product | Always, once | Never | Product brief |
-| Who or what touches the product? | actor | Someone appears in a problem, a journey or the audience | The "actor" is a role; roles are Behavior | Stakeholder |
+| Who touches the product? | actor | A person or organization appears in a problem, a journey or an access position | The "actor" is a role or a system; roles are Behavior and systems stand alone | Stakeholder |
 | Which number in the world do we want to move? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Business objective |
-| What pain do people have today? | problem | You can describe it without a solution, with evidence | Only one solution is imaginable: it is a feature | Pain point |
+| What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
 | What do we offer against a problem, and when? | feature | Scope and timing need tracking | The commitment is permanent and no offer carries it | Capability |
 | Which requirements share one story? | topic | Always, for requirements | Never | Chapter |
 | What exactly must hold? | requirement | Always | Never | User story |
@@ -25,7 +25,7 @@ Intent is why the product exists and what it promises: the product, actors, goal
 
 ### Product Intent and Its Parts
 
-Product intent is what the business commits to: what it sells, to whom, at what price, and in which markets, plus how the company runs and what comes next.
+Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) states the boundary.
 
 Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the business decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
 
@@ -41,15 +41,15 @@ What a lower record layer needs and the upper record layer does not say travels 
 
 ### Requirements with Except and Fallback
 
-A requirement carries `kind` (functional, quality, or policy), `statement`, `rationale`, and `measure` with `dueBy` where its statement names a number. `setBy` names who sets its value: `decider`, `operator`, or `tenant`. `risk` names what makes it tier 1: `money`, `physical-access`, `personal-data`, or `access`; a requirement with no risk is tier 3.
+A requirement carries `kind` (functional, quality, or policy), `statement`, `rationale`, and `measure` with `dueBy` where its statement names a number. `setBy` names who sets its value: `decider`, `operator`, or `tenant`. `risk` names the risk classes the record carries: `money`, `physical-access`, `personal-data`, or `access`, each shown by name. A record with no risk shows no risk and carries no approval rule from risk.
 
 An `except` entry states in product words when the commitment does not hold, and `fallback` names the requirement that covers what happens then. The fallback carries no `except` of its own: exceptions stay one deep, so every exception ends in a promise.
 
-Approved requirements carry `approvedBy`, `approvedOn`, and the builder-written `approvedHash`. Tier 1 needs explicit approval; only questions auto-approve, as `litespec/core/model#answer-each-question-on-its-record` states.
+Approved requirements carry `approvedBy`, `approvedOn`, and the builder-written `approvedHash`. A record whose risk class the project approval table names needs the approval that table states for that class; only questions auto-approve, as `litespec/core/model#answer-each-question-on-its-record` states. The [model page](model.md) states the approval table.
 
 ### Journeys as Product Sentences
 
-A journey carries `actor`, `serves`, `finishedWhen`, ordered `steps`, `betweenSteps`, and `cites`. `serves` names the goal record. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff, and carries its failure text in `failure` where the walk can fail. `betweenSteps` states the branch order between the steps. A step id reads `journey/<name>#s1`.
+A journey carries `actor`, `serves`, `description`, `finishedWhen`, ordered `steps`, `betweenSteps`, and `cites`. `serves` names the goal record. `description` states in up to four sentences who walks, what starts the walk, what good looks like, and why it matters, and the book renders it first on the page. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the walk can fail. A step carries exactly one of `actor` and `system`, or neither when the walking actor performs it. `betweenSteps` states the branch order between the steps. A step id reads `journey/<name>#s1`.
 
 Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `finishedWhen`, the steps as sentences with `failure`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, the Then clauses of their scenarios as context, a consequences box as context, and the open questions. Field names never render literally in journey detail.
 
@@ -77,11 +77,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#keep-intent-in-its-homes`
 
-**Statement:** A consumer MUST keep its brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `docs/intent/`, and its research under `docs/intent/research/`.
+**Statement:** A consumer MUST keep its brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `.litespec/intent/`, and its research under `.litespec/intent/research/`.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `docs/intent/` and research under `docs/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business. An actor is a person, an organization, or a system, and an actor record carries `summary`.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `.litespec/intent/` and research under `.litespec/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business. An actor is a person or an organization, and an actor record carries `summary`.
 
-**Reviewed for:** Each brief, topic page, goal, problem, feature, constraint, product decision, actor, and journey under `docs/intent/`, and each research record under `docs/intent/research/`.
+**Reviewed for:** Each brief, topic page, goal, problem, feature, constraint, product decision, actor, and journey under `.litespec/intent/`, and each research record under `.litespec/intent/research/`.
 
 ### State One Product
 
@@ -93,6 +93,18 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports no `product-count-invalid` finding, and `litespec consumer` validates the brief fields against the record schema.
 
+### Keep Company Operation Out of Intent
+
+**ID:** `litespec/core/intent#keep-company-operation-out-of-intent`
+
+**Statement:** An Intent or Behavior record MUST state only behavior the application performs, data it holds, or a limit it enforces, so a company fact enters only as a constraint or as dated research.
+
+**Rationale:** LiteSpec specifies the product, not the company. Prices as an offer, markets, hiring, sales actions, launch calendars, company goals and founder risks can be checked only against a bank account, a diary or a contract, so they sit outside the records a reader reviews as the product. A company fact that binds the product still enters: as a constraint when an authority or a limit binds the application, and as dated research when a choice rests on it. Plan entitlements the software enforces stay, as settings and permissions; the price list as a company offer leaves.
+
+**Example:** A library holds its lending limit as a setting the application enforces, so the limit stays as Behavior. The membership price the library charges as an offer is a company fact: it enters only as dated research behind the decision that sets the limit.
+
+**Reviewed for:** Intent and Behavior records stating company operation beside the constraints and research that carry the binding facts.
+
 ### State Each Goal with Its Measure
 
 **ID:** `litespec/core/intent#state-each-goal-with-its-measure`
@@ -103,13 +115,97 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec consumer` fails a goal record file missing a required field.
 
+### Move Every Goal with a Journey or a Quality Requirement
+
+**ID:** `litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement`
+
+**Statement:** A goal MUST be moved by a journey serving it or by a quality requirement citing it.
+
+**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the walk that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all.
+
+**Example:** The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal.
+
+**Checked by:** `litespec model check` reports `goal-mover-missing` for a goal moved by no journey and no quality requirement.
+
+### Admit Only Outside Pains as Problems
+
+**ID:** `litespec/core/intent#admit-only-outside-pains-as-problems`
+
+**Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, qualify that sufferer in `affectsSegment`, and state the pain in `statement` and `situation` in fields.
+
+**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets, and `affectsSegment` qualifies that sufferer with its segment, its size if known, and its geography. `statement` states the sufferer, the condition and the consequence in one sentence, with the product never as its subject. `situation` states when it happens and what the person was trying to do, and never stands as a bare pointer to another page. What is no problem leaves for its own record: a solution in disguise becomes a feature, a risk that might happen becomes a decision or a goal, an internal constraint becomes a constraint on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
+
+**Example:** In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal constraint and no problem.
+
+**Checked by:** `litespec model check` reports `problem-sufferer-invalid` for a problem whose primary sufferer is no person or organization outside the team; `litespec consumer` fails a problem record file missing `affects`, `affectsSegment`, `statement` or `situation`.
+
+### State the Cost and Workaround of Every Problem
+
+**ID:** `litespec/core/intent#state-the-cost-and-workaround-of-every-problem`
+
+**Statement:** A problem MUST state what the pain costs its sufferer today in `costToday` and what the sufferer does instead in `workaroundToday`, each in the sufferer's own units, or the word `unknown` with an open question naming the source that would price it.
+
+**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, `unknown` states the gap honestly and the open question names who or what would close it.
+
+**Example:** A reader who loses track of due dates pays late fees each month in `costToday`, and keeps a paper list of due dates in `workaroundToday`, which fails when the list stays at home.
+
+**Checked by:** `litespec model check` reports `problem-cost-missing` for a problem stating no cost today, and `problem-workaround-missing` for a problem stating no workaround today, each allowing `unknown` only with an open question on the record.
+
+### Grade Problem Evidence by Kind
+
+**ID:** `litespec/core/intent#grade-problem-evidence-by-kind`
+
+**Statement:** A problem MUST list each evidence entry with its `claim`, its `source` as a record id or a URL, its `readOn` date, and its `kind` as observed, reported or assumed, and carries at least one observed or reported entry before it is approved.
+
+**Rationale:** Evidence states how anyone knows the pain is real: observed means a sufferer was watched, reported means a sufferer said it, and assumed means nobody outside the team has confirmed it. The strength of a problem is the strongest kind present, computed by the builder and never written, so it cannot drift from the entries. Approval certifies a signature over evidence, so an approved problem resting on assumption alone, or on no entry, stays draft until a sufferer is watched or heard.
+
+**Example:** The library problem of readers losing due dates carries a reported entry from the desk log, read on its date, so its computed strength is reported and it may be approved.
+
+**Checked by:** `litespec model check` reports `problem-evidence-missing` for an approved problem with only assumed evidence or none. The builder writes `evidenceStrength` on each problem in the model.
+
+### Name No Solution in a Problem Statement
+
+**ID:** `litespec/core/intent#name-no-solution-in-a-problem-statement`
+
+**Statement:** A problem `statement` MUST name no product, feature or solution.
+
+**Rationale:** A statement naming a solution files a missing feature as a pain: the reader approves the answer before weighing the pain, and every alternative answer reads as off-topic. A statement naming the sufferer, the condition and the consequence leaves the answer to the feature that solves it.
+
+**Example:** "Readers lose track of due dates" names a pain. "Readers need a reminder dashboard" names a solution and is reported.
+
+**Checked by:** `litespec model check` reports `problem-statement-invalid` for a problem statement naming a solution word.
+
+### Name Each Sibling Problem or Merge It
+
+**ID:** `litespec/core/intent#name-each-sibling-problem-or-merge-it`
+
+**Statement:** Two problems with the same primary sufferer cited from the same topic MUST name each other or merge into one problem.
+
+**Rationale:** Two pains of one sufferer under one topic, written in different words, hide that they are one pain or two: features solve each half, and the book lists the sufferer twice with no sign of the overlap. Naming the sibling states the split where a reader meets it; merging keeps one pain with one sufferer.
+
+**Example:** Two library problems of the reader cited from the borrowing topic, one on due dates and one on renewals, name each other, so a reader sees both before a feature solves either.
+
+**Checked by:** `litespec model check` reports `problem-duplicate` for two problems with the same primary sufferer cited from the same topic that name neither each other.
+
+### Explain Every Problem in Four Sections
+
+**ID:** `litespec/core/intent#explain-every-problem-in-four-sections`
+
+**Statement:** A problem explanation file MUST carry Who Has It, What They Do Today, Evidence, and What Would Retire It, in that order.
+
+**Rationale:** The fields state who suffers, what it costs and what they do instead; the explanation carries the one concrete occasion, the workaround in use, the evidence behind each claim, and what change in the world would retire the pain. A fixed order means a reader who learned one problem page finds each part on every problem page.
+
+**Example:** The library problem on due dates opens Who Has It with one reader at the desk with three overdue copies, and closes with What Would Retire It: readers holding their due dates without a paper list.
+
+**Reviewed for:** The four sections, in order, in each problem explanation file.
+
 ### State Each Problem with Its Evidence
 
 **ID:** `litespec/core/intent#state-each-problem-with-its-evidence`
 
-**Statement:** A problem MUST state its `statement` and `situation` in fields.
+**Statement:** A problem MUST state its `statement` and `situation` in fields, with its evidence graded under [Grade Problem Evidence by Kind](#grade-problem-evidence-by-kind).
 
-**Rationale:** A problem that names what its people face points to the pain its solution lifts. `situation` describes the pain in the people's own terms, and Evidence in the explanation file shows it is real. Problems without owners attract solutions nobody needs. The `affects` link names the actors who face it, so each pain traces to the people a solution must serve.
+**Rationale:** A problem that names what its people face points to the pain its solution lifts. `situation` describes the pain in the people's own terms, and the graded evidence shows it is real. Problems without sufferers attract solutions nobody needs. The `affects` link names the actors who face it, so each pain traces to the people a solution must serve.
 
 **Checked by:** `litespec consumer` fails a problem record file missing its `statement` or `situation`.
 
@@ -117,11 +213,47 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-feature-with-its-lifecycle`
 
-**Statement:** A feature MUST state its `lifecycle` and `offering`, name the problems it solves in `solves`, and, unless its lifecycle is refused, name the goals it moves in `advances`, with a missing goal link reported as coverage.
+**Statement:** A feature MUST state its `lifecycle` and `offering` and, unless its lifecycle is refused, name the problems it solves in `solves` and the goals it moves in `advances`, with a missing goal link reported as coverage.
 
-**Rationale:** A feature names the problems it solves in `solves` and, unless its lifecycle is refused, the goals it moves in `advances`, so each offer traces to a pain and an outcome. Its `lifecycle` is planned, shipped, later, or refused. A refused feature names the problem it declines in `solves` and keeps its reason in `refusedBecause`, so the team never relitigates the refusal, and a planned feature names its milestone or date in `plannedFor`. `offering` states what is in and what is out, so the scope of the offer is written where the lifecycle is. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature names the problems it solves in `solves` and, unless its lifecycle is refused, the goals it moves in `advances`, so each offer traces to a pain and an outcome. Its `lifecycle` is planned, shipped, later, or refused. A refused feature keeps its reason in `refusedBecause`, so the team never relitigates the refusal, and names the problem it declines in `solves` only when an outside pain asked for it, since a refused idea often answers no recorded pain; and a planned feature names its milestone or date in `plannedFor`. `offering` states what is in and what is out, so the scope of the offer is written where the lifecycle is. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Checked by:** `litespec consumer` fails a feature record file missing its `lifecycle`, `offering`, refused reason, or planned milestone or date; `litespec model check` reports `feature-goal-missing` for a feature naming no goal.
+
+### Keep Actors to People and Organizations
+
+**ID:** `litespec/core/intent#keep-actors-to-people-and-organizations`
+
+**Statement:** An actor MUST carry a `kind` of person or organization and state in `belongsToTeam` whether it belongs to the team building and running the product.
+
+**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and walk a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer.
+
+**Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system and no actor.
+
+**Checked by:** `litespec consumer` fails an actor record file with a kind outside person and organization, or with no `belongsToTeam`; `litespec model check` reports `field-invalid` for such a kind.
+
+### Name Every Actor from a Journey, a Problem or an Access Position
+
+**ID:** `litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position`
+
+**Statement:** Every actor MUST be named by a journey, by a problem in `affects`, or by an access position in `holds`.
+
+**Rationale:** An actor named by nothing is a party nobody suffers as, walks as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the walk it walks, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves.
+
+**Example:** The library reader is named by the borrow-and-return journey and by the due-date problem; the librarian is named by the holds of the librarian role.
+
+**Checked by:** `litespec model check` reports `actor-unused` for an actor named by no journey, problem or access position.
+
+### Define Each Recurring Capitalized Phrase
+
+**ID:** `litespec/core/intent#define-each-recurring-capitalized-phrase`
+
+**Statement:** A capitalized phrase of two to four words named in three or more records MUST be defined by a glossary term.
+
+**Rationale:** A phrase used across records reads as a defined term whether or not any definition exists: readers and agents build on a meaning nobody wrote. Flagging the phrase while it is still cheap to define keeps the glossary equal to the words the records actually use.
+
+**Example:** A library phrase naming its first lending partners, used across goals and problems, takes a glossary term stating who those partners are, or the records stop using the phrase.
+
+**Checked by:** `litespec model check` reports `term-missing` for a capitalized phrase of two to four words named in three or more records that no glossary term defines.
 
 ### Answer Every Constraint
 
@@ -129,7 +261,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A constraint MUST state its `authority`, `kind`, `applies`, `appliesBecause`, and `summary` in fields, with What It Requires generated from the requirements that cite it.
 
-**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. A project with no outside rules records that answer in `constraints.answered` in `litespec.project.json`, as the [scope page](scope.md) states, so a later reader can tell examined from ignored. The `kind` is technical, organizational, convention, or legal. `summary` states the rule in the authority's own words, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint draft.
+**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. A project with no outside rules records that answer in `constraints.answered` in `.litespec/project.json`, as the [scope page](scope.md) states, so a later reader can tell examined from ignored. The `kind` is technical, organizational, convention, or legal. `summary` states the rule in the authority's own words, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint draft.
 
 **Checked by:** `litespec consumer` fails a constraint record file missing a required field; the builder generates What It Requires from citing requirements.
 
@@ -189,7 +321,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A topic MUST state its `summary`, `position`, `reviewBy`, `owner`, and `status` in fields and carry The Situation, What We Do, Why It Is Better, Example, Costs and Risks, and How Sure We Are in its explanation file.
 
-**Rationale:** The fixed shape puts the present and the future of one area in one record file and its explanation file. The chapter carries the story for people: `summary` states it in one place, and The Situation, What We Do, Why It Is Better, and Example in the explanation file tell it. The commitments carry the testable promises and the choices behind them: Costs and Risks and How Sure We Are in the explanation file, and `position` in fields. `position` holds choices with their decisions, including choices no system carries, and `refusals` holds what the topic refuses. A reader learns where each answer sits once and finds it on every page. The `reviewBy` field dates the next reread against decisions and evidence. Requirements are entries because small commitments sharing one story read better together than alone. The topic is a record with `topic/<name>` as its identifier and `docs/intent/<area>/<topic>.yaml` as its record file, under the product; the area is a folder only. The book lists the requirement entries with their statements and their `except` and fallback inline.
+**Rationale:** The fixed shape puts the present and the future of one area in one record file and its explanation file. The chapter carries the story for people: `summary` states it in one place, and The Situation, What We Do, Why It Is Better, and Example in the explanation file tell it. The commitments carry the testable promises and the choices behind them: Costs and Risks and How Sure We Are in the explanation file, and `position` in fields. `position` holds choices with their decisions, including choices no system carries, and `refusals` holds what the topic refuses. A reader learns where each answer sits once and finds it on every page. The `reviewBy` field dates the next reread against decisions and evidence. Requirements are entries because small commitments sharing one story read better together than alone. The topic is a record with `topic/<name>` as its identifier and `.litespec/intent/<area>/<topic>.yaml` as its record file, under the product; the area is a folder only. The book lists the requirement entries with their statements and their `except` and fallback inline.
 
 **Checked by:** `litespec consumer` fails a topic record file missing a required field; `litespec model check` reports `explanation-missing` for a topic without its explanation sections.
 
@@ -285,7 +417,31 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
-**Checked by:** `litespec consumer` fails a journey record file missing its `actor`, `serves`, `finishedWhen`, `steps`, or `betweenSteps`.
+**Checked by:** `litespec consumer` fails a journey record file missing its `actor`, `serves`, `description`, `finishedWhen`, `steps`, or `betweenSteps`.
+
+### Describe Every Journey
+
+**ID:** `litespec/core/intent#describe-every-journey`
+
+**Statement:** A journey MUST state in `description`, in up to four sentences, who walks, what starts the walk, what good looks like, and why it matters.
+
+**Rationale:** A journey page opens with its approval facts and its steps, so a reader landing on it cold learns the mechanics before the purpose. The description states the walk in the walker's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the description carries the purpose no field checks.
+
+**Example:** The library journey to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
+
+**Checked by:** `litespec consumer` fails a journey record file missing `description`.
+
+### Perform Each Journey Step with an Actor or a System
+
+**ID:** `litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system`
+
+**Statement:** A journey step MUST name at most one performer: another actor in `actor` at a handoff, or the external system, job or reaction in `system` when no person acts, and a step naming neither is performed by the walking actor.
+
+**Rationale:** A step performed by machinery forced a machine actor into Intent, where it sat beside real people and held no role. Naming the system record that performs the step keeps the actor list to people and organizations, and keeps the performing party one link away. A step naming both an actor and a system names two performers for one act.
+
+**Example:** In the library journey, the step that sends the overdue notice names the text gateway in `system`; the steps the reader walks name no performer.
+
+**Checked by:** `litespec consumer` fails a journey step carrying both `actor` and `system`; `litespec model check` reports `field-invalid` for such a step or for a `system` naming no external system, job or reaction.
 
 ### Keep Behavior Out of Intent
 
@@ -295,7 +451,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** An Intent record that names Behavior detail becomes a second specification, and it drifts from the first with the next Behavior change. Two specifications force every reader to ask which one the code follows. Behavior records own behavior and point up to the requirements and steps they serve, so each fact has one home.
 
-**Reviewed for:** Intent records under `docs/intent/` and `docs/intent/research/` free of the detail the Statement names.
+**Reviewed for:** Intent records under `.litespec/intent/` and `.litespec/intent/research/` free of the detail the Statement names.
 
 ### Treat Generated Research as Source Material
 
@@ -325,7 +481,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, and name no use case.
 
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: the decider approves what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The actor and the failure text are optional: a step names the walking actor only at a handoff, and carries `failure` where the walk can fail.
+**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: the decider approves what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the walking actor only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the walk can fail.
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 
@@ -385,35 +541,25 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#group-product-records-by-area`
 
-**Default:** Keep the brief at `docs/intent/brief.yaml`, topic record files in one folder per area, each other kind in its folder, and research under `docs/intent/research/`.
+**Default:** Keep the brief at `.litespec/intent/brief.yaml`, topic record files in one folder per area, each other kind in its folder, and research under `.litespec/intent/research/`.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
-**Rationale:** An area folder keeps related pages together, so pricing and business model sit side by side. One folder per kind keeps each record findable: goals, problems, features, constraints, decisions, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives.
+**Rationale:** An area folder keeps related pages together, so the pages of one product area sit side by side. One folder per kind keeps each record findable: goals, problems, features, constraints, decisions, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. An area names a product area, never the company: a folder named `business`, `company`, `go-to-market`, `markets` or `roadmap` holds company operation, which [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) keeps out of Intent.
 
 **Example:**
 
 ```text
-docs/intent/
-  README.md
+.litespec/intent/
   brief.yaml
-  business/
-    model.yaml
-    pricing.yaml
-  markets/
-    expansion.yaml
-    <market>.yaml
-  company/
-    legal-and-tax.yaml
-  roadmap/
-    milestones.yaml
-    later.yaml
+  spending/
+    approval.yaml
   actors/
     <name>.yaml
   constraints/
     <name>.yaml
   decisions/
-    0001-monthly-plan.yaml
+    0001-receipt-threshold.yaml
   goals/
     <name>.yaml
   problems/
@@ -426,7 +572,7 @@ docs/intent/
     <name>.yaml
 ```
 
-**Reviewed for:** The `docs/intent/` layout beside the project's recorded layout.
+**Reviewed for:** The `.litespec/intent/` layout beside the project's recorded layout.
 
 ### Name Product Decisions in One Numbered Sequence
 

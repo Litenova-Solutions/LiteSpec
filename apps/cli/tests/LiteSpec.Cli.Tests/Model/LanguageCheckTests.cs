@@ -13,7 +13,7 @@ public sealed class LanguageCheckTests
     public void Statements_Without_Period_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -56,7 +56,7 @@ public sealed class LanguageCheckTests
     public void Statement_With_Lower_Case_Modal_Reported(string modal, string statement)
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -76,7 +76,7 @@ public sealed class LanguageCheckTests
     public void Statement_Modal_Inside_Backticks_Skipped()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -94,7 +94,7 @@ public sealed class LanguageCheckTests
     public void Step_Statement_Without_Period_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -116,7 +116,7 @@ public sealed class LanguageCheckTests
     public void Step_Statement_Without_Actor_Opening_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -137,7 +137,7 @@ public sealed class LanguageCheckTests
     public void Step_Statements_With_Actor_Openings_Pass()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -160,7 +160,7 @@ public sealed class LanguageCheckTests
     public void Meaning_Without_Article_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -181,7 +181,7 @@ public sealed class LanguageCheckTests
     public void Meaning_Over_25_Words_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -202,7 +202,7 @@ public sealed class LanguageCheckTests
     public void Clean_Meaning_Passes()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -220,7 +220,7 @@ public sealed class LanguageCheckTests
     public void Rationale_Starting_With_Because_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -241,7 +241,7 @@ public sealed class LanguageCheckTests
     public void Because_Field_Starting_With_Because_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -268,7 +268,7 @@ public sealed class LanguageCheckTests
     public void When_Field_Starting_With_When_Or_If_Reported(string condition, string word)
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -288,7 +288,7 @@ public sealed class LanguageCheckTests
     public void Except_Condition_Starting_With_When_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -309,7 +309,7 @@ public sealed class LanguageCheckTests
     public void Failure_With_Refusal_Code_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -330,7 +330,7 @@ public sealed class LanguageCheckTests
     public void Top_Level_Failure_With_Refusal_Code_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -351,7 +351,7 @@ public sealed class LanguageCheckTests
     public void Questions_Without_Mark_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -372,7 +372,7 @@ public sealed class LanguageCheckTests
     public void Clean_Question_Passes()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -390,7 +390,7 @@ public sealed class LanguageCheckTests
     public void Title_Outside_Title_Case_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -411,7 +411,7 @@ public sealed class LanguageCheckTests
     public void Title_Ending_With_Period_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -432,7 +432,7 @@ public sealed class LanguageCheckTests
     public void Clean_Titles_Pass()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -460,7 +460,7 @@ public sealed class LanguageCheckTests
     public void Nested_Meanings_And_Conditions_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -485,7 +485,7 @@ public sealed class LanguageCheckTests
     public void Clean_Nested_Meaning_Passes()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(

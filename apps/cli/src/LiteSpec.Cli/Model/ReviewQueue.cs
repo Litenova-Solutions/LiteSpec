@@ -129,16 +129,19 @@ static class ReviewQueue
     /// <summary>Keeps the batches holding a record that matches every given filter.</summary>
     /// <param name="batches">The batches to filter.</param>
     /// <param name="decider">The decider to keep, or null for any.</param>
-    /// <param name="tier">The tier to keep, or null for any.</param>
+    /// <param name="risk">The risk class to keep, <c>none</c> for a record with no risk class, or null for any.</param>
     /// <param name="module">The batch module to keep, or null for any.</param>
     /// <param name="type">The record type to keep, or null for any.</param>
     /// <returns>The batches holding a record that matches every given filter.</returns>
     public static IReadOnlyList<ReviewBatch> Filter(
-        IReadOnlyList<ReviewBatch> batches, string? decider, int? tier, string? module, string? type) =>
+        IReadOnlyList<ReviewBatch> batches, string? decider, string? risk, string? module, string? type) =>
         batches
             .Where(batch => batch.Records.Any(entry =>
                 (decider is null || entry.Record.Decider == decider)
-                && (tier is null || entry.Tier == tier)
+                && (risk is null
+                    || (risk == "none"
+                        ? entry.RiskClasses.Count == 0
+                        : entry.RiskClasses.Contains(risk, StringComparer.Ordinal)))
                 && (module is null || entry.Module == module)
                 && (type is null || entry.Record.Type == type)))
             .ToList();
@@ -171,12 +174,16 @@ static class ReviewQueue
         Record record,
         IReadOnlyDictionary<string, int> findings,
         ConsumerConfig config,
-        DateOnly today) =>
-        new(
+        DateOnly today)
+    {
+        var riskClasses = RiskClassesOf(records, record);
+
+        return new ReviewEntry(
             record,
             LayerOf(record),
             ModuleOf(config.BehaviorDocs, record),
-            TierOf(records, record),
+            riskClasses,
+            riskClasses.Count == 0 ? null : ApprovalTable.ApprovalFor(config, record, riskClasses),
             effectiveStatus.TryGetValue(record.Id, out var effective)
                 ? effective
                 : record.Status ?? RecordStatuses.Draft,
@@ -186,6 +193,7 @@ static class ReviewQueue
             OpenQuestionCount(record, config, today),
             ScenariosOf(records, proves, stale, record),
             findings.TryGetValue(record.Id, out var count) ? count : 0);
+    }
 
     /// <summary>Counts the open findings by subject record id.</summary>
     /// <param name="model">The built project model to check.</param>
@@ -275,34 +283,41 @@ static class ReviewQueue
     }
 
     /// <summary>
-    ///     The approval tier: 1 when the record carries any risk value, else 3.
-    ///     A result or a scenario takes its use case's tier.
+    ///     The risk classes the record carries, from the model. A result or a
+    ///     scenario takes its use case's classes.
     /// </summary>
     /// <param name="model">The built project model the record belongs to.</param>
-    /// <param name="record">The record whose tier is wanted.</param>
-    /// <returns>1 when the record or its holding use case carries risk, otherwise 3.</returns>
-    public static int TierOf(ProjectModel model, Record record) =>
-        TierOf(model.Records, record);
+    /// <param name="record">The record whose risk classes are wanted.</param>
+    /// <returns>The risk classes of the record or of the use case holding it.</returns>
+    public static IReadOnlyList<string> RiskClassesOf(ProjectModel model, Record record) =>
+        RiskClassesOf(model.Records, record);
 
     /// <summary>
-    ///     The approval tier from the records: 1 when the record carries any risk
-    ///     value, else 3. A result or a scenario takes its use case's tier.
+    ///     The risk classes the record carries, from the records. A result or a
+    ///     scenario takes its use case's classes.
     /// </summary>
     /// <param name="records">Every written record, for the holding use case lookup.</param>
-    /// <param name="record">The record whose tier is wanted.</param>
-    /// <returns>1 when the record or the use case holding it carries risk, otherwise 3.</returns>
-    static int TierOf(IReadOnlyList<Record> records, Record record)
+    /// <param name="record">The record whose risk classes are wanted.</param>
+    /// <returns>The risk classes of the record or of the use case holding it.</returns>
+    static IReadOnlyList<string> RiskClassesOf(IReadOnlyList<Record> records, Record record)
     {
         if (record.Type is RecordTypes.Result or RecordTypes.Scenario
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
             && UseCaseOf(records, home) is { } holder)
         {
-            return HasRisk(holder) ? 1 : 3;
+            return ApprovalTable.ClassesOf(holder);
         }
 
-        return HasRisk(record) ? 1 : 3;
+        return ApprovalTable.ClassesOf(record);
     }
+
+    /// <summary>Whether the record carries any risk class in the model. A result or a scenario takes its use case's classes.</summary>
+    /// <param name="model">The built project model the record belongs to.</param>
+    /// <param name="record">The record to test.</param>
+    /// <returns>True when the record or the use case holding it carries a risk class.</returns>
+    public static bool HasRisk(ProjectModel model, Record record) =>
+        RiskClassesOf(model.Records, record).Count > 0;
 
     /// <summary>The use case a result or scenario home names, when one holds it.</summary>
     /// <param name="records">Every written record to scan.</param>
@@ -331,14 +346,11 @@ static class ReviewQueue
         return null;
     }
 
-    /// <summary>Whether the record carries any risk value, which makes it tier 1.</summary>
+    /// <summary>Whether the record carries any risk class.</summary>
     /// <param name="record">The record to test.</param>
-    /// <returns>True when the record carries a non-empty risk value.</returns>
+    /// <returns>True when the record carries a risk class.</returns>
     public static bool HasRisk(Record record) =>
-        record.Raw.ValueKind == JsonValueKind.Object
-        && record.Raw.TryGetProperty(RecordFields.Risk, out var risk)
-        && ((risk.ValueKind == JsonValueKind.Array && risk.GetArrayLength() > 0)
-            || (risk.ValueKind == JsonValueKind.String && risk.GetString() is { Length: > 0 }));
+        ApprovalTable.HasRisk(record);
 
     /// <summary>
     ///     Whether the record is reopened: approved or reviewed, with an approval hash
@@ -469,13 +481,10 @@ static class ReviewQueue
         return questions.EnumerateArray().Count(entry => !Answered(entry) && !AutoApproved(entry, record, config, today));
     }
 
-    /// <summary>
-    ///     The tier of a question entry: tier 1 when the parent record carries
-    ///     risk, else tier 3. A question carries no tier of its own.
-    /// </summary>
+    /// <summary>Whether the record carrying a question carries any risk class. A question carries no risk of its own.</summary>
     /// <param name="parent">The record carrying the question.</param>
-    /// <returns>1 when the parent carries risk, otherwise 3.</returns>
-    static int QuestionTier(Record parent) => HasRisk(parent) ? 1 : 3;
+    /// <returns>True when the parent carries a risk class.</returns>
+    static bool QuestionHasRisk(Record parent) => HasRisk(parent);
 
     /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
     /// <param name="element">The question entry to test.</param>
@@ -500,16 +509,17 @@ static class ReviewQueue
         && (value.ValueKind != JsonValueKind.Array || value.GetArrayLength() > 0);
 
     /// <summary>
-    ///     Whether the question entry counts as auto-approved: tier 3 with a recommended
-    ///     answer, past its decide-by date plus the veto window.
+    ///     Whether the question entry counts as auto-approved: on a record with no
+    ///     risk class, with a recommended answer, past its decide-by date plus the
+    ///     veto window.
     /// </summary>
     /// <param name="element">The question entry to test.</param>
     /// <param name="parent">The record carrying the question.</param>
     /// <param name="config">The consumer configuration holding the veto window.</param>
     /// <param name="today">The current date to compare against the decide-by date.</param>
-    /// <returns>True when the entry is tier 3, recommended, and past its veto window.</returns>
+    /// <returns>True when the entry is on a record with no risk class, recommended, and past its veto window.</returns>
     static bool AutoApproved(JsonElement element, Record parent, ConsumerConfig config, DateOnly today) =>
-        QuestionTier(parent) == 3
+        !QuestionHasRisk(parent)
         && HasRecommendation(element)
         && element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty(RecordFields.DecideBy, out var value)
@@ -715,10 +725,10 @@ static class ReviewQueue
             {
                 For("decision/" + decider.Id, "decision/" + decider.Id, RecordTypes.Decision).Members.Add(record);
             }
-            else if (TierOf(records, record) == 1)
+            else if (RiskClassesOf(records, record).Count > 0)
             {
-                // A tier 1 record no use case, reaction, job or decision holds is read on its own:
-                // a module batch is sampled, and a tier 1 record is never left to a sample.
+                // A record carrying a risk class that no use case, reaction, job or decision holds is read on its own:
+                // a module batch is sampled, and a record carrying risk is never left to a sample.
                 For("record/" + record.Id, record.Id, "record").Members.Add(record);
             }
             else
@@ -801,7 +811,10 @@ static class ReviewQueue
         return new ReviewBatch(
             group.Selector,
             group.Kind,
-            entries.Any(entry => entry.Tier == 1) ? 1 : 3,
+            entries.SelectMany(entry => entry.RiskClasses)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(riskClass => riskClass, StringComparer.Ordinal)
+                .ToList(),
             deciders,
             decideBy,
             awaiting,
@@ -954,7 +967,7 @@ static class ReviewQueue
             {
                 selector = batch.Selector,
                 kind = batch.Kind,
-                tier = batch.Tier,
+                riskClasses = batch.RiskClasses,
                 deciders = batch.Deciders,
                 decideBy = batch.DecideBy,
                 awaiting = batch.Awaiting,
@@ -963,7 +976,10 @@ static class ReviewQueue
                     id = entry.Record.Id,
                     type = entry.Record.Type,
                     layer = entry.Layer,
-                    tier = entry.Tier,
+                    risk = entry.RiskClasses,
+                    approval = entry.Approval is null
+                        ? null
+                        : new { by = entry.Approval.By, rule = entry.Approval.Rule },
                     decider = entry.Record.Decider,
                     decideBy = entry.Record.DecideBy,
                     status = entry.Record.Status,
@@ -1000,7 +1016,7 @@ static class ReviewQueue
         {
             var records = batch.Records.Count == 1 ? "1 record" : $"{batch.Records.Count} records";
 
-            lines.Add($"{batch.Selector}  tier {batch.Tier}  {records}  awaiting {batch.Awaiting}");
+            lines.Add($"{batch.Selector}  risk {(batch.RiskClasses.Count == 0 ? "none" : string.Join(", ", batch.RiskClasses))}  {records}  awaiting {batch.Awaiting}");
 
             foreach (var entry in batch.Records)
             {
@@ -1011,7 +1027,7 @@ static class ReviewQueue
         return string.Join('\n', lines);
     }
 
-    /// <summary>The record flags: reopened, full re-read, tier 1, and open questions.</summary>
+    /// <summary>The record flags: reopened, full re-read, risk classes, and open questions.</summary>
     /// <param name="entry">The queue entry whose flags are printed.</param>
     /// <returns>The space-joined flags, or a dash when the entry carries none.</returns>
     static string Flags(ReviewEntry entry)
@@ -1028,9 +1044,9 @@ static class ReviewQueue
             flags.Add("fullReRead");
         }
 
-        if (entry.Tier == 1)
+        if (entry.RiskClasses.Count > 0)
         {
-            flags.Add("tier1");
+            flags.Add($"risk:{string.Join(",", entry.RiskClasses)}");
         }
 
         if (entry.OpenQuestions > 0)

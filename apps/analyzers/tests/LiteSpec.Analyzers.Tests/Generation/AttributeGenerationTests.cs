@@ -62,7 +62,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            [("/project/docs/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
+            [("/project/.litespec/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
 
         Assert.Empty(run.Sources);
         Assert.Empty(run.ReportedDiagnostics);

@@ -70,6 +70,13 @@ static class PageChecks
             {
                 var name = Path.GetFileName(entry) ?? "";
 
+                // The generated model and book under the record root hold no pages.
+                if (string.Equals(directory, run.DocsRoot, StringComparison.Ordinal)
+                    && (name is "model" or "book"))
+                {
+                    continue;
+                }
+
                 if (name == "node_modules" || name.StartsWith('.'))
                 {
                     continue;
@@ -371,7 +378,7 @@ static class PageChecks
         {
             if (limit < 40)
             {
-                run.Err($"litespec.project.json: exampleWordLimit '{limit}' is below 40; the Example bound cannot be that short");
+                run.Err($".litespec/project.json: exampleWordLimit '{limit}' is below 40; the Example bound cannot be that short");
                 return 120;
             }
 

@@ -2,7 +2,7 @@
 
 ## Intent
 
-LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard grouped by the area it governs. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `litespec.project.json` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
+LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard grouped by the area it governs. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.json` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
 
 ## Which Page Do You Want
 
@@ -62,7 +62,7 @@ One product worked end to end, from its first record to a passing check.
 - [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Record Language](core/language.md): the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 - [Maintaining the Standards](core/maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
-- [Product Release](core/release.md): who reviews each diff, how tiers and the veto window work, which checks each boundary runs, and what the release record lists.
+- [Product Release](core/release.md): who reviews each diff, how risk classes and the veto window work, which checks each boundary runs, and what the release record lists.
 
 ## Workspace
 
@@ -164,13 +164,13 @@ The mobile pages state what every native mobile app does the same way, and each 
 
 ## Implementation
 
-Implementation holds code only, so the `docs/implementation/` folder with its technical decisions and guides exists only in consumers. A backend element goes where [Write Code for a Use Case](backend/write-code-for-a-use-case.md) states, carries the mark the [Project Model](core/model.md) states, and meets the checks the [Analyzers overview](analyzers/README.md) states.
+Implementation holds code only, so the `.litespec/implementation/` folder with its technical decisions and guides exists only in consumers. A backend element goes where [Write Code for a Use Case](backend/write-code-for-a-use-case.md) states, carries the mark the [Project Model](core/model.md) states, and meets the checks the [Analyzers overview](analyzers/README.md) states.
 
 ## Quality
 
 - [Quality overview](quality/README.md): what every release proves beyond behavior, and how its pages fit together.
 - [Security](quality/security.md): identity, permissions, data classification, and trust transitions.
-- [Operations](quality/operations.md): observability, deployability, recovery, and support by one maintainer.
+- [Operations](quality/operations.md): observability, diagnostics, and support by one maintainer.
 - [Continuous Integration](quality/ci.md): the gates each pull request runs for its changed areas.
 
 ## Extensions
@@ -183,6 +183,7 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Concurrency and Idempotency](ext/concurrency.md): versions, client keys, and fingerprints where writes can overlap or retries can duplicate an effect.
 - [Data Lifecycle](ext/lifecycle.md): retention, deletion, archival, and restore behavior for records with a lifetime duty.
 - [Container Deployment](ext/containers.md): images, rollouts, and runtime limits where staging or production ships containers.
+- [Delivery](ext/delivery.md): release readiness gates, deployment and rollback, backup and restore, alerting and the supply-chain gate for a product operated in production.
 - [External Integrations](ext/integrations.md): provider isolation, failure mapping, and boundary tests for use cases that call outside systems.
 - [Audit Trail](ext/audit.md): tamper-resistant evidence of who attempted what in data another party owns.
 - [Localization](ext/locale.md): locales, catalogs, and formatting for a product that ships in more than one locale.
@@ -219,7 +220,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 ## CLI
 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
-- [Initialize Consumer](tools/init.md): writes `litespec.project.json` for a new consumer from a preset.
+- [Initialize Consumer](tools/init.md): writes `.litespec/project.json` for a new consumer from a preset.
 - [Validate Consumer](tools/consumer.md): checks a consumer's pages, project record, and vocabulary.
 - [Validate Controlled UI](tools/ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](tools/model.md): builds, checks, and diffs the project model, renders generated regions, and answers record queries.
@@ -246,7 +247,7 @@ The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET
 - [Provisions](reference/provisions.md): every provision ID resolved to its heading, page, and mark.
 - [Audit Obligations](reference/audit-obligations.md): the external obligations the audit extension satisfies.
 - [Decision Records](reference/decision-records.md): where a decision record lives, what it holds, and how it ends.
-- [Project File](reference/project-file.md): every field of `litespec.project.json` and what reads it.
+- [Project File](reference/project-file.md): every field of `.litespec/project.json` and what reads it.
 - [Release Manifest](reference/manifest.md): every field of `litespec.manifest.json` and how to add a stack or extension.
 - [Schemas](reference/schemas.md): every JSON schema, the file it validates, and the command that checks it.
 - [Published URLs](reference/published-urls.md): every URL the site serves for agents and people.

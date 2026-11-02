@@ -29,7 +29,7 @@ static class SourceTree
     /// <summary>Directory names the walk leaves out: build output, installed packages and tool folders.</summary>
     private static readonly HashSet<string> Skipped = new(StringComparer.OrdinalIgnoreCase)
     {
-        "bin", "obj", "TestResults", "node_modules", ".git", ".model",
+        "bin", "obj", "TestResults", "node_modules", ".git",
         ".svelte-kit", "build", "dist", "coverage",
     };
 

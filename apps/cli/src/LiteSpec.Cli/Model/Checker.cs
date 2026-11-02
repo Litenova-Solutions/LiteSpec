@@ -8,7 +8,7 @@ using LiteSpec.Model.Checks;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and tiers.
+///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and levels.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class Checker
@@ -33,7 +33,7 @@ static class Checker
         "state-unreached", "transition-unknown",
         "erasure-undeclared", "calculation-table-missing",
         "reaction-trigger-unknown", "requirement-measure-missing",
-        "record-link-missing", "record-parent-missing", "feature-goal-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
+        "record-link-missing", "record-parent-missing", "feature-goal-missing", "feature-shipped-drift", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
         "query-output-missing", "paging-undeclared", "widening-cites-missing",
         "retention-enforcement-missing", "risk-acceptance-missing", "exemption-expired",
         "setting-requirement-missing", "reservation-release-missing",
@@ -48,6 +48,8 @@ static class Checker
         "prose-missing", "atomic-group-duplicate", "question-expired",
         "explanation-orphaned", "explanation-missing", "format-drift",
         "source-link-bare", "source-key-unknown", "source-unused",
+        "problem-sufferer-invalid", "problem-cost-missing", "problem-workaround-missing", "problem-evidence-missing", "problem-statement-invalid", "problem-duplicate", "actor-unused", "goal-mover-missing", "term-missing",
+        "intent-area-invalid", "runbook-unused",
     };
 
     /// <summary>Fields the semantic hash skips: identity, workflow and approval data.</summary>
@@ -117,6 +119,7 @@ static class Checker
         Time("lookalikes", () => TermLookalikeChecks.Run(model, findings));
         Time("wording", () => WordingChecks.Run(model, findings));
         Time("language", () => LanguageChecks.Run(model, findings));
+        Time("writing", () => WritingChecks.Run(model, findings));
         Time("record-names", () => RecordNameChecks.Run(model, findings));
         Time("citations", () => CitationChecks.Run(model, findings));
         Time("gates", () => GateChecks.Run(model, findings));
@@ -155,6 +158,7 @@ static class Checker
         Time("orphaned", () => GraphChecks.RunOrphaned(model, findings));
         Time("parents", () => ParentChecks.Run(model, findings));
         Time("feature-goal", () => FeatureChecks.Run(model, findings));
+        Time("intent", () => IntentChecks.Run(model, findings));
         Time("steps", () => GraphChecks.RunStepUnserved(model, findings));
         Time("loops", () => GraphChecks.RunEffectLoop(model, findings));
         Time("consistency", () => GraphChecks.RunConsistency(model, findings));
@@ -177,6 +181,7 @@ static class Checker
         Time("typed-inputs", () => GraphChecks.RunTypedInputs(model, findings));
         Time("exercises", () => GraphChecks.RunExercises(model, findings));
         Time("doors", () => GraphChecks.RunDoors(model, findings));
+        Time("scope", () => ScopeChecks.Run(model, findings));
 
         findings.Sort((left, right) =>
         {

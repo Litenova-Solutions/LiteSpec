@@ -46,7 +46,7 @@ A query reads without changing and declares what its readers receive. Its output
 
 ### Use-Case Verbs
 
-A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project adds its domain verbs in `litespec.project.json` `vocabulary`, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
+A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project adds its domain verbs in `.litespec/project.json` `vocabulary`, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
 
 | Verb | Kind | Means |
 |:---|:---|:---|
@@ -134,9 +134,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#start-every-use-case-with-a-declared-verb`
 
-**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `litespec.project.json`.
+**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `.litespec/project.json`.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first adds it to `vocabulary.verbs` in `litespec.project.json` in the same change, or to `vocabulary.queryVerbs` for a reading verb, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the vocabulary addition lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first adds it to `vocabulary.verbs` in `.litespec/project.json` in the same change, or to `vocabulary.queryVerbs` for a reading verb, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the vocabulary addition lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
 
 **Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
 

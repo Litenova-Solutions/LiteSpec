@@ -7,12 +7,12 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchGuardTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
-    static void DraftTier1UseCase(string root)
+    static void DraftRiskUseCase(string root)
     {
         ReviewPages.DraftPage(BorrowCopy(root));
         ReviewPages.AddPageRisk(BorrowCopy(root));
@@ -23,20 +23,20 @@ public sealed class BatchGuardTests
     /// <param name="owner">The owner name to add.</param>
     static void AddOwner(string root, string owner = "second-team")
     {
-        var path = Path.Combine(root, "litespec.project.json");
+        var path = Path.Combine(root, ".litespec/project.json");
         var project = (System.Text.Json.Nodes.JsonObject)System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
         ((System.Text.Json.Nodes.JsonArray)project["owners"]!).Add(owner);
         File.WriteAllText(path, project.ToJsonString() + "\n");
     }
 
-    /// <summary>A tier 1 batch without a named owner approver is refused and writes nothing.</summary>
+    /// <summary>A batch carrying a risk class without a named owner approver is refused and writes nothing.</summary>
     /// <proves>litespec/core/release#refuse-a-batch-without-a-named-approver</proves>
     [Fact]
-    public void Guard_Tier1_Without_Named_Approver_Refuses()
+    public void Guard_Risk_Without_Named_Approver_Refuses()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
 
         var before = File.ReadAllText(BorrowCopy(fixture.Path));
 
@@ -64,18 +64,18 @@ public sealed class BatchGuardTests
         Assert.Contains("'stranger' is not a project owner", stranger.Output);
 
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 
-    /// <summary>A tier 1 batch with a named owner approver and second reviewer passes.</summary>
+    /// <summary>A batch carrying a risk class with a named owner approver and second reviewer passes.</summary>
     /// <proves>litespec/core/release#refuse-a-batch-without-a-named-approver</proves>
-    /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
+    /// <proves>litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior</proves>
     [Fact]
-    public void Guard_Tier1_With_Named_Approver_Passes()
+    public void Guard_Risk_With_Named_Approver_Passes()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -86,14 +86,14 @@ public sealed class BatchGuardTests
         Assert.Contains("3 records approved, 0 held.", result.Output);
     }
 
-    /// <summary>A tier 1 batch on a solo project needs no second reading.</summary>
-    /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
+    /// <summary>A batch carrying a risk class on a solo project needs no second reading.</summary>
+    /// <proves>litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior</proves>
     [Fact]
-    public void Guard_Tier1_Solo_Owner_Needs_No_Second_Reviewer()
+    public void Guard_Risk_Solo_Owner_Needs_No_Second_Reviewer()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -103,14 +103,14 @@ public sealed class BatchGuardTests
         Assert.Contains("3 records approved, 0 held.", result.Output);
     }
 
-    /// <summary>A tier 1 batch without a second reading is refused and writes nothing.</summary>
-    /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
+    /// <summary>A batch carrying a risk class without a second reading is refused and writes nothing.</summary>
+    /// <proves>litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior</proves>
     [Fact]
-    public void Guard_Tier1_Without_Second_Reviewer_Refuses()
+    public void Guard_Risk_Without_Second_Reviewer_Refuses()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
         AddOwner(fixture.Path);
 
         var before = File.ReadAllText(BorrowCopy(fixture.Path));
@@ -121,7 +121,7 @@ public sealed class BatchGuardTests
 
         Assert.Equal(1, missing.Status);
         Assert.Contains(
-            "use-case/lending.borrow-copy: tier 1 needs --second-reviewer other than the approver",
+            "use-case/lending.borrow-copy: a record carrying a risk class needs --second-reviewer other than the approver",
             missing.Output);
         Assert.Contains("holds one name", missing.Output);
 
@@ -142,17 +142,17 @@ public sealed class BatchGuardTests
         Assert.Contains("agent needs an existing --review-report file", agent.Output);
 
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 
     /// <summary>An agent second reading with an existing report file passes.</summary>
-    /// <proves>litespec/core/release#refuse-self-review-alone-for-tier-1-behavior</proves>
+    /// <proves>litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior</proves>
     [Fact]
-    public void Guard_Tier1_With_Agent_Report_Passes()
+    public void Guard_Risk_With_Agent_Report_Passes()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
 
         var report = ReviewPages.Page(fixture.Path, "review-report.md");
 
@@ -186,7 +186,7 @@ public sealed class BatchGuardTests
         Assert.Equal(1, refused.Status);
         Assert.Contains("use-case/lending.borrow-copy: has open questions", refused.Output);
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
 
         using var passing = ModelFixture.Prepare("small");
 
@@ -244,7 +244,7 @@ public sealed class BatchGuardTests
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        DraftTier1UseCase(fixture.Path);
+        DraftRiskUseCase(fixture.Path);
         AddOwner(fixture.Path);
 
         var before = File.ReadAllText(BorrowCopy(fixture.Path));
@@ -255,10 +255,10 @@ public sealed class BatchGuardTests
 
         Assert.Equal(1, refused.Status);
         Assert.Contains("would be promoted", refused.Output);
-        Assert.Contains("tier 1 needs --second-reviewer", refused.Output);
+        Assert.Contains("a record carrying a risk class needs --second-reviewer", refused.Output);
         Assert.Contains("Sample (0 of 0", refused.Output);
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
 
         var planned = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -268,6 +268,6 @@ public sealed class BatchGuardTests
         Assert.Equal(0, planned.Status);
         Assert.Contains("use-case/lending.borrow-copy would be promoted to reviewed", planned.Output);
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 }

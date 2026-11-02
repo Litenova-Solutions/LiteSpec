@@ -1,2 +1,2 @@
-docs/behavior/modules/lending/loans/list-loans.yaml
-docs/behavior/modules/lending/loans/list-loans.md
+.litespec/behavior/modules/lending/loans/list-loans.yaml
+.litespec/behavior/modules/lending/loans/list-loans.md

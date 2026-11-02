@@ -13,7 +13,7 @@ public sealed class ProofStrengthTests
     public void Steps_Test_Without_Then_Step_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/NoThenScenarios.cs", NoThenFile);
 
         using var document = Build(temp.Path);
@@ -27,7 +27,7 @@ public sealed class ProofStrengthTests
     public void Refusal_Code_Outside_An_Assertion_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/SetupCodeScenarios.cs", SetupCodeFile);
 
         using var document = Build(temp.Path);
@@ -41,7 +41,7 @@ public sealed class ProofStrengthTests
     public void Refusal_Code_Inside_An_Assertion_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RefusalAssertionTests.cs", RefusalAssertionFile);
 
         using var document = Build(temp.Path);
@@ -55,7 +55,7 @@ public sealed class ProofStrengthTests
     public void Test_Constructing_A_Handler_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/DirectScenarios.cs", DirectFile);
 
         using var document = Build(temp.Path);
@@ -82,7 +82,7 @@ public sealed class ProofStrengthTests
     public void Rule_Claim_With_A_Proving_Scenario_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/RuleAndScenarioScenarios.cs", RuleAndScenarioFile);
 
         using var document = Build(temp.Path);
@@ -107,7 +107,7 @@ public sealed class ProofStrengthTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

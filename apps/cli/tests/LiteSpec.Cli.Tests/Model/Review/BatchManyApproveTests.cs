@@ -8,16 +8,16 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchManyApproveTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
     static string Manifest(string root, string name) => ReviewPages.Page(
-        root, "docs", "proof", "approvals", name);
+        root, ".litespec", "proof", "approvals", name);
 
     /// <summary>Two batches in one run approve both and write two manifests.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -175,6 +175,6 @@ public sealed class BatchManyApproveTests
         Assert.Contains("would be promoted", result.Output);
         Assert.Equal(borrowBefore, File.ReadAllText(BorrowCopy(fixture.Path)));
         Assert.Equal(loansBefore, File.ReadAllText(LoanAggregate(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 }

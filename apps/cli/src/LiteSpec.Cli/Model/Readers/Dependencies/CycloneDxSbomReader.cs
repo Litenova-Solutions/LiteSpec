@@ -7,7 +7,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 ///     the dependencies entry whose ref is metadata.component.bom-ref. The ecosystem and name
 ///     come from each component's purl, and the license from its licenses entries.
 /// </summary>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 static class CycloneDxSbomReader
 {
     /// <summary>Whether the document is a CycloneDX bill of materials.</summary>

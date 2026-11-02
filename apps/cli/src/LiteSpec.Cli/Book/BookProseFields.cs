@@ -12,7 +12,7 @@ static class BookProseFields
     /// <summary>Gets the prose fields the book renders as Markdown.</summary>
     public static IReadOnlyList<string> Prose { get; } =
     [
-        "summary", "whyItMatters", "situation", "offering", "consequences",
+        "summary", "description", "whyItMatters", "situation", "offering", "consequences",
         "position", "refusals", "betweenSteps", "delivery", "impact",
         "prerequisites", "procedure", "verification", "recovery", "escalation",
         "purpose", "whatHappens", "exposure", "exit",

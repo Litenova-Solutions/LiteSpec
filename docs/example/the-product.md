@@ -6,7 +6,7 @@ Claimwick is the small product the example follows: employees submit work expens
 
 ## The Product Brief
 
-A [product](../reference/glossary.md) record states what is built, for whom, and what is excluded. The Claimwick brief below carries the fields every product record carries: a boundary that names what the product does, an `exclusions` list that names what it refuses, an `addresses` list naming its actors, and a `summary` that states the outcome in one paragraph. Its record file lives at `docs/intent/brief.yaml`, the home the [Project Model](../core/model.md) names for the single product page, which applies `litespec/core/model#write-every-record-in-its-home`.
+A [product](../reference/glossary.md) record states what is built, for whom, and what is excluded. The Claimwick brief below carries the fields every product record carries: a boundary that names what the product does, an `exclusions` list that names what it refuses, an `addresses` list naming its actors, and a `summary` that states the outcome in one paragraph. Its record file lives at `.litespec/intent/brief.yaml`, the home the [Project Model](../core/model.md) names for the single product page, which applies `litespec/core/model#write-every-record-in-its-home`.
 
 ```yaml
 type: product
@@ -29,7 +29,7 @@ Its common fields, `type`, `id`, `title`, `owner`, and `status`, appear on every
 
 ## The Goal
 
-A goal record states one measurable outcome a feature advances and a journey serves, with the measure, the target, the date it is due by, and why it matters. Claimwick keeps one: every submitted expense is decided within five business days. Its record file lives at `docs/intent/goals/decided-in-days.yaml`, which applies `litespec/core/intent#state-each-goal-with-its-measure` on [Intent Layer](../core/intent.md).
+A goal record states one measurable outcome a feature advances and a journey serves, with the measure, the target, the date it is due by, and why it matters. Claimwick keeps one: every submitted expense is decided within five business days. Its record file lives at `.litespec/intent/goals/decided-in-days.yaml`, which applies `litespec/core/intent#state-each-goal-with-its-measure` on [Intent Layer](../core/intent.md).
 
 ```yaml
 type: goal
@@ -50,7 +50,7 @@ The `whyItMatters` field states why the target matters: employees plan around re
 
 ## The Problem
 
-A problem record states one pain someone has today, with the situation around it. Claimwick keeps one: submitted expenses wait weeks for a decision, so employees chase managers by email. Its record file lives at `docs/intent/problems/expenses-wait-weeks.yaml`, and its `affects` link names the employee actor, which applies `litespec/core/intent#state-each-problem-with-its-evidence`.
+A problem record states one pain a person or organization outside the team has today, with who suffers, what it costs them, what they do instead, and the graded evidence behind it. Claimwick keeps one: submitted expenses wait weeks for a decision, so employees chase managers by email. Its record file lives at `.litespec/intent/problems/expenses-wait-weeks.yaml`, and its `affects` link names the employee actor as the primary sufferer, which applies `litespec/core/intent#admit-only-outside-pains-as-problems`, `litespec/core/intent#state-the-cost-and-workaround-of-every-problem`, and `litespec/core/intent#grade-problem-evidence-by-kind`.
 
 ```yaml
 type: problem
@@ -60,28 +60,48 @@ owner: claimwick-team
 status: approved
 affects:
   - actor/employee
+affectsSegment: Employees at small companies who pay work costs from their own account.
 statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
 situation: |
   Submitted expenses wait weeks for a decision, so employees chase managers by email.
   Decisions arrive late without notice.
+costToday: The employee carries the expense amount from their own account for up to three weeks.
+workaroundToday: The employee emails the approver for a faster decision, and the approver answers from memory with no record of the wait.
+evidence:
+  - claim: Employees wait three weeks on average for reimbursement.
+    source: research/approval-time-benchmarks
+    readOn: 2026-11-01
+    kind: reported
 ```
 
-The statement stays to one sentence, and the `situation` field adds one more: decisions arrive late without notice. Its explanation file at `docs/intent/problems/expenses-wait-weeks.md` holds one Evidence section:
+The statement stays to one sentence, and the `situation` field adds one more: decisions arrive late without notice. Its explanation file at `.litespec/intent/problems/expenses-wait-weeks.md` holds four sections in order:
 
 ```markdown
 # Expenses Wait Weeks
+
+## Who Has It
+
+An employee who submitted an expense and waits for a decision.
+
+## What They Do Today
+
+The employee emails the approver for a faster decision.
 
 ## Evidence
 
 The benchmark in [approval time benchmarks](research/approval-time-benchmarks)
 shows small companies decide within one week, while Claimwick averages three.
+
+## What Would Retire It
+
+Each submitted expense is decided within five business days.
 ```
 
 The Evidence section cites the benchmark research below: small companies decide within one week, while Claimwick averages three. Later records answer this problem: the approval reminders feature solves it, and the approval requirements bound it.
 
 ## The Feature
 
-A feature record states what the product offers against a problem, with its lifecycle, the problem it solves, and the offering itself. Claimwick keeps one: managers get a reminder for expenses waiting past three days. Its record file lives at `docs/intent/features/approval-reminders.yaml`, it solves the waiting problem and advances the five-day goal, which applies `litespec/core/intent#state-each-feature-with-its-lifecycle`.
+A feature record states what the product offers against a problem, with its lifecycle, the problem it solves, and the offering itself. Claimwick keeps one: managers get a reminder for expenses waiting past three days. Its record file lives at `.litespec/intent/features/approval-reminders.yaml`, it solves the waiting problem and advances the five-day goal, which applies `litespec/core/intent#state-each-feature-with-its-lifecycle`.
 
 ```yaml
 type: feature
@@ -104,7 +124,7 @@ The `offering` field states what managers get: the reminder names the expense an
 
 ## The Requirements
 
-A requirement states one behavior the product shows or one guarantee it keeps. Claimwick groups its 6 approval requirements as entries on one topic record file at `docs/intent/spending/approval.yaml`. Each entry carries its own identifier, title, kind, statement, one-line rationale, exceptions with their fallback, who sets its values, and links, which applies `litespec/core/intent#shape-each-topic-page`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#explain-each-requirement-in-one-line`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#state-each-exception-with-its-fallback`.
+A requirement states one behavior the product shows or one guarantee it keeps. Claimwick groups its 6 approval requirements as entries on one topic record file at `.litespec/intent/spending/approval.yaml`. Each entry carries its own identifier, title, kind, statement, one-line rationale, exceptions with their fallback, who sets its values, and links, which applies `litespec/core/intent#shape-each-topic-page`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#explain-each-requirement-in-one-line`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#state-each-exception-with-its-fallback`.
 
 ```yaml
 type: topic
@@ -167,7 +187,7 @@ records:
         recommendation: Yes, totals without employee links.
 ```
 
-The five-day requirement states its exception beside the rule: during the year-end close, the fallback requirement `requirement/approval.extended-decision-in-close` holds instead, and the fallback carries no exception of its own. The approval data on the entry shows who approved it, on which date, and the semantic hash the builder wrote; rewording prose never changes that hash. The erasure requirement carries `personal-data` risk, which makes it tier 1, and its open question joins the `erasure-terms` ballot with a recommendation for the finance lead to decide. The remaining entries follow the same shape:
+The five-day requirement states its exception beside the rule: during the year-end close, the fallback requirement `requirement/approval.extended-decision-in-close` holds instead, and the fallback carries no exception of its own. The approval data on the entry shows who approved it, on which date, and the semantic hash the builder wrote; rewording prose never changes that hash. The erasure requirement carries the `personal-data` risk class, shown by name, and its open question joins the `erasure-terms` ballot with a recommendation for the finance lead to decide. The remaining entries follow the same shape:
 
 | Requirement | Statement |
 |:---|:---|
@@ -175,7 +195,7 @@ The five-day requirement states its exception beside the rule: during the year-e
 | `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. |
 | `requirement/approval.extended-decision-in-close` | An expense submitted during the year-end close is decided within ten business days. |
 
-All 6 requirements are functional requirements: each states something the product does. Their identifiers carry the topic name, so `requirement/approval.decided-within-five-days` belongs to approval. The `summary` and `position` fields state the shared story in two lines, and the explanation file at `docs/intent/spending/approval.md` tells it in full. A topic is an article type: its explanation file is required, with 6 sections:
+All 6 requirements are functional requirements: each states something the product does. Their identifiers carry the topic name, so `requirement/approval.decided-within-five-days` belongs to approval. The `summary` and `position` fields state the shared story in two lines, and the explanation file at `.litespec/intent/spending/approval.md` tells it in full. A topic is an article type: its explanation file is required, with 6 sections:
 
 ```markdown
 # Approval
@@ -219,7 +239,7 @@ Rules and use cases point back at these identifiers with `fulfills` links, which
 
 ## The Research
 
-A research record states one outside fact that informs a choice, with the question it answers, its conclusion, and the sources it read. Each source carries a `key` beside its `url` and `readOn`, and the explanation cites each key. Claimwick keeps one: small companies decide expenses within one week. Its record file lives at `docs/intent/research/approval-time-benchmarks.yaml`, which applies `litespec/core/intent#record-research-with-read-sources`.
+A research record states one outside fact that informs a choice, with the question it answers, its conclusion, and the sources it read. Each source carries a `key` beside its `url` and `readOn`, and the explanation cites each key. Claimwick keeps one: small companies decide expenses within one week. Its record file lives at `.litespec/intent/research/approval-time-benchmarks.yaml`, which applies `litespec/core/intent#record-research-with-read-sources`.
 
 ```yaml
 type: research
@@ -235,7 +255,7 @@ question: How fast do small companies decide expenses?
 conclusion: Small companies decide expenses within one week.
 ```
 
-Research is an article type: its explanation file is required, with an Answer section. Its explanation file at `docs/intent/research/approval-time-benchmarks.md` reads:
+Research is an article type: its explanation file is required, with an Answer section. Its explanation file at `.litespec/intent/research/approval-time-benchmarks.md` reads:
 
 ```markdown
 # Approval Time Benchmarks
@@ -256,7 +276,7 @@ The Answer section states the conclusion with its confidence, and Notes on Sourc
 
 ## The Decision
 
-A decision record states one choice with the options it weighed and the consequences that follow. Claimwick chose a 25 EUR receipt threshold after a finance review in February 2026. Its record file lives at `docs/intent/decisions/0001-receipt-threshold.yaml`, and its `decides` link names the receipt requirement it settles, which applies `litespec/core/model#name-what-every-decision-decides`. Each option carries its pros and cons, which applies `litespec/core/intent#shape-each-decision-page`.
+A decision record states one choice with the options it weighed and the consequences that follow. Claimwick chose a 25 EUR receipt threshold after a finance review in February 2026. Its record file lives at `.litespec/intent/decisions/0001-receipt-threshold.yaml`, and its `decides` link names the receipt requirement it settles, which applies `litespec/core/model#name-what-every-decision-decides`. Each option carries its pros and cons, which applies `litespec/core/intent#shape-each-decision-page`.
 
 ```yaml
 type: decision
@@ -282,7 +302,7 @@ decides:
 basedOn: []
 ```
 
-A decision is an article type: its explanation file is required, with a Context section. Its explanation file at `docs/intent/decisions/0001-receipt-threshold.md` reads:
+A decision is an article type: its explanation file is required, with a Context section. Its explanation file at `.litespec/intent/decisions/0001-receipt-threshold.md` reads:
 
 ```markdown
 # Receipt Threshold
@@ -305,7 +325,7 @@ The Context section states the situation, the Decision section states the choice
 
 ## The Constraint
 
-A constraint states one outside rule the product obeys, with a summary of that rule. Claimwick answers the national tax law on receipts: receipts stay kept for 7 years because Claimwick stores receipts for reimbursed expenses. Its record file lives at `docs/intent/constraints/tax-receipt-retention.yaml`, which applies `litespec/core/intent#answer-every-constraint`.
+A constraint states one outside rule the product obeys, with a summary of that rule. Claimwick answers the national tax law on receipts: receipts stay kept for 7 years because Claimwick stores receipts for reimbursed expenses. Its record file lives at `.litespec/intent/constraints/tax-receipt-retention.yaml`, which applies `litespec/core/intent#answer-every-constraint`.
 
 ```yaml
 type: constraint
@@ -324,7 +344,7 @@ The `applies` field answers whether the outside rule covers this product, and `a
 
 ## The Journey
 
-A journey record holds product sentences with ids toward one goal for one actor, with what passes between the steps. Claimwick keeps one: an employee submits an expense and receives reimbursement. Its record file lives at `docs/intent/journeys/submit-and-reimburse.yaml`, it states its observable end, it serves the five-day goal, and it cites the five-day requirement, which applies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
+A journey record holds product sentences with ids toward one goal for one actor, with its description, its observable end, and what passes between the steps. Claimwick keeps one: an employee submits an expense and receives reimbursement. Its record file lives at `.litespec/intent/journeys/submit-and-reimburse.yaml`, it states its description and its observable end, it serves the five-day goal, and it cites the five-day requirement, which applies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#describe-every-journey`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
 
 ```yaml
 type: journey
@@ -335,6 +355,7 @@ status: approved
 actor: actor/employee
 serves:
   - goal/decided-in-days
+description: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
 finishedWhen: The employee holds the reimbursement, and the expense record shows every step.
 steps:
   - id: s1
@@ -357,7 +378,7 @@ betweenSteps: |
   Past three days without a decision the manager gets a reminder.
 ```
 
-The 4 steps run from submission to reimbursement in product words: the employee submits, the manager decides, finance reimburses, and the employee sees the money land. Steps name no use case: each use case points up to the steps it serves, so Submit expense serves `journey/submit-and-reimburse#s1` and Approve expense serves `#s2`. The `betweenSteps` field states what passes between the steps. Its explanation file at `docs/intent/journeys/submit-and-reimburse.md` holds the worked week and the starting state:
+The 4 steps run from submission to reimbursement in product words: the employee submits, the manager decides, finance reimburses, and the employee sees the money land. Steps name no use case: each use case points up to the steps it serves, so Submit expense serves `journey/submit-and-reimburse#s1` and Approve expense serves `#s2`. The `betweenSteps` field states what passes between the steps. Its explanation file at `.litespec/intent/journeys/submit-and-reimburse.md` holds the worked week and the starting state:
 
 ```markdown
 # Submit and Reimburse

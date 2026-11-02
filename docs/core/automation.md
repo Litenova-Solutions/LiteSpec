@@ -8,7 +8,7 @@ Automation states the work that runs without a request: the reactions answering 
 
 ### Reactions
 
-A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `docs/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
+A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -23,7 +23,7 @@ A reaction may hold scenario child records ending in a result of a use case its 
 
 ### Jobs
 
-A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `docs/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
+A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -39,7 +39,7 @@ A job may hold scenario child records ending in a result of a use case its effec
 
 ### Runbook
 
-A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `docs/behavior/runbooks/<name>.yaml`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `.litespec/behavior/runbooks/<name>.yaml`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 

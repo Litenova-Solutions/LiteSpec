@@ -5,7 +5,7 @@ namespace LiteSpec.Model;
 /// <param name="Action">The action: promoted, re-stamped, or held.</param>
 /// <param name="TargetStatus">The status the record holds after the batch.</param>
 /// <param name="Hash">The semantic hash at approval time.</param>
-/// <param name="Tier">The approval tier.</param>
+/// <param name="RiskClasses">The risk classes the record carries, empty when it carries none.</param>
 /// <param name="Scenarios">The scenario evidence.</param>
 /// <param name="Findings">The count of open findings about the record.</param>
 /// <param name="HeldGuards">The guards holding the record, empty unless a module and type batch held it.</param>
@@ -14,7 +14,11 @@ sealed record BatchAction(
     string Action,
     string TargetStatus,
     string Hash,
-    int Tier,
+    IReadOnlyList<string> RiskClasses,
     ReviewScenarios Scenarios,
     int Findings,
-    IReadOnlyList<string> HeldGuards);
+    IReadOnlyList<string> HeldGuards)
+{
+    /// <summary>Gets a value indicating whether the record carries any risk class.</summary>
+    public bool HasRisk => RiskClasses.Count > 0;
+}

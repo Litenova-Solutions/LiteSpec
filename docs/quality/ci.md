@@ -2,7 +2,7 @@
 
 ## Intent
 
-Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, mutation testing, measured checks, the project model of records joined to code, documentation, generated contracts, the supply chain, and the release itself. This page names those jobs, states which file changes select each one, states the intent-diff surface every pull request publishes for approval and the owners who approve it, and states how the release job promotes the one artifact that passed every job through staging and production. No change merges with its surface unchecked, and every deployment ships that same artifact.
+Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, measured checks, the project model of records joined to code, documentation, and generated contracts. This page names those jobs, states which file changes select each one, and states the intent-diff surface every pull request publishes for approval and the owners who approve it. No change merges with its surface unchecked; mutation testing, the supply-chain gate, artifact promotion, branch protection and the release job live in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Concepts
 
@@ -15,31 +15,30 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 | build | Solution and frontends compile. | Any source change. | `dotnet build <solution>` and `pnpm build` per frontend. | Runs. | Runs. |
 | test-backend | Architecture, integration, and acceptance suites pass. | Backend or contract change. | `dotnet test <solution>`. | Architecture and integration only. | Runs all suites. |
 | test-frontend | Lint, type-check, and route suite pass. | Frontend change. | `pnpm lint`, `pnpm type-check`, and the route suite. | Runs. | Runs. |
-| mutation | Zero surviving mutants on changed lines. | Backend or frontend change. | Stryker.NET `--since` and StrykerJS `--incremental`. | Runs. | Runs. |
 | measure | Each measured check the change names passes. | Backend, frontend, or measured-requirement change. | k6 thresholds, Lighthouse CI assert, and the ZAP baseline; results feed the model. | Runs. | Runs. |
 | model | Model check, then every check reading `model.json`. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
 | docs | Page contract, configuration, language, prose. | Documentation change. | `litespec consumer`. | Runs. | Runs. |
 | contract | Published document and clients unchanged. | API or contract change. | Regenerate, then `git diff --exit-code`. | Runs. | Runs. |
-| supply-chain | Pins, licenses, secrets, action pins, inventory. | Manifest, lockfile, or workflow change. | Frozen restores, `pnpm audit`, license scans, and secret scans. | Runs. | Runs. |
-| release | Every job above passes. | Release commit only. | Every command above on the release commit. | Runs. | Runs. |
+
+A project that selects the [Delivery extension](../ext/delivery.md) adds the mutation, supply-chain and release jobs that extension states, with the same selection and promotion rules.
 
 ### Measured Checks by Kind
 
-Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows met when its check passes. Availability and latency objectives are evidenced in production only: Sloth validates the OpenSLO files in CI, and the dashboards show whether the objectives hold.
+Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows met when its check passes. Availability and latency objectives are evidenced in production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there.
 
 | Kind | Tool | Evidence |
 |:---|:---|:---|
 | API latency and errors | k6 thresholds | Threshold results under `TestResults/`. |
 | Frontend performance and weight | Lighthouse CI assert | Assert results under `TestResults/`. |
 | Accessibility | axe in the route suite | The route suite report with zero violations. |
-| Availability and latency objectives | OpenTelemetry signals with OpenSLO files compiled by Sloth | Sloth validation in CI with production dashboards linked in the book. |
+| Availability and latency objectives | OpenTelemetry signals | Production dashboards linked in the book, with OpenSLO files where the Delivery extension applies. |
 | Security | An ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks | ZAP results under `TestResults/` with scan reports showing no unaccepted finding. |
 
 The [security page](security.md) states the ASVS target and the security scans, the [operations page](operations.md) states the availability objectives and dashboards, and `litespec/frontend/web/ui#check-every-route-in-a-browser` states the route suite.
 
 ### The Pull Request Surface
 
-Every pull request publishes one intent-diff comment, one job summary with intent counts, and one book preview. The comment holds `litespec model diff <base>` in Markdown: REMOVED, MODIFIED, and ADDED records in that order, each breaking change marked with its reason, in the book's words. The summary carries the breaking, removed, modified, and added counts for the glanceable view, and the preview renders the changed records beside their neighbors. The approver reads intent, not files: file diffs stay available but are not the approval basis. The [model command page](../tools/model.md) states the diff formats.
+Every pull request publishes one intent-diff comment and one job summary with intent counts. The comment holds `litespec model diff <base>` in Markdown: REMOVED, MODIFIED, and ADDED records in that order, each breaking change marked with its reason, in the book's words. The summary carries the breaking, removed, modified, and added counts for the glanceable view. The approver reads intent, not files: file diffs stay available but are not the approval basis. The [model command page](../tools/model.md) states the diff formats. A project that selects the [Delivery extension](../ext/delivery.md) also publishes a book preview for every change.
 
 ### Record Ownership
 
@@ -47,19 +46,7 @@ CODEOWNERS maps record areas to owners: product pages to the product owner and e
 
 ### The Supply-Chain Gate
 
-The supply-chain job groups every check that keeps third-party code safe to ship: which dependencies are scanned, how versions are pinned and reviewed, how workflow actions are pinned, which inventory ships beside the artifact, and how licenses and advisories block a release. The table below defines each part. The manifest it names is `litespec.manifest.json`, which pins the baseline stack, and an exception is a recorded departure from a provision or a check staying red until a date, with a reason, an owner, and an expiry date.
-
-| Part | Definition |
-|:---|:---|
-| Scan scope | Direct and transitive dependencies across NuGet, npm, container images, and release artifacts. |
-| Pin rule | Exact manifest pin and frozen lockfile, with integrity and certificate verification enabled. |
-| Pin review | Install scripts, transitive changes, source reputation, maintenance status, and advisories before a pin changes. |
-| Action pins | Every action pinned to an immutable reference. |
-| Inventory | A component inventory beside each promoted artifact, listing resolved direct and transitive components with versions. |
-| High-severity advisory | A documented exception before the release proceeds. |
-| License review | Every dependency carries a license the project approves. |
-| Advisory evidence | OSV-Scanner matches dependencies against OSV.dev advisories. |
-| Secret evidence | Gitleaks scans the repository for leaked secrets. |
+The supply-chain gate, its scan scope, pin rules, inventory and license review live in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Standards
 
@@ -69,7 +56,7 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Statement:** Every pull request MUST run the jobs the jobs table selects for its changed areas.
 
-**Rationale:** Each job guards one surface, so a pull request that skips the job for its changed area merges unchecked work. A job skipped because its surface did not change is recorded with that reason on the pull request, which keeps the skipped surface visible to the reviewer. The supply-chain gate that `litespec/quality/ci#enforce-the-supply-chain-gate` requires is one of these jobs.
+**Rationale:** Each job guards one surface, so a pull request that skips the job for its changed area merges unchecked work. A job skipped because its surface did not change is recorded with that reason on the pull request, which keeps the skipped surface visible to the reviewer. A project that selects the Delivery extension adds its supply-chain gate as one of these jobs under `litespec/ext/delivery#enforce-the-supply-chain-gate`.
 
 **Reviewed for:** The pull request checks list shows each selected job passing, with skipped jobs recorded with their reason.
 
@@ -103,47 +90,15 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Reviewed for:** The contract job report shows a clean regeneration and a lint report with no backend call outside the generated client.
 
-### Review Schema Artifacts
-
-**ID:** `litespec/quality/ci#review-schema-artifacts`
-
-**Statement:** A persistence change MUST publish a schema artifact that names its reviewer and lists every destructive operation with its reason.
-
-**Rationale:** A persistence change reaches production data, so its reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its reviewed SQL. Listing every destructive operation with its reason forces the author to name data loss before the reviewer approves it.
-
-**Reviewed for:** Each persistence change carries a schema artifact naming its reviewer with every destructive operation and its reason.
-
-### Require Zero Surviving Mutants on Changed Lines
-
-**ID:** `litespec/quality/ci#require-zero-surviving-mutants-on-changed-lines`
-
-**Statement:** Every pull request MUST show zero surviving mutants on its changed lines.
-
-**Rationale:** Mutation testing judges test strength where the change is: Stryker.NET `--since` scopes the backend run and StrykerJS `--incremental` scopes the frontend run, so the gate costs minutes per pull request. A project-wide percentage is confounded by suite size, so a large suite hides weak new tests behind a high score, while a full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 and StrykerJS 9.x are free and maintained under Apache-2.0. The .NET form lives on `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`. A surviving mutant no test can kill is decided once by a person through the equivalent-mutant escape hatch, recorded as an exception naming this provision.
-
-**Reviewed for:** The mutation job report for the pull request shows zero surviving mutants on its changed lines.
-
 ### Run Measured Checks on Every Pull Request
 
 **ID:** `litespec/quality/ci#run-measured-checks-on-every-pull-request`
 
 **Statement:** The measure job MUST run the check each measured requirement names for its kind.
 
-**Rationale:** Each kind has one tool, as the measured-checks table on this page maps: k6 thresholds for API latency and errors, Lighthouse CI assert for frontend performance and weight, axe in the route suite for accessibility, OpenTelemetry with OpenSLO files compiled by Sloth for availability and latency objectives, and an ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks for security. The tools write their result files under `TestResults/`, the builder reads them the way it reads test runs, and `litespec model check` reports `requirement-measure-missing` for a measured requirement with no check or no passing run. Every tool the table names is free and maintained; CodeQL is used only on public repositories, as `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer` states.
+**Rationale:** Each kind has one tool, as the measured-checks table on this page maps: k6 thresholds for API latency and errors, Lighthouse CI assert for frontend performance and weight, axe in the route suite for accessibility, OpenTelemetry signals for availability and latency objectives, and an ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks for security. The tools write their result files under `TestResults/`, the builder reads them the way it reads test runs, and `litespec model check` reports `requirement-measure-missing` for a measured requirement with no check or no passing run. Every tool the table names is free and maintained; CodeQL is used only on public repositories, as `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer` states.
 
 **Checked by:** `litespec model check` reports `requirement-measure-missing` for a measured requirement with no check or no passing run.
-
-### Enforce the Supply-Chain Gate
-
-**ID:** `litespec/quality/ci#enforce-the-supply-chain-gate`
-
-**Statement:** CI MUST enforce the supply-chain gate on every pull request.
-
-**Rationale:** When a new advisory names a component and a version range, the team must answer one question fast: does any running release contain it. Without a component inventory beside the artifact, that answer means rebuilding the dependency graph of a commit somebody has to find first. [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states the practice, and the frozen lockfile the build resolved is what the inventory is generated from. OSV-Scanner matches dependencies against OSV.dev advisories and Gitleaks scans for leaked secrets, so advisories and secrets each have one evidence tool.
-
-**Example:** The build job that produces the artifact generates the inventory from the same frozen lockfile. It stores the inventory beside the artifact, under the release version.
-
-**Reviewed for:** The supply-chain report shows scan, pin, inventory, and license evidence with an exception for each unhandled high-severity advisory.
 
 ### Publish the Intent Diff on Every Pull Request
 
@@ -165,16 +120,6 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Reviewed for:** The CI run summary for the pull request lists the breaking, removed, modified, and added counts.
 
-### Publish a Book Preview for Every Change
-
-**ID:** `litespec/quality/ci#publish-a-book-preview-for-every-change`
-
-**Statement:** CI MUST publish a preview of the book for every change.
-
-**Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The approver clicks from the comment into the preview for full context.
-
-**Reviewed for:** The pull request links a book preview built from the change.
-
 ### Map Record Areas to Owners
 
 **ID:** `litespec/quality/ci#map-record-areas-to-owners`
@@ -191,68 +136,16 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Statement:** A breaking change MUST carry approval from the owner of the highest record it touches.
 
-**Rationale:** Breaking means intent a person already approved now moves: a removed or narrowed requirement, an added refusal or precondition, a removed result, state, transition, or scenario, a weakened rule, or a changed quality measure or target. The owner of the highest touched record approves through the CODEOWNERS review, with branch protection requiring it before merge. Approval needs no new field: status, decider, and date already record who decided what by when.
+**Rationale:** Breaking means intent a person already approved now moves: a removed or narrowed requirement, an added refusal or precondition, a removed result, state, transition, or scenario, a weakened rule, or a changed quality measure or target. The owner of the highest touched record approves through the CODEOWNERS review. Approval needs no new field: status, decider, and date already record who decided what by when.
 
 **Reviewed for:** Each pull request with a breaking change shows approval from the team owning the highest record it touches.
 
-### Promote Verified Artifacts
-
-**ID:** `litespec/quality/ci#promote-verified-artifacts`
-
-**Statement:** CI MUST build one immutable artifact and promote that same artifact through staging and production.
-
-**Rationale:** Staging tests prove something about the artifact they ran against. When production deploys a fresh build from the same branch instead, it ships code the tests never saw, because the branch may have moved between the two builds. Promoting the one tested artifact through staging and production keeps the tested code and the shipped code identical.
-
-**Reviewed for:** The staging and production deployments reference the one artifact the release job passed.
-
-### Protect the Default Branch
-
-**ID:** `litespec/quality/ci#protect-the-default-branch`
-
-**Statement:** The default branch MUST require the jobs table entries for the project's size, a reviewed pull request, and a clean merge state.
-
-**Rationale:** The default branch is the source every environment deploys from, so an unreviewed or unchecked commit there reaches production with no further review. Requiring the jobs table entries, a reviewed pull request, and a clean merge state keeps every commit on the branch reviewed and verified. A direct push or a bypassed check is permitted only during a documented repository recovery action.
-
-**Reviewed for:** The default branch settings require the jobs-table entries, a reviewed pull request, and a clean merge state.
-
-### Record Every Branch Protection Bypass
-
-**ID:** `litespec/quality/ci#record-every-branch-protection-bypass`
-
-**Statement:** A direct push or bypassed check on the default branch MUST produce a record naming the actor, the reason, and the change it admitted.
-
-**Rationale:** The bypass permission exists so a recovery can proceed when the gates cannot run. A recovery nobody wrote down is indistinguishable from a habit, so the next reviewer cannot tell which commits on the branch were reviewed. The record names the actor, the reason, and the admitted change, which is the attribution [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states for the same event.
-
-**Example:** The record is the recovery decision itself where one exists. A bypass smaller than a decision takes a dated entry in the operations log at `docs/behavior/operations/log/`.
-
-**Reviewed for:** Each bypass entry in the operations log or recovery decision names its actor, reason, and admitted change.
-
-### Keep a Canonical Job Graph
-
-**ID:** `litespec/quality/ci#keep-a-canonical-job-graph`
-
-**Statement:** Consumer CI MUST use the job names and responsibilities the jobs table states.
-
-**Rationale:** The release job reruns the table's jobs by name, and the branch protection settings require them by name. When a consumer renames a job or moves its checks elsewhere, those references point at a job that no longer exists, and the gate stops checking without failing. Fixed names and responsibilities keep every reference resolving to the checks the table states.
-
-**Reviewed for:** The consumer workflows use the job names and responsibilities the jobs table states.
-
 ## Conventions
 
-### Apply the Documented Defaults
-
-**ID:** `litespec/quality/ci#apply-the-documented-defaults`
-
-**Default:** Keep one workflow per job the jobs table lists and use the job names the jobs table states.
-
-**Replacement:** A consumer records a workflow-layout convention naming its workflow files and job names.
-
-**Rationale:** One workflow per job keeps each gate readable, runnable, and skippable on its own. When containerized integration tests or browser tests join CI, they join as jobs the table names rather than as hidden steps inside another job, so the selection rules and the branch protection keep working unchanged.
-
-**Reviewed for:** Each consumer workflow file matches one jobs-table job and name, or the workflow-layout convention names another arrangement.
+None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/quality/ci#run-applicable-gates-on-every-pull-request` and `litespec/quality/ci#promote-verified-artifacts`.
+This informative example demonstrates `litespec/quality/ci#run-applicable-gates-on-every-pull-request` and `litespec/quality/ci#keep-generated-contracts-fresh`.
 
-A backend-only pull request runs `build`, `test-backend`, `mutation`, `measure`, `model`, `docs`, `contract`, and `supply-chain`: the docs job runs even without a documentation change because it checks every pull request. A pull request that changes a frontend also runs `test-frontend`. The `release` job reruns every job on the release commit and promotes the artifact that passed.
+A backend-only pull request runs `build`, `test-backend`, `measure`, `model`, `docs`, and `contract`: the docs job runs even without a documentation change because it checks every pull request. A pull request that changes a frontend also runs `test-frontend`.

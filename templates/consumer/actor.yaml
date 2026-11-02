@@ -7,6 +7,7 @@ decider: claimwick-team
 decideBy: 2026-12-15
 summary: The employee submits expenses and receives reimbursement.
 kind: person
+belongsToTeam: false
 holds:
   - role: role/employee
     scope: self

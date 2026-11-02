@@ -6,7 +6,7 @@ The extensions pages hold conditional provision bundles a project adds only when
 
 ## How to Select an Extension
 
-Each extension below states its own activation criterion and whether it applies to the whole project or to named records. A project selects every extension whose criteria hold and no extension whose criteria do not, and lists each selection in `selectedExtensions` in `litespec.project.json` with the criterion it met and a review date. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
+Each extension below states its own activation criterion and whether it applies to the whole project or to named records. A project selects every extension whose criteria hold and no extension whose criteria do not, and lists each selection in `selectedExtensions` in `.litespec/project.json` with the criterion it met and a review date. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
 
 ## Project Extensions
 
@@ -18,6 +18,7 @@ Selected once for the whole project:
 - [Audit Trail](audit.md): tamper-resistant evidence of who attempted what in data another party owns.
 - [Container Deployment](containers.md): images, rollouts, and runtime limits where staging or production ships containers.
 - [Customer Automation](automation.md): customer-composed rules and hooks for a product whose tenants automate their own work.
+- [Delivery](delivery.md): release readiness gates, deployment and rollback, backup and restore, alerting and the supply-chain gate for a product operated in production.
 - [Localization](locale.md): locales, catalogs, and formatting for a product that ships in more than one locale.
 - [Model Context Protocol](mcp.md): the server a product ships so an LLM client can call its public API.
 - [Multitenancy](tenancy.md): tenant isolation across authorization, storage, jobs, and recovery for one shared deployment.

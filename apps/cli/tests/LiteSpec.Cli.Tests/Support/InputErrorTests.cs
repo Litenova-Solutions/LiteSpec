@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Model;
 
 namespace LiteSpec.Tests.Support;
 
@@ -14,12 +15,12 @@ public sealed class InputErrorTests
     public void Model_Reports_A_Malformed_Project_File_As_A_Usage_Error()
     {
         using var folder = Cli.Temp("model-json");
-        File.WriteAllText(Path.Combine(folder.Path, "litespec.project.json"), "{ not json");
+        File.WriteAllText(Path.Combine(folder.Path, ".litespec/project.json"), "{ not json");
 
         var result = Cli.Run("model", "check", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("litespec.project.json is not valid JSON", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains(".litespec/project.json is not valid JSON", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Model Refuses A Root Without A Project File.</summary>
@@ -32,7 +33,20 @@ public sealed class InputErrorTests
         var result = Cli.Run("model", "check", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("holds no litespec.project.json", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
+    }
+
+    /// <summary>Model Finds The Consumer By Walking Up To The LiteSpec Folder.</summary>
+    /// <proves>litespec/core/scope#keep-every-litespec-file-under-one-folder</proves>
+    [Fact]
+    public void Model_Finds_The_Consumer_By_Walking_Up_To_The_LiteSpec_Folder()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+
+        var result = Cli.Run("model", "check", "--root", Path.Combine(fixture.Path, ".litespec", "behavior"));
+
+        Assert.NotEqual(2, result.Status);
+        Assert.DoesNotContain("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Book Accepts An Option Written With An Equals Sign.</summary>

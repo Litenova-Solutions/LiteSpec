@@ -31,9 +31,9 @@ public sealed class ScreenRenameAndRecordsTests
     public void A_Frontend_Naming_Its_Entry_Point_Is_Read_Through_It_Before_Any_Screen_Exists()
     {
         using var temp = Cli.Temp("screen-entry-point");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "docs"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(
-            Path.Combine(temp.Path, "litespec.project.json"),
+            Path.Combine(temp.Path, ".litespec/project.json"),
             """
             {
               "owners": ["lending-team"],
@@ -60,7 +60,7 @@ public sealed class ScreenRenameAndRecordsTests
     {
         using var fixture = ModelFixture.Prepare("large");
         var root = fixture.Path;
-        var screens = Path.Combine(root, "docs", "behavior", "screens");
+        var screens = Path.Combine(root, ".litespec", "behavior", "screens");
         Directory.CreateDirectory(screens);
         File.WriteAllText(Path.Combine(screens, "library-app.loans.md"), """
             ---
@@ -114,9 +114,9 @@ public sealed class ScreenRenameAndRecordsTests
 
     static ProjectModel ModelWithTwoFrontends(string root)
     {
-        Directory.CreateDirectory(Path.Combine(root, "docs"));
+        Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {
               "owners": ["lending-team"],

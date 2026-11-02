@@ -11,7 +11,7 @@ public sealed partial class ConsumerValidatorTests
     public void DocumentationRootThatIsOnDisk()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["docs"] = "docs");
+        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["docs"] = ".litespec");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -97,8 +97,8 @@ public sealed partial class ConsumerValidatorTests
     public void GlossaryPathThatIsNotOnDisk()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["glossary"] = "docs/missing.yaml");
-        AssertProblem(RunConsumer(folder.Path), "paths.glossary 'docs/missing.yaml' does not exist");
+        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["glossary"] = ".litespec/missing.yaml");
+        AssertProblem(RunConsumer(folder.Path), "paths.glossary '.litespec/missing.yaml' does not exist");
     }
 
     /// <summary>Frontend path that is not on disk.</summary>
@@ -123,7 +123,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/behavior/modules/orders/unscanned.md",
+            ".litespec/behavior/modules/orders/unscanned.md",
             ConsumerFixture.Page(
                 ConsumerFixture.Meta("""{"type":"workflow","id":"unscanned","title":"Unscanned","owner":"fixture","status":"approved"}"""),
                 "# Unscanned\n"));
@@ -138,7 +138,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => meta.Remove("title"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'title'");
     }
@@ -151,7 +151,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => meta["implementationStatus"] = "planned");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'implementationStatus'");
     }
@@ -164,7 +164,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/product/brief.yaml",
+            ".litespec/product/brief.yaml",
             meta => meta["status"] = "final");
         AssertProblem(RunConsumer(folder.Path), "/status");
     }
@@ -177,7 +177,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => meta["kind"] = "mutation");
         AssertProblem(RunConsumer(folder.Path), "/kind");
     }
@@ -190,7 +190,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => ((JsonObject)((JsonArray)meta["records"]!)[0]!).Remove("outcome"));
         AssertProblem(RunConsumer(folder.Path), "/records/0");
     }
@@ -203,7 +203,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.yaml",
+            ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => meta["type"] = "business-record");
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
@@ -216,7 +216,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/behavior/modules/orders/plain.md",
+            ".litespec/behavior/modules/orders/plain.md",
             "# Plain\n\nA page with no record.\n");
         AssertProblem(RunConsumer(folder.Path), "no frontmatter block");
     }
@@ -229,7 +229,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/behavior/modules/orders/broken.md",
+            ".litespec/behavior/modules/orders/broken.md",
             "---\n{bad json}\n---\n\n# Broken\n");
         AssertProblem(RunConsumer(folder.Path), "frontmatter is not YAML");
     }

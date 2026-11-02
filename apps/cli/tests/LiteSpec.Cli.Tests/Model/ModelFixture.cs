@@ -90,10 +90,10 @@ static class ModelFixture
     ///     so a test that runs the check stamps the aggregate again.
     /// </summary>
     /// <param name="root">The prepared fixture folder.</param>
-    /// <param name="folder">The aggregate's folder under <c>docs/behavior/modules/lending</c>, such as <c>loans</c>.</param>
+    /// <param name="folder">The aggregate's folder under <c>.litespec/behavior/modules/lending</c>, such as <c>loans</c>.</param>
     public static void RemoveTransitions(string root, string folder)
     {
-        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", folder, "aggregate.yaml");
+        var page = Path.Combine(root, ".litespec", "behavior", "modules", "lending", folder, "aggregate.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
 
         record.Remove("transitions");

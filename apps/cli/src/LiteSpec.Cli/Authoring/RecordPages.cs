@@ -36,22 +36,22 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a topic file under docs/intent/",
-        ["rule"] = "its aggregate file, or a rule file under docs/behavior/rules/ for a cross-aggregate rule",
+        ["requirement"] = "a topic file under .litespec/intent/",
+        ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
         ["event"] = "its aggregate file",
-        ["integration-event"] = "one file per event under docs/behavior/integration-events/",
+        ["integration-event"] = "one file per event under .litespec/behavior/integration-events/",
         ["setting"] = "its module file, or a setting-set file",
-        ["permission"] = "docs/behavior/access/permissions.yaml",
-        ["entry-point"] = "docs/behavior/access/entry-points.yaml",
+        ["permission"] = ".litespec/behavior/access/permissions.yaml",
+        ["entry-point"] = ".litespec/behavior/access/entry-points.yaml",
         ["term"] = "the glossary",
     };
 
     /// <summary>Folder names the citation walk skips, covering build output, installed packages and tool state.</summary>
     private static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "bin", "obj", "TestResults", "node_modules", ".git", ".model",
+        "bin", "obj", "TestResults", "node_modules", ".git",
         ".svelte-kit", "build", "dist", "coverage",
     };
 
@@ -63,9 +63,9 @@ static class RecordPages
 
     /// <summary>The documentation root new files are written under.</summary>
     /// <param name="config">The consumer configuration that holds the record roots.</param>
-    /// <returns>The first configured record root, or the docs folder under the consumer root when none is configured.</returns>
+    /// <returns>The first configured record root, or the .litespec folder under the consumer root when none is configured.</returns>
     public static string DocsRoot(ConsumerConfig config) =>
-        config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, "docs");
+        config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, ".litespec");
 
     /// <summary>
     ///     The absolute path of the file a record owns. A use-case file starts
@@ -361,7 +361,16 @@ static class RecordPages
         {
             var name = Path.GetFileName(child) ?? "";
 
-            if (name.StartsWith('.') || SkippedFolders.Contains(name))
+            // The LiteSpec folder is a dot folder the walk must enter: it holds the
+            // records. Its generated subfolders hold no citing text.
+            if (string.Equals(Path.GetFileName(directory), ".litespec", StringComparison.Ordinal)
+                && (name is "model" or "book"))
+            {
+                continue;
+            }
+
+            if ((name.StartsWith('.') && !string.Equals(name, ".litespec", StringComparison.Ordinal))
+                || SkippedFolders.Contains(name))
             {
                 continue;
             }

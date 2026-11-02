@@ -495,9 +495,9 @@ public sealed class BookLexiconTests
 
         An approved record carries its approval as data.
 
-        ### Risk Tiers
+        ### Risk Classes and the Approval Table
 
-        Any risk value makes the record tier 1.
+        A record carrying a risk class waits for its named approver.
 
         ### Check Levels
 

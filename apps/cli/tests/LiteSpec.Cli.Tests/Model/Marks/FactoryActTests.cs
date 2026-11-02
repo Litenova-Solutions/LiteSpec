@@ -40,7 +40,7 @@ public sealed class FactoryActTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -50,14 +50,14 @@ public sealed class FactoryActTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.0.0",
+                  "reviewedLiteSpecVersion": "3.1.0",
                   "owners": [
                     "lending-team"
                   ],
                   "paths": {
-                    "docs": "docs",
-                    "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.yaml",
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -79,12 +79,12 @@ public sealed class FactoryActTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.order",
@@ -112,12 +112,12 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/aggregate.md", """
                 # Order
 
                 An order is one purchase a reader placed.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/submit-order.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/submit-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.submit-order",
@@ -143,12 +143,12 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/submit-order.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/submit-order.md", """
                 # Submit order
 
                 A reader submits an order.
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/renew-order.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/renew-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.renew-order",
@@ -171,7 +171,7 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/renew-order.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/renew-order.md", """
                 # Renew order
 
                 A reader renews an order.

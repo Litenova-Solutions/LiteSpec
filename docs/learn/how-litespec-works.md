@@ -27,7 +27,7 @@ Claimwick lets employees submit work expenses with receipts. In LiteSpec, that b
 
 ### 1. the Written Record
 
-The record file lives in the project at `docs/behavior/modules/spending/expenses/submit-expense.yaml`. It states what the use case is, who owns it, and how it connects to other records:
+The record file lives in the project at `.litespec/behavior/modules/spending/expenses/submit-expense.yaml`. It states what the use case is, who owns it, and how it connects to other records:
 
 ```yaml
 type: use-case
@@ -68,7 +68,7 @@ code: spending.receipt-missing
 meaning: The expense is above the receipt threshold and carries no receipt.
 ```
 
-Two generic refusals are derived and never written: a use case whose grant is a permission derives a forbidden result, and a use case with rules on its input derives an invalid-input result. Their codes come from the `refusals` block in `litespec.project.json`.
+Two generic refusals are derived and never written: a use case whose grant is a permission derives a forbidden result, and a use case with rules on its input derives an invalid-input result. Their codes come from the `refusals` block in `.litespec/project.json`.
 
 The record's `status` is `reviewed`, so developers have reviewed this Behavior record. An agent builds reviewed records and does not invent the parts a draft leaves open. Reviewed records also carry approval data: who approved, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, and steps. Prose fields feed that hash with every other written field, while the explanation beside a non-article record stays outside it; a changed semantic hash reopens approval.
 
@@ -103,10 +103,10 @@ Run the model builder from the project root:
 dotnet litespec model build
 ```
 
-It reads every record and follows the marks in the code and tests, the frontend routes, and the test runs, and writes `.model/model.json`. It reports one summary line with the totals, for example:
+It reads every record and follows the marks in the code and tests, the frontend routes, and the test runs, and writes `.litespec/model/model.json`. It reports one summary line with the totals, for example:
 
 ```text
-.model/model.json: 96 records, 9 handlers, 1 screen, 10 scenarios.
+.litespec/model/model.json: 96 records, 9 handlers, 1 screen, 10 scenarios.
 ```
 
 Then ask about one record:
@@ -148,7 +148,7 @@ The use case is implemented: the builder found its handler through its mark. Two
 
 `dotnet litespec model check` turns gaps into findings with a level beside each one: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record file. Both run in CI, so a gap shows up in the pull request that introduced it.
 
-For example, if the submit-expense record named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `docs/behavior/modules/spending/expenses/submit-expense.yaml`, and the pull request fails until the record names one.
+For example, if the submit-expense record named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `.litespec/behavior/modules/spending/expenses/submit-expense.yaml`, and the pull request fails until the record names one.
 
 ## The Provision Identifier
 

@@ -124,7 +124,7 @@ public sealed partial class ModelCheckSummaryTests
 
         foreach (var finding in findings.EnumerateArray())
         {
-            Assert.Equal("G", finding.GetProperty("tier").GetString());
+            Assert.Equal("G", finding.GetProperty("level").GetString());
         }
     }
 

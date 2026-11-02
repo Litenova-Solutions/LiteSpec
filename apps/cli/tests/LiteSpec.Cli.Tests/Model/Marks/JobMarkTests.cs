@@ -120,7 +120,7 @@ public sealed class JobMarkTests
 
     static void WriteJob(string root)
     {
-        TestRecords.Write(root, "docs/behavior/modules/billing/jobs/charge-dues.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/modules/billing/jobs/charge-dues.yaml", """
             {
               "type": "job",
               "id": "job/billing.charge-dues",
@@ -139,7 +139,7 @@ public sealed class JobMarkTests
               ]
             }
             """);
-        TestRecords.Explain(root, "docs/behavior/modules/billing/jobs/charge-dues.md", """
+        TestRecords.Explain(root, ".litespec/behavior/modules/billing/jobs/charge-dues.md", """
             # Charge Dues
 
             Each night the dues are charged.

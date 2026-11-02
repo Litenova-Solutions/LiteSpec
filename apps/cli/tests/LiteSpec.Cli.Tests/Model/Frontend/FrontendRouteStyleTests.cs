@@ -80,7 +80,7 @@ public sealed class FrontendRouteStyleTests
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             $$"""
             {
               "owners": ["team"],

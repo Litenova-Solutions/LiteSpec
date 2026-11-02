@@ -55,7 +55,7 @@ sealed class DiffBase : IDisposable
     }
 
     /// <summary>
-    ///     Loads the base: a consumer folder holding <c>litespec.project.json</c>, or a
+    ///     Loads the base: a consumer folder holding <c>.litespec/project.json</c>, or a
     ///     git revision of the consumer, read through an archive into a temporary folder.
     /// </summary>
     /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
@@ -65,11 +65,11 @@ sealed class DiffBase : IDisposable
     {
         if (FolderOf(headConfig, baseArg) is { } folder)
         {
-            var project = Path.Combine(folder, "litespec.project.json");
+            var project = ConsumerRoot.ProjectFile(folder);
 
             if (!File.Exists(project))
             {
-                throw new InvalidOperationException($"Base '{baseArg}' holds no litespec.project.json.");
+                throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
             }
 
             return new DiffBase(
@@ -172,10 +172,10 @@ sealed class DiffBase : IDisposable
         var relative = Path.GetRelativePath(toplevel, headConfig.Root);
         var root = relative is "." or "" ? temp : Path.Combine(temp, relative);
 
-        if (!File.Exists(Path.Combine(root, "litespec.project.json")))
+        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
             Directory.Delete(temp, recursive: true);
-            throw new InvalidOperationException($"Base '{baseArg}' holds no litespec.project.json.");
+            throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
         }
 
         return new DiffBase(ModelBuilder.Build(ConsumerConfig.Load(root)), baseArg, temp);

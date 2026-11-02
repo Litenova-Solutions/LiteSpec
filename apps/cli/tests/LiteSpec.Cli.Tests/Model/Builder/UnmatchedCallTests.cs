@@ -36,7 +36,7 @@ public sealed class UnmatchedCallTests
 
     static void AddFrontend(string root)
     {
-        var projectFile = Path.Combine(root, "litespec.project.json");
+        var projectFile = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
         project["paths"]!["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
@@ -44,7 +44,7 @@ public sealed class UnmatchedCallTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

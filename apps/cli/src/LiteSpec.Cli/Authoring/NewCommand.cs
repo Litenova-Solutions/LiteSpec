@@ -26,14 +26,14 @@ static class NewCommand
         identifier twice. <type> is the record type, such as topic, use-case,
         or decision. <id> is the home.name part of the identifier, such as
         lending.notify-reader; the full identifier is <type>/<id>. The file is
-        written at the home its type owns: a topic under docs/intent/, a reaction
+        written at the home its type owns: a topic under .litespec/intent/, a reaction
         under modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
         the decisions folder with its explanation file beside it. A module file
         is modules/<module>/module.yaml; an aggregate file is
         modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
         under reads/ beside its module; move the file beside its aggregate once
-        the use case names one. A topic file starts directly under docs/intent/;
+        the use case names one. A topic file starts directly under .litespec/intent/;
         move it into its area folder. For an article type (research, decision, or
         topic) the command also writes the explanation file from its explanation
         template. The command refuses an identifier a record already carries.
@@ -164,7 +164,7 @@ static class NewCommand
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
+            root = ConsumerRoot.Resolve(parsed.Value("--root"));
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
@@ -183,7 +183,7 @@ static class NewCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($"litespec.project.json is not valid JSON: {exception.Message}");
+            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
             return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
@@ -295,7 +295,7 @@ static class NewCommand
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
+            root = ConsumerRoot.Resolve(parsed.Value("--root"));
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
@@ -312,7 +312,7 @@ static class NewCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($"litespec.project.json is not valid JSON: {exception.Message}");
+            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
             return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)

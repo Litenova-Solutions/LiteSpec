@@ -9,6 +9,7 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Principles](principles.md): the founding rules that settle choices no narrower page covers.
 - [Model](model.md): the record types, their links, and what the builder computes.
 - [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.
+- [Writing](writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Layers](layers.md): the four record layers and the translation rules between them.
 - [Intent](intent.md): where a project states its business intent and in what form.
 - [Behavior](behavior.md): the overview of the five Behavior pages and the mapping from records to design.

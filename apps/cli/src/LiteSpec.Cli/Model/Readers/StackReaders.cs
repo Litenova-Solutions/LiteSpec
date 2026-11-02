@@ -51,7 +51,7 @@ static class StackReaders
             problems.Add(new Finding(
                 "reader-missing",
                 $"Project shape is 'server' but no backend reader is selected for stacks '{string.Join(", ", config.Stacks)}'; the backend source was not read.",
-                Path.Combine(config.Root, "litespec.project.json"),
+                ConsumerRoot.ProjectFile(config.Root),
                 1,
                 null)
             {

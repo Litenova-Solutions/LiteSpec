@@ -10,7 +10,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `stage` before its first deployment holds customer data, or afterwards to put a past promotion on record. The selection declares the current stage and bounds what the early stage defers. The project names the decision that ends transcription in `adoption.transcriptionEndsWith` in `litespec.project.json`.
+The project selects `stage` before its first deployment holds customer data, or afterwards to put a past promotion on record. The selection declares the current stage and bounds what the early stage defers. The project names the decision that ends transcription in `adoption.transcriptionEndsWith` in `.litespec/project.json`.
 
 ## Baseline Relationship
 
@@ -24,7 +24,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#declare-the-release-stage`
 
-**Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `litespec.project.json`.
+**Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.json`.
 
 **Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
 
@@ -60,7 +60,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Rationale:** Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives: the relaxed provisions last until somebody notices they never ended. The decision carries its owner, status, decider, and decide-by date like any decision, and approving it before the first deployment holds customer data keeps the data under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.
 
-**Reviewed for:** The promotion decision under `docs/intent/decisions/` carries approval before the first deployment holds customer data and ends every deferred provision.
+**Reviewed for:** The promotion decision under `.litespec/intent/decisions/` carries approval before the first deployment holds customer data and ends every deferred provision.
 
 ### Record Rested-On Draft Intent
 

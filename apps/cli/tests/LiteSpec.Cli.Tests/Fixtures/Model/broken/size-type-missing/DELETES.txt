@@ -1,2 +1,2 @@
-docs/product/features/hold-queue.yaml
-docs/product/features/hold-queue.md
+.litespec/product/features/hold-queue.yaml
+.litespec/product/features/hold-queue.md

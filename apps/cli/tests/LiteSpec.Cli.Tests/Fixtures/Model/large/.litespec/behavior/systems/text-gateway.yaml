@@ -1,0 +1,21 @@
+type: external-system
+id: external-system/text-gateway
+title: Text gateway
+owner: lending-team
+status: reviewed
+summary: The text gateway sends overdue notices to readers.
+failure: Notices queue until the gateway answers.
+operations:
+  - name: send-overdue-notice
+    direction: out
+    timeout: 5 seconds
+    onTimeout: The notice queues for the next run.
+    response: A delivery receipt.
+  - name: receive-delivery-receipt
+    direction: in
+    timeout: none
+    onTimeout: Receipts arrive when the gateway answers.
+    response: The receipt id.
+approvedBy: lending-team
+approvedOn: 2026-10-01
+approvedHash: dcca88e9

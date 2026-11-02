@@ -82,6 +82,15 @@ sealed class ProjectModel
 
     /// <summary>Gets per requirement, by id: verified from what fulfills it and from its measure.</summary>
     public Dictionary<string, RequirementStatus> RequirementStatus { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets per requirement, use case, journey, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
+    public Dictionary<string, Completion> Completion { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets per screen record, by id: the screenshot captures the gallery holds for its route.</summary>
+    public Dictionary<string, IReadOnlyList<ScreenCapture>> Captures { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets per screen record, by id: captured, route-not-captured, or no-route.</summary>
+    public Dictionary<string, string> CaptureState { get; } = new(StringComparer.Ordinal);
     /// <summary>Gets per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
     public Dictionary<string, bool> Tested { get; } = new(StringComparer.Ordinal);
 
@@ -159,6 +168,15 @@ sealed class ProjectModel
             writer.WriteNumber("version", 1);
             writer.WriteString("root", ".");
 
+            writer.WriteStartObject("approvals");
+
+            foreach (var entry in Config.Approvals.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                writer.WriteString(entry.Key, entry.Value);
+            }
+
+            writer.WriteEndObject();
+
             writer.WriteStartArray("records");
 
             var bodies = new Dictionary<(string File, string? PageId), string>(Records.Count);
@@ -191,6 +209,11 @@ sealed class ProjectModel
                     WriteNullable(writer, "aggregate", ModelBuilder.AggregateOf(this, record)?.Id);
                 }
 
+                if (record.Type == RecordTypes.Problem)
+                {
+                    writer.WriteString("evidenceStrength", LiteSpec.Model.Checks.IntentChecks.EvidenceStrengthOf(record));
+                }
+
                 writer.WriteString("file", Config.Relative(record.File));
                 writer.WriteNumber("line", record.Line);
 
@@ -202,6 +225,60 @@ sealed class ProjectModel
                 record.Raw.WriteTo(writer);
                 writer.WritePropertyName("links");
                 JsonSerializer.Serialize(writer, ModelBuilder.ResolvedLinks(this, record), options);
+
+                if (Completion.TryGetValue(record.Id, out var completion))
+                {
+                    writer.WriteStartObject("completion");
+                    writer.WriteString("stage", completion.Stage);
+                    writer.WriteString("proof", completion.Proof);
+                    writer.WriteStartArray("heldBy");
+
+                    foreach (var held in completion.HeldBy)
+                    {
+                        writer.WriteStringValue(held);
+                    }
+
+                    writer.WriteEndArray();
+                    writer.WriteStartObject("counts");
+
+                    foreach (var count in completion.Counts.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                    {
+                        writer.WriteStartObject(count.Key);
+                        writer.WriteNumber("done", count.Value.Done);
+                        writer.WriteNumber("of", count.Value.Of);
+                        writer.WriteEndObject();
+                    }
+
+                    writer.WriteEndObject();
+                    writer.WriteEndObject();
+                }
+
+                if (ApprovalTable.ApprovalOf(this, record) is { } approval)
+                {
+                    writer.WriteStartObject("approval");
+                    writer.WriteString("by", approval.By);
+                    writer.WriteString("rule", approval.Rule);
+                    writer.WriteEndObject();
+                }
+
+                if (record.Type == RecordTypes.Screen)
+                {
+                    writer.WriteStartArray("captures");
+
+                    foreach (var capture in Captures.GetValueOrDefault(record.Id) ?? [])
+                    {
+                        writer.WriteStartObject();
+                        writer.WriteString("path", capture.Path);
+                        writer.WriteString("theme", capture.Theme);
+                        writer.WriteNumber("width", capture.Width);
+                        writer.WriteString("capturedOn", capture.CapturedOn);
+                        writer.WriteEndObject();
+                    }
+
+                    writer.WriteEndArray();
+                    writer.WriteString("captureState", CaptureState.GetValueOrDefault(record.Id) ?? "no-route");
+                }
+
                 writer.WriteEndObject();
             }
 
@@ -430,6 +507,25 @@ sealed class ProjectModel
                 }
 
                 writer.WriteEndArray();
+
+                var screenCaptures = ScreenshotCaptures.ForRoute(this, screen.Route);
+
+                writer.WriteStartArray("captures");
+
+                foreach (var capture in screenCaptures)
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("path", capture.Path);
+                    writer.WriteString("theme", capture.Theme);
+                    writer.WriteNumber("width", capture.Width);
+                    writer.WriteString("capturedOn", capture.CapturedOn);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteString(
+                    "captureState",
+                    screenCaptures.Count > 0 ? "captured" : "route-not-captured");
                 writer.WriteEndObject();
             }
 

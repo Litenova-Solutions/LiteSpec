@@ -14,8 +14,9 @@ mcps/
 # Working plans stay local.
 .agents/plans/
 
-# The model builder writes its output and proof ledger here.
-.model/
+# The model builder and the book write their output here in every consumer, fixture and example.
+**/.litespec/model/
+**/.litespec/book/
 
 # Agent worktrees from other sessions are separate checkouts, never part of this repository.
 .claude/worktrees/

@@ -12,7 +12,7 @@ public sealed class SettingsCheckTests
     public void Operator_Setting_Without_Key_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", null));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -28,7 +28,7 @@ public sealed class SettingsCheckTests
     public void Operator_Setting_With_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -42,7 +42,7 @@ public sealed class SettingsCheckTests
     public void Decider_Setting_Without_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "decider", null));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -56,7 +56,7 @@ public sealed class SettingsCheckTests
     public void Keyed_Setting_Without_Options_Class_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -72,7 +72,7 @@ public sealed class SettingsCheckTests
     public void Keyed_Setting_With_Marked_Options_Class_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
@@ -89,7 +89,7 @@ public sealed class SettingsCheckTests
     public void Options_Class_With_Wrong_Section_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Loans", "MaxRenewals"));
@@ -107,7 +107,7 @@ public sealed class SettingsCheckTests
     public void Options_Class_With_Missing_Property_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxLoans"));
@@ -125,7 +125,7 @@ public sealed class SettingsCheckTests
     public void Options_Class_Spelling_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
@@ -141,7 +141,7 @@ public sealed class SettingsCheckTests
     public void Nested_Section_Spelling_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:Loans:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending:Loans", "MaxRenewals"));
@@ -158,7 +158,7 @@ public sealed class SettingsCheckTests
     public void Methodless_Options_Class_With_Setting_Mark_Is_Accepted()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
@@ -194,7 +194,7 @@ public sealed class SettingsCheckTests
     public void Declared_Template_Missing_From_Store_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
@@ -213,7 +213,7 @@ public sealed class SettingsCheckTests
     public void Declared_Template_Held_By_Store_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon.")));
@@ -231,7 +231,7 @@ public sealed class SettingsCheckTests
     public void Missing_Template_Store_File_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
@@ -248,7 +248,7 @@ public sealed class SettingsCheckTests
     public void Template_Checks_Skipped_Without_Store()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -264,7 +264,7 @@ public sealed class SettingsCheckTests
     public void Stored_Key_Without_Notification_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon."),
@@ -284,7 +284,7 @@ public sealed class SettingsCheckTests
     public void Stored_Keys_Matching_Notifications_Pass()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", PairFormStore(
             ("loan-due-reader", "Hello, your loan ends soon.")));
@@ -302,7 +302,7 @@ public sealed class SettingsCheckTests
     public void Unused_Parameter_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName", "dueDate"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
@@ -321,7 +321,7 @@ public sealed class SettingsCheckTests
     public void Used_Parameters_Pass()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
@@ -338,7 +338,7 @@ public sealed class SettingsCheckTests
     public void Template_None_Skips_Template_Checks()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "none", "readerName"));
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore());
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
@@ -364,7 +364,7 @@ public sealed class SettingsCheckTests
 
     static void AddTemplateStore(string root, string store)
     {
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var text = File.ReadAllText(file);
         File.WriteAllText(file, text.Replace(
             "\"webapi\": \"apps/api/src/Library.WebApi\"",

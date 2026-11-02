@@ -24,11 +24,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#record-each-provider-as-an-external-system`
 
-**Statement:** An integration MUST record its provider as an external system naming actor, operations, and erasure.
+**Statement:** An integration MUST record its provider as an external system naming its operations and erasure.
 
-**Rationale:** The external-system record bounds the dependency: `litespec/core/access#name-the-actor-for-every-external-system` names the party behind it, `litespec/core/access#declare-every-operation-on-every-external-system` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
+**Rationale:** The external-system record bounds the dependency: its summary names the party behind it, `litespec/core/access#declare-every-operation-on-every-external-system` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
 
-**Reviewed for:** Each provider has an external system page in the Behavior systems home naming actor, operations, and erasure.
+**Reviewed for:** Each provider has an external system page in the Behavior systems home naming operations and erasure.
 
 ### Call Only Declared Operations
 

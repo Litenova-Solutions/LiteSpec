@@ -11,7 +11,7 @@ public sealed class ReviewReportCitationTests
     public void A_Review_Report_Citing_A_Removed_Scenario_Reports_Nothing()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var reviews = Path.Combine(fixture.Path, "docs", "proof", "reviews");
+        var reviews = Path.Combine(fixture.Path, ".litespec", "proof", "reviews");
         Directory.CreateDirectory(reviews);
         File.WriteAllText(
             Path.Combine(reviews, "2026-11-20-lending.md"),
@@ -28,7 +28,7 @@ public sealed class ReviewReportCitationTests
     public void A_Page_Citing_A_Removed_Scenario_Reports_It()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var guides = Path.Combine(fixture.Path, "docs", "guides");
+        var guides = Path.Combine(fixture.Path, ".litespec", "guides");
         Directory.CreateDirectory(guides);
         File.WriteAllText(
             Path.Combine(guides, "lending.md"),

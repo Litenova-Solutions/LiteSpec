@@ -124,9 +124,9 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/containers#retain-rollback-material`
 
-**Statement:** A release owner MUST record the rollback procedure as a runbook record identifying the previous image digest, under `litespec/quality/operations#keep-rollback-executable`.
+**Statement:** A release owner MUST record the rollback procedure as a runbook record identifying the previous image digest, under `litespec/ext/delivery#keep-rollback-executable`.
 
-**Rationale:** A rollback under pressure depends on the record, not on memory. The runbook record carries the tested rollback command with the previous image digest, which names one immutable image, under `litespec/quality/operations#keep-rollback-executable`. A tag alone could have moved since the release went out.
+**Rationale:** A rollback under pressure depends on the record, not on memory. The runbook record carries the tested rollback command with the previous image digest, which names one immutable image, under `litespec/ext/delivery#keep-rollback-executable`. A tag alone could have moved since the release went out.
 
 **Reviewed for:** Which releases lack a runbook record naming the previous image digest? Look at the release runbooks.
 

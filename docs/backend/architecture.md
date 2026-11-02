@@ -173,7 +173,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Example:** A Decision naming WebApi as the execution host states that durable dispatch shares the request process, and states what an unavailable process costs.
 
-**Reviewed for:** Which execution host runs durable dispatch, queue consumption, or scheduled work without a naming decision? Look for the decision record under `docs/intent/decisions/`.
+**Reviewed for:** Which execution host runs durable dispatch, queue consumption, or scheduled work without a naming decision? Look for the decision record under `.litespec/intent/decisions/`.
 
 ### Create a Worker Project When Background Work Needs Its Own Process
 

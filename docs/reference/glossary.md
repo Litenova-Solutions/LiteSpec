@@ -144,7 +144,7 @@ Source: LiteSpec.
 
 ### Actor
 
-One person, organization, or system that acts in the product.
+One person or organization that acts in the product. An actor records whether it belongs to the team building and running the product. An external system is no actor, and internal machinery is no actor.
 
 Layer: Intent.
 
@@ -334,6 +334,14 @@ Layer: Behavior.
 
 Source: DDD.
 
+### Evidence
+
+One dated claim behind a problem, with its source and its kind: observed, reported or assumed. The strongest kind present is the strength of the problem, computed and never written.
+
+Layer: Intent.
+
+Source: LiteSpec.
+
 ### Example
 
 One narrative showing behavior on a real occasion, drawn from the example cast.
@@ -364,7 +372,7 @@ Rejected: deviation and known gap, which named two records where one holds both.
 
 ### External System
 
-One outside system the product exchanges messages with.
+One outside system the product exchanges messages with. It stands alone and names no actor; a system calling the product reaches it through an API entry point.
 
 Layer: Behavior.
 
@@ -418,7 +426,7 @@ Source: arc42; DDD's ubiquitous language.
 
 ### Goal
 
-One measurable outcome a feature advances and a journey serves, carrying no authority.
+One measurable outcome a feature advances and a journey serves or a quality requirement confirms, carrying no authority.
 
 Layer: Intent.
 
@@ -470,7 +478,7 @@ Source: LiteSpec.
 
 ### Journey
 
-The ordered steps by which one actor reaches one goal, linked to the goal record it serves and citing the requirements it shows. Steps name no use case; each serving use case points up with serves.
+The ordered steps by which one actor reaches one goal, with a description of who walks, what starts it, what good looks like and why it matters. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
 
 Layer: Intent.
 
@@ -560,7 +568,7 @@ Source: Design by Contract.
 
 ### Problem
 
-One pain or job someone has today.
+One pain a person or organization outside the team building the product has today, with its primary sufferer, its cost today, its workaround today and its graded evidence.
 
 Layer: Intent.
 
@@ -763,6 +771,14 @@ Source: LiteSpec.
 One aggregate kind holding state no invariant guards, with its owner named.
 
 Layer: Behavior.
+
+Source: LiteSpec.
+
+### Team Actor
+
+One actor that belongs to the team building and running the product, marked on its record. A problem never names a team actor as its primary sufferer.
+
+Layer: Intent.
 
 Source: LiteSpec.
 
@@ -1148,7 +1164,7 @@ Source: LiteSpec.
 
 ### Proof Hash
 
-The hash of a scenario or of its test body recorded in `docs/proof/proofs.json` at the last passing run.
+The hash of a scenario or of its test body recorded in `.litespec/proof/proofs.json` at the last passing run.
 
 Source: LiteSpec.
 
@@ -1208,12 +1224,6 @@ One page of exact values a reader looks up.
 
 Source: Diataxis.
 
-### Risk Tier
-
-The risk class of a record: tier 1 when the record carries risk, tier 3 when it carries none.
-
-Source: LiteSpec.
-
 ### Roll-Forward
 
 Recovery by deploying a newer version rather than restoring the old one.
@@ -1222,7 +1232,7 @@ Source: release practice.
 
 ### Sample Hash
 
-The hash each tier 3 record is ordered by to draw the batch sample.
+The hash each record is ordered by to draw the batch sample.
 
 Source: LiteSpec.
 
@@ -1240,7 +1250,7 @@ Source: LiteSpec.
 
 ### Security Reviewer
 
-The optional role reading tier-1 access and data changes, named in review.securityReviewer where the project names one.
+The optional role reading access and data changes that carry risk, named in review.securityReviewer where the project names one.
 
 Source: LiteSpec.
 
@@ -1330,7 +1340,7 @@ Source: LiteSpec.
 
 ### Veto Window
 
-The days after decideBy in which a tier-3 recommendation auto-approves.
+The days after decideBy in which a recommendation with no risk auto-approves.
 
 Source: LiteSpec.
 

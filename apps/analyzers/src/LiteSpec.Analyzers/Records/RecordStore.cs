@@ -210,7 +210,7 @@ public sealed class RecordStore
             return null;
         }
 
-        var directory = DirectoryOf(project.Path);
+        var directory = RepositoryRootOf(project.Path);
         var roots = DocsRoots(root, directory, out var docsRoots);
 
         if (roots is null || roots.Count == 0)
@@ -245,7 +245,9 @@ public sealed class RecordStore
 
         foreach (var file in files)
         {
-            if (string.Equals(FileName(file.Path), "litespec.project.json", StringComparison.OrdinalIgnoreCase)
+            var normalized = file.Path.Replace('\\', '/');
+
+            if (normalized.EndsWith("/.litespec/project.json", StringComparison.OrdinalIgnoreCase)
                 && (found is null || string.Compare(file.Path, found.Path, StringComparison.Ordinal) < 0))
             {
                 found = file;
@@ -255,14 +257,21 @@ public sealed class RecordStore
         return found;
     }
 
-    /// <summary>Returns the name.</summary>
-    /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>The name as text.</returns>
-    private static string FileName(string path)
+    /// <summary>
+    ///     The repository root holding the project file: the folder above
+    ///     <c>.litespec/</c> when the file sits in that folder, else its own folder.
+    ///     Paths in the project file resolve against the repository root.
+    /// </summary>
+    /// <param name="projectPath">The project file path, as the host reported it.</param>
+    /// <returns>The repository root the project file's paths resolve against.</returns>
+    private static string RepositoryRootOf(string projectPath)
     {
-        var slash = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
+        var directory = DirectoryOf(projectPath).Replace('\\', '/');
+        var slash = directory.LastIndexOf('/');
 
-        return slash < 0 ? path : path.Substring(slash + 1);
+        return directory.EndsWith("/.litespec", StringComparison.OrdinalIgnoreCase) && slash > 0
+            ? directory.Substring(0, slash)
+            : directory;
     }
 
     /// <summary>Returns the directory of the path.</summary>
@@ -277,9 +286,9 @@ public sealed class RecordStore
 
     /// <summary>
     ///     The docs roots from the project file: <c>paths.docs</c> (one folder or
-    ///     an array, defaulting to <c>docs</c>) plus <c>paths.behaviorDocs</c>
-    ///     (defaulting to <c>docs/behavior</c>), resolved against the project
-    ///     directory. Returns null when the paths do not resolve.
+    ///     an array, defaulting to <c>.litespec</c>) plus <c>paths.behaviorDocs</c>
+    ///     (defaulting to <c>.litespec/behavior</c>), resolved against the repository
+    ///     root. Returns null when the paths do not resolve.
     /// </summary>
     /// <param name="root">The syntax root of the tree being searched.</param>
     /// <param name="directory">The directory the folder is resolved against.</param>
@@ -309,13 +318,13 @@ public sealed class RecordStore
 
         if (paths is null || !paths.TryGetProperty("docs", out var docs) || docs.Kind == JsonKind.Null)
         {
-            AddDocsRoot(roots, docsOnly, Combine(directory, "docs"));
+            AddDocsRoot(roots, docsOnly, Combine(directory, ".litespec"));
         }
         else if (docs.Kind == JsonKind.String && docs.GetString() is string single)
         {
             if (single.Length == 0)
             {
-                AddDocsRoot(roots, docsOnly, Combine(directory, "docs"));
+                AddDocsRoot(roots, docsOnly, Combine(directory, ".litespec"));
             }
             else
             {
@@ -342,7 +351,7 @@ public sealed class RecordStore
             || behavior.Kind == JsonKind.Null
             || (behavior.Kind == JsonKind.String && behavior.GetString() is string blank && blank.Length == 0))
         {
-            roots.Add(Combine(directory, "docs/behavior"));
+            roots.Add(Combine(directory, ".litespec/behavior"));
         }
         else if (behavior.Kind == JsonKind.String && behavior.GetString() is string folder && folder.Length > 0)
         {

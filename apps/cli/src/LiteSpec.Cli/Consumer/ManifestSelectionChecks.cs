@@ -63,11 +63,11 @@ static class ManifestSelectionChecks
 
             if (!JsonValues.IsTruthy(reviewed))
             {
-                run.Err($"litespec.project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}");
+                run.Err($".litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}");
             }
             else if (!JsonValues.StrictEqual(reviewed, version))
             {
-                run.Err($"litespec.project.json: reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}");
+                run.Err($".litespec/project.json: reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}");
             }
         }
 
@@ -91,7 +91,7 @@ static class ManifestSelectionChecks
 
             foreach (var stack in named.Where(stack => !byId.ContainsKey(stack)))
             {
-                run.Err($"litespec.project.json: stack '{stack}' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err($".litespec/project.json: stack '{stack}' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]");
             }
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
@@ -102,12 +102,12 @@ static class ManifestSelectionChecks
             {
                 foreach (var backend in backends)
                 {
-                    run.Err($"litespec.project.json: shape 'client-only' names backend stack '{backend}'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                    run.Err($".litespec/project.json: shape 'client-only' names backend stack '{backend}'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]");
                 }
             }
             else if (backends.Count != 1)
             {
-                run.Err($"litespec.project.json: stacks name {backends.Count} backend stacks; name exactly one of {string.Join(", ", backendIds)} [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err($".litespec/project.json: stacks name {backends.Count} backend stacks; name exactly one of {string.Join(", ", backendIds)} [litespec/core/scope#select-a-size-a-shape-and-stacks]");
             }
 
             // A stack whose requires is not also named misses the pages its own
@@ -118,7 +118,7 @@ static class ManifestSelectionChecks
                 {
                     if (!named.Contains(required))
                     {
-                        run.Err($"litespec.project.json: stack '{stack}' requires '{required}', which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                        run.Err($".litespec/project.json: stack '{stack}' requires '{required}', which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
                     }
                 }
             }
@@ -136,7 +136,7 @@ static class ManifestSelectionChecks
 
                 foreach (var backend in backends.Where(backend => !pairs.Contains(backend)))
                 {
-                    run.Err($"litespec.project.json: frontend stack '{stack}' pairs only with {string.Join(", ", pairs)}, not with backend stack '{backend}' [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                    run.Err($".litespec/project.json: frontend stack '{stack}' pairs only with {string.Join(", ", pairs)}, not with backend stack '{backend}' [litespec/core/scope#select-a-size-a-shape-and-stacks]");
                 }
             }
 
@@ -157,7 +157,7 @@ static class ManifestSelectionChecks
 
                     if (selection.Id is null || !extensions.TryGetPropertyValue(selection.Id, out var shipped) || !JsonValues.IsTruthy(shipped))
                     {
-                        run.Err($"litespec.project.json: extensions '{selection.IdText}' is not an extension in the pinned LiteSpec release; known ids are {string.Join(", ", known)}");
+                        run.Err($".litespec/project.json: extensions '{selection.IdText}' is not an extension in the pinned LiteSpec release; known ids are {string.Join(", ", known)}");
                     }
                     else
                     {
@@ -172,7 +172,7 @@ static class ManifestSelectionChecks
 
                             if (supported.Count > 0 && !named.Any(supported.Contains))
                             {
-                                run.Err($"litespec.project.json: extensions '{selection.IdText}' supports only the {string.Join(", ", supported)} stack, which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                                run.Err($".litespec/project.json: extensions '{selection.IdText}' supports only the {string.Join(", ", supported)} stack, which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
                             }
                         }
                     }
@@ -196,7 +196,7 @@ static class ManifestSelectionChecks
 
             if (string.CompareOrdinal(selection.ReviewBy, run.Today) < 0)
             {
-                run.Err($"litespec.project.json: extensions '{selection.IdText}' was due for review on {selection.ReviewBy}; confirm the criterion still applies or remove the selection");
+                run.Err($".litespec/project.json: extensions '{selection.IdText}' was due for review on {selection.ReviewBy}; confirm the criterion still applies or remove the selection");
             }
         }
 
@@ -249,7 +249,7 @@ static class ManifestSelectionChecks
 
         if (stage.ReleaseStage == "production" && deferrals.Count > 0)
         {
-            run.Err($"litespec.project.json: extensions 'stage' declares production and still defers {deferrals.Count} provision(s); the promotion decision ends every deferral");
+            run.Err($".litespec/project.json: extensions 'stage' declares production and still defers {deferrals.Count} provision(s); the promotion decision ends every deferral");
         }
 
         if (deferrals.Count == 0)

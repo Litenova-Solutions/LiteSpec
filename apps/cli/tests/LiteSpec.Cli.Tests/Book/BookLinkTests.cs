@@ -40,8 +40,8 @@ public sealed class BookLinkTests
         Assert.True(BookRender.IsSafeHref("http://example.com/page"));
         Assert.True(BookRender.IsSafeHref("mailto:team@example.com"));
         Assert.True(BookRender.IsSafeHref("#section"));
-        Assert.True(BookRender.IsSafeHref("docs/page.md"));
-        Assert.True(BookRender.IsSafeHref("../docs/page.md"));
+        Assert.True(BookRender.IsSafeHref(".litespec/page.md"));
+        Assert.True(BookRender.IsSafeHref("../.litespec/page.md"));
         Assert.True(BookRender.IsSafeHref("vscode://file/root/page.cs:1", "vscode"));
     }
 
@@ -68,7 +68,7 @@ public sealed class BookLinkTests
         var model = JsonNode.Parse(
             """
             {"records":[
-              {"type":"research","id":"research/links","title":"Links","owner":"Ada","status":"draft","effectiveStatus":"draft","decider":null,"decideBy":null,"file":"docs/test.yaml","line":3,"fields":{"question":"Which links?","sources":[{"title":"Trap","url":"javascript:alert(1)"}]},"links":{},"explanation":"# Links\n\nSee [click](data:text/html,hello) and [site](https://example.com)."}
+              {"type":"research","id":"research/links","title":"Links","owner":"Ada","status":"draft","effectiveStatus":"draft","decider":null,"decideBy":null,"file":".litespec/test.yaml","line":3,"fields":{"question":"Which links?","sources":[{"title":"Trap","url":"javascript:alert(1)"}]},"links":{},"explanation":"# Links\n\nSee [click](data:text/html,hello) and [site](https://example.com)."}
             ]}
             """)!.AsObject();
 

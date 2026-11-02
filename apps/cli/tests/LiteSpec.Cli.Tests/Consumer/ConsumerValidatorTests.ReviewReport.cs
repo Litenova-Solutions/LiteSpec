@@ -3,7 +3,7 @@ namespace LiteSpec.Tests.Consumer;
 /// <summary>Consumer validator cases for review report pages and their verdicts.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string ReviewReportPage = "docs/proof/reviews/2026-10-30-intent.md";
+    const string ReviewReportPage = ".litespec/proof/reviews/2026-10-30-intent.md";
 
     const string ReviewReportMeta = """{"type":"review-report","title":"Intent Review","owner":"fixture","status":"approved","reviewedOn":"2026-10-30","reviewer":"agent","batches":["intent/pricing"]}""";
 

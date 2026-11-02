@@ -8,7 +8,7 @@ An audit trail proves who attempted what against which data and what each attemp
 
 Start with:
 
-- The `audit` extension selected in the consumer's `litespec.project.json`.
+- The `audit` extension selected in the consumer's `.litespec/project.json`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
 - The `audit` field on each command record, set to its reason and target or left at its default of audited with reason `none`.
 - A LiteBus command pipeline that commits once for each command.

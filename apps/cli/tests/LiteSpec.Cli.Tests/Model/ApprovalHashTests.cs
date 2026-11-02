@@ -77,7 +77,7 @@ public sealed class ApprovalHashTests
     {
         var path = Path.Combine(
             Cli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Fixtures", "Model", "large",
-            "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+            ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
         Assert.True(RecordFile.TryParse(File.ReadAllText(path), out var root, out _, out var error), error);
         var record = new LiteSpec.Model.Record
         {

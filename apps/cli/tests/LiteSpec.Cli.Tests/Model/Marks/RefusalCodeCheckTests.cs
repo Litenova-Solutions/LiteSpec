@@ -52,7 +52,7 @@ public sealed class RefusalCodeCheckTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -62,14 +62,14 @@ public sealed class RefusalCodeCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.0.0",
+                  "reviewedLiteSpecVersion": "3.1.0",
                   "owners": [
                     "lending-team"
                   ],
                   "paths": {
-                    "docs": "docs",
-                    "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.yaml",
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -90,12 +90,12 @@ public sealed class RefusalCodeCheckTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -141,7 +141,7 @@ public sealed class RefusalCodeCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.

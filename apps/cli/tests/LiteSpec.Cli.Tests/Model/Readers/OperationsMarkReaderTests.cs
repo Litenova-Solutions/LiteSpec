@@ -66,7 +66,7 @@ public sealed class OperationsMarkReaderTests
     {
         Directory.CreateDirectory(Path.Combine(root, "ops"));
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {
               "owners": ["team"],

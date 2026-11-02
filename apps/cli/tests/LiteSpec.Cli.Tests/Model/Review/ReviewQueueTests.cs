@@ -7,16 +7,16 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class ReviewQueueTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string ExtendLoan(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "extend-loan.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "extend-loan.yaml");
 
     static string ReturnCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "return-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "return-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
     /// <summary>A draft use case lists its batch with its results.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
@@ -30,7 +30,7 @@ public sealed class ReviewQueueTests
         var result = Cli.Run("model", "review", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("use-case/lending.borrow-copy  tier 3  3 records  awaiting 0", result.Output);
+        Assert.Contains("use-case/lending.borrow-copy  risk none  3 records  awaiting 0", result.Output);
         Assert.Contains("  use-case/lending.borrow-copy  draft  -", result.Output);
         Assert.Contains("  result/borrow-copy.borrowed  draft  -", result.Output);
         Assert.Contains("  result/borrow-copy.copy-unavailable  draft  -", result.Output);
@@ -67,7 +67,7 @@ public sealed class ReviewQueueTests
         Assert.True(0 <= fullReRead && fullReRead < reopened, result.Output);
         Assert.True(reopened < awaited, result.Output);
         Assert.True(awaited < plain, result.Output);
-        Assert.Contains("decision/decision/0001-loan-period  tier 3  1 record  awaiting 1", result.Output);
+        Assert.Contains("decision/decision/0001-loan-period  risk none  1 record  awaiting 1", result.Output);
         Assert.Contains("  result/return-copy.returned  reviewed  reopened", result.Output);
         Assert.Contains("fullReRead", result.Output);
     }
@@ -93,7 +93,7 @@ public sealed class ReviewQueueTests
 
         Assert.Equal("use-case/lending.borrow-copy", batch["selector"]!.GetValue<string>());
         Assert.Equal("use-case", batch["kind"]!.GetValue<string>());
-        Assert.Equal(3, batch["tier"]!.GetValue<int>());
+        Assert.Empty(batch["riskClasses"]!.AsArray());
         Assert.Equal("lending-team", batch["deciders"]!.AsArray()[0]!.GetValue<string>());
         Assert.Equal("2027-01-01", batch["decideBy"]!.GetValue<string>());
         Assert.Equal(0, batch["awaiting"]!.GetValue<int>());
@@ -104,7 +104,8 @@ public sealed class ReviewQueueTests
         Assert.Equal("use-case/lending.borrow-copy", records[0]!["id"]!.GetValue<string>());
         Assert.Equal("use-case", records[0]!["type"]!.GetValue<string>());
         Assert.Equal("behavior", records[0]!["layer"]!.GetValue<string>());
-        Assert.Equal(3, records[0]!["tier"]!.GetValue<int>());
+        Assert.Empty(records[0]!["risk"]!.AsArray());
+        Assert.Null(records[0]!["approval"]);
         Assert.Equal("draft", records[0]!["status"]!.GetValue<string>());
         Assert.Equal("draft", records[0]!["effectiveStatus"]!.GetValue<string>());
         Assert.False(records[0]!["reopened"]!.GetValue<bool>());
@@ -128,11 +129,17 @@ public sealed class ReviewQueueTests
         ReviewPages.DraftPage(ExtendLoan(fixture.Path));
         ReviewPages.AddPageRisk(ExtendLoan(fixture.Path));
 
-        var tier = Cli.Run("model", "review", "--root", fixture.Path, "--tier", "1");
+        var risk = Cli.Run("model", "review", "--root", fixture.Path, "--risk", "money");
 
-        Assert.Equal(0, tier.Status);
-        Assert.Contains("use-case/lending.extend-loan", tier.Output);
-        Assert.DoesNotContain("use-case/lending.borrow-copy", tier.Output);
+        Assert.Equal(0, risk.Status);
+        Assert.Contains("use-case/lending.extend-loan", risk.Output);
+        Assert.DoesNotContain("use-case/lending.borrow-copy", risk.Output);
+
+        var none = Cli.Run("model", "review", "--root", fixture.Path, "--risk", "none");
+
+        Assert.Equal(0, none.Status);
+        Assert.Contains("use-case/lending.borrow-copy", none.Output);
+        Assert.DoesNotContain("use-case/lending.extend-loan", none.Output);
 
         var type = Cli.Run("model", "review", "--root", fixture.Path, "--type", "result");
 
@@ -151,7 +158,7 @@ public sealed class ReviewQueueTests
         Assert.Contains("use-case/lending.borrow-copy", decider.Output);
 
         var both = Cli.Run(
-            "model", "review", "--root", fixture.Path, "--tier", "1", "--type", "use-case");
+            "model", "review", "--root", fixture.Path, "--risk", "money", "--type", "use-case");
 
         Assert.Equal(0, both.Status);
         Assert.Contains("use-case/lending.extend-loan", both.Output);
@@ -170,15 +177,15 @@ public sealed class ReviewQueueTests
         Assert.Contains("No drafts or reopened records.", result.Output);
     }
 
-    /// <summary>A tier outside 1 and 3 is a usage error.</summary>
+    /// <summary>A risk class outside the named classes is a usage error.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
     [Fact]
-    public void Review_Rejects_Unknown_Tier()
+    public void Review_Rejects_Unknown_Risk()
     {
         using var fixture = ModelFixture.Prepare("small");
-        var result = Cli.Run("model", "review", "--root", fixture.Path, "--tier", "2");
+        var result = Cli.Run("model", "review", "--root", fixture.Path, "--risk", "secrecy");
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("use 1 or 3", result.Output);
+        Assert.Contains("Unknown risk class 'secrecy'", result.Output);
     }
 }

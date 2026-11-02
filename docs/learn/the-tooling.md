@@ -43,15 +43,15 @@ The diagram below shows where each tool runs in that one change.
 
 ![One change runs litespec init, Intent records, Behavior records, litespec consumer, code with analyzers, litespec model build and check, CI gates, and litespec book, in that order.](../assets/diagrams/learn-tool-flow.svg)
 
-A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `litespec.project.json` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the reviewed release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
+A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `.litespec/project.json` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the reviewed release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
 
-`dotnet litespec consumer` reads `litespec.project.json` and every file under your documentation root, and checks the project record, the stacks and extensions, each record file, the glossary, and the controlled web UI contract. The [consumer page](../tools/consumer.md) lists what it reads, and the [controlled UI page](../tools/ui.md) lists what the UI check covers. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
+`dotnet litespec consumer` reads `.litespec/project.json` and every file under your documentation root, and checks the project record, the stacks and extensions, each record file, the glossary, and the controlled web UI contract. The [consumer page](../tools/consumer.md) lists what it reads, and the [controlled UI page](../tools/ui.md) lists what the UI check covers. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
 
 During implementation, a use case runs in one command handler in the Application project, in a folder that mirrors the record, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
 
-The model builder reads your records and follows the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model build` writes `.model/model.json` with the computed `implements`, `calls`, and `proves` links, `dotnet litespec model check` lists the gaps with a level beside each finding, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model diff <base>` shows the change for review, and `dotnet litespec book --model .model/model.json --out .book` writes one offline shell with the Outline, Review queue, Security, and Ballots views, with no server. The [book page](../tools/book.md) describes the shell and its views.
+The model builder reads your records and follows the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model build` writes `.litespec/model/model.json` with the computed `implements`, `calls`, and `proves` links, `dotnet litespec model check` lists the gaps with a level beside each finding, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model diff <base>` shows the change for review, and `dotnet litespec book` writes one offline shell with the Outline, Review queue, Security, and Ballots views, with no server. The [book page](../tools/book.md) describes the shell and its views.
 
-Every pull request then runs the gates the [CI page](../quality/ci.md) selects for the changed areas, such as `dotnet litespec model check` for a record, code, or test change and `dotnet litespec consumer` for a documentation change, under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. It also publishes the intent diff and a book preview, so reviewers read the change in product words. A gap shows up in the change that introduced it.
+Every pull request then runs the gates the [CI page](../quality/ci.md) selects for the changed areas, such as `dotnet litespec model check` for a record, code, or test change and `dotnet litespec consumer` for a documentation change, under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. It also publishes the intent diff, so reviewers read the change in product words; a project that selects the Delivery extension also publishes a book preview under `litespec/ext/delivery#publish-a-book-preview-for-every-change`. A gap shows up in the change that introduced it.
 
 For example, if the shop team removed the cancel-order handler without retiring the record, `dotnet litespec model check` reports `[S use-case-unimplemented]` for `use-case/orders.cancel-order`, and CI fails the pull request until the handler returns or an approved gap exception covers it.
 
@@ -59,23 +59,23 @@ For example, if the shop team removed the cancel-order handler without retiring 
 
 You and your agent read the same release in different forms.
 
-You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/3.0.0/select/) that shows which pages your shape and stacks apply. An agent starts from the selection index for your project:
+You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/3.1.0/select/) that shows which pages your shape and stacks apply. An agent starts from the selection index for your project:
 
 ```text
-https://litespec.dev/3.0.0/select/server.dotnet.react/llms.txt
+https://litespec.dev/3.1.0/select/server.dotnet.react/llms.txt
 ```
 
 That index lists the pages the `server.dotnet.react` selection applies, grouped by layer, with a raw Markdown link for each one. Your project `AGENTS.md` carries the block the index suggests, so the agent fetches only the pages a task touches:
 
 ```markdown
 ## LiteSpec
-This project follows LiteSpec 3.0.0: size small, shape server, stacks dotnet and react, extensions none.
-Before a task, read https://litespec.dev/3.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 3.1.0: size small, shape server, stacks dotnet and react, extensions none.
+Before a task, read https://litespec.dev/3.1.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 ```
 
-Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https://litespec.dev/3.0.0/backend/domain.md`, and every layer ships as one bundle at `/<version>/layers/<key>.md`. The schemas in `schemas/` ship as JSON at `/<version>/schemas/<file>`, so a tool reads the same contracts the validators enforce. An agent that needs one fact queries the model instead of reading pages: `dotnet litespec model query <id>` prints one record with its links in both directions.
+Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https://litespec.dev/3.1.0/backend/domain.md`, and every layer ships as one bundle at `/<version>/layers/<key>.md`. The schemas in `schemas/` ship as JSON at `/<version>/schemas/<file>`, so a tool reads the same contracts the validators enforce. An agent that needs one fact queries the model instead of reading pages: `dotnet litespec model query <id>` prints one record with its links in both directions.
 
 ## Command Locations
 
@@ -84,8 +84,8 @@ Two commands belong to the LiteSpec repository, and the rest belong to a consume
 | Command | Repository | Reads | Writes |
 |:---|:---|:---|:---|
 | `litespec-maintain validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
-| `litespec-maintain provisions` | LiteSpec | Active standards | `docs/reference/provisions.md` |
-| `litespec init` | Consumer | Release template and preset | `litespec.project.json` |
+| `litespec-maintain provisions` | LiteSpec | Active standards | `.litespec/reference/provisions.md` |
+| `litespec init` | Consumer | Release template and preset | `.litespec/project.json` |
 | `litespec consumer` | Consumer | Project file, pages, glossary | Diagnostics only |
 | `litespec ui` | Consumer | Shared UI package, frontends | Diagnostics only |
 | `litespec model` | Consumer | Records, code marks, routes, test runs | `model.json`, findings with levels, diffs, rendered regions |

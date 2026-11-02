@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 internal static class RecordPages
 {
     /// <summary>The project file path every generator test uses.</summary>
-    public const string ProjectPath = "/project/litespec.project.json";
+    public const string ProjectPath = "/project/.litespec/project.json";
 
     /// <summary>Wraps one source in the single-file list.</summary>
     /// <param name="source">The C# source.</param>
@@ -28,7 +28,7 @@ internal static class RecordPages
 
         foreach (var page in pages)
         {
-            files.Add(("/project/docs/behavior/" + page.Name, page.Text));
+            files.Add(("/project/.litespec/behavior/" + page.Name, page.Text));
         }
 
         return files;
@@ -38,7 +38,7 @@ internal static class RecordPages
     /// <param name="marks">The declared mark style.</param>
     /// <returns>The project file text.</returns>
     public static string Project(string marks) =>
-        "{\"marks\": \"" + marks + "\", \"paths\": {\"docs\": \"docs\", \"behaviorDocs\": \"docs/behavior\"}}";
+        "{\"marks\": \"" + marks + "\", \"paths\": {\"docs\": \".litespec\", \"behaviorDocs\": \".litespec/behavior\"}}";
 
     /// <summary>Builds an event page.</summary>
     /// <param name="id">The event identifier.</param>
@@ -110,12 +110,12 @@ internal static class RecordPages
     {
         var files = new List<(string Path, string Text)>
         {
-            (ProjectPath, "{\"marks\": \"xml\", \"paths\": {\"docs\": \"docs\", \"behaviorDocs\": \"docs/behavior\"}, \"vocabulary\": " + vocabulary + "}"),
+            (ProjectPath, "{\"marks\": \"xml\", \"paths\": {\"docs\": \".litespec\", \"behaviorDocs\": \".litespec/behavior\"}, \"vocabulary\": " + vocabulary + "}"),
         };
 
         foreach (var page in pages)
         {
-            files.Add(("/project/docs/behavior/" + page.Name, page.Text));
+            files.Add(("/project/.litespec/behavior/" + page.Name, page.Text));
         }
 
         return files;

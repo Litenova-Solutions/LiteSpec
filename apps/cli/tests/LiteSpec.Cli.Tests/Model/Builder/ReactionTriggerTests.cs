@@ -13,8 +13,8 @@ public sealed class ReactionTriggerTests
     public void Reaction_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/notify-overdue.yaml", UseCaseJson);
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.yaml", ReactionJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/notify-overdue.yaml", UseCaseJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.yaml", ReactionJson);
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
 
         using var document = Build(temp.Path);
@@ -53,7 +53,7 @@ public sealed class ReactionTriggerTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

@@ -69,13 +69,13 @@ public sealed class DecideTests
         Assert.Equal("reported", outcome);
     }
 
-    /// <summary>At release an unanswered tier 1 question blocks instead of reporting.</summary>
+    /// <summary>At release an unanswered question on a record carrying a risk class blocks instead of reporting.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Release_Blocks_An_Unanswered_Tier1_Question()
+    public void Release_Blocks_An_Unanswered_Risk_Question()
     {
         using var fixture = ModelFixture.Prepare("small");
-        DraftTier1Question(fixture.Path);
+        DraftRiskQuestion(fixture.Path);
 
         var loose = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (looseOutcome, _) = OutcomeOf(loose.Stdout, "question-expired");
@@ -113,9 +113,9 @@ public sealed class DecideTests
 
     /// <summary>Drafts borrow-copy with a risk value and an unanswered past-due question.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    static void DraftTier1Question(string root)
+    static void DraftRiskQuestion(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        var file = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
         Assert.True(
@@ -146,7 +146,7 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
-        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy-draft-scenario.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-draft-scenario.yaml", """
             {
               "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -161,7 +161,7 @@ public sealed class DecideTests
               "then": "The loan is active."
             }
             """);
-        TestRecords.Explain(root, "docs/behavior/modules/lending/loans/borrow-copy-draft-scenario.md", """
+        TestRecords.Explain(root, ".litespec/behavior/modules/lending/loans/borrow-copy-draft-scenario.md", """
             # Borrowing an available copy succeeds
 
             A reader borrows an available copy.
@@ -172,7 +172,7 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void DraftMaxActiveLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "product", "lending", "borrowing.yaml");
+        var file = Path.Combine(root, ".litespec", "product", "lending", "borrowing.yaml");
         var page = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
         var entry = page["records"]!.AsArray()
             .OfType<JsonObject>()
@@ -195,7 +195,7 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void AddWebFrontend(string root)
     {
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         var paths = (JsonObject)project["paths"]!;
         paths["frontends"] = new JsonArray(

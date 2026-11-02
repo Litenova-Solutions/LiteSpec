@@ -158,10 +158,10 @@ static class BookModel
     /// <returns>The built index.</returns>
     public static BookIndex BuildIndex(JsonObject model) => BookIndexBuilder.BuildIndex(model);
 
-    /// <summary>One record's tier: the tier the model states, or 1 when its record carries risk, else 3.</summary>
+    /// <summary>One record's risk classes, in model order.</summary>
     /// <param name="record">The record.</param>
-    /// <returns>The record's tier.</returns>
-    public static int TierOf(JsonObject record) => BookReviewQueries.TierOf(record);
+    /// <returns>The risk class names the record carries, empty when it carries no risk.</returns>
+    public static IReadOnlyList<string> RiskClassesOf(JsonObject record) => BookReviewQueries.RiskClassesOf(record);
 
     /// <summary>The display label of a record type, singular or plural.</summary>
     /// <param name="type">The record type, or null.</param>

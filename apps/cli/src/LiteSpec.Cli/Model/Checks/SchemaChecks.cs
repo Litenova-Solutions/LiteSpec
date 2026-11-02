@@ -342,7 +342,7 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Actor:
-                RequireEnum(record, RecordFields.Kind, ["person", "organization", "system"], findings);
+                RequireEnum(record, RecordFields.Kind, ["person", "organization"], findings);
                 break;
 
             case RecordTypes.Role:
@@ -424,7 +424,6 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.ExternalSystem:
-                RequireIds(record, RecordFields.Actor, 1, findings);
                 break;
 
             case RecordTypes.Result:

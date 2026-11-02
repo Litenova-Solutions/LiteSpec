@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 /// </summary>
 /// <param name="NuGet">The NuGet package pins, by package name.</param>
 /// <param name="Npm">The npm package pins, by package name.</param>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 sealed record ManifestPins(IReadOnlyDictionary<string, string> NuGet, IReadOnlyDictionary<string, string> Npm)
 {
     /// <summary>

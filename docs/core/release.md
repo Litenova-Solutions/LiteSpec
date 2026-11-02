@@ -2,7 +2,7 @@
 
 ## Intent
 
-A product release is the verified behavior a team ships after Intent and Behavior review approve it, with the security queue read where the project names a reviewer. This page states who reviews each diff, how tiers and the veto window work, which checks each changed boundary runs, and what the written release record lists for its artifact. A release that follows it ships only reviewed and proven behavior with recovery, visibility, and delivery evidence attached.
+A product release is the verified behavior a team ships after Intent and Behavior review approve it, with the security queue read where the project names a reviewer. This page states who reviews each diff, how risk classes and the veto window work, which checks each changed boundary runs, and what the written release record lists for its artifact. A release that follows it ships only reviewed and proven behavior. The production release gate, deployment, rollback and alerting regime lives in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Concepts
 
@@ -12,11 +12,11 @@ Each change flows from the builder through checks into three review views: the I
 
 ### Intent Review
 
-Product people review the Intent diff and answer its ballots. Questions on tier 1 records call for explicit approval from the decider, while questions on tier 3 records auto-approve after the veto window with the recommendation recorded as the answer, as `litespec/core/model#answer-each-question-on-its-record` states. Each ballot carries a consequences summary rendered from Behavior as context, outside the approval hash, so Intent stays enough to approve.
+Product people review the Intent diff and answer its ballots. Questions on records carrying a risk class (money, personal-data, access or physical-access) call for explicit approval from the decider named in the project's approval table for that class, while questions on records with no risk auto-approve after the veto window with the recommendation recorded as the answer, as `litespec/core/model#answer-each-question-on-its-record` states. Each ballot carries a consequences summary rendered from Behavior as context, outside the approval hash, so Intent stays enough to approve.
 
 ### Behavior Review
 
-Developers review the Behavior diff. A tier 1 change ships with passing scenarios and a recorded second reading, and it ships on no self review alone. An agent reading counts as that second reading, with its report kept beside the manifest. Tier 3 changes are sampled, so a developer reads a sample rather than every line.
+Developers review the Behavior diff. A change to a record carrying a risk class ships with passing scenarios and a recorded second reading, and it ships on no self review alone. An agent reading counts as that second reading, with its report kept beside the manifest. Changes to records with no risk are sampled, so a developer reads a sample rather than every line.
 
 ### The Security Queue
 
@@ -24,23 +24,23 @@ The security reviewer is the role a project may name in `review.securityReviewer
 
 ### Single Operator Mode
 
-A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-expired` check, so nothing silently blocks. A project whose owners list holds one name needs no `--second-reviewer`.
+A project with one operator runs the same flow with the veto window doing the waiting. Questions on records with no risk auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on records carrying a risk class wait for explicit approval by the approver the project's approval table names for that class, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-expired` check, so nothing silently blocks. A project whose owners list holds one name needs no `--second-reviewer`.
 
 ### Batch Review
 
-A project with thousands of drafts is reviewed in batches, never record by record. `litespec model review` computes the review queue from the model: every draft and every reopened record, with its decider, tier, `decideBy`, effective status, the drafts awaiting it, and its evidence (scenario proofs and open findings), grouped into batches. A result or a scenario takes the tier of its use case. A batch is one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type. A reopened record carrying a `risk` value, an `access` grant, or requirement `values` is marked `fullReRead`, because the hash says only that its promise moved, not which part.
+A project with thousands of drafts is reviewed in batches, never record by record. `litespec model review` computes the review queue from the model: every draft and every reopened record, with its decider, risk class, `decideBy`, effective status, the drafts awaiting it, and its evidence (scenario proofs and open findings), grouped into batches. A result or a scenario takes the risk class of its use case, and the review queue groups its questions by risk class with the approval rule from the project's approval table beside each group. A batch is one use case with its results and scenarios, one decision with the records it decides, or the drafts with no risk of one module and one record type. A reopened record carrying a `risk` value, an `access` grant, or requirement `values` is marked `fullReRead`, because the hash says only that its promise moved, not which part.
 
-`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios, with the security queue read beside the Behavior diff. No record auto-approves: only a question auto-approves after its `decideBy` plus the veto window, as `litespec/core/model#answer-each-question-on-its-record` states, because a question carries a recommendation the window can settle, while a record is a promise that carries a person's name.
+`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `.litespec/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing scenarios on records carrying a risk class, with the security queue read beside the Behavior diff. No record auto-approves: only a question auto-approves after its `decideBy` plus the veto window, as `litespec/core/model#answer-each-question-on-its-record` states, because a question carries a recommendation the window can settle, while a record is a promise that carries a person's name.
 
-The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's. The report is a page in the `review-report` style under `docs/proof/reviews/`.
+The second review of a batch holding a record that carries a risk class is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's. The report is a page in the `review-report` style under `.litespec/proof/reviews/`.
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its questions on tier 1 records are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check levels, and the boundary table below states which checks each changed boundary selects. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
+The gate admits a release when its G checks are green, its questions on records carrying a risk class are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check levels, and the boundary table below states which checks each changed boundary selects. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
 
 ### Agents Advise
 
-Agents draft records, propose answers, and review as advisers. An agent reading counts as the tier 1 second reading, with the reading's report kept beside the manifest; approval stays with the named person.
+Agents draft records, propose answers, and review as advisers. An agent reading counts as the second reading for a record carrying a risk class, with the reading's report kept beside the manifest; approval stays with the named person.
 
 ### Checker Qualification
 
@@ -52,7 +52,7 @@ Implemented and verified are different claims. A use case is implemented when it
 
 ### The Release Record
 
-Each release creates one release record for its immutable artifact. The record names the source commit and the immutable artifact reference, lists the included journeys, use cases, and extensions, and attaches the evidence and operating readiness the provisions below require. It stays non-authoritative: specifications own behavior and scenarios, so the record links outward instead of restating them. Release records live under `docs/releases/` unless the project records another location.
+Each release creates one release record for its immutable artifact. The record names the source commit and the immutable artifact reference, and lists the included journeys, use cases, and extensions. It stays non-authoritative: specifications own behavior and scenarios, so the record links outward instead of restating them. Release records live under `.litespec/releases/` unless the project records another location. A project that selects the [Delivery extension](../ext/delivery.md) adds the evidence and operating readiness lists that extension states.
 
 ### Boundaries Select Checks
 
@@ -112,51 +112,51 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which Behavior changes shipped without developer review of the Behavior diff? Look at the Behavior diff decisions beside each change.
 
-### Require Passing Scenarios and Advisory Review for Tier 1 Behavior
+### Require Passing Scenarios and Advisory Review for Risk-Bearing Behavior
 
-**ID:** `litespec/core/release#require-passing-scenarios-and-advisory-review-for-tier-1-behavior`
+**ID:** `litespec/core/release#require-passing-scenarios-and-advisory-review-for-risk-bearing-behavior`
 
-**Statement:** A tier 1 Behavior change MUST show passing scenarios and an advisory agent review before it ships.
+**Statement:** A Behavior change to a record carrying a risk class MUST show passing scenarios and an advisory agent review before it ships.
 
-**Rationale:** Tier 1 records carry money, physical-access, personal data, or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change. The advisory review counts as the tier 1 second reading.
+**Rationale:** Records carrying a risk class name money, physical-access, personal-data or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change. The advisory review counts as the second reading for a risk-bearing record, and approval follows the project's approval table for that risk class.
 
 **Example:** A cross tenant search ships only after its scenarios pass and the agent advice on its grant is recorded.
 
-**Reviewed for:** Which tier 1 Behavior changes lack passing scenarios or recorded agent advice? Look at the scenario proofs and advice beside each tier 1 change.
+**Reviewed for:** Which Behavior changes to records carrying a risk class lack passing scenarios or recorded agent advice? Look at the scenario proofs and advice beside each such change.
 
-### Refuse Self Review Alone for Tier 1 Behavior
+### Refuse Self Review Alone for Risk-Bearing Behavior
 
-**ID:** `litespec/core/release#refuse-self-review-alone-for-tier-1-behavior`
+**ID:** `litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior`
 
-**Statement:** A tier 1 Behavior change MUST NOT ship on self review alone.
+**Statement:** A Behavior change to a record carrying a risk class MUST NOT ship on self review alone.
 
-**Rationale:** A reviewer who wrote the change reads what they meant rather than what the records say, which is where tier 1 risk hides. A second reviewer beside the author keeps one pair of eyes from being the whole gate. A project whose owners list holds one name needs no second reviewer.
+**Rationale:** A reviewer who wrote the change reads what they meant rather than what the records say, which is where the named risk hides. A second reviewer beside the author keeps one pair of eyes from being the whole gate. A project whose owners list holds one name needs no second reviewer.
 
 **Example:** An author who drafts a money rule waits for another developer read before the change leaves the gate. In a project with one person, an independent agent review whose report the batch manifest cites stands as that read.
 
-**Checked by:** `litespec model approve --batch` refuses a batch holding a tier 1 record when `--second-reviewer` is missing or names the approver, or names `agent` with no `--review-report`, unless the owners list holds one name, and records the second review in the batch manifest.
+**Checked by:** `litespec model approve --batch` refuses a batch holding a record that carries a risk class when `--second-reviewer` is missing or names the approver, or names `agent` with no `--review-report`, unless the owners list holds one name, and records the second review in the batch manifest.
 
-### Sample Tier 3 Behavior Reviews
+### Sample Behavior Reviews for Records with No Risk
 
-**ID:** `litespec/core/release#sample-tier-3-behavior-reviews`
+**ID:** `litespec/core/release#sample-behavior-reviews-for-records-with-no-risk`
 
-**Statement:** Tier 3 Behavior changes MUST face sampled developer review.
+**Statement:** Behavior changes to records with no risk MUST face sampled developer review.
 
-**Rationale:** Tier 3 records carry no listed risk, so reading every line costs review time without matching risk. Sampling reads a share of tier 3 changes in full, which catches drift while letting routine work flow.
+**Rationale:** Records with no risk carry no listed risk class, so reading every line costs review time without matching risk. Sampling reads a share of such changes in full, which catches drift while letting routine work flow.
 
 **Example:** A wording fix and a setting default move through the gate after the sampled read passes.
 
-**Reviewed for:** Which tier 3 samples lack a recorded developer read? Look at the sampled Behavior diffs beside the gate.
+**Reviewed for:** Which samples of records with no risk lack a recorded developer read? Look at the sampled Behavior diffs beside the gate.
 
 ### Compute the Review Queue from the Model
 
 **ID:** `litespec/core/release#compute-the-review-queue-from-the-model`
 
-**Statement:** The review queue MUST be computed from the model, listing each draft and each reopened record with its decider, tier, decideBy, effective status, the drafts awaiting it, and its evidence, grouped into batches.
+**Statement:** The review queue MUST be computed from the model, listing each draft and each reopened record with its decider, risk class, decideBy, effective status, the drafts awaiting it, and its evidence, grouped into batches.
 
-**Rationale:** A queue kept by hand drifts from the records the moment one is added, and a flat list sorted by date says nothing when thousands of drafts share one date. Computing the queue from the model keeps it true on every run, and ordering it by what waits on each batch puts the decisions others need first.
+**Rationale:** A queue kept by hand drifts from the records the moment one is added, and a flat list sorted by date says nothing when thousands of drafts share one date. Computing the queue from the model keeps it true on every run, and ordering it by what waits on each batch puts the decisions others need first. The queue groups questions by risk class, with the approval rule from the project's approval table beside each group.
 
-**Example:** When Claimwick drafts `use-case/spending.split-expense` with money risk, `litespec model review --tier 1` lists its batch with its results and scenarios, its scenario proofs, and the drafts awaiting it.
+**Example:** When Claimwick drafts `use-case/spending.split-expense` with money risk, `litespec model review` lists its batch with its results and scenarios, its scenario proofs, and the drafts awaiting it.
 
 **Checked by:** `litespec model review --format json` writes each batch and each record with the fields the [model command page](../tools/model.md) lists, in the order it states.
 
@@ -164,13 +164,13 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#approve-drafts-in-bounded-batches`
 
-**Statement:** A batch approval MUST cover one use case with its results and scenarios, one reaction or job with the scenarios on its page, one decision with the records it decides, one tier 1 record no use case, reaction, job, or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
+**Statement:** A batch approval MUST cover one use case with its results and scenarios, one reaction or job with the scenarios on its page, one decision with the records it decides, one record carrying a risk class that no use case, reaction, job, or decision holds, on its own, or the drafts with no risk of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
 
-**Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a tier 1 use case is read with the results and scenarios that state its promise, a decision with what it settles, and tier 3 drafts in sets small enough to sample.
+**Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a use case carrying a risk class is read with the results and scenarios that state its promise, a decision with what it settles, and drafts with no risk in sets small enough to sample.
 
 **Example:** `litespec model approve --batch use-case/spending.split-expense --by Cara --second-reviewer Ben` reviews the split-expense use case with its results and scenarios in one act.
 
-**Checked by:** `litespec model approve --batch` accepts only a `use-case/`, `decision/`, or `<module>/<type>` selector, and leaves tier 1 drafts out of a module and type batch.
+**Checked by:** `litespec model approve --batch` accepts only a `use-case/`, `decision/`, or `<module>/<type>` selector, and leaves drafts carrying a risk class out of a module and type batch.
 
 ### Hold Only the Blocked Records of a Type Batch
 
@@ -178,7 +178,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A module and type batch MUST approve every record whose guards pass and hold each record whose guard fails, by name and with that guard.
 
-**Rationale:** A module and type batch gathers unrelated drafts of one kind, so one record waiting on an open question says nothing about its siblings; refusing the whole batch would hold every sibling behind a question that is not theirs. A use case, reaction, job, decision, or tier 1 record batch is read as one unit, so it stays approved or refused whole. A held record keeps its status and gets no stamp, and the manifest lists it with the action `held` and its guard, so the next run approves it once the guard passes.
+**Rationale:** A module and type batch gathers unrelated drafts of one kind, so one record waiting on an open question says nothing about its siblings; refusing the whole batch would hold every sibling behind a question that is not theirs. A use case, reaction, job, decision, or record carrying a risk class batch is read as one unit, so it stays approved or refused whole. A held record keeps its status and gets no stamp, and the manifest lists it with the action `held` and its guard, so the next run approves it once the guard passes.
 
 **Example:** The `admin/screen` batch holds twelve screens; two serve a journey step whose journey waits on an open pricing question. The run approves the ten others and lists the two as held, each naming `stays draft behind draft journey/choose-a-plan`.
 
@@ -190,7 +190,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A batch approval MUST refuse the whole batch unless `--by` names a person from the project's owners.
 
-**Rationale:** A record is a promise, so every approval carries the name of the person who made it, and `litespec/core/model#approve-tier-1-records-by-a-person` requires it outright for tier 1. A batch that falls back to a decider, an unknown, or the veto window would let a signature nobody gave cover the records it promotes.
+**Rationale:** A record is a promise, so every approval carries the name of the person who made it, and the project's approval table names that person for each risk class, with a default rule for records with no risk. A batch that falls back to a decider, an unknown, or the veto window would let a signature nobody gave cover the records it promotes.
 
 **Example:** Approving the split-expense batch with no `--by` is refused, and nothing is written.
 
@@ -224,23 +224,23 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#write-a-manifest-for-every-batch-approval`
 
-**Statement:** Every batch approval MUST write a generated manifest under `docs/proof/approvals/` naming its records, approver, second reviewer, date, approval hashes, sample, scenario proof state, and open findings.
+**Statement:** Every batch approval MUST write a generated manifest under `.litespec/proof/approvals/` naming its records, approver, second reviewer, date, approval hashes, sample, scenario proof state, and open findings.
 
-**Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data. An agent second reading writes its report under `docs/proof/reviews/` for the same reason, and the manifest cites it: a report records what its reader saw when the review ran, so a record renamed or removed later is history in it, not a broken link.
+**Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data. An agent second reading writes its report under `.litespec/proof/reviews/` for the same reason, and the manifest cites it: a report records what its reader saw when the review ran, so a record renamed or removed later is history in it, not a broken link.
 
-**Example:** Reviewing the split-expense batch on 2026-11-20 writes `docs/proof/approvals/2026-11-20-use-case-spending-split-expense.json`, which records that its scenarios were confirmed but not yet run.
+**Example:** Reviewing the split-expense batch on 2026-11-20 writes `.litespec/proof/approvals/2026-11-20-use-case-spending-split-expense.json`, which records that its scenarios were confirmed but not yet run.
 
-**Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot; `litespec model check` reads no citation in a page under `docs/proof/reviews/`.
+**Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot; `litespec model check` reads no citation in a page under `.litespec/proof/reviews/`.
 
-### Draw Each Tier 3 Sample from the Sample Hash
+### Draw Each No-Risk Sample from the Semantic Hash
 
-**ID:** `litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash`
+**ID:** `litespec/core/release#draw-each-no-risk-sample-from-the-semantic-hash`
 
-**Statement:** The sample of a tier 3 batch MUST be drawn from each record's sample hash at the project's `review.sampleShare`, and recorded in the batch manifest.
+**Statement:** The sample of a batch of records with no risk MUST be drawn from each record's sample hash at the project's `review.sampleShare`, and recorded in the batch manifest.
 
 **Rationale:** A sample chosen by the reviewer drifts toward the records that look easy. Drawing it from the sample hash makes it deterministic: anyone can derive the same sample later from the same records, and a changed record moves in or out of the sample by its content, not by choice.
 
-**Example:** With `review.sampleShare` at 0.1, a tier 3 batch of forty Claimwick rules samples the four rules with the lowest sample hashes.
+**Example:** With `review.sampleShare` at 0.1, a batch of forty Claimwick rules with no risk samples the four rules with the lowest sample hashes.
 
 **Checked by:** `litespec model approve --batch --dry-run` prints the sample, and the batch manifest records it.
 
@@ -358,29 +358,17 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which contract diffs hold timestamps, machine paths, or unstable order? Look at the generated diff beside each contract.
 
-### Meet Release Readiness Gates
-
-**ID:** `litespec/core/release#meet-release-readiness-gates`
-
-**Statement:** A release MUST show green G checks, answered questions on tier 1 records, verified scenarios, and green S checks where the reader is qualified.
-
-**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered questions on tier 1 records prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
-
-**Example:** A reimbursement release shows green G checks, no open questions on tier 1 records, every scenario verified, and green S checks on the .NET reader.
-
-**Checked by:** `litespec model check --release` blocks on `use-case-unverified` and on unanswered questions on tier 1 records.
-
 ### Advise Without Gating as an Agent
 
 **ID:** `litespec/core/release#advise-without-gating-as-an-agent`
 
-**Statement:** A recorded agent reading MUST count as the tier 1 second reading.
+**Statement:** A recorded agent reading MUST count as the second reading for a record carrying a risk class.
 
-**Rationale:** One-person teams cannot staff a second person, so a recorded agent reading stands as the tier 1 second reading. The reading stays advice: the person approves, and the agent only reads, with the reading's report kept beside the manifest. Approval and review come from the named people and roles.
+**Rationale:** One-person teams cannot staff a second person, so a recorded agent reading stands as the second reading for a record carrying a risk class. The reading stays advice: the person approves, and the agent only reads, with the reading's report kept beside the manifest. Approval and review come from the named people and roles.
 
-**Example:** An agent review of a tier 1 grant is recorded as the second reading beside the person's approval, and the report is kept beside the manifest.
+**Example:** An agent review of a grant carrying access risk is recorded as the second reading beside the person's approval, and the report is kept beside the manifest.
 
-**Reviewed for:** Which tier 1 approvals lack a recorded second reading beside the person approval? Look at the second readings and reports beside each approval.
+**Reviewed for:** Which approvals of records carrying a risk class lack a recorded second reading beside the person approval? Look at the second readings and reports beside each approval.
 
 ### Qualify the Checker with Known Good and Known Bad Fixtures
 
@@ -404,36 +392,6 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which restricted release paths lack authentication or authorization? Look at the guards on each restricted path.
 
-### Provide Release Data Recovery
-
-**ID:** `litespec/core/release#provide-release-data-recovery`
-
-**Statement:** A release MUST provide repeatable schema creation or upgrade, backup instructions, and a tested restore.
-
-**Rationale:** A product that cannot recreate its schema, back up its data, and restore from backup holds customer data it cannot recover. Repeatable setup plus a tested restore turns recovery from a hope into a rehearsed procedure.
-
-**Reviewed for:** Which releases lack repeatable schema setup, backup instructions, or a tested restore? Look at the recovery evidence beside the release.
-
-### Provide Release Operating Visibility
-
-**ID:** `litespec/core/release#provide-release-operating-visibility`
-
-**Statement:** A release MUST provide liveness, readiness, trace-correlated diagnostics, and secrets outside source control.
-
-**Rationale:** Operators cannot keep a product they cannot see: liveness and readiness signals drive restarts and traffic, and trace-correlated diagnostics connect a failure to its cause. Secrets stay outside source control because a committed secret is a published one.
-
-**Reviewed for:** Which releases lack health signals, trace diagnostics, or secrets outside source control? Look at the operating evidence beside the release.
-
-### Provide Release Delivery Controls
-
-**ID:** `litespec/core/release#provide-release-delivery-controls`
-
-**Statement:** A release MUST provide CI, tested deployment and rollback paths, current operating limits, and the runbooks those limits name.
-
-**Rationale:** CI, tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without them, each deployment improvises and each incident starts from scratch.
-
-**Reviewed for:** Which releases lack current CI, deployment, rollback, limits, or runbooks? Look at the delivery evidence beside the release.
-
 ### Record the Release Artifact
 
 **ID:** `litespec/core/release#record-the-release-artifact`
@@ -448,11 +406,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#resolve-release-blockers`
 
-**Statement:** A release MUST settle every open question on a tier 1 record and external claim it depends on, or exclude the affected behavior from every owning record.
+**Statement:** A release MUST settle every open question on a record carrying a risk class and external claim it depends on, or exclude the affected behavior from every owning record.
 
-**Rationale:** An open question on a tier 1 record or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Questions on tier 3 records auto-approve after the veto window, and the `question-expired` check reports every question that cannot auto-approve, so undecided work stalls no release. `litespec/core/model#answer-each-question-on-its-record` states the question lifecycle.
+**Rationale:** An open question on a record carrying a risk class or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Questions on records with no risk auto-approve after the veto window, and the `question-expired` check reports every question that cannot auto-approve, so undecided work stalls no release. `litespec/core/model#answer-each-question-on-its-record` states the question lifecycle.
 
-**Reviewed for:** Which releases depend on an open question on a tier 1 record or external claim without excluding the behavior? Look at the questions and claims beside the owning records.
+**Reviewed for:** Which releases depend on an open question on a record carrying a risk class or external claim without excluding the behavior? Look at the questions and claims beside the owning records.
 
 ### Report Verification Exactly
 
@@ -484,26 +442,6 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which records omit an included journey, use case, or extension? Look at the behavior list on each release record.
 
-### Record Release Evidence
-
-**ID:** `litespec/core/release#record-release-evidence`
-
-**Statement:** A release record MUST list build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
-
-**Rationale:** Build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is a question nobody answered.
-
-**Reviewed for:** Which records lack a result for a listed evidence kind? Look at the evidence list on each release record.
-
-### Record Operating Readiness
-
-**ID:** `litespec/core/release#record-operating-readiness`
-
-**Statement:** A release record MUST list operating limits, alerts, runbooks, known operating conditions, and skipped checks.
-
-**Rationale:** Limits, alerts, runbooks, known conditions, and skipped checks tell the maintainer what to watch, what to run, and what remains unverified after release. Without them, the release hands over an artifact with no operating instructions.
-
-**Reviewed for:** Which records lack limits, alerts, runbooks, conditions, or omissions? Look at the readiness list on each release record.
-
 ### Keep Release Records Non-Authoritative
 
 **ID:** `litespec/core/release#keep-release-records-non-authoritative`
@@ -526,16 +464,6 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which accepted debts lack an exception of kind `gap` with owner and expiry date? Look at the exceptions beside each debt.
 
-### Keep a First-Release Readiness Record
-
-**ID:** `litespec/core/release#keep-a-first-release-readiness-record`
-
-**Statement:** A consumer before its first production release MUST keep a readiness record with dated rehearsals, green gates, and a rehearsal owner.
-
-**Rationale:** A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. The readiness record instead states what proves the product may take data: dated rehearsals, green gates, and a rehearsal owner who owns the backup and restore rehearsal.
-
-**Reviewed for:** Which pre-release consumers lack dated rehearsals, green gates, or a rehearsal owner? Look at the readiness record beside the project.
-
 ### State Each Release as a Complete Record
 
 **ID:** `litespec/core/release#state-each-release-as-a-complete-record`
@@ -552,33 +480,21 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#store-release-records-together`
 
-**Default:** Keep release records under `docs/releases/`.
+**Default:** Keep release records under `.litespec/releases/`.
 
 **Replacement:** A consumer records a release-path convention naming where its release records live.
 
 **Rationale:** One folder for release records tells a maintainer where to find the evidence for any artifact. A record filed elsewhere looks missing while readers open the folder and find nothing there.
 
-**Example:** `docs/releases/2026-08-21.md` records one immutable artifact and its evidence.
+**Example:** `.litespec/releases/2026-08-21.md` records one immutable artifact and its evidence.
 
-**Reviewed for:** Which release records sit outside `docs/releases/` without a recorded release path convention? Look at the release paths beside the convention.
-
-### Treat Check Warnings as Failures
-
-**ID:** `litespec/core/release#treat-check-warnings-as-failures`
-
-**Default:** Treat build and lint warnings as failures unless the build configuration records a narrow suppression with its reason.
-
-**Replacement:** A consumer records a warnings convention naming which warnings fail its build.
-
-**Rationale:** Warnings that nobody reviews accumulate until a real defect hides among them. Failing on warnings forces each one to be fixed or narrowly suppressed with its reason, so a changed compiler, linter, or dependency boundary surfaces immediately.
-
-**Reviewed for:** Which builds pass with unreviewed warnings outside recorded suppressions? Look at the build logs beside the warnings convention.
+**Reviewed for:** Which release records sit outside `.litespec/releases/` without a recorded release path convention? Look at the release paths beside the convention.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/release#verify-connected-journeys`, `litespec/core/release#identify-immutable-release-artifacts`, and `litespec/core/release#record-release-evidence`.
+This informative example demonstrates `litespec/core/release#verify-connected-journeys` and `litespec/core/release#identify-immutable-release-artifacts`.
 
-A reimbursement release includes verified submit, approve, and reimburse use cases. The submit-and-reimburse journey passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference, with the release evidence attached.
+A reimbursement release includes verified submit, approve, and reimburse use cases. The submit-and-reimburse journey passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference.
 
 This informative example demonstrates `litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots`, `litespec/core/release#review-behavior-changes-through-the-behavior-diff`, and `litespec/core/release#review-the-security-queue-separately-from-reviewed`.
 

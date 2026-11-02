@@ -68,7 +68,7 @@ sealed class ConsumerRun
     public JsonNode? Project { get; set; }
 
     /// <summary>Gets or sets the configured documentation root, as recorded.</summary>
-    public string DocsPath { get; set; } = "docs";
+    public string DocsPath { get; set; } = ".litespec";
 
     /// <summary>Gets or sets the documentation root as a full path.</summary>
     public string DocsRoot { get; set; } = "";
@@ -130,11 +130,11 @@ sealed class ConsumerRun
         }
 
         // The consumer must contain its project record.
-        var projectFile = Path.Join(Root, "litespec.project.json");
+        var projectFile = ConsumerRoot.ProjectFile(Root);
 
         if (!File.Exists(projectFile))
         {
-            Console.Error.WriteLine($"No litespec.project.json at {Root}");
+            Console.Error.WriteLine($"No .litespec/project.json at {Root}");
             throw new FailFast(2);
         }
 
@@ -144,7 +144,7 @@ sealed class ConsumerRun
         }
         catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
         {
-            FailInput($"litespec.project.json: not valid JSON ({cause.Message})");
+            FailInput($".litespec/project.json: not valid JSON ({cause.Message})");
         }
 
         var total = System.Diagnostics.Stopwatch.StartNew();
@@ -372,7 +372,7 @@ sealed class ConsumerRun
                 tool = "consumer",
                 consumer = Root,
                 ok = false,
-                scanned = new { documentationRoot = "docs", files = 0, pages = 0 },
+                scanned = new { documentationRoot = ".litespec", files = 0, pages = 0 },
                 problems = new[] { $"[G] {message}" },
                 advisories = Array.Empty<string>(),
             });

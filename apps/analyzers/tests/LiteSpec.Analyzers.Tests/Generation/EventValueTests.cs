@@ -104,7 +104,7 @@ public sealed class EventValueTests
                 /// <implements>event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            [("/project/docs/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
+            [("/project/.litespec/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
 
         Assert.Empty(run.Sources);
     }

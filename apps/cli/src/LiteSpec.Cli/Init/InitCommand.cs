@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Init;
 
 /// <summary>
-///     The <c>litespec init</c> command: writes a consumer's <c>litespec.project.json</c>
+///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.json</c>
 ///     from one of the ready-made presets in <c>templates/presets/</c>, and copies the
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
 /// </summary>
@@ -18,17 +18,17 @@ static class InitCommand
     static readonly (string Template, string Target)[] Scaffold =
     [
         ("project-agents.md", "AGENTS.md"),
-        ("glossary.yaml", "docs/glossary.yaml"),
-        ("example-cast.md", "docs/domain/example-cast.md"),
+        ("glossary.yaml", ".litespec/glossary.yaml"),
+        ("example-cast.md", ".litespec/example-cast.md"),
     ];
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
         Usage: litespec init --preset <name> --size <small|large> [--root <path>] [--name <project>] [--help]
 
-        Writes litespec.project.json into root from the named preset, stamped with the
+        Writes .litespec/project.json into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast beside it. A fresh AGENTS.md carries the LiteSpec
+        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the LiteSpec
         block filled with the release, size, shape, stacks, and selection index of the
         new project. The command also writes .config/dotnet-tools.json pinning the
         LiteSpec.Cli tool at the release. The preset selects the shape, the stacks
@@ -100,7 +100,7 @@ static class InitCommand
             return 2;
         }
 
-        var target = Path.Combine(root, "litespec.project.json");
+        var target = Path.Combine(root, ".litespec", "project.json");
 
         if (File.Exists(target))
         {
@@ -135,9 +135,9 @@ static class InitCommand
 
         try
         {
-            if (CliJson.TryRead(Path.Combine(home, "templates", "consumer", "litespec.project.json")) is not JsonObject template)
+            if (CliJson.TryRead(Path.Combine(home, "templates", "consumer", "project.json")) is not JsonObject template)
             {
-                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/litespec.project.json.");
+                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.json.");
                 return 1;
             }
 
@@ -225,7 +225,7 @@ static class InitCommand
 
         try
         {
-            Directory.CreateDirectory(root);
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.WriteAllText(target, CliJson.Serialize(project) + "\n");
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
@@ -270,6 +270,28 @@ static class InitCommand
 
             Console.WriteLine($"Wrote {destination}.");
             copied += 1;
+        }
+
+        var gitignore = Path.Combine(root, ".litespec", ".gitignore");
+
+        if (File.Exists(gitignore))
+        {
+            Console.WriteLine($"'{gitignore}' already exists; left alone.");
+        }
+        else
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(gitignore)!);
+                File.WriteAllText(gitignore, "model/\nbook/\n");
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                Console.Error.WriteLine($"Failed to write '{gitignore}': {exception.Message}");
+                return 1;
+            }
+
+            Console.WriteLine($"Wrote {gitignore}.");
         }
 
         var toolManifest = Path.Combine(root, ".config", "dotnet-tools.json");

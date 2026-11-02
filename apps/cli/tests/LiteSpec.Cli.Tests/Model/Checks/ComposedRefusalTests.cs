@@ -61,7 +61,7 @@ public sealed class ComposedRefusalTests
 
     static ProjectModel BarcodeModel(string root, string code = "uniqueness.copy-barcode-taken")
     {
-        File.WriteAllText(Path.Combine(root, "litespec.project.json"), """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
+        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
         var file = Path.Combine(root, "register-copy.md");
 
         return TestModel.Model(

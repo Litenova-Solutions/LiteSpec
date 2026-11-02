@@ -110,7 +110,7 @@ sealed class UiFixture : IDisposable
     public string AppStyles => Join("apps/web/src/styles.css");
 
     /// <summary>Gets the consumer project file.</summary>
-    public string ProjectFile => Join("litespec.project.json");
+    public string ProjectFile => Join(".litespec/project.json");
 
     /// <summary>Gets the source lock.</summary>
     public string LockFile => Join("packages/ui/ui-source-lock.json");
@@ -119,7 +119,7 @@ sealed class UiFixture : IDisposable
     public string DesignFile => Join("packages/ui/DESIGN.md");
 
     /// <summary>Gets the pattern catalog.</summary>
-    public string CatalogFile => Join("docs/ui/pattern-catalog.json");
+    public string CatalogFile => Join(".litespec/ui/pattern-catalog.json");
 
     /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");
@@ -249,7 +249,7 @@ sealed class UiFixture : IDisposable
     /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
     /// <returns>The full path to the exception file.</returns>
     public string WriteException(string name, string provision, string expiresOn) =>
-        WriteExceptionFile($"docs/governance/exceptions/{name}.yaml",
+        WriteExceptionFile($".litespec/governance/exceptions/{name}.yaml",
             ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn));
 
     /// <summary>Writes one Exception record at a consumer-relative path.</summary>
@@ -387,7 +387,7 @@ sealed class UiFixture : IDisposable
             "apps/web/src/routes",
             "apps/web/src/modules",
             "apps/web/tests/routes",
-            "docs/governance/exceptions",
+            ".litespec/governance/exceptions",
         })
         {
             Directory.CreateDirectory(Join(directory));
@@ -405,7 +405,7 @@ sealed class UiFixture : IDisposable
         // pattern page they read is this fixture rather than the release's own pages.
         File.WriteAllText(FixturePatternPage, FixturePatternPageText);
 
-        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/litespec.project.json"))!;
+        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/project.json"))!;
         ResolvePlaceholders(project);
         var uiPackage = (JsonObject)project["paths"]!["uiPackage"]!;
         uiPackage["name"] = "@fixture/ui";

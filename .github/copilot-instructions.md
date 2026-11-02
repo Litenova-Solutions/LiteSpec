@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-Read `AGENTS.md` as the canonical agent protocol. In a consumer repository, read `litespec/AGENTS.md`, `litespec.project.json`, the model query result for the active records, and enabled extensions.
+Read `AGENTS.md` as the canonical agent protocol. In a consumer repository, read `litespec/AGENTS.md`, `.litespec/project.json`, the model query result for the active records, and enabled extensions.
 
 ## Working in This Repository
 

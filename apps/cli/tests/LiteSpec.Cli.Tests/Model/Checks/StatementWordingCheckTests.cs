@@ -30,7 +30,7 @@ public sealed class StatementWordingCheckTests
     public void Each_Vague_Word_Reported_In_A_Statement(string word, string statement)
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -50,7 +50,7 @@ public sealed class StatementWordingCheckTests
     public void Vague_Word_Inside_Backticks_Skipped()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -68,7 +68,7 @@ public sealed class StatementWordingCheckTests
     public void Vague_Word_Inside_A_Hyphenated_Identifier_Skipped()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -86,7 +86,7 @@ public sealed class StatementWordingCheckTests
     public void Scenario_Steps_And_Result_Meaning_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(

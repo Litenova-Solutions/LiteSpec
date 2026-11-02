@@ -95,10 +95,10 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
     }
 
-    /// <summary>Tier3 Question Without Recommendation Past DecideBy Reports.</summary>
+    /// <summary>Question With No Risk And Without Recommendation Past DecideBy Reports.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier3_Question_Without_Recommendation_Past_DecideBy_Reports()
+    public void Question_With_No_Risk_And_Without_Recommendation_Past_DecideBy_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -111,10 +111,10 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
-    /// <summary>Tier3 Question With Recommendation Passes.</summary>
+    /// <summary>Question With No Risk And With Recommendation Passes.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier3_Question_With_Recommendation_Passes()
+    public void Question_With_No_Risk_And_With_Recommendation_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -124,10 +124,10 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("question-expired", TestModel.Codes(model));
     }
 
-    /// <summary>Tier1 Question Past DecideBy Reports.</summary>
+    /// <summary>Question With Risk Past DecideBy Reports.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier1_Question_Past_DecideBy_Reports()
+    public void Question_With_Risk_Past_DecideBy_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -188,10 +188,10 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
-    /// <summary>Tier3 Question Without Recommendation Reports Record Shape.</summary>
+    /// <summary>Question With No Risk And Without Recommendation Reports Record Shape.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier3_Question_Without_Recommendation_Reports_Record_Shape()
+    public void Question_With_No_Risk_And_Without_Recommendation_Reports_Record_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -205,10 +205,10 @@ public sealed class AdvisoryCheckTests
         Assert.Equal("actor/reader", finding.Subject);
     }
 
-    /// <summary>Tier1 Question Without Recommendation Passes Shape.</summary>
+    /// <summary>Question With Risk And Without Recommendation Passes Shape.</summary>
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier1_Question_Without_Recommendation_Passes_Shape()
+    public void Question_With_Risk_And_Without_Recommendation_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(

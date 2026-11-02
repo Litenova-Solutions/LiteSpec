@@ -271,7 +271,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] .litespec/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <summary>The Fixture Is React Again After The Svelte Block.</summary>

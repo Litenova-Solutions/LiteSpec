@@ -59,7 +59,7 @@ internal static class CitationChecks
 
         // A batch review report records what its reader saw when the review ran, as an approval
         // manifest does, so a record renamed or removed since then is history, not a broken link.
-        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, "docs");
+        var docs = model.Config.RecordRoots.Count > 0 ? model.Config.RecordRoots[0] : Path.Combine(model.Config.Root, ".litespec");
         var reviews = Path.GetFullPath(Path.Combine(docs, "proof", "reviews")) + Path.DirectorySeparatorChar;
 
         foreach (var body in model.Bodies)

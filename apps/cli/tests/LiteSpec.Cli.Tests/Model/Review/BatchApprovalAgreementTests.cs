@@ -8,13 +8,13 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchApprovalAgreementTests
 {
     static string Reaction(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
 
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.yaml");
+        root, ".litespec", "product", "decisions", "0001-loan-period.yaml");
 
     /// <summary>A use-case batch leaves a scenario on a reaction page alone, and the reaction batch stamps it.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -59,7 +59,7 @@ public sealed class BatchApprovalAgreementTests
         Assert.Contains("3 records approved, 1 held.", useCase.Output);
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json")))!;
         var ids = manifest["records"]!.AsArray()
             .Select(record => record!["id"]!.GetValue<string>())
             .ToList();
@@ -105,7 +105,7 @@ public sealed class BatchApprovalAgreementTests
             front["approvedHash"]!.GetValue<string>());
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-decision-decision-0001-loan-period.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-decision-decision-0001-loan-period.json")))!;
         var decision = manifest["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(record => record["id"]!.GetValue<string>() == "decision/0001-loan-period");

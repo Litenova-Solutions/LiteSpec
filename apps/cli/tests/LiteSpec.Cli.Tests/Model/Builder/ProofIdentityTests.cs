@@ -50,7 +50,7 @@ public sealed class ProofIdentityTests
     }
 
     static void WriteScenario(string root) =>
-        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
 
     static void WriteProof(string root) =>
         Write(root, "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs", ProofFile);
@@ -77,7 +77,7 @@ public sealed class ProofIdentityTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

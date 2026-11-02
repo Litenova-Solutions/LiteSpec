@@ -27,11 +27,25 @@ sealed class ConsumerConfig
     /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
-    /// <summary>Gets days before a tier-3 draft question auto-approves.</summary>
+    /// <summary>Gets days before a draft question on a record with no risk class auto-approves.</summary>
     public int VetoWindowDays { get; private set; } = 7;
 
-    /// <summary>Gets the share of a tier-3 batch that batch approval samples, from the lowest semantic hashes.</summary>
+    /// <summary>Gets the share of a batch of records with no risk class that batch approval samples, from the lowest semantic hashes.</summary>
     public double SampleShare { get; private set; } = 0.1;
+
+    /// <summary>
+    ///     Gets the approval table: each risk class with the owner who approves records
+    ///     carrying it, and the <c>default</c> entry with the rule for records with no
+    ///     risk class, as written in <c>approvals</c>. Empty when the project names none.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Approvals { get; private set; } =
+        new Dictionary<string, string>(StringComparer.Ordinal);
+
+    /// <summary>Gets the absolute screenshot gallery folders, from <c>screenshots.galleries</c>.</summary>
+    public IReadOnlyList<string> ScreenshotGalleries { get; private set; } = [];
+
+    /// <summary>Gets the screenshot file-name pattern, from <c>screenshots.pattern</c>.</summary>
+    public string ScreenshotPattern { get; private set; } = "{route}--{theme}--{width}.png";
 
     /// <summary>Gets the owner reviewing access, outside calls and personal-data flows.</summary>
     public string? SecurityReviewer { get; private set; }
@@ -142,7 +156,7 @@ sealed class ConsumerConfig
     /// <summary>Gets the project shape: server or client-only.</summary>
     public string Shape { get; private set; } = "server";
 
-    /// <summary>Gets the stacks the project names in <c>litespec.project.json</c>.</summary>
+    /// <summary>Gets the stacks the project names in <c>.litespec/project.json</c>.</summary>
     public IReadOnlyList<string> Stacks { get; private set; } = [];
 
     /// <summary>Gets the extension ids the project selects in <c>selectedExtensions</c>.</summary>
@@ -181,7 +195,7 @@ sealed class ConsumerConfig
     public static ConsumerConfig Load(string root)
     {
         var config = new ConsumerConfig(Path.GetFullPath(root));
-        var file = Path.Combine(config.Root, "litespec.project.json");
+        var file = ConsumerRoot.ProjectFile(config.Root);
         var text = File.Exists(file) ? File.ReadAllText(file) : "{}";
 
         using var document = JsonDocument.Parse(text);
@@ -236,10 +250,11 @@ sealed class ConsumerConfig
             return Resolve(config.Root, fallback);
         }
 
-        // Records live under the documentation roots that paths.docs names.
-        config.RecordRoots = ReadRoots(config.Root, paths, "docs", ["docs"]);
-        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", "docs/glossary.yaml"));
-        config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", "docs/behavior"));
+        // Records live under the record roots that paths.docs names, which default
+        // to the one LiteSpec folder at the repository root.
+        config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
+        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
+        config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
         config.ApplicationRoot = DeclaredRoot("application", "apps/api/src/*.Application");
         config.DomainRoot = DeclaredRoot("domain", "apps/api/src/*.Domain");
         config.WebApiRoot = DeclaredRoot("webapi", "apps/api/src/*.WebApi");
@@ -264,7 +279,7 @@ sealed class ConsumerConfig
 
         config.Alerts = ReadRoots(config.Root, paths, "alerts", []);
         config.Operations = ReadRoots(config.Root, paths, "operations", []);
-        config.CheckResultsDir = Combine(config.Root, ReadString(paths, "checkResults", "docs/proof/checks"));
+        config.CheckResultsDir = Combine(config.Root, ReadString(paths, "checkResults", ".litespec/proof/checks"));
         config.Sboms = ReadRoots(config.Root, paths, "sbom", []);
 
         if (document.RootElement.TryGetProperty("dependencies", out var dependencies)
@@ -442,6 +457,53 @@ sealed class ConsumerConfig
             config.RetiredVerbs = ReadRetired(vocabulary);
             config.LookalikeIgnore = ReadNames(vocabulary, "lookalikeIgnore");
             config.PastTense = ReadPastTense(vocabulary);
+        }
+
+        if (document.RootElement.TryGetProperty("approvals", out var approvals)
+            && approvals.ValueKind == JsonValueKind.Object)
+        {
+            var table = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (var entry in approvals.EnumerateObject())
+            {
+                if (entry.Value.ValueKind == JsonValueKind.String
+                    && entry.Value.GetString() is { Length: > 0 } approver)
+                {
+                    table[entry.Name] = approver;
+                }
+            }
+
+            config.Approvals = table;
+        }
+
+        if (document.RootElement.TryGetProperty("screenshots", out var screenshots)
+            && screenshots.ValueKind == JsonValueKind.Object)
+        {
+            if (screenshots.TryGetProperty("galleries", out var galleries)
+                && galleries.ValueKind == JsonValueKind.Array)
+            {
+                config.ScreenshotGalleries =
+                [
+                    .. galleries.EnumerateArray()
+                                  .Where(entry => entry.ValueKind == JsonValueKind.String)
+                                  .Select(entry => entry.GetString()!)
+                                  .Where(gallery => gallery.Length > 0)
+                                  .Select(gallery => Combine(config.Root, gallery)),
+                ];
+            }
+            else if (screenshots.TryGetProperty("gallery", out var gallery)
+                && gallery.ValueKind == JsonValueKind.String
+                && gallery.GetString() is { Length: > 0 } single)
+            {
+                config.ScreenshotGalleries = [Combine(config.Root, single)];
+            }
+
+            if (screenshots.TryGetProperty("pattern", out var pattern)
+                && pattern.ValueKind == JsonValueKind.String
+                && pattern.GetString() is { Length: > 0 } named)
+            {
+                config.ScreenshotPattern = named;
+            }
         }
 
         if (document.RootElement.TryGetProperty("adoption", out var adoption)

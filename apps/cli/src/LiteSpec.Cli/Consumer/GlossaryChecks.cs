@@ -103,7 +103,7 @@ static class GlossaryChecks
         }
         else if (glossaryPath is not null)
         {
-            run.Err($"litespec.project.json: paths.glossary '{glossaryPath}' does not exist; the vocabulary and mannered-term checks resolve nothing");
+            run.Err($".litespec/project.json: paths.glossary '{glossaryPath}' does not exist; the vocabulary and mannered-term checks resolve nothing");
         }
 
         // AGENTS.md is scanned for language even though it carries no record and
@@ -155,7 +155,7 @@ static class GlossaryChecks
 
             if (pattern is null)
             {
-                run.Err($"litespec.project.json: paths.glossaryScan '{JsonValues.Text(entry)}' could not be read (pattern is not a string)");
+                run.Err($".litespec/project.json: paths.glossaryScan '{JsonValues.Text(entry)}' could not be read (pattern is not a string)");
                 continue;
             }
 
@@ -167,7 +167,7 @@ static class GlossaryChecks
             }
             catch (Exception cause)
             {
-                run.Err($"litespec.project.json: paths.glossaryScan '{pattern}' could not be read ({cause.Message})");
+                run.Err($".litespec/project.json: paths.glossaryScan '{pattern}' could not be read ({cause.Message})");
                 continue;
             }
 
@@ -175,7 +175,7 @@ static class GlossaryChecks
             // is the shape this validator refuses everywhere else.
             if (matched.Count == 0)
             {
-                run.Err($"litespec.project.json: paths.glossaryScan '{pattern}' matches no file; the vocabulary check over that surface did not run");
+                run.Err($".litespec/project.json: paths.glossaryScan '{pattern}' matches no file; the vocabulary check over that surface did not run");
                 continue;
             }
 

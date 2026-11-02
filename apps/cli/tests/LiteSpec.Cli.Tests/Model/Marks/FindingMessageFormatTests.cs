@@ -57,7 +57,7 @@ public sealed class FindingMessageFormatTests
     {
         using var temp = Cli.Temp("marks");
         File.WriteAllText(
-            Path.Combine(temp.Path, "litespec.project.json"),
+            Path.Combine(temp.Path, ".litespec/project.json"),
             """{"owners": ["lending-team"], "paths": {"contract": "missing.json"}, "stackConfig": {"dotnet": {"templateStore": "MessageTemplates.cs"}}}""");
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Code.Endpoints.Add(new EndpointOperation("BorrowCopy", "use-case/lending.borrow-copy", "POST", "/api/loans/borrow", Path.Combine(temp.Path, "Endpoint.cs"), 3));
@@ -138,7 +138,7 @@ public sealed class FindingMessageFormatTests
     static ProjectModel CodeModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """{"owners": ["lending-team"], "stackConfig": {"dotnet": {"infrastructure": "src/Infrastructure"}}}""");
         Directory.CreateDirectory(Path.Combine(root, "src", "Infrastructure"));
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
@@ -174,7 +174,7 @@ public sealed class FindingMessageFormatTests
     static ProjectModel MixedModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {"owners": ["lending-team"], "size": "large",
              "paths": {"frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}]},
@@ -194,7 +194,7 @@ public sealed class FindingMessageFormatTests
         model.Records.Add(Rec("requirement", "requirement/performance.list-loans-latency", Path.Combine(root, "latency.yaml"), """{"status": "reviewed", "kind": "quality", "statement": "Listing loans answers fast.", "measure": "p99 under 300 ms."}"""));
         model.Records.Add(Rec(
             "decision", "decision/0002-store-loans-as-documents",
-            Path.Combine(root, "docs", "implementation", "decisions", "0002-store-loans-as-documents.md"),
+            Path.Combine(root, ".litespec", "implementation", "decisions", "0002-store-loans-as-documents.md"),
             """{"status": "draft", "decider": "lending-team", "decideBy": "2030-01-31", "admits": [{"package": "nuget:UnknownLib", "layer": "Infrastructure"}]}"""));
 
         var routeFile = Path.Combine(root, "apps", "web", "src", "routes", "loans", "+page.svelte");

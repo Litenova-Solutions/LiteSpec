@@ -13,7 +13,7 @@ public sealed class FormatCheckTests
     public void Record_File_Outside_Canonical_Form_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "loan.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "title: Loan\ntype: aggregate\nid: aggregate/lending.loan\n");
         var model = TestModel.Model(
@@ -34,7 +34,7 @@ public sealed class FormatCheckTests
     public void Canonical_Record_File_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "loan.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan", "owner": "lending-team", "status": "draft", "kind": "entity"}""")!));
         var model = TestModel.Model(
@@ -50,7 +50,7 @@ public sealed class FormatCheckTests
     public void Unparsable_Record_File_Reports_No_Format_Drift()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "loan.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "type: [unclosed\n");
         var model = TestModel.Model(

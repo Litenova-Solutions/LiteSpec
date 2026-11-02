@@ -77,6 +77,7 @@ static partial class ModelBuilder
             ModelStatus.Compute(model);
             ModelStatus.ComputeAuthority(model);
             Constituents.Compute(model);
+            ScreenshotCaptures.Compute(model);
         });
 
         Timing.Report($"[time] build total {total.Elapsed.TotalSeconds:0.0}s");

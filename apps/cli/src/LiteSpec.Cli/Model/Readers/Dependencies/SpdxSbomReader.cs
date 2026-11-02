@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 ///     SPDXRef-DOCUMENT. The ecosystem and name come from each package's purl external
 ///     reference, and the license from licenseConcluded else licenseDeclared.
 /// </summary>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
 static class SpdxSbomReader
 {
     /// <summary>Whether the document is an SPDX bill of materials.</summary>

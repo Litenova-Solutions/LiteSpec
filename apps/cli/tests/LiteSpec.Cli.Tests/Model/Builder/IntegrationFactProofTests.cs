@@ -65,7 +65,7 @@ public sealed class IntegrationFactProofTests
     public void Scenario_Fact_Pinning_The_Message_Type_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/TypeofFactTests.cs", TypeofFile);
 
         using var document = Build(temp.Path);
@@ -79,7 +79,7 @@ public sealed class IntegrationFactProofTests
     public void Scenario_Fact_Building_A_Nested_Value_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/NestedValueFactTests.cs", NestedFile);
 
         using var document = Build(temp.Path);
@@ -102,7 +102,7 @@ public sealed class IntegrationFactProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

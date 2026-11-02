@@ -1,0 +1,43 @@
+{
+  "project": {
+    "name": "Marks Fixture"
+  },
+  "size": "small",
+  "shape": "server",
+  "stacks": [
+    "dotnet"
+  ],
+  "reviewedLiteSpecVersion": "3.1.0",
+  "owners": [
+    "lending-team"
+  ],
+  "paths": {
+    "docs": ".litespec",
+    "behaviorDocs": ".litespec/behavior",
+    "glossary": ".litespec/glossary.yaml",
+    "testRoots": [
+      "apps/api/tests"
+    ],
+    "frontends": []
+  },
+  "stackConfig": {
+    "dotnet": {
+      "application": "apps/api/src/Library.Application",
+      "domain": "apps/api/src/Library.Domain",
+      "webapi": "apps/api/src/Library.WebApi",
+      "infrastructure": "apps/api/src/Library.Infrastructure"
+    }
+  },
+  "vocabulary": {
+    "verbs": [
+      "borrow",
+      "cancel",
+      "extend",
+      "nightly",
+      "place",
+      "register",
+      "renew",
+      "return"
+    ]
+  }
+}

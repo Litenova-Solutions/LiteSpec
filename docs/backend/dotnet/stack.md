@@ -2,7 +2,7 @@
 
 ## Intent
 
-A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
+A backend built on .NET declares the `dotnet` stack in `.litespec/project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
 
 ## Concepts
 
@@ -16,11 +16,11 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack`
 
-**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `litespec.project.json`.
+**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.json`.
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
 
-**Reviewed for:** Does the `stacks` array in `litespec.project.json` list `dotnet` when the backend runs on .NET? Look at `litespec.project.json`.
+**Reviewed for:** Does the `stacks` array in `.litespec/project.json` list `dotnet` when the backend runs on .NET? Look at `.litespec/project.json`.
 
 ### Read .NET Code Through the Stack Reader
 
@@ -112,7 +112,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes.
 
-**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `litespec.project.json`.
+**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.json`.
 
 ## Conventions
 

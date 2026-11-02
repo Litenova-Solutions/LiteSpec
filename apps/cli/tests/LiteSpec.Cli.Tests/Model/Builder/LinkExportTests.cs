@@ -45,10 +45,10 @@ public sealed class LinkExportTests
     public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
     {
         using var temp = ModelFixture.Prepare("large");
-        TestRecords.Write(temp.Path, "docs/operations/reading.yaml", SettingJson);
+        TestRecords.Write(temp.Path, ".litespec/operations/reading.yaml", SettingJson);
         PatchRecord(
             temp.Path,
-            "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+            ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
             front => front["reads"] = new JsonArray("setting/lending.loan-days"));
 
         using var document = Build(temp.Path);
@@ -166,7 +166,7 @@ public sealed class LinkExportTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

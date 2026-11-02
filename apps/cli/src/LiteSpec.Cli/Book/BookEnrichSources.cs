@@ -255,7 +255,8 @@ static class BookEnrichSources
             list.Add(new JsonObject
             {
                 ["code"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "code")),
-                ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier")),
+                ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level")),
+                ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
                 ["message"] = BookRender.StrProp(finding, "message") ?? "",
                 ["known"] = known,
                 ["outcome"] = finding["outcome"]?.DeepClone(),

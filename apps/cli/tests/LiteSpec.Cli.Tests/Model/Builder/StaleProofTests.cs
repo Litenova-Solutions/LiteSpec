@@ -26,8 +26,8 @@ public sealed class StaleProofTests
             Assert.True(Verified(first.RootElement));
         }
 
-        Assert.True(File.Exists(Path.Combine(temp.Path, "docs", "proof", "proofs.json")));
-        Assert.False(File.Exists(Path.Combine(temp.Path, ".model", "proofs.json")));
+        Assert.True(File.Exists(Path.Combine(temp.Path, ".litespec", "proof", "proofs.json")));
+        Assert.False(File.Exists(Path.Combine(temp.Path, ".litespec/model", "proofs.json")));
 
         using var second = Build(temp.Path);
 
@@ -48,7 +48,7 @@ public sealed class StaleProofTests
         Build(temp.Path).Dispose();
 
         using var ledger = JsonDocument.Parse(File.ReadAllText(
-            Path.Combine(temp.Path, "docs", "proof", "proofs.json")));
+            Path.Combine(temp.Path, ".litespec", "proof", "proofs.json")));
         var entry = ledger.RootElement.GetProperty(Scenario);
 
         // The builder always writes the three hash strings for a recorded proof.
@@ -124,7 +124,7 @@ public sealed class StaleProofTests
         Assert.Empty(rerun.RootElement.GetProperty("stale").EnumerateArray());
     }
 
-    const string ScenarioPath = "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
+    const string ScenarioPath = ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     static bool Verified(JsonElement root) =>
@@ -146,7 +146,7 @@ public sealed class StaleProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

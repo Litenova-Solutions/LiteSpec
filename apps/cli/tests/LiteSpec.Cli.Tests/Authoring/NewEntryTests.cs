@@ -8,10 +8,10 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = "docs/intent/spending/approval.yaml";
-    const string RulePage = "docs/behavior/rules/spending-rules.yaml";
-    const string PermissionPage = "docs/behavior/access/permissions.yaml";
-    const string SettingPage = "docs/behavior/modules/spending/settings.yaml";
+    const string RequirementPage = ".litespec/intent/spending/approval.yaml";
+    const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
+    const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
+    const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
 
     const string RequirementJson = """
         {
@@ -267,7 +267,7 @@ public sealed class NewEntryTests
     public void DerivesRequirementHomeFromFileStem()
     {
         using var consumer = Consumer();
-        const string relative = "docs/intent/spending/fees.yaml";
+        const string relative = ".litespec/intent/spending/fees.yaml";
         WritePage(consumer.Path, relative, "topic", "Fees");
 
         var result = Cli.Run(
@@ -287,7 +287,7 @@ public sealed class NewEntryTests
     public void DerivesSettingModuleFromPath()
     {
         using var consumer = Consumer();
-        const string relative = "docs/behavior/modules/billing/settings.yaml";
+        const string relative = ".litespec/behavior/modules/billing/settings.yaml";
         WritePage(consumer.Path, relative, "setting-set", "Settings");
 
         var result = Cli.Run(
@@ -307,7 +307,7 @@ public sealed class NewEntryTests
     public void RefusesSettingWithoutAModule()
     {
         using var consumer = Consumer();
-        const string relative = "docs/behavior/settings.yaml";
+        const string relative = ".litespec/behavior/settings.yaml";
         WritePage(consumer.Path, relative, "setting-set", "Settings");
         var before = File.ReadAllText(Path.Combine(consumer.Path, relative));
 
@@ -357,7 +357,7 @@ public sealed class NewEntryTests
         { ["entry", RulePage, "requirement", "decided-within-five-days"] },
         { ["entry", SettingPage, "permission", "approve-expense"] },
         { ["entry", PermissionPage, "setting", "grace-days"] },
-        { ["entry", "docs/intent/spending/no-such-page.yaml", "requirement", "decided-within-five-days"] },
+        { ["entry", ".litespec/intent/spending/no-such-page.yaml", "requirement", "decided-within-five-days"] },
         { ["entry", RequirementPage, "requirement"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
@@ -423,7 +423,7 @@ public sealed class NewEntryTests
             .Replace("<the skipped checks with their reasons, or none>", "None", StringComparison.Ordinal);
         Assert.DoesNotContain("<", filled);
 
-        ConsumerFixture.WriteFile(folder.Path, "docs/releases/2026-08-21.md", filled);
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/releases/2026-08-21.md", filled);
 
         var result = Cli.Run("consumer", "--root", folder.Path);
 
@@ -436,7 +436,7 @@ public sealed class NewEntryTests
     static TempFolder Consumer()
     {
         var temp = Cli.Temp("new-entry");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, RequirementJson);
         TestRecords.Write(temp.Path, RulePage, RuleJson);
         TestRecords.Write(temp.Path, PermissionPage, PermissionJson);

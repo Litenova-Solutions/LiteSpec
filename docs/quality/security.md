@@ -66,9 +66,9 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Reviewed for:** Each protected collection query carries its authorization scope as a database predicate before paging.
 
-### Route Tier-1 Access and Data Changes Through the Security Reviewer
+### Route Access and Data Changes Carrying a Risk Class Through the Security Reviewer
 
-**ID:** `litespec/quality/security#route-tier-1-access-and-data-changes-through-the-security-reviewer`
+**ID:** `litespec/quality/security#route-access-and-data-changes-carrying-a-risk-class-through-the-security-reviewer`
 
 **Statement:** A change that widens access tenant scope to cross, adds a calls effect, or adds a personal or sensitive data class MUST appear in the security queue for review separately from the developer review.
 

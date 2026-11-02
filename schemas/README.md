@@ -23,7 +23,7 @@ The command checks each `$id` against the manifest version, validates the manife
 | Schema | Validates | Read by |
 |:---|:---|:---|
 | `litespec-manifest.schema.json` | `litespec.manifest.json` | `litespec-maintain validate` |
-| `litespec-project.schema.json` | `litespec.project.json` | `litespec consumer`, `litespec init` |
+| `litespec-project.schema.json` | `.litespec/project.json` | `litespec consumer`, `litespec init` |
 | `record.schema.json` | Record file of every consumer record page | `litespec consumer` |
 | `glossary.schema.json` | `docs/glossary.yaml` | `litespec consumer` |
 | `design-contract.schema.json` | Metadata block of `DESIGN.md` | `litespec ui` |
@@ -38,7 +38,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ### Litespec Project Schema
 
-`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, the owners, the review and adoption settings, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/litespec.project.json](../templates/consumer/litespec.project.json) meets it.
+`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, the owners, the review and adoption settings, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/project.json](../templates/consumer/project.json) meets it.
 
 ### Record Schema
 

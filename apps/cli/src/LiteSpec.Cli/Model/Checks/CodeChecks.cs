@@ -33,10 +33,10 @@ internal static class CodeChecks
     }
 
     /// <summary>
-    ///     One S-tier finding. The tier comes from the finding code through Finding.Tiers,
+    ///     One S-level finding. The level comes from the finding code through Finding.Tiers,
     ///     which maps these three codes to S, so this helper builds the finding as written.
     /// </summary>
-    /// <param name="code">The finding code that sets the tier.</param>
+    /// <param name="code">The finding code that sets the level.</param>
     /// <param name="message">The finding message shown to the reader.</param>
     /// <param name="path">The file the finding is placed on.</param>
     /// <param name="line">The one-based line the finding is placed on.</param>
@@ -348,7 +348,7 @@ internal static class CodeChecks
         return declared;
     }
 
-    /// <summary>The generic refusal codes from litespec.project.json refusals, or the defaults.</summary>
+    /// <summary>The generic refusal codes from .litespec/project.json refusals, or the defaults.</summary>
     /// <param name="model">The loaded project model that supplies the consumer root for the project file.</param>
     /// <returns>The forbidden and invalid-input codes the project declares, or the shared defaults.</returns>
     private static (string Forbidden, string InvalidInput) GenericRefusals(ProjectModel model)
@@ -358,7 +358,7 @@ internal static class CodeChecks
 
         try
         {
-            var file = Path.Combine(model.Config.Root, "litespec.project.json");
+            var file = ConsumerRoot.ProjectFile(model.Config.Root);
 
             if (!File.Exists(file))
             {

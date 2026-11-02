@@ -415,7 +415,7 @@ internal sealed partial class RecordsValidator
     internal static HashSet<string> ExampleRecordIds(string root)
     {
         var ids = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
+        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
             if (TryParseRecordFile(ReadText(file), out var node, out _)
                 && JsonString((node as JsonObject)?["id"]) is { } id

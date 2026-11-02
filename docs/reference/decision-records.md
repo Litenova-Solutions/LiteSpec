@@ -14,7 +14,7 @@ Each record is one record file with its explanation file beside it in the consum
 
 | Item | Value |
 |:---|:---|
-| Path | `docs/intent/decisions/<number>-<name>.yaml` with `docs/intent/decisions/<number>-<name>.md` beside it in the consumer repository |
+| Path | `.litespec/intent/decisions/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>.md` beside it in the consumer repository |
 | Record template | `templates/consumer/decision.yaml` |
 | Explanation template | `templates/consumer/decision.md` |
 | Record type | `decision` |

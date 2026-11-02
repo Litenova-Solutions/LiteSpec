@@ -46,7 +46,7 @@ public sealed class ProofLedgerTests
     public void Ledger_That_Does_Not_Parse_Reports_A_Problem()
     {
         using var temp = Cli.Temp("proof");
-        var folder = Path.Combine(temp.Path, "docs", "proof");
+        var folder = Path.Combine(temp.Path, ".litespec", "proof");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "proofs.json"), "{ not json\n");
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/3.0.0/schemas/record.schema.json",
+  "$id": "https://litespec.dev/3.1.0/schemas/record.schema.json",
   "title": "LiteSpec Project Record",
   "description": "The record file holding a consumer record page: one page record or one container page, with the entry records it carries.",
   "oneOf": [
@@ -43,14 +43,8 @@
     { "$ref": "#/$defs/exampleCastPage" }
   ],
   "$defs": {
-    "productId": {
-      "type": "string",
-      "pattern": "^product/[a-z0-9][a-z0-9-]*$"
-    },
-    "goalId": {
-      "type": "string",
-      "pattern": "^goal/[a-z0-9][a-z0-9-]*$"
-    },
+    "productId": { "type": "string", "pattern": "^product/[a-z0-9][a-z0-9-]*$" },
+    "goalId": { "type": "string", "pattern": "^goal/[a-z0-9][a-z0-9-]*$" },
     "constraintId": {
       "type": "string",
       "pattern": "^constraint/[a-z0-9][a-z0-9-]*$"
@@ -67,42 +61,21 @@
       "type": "string",
       "pattern": "^requirement/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
     },
-    "topicId": {
-      "type": "string",
-      "pattern": "^topic/[a-z0-9][a-z0-9-]*$"
-    },
-    "problemId": {
-      "type": "string",
-      "pattern": "^problem/[a-z0-9][a-z0-9-]*$"
-    },
-    "featureId": {
-      "type": "string",
-      "pattern": "^feature/[a-z0-9][a-z0-9-]*$"
-    },
-    "actorId": {
-      "type": "string",
-      "pattern": "^actor/[a-z0-9][a-z0-9-]*$"
-    },
-    "roleId": {
-      "type": "string",
-      "pattern": "^role/[a-z0-9][a-z0-9-]*$"
-    },
+    "topicId": { "type": "string", "pattern": "^topic/[a-z0-9][a-z0-9-]*$" },
+    "problemId": { "type": "string", "pattern": "^problem/[a-z0-9][a-z0-9-]*$" },
+    "featureId": { "type": "string", "pattern": "^feature/[a-z0-9][a-z0-9-]*$" },
+    "actorId": { "type": "string", "pattern": "^actor/[a-z0-9][a-z0-9-]*$" },
+    "roleId": { "type": "string", "pattern": "^role/[a-z0-9][a-z0-9-]*$" },
     "permissionId": {
       "type": "string",
       "pattern": "^permission/[a-z0-9][a-z0-9-]*$"
     },
-    "journeyId": {
-      "type": "string",
-      "pattern": "^journey/[a-z0-9][a-z0-9-]*$"
-    },
+    "journeyId": { "type": "string", "pattern": "^journey/[a-z0-9][a-z0-9-]*$" },
     "journeyStepId": {
       "type": "string",
       "pattern": "^journey/[a-z0-9][a-z0-9-]*#s[0-9]+$"
     },
-    "moduleId": {
-      "type": "string",
-      "pattern": "^module/[a-z0-9][a-z0-9-]*$"
-    },
+    "moduleId": { "type": "string", "pattern": "^module/[a-z0-9][a-z0-9-]*$" },
     "aggregateId": {
       "type": "string",
       "pattern": "^aggregate/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
@@ -167,26 +140,17 @@
       "type": "string",
       "pattern": "^integration-event/[a-z0-9][a-z0-9-]*$"
     },
-    "runbookId": {
-      "type": "string",
-      "pattern": "^runbook/[a-z0-9][a-z0-9-]*$"
-    },
+    "runbookId": { "type": "string", "pattern": "^runbook/[a-z0-9][a-z0-9-]*$" },
     "exceptionId": {
       "type": "string",
       "pattern": "^exception/[a-z0-9][a-z0-9-]*$"
     },
-    "termId": {
-      "type": "string",
-      "pattern": "^term/[a-z0-9][a-z0-9-]*$"
-    },
+    "termId": { "type": "string", "pattern": "^term/[a-z0-9][a-z0-9-]*$" },
     "refusalCode": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
     },
-    "findingCode": {
-      "type": "string",
-      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
-    },
+    "findingCode": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
     "findingCodeArray": {
       "type": "array",
       "minItems": 1,
@@ -201,10 +165,7 @@
       "type": "string",
       "pattern": "^[a-z][a-z-]+/[a-z0-9][a-z0-9._-]*$"
     },
-    "ownerName": {
-      "type": "string",
-      "minLength": 1
-    },
+    "ownerName": { "type": "string", "minLength": 1 },
     "intentStatus": {
       "type": "string",
       "enum": ["draft", "approved", "retired"]
@@ -213,9 +174,7 @@
       "type": "string",
       "enum": ["draft", "reviewed", "retired"]
     },
-    "transcribedProvenance": {
-      "enum": ["transcribed"]
-    },
+    "transcribedProvenance": { "enum": ["transcribed"] },
     "classification": {
       "enum": ["public", "internal", "personal", "sensitive"]
     },
@@ -224,10 +183,7 @@
       "format": "date",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
-    "nonEmptyString": {
-      "type": "string",
-      "minLength": 1
-    },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
     "termIdArray": {
       "type": "array",
       "uniqueItems": true,
@@ -306,7 +262,9 @@
     "riskArray": {
       "type": "array",
       "uniqueItems": true,
-      "items": { "enum": ["money", "physical-access", "personal-data", "access"] }
+      "items": {
+        "enum": ["money", "physical-access", "personal-data", "access"]
+      }
     },
     "exceptionSubjectArray": {
       "type": "array",
@@ -397,7 +355,12 @@
       ]
     },
     "settingValue": {
-      "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }, { "$ref": "#/$defs/moneyValue" }]
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "$ref": "#/$defs/moneyValue" }
+      ]
     },
     "authKind": {
       "enum": ["session", "token", "device", "link", "app", "none"]
@@ -412,9 +375,7 @@
       "type": "string",
       "pattern": "^(permission/[a-z0-9][a-z0-9-]*|self\\(permission/[a-z0-9][a-z0-9-]*\\)|anonymous|system)$"
     },
-    "tenantScope": {
-      "enum": ["own", "cross", "public", "none"]
-    },
+    "tenantScope": { "enum": ["own", "cross", "public", "none"] },
     "accessObject": {
       "type": "object",
       "additionalProperties": false,
@@ -700,9 +661,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["exempt"],
-      "properties": {
-        "exempt": { "$ref": "#/$defs/nonEmptyString" }
-      }
+      "properties": { "exempt": { "$ref": "#/$defs/nonEmptyString" } }
     },
     "auditValue": {
       "anyOf": [
@@ -738,7 +697,16 @@
     "dataClassEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "classification", "fields", "onErasure", "basis", "period", "enforcedBy", "purpose"],
+      "required": [
+        "name",
+        "classification",
+        "fields",
+        "onErasure",
+        "basis",
+        "period",
+        "enforcedBy",
+        "purpose"
+      ],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "classification": { "$ref": "#/$defs/classification" },
@@ -854,17 +822,13 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["job"],
-      "properties": {
-        "job": { "$ref": "#/$defs/jobId" }
-      }
+      "properties": { "job": { "$ref": "#/$defs/jobId" } }
     },
     "drivenByReaction": {
       "type": "object",
       "additionalProperties": false,
       "required": ["reaction"],
-      "properties": {
-        "reaction": { "$ref": "#/$defs/reactionId" }
-      }
+      "properties": { "reaction": { "$ref": "#/$defs/reactionId" } }
     },
     "drivenByPerson": {
       "type": "object",
@@ -872,10 +836,7 @@
       "required": ["person", "runbook", "dueWithin"],
       "properties": {
         "person": {
-          "anyOf": [
-            { "$ref": "#/$defs/actorId" },
-            { "$ref": "#/$defs/roleId" }
-          ]
+          "anyOf": [{ "$ref": "#/$defs/actorId" }, { "$ref": "#/$defs/roleId" }]
         },
         "runbook": { "$ref": "#/$defs/runbookId" },
         "dueWithin": { "$ref": "#/$defs/isoDuration" }
@@ -907,7 +868,13 @@
         "timezone": { "$ref": "#/$defs/nonEmptyString" }
       },
       "allOf": [
-        { "anyOf": [{ "required": ["every"] }, { "required": ["cron"] }, { "required": ["at"] }] },
+        {
+          "anyOf": [
+            { "required": ["every"] },
+            { "required": ["cron"] },
+            { "required": ["at"] }
+          ]
+        },
         { "not": { "required": ["every", "cron"] } },
         { "not": { "required": ["every", "at"] } },
         { "not": { "required": ["cron", "at"] } }
@@ -926,7 +893,19 @@
       "items": { "$ref": "#/$defs/reactionTriggerEvent" }
     },
     "contractValueType": {
-      "enum": ["text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id"]
+      "enum": [
+        "text",
+        "integer",
+        "decimal",
+        "money",
+        "boolean",
+        "date",
+        "date-time",
+        "duration",
+        "email",
+        "choice",
+        "id"
+      ]
     },
     "contractFieldChoices": {
       "type": "array",
@@ -977,7 +956,10 @@
         "classification": { "$ref": "#/$defs/classification" },
         "type": { "$ref": "#/$defs/contractValueType" },
         "of": { "$ref": "#/$defs/contractFieldOf" },
-        "many": { "description": "True when the field holds a list of values of its type.", "type": "boolean" },
+        "many": {
+          "description": "True when the field holds a list of values of its type.",
+          "type": "boolean"
+        },
         "required": { "type": "boolean" }
       },
       "allOf": [
@@ -994,21 +976,32 @@
             "required": ["type"],
             "properties": { "type": { "const": "id" } }
           },
-          "then": { "properties": { "of": { "$ref": "#/$defs/genericRecordId" } } }
+          "then": {
+            "properties": { "of": { "$ref": "#/$defs/genericRecordId" } }
+          }
         },
         {
           "if": {
             "required": ["type"],
             "properties": { "type": { "const": "choice" } }
           },
-          "then": { "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } } }
+          "then": {
+            "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } }
+          }
         }
       ]
     },
     "externalOperation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "direction", "timeout", "onTimeout", "response", "cache"],
+      "required": [
+        "name",
+        "direction",
+        "timeout",
+        "onTimeout",
+        "response",
+        "cache"
+      ],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "direction": { "enum": ["out", "in"] },
@@ -1066,7 +1059,14 @@
     "retentionRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dataClass", "covers", "basis", "period", "enforcedBy", "purpose"],
+      "required": [
+        "dataClass",
+        "covers",
+        "basis",
+        "period",
+        "enforcedBy",
+        "purpose"
+      ],
       "properties": {
         "dataClass": { "$ref": "#/$defs/nonEmptyString" },
         "covers": {
@@ -1105,17 +1105,33 @@
         "id": { "type": "string", "pattern": "^s[0-9]+$" },
         "statement": { "$ref": "#/$defs/nonEmptyString" },
         "actor": { "$ref": "#/$defs/actorId" },
+        "system": {
+          "anyOf": [
+            { "$ref": "#/$defs/externalSystemId" },
+            { "$ref": "#/$defs/jobId" },
+            { "$ref": "#/$defs/reactionId" }
+          ]
+        },
         "failure": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "not": { "required": ["actor", "system"] }
+    },
+    "problemEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "source", "readOn", "kind"],
+      "properties": {
+        "claim": { "$ref": "#/$defs/nonEmptyString" },
+        "source": { "$ref": "#/$defs/nonEmptyString" },
+        "readOn": { "$ref": "#/$defs/isoDate" },
+        "kind": { "enum": ["observed", "reported", "assumed"] }
       }
     },
     "researchSource": {
       "type": "object",
       "additionalProperties": false,
       "required": ["key", "readOn"],
-      "oneOf": [
-        { "required": ["url"] },
-        { "required": ["path"] }
-      ],
+      "oneOf": [{ "required": ["url"] }, { "required": ["path"] }],
       "properties": {
         "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
         "url": { "$ref": "#/$defs/nonEmptyString" },
@@ -1201,7 +1217,10 @@
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
         "type": { "$ref": "#/$defs/contractValueType" },
         "of": { "$ref": "#/$defs/contractFieldOf" },
-        "many": { "description": "True when the field holds a list of values of its type.", "type": "boolean" },
+        "many": {
+          "description": "True when the field holds a list of values of its type.",
+          "type": "boolean"
+        },
         "required": { "type": "boolean" },
         "rules": {
           "type": "array",
@@ -1225,14 +1244,18 @@
             "required": ["type"],
             "properties": { "type": { "const": "id" } }
           },
-          "then": { "properties": { "of": { "$ref": "#/$defs/genericRecordId" } } }
+          "then": {
+            "properties": { "of": { "$ref": "#/$defs/genericRecordId" } }
+          }
         },
         {
           "if": {
             "required": ["type"],
             "properties": { "type": { "const": "choice" } }
           },
-          "then": { "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } } }
+          "then": {
+            "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } }
+          }
         }
       ]
     },
@@ -1285,7 +1308,9 @@
         "target": { "$ref": "#/$defs/nonEmptyString" },
         "conditions": { "$ref": "#/$defs/nonEmptyString" },
         "check": { "$ref": "#/$defs/nonEmptyString" },
-        "runsOn": { "enum": ["pull-request", "nightly", "pre-release", "production"] },
+        "runsOn": {
+          "enum": ["pull-request", "nightly", "pre-release", "production"]
+        },
         "evidence": { "$ref": "#/$defs/nonEmptyString" },
         "cites": { "$ref": "#/$defs/citesArray" },
         "except": {
@@ -1310,16 +1335,18 @@
             "required": ["kind"],
             "properties": { "kind": { "const": "quality" } }
           },
-          "then": { "required": ["stimulus", "environment", "response", "measure", "dueBy"] }
+          "then": {
+            "required": [
+              "stimulus",
+              "environment",
+              "response",
+              "measure",
+              "dueBy"
+            ]
+          }
         },
-        {
-          "if": { "required": ["measure"] },
-          "then": { "required": ["dueBy"] }
-        },
-        {
-          "if": { "required": ["dueBy"] },
-          "then": { "required": ["measure"] }
-        },
+        { "if": { "required": ["measure"] }, "then": { "required": ["dueBy"] } },
+        { "if": { "required": ["dueBy"] }, "then": { "required": ["measure"] } },
         {
           "if": {
             "required": ["status"],
@@ -1354,8 +1381,14 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
-        "scope": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
-        "group": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+        "scope": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+        },
+        "group": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+        },
         "risk": { "$ref": "#/$defs/riskArray" },
         "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
@@ -1393,7 +1426,18 @@
         "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
-        "kind": { "enum": ["invariant", "precondition", "calculation", "cross-aggregate", "atomicity", "reservation", "commercial-data", "default"] },
+        "kind": {
+          "enum": [
+            "invariant",
+            "precondition",
+            "calculation",
+            "cross-aggregate",
+            "atomicity",
+            "reservation",
+            "commercial-data",
+            "default"
+          ]
+        },
         "statement": { "$ref": "#/$defs/nonEmptyString" },
         "governs": { "$ref": "#/$defs/governsArray" },
         "binds": { "$ref": "#/$defs/aggregateIdArray" },
@@ -1512,10 +1556,7 @@
         "then": { "$ref": "#/$defs/nonEmptyString" },
         "result": { "$ref": "#/$defs/scenarioResultValue" },
         "exercises": { "$ref": "#/$defs/ruleIdArray" },
-        "examples": {
-          "type": "array",
-          "items": { "type": "object" }
-        },
+        "examples": { "type": "array", "items": { "type": "object" } },
         "risk": { "$ref": "#/$defs/riskArray" },
         "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
@@ -1596,7 +1637,17 @@
         "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
-        "kind": { "enum": ["browser", "api", "webhook", "device", "cli", "mcp", "served-content"] },
+        "kind": {
+          "enum": [
+            "browser",
+            "api",
+            "webhook",
+            "device",
+            "cli",
+            "mcp",
+            "served-content"
+          ]
+        },
         "auth": { "$ref": "#/$defs/authKindArray" },
         "path": { "$ref": "#/$defs/nonEmptyString" },
         "contentType": { "$ref": "#/$defs/nonEmptyString" },
@@ -1626,7 +1677,15 @@
             "required": ["kind"],
             "properties": { "kind": { "const": "served-content" } }
           },
-          "then": { "required": ["path", "contentType", "cacheControl", "versioning", "fulfills"] }
+          "then": {
+            "required": [
+              "path",
+              "contentType",
+              "cacheControl",
+              "versioning",
+              "fulfills"
+            ]
+          }
         }
       ]
     },
@@ -1667,7 +1726,9 @@
         "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
-        "valueType": { "enum": ["integer", "duration", "money", "boolean", "text", "choice"] },
+        "valueType": {
+          "enum": ["integer", "duration", "money", "boolean", "text", "choice"]
+        },
         "default": { "$ref": "#/$defs/settingValue" },
         "range": { "$ref": "#/$defs/nonEmptyString" },
         "unit": { "$ref": "#/$defs/nonEmptyString" },
@@ -1700,7 +1761,17 @@
     "productPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "summary", "boundary", "exclusions", "addresses"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "summary",
+        "boundary",
+        "exclusions",
+        "addresses"
+      ],
       "properties": {
         "type": { "const": "product" },
         "id": { "$ref": "#/$defs/productId" },
@@ -1744,7 +1815,18 @@
     "goalPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "statement", "whyItMatters", "measure", "target", "dueBy"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "statement",
+        "whyItMatters",
+        "measure",
+        "target",
+        "dueBy"
+      ],
       "properties": {
         "type": { "const": "goal" },
         "whyItMatters": { "$ref": "#/$defs/nonEmptyString" },
@@ -1785,7 +1867,18 @@
     "constraintPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "summary", "authority", "kind", "applies", "appliesBecause"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "summary",
+        "authority",
+        "kind",
+        "applies",
+        "appliesBecause"
+      ],
       "properties": {
         "type": { "const": "constraint" },
         "id": { "$ref": "#/$defs/constraintId" },
@@ -1802,7 +1895,9 @@
         "records": { "$ref": "#/$defs/recordsArray" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
         "authority": { "$ref": "#/$defs/nonEmptyString" },
-        "kind": { "enum": ["technical", "organizational", "convention", "legal"] },
+        "kind": {
+          "enum": ["technical", "organizational", "convention", "legal"]
+        },
         "applies": { "type": "boolean" },
         "appliesBecause": { "$ref": "#/$defs/nonEmptyString" }
       },
@@ -1826,7 +1921,16 @@
     "researchPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "sources", "question", "conclusion"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "sources",
+        "question",
+        "conclusion"
+      ],
       "properties": {
         "type": { "const": "research" },
         "id": { "$ref": "#/$defs/researchId" },
@@ -1869,7 +1973,16 @@
     "decisionPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "options", "consequences", "reopenedWhen"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "options",
+        "consequences",
+        "reopenedWhen"
+      ],
       "properties": {
         "type": { "const": "decision" },
         "id": { "$ref": "#/$defs/decisionId" },
@@ -1894,7 +2007,11 @@
         "consequences": { "$ref": "#/$defs/nonEmptyString" },
         "reopenedWhen": { "$ref": "#/$defs/nonEmptyString" },
         "decides": { "$ref": "#/$defs/decidesArray" },
-        "admits": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/admission" } },
+        "admits": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/admission" }
+        },
         "basedOn": { "$ref": "#/$defs/decisionBasedOnArray" }
       },
       "allOf": [
@@ -1924,7 +2041,19 @@
     "problemPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "statement", "situation"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "statement",
+        "situation",
+        "affects",
+        "affectsSegment",
+        "costToday",
+        "workaroundToday"
+      ],
       "properties": {
         "type": { "const": "problem" },
         "id": { "$ref": "#/$defs/problemId" },
@@ -1939,9 +2068,22 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "affects": { "$ref": "#/$defs/actorIdArray" },
+        "affects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/actorId" }
+        },
+        "affectsSegment": { "$ref": "#/$defs/nonEmptyString" },
         "situation": { "$ref": "#/$defs/nonEmptyString" },
-        "statement": { "$ref": "#/$defs/nonEmptyString" }
+        "statement": { "$ref": "#/$defs/nonEmptyString" },
+        "costToday": { "$ref": "#/$defs/nonEmptyString" },
+        "workaroundToday": { "$ref": "#/$defs/nonEmptyString" },
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/problemEvidence" }
+        }
       },
       "allOf": [
         {
@@ -1963,7 +2105,15 @@
     "featurePage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "offering", "lifecycle", "solves"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "offering",
+        "lifecycle"
+      ],
       "properties": {
         "type": { "const": "feature" },
         "id": { "$ref": "#/$defs/featureId" },
@@ -2006,14 +2156,16 @@
             "properties": { "lifecycle": { "const": "refused" } }
           },
           "then": {
-            "required": ["refusedBecause", "solves"],
+            "required": ["refusedBecause"],
             "not": { "required": ["advances"] }
           }
         },
         {
           "if": {
             "required": ["lifecycle"],
-            "properties": { "lifecycle": { "enum": ["planned", "shipped", "later"] } }
+            "properties": {
+              "lifecycle": { "enum": ["planned", "shipped", "later"] }
+            }
           },
           "then": { "required": ["advances", "solves"] }
         },
@@ -2029,7 +2181,16 @@
     "actorPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "summary"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "kind",
+        "summary",
+        "belongsToTeam"
+      ],
       "properties": {
         "type": { "const": "actor" },
         "id": { "$ref": "#/$defs/actorId" },
@@ -2045,7 +2206,8 @@
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
-        "kind": { "enum": ["person", "organization", "system"] },
+        "kind": { "enum": ["person", "organization"] },
+        "belongsToTeam": { "type": "boolean" },
         "holds": {
           "type": "array",
           "uniqueItems": true,
@@ -2113,7 +2275,19 @@
     "journeyPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "actor", "serves", "finishedWhen", "steps", "betweenSteps"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "actor",
+        "serves",
+        "description",
+        "finishedWhen",
+        "steps",
+        "betweenSteps"
+      ],
       "properties": {
         "type": { "const": "journey" },
         "id": { "$ref": "#/$defs/journeyId" },
@@ -2129,6 +2303,7 @@
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
         "actor": { "$ref": "#/$defs/actorId" },
+        "description": { "$ref": "#/$defs/nonEmptyString" },
         "serves": { "$ref": "#/$defs/journeyServesArray" },
         "finishedWhen": { "$ref": "#/$defs/nonEmptyString" },
         "steps": {
@@ -2311,11 +2486,7 @@
         {
           "if": { "required": ["dataClasses"] },
           "then": {
-            "properties": {
-              "data": {
-                "items": { "required": ["dataClass"] }
-              }
-            }
+            "properties": { "data": { "items": { "required": ["dataClass"] } } }
           }
         }
       ]
@@ -2323,7 +2494,16 @@
     "useCasePage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "access", "idempotency"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "kind",
+        "access",
+        "idempotency"
+      ],
       "properties": {
         "type": { "const": "use-case" },
         "id": { "$ref": "#/$defs/useCaseId" },
@@ -2416,7 +2596,15 @@
     "reactionPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "triggeredBy", "effects"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "triggeredBy",
+        "effects"
+      ],
       "properties": {
         "type": { "const": "reaction" },
         "id": { "$ref": "#/$defs/reactionId" },
@@ -2547,17 +2735,28 @@
             "required": ["kind"],
             "properties": { "kind": { "const": "manual" } }
           },
-          "then": {
-            "required": ["guard"],
-            "not": { "required": ["schedule"] }
-          }
+          "then": { "required": ["guard"], "not": { "required": ["schedule"] } }
         }
       ]
     },
     "notificationPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "template", "addresses", "channel", "consent", "frequency", "dedupKey", "params", "locale"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "template",
+        "addresses",
+        "channel",
+        "consent",
+        "frequency",
+        "dedupKey",
+        "params",
+        "locale"
+      ],
       "properties": {
         "type": { "const": "notification" },
         "id": { "$ref": "#/$defs/notificationId" },
@@ -2627,7 +2826,7 @@
     "externalSystemPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "summary", "actor"],
+      "required": ["type", "id", "title", "owner", "status", "summary"],
       "properties": {
         "type": { "const": "external-system" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
@@ -2643,7 +2842,6 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "actor": { "$ref": "#/$defs/actorId" },
         "sends": {
           "type": "array",
           "uniqueItems": true,
@@ -2690,7 +2888,18 @@
     "integrationEventPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "direction", "eventType", "source", "subject", "payload"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "direction",
+        "eventType",
+        "source",
+        "subject",
+        "payload"
+      ],
       "properties": {
         "type": { "const": "integration-event" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
@@ -2755,7 +2964,12 @@
           },
           "then": {
             "required": ["correlation"],
-            "not": { "anyOf": [{ "required": ["translates"] }, { "required": ["addresses"] }] }
+            "not": {
+              "anyOf": [
+                { "required": ["translates"] },
+                { "required": ["addresses"] }
+              ]
+            }
           }
         }
       ]
@@ -2763,7 +2977,20 @@
     "runbookPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "trigger", "impact", "prerequisites", "procedure", "verification", "recovery", "escalation"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "trigger",
+        "impact",
+        "prerequisites",
+        "procedure",
+        "verification",
+        "recovery",
+        "escalation"
+      ],
       "properties": {
         "type": { "const": "runbook" },
         "id": { "$ref": "#/$defs/runbookId" },
@@ -2809,7 +3036,17 @@
     "exceptionPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "covers", "reason", "expiresOn"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "kind",
+        "covers",
+        "reason",
+        "expiresOn"
+      ],
       "properties": {
         "type": { "const": "exception" },
         "id": { "$ref": "#/$defs/exceptionId" },
@@ -2858,22 +3095,26 @@
           },
           "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
         },
-        {
-          "anyOf": [{ "required": ["subject"] }, { "required": ["paths"] }]
-        },
+        { "anyOf": [{ "required": ["subject"] }, { "required": ["paths"] }] },
         {
           "if": {
             "required": ["kind"],
             "properties": { "kind": { "const": "departure" } }
           },
-          "then": { "properties": { "covers": { "$ref": "#/$defs/standardsProvisionId" } } }
+          "then": {
+            "properties": {
+              "covers": { "$ref": "#/$defs/standardsProvisionId" }
+            }
+          }
         },
         {
           "if": {
             "required": ["kind"],
             "properties": { "kind": { "const": "gap" } }
           },
-          "then": { "properties": { "covers": { "$ref": "#/$defs/findingCodeArray" } } }
+          "then": {
+            "properties": { "covers": { "$ref": "#/$defs/findingCodeArray" } }
+          }
         },
         {
           "if": {
@@ -2894,7 +3135,16 @@
     "topicPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "summary", "position", "reviewBy"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "summary",
+        "position",
+        "reviewBy"
+      ],
       "properties": {
         "type": { "const": "topic" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
@@ -2991,14 +3241,8 @@
         "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "oneOf": [
-        {
-          "required": ["address"],
-          "not": { "required": ["host"] }
-        },
-        {
-          "required": ["host"],
-          "not": { "required": ["address"] }
-        }
+        { "required": ["address"], "not": { "required": ["host"] } },
+        { "required": ["host"], "not": { "required": ["address"] } }
       ],
       "allOf": [
         {
@@ -3020,7 +3264,15 @@
     "settingPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "valueType", "setBy"],
+      "required": [
+        "type",
+        "id",
+        "title",
+        "owner",
+        "status",
+        "valueType",
+        "setBy"
+      ],
       "properties": {
         "type": { "const": "setting" },
         "id": { "$ref": "#/$defs/settingId" },
@@ -3035,7 +3287,9 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "valueType": { "enum": ["integer", "duration", "money", "boolean", "text", "choice"] },
+        "valueType": {
+          "enum": ["integer", "duration", "money", "boolean", "text", "choice"]
+        },
         "default": { "$ref": "#/$defs/settingValue" },
         "range": { "$ref": "#/$defs/nonEmptyString" },
         "unit": { "$ref": "#/$defs/nonEmptyString" },
@@ -3188,7 +3442,14 @@
     "reviewReportPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "title", "owner", "reviewedOn", "reviewer", "batches"],
+      "required": [
+        "type",
+        "title",
+        "owner",
+        "reviewedOn",
+        "reviewer",
+        "batches"
+      ],
       "properties": {
         "type": { "const": "review-report" },
         "id": { "$ref": "#/$defs/nonEmptyString" },

@@ -48,7 +48,7 @@ The optional `protocol` block belongs to the `devices` extension. The [access pa
 
 ### Screens
 
-A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `docs/behavior/screens/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. It names its `entryPoint`, its `address` (the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination), the use cases it `offers`, the journey steps it `serves`, and optionally the `floorplan` it is composed from. A floorplan is a named arrangement of regions the screen fills. An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen is one that offers no use case and says so in its `summary`.
+A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `.litespec/behavior/screens/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. It names its `entryPoint`, its `address` (the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination), the use cases it `offers`, the journey steps it `serves`, and optionally the `floorplan` it is composed from. A floorplan is a named arrangement of regions the screen fills. An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen is one that offers no use case and says so in its `summary`.
 
 A screen states what a person can do there; what they see follows from it. The results a screen shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`, so none of those are written on the screen. Intent never names a screen: a journey step says what a person achieves, and the book adds the screen that carries the step as context outside the approval hash.
 
@@ -56,11 +56,10 @@ The route entry that renders a screen carries its mark, in the form its stack pa
 
 ### External Systems
 
-An external system is one system outside the bounded context the product exchanges messages with. It acts inside the product as one actor, and each operation declares its direction, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. Its erasure position says how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with its acceptance. Its `summary` states what the system does for the product and who operates it.
+An external system is one system outside the bounded context the product exchanges messages with. It stands alone and names no actor. An integration that calls the product is an external system calling through an API entry point, and each operation declares its direction, timeout, response, and cache, and may state its retry behavior in `retries` prose. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. Its erasure position says how personal data leaves it: `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with its acceptance. Its `summary` states what the system does for the product and who operates it.
 
 | Field | Meaning |
 |:---|:---|
-| `actor` | The actor the system acts as. |
 | `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache }` entries; direction is `out` or `in`, `retries` is optional prose. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with `acceptedBy`. |
 
@@ -184,7 +183,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A page is where a person meets the product, and an unrecorded page offers use cases nobody reviewed as a page: what it lets someone start, which journey step it carries, which refusal it shows. One record per page, with one mark on the route, makes the page a reviewable promise and lets every other link (calls, results, journey coverage) be computed from it.
 
-**Example:** Claimwick's web route `/expenses` carries `implements: "screen/claimwick-app.expense-list"`, and `docs/behavior/screens/claimwick-app.expense-list.yaml` offers `use-case/spending.list-expenses`.
+**Example:** Claimwick's web route `/expenses` carries `implements: "screen/claimwick-app.expense-list"`, and `.litespec/behavior/screens/claimwick-app.expense-list.yaml` offers `use-case/spending.list-expenses`.
 
 **Checked by:** `litespec model check` reports `screen-unimplemented` (level S) for a screen no route marks, and `behavior-unrecorded` (level S) for a route with no mark or a mark naming no screen.
 
@@ -264,7 +263,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Each external system MUST describe its operations with direction, timeout, timeout handling, response, and cache.
 
-**Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system acts inside the product as one named actor.
+**Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system stands alone and names no actor.
 
 **Checked by:** `litespec consumer` fails an external system operation without direction, timeout, timeout handling, response, or cache.
 

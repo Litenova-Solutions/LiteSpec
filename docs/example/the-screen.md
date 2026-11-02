@@ -37,7 +37,7 @@ The search schema keeps the filters and the page in the address, per `litespec/f
 
 ## The Shared UI Package
 
-The screen composes the shared UI package `@claimwick/ui` at `packages/ui`, which the project declares in `paths.uiPackage` of `litespec.project.json`. The package pins its baseline in the source lock at `packages/ui/ui-source-lock.json`: generator `shadcn-svelte`, CLI `1.7.0`, with the `button` and `skeleton` components at baseline status. `litespec ui` checks the package, its source lock and digests, its design contract, its stylesheets, each frontend boundary, and each route suite, per [Validate Controlled UI](../tools/ui.md). Against the Claimwick example it reports this, and exits zero:
+The screen composes the shared UI package `@claimwick/ui` at `packages/ui`, which the project declares in `paths.uiPackage` of `.litespec/project.json`. The package pins its baseline in the source lock at `packages/ui/ui-source-lock.json`: generator `shadcn-svelte`, CLI `1.7.0`, with the `button` and `skeleton` components at baseline status. `litespec ui` checks the package, its source lock and digests, its design contract, its stylesheets, each frontend boundary, and each route suite, per [Validate Controlled UI](../tools/ui.md). Against the Claimwick example it reports this, and exits zero:
 
 ```text
 Consumer: ../expenses
@@ -53,7 +53,7 @@ The run names the one controlled frontend: the `web` frontend at `apps/web`, whi
 
 The screen starts from the `litespec/frontend/patterns/lists-and-tables#choosing-the-columns` pattern on [List and Table Patterns](../frontend/patterns/lists-and-tables.md). That pattern asks which columns the table shows, and its default option `five-columns-nothing-removable` shows five columns with nothing removable: which item, who, when, what state, and what value. The expenses screen adapts that set to the facts the Expense record holds: the expense, the employee, the expense state, and the amount, which [Modules and Records](modules-and-records.md) describes.
 
-A consumer keeps one pattern catalog holding its interface decisions, per `litespec/frontend/patterns#keep-one-pattern-catalog` on [UI Patterns](../frontend/patterns.md). Each entry records at least 2 options with rationale and cost and names the chosen option, and each decision records its source as `owner` or `recommended`, per `litespec/frontend/patterns#record-who-chose`. The example keeps its catalog at `docs/ui/pattern-catalog.json` with 2 entries, the orders list page and table sorting, and both decisions record `recommended` sources, standing until an owner chooses.
+A consumer keeps one pattern catalog holding its interface decisions, per `litespec/frontend/patterns#keep-one-pattern-catalog` on [UI Patterns](../frontend/patterns.md). Each entry records at least 2 options with rationale and cost and names the chosen option, and each decision records its source as `owner` or `recommended`, per `litespec/frontend/patterns#record-who-chose`. The example keeps its catalog at `.litespec/ui/pattern-catalog.json` with 2 entries, the orders list page and table sorting, and both decisions record `recommended` sources, standing until an owner chooses.
 
 ## The Frontend Rules the Screen Follows
 

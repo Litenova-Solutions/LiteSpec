@@ -240,7 +240,7 @@ internal static class StandardsValidator
         context.Fields.CheckFieldNaming();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
-        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.json", "templates/consumer/litespec.project.json");
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.json", "templates/consumer/project.json");
 
         // The template index is the only map from a template file to the consumer path
         // it targets. A renamed template leaves a row pointing at nothing, and that row

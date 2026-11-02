@@ -5,8 +5,8 @@ namespace LiteSpec.Tests.Consumer;
 /// <summary>Consumer validator cases for the glossary file and prose measures.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string ModuleReadme = "docs/behavior/modules/orders/module.md";
-    const string GlossaryFile = "docs/glossary.yaml";
+    const string ModuleReadme = ".litespec/behavior/modules/orders/module.md";
+    const string GlossaryFile = ".litespec/glossary.yaml";
 
     /// <summary>Glossary without its version.</summary>
     /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>

@@ -2,7 +2,7 @@
 
 ## Intent
 
-`litespec.project.json` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, owners, paths, and pinned release. The owner edits it when the selection changes and validates it with the `litespec consumer` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
+`.litespec/project.json` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, owners, paths, and pinned release. The owner edits it when the selection changes and validates it with the `litespec consumer` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
 
 ## Reference
 
@@ -12,9 +12,9 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 
 | Item | Value |
 |:---|:---|
-| Path | `litespec.project.json` at the consumer root |
+| Path | `.litespec/project.json` at the consumer root |
 | Schema | `schemas/litespec-project.schema.json` in the pinned release |
-| Template | `templates/consumer/litespec.project.json` in the release the tool carries |
+| Template | `templates/consumer/project.json` in the release the tool carries |
 | Presets | `templates/presets/android-client.json`, `templates/presets/blazor-client.json`, `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json` |
 
 `litespec init` merges the template with one preset and stamps the size, name, and reviewed release. `litespec consumer` validates the written file against the schema and then runs the selection checks below. The model builder reads the paths, stack config, size, shape, stacks, and owners from the same file.
@@ -58,7 +58,7 @@ What each field means and what reads it:
 - `adoption` names the decision that ends transcription mode. See the `adoption` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
 - `vocabulary` adds the project domain verbs to the baseline use-case vocabulary. See the `vocabulary` object below.
-- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"3.0.0"`. `litespec consumer` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
+- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"3.1.0"`. `litespec consumer` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `exampleWordLimit` bounds the words in an Example section. When omitted, the recorded default of `120` applies, and the validator refuses a value below `40`.
 - `selectedExtensions` lists the extensions the project selected, each with its criterion and review date. See the extension entry below.
@@ -105,9 +105,9 @@ This object is included once the project states which outside constraints apply 
 
 What each field means and what reads it:
 
-- `vetoWindowDays` is the days after `decideBy` in which a question on a tier 3 record carrying `recommendation` auto-approves, recorded as `answeredBy: auto (veto window)` on the question, as `litespec/core/model#answer-each-question-on-its-record` states. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
+- `vetoWindowDays` is the days after `decideBy` in which a question on a record with no risk class carrying `recommendation` auto-approves, recorded as `answeredBy: auto (veto window)` on the question, as `litespec/core/model#answer-each-question-on-its-record` states. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
 - `securityReviewer` is the owner name holding the security reviewer role, where the project names one. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. The queue is a list to read, not a gate.
-- `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
+- `sampleShare` is the share of a batch of records with no risk class that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
 ### The `dependencies` Object
 
@@ -187,7 +187,7 @@ A project whose owners list holds one name needs no second reviewer.
 | `contract` | string | no | none |
 | `alerts` | array of strings | no | none |
 | `operations` | array of strings | no | none |
-| `checkResults` | string | no | `docs/proof/checks` |
+| `checkResults` | string | no | `.litespec/proof/checks` |
 | `sbom` | array of strings | no | none |
 | `apiClient` | string | no | `packages/api` |
 | `surfaces` | array of object | no | none |
@@ -320,18 +320,18 @@ Fill these placeholders before validating: __OWNER__.
 It also prints `Next step: dotnet litespec consumer`. `litespec consumer` treats a leftover placeholder as an error and names each one:
 
 ```text
-litespec.project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
+.litespec/project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
 A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `paths.uiPackage` and `paths.uiPatterns` from the written file.
 
 ### A Complete Example
 
-This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset, after replacing `__OWNER__` with the owner name. It ran against release `3.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
+This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset, after replacing `__OWNER__` with the owner name. It ran against release `3.1.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
 
 ```json
 {
-  "$schema": "https://litespec.dev/3.0.0/schemas/litespec-project.schema.json",
+  "$schema": "https://litespec.dev/3.1.0/schemas/litespec-project.schema.json",
   "project": {
     "name": "shop"
   },
@@ -341,7 +341,7 @@ This example shows the file `litespec init --preset dotnet-react --size small --
     "dotnet",
     "react"
   ],
-  "reviewedLiteSpecVersion": "3.0.0",
+  "reviewedLiteSpecVersion": "3.1.0",
   "optionalTypes": [],
   "constraints": {
     "answered": true
@@ -358,8 +358,8 @@ This example shows the file `litespec init --preset dotnet-react --size small --
   },
   "paths": {
     "docs": "docs",
-    "behaviorDocs": "docs/behavior",
-    "uiDocs": "docs/ui",
+    "behaviorDocs": ".litespec/behavior",
+    "uiDocs": ".litespec/ui",
     "unstructuredDocs": [],
     "testRoots": [
       "apps/api/tests"
@@ -376,7 +376,7 @@ This example shows the file `litespec init --preset dotnet-react --size small --
         "@shop/ui/floorplans"
       ]
     },
-    "uiPatterns": "docs/ui/pattern-catalog.json",
+    "uiPatterns": ".litespec/ui/pattern-catalog.json",
     "frontends": [
       {
         "name": "web",
@@ -404,21 +404,21 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 
 | Mistake | Message |
 |:---|:---|
-| A placeholder is left in the file | `litespec.project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| The installed release and the reviewed release differ | `litespec.project.json: reviewedLiteSpecVersion '3.1.0' does not match the installed LiteSpec tool release 3.0.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.1.0' and run 'dotnet tool restore', or re-review the contract and record 3.0.0` |
-| The reviewed release is missing | `litespec.project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 3.0.0` |
-| A stack id is unknown | `litespec.project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A client-only project names a backend stack | `litespec.project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A server names zero or two backend stacks | `litespec.project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| An extension id is unknown | `litespec.project.json: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, automation, bdd, cache, compat, concurrency, containers, delegation, devices, efcore, integrations, jobs, lifecycle, locale, mcp, outbox, pipeline, privacy, queues, realtime, report, site, stage, tenancy, workflow-engine` |
-| An extension review date has passed | `litespec.project.json: extensions 'locale' was due for review on 2026-01-01; confirm the criterion still applies or remove the selection` |
-| A frontend declares no platform | `litespec.project.json: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A frontend names a stack the project does not select | `litespec.project.json: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A controlled frontend has no shared package | `litespec.project.json: 1 controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared` |
-| A configured path does not exist | `litespec.project.json: paths.docs 'docs' does not exist; the page scan finds no record to check` |
+| A placeholder is left in the file | `.litespec/project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '3.1.0' does not match the installed LiteSpec tool release 3.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.1.0' and run 'dotnet tool restore', or re-review the contract and record 3.1.0` |
+| The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 3.1.0` |
+| A stack id is unknown | `.litespec/project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A client-only project names a backend stack | `.litespec/project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A server names zero or two backend stacks | `.litespec/project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| An extension id is unknown | `.litespec/project.json: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, automation, bdd, cache, compat, concurrency, containers, delegation, devices, efcore, integrations, jobs, lifecycle, locale, mcp, outbox, pipeline, privacy, queues, realtime, report, site, stage, tenancy, workflow-engine` |
+| An extension review date has passed | `.litespec/project.json: extensions 'locale' was due for review on 2026-01-01; confirm the criterion still applies or remove the selection` |
+| A frontend declares no platform | `.litespec/project.json: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A frontend names a stack the project does not select | `.litespec/project.json: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A controlled frontend has no shared package | `.litespec/project.json: 1 controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared` |
+| A configured path does not exist | `.litespec/project.json: paths.docs 'docs' does not exist; the page scan finds no record to check` |
 
 The last row stands for every configured path: the message names the field, the missing path, and the check that goes quiet. The docs root, the glossary, each frontend directory, each `uiPackage` file, and each frontend stylesheet follow this shape.
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/litespec.project.json`.
+The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/project.json`.

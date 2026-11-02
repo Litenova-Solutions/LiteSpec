@@ -3,7 +3,7 @@
 [![CI](https://github.com/Litenova-Solutions/LiteSpec/actions/workflows/litespec.yml/badge.svg)](https://github.com/Litenova-Solutions/LiteSpec/actions/workflows/litespec.yml)
 [![NuGet](https://img.shields.io/nuget/v/LiteSpec.Cli)](https://www.nuget.org/packages/LiteSpec.Cli)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-litespec.dev-blue.svg)](https://litespec.dev/3.0.0/)
+[![Documentation](https://img.shields.io/badge/docs-litespec.dev-blue.svg)](https://litespec.dev/3.1.0/)
 
 ## Intent
 
@@ -34,17 +34,17 @@ The tool renders the model as a book that a reviewer reads offline. The analyzer
 
 ## Installation
 
-LiteSpec runs as a local .NET tool. Run these commands from the root of a consumer repository, the folder that will hold `litespec.project.json`.
+LiteSpec runs as a local .NET tool. Run these commands from the root of a consumer repository, the folder that will hold `.litespec/project.json`.
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 3.0.0
+dotnet tool install LiteSpec.Cli --version 3.1.0
 dotnet litespec init --preset dotnet-react --size small
 ```
 
 Run `dotnet new tool-manifest` only when the repository has no `.config/dotnet-tools.json` yet. `dotnet tool install` records `LiteSpec.Cli` in that manifest at the release named above.
 
-`dotnet litespec init` writes `litespec.project.json` for the project. Both options are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, and `android-client`. See [Initialize Consumer](docs/tools/init.md) for every option.
+`dotnet litespec init` writes `.litespec/project.json` for the project. Both options are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, and `android-client`. See [Initialize Consumer](docs/tools/init.md) for every option.
 
 ## First Check
 
@@ -73,7 +73,7 @@ Selecting a stack applies its folder, every folder above it, and their subfolder
 
 ## Documentation
 
-The documentation for this release is at [litespec.dev/3.0.0](https://litespec.dev/3.0.0/). The same pages live in this repository at [docs/README.md](docs/README.md), which indexes every page a project applies. The command pages are under [docs/tools/](docs/tools/README.md).
+The documentation for this release is at [litespec.dev/3.1.0](https://litespec.dev/3.1.0/). The same pages live in this repository at [docs/README.md](docs/README.md), which indexes every page a project applies. The command pages are under [docs/tools/](docs/tools/README.md).
 
 ## Repository Layout
 

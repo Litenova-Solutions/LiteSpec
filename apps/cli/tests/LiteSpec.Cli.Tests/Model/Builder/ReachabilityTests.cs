@@ -60,7 +60,7 @@ public sealed class ReachabilityTests
         Assert.Empty(states.EnumerateArray());
     }
 
-    const string Aggregate = "docs/behavior/modules/lending/loans/aggregate.yaml";
+    const string Aggregate = ".litespec/behavior/modules/lending/loans/aggregate.yaml";
 
     static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
     {
@@ -73,7 +73,7 @@ public sealed class ReachabilityTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".model", "model.json");
+        var output = Path.Combine(root, ".litespec/model", "model.json");
         var result = Cli.Run("model", "build", "--root", root, "--out", output);
         Assert.Equal(0, result.Status);
 

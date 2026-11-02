@@ -99,7 +99,7 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void DraftListLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.yaml");
+        var file = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "list-loans.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
         Assert.True(
@@ -117,7 +117,7 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void EnsureReviewedListLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.yaml");
+        var file = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "list-loans.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
         if (record["status"]?.GetValue<string>() == "draft")
@@ -135,7 +135,7 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void SetOnlyWebStacks(string root)
     {
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("svelte"));
         File.WriteAllText(file, project.ToJsonString());
@@ -146,7 +146,7 @@ public sealed class SeverityCheckTests
     /// <param name="value">The marks value to write.</param>
     static void BreakMarks(string root, string value)
     {
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         project["marks"] = JsonValue.Create(value);
         File.WriteAllText(file, project.ToJsonString());

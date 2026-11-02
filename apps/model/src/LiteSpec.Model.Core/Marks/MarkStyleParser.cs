@@ -2,7 +2,7 @@ using System;
 
 namespace LiteSpec.Model;
 
-/// <summary>Parses the C# <c>marks</c> value of <c>litespec.project.json</c>.</summary>
+/// <summary>Parses the C# <c>marks</c> value of <c>.litespec/project.json</c>.</summary>
 /// <follows>litespec/core/model#declare-one-mark-style</follows>
 public static class MarkStyleParser
 {

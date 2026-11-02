@@ -28,7 +28,7 @@ internal sealed class FieldValidator
     // other field follows the rule.
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the fields excepted from the same-shape rule.</summary>
-    private static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "subject"], StringComparer.Ordinal);
+    private static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "evidence", "subject"], StringComparer.Ordinal);
 
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
     private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);

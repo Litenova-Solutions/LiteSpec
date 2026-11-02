@@ -14,7 +14,7 @@ const string usage = """
     Usage: litespec <command> [options]
 
     Commands in a consumer repository:
-      init          Write litespec.project.json from a preset.
+      init          Write .litespec/project.json from a preset.
       new           Scaffold a record page and reserve its identifier.
       rename        Rename a record identifier and rewrite every link.
       consumer      Validate the consumer's project file, records and language.

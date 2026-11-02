@@ -189,6 +189,7 @@ sealed class BookLexicon
             findings[key] = new JsonObject
             {
                 ["tier"] = value.Tier,
+                ["level"] = value.Tier,
                 ["meaning"] = value.Meaning,
             };
         }

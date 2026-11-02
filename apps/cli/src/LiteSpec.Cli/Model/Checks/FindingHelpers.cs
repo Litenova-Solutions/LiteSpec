@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>Helpers the check domains share: record subjects, JSON field reads, question state, tier grading, and aggregate transition and data reads.</summary>
+/// <summary>Helpers the check domains share: record subjects, JSON field reads, question state, risk grading, and aggregate transition and data reads.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class FindingHelpers
 {
@@ -61,38 +61,26 @@ internal static class FindingHelpers
     }
 
     /// <summary>
-    ///     A coverage finding graded by risk: tier G when the record is tier 1,
-    ///     else the code's own tier.
+    ///     A coverage finding graded by risk: level G when the record carries a
+    ///     risk class, else the code's own level.
     /// </summary>
     /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
-    /// <param name="code">The finding code that sets the default tier.</param>
+    /// <param name="code">The finding code that sets the default level.</param>
     /// <param name="message">The finding message shown to the reader.</param>
-    /// <param name="record">The record the finding belongs to, which carries the risk that lifts the tier.</param>
-    /// <param name="model">The loaded project model used to grade the record tier.</param>
-    /// <returns>The finding, graded tier G when the record is tier 1.</returns>
-    internal static Finding Tiered(string code, string message, Record record, ProjectModel model) =>
+    /// <param name="record">The record the finding belongs to, which carries the risk that lifts the level.</param>
+    /// <param name="model">The loaded project model used to grade the record risk.</param>
+    /// <returns>The finding, graded level G when the record carries a risk class.</returns>
+    internal static Finding RiskGraded(string code, string message, Record record, ProjectModel model) =>
         new(code, message, record.File, record.Line, SubjectOf(record))
         {
-            TierOverride = ReviewQueue.TierOf(model, record) == 1 ? "G" : null,
+            TierOverride = ReviewQueue.HasRisk(model, record) ? "G" : null,
         };
 
-    /// <summary>Whether the record carries any risk, which makes it tier 1.</summary>
+    /// <summary>Whether the record carries any risk class.</summary>
     /// <param name="record">The record whose risk field is inspected.</param>
-    /// <returns>True when the record names at least one risk entry or a non-empty risk text; otherwise false.</returns>
+    /// <returns>True when the record carries a risk class; otherwise false.</returns>
     internal static bool HasRisk(Record record) =>
-        record.Raw.ValueKind == JsonValueKind.Object
-        && record.Raw.TryGetProperty(RecordFields.Risk, out var risk)
-        && ((risk.ValueKind == JsonValueKind.Array && risk.GetArrayLength() > 0)
-            || (risk.ValueKind == JsonValueKind.String && risk.GetString() is { Length: > 0 }));
-
-    /// <summary>
-    ///     The tier of a question entry: tier 1 when the record carrying it
-    ///     carries risk, else tier 3. A question carries no tier of its own.
-    /// </summary>
-    /// <param name="parent">The record carrying the question, or null when it stands alone.</param>
-    /// <returns>Tier 1 when the carrying record carries risk; otherwise tier 3.</returns>
-    internal static int TierOf(Record? parent) =>
-        parent is not null && HasRisk(parent) ? 1 : 3;
+        ApprovalTable.HasRisk(record);
 
     /// <summary>Whether the question entry carries a recommended answer.</summary>
     /// <param name="element">The question entry under inspection.</param>
@@ -140,17 +128,17 @@ internal static class FindingHelpers
     }
 
     /// <summary>
-    ///     Whether the question entry counts as auto-approved: tier 3 with a
-    ///     recommended answer, past its decide-by date plus the veto window.
-    ///     Only a question auto-approves; no record does.
+    ///     Whether the question entry counts as auto-approved: on a record with no
+    ///     risk class, with a recommended answer, past its decide-by date plus the
+    ///     veto window. Only a question auto-approves; no record does.
     /// </summary>
     /// <param name="element">The question entry under inspection.</param>
     /// <param name="parent">The record carrying the question, or null when it stands alone.</param>
     /// <param name="config">The project configuration that supplies the veto window length in days.</param>
     /// <param name="today">The current date the decide-by day is aged against.</param>
-    /// <returns>True when the question is tier 3, carries a recommendation, and stands past its decide-by date plus the veto window; otherwise false.</returns>
+    /// <returns>True when the question is on a record with no risk class, carries a recommendation, and stands past its decide-by date plus the veto window; otherwise false.</returns>
     internal static bool AutoApproved(JsonElement element, Record? parent, ConsumerConfig config, DateOnly today) =>
-        TierOf(parent) == 3
+        !(parent is not null && HasRisk(parent))
         && HasRecommendation(element)
         && DecideDay(element, out var decideBy)
         && today > decideBy.AddDays(config.VetoWindowDays);

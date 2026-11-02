@@ -21,7 +21,7 @@ static class ProjectFileChecks
         // The project record is validated through the shared schema module, so the
         // schema is the one statement of its shape. A hand table beside it would need
         // the same edit twice and drift on the third.
-        foreach (var problem in JsonSchema.Problems(run.ProjectSchemaFile, run.Project, "litespec.project.json", run.ReadSchema))
+        foreach (var problem in JsonSchema.Problems(run.ProjectSchemaFile, run.Project, ".litespec/project.json", run.ReadSchema))
         {
             run.Err(problem);
         }
@@ -30,16 +30,16 @@ static class ProjectFileChecks
         // every later check, so the run names each one instead of passing over it.
         foreach (var placeholder in Init.InitCommand.Placeholders(run.Project).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            run.Err($"litespec.project.json: template placeholder '{placeholder}' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+            run.Err($".litespec/project.json: template placeholder '{placeholder}' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]");
         }
 
         var paths = (run.Project as JsonObject)?["paths"] as JsonObject;
 
-        // The documentation root is configuration, not a constant. A hard-coded docs/
+        // The record root is configuration, not a constant. A hard-coded folder
         // scans nothing in a consumer that keeps its pages elsewhere, and a scan of
-        // nothing reports PASS. 'docs' stays the default because that is the layout the
+        // nothing reports PASS. '.litespec' stays the default because that is the layout the
         // standards describe.
-        run.DocsPath = JsonRead.PropString(paths, "docs") ?? "docs";
+        run.DocsPath = JsonRead.PropString(paths, "docs") ?? ".litespec";
         run.DocsRoot = Path.Join(run.Root, run.DocsPath);
 
         // A configured path that does not resolve disables the checks that read it and
@@ -61,13 +61,13 @@ static class ProjectFileChecks
 
             if (text is null || text.Trim().Length == 0)
             {
-                run.Err($"litespec.project.json: {field} '{JsonValues.Text(value)}' is not a path");
+                run.Err($".litespec/project.json: {field} '{JsonValues.Text(value)}' is not a path");
                 continue;
             }
 
             if (!File.Exists(Path.Join(run.Root, text)) && !Directory.Exists(Path.Join(run.Root, text)))
             {
-                run.Err($"litespec.project.json: {field} '{text}' does not exist; {consequence}");
+                run.Err($".litespec/project.json: {field} '{text}' does not exist; {consequence}");
             }
         }
 

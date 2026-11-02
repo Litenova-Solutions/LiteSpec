@@ -97,7 +97,7 @@ static class StagedScope
     }
 
     /// <summary>
-    ///     Whether the path lies under the <c>.model</c> folder the tool writes while it builds,
+    ///     Whether the path lies under the <c>.litespec/model</c> folder the tool writes while it builds,
     ///     such as the frontend reader's fact cache: a file the check itself wrote is not a change
     ///     anyone made, so it never widens the scope.
     /// </summary>
@@ -106,7 +106,7 @@ static class StagedScope
     /// <returns>True when the path lies under the tool output folder.</returns>
     static bool IsToolOutput(ProjectModel model, string path)
     {
-        var output = Path.GetFullPath(Path.Combine(model.Config.Root, ".model")) + Path.DirectorySeparatorChar;
+        var output = Path.GetFullPath(Path.Combine(model.Config.Root, ".litespec", "model")) + Path.DirectorySeparatorChar;
 
         return path.StartsWith(output, StringComparison.OrdinalIgnoreCase);
     }

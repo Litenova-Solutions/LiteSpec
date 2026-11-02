@@ -9,7 +9,7 @@ A product that serves its interface from Blazor declares a client solution tree 
 Start with:
 
 - A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases implemented.
-- The `blazor` stack beside the tutorial pair in the consumer's `litespec.project.json`.
+- The `blazor` stack beside the tutorial pair in the consumer's `.litespec/project.json`.
 - The .NET SDK release pinned in `litespec.manifest.json` at the LiteSpec root.
 
 Read the [Blazor structure page](../frontend/blazor/structure.md) before this guide: it states the obligations, and this guide shows one compliant way to meet them.
@@ -18,7 +18,7 @@ Read the [Blazor structure page](../frontend/blazor/structure.md) before this gu
 
 ### Declare the Blazor Stack
 
-Add the `blazor` stack to `litespec.project.json`, following the stack entries of the `blazor-client` preset on the [initialize command page](../tools/init.md); the consumer keeps its server shape. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
+Add the `blazor` stack to `.litespec/project.json`, following the stack entries of the `blazor-client` preset on the [initialize command page](../tools/init.md); the consumer keeps its server shape. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
 
 ### Declare the Client Solution Tree
 

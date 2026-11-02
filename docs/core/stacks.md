@@ -67,10 +67,10 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#keep-the-stack-visible`
 
-**Default:** Name each selected stack in `litespec.project.json` and the solution, applications, and commands in the root `AGENTS.md`.
+**Default:** Name each selected stack in `.litespec/project.json` and the solution, applications, and commands in the root `AGENTS.md`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Naming each selected stack in `litespec.project.json` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
+**Rationale:** Naming each selected stack in `.litespec/project.json` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
 
-**Reviewed for:** `litespec.project.json` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.
+**Reviewed for:** `.litespec/project.json` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.

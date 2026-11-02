@@ -240,6 +240,42 @@ public sealed class BookHygieneTests
         Assert.Contains("t === \"none\"", script, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    ///     The book client holds no risk tier, no T1, no fact badges, no fact chips,
+    ///     no fact pills, no avatars and no card styles for facts.
+    /// </summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Book_Client_Holds_No_Tier_Or_Fact_Badges()
+    {
+        using var temp = Cli.Temp("book-hygiene");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var assets = Path.Combine(Out(temp), "assets");
+        var script = File.ReadAllText(Path.Combine(assets, "book.js"));
+        var css = File.ReadAllText(Path.Combine(assets, "book.css")) + File.ReadAllText(Path.Combine(assets, "book-extra.css"));
+        var client = script + css;
+
+        Assert.DoesNotContain("Risk Tier", client, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Tier 1", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("Tier 3", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("T1", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("tierb", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("tierOf", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"badge", client, StringComparison.Ordinal);
+        Assert.DoesNotContain(".badge", css, StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"mchip", client, StringComparison.Ordinal);
+        Assert.DoesNotContain(".mchip", css, StringComparison.Ordinal);
+        Assert.DoesNotContain("class=\"avatar", client, StringComparison.Ordinal);
+        Assert.DoesNotContain(".avatar", css, StringComparison.Ordinal);
+        Assert.DoesNotContain(".tierb", css, StringComparison.Ordinal);
+        Assert.Contains("riskClassesOf", script, StringComparison.Ordinal);
+        Assert.Contains("field-table", script, StringComparison.Ordinal);
+        Assert.Contains("data-copy", script, StringComparison.Ordinal);
+        Assert.Contains("capture", script, StringComparison.OrdinalIgnoreCase);
+    }
+
     static string Out(TempFolder temp) => Path.Combine(temp.Path, "out");
 
     static JsonObject ReadShard(string path, string key)

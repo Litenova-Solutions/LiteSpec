@@ -12,7 +12,7 @@ public sealed class TermLookalikeCheckTests
     public void Joined_And_Hyphenated_Pair_Reported_When_Both_Occur()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""),
@@ -33,7 +33,7 @@ public sealed class TermLookalikeCheckTests
     public void One_Form_Alone_Not_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""));
@@ -47,7 +47,7 @@ public sealed class TermLookalikeCheckTests
     public void Ignore_List_Honoured()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"vocabulary": {"lookalikeIgnore": ["soldout|sold-out"]}}""");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """{"vocabulary": {"lookalikeIgnore": ["soldout|sold-out"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.yaml"), """{"template": "soldout"}"""),
@@ -62,7 +62,7 @@ public sealed class TermLookalikeCheckTests
     public void British_And_American_Pair_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/test.colour-check", Path.Combine(temp.Path, "colour.yaml"), """{"kind": "invariant", "statement": "Each flag carries a colour.", "governs": []}"""),
@@ -83,7 +83,7 @@ public sealed class TermLookalikeCheckTests
     public void Singular_And_Plural_Names_In_One_Home_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/test.copy", Path.Combine(temp.Path, "copy.yaml"), """{"states": []}"""),
@@ -113,7 +113,7 @@ public sealed class TermLookalikeCheckTests
     public void Split_Opening_With_A_Function_Word_Not_Reported(string split, string joined)
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.yaml"), """{"template": "notice"}"""),
@@ -136,7 +136,7 @@ public sealed class TermLookalikeCheckTests
     public void Real_Compound_Split_Still_Reported(string split, string joined)
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.yaml"), """{"template": "notice"}"""),
@@ -155,7 +155,7 @@ public sealed class TermLookalikeCheckTests
     public void Behaviour_And_Behavior_Still_Reported()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/test.behaviour-check", Path.Combine(temp.Path, "behaviour.yaml"), """{"kind": "invariant", "statement": "Each flag carries a behaviour.", "governs": []}"""),

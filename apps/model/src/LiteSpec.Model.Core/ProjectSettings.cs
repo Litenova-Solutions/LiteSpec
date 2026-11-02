@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The check settings a host reads from litespec.project.json: the mark style
+///     The check settings a host reads from .litespec/project.json: the mark style
 ///     and the domain verbs the project adds to the baseline use-case vocabulary.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
@@ -41,13 +41,13 @@ public sealed record ProjectSettings(MarkStyle Marks)
         }
         catch (JsonTextException exception)
         {
-            error = "litespec.project.json: " + LowerHead(exception.Message);
+            error = ".litespec/project.json: " + LowerHead(exception.Message);
             return false;
         }
 
         if (root.Kind != JsonKind.Object)
         {
-            error = "litespec.project.json: expected an object.";
+            error = ".litespec/project.json: expected an object.";
             return false;
         }
 
@@ -113,8 +113,8 @@ public sealed record ProjectSettings(MarkStyle Marks)
         }
 
         error = value.GetString() is string named
-            ? "litespec.project.json: unknown marks \"" + named + "\"; expected \"xml\" or \"attribute\"."
-            : "litespec.project.json: marks must be \"xml\" or \"attribute\".";
+            ? ".litespec/project.json: unknown marks \"" + named + "\"; expected \"xml\" or \"attribute\"."
+            : ".litespec/project.json: marks must be \"xml\" or \"attribute\".";
         return false;
     }
 

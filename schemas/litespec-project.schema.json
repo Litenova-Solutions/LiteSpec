@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/3.0.0/schemas/litespec-project.schema.json",
+  "$id": "https://litespec.dev/3.1.0/schemas/litespec-project.schema.json",
   "title": "LiteSpec Consumer Project",
   "type": "object",
   "additionalProperties": false,
@@ -127,18 +127,49 @@
         }
       }
     },
+    "approvals": {
+      "description": "The approval table: each risk class (money, personal-data, access, physical-access) with the owner from owners who approves records carrying it, and default with the rule for records carrying no risk class, such as an owner name or agent-batch.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "money": { "type": "string", "minLength": 1 },
+        "personal-data": { "type": "string", "minLength": 1 },
+        "access": { "type": "string", "minLength": 1 },
+        "physical-access": { "type": "string", "minLength": 1 },
+        "default": { "type": "string", "minLength": 1 }
+      }
+    },
+    "screenshots": {
+      "description": "The screenshot galleries the model builder reads for screen captures: one or more repository-relative gallery folders and the file-name pattern with {route}, {theme} and {width} placeholders. Defaults to no galleries and the pattern {route}--{theme}--{width}.png.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "galleries": {
+          "description": "The gallery folders holding screenshot captures, one per frontend that photographs its routes.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "pattern": {
+          "description": "The capture file-name pattern, with {route} for the route slug, {theme} for the theme and {width} for the width in pixels.",
+          "type": "string",
+          "minLength": 1,
+          "default": "{route}--{theme}--{width}.png"
+        }
+      }
+    },
     "review": {
-      "description": "How this project reviews record changes: the veto window after which a tier-3 draft question carrying a recommendation auto-approves, and the optional security reviewer who reads the security queue.",
+      "description": "How this project reviews record changes: the veto window after which a draft question on a record with no risk class and carrying a recommendation auto-approves, and the optional security reviewer who reads the security queue.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "vetoWindowDays": {
-          "description": "Days after decideBy before a tier-3 draft question carrying a recommendation auto-approves. Defaults to 7.",
+          "description": "Days after decideBy before a draft question on a record with no risk class and carrying a recommendation auto-approves. Defaults to 7.",
           "type": "integer",
           "default": 7
         },
         "sampleShare": {
-          "description": "The share of a tier-3 batch that batch approval samples, drawn from the records with the lowest semantic hashes and at least one record. Defaults to 0.1.",
+          "description": "The share of a batch of records with no risk class that batch approval samples, drawn from the records with the lowest semantic hashes and at least one record. Defaults to 0.1.",
           "type": "number",
           "exclusiveMinimum": 0,
           "maximum": 1,
@@ -297,8 +328,8 @@
           "$ref": "#/$defs/projectPath"
         },
         "glossary": {
-          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to docs/glossary.yaml.",
-          "default": "docs/glossary.yaml",
+          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to .litespec/glossary.yaml.",
+          "default": ".litespec/glossary.yaml",
           "$ref": "#/$defs/projectPath"
         },
         "glossaryScan": {
@@ -350,7 +381,7 @@
           "items": { "$ref": "#/$defs/projectPath" }
         },
         "checkResults": {
-          "description": "Where drill and harness check results live as JSON files. Defaults to docs/proof/checks.",
+          "description": "Where drill and harness check results live as JSON files. Defaults to .litespec/proof/checks.",
           "$ref": "#/$defs/projectPath"
         },
         "sbom": {

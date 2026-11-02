@@ -81,7 +81,7 @@ public sealed partial class ConsumerValidatorTests
     public void MalformedProjectFileKeepsTheMachineReadableContract()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(folder.Path, "litespec.project.json", "{\n");
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/project.json", "{\n");
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(2, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
@@ -97,7 +97,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            "docs/product/decisions/0001-launch.md",
+            ".litespec/product/decisions/0001-launch.md",
             raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
@@ -116,7 +116,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            "docs/product/decisions/0001-launch.md",
+            ".litespec/product/decisions/0001-launch.md",
             raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
@@ -134,7 +134,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/behavior/modules/orders/bom-page.md",
+            ".litespec/behavior/modules/orders/bom-page.md",
             char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.Page(
                 ConsumerFixture.Meta("""{"type":"reference","id":"bom-page","title":"BOM Page","owner":"fixture","status":"approved"}"""),
                 """
@@ -162,8 +162,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "litespec.project.json",
-            char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.ReadFile(folder.Path, "litespec.project.json"));
+            ".litespec/project.json",
+            char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.ReadFile(folder.Path, ".litespec/project.json"));
         AssertClean(RunConsumer(folder.Path));
     }
 

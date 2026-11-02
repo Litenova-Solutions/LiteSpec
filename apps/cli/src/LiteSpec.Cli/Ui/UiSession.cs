@@ -69,13 +69,13 @@ sealed class UiSession
     /// <returns>The collected report.</returns>
     public UiReport Execute()
     {
-        var projectFile = Path.Combine(Root, "litespec.project.json");
+        var projectFile = ConsumerRoot.ProjectFile(Root);
         if (!File.Exists(projectFile))
         {
-            return new UiReport(2, [$"No litespec.project.json at {Root}"], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
+            return new UiReport(2, [$"No .litespec/project.json at {Root}"], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
         }
 
-        var project = ReadJson(projectFile, "litespec.project.json");
+        var project = ReadJson(projectFile, ".litespec/project.json");
         // The manifest comes from the release the tool carries, the way every other command finds it.
         var manifestFile = LiteSpecHome.Root is { } home ? Path.Combine(home, LiteSpecHome.ManifestFile) : null;
         Manifest = manifestFile is not null && File.Exists(manifestFile) ? ReadJson(manifestFile, RelativeToRoot(manifestFile)) : null;
@@ -134,12 +134,12 @@ sealed class UiSession
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
         if (controlled.Count == 0 && hasPkg)
         {
-            Errors.Add("litespec.project.json: paths.uiPackage is declared but no frontend declares a controlled platform (react, svelte)");
+            Errors.Add(".litespec/project.json: paths.uiPackage is declared but no frontend declares a controlled platform (react, svelte)");
         }
 
         if (controlled.Count > 0 && !hasPkg)
         {
-            Errors.Add($"[litespec/frontend/ui#select-one-visual-authority] litespec.project.json: {controlled.Count} controlled frontend(s) and no paths.uiPackage");
+            Errors.Add($"[litespec/frontend/ui#select-one-visual-authority] .litespec/project.json: {controlled.Count} controlled frontend(s) and no paths.uiPackage");
         }
 
         UiSharedPackage? packageSummary = null;
@@ -448,7 +448,7 @@ sealed class UiSession
         }
     }
 
-    // A rule override is an Exception record: docs/governance/exceptions/<name>.yaml
+    // A rule override is an Exception record: .litespec/governance/exceptions/<name>.yaml
     // carrying the provision it departs from, the reason, and the expiry date.
     // The consumer validator owns the record shape; this validator reads
     // the departure its own gates need and enforces the expiry date. The folder
@@ -461,7 +461,7 @@ sealed class UiSession
     List<UiException> ReadUiExceptions(JsonNode? project)
     {
         var folder = JsonRead.Chain(project, "paths", "records", "exception");
-        var folderName = folder is { Node: JsonValue value } && value.TryGetValue<string>(out var name) ? name : "docs/governance/exceptions";
+        var folderName = folder is { Node: JsonValue value } && value.TryGetValue<string>(out var name) ? name : ".litespec/governance/exceptions";
         var directory = FilePath(folderName);
         if (!Directory.Exists(directory))
         {

@@ -8,16 +8,16 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchApproveTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.yaml");
+        root, ".litespec", "product", "decisions", "0001-loan-period.yaml");
 
     /// <summary>A use-case batch promotes the use case, its results and scenarios, and writes the manifest.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -62,7 +62,7 @@ public sealed class BatchApproveTests
         }
 
         var manifestPath = ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json");
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json");
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(manifestPath))!;
 
         Assert.Equal("use-case/lending.borrow-copy", manifest["selector"]!.GetValue<string>());
@@ -123,10 +123,10 @@ public sealed class BatchApproveTests
         Assert.Equal(before, held["approvedHash"]!.GetValue<string>());
     }
 
-    /// <summary>A module and type batch approves its tier 3 drafts; a tier 1 rule waits in a batch of its own.</summary>
+    /// <summary>A module and type batch approves its drafts with no risk class; a rule carrying a risk class waits in a batch of its own.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
-    public void Approve_Module_Type_Batch_Leaves_Tier1_Out()
+    public void Approve_Module_Type_Batch_Leaves_Risk_Out()
     {
         using var fixture = ModelFixture.Prepare("small");
 
@@ -141,9 +141,9 @@ public sealed class BatchApproveTests
         Assert.Equal(0, result.Status);
         Assert.Contains("1 record approved, 0 held.", result.Output);
 
-        // The tier 1 rule is no member of the module batch: it waits in a batch of its own.
+        // The rule carrying a risk class is no member of the module batch: it waits in a batch of its own.
         var queue = Cli.Run("model", "review", "--root", fixture.Path);
-        Assert.Contains("rule/loan.extended-before-due  tier 1  1 record", queue.Output);
+        Assert.Contains("rule/loan.extended-before-due  risk money  1 record", queue.Output);
 
         var front = ReviewPages.Read(LoanAggregate(fixture.Path));
         var entries = front["records"]!.AsArray().OfType<JsonObject>().ToList();
@@ -156,7 +156,7 @@ public sealed class BatchApproveTests
         Assert.Null(leftOut["approvedHash"]);
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-lending-rule.json")))!;
 
         Assert.Single(manifest["records"]!.AsArray());
         Assert.Equal(
@@ -187,7 +187,7 @@ public sealed class BatchApproveTests
         Assert.Contains("1 record approved, 2 held.", result.Output);
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(
-            fixture.Path, "docs", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json")))!;
+            fixture.Path, ".litespec", "proof", "approvals", "2026-11-20-use-case-lending-borrow-copy.json")))!;
         var records = manifest["records"]!.AsArray();
 
         Assert.Equal(3, records.Count);

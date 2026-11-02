@@ -30,11 +30,11 @@ Second, a rule registers only in the layers its provision covers. Domain rules r
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
-Each diagnostic carries a help link of the form `https://litespec.dev/3.0.0/<page>/#<slug>`, which opens the provision the rule enforces.
+Each diagnostic carries a help link of the form `https://litespec.dev/3.1.0/<page>/#<slug>`, which opens the provision the rule enforces.
 
 ## How a Rule Reads Records
 
-A traceability rule reads the records the code marks name. The package adds `litespec.project.json` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
+A traceability rule reads the records the code marks name. The package adds `.litespec/project.json` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
 Severity follows the record the finding is about: a blocking finding is an error and a reported one is a warning. A finding about a draft record reports as a warning, and a finding about a retired record is not reported. A finding that an approved exception covers stays silent. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries an exception record.
 

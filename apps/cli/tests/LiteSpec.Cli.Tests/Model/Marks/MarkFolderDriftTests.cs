@@ -249,7 +249,7 @@ public sealed class MarkFolderDriftTests
         }
 
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"" + marks + "\", \"stackConfig\": {\"dotnet\": {" + dotnet + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
@@ -297,7 +297,7 @@ public sealed class MarkFolderDriftTests
             Title = id,
             Owner = "lending-team",
             Status = "reviewed",
-            File = Path.Combine(root, "docs", "record.md"),
+            File = Path.Combine(root, ".litespec", "record.md"),
             Line = 1,
             Raw = raw,
         };

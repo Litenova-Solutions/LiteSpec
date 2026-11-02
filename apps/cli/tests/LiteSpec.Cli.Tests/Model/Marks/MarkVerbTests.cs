@@ -57,7 +57,7 @@ public sealed class MarkVerbTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -67,14 +67,14 @@ public sealed class MarkVerbTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.0.0",
+                  "reviewedLiteSpecVersion": "3.1.0",
                   "owners": [
                     "lending-team"
                   ],
                   "paths": {
-                    "docs": "docs",
-                    "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.yaml",
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -95,12 +95,12 @@ public sealed class MarkVerbTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.borrow-copy",
@@ -131,7 +131,7 @@ public sealed class MarkVerbTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.md", """
                 # Borrow copy
 
                 A reader borrows an available copy.

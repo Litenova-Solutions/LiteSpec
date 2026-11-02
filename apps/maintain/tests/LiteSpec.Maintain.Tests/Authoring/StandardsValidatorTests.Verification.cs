@@ -85,7 +85,7 @@ public sealed partial class StandardsValidatorTests
     public void CheckableEvidenceUnshippedAnalyzerRule() => Check(
         root =>
         {
-            AnalyzerPinFiles(root, "3.0.0");
+            AnalyzerPinFiles(root, "3.1.0");
             StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
             CiteAnalyzerRule(root, "LS9999");
         },

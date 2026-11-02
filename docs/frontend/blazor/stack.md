@@ -8,7 +8,7 @@ The Blazor stack is the technology binding for a product that has no server of i
 
 ### Route Entry Bindings
 
-A route entry is a component that declares an `@page` template. Its screen mark sits on that component in the .NET mark style the project declares in `litespec.project.json`, read by the .NET reader. Layout components, components with no `@page` template, and error-handling components are not route entries and carry no screen mark.
+A route entry is a component that declares an `@page` template. Its screen mark sits on that component in the .NET mark style the project declares in `.litespec/project.json`, read by the .NET reader. Layout components, components with no `@page` template, and error-handling components are not route entries and carry no screen mark.
 
 ## Standards
 
@@ -57,10 +57,10 @@ dotnet test apps/web/{ProjectName}.slnx --configuration Release --no-build
 
 **ID:** `litespec/frontend/blazor/stack#record-a-first-load-budget`
 
-**Default:** Record the compressed transfer size of the framework payload as a limit entry in `docs/behavior/operations/limits.yaml`.
+**Default:** Record the compressed transfer size of the framework payload as a limit entry in `.litespec/behavior/operations/limits.yaml`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
 **Rationale:** A WebAssembly client downloads a runtime before it renders anything, so first load is the slowest moment of the product. A recorded budget on compressed transfer size makes that wait a reviewed number instead of a surprise. Directory size does not describe the wait, because the visitor downloads compressed bytes over the network.
 
-**Reviewed for:** Which first-load budgets miss their limit entry in `docs/behavior/operations/limits.yaml`? Look in the limits file beside the publish job.
+**Reviewed for:** Which first-load budgets miss their limit entry in `.litespec/behavior/operations/limits.yaml`? Look in the limits file beside the publish job.

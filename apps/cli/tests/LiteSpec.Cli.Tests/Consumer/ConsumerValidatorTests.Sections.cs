@@ -6,21 +6,21 @@ namespace LiteSpec.Tests.Consumer;
 /// <summary>Consumer validator cases for the required sections of each page kind.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string BriefPage = "docs/product/brief.yaml";
-    const string RequirementPage = "docs/product/pricing.yaml";
-    const string RequirementExplanation = "docs/product/pricing.md";
-    const string DecisionPage = "docs/product/decisions/0001-launch.yaml";
-    const string DecisionExplanation = "docs/product/decisions/0001-launch.md";
-    const string ActorPage = "docs/behavior/actors/customer.yaml";
-    const string ActorExplanation = "docs/behavior/actors/customer.md";
-    const string TutorialPage = "docs/guide/first-run.md";
-    const string HowToPage = "docs/guide/add-a-pack.md";
-    const string CommandPage = "docs/tools/fixture-up.md";
-    const string ReferencePage = "docs/reference/ports.md";
-    const string ConfigurationPage = "docs/tools/configuration.md";
-    const string UseCasePage = "docs/behavior/modules/orders/cancel-order.yaml";
-    const string AggregateExplanation = "docs/behavior/modules/orders/order-claims/aggregate.md";
-    const string ModuleExplanation = "docs/behavior/modules/orders/module.md";
+    const string BriefPage = ".litespec/product/brief.yaml";
+    const string RequirementPage = ".litespec/product/pricing.yaml";
+    const string RequirementExplanation = ".litespec/product/pricing.md";
+    const string DecisionPage = ".litespec/product/decisions/0001-launch.yaml";
+    const string DecisionExplanation = ".litespec/product/decisions/0001-launch.md";
+    const string ActorPage = ".litespec/behavior/actors/customer.yaml";
+    const string ActorExplanation = ".litespec/behavior/actors/customer.md";
+    const string TutorialPage = ".litespec/guide/first-run.md";
+    const string HowToPage = ".litespec/guide/add-a-pack.md";
+    const string CommandPage = ".litespec/tools/fixture-up.md";
+    const string ReferencePage = ".litespec/reference/ports.md";
+    const string ConfigurationPage = ".litespec/tools/configuration.md";
+    const string UseCasePage = ".litespec/behavior/modules/orders/cancel-order.yaml";
+    const string AggregateExplanation = ".litespec/behavior/modules/orders/order-claims/aggregate.md";
+    const string ModuleExplanation = ".litespec/behavior/modules/orders/module.md";
 
     static string ReplaceFirst(string raw, string oldValue, string newValue)
     {
@@ -216,7 +216,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/product/goals/faster-delivery.yaml",
+            ".litespec/product/goals/faster-delivery.yaml",
             """{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","dueBy":"2026-12-31","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'whyItMatters'");
     }
@@ -229,7 +229,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/product/problems/slow-delivery.yaml",
+            ".litespec/product/problems/slow-delivery.yaml",
             """{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","owner":"fixture","status":"approved","statement":"Orders take weeks to arrive.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'situation'");
     }
@@ -242,7 +242,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/product/features/approval-reminders.yaml",
+            ".litespec/product/features/approval-reminders.yaml",
             """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
@@ -255,7 +255,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/product/constraints/tax-retention.yaml",
+            ".litespec/product/constraints/tax-retention.yaml",
             """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
@@ -268,9 +268,9 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/research/delivery-benchmarks.yaml",
+            ".litespec/research/delivery-benchmarks.yaml",
             """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
-        TestRecords.Explain(folder.Path, "docs/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
+        TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
 
@@ -282,8 +282,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            ".litespec/product/journeys/submit-and-reimburse.yaml",
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"description":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'betweenSteps'");
     }
 
@@ -295,7 +295,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/behavior/rules/spending-standards.yaml",
+            ".litespec/behavior/rules/spending-standards.yaml",
             """{"type":"rule-set","id":"spending-standards","title":"Spending Standards","owner":"fixture","status":"approved"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
@@ -308,8 +308,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/behavior/systems/payout-bank.yaml",
-            """{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank","owner":"fixture","status":"reviewed","actor":"actor/customer","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            ".litespec/behavior/systems/payout-bank.yaml",
+            """{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank","owner":"fixture","status":"reviewed","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -321,7 +321,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/runbooks/clear-stuck-reimbursements.yaml",
+            ".litespec/runbooks/clear-stuck-reimbursements.yaml",
             """{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","owner":"fixture","status":"reviewed","trigger":"A reimbursement sits past its date.","impact":"Stuck claims block payment.","prerequisites":"The reader holds the payments role.","procedure":"Clear the stuck claim and rerun payment.","verification":"The claim leaves the stuck list.","recovery":"Restore the claim from its snapshot.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'escalation'");
     }
@@ -334,7 +334,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/governance/exceptions/export-review-bypass.yaml",
+            ".litespec/governance/exceptions/export-review-bypass.yaml",
             """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'consequences'");
     }
@@ -347,7 +347,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/governance/exceptions/export-unimplemented.yaml",
+            ".litespec/governance/exceptions/export-unimplemented.yaml",
             """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'exit'");
     }
@@ -360,11 +360,11 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            "docs/governance/exceptions/export-review-bypass.yaml",
+            ".litespec/governance/exceptions/export-review-bypass.yaml",
             """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         TestRecords.Write(
             folder.Path,
-            "docs/governance/exceptions/export-unimplemented.yaml",
+            ".litespec/governance/exceptions/export-unimplemented.yaml",
             """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertAbsent(RunConsumer(folder.Path), "requires an H2");
     }
@@ -377,7 +377,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            "docs/example-cast.md",
+            ".litespec/example-cast.md",
             ConsumerFixture.Page(
                 ConsumerFixture.Meta("""{"type":"example-cast","id":"example-cast","title":"Example Cast","owner":"fixture","status":"approved"}"""),
                 "# Example Cast\n\n## The Organization\n\nThe shop sells printed books.\n\n## The Occasion\n\nAlex orders on Monday morning.\n\n## The Amounts\n\nEvery order carries one fee.\n\n## Recurring Situations\n\nShipments leave each weekday.\n"));

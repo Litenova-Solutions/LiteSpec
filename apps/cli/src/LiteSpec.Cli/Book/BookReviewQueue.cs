@@ -36,18 +36,42 @@ static class BookReviewQueue
             today).Select(ToBatch).ToList();
     }
 
-    /// <summary>One computed batch as a queue-shard batch: the selector, kind, tier and queued record ids.</summary>
+    /// <summary>One computed batch as a queue-shard batch: the selector, kind, risk classes, approvers and queued record ids.</summary>
     /// <param name="batch">The computed review batch from the shared review queue.</param>
     /// <returns>The queue-shard batch with the record identifiers of the computed batch records.</returns>
     static BookBatch ToBatch(ReviewBatch batch) =>
         new(
             batch.Selector,
             batch.Kind,
-            batch.Tier,
+            RiskClassesOf(batch),
+            ApproversOf(batch),
             batch.Deciders,
             batch.DecideBy,
             batch.Awaiting,
             batch.Records.Select(entry => entry.Record.Id).ToList());
+
+    /// <summary>The risk classes the records of one computed batch carry, in first-seen order.</summary>
+    /// <param name="batch">The computed review batch.</param>
+    /// <returns>The distinct risk classes of the batch records.</returns>
+    static List<string> RiskClassesOf(ReviewBatch batch) => batch.RiskClasses.ToList();
+
+    /// <summary>The approvers the approval table names for the records of one computed batch, sorted.</summary>
+    /// <param name="batch">The computed review batch.</param>
+    /// <returns>The distinct approver names of the batch records, sorted.</returns>
+    static List<string> ApproversOf(ReviewBatch batch)
+    {
+        var approvers = new List<string>();
+        foreach (var entry in batch.Records)
+        {
+            if (entry.Approval is { By.Length: > 0 } approval && !approvers.Contains(approval.By))
+            {
+                approvers.Add(approval.By);
+            }
+        }
+
+        approvers.Sort(StringComparer.Ordinal);
+        return approvers;
+    }
 
     /// <summary>The stored batches of a model carrying them, skipping entries that name no selector.</summary>
     /// <param name="stored">The stored batch entries from the model.</param>
@@ -83,7 +107,8 @@ static class BookReviewQueue
             batches.Add(new BookBatch(
                 selector,
                 BookRender.StrProp(entry, "kind") ?? "",
-                entry["tier"] is JsonValue tier && tier.TryGetValue<int>(out var level) ? level : 3,
+                StringsOf(entry["riskClasses"]),
+                StringsOf(entry["approvers"]),
                 deciders,
                 BookRender.StrProp(entry, "decideBy"),
                 entry["awaiting"] is JsonValue waiting && waiting.TryGetValue<int>(out var count) ? count : 0,
@@ -91,6 +116,23 @@ static class BookReviewQueue
         }
 
         return batches;
+    }
+
+    /// <summary>The string values of one JSON array node, empty when the node is no array.</summary>
+    /// <param name="node">The node to read.</param>
+    /// <returns>The string values of the node.</returns>
+    static List<string> StringsOf(JsonNode? node)
+    {
+        var values = new List<string>();
+        foreach (var item in node as JsonArray ?? [])
+        {
+            if (item is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text is { Length: > 0 })
+            {
+                values.Add(text);
+            }
+        }
+
+        return values;
     }
 
     /// <summary>Rebuilds the project model the queue helpers read from the book index.</summary>

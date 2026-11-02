@@ -15,7 +15,7 @@ Two pages resolve what other pages cite: [Glossary](glossary.md) defines each Li
 
 ## Files and Contracts
 
-- [Project File](project-file.md): every field of `litespec.project.json` and what reads it.
+- [Project File](project-file.md): every field of `.litespec/project.json` and what reads it.
 - [Release Manifest](manifest.md): every field of `litespec.manifest.json` and how to add a stack or extension.
 - [Schemas](schemas.md): every JSON schema, the file it validates, and the command that checks it.
 - [Published URLs](published-urls.md): every URL the site serves for agents and people.

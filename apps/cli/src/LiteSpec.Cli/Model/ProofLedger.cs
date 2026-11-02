@@ -12,7 +12,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The hashes each scenario had when the builder last read a passing run of
-///     its proof, kept in the committed <c>docs/proof/proofs.json</c>. A proof is
+///     its proof, kept in the committed <c>.litespec/proof/proofs.json</c>. A proof is
 ///     stale when the scenario's hash or its tests' hash has moved since.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
@@ -43,7 +43,7 @@ sealed class ProofLedger
     /// <param name="config">The consumer configuration holding the documentation root.</param>
     /// <returns>The absolute path of the ledger file.</returns>
     public static string PathOf(ConsumerConfig config) =>
-        Path.Combine(config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, "docs"), "proof", "proofs.json");
+        Path.Combine(config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, ".litespec"), "proof", "proofs.json");
 
     /// <summary>A ledger with no recorded proof.</summary>
     /// <returns>A ledger holding no recorded proof and no problems.</returns>

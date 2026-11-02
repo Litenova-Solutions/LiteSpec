@@ -217,7 +217,32 @@ public sealed class BookCommandTests
         Assert.Equal("myeditor://open?f={root}/{path}&l={line}", manifest["editor"]!.GetValue<string>());
     }
 
-    /// <summary>The consumer root defaults to the model's folder, or its parent when the model sits in a .model folder.</summary>
+    /// <summary>A screen capture the model lists is copied into the book output and its shard names the book path.</summary>
+    /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
+    [Fact]
+    public void Screen_Captures_Are_Copied_Into_The_Book_Output()
+    {
+        using var temp = Cli.Temp("book");
+        var plain = Path.Combine(temp.Path, "plain");
+        Directory.CreateDirectory(Path.Combine(plain, "shots"));
+        File.WriteAllBytes(Path.Combine(plain, "shots", "home.png"), [137, 80, 78, 71]);
+        var model = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/model.json")))!;
+        var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
+        screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
+        screen["captureState"] = "captured";
+        var modelPath = Path.Combine(plain, "model.json");
+        File.WriteAllText(modelPath, model.ToJsonString());
+
+        var result = Cli.Run("book", "--model", modelPath, "--out", Path.Combine(temp.Path, "out"));
+
+        Assert.Equal(0, result.Status);
+        var copied = Path.Combine(temp.Path, "out", "assets", "captures", "screen-library-app-search", "home.png");
+        Assert.True(File.Exists(copied), "The screen capture was not copied into the book output.");
+        var shard = string.Join("\n", Directory.GetFiles(Path.Combine(temp.Path, "out", "data"), "records-*.js").Select(File.ReadAllText));
+        Assert.Contains("assets/captures/screen-library-app-search/home.png", shard, StringComparison.Ordinal);
+    }
+
+    /// <summary>The consumer root defaults to the model's folder, or the repository root when the model sits in a .litespec/model folder.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Root_Defaults_To_The_Model_Folder_Or_Its_Parent()
@@ -233,7 +258,7 @@ public sealed class BookCommandTests
         var manifest = ReadShard(Path.Combine(temp.Path, "out", "data", "manifest.js"), "manifest");
         Assert.Equal(Path.GetFullPath(plain), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
 
-        var dotModel = Path.Combine(temp.Path, "consumer", ".model");
+        var dotModel = Path.Combine(temp.Path, "consumer", ".litespec/model");
         Directory.CreateDirectory(dotModel);
         var nested = Path.Combine(dotModel, "model.json");
         File.Copy(Cli.Fixture("Book/model.json"), nested);
@@ -275,7 +300,7 @@ public sealed class BookCommandTests
     {
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"3.0.0"}""");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"3.1.0"}""");
         var result = Cli.Run(
             ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });

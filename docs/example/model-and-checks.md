@@ -9,7 +9,7 @@ The project model is the computed join between a project's written records and i
 `litespec model build` reads the written records, follows the marks in code and tests, the routes, and the latest test run, and writes `model.json` with every record and its resolved links. [Model Builder](../tools/model.md) states the five subcommands, and [Project Model](../core/model.md) states the records they read. The run below is against the Claimwick example:
 
 ```text
-.model/model.json: 105 records, 9 handlers, 1 screen, 12 scenarios.
+.litespec/model/model.json: 105 records, 9 handlers, 1 screen, 12 scenarios.
 ```
 
 The counts name what the builder found: 105 records, 9 handlers, 1 screen, and 12 scenario tests. The 105 records are the page records, the entries on those pages, the approval topic, and the 4 glossary terms. The 12 tests prove 11 of the 12 scenarios: Submit expense is proved twice, once by its acceptance scenario and once by its integration test. The file also adds the computed `implements`, `calls`, and `proves` links, and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Implemented and verified come from the builder, never from handwriting, per `litespec/core/model#compute-proof-statuses-in-the-builder`: a use case reads implemented when its handler exists, so deleting a handler flips the state on the next run with no record edit.
@@ -19,7 +19,7 @@ The counts name what the builder found: 105 records, 9 handlers, 1 screen, and 1
 `litespec model check` builds the model in memory and reports every finding with its level, code, message, path, and line. Against the unchanged example it reports this, and exits zero:
 
 ```text
-docs/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
 0 open findings, 1 excepted.
 ```
 
@@ -27,7 +27,7 @@ The Export expenses use case has no handler, so the `use-case-unimplemented` che
 
 ## The Exception for Export Expenses
 
-The team accepts that exporting expenses has no handler yet, so the gap lives as an exception of kind gap with an owner and an expiry date. The record file sits at `docs/governance/exceptions/export-expenses-unimplemented.yaml`, and the use case it covers waits for its handler at `docs/behavior/modules/spending/expenses/export-expenses.yaml`. The exception record file reads:
+The team accepts that exporting expenses has no handler yet, so the gap lives as an exception of kind gap with an owner and an expiry date. The record file sits at `.litespec/governance/exceptions/export-expenses-unimplemented.yaml`, and the use case it covers waits for its handler at `.litespec/behavior/modules/spending/expenses/export-expenses.yaml`. The exception record file reads:
 
 ```yaml
 type: exception
@@ -52,8 +52,8 @@ The exception covers the finding because its `covers` lists the finding code and
 Removing `apps/api/src/Claimwick.Application/Spending/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs` and running the check again gives one open finding:
 
 ```text
-docs/behavior/modules/spending/expenses/approve-expense.yaml:1 [S use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler.
-docs/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
+.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [S use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
 1 open findings, 1 excepted.
 exit 1
 ```
@@ -71,7 +71,7 @@ The finding says no code implements the Approve expense use case. The fix is to 
   "title": "Expense",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "file": "docs/behavior/modules/spending/expenses/aggregate.yaml",
+  "file": ".litespec/behavior/modules/spending/expenses/aggregate.yaml",
   "line": 1,
   "fields": {
     "type": "aggregate",
@@ -136,10 +136,12 @@ The run scanned 44 files under `docs` and passed: no mannered term, no rejected 
 
 ## The Journey Detail
 
-`litespec book` shows each journey as record detail for product readers: the observable end, the steps as sentences with server badges for the serving use cases and screens, the requirements with their exceptions and fallbacks inline, and the open questions. Field names never render literally. The submit-and-reimburse detail reads:
+`litespec book` shows each journey as record detail for product readers: the description first, then the observable end, the steps as sentences with server badges for the serving use cases and screens, the requirements with their exceptions and fallbacks inline, and the open questions. Field names never render literally. The submit-and-reimburse detail reads:
 
 ```text
 Submit and Reimburse
+
+An employee who paid a work cost submits the expense and waits for a decision.
 
 Finished when: the employee holds the reimbursement, and the expense
 record shows every step.
@@ -170,7 +172,7 @@ Open questions (ballot "erasure-terms", due 2026-04-01)
    Recommended: yes, totals without employee links.
 ```
 
-The book also shows the Ballots view, listing every open question grouped by ballot, tier 1 first, with each recommendation and auto-approval date. The finance lead approves or answers in the ballot without opening a Behavior page.
+The book also shows the Ballots view, listing every open question grouped by ballot and by risk class, with each recommendation and auto-approval date. The finance lead approves or answers in the ballot without opening a Behavior page.
 
 ## The Diffs
 
@@ -197,4 +199,4 @@ The developer sees which Behavior records the Intent change touched, and the sec
 
 ## The Continuous Integration Jobs That Run the Checks
 
-[Continuous Integration](../quality/ci.md) names the jobs each pull request runs, and every pull request runs the jobs its changed areas select, per `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. The `model` job runs `litespec model check`, is selected by a record, code, or test change, and runs for small and large projects alike. The `docs` job runs `litespec consumer` on a documentation change to check pages, configuration, language, and prose, with the output shown above. Every pull request also publishes the intent diff and a book preview, per `litespec/quality/ci#publish-the-intent-diff-on-every-pull-request` and `litespec/quality/ci#publish-a-book-preview-for-every-change`, so reviewers read the change in product words. The `release` job reruns every job on the release commit and promotes the artifact that passed.
+[Continuous Integration](../quality/ci.md) names the jobs each pull request runs, and every pull request runs the jobs its changed areas select, per `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. The `model` job runs `litespec model check`, is selected by a record, code, or test change, and runs for small and large projects alike. The `docs` job runs `litespec consumer` on a documentation change to check pages, configuration, language, and prose, with the output shown above. Every pull request also publishes the intent diff and a book preview, per `litespec/quality/ci#publish-the-intent-diff-on-every-pull-request` and `litespec/ext/delivery#publish-a-book-preview-for-every-change`, so reviewers read the change in product words. The `release` job reruns every job on the release commit and promotes the artifact that passed.

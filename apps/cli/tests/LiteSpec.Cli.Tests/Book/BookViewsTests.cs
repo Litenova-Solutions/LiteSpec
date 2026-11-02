@@ -418,7 +418,8 @@ public sealed class BookViewsTests
         Assert.Equal(new[] { "decision/decision/self-checkout-kiosk" }, order);
         var batch = queue["batches"]!.AsObject()["decision/decision/self-checkout-kiosk"]!.AsObject();
         Assert.Equal("decision", Str(batch, "kind"));
-        Assert.Equal(3, batch["tier"]?.GetValue<int>());
+        Assert.Empty(batch["riskClasses"]!.AsArray());
+        Assert.Null(batch["tier"]);
         Assert.Equal(1, batch["n"]?.GetValue<int>());
         Assert.Equal(new[] { "feature/self-checkout" }, batch["records"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
         Assert.Equal("2026-11-15", Str(batch, "decideBy"));
@@ -577,10 +578,10 @@ public sealed class BookViewsTests
         Assert.Equal("Count kiosk users separately.", Str(questions[0]!.AsObject(), "recommendation"));
     }
 
-    /// <summary>Ballots carry the tier, decide-by date and ballot each ordering needs.</summary>
+    /// <summary>Ballots carry the risk classes, decide-by date and ballot each ordering needs.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
-    public void Ballots_Carry_Tier_DecideBy_And_Ballot_For_Ordering()
+    public void Ballots_Carry_Risk_DecideBy_And_Ballot_For_Ordering()
     {
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
@@ -592,7 +593,8 @@ public sealed class BookViewsTests
         var tiered = ballots.Single(entry => Str(Obj(entry, "q"), "question") == "Must the kiosk serve members without cards?");
         Assert.Equal("feature/self-checkout", Str(tiered, "id"));
         Assert.Equal(0, tiered["i"]?.GetValue<int>());
-        Assert.Equal(3, Obj(tiered, "q")["tier"]?.GetValue<int>());
+        Assert.Empty(Obj(tiered, "q")["riskClasses"]!.AsArray());
+        Assert.Null(Obj(tiered, "q")["tier"]);
         Assert.Equal("Ada", Str(Obj(tiered, "q"), "decider"));
         Assert.Equal("2026-10-30", Str(Obj(tiered, "q"), "decideBy"));
         Assert.Equal("desk-queue", Str(Obj(tiered, "q"), "ballot"));
@@ -600,7 +602,7 @@ public sealed class BookViewsTests
 
         var sampled = ballots.Single(entry => Str(Obj(entry, "q"), "question") == "Do kiosk users count toward the wait?");
         Assert.Equal("requirement/borrowing.max-wait", Str(sampled, "id"));
-        Assert.Equal(3, Obj(sampled, "q")["tier"]?.GetValue<int>());
+        Assert.Empty(Obj(sampled, "q")["riskClasses"]!.AsArray());
         Assert.Equal("2026-11-01", Str(Obj(sampled, "q"), "decideBy"));
         Assert.Equal("desk-queue", Str(Obj(sampled, "q"), "ballot"));
         Assert.Equal("Count kiosk users separately.", Str(Obj(sampled, "q"), "recommendation"));

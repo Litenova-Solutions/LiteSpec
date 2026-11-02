@@ -1,3 +1,5 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Ui;
 
 /// <summary>
@@ -59,7 +61,7 @@ static class UiValidator
         string root;
         try
         {
-            root = parsed.Root();
+            root = ConsumerRoot.Resolve(parsed.Value("--root"));
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
@@ -73,9 +75,9 @@ static class UiValidator
             return 2;
         }
 
-        if (!File.Exists(Path.Combine(root, "litespec.project.json")))
+        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
-            Console.Error.WriteLine($"No litespec.project.json at {root}");
+            Console.Error.WriteLine($"No .litespec/project.json at {root}");
             return 2;
         }
 

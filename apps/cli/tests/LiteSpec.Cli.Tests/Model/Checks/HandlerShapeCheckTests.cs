@@ -121,7 +121,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, "litespec.project.json"),
+            Path.Combine(temp.Path, ".litespec/project.json"),
             """{"vocabulary": {"pastTense": {"write": "written"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.AggregateMethods.Add(new AggregateMethod(
@@ -555,7 +555,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, "litespec.project.json"),
+            Path.Combine(temp.Path, ".litespec/project.json"),
             """{"stackConfig": {"dotnet": {"sharedKernel": "src/App/Shared"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -858,7 +858,7 @@ public sealed class HandlerShapeCheckTests
 
     static ProjectModel RouteModel(string root, string kind, string method, string route)
     {
-        var folder = Path.Combine(root, "docs", "behavior", "modules", "lending", "orders");
+        var folder = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "orders");
         var model = TestModel.Model(
             TestModel.Config(root),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(folder, "void-order.yaml"), $$"""{"kind": "{{kind}}"}"""),

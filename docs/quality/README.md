@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Quality pages state what every release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs and recovers, and which checks each pull request runs. Every project applies them, from the first pull request to production operation.
+The Quality pages state what every release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs, and which checks each pull request runs. Every project applies them, from the first pull request to production operation. A project that operates in production adds the [Delivery extension](../ext/delivery.md) for its release gate, deployment, recovery and alerting regime.
 
 ## How the Pages Fit Together
 
@@ -11,5 +11,6 @@ The Quality pages state what every release proves beyond its behavior: who may a
 ## Pages
 
 - [Security](security.md): identity, permissions, data classification, and trust boundaries.
-- [Operations](operations.md): observability, deployability, recovery, and support by one maintainer.
+- [Operations](operations.md): observability, diagnostics, and support by one maintainer.
 - [Continuous Integration](ci.md): the gates each pull request runs for its changed areas.
+- [Delivery](../ext/delivery.md): the opt-in production regime: release readiness, deployment and rollback, backup and restore, alerting and the supply-chain gate.

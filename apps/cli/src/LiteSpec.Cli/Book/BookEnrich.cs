@@ -115,7 +115,7 @@ static class BookEnrich
             fields.Remove(key);
         }
 
-        return new JsonObject
+        var detail = new JsonObject
         {
             ["type"] = type,
             ["title"] = BookRender.StrProp(record, "title") ?? "",
@@ -131,6 +131,20 @@ static class BookEnrich
                 ["line"] = BookDetailValues.IntNode(BookDetailValues.IntProp(record, "line")),
             },
         };
+
+        // The computed facts the model builder states beside the record: the
+        // completion stage, the approval from the project table, the screen
+        // captures and the problem evidence strength. The book reads only
+        // these names; it computes none of them itself.
+        foreach (var key in new[] { "completion", "approval", "captures", "captureState", "evidenceStrength", "risk" })
+        {
+            if (record[key] is { } node)
+            {
+                detail[key] = node.DeepClone();
+            }
+        }
+
+        return detail;
     }
 
     /// <summary>The findings of one record, in model order.</summary>

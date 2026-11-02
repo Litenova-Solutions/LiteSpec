@@ -9,8 +9,8 @@ options:
   - name: Loose approval sized for one-person teams
     pros: "Solo projects can approve honestly: an agent reading, a single owner, and an optional security reviewer match how small teams actually work."
     cons: Regulated consumers must add their own separation of duties above the loose default.
-  - name: A human second reviewer on every tier 1 batch
-    pros: No tier 1 record ships on self review alone, as separation of duties advises.
+  - name: A human second reviewer on every risk-bearing batch
+    pros: No record carrying a risk class ships on self review alone, as separation of duties advises.
     cons: Solo projects cannot staff a second person, and LiteSpec serves one-person teams by standing owner direction.
   - name: A required security reviewer and a gated queue
     pros: Access and money changes always meet a named reviewer.
@@ -19,7 +19,7 @@ options:
     pros: Quick approvals stay quick.
     cons: Unattributed approvals with no status change are not approvals at all.
 choice: Loose approval sized for one-person teams
-consequences: "`litespec/core/release#refuse-self-review-alone-for-tier-1-behavior` states the solo rule, `litespec/core/release#name-the-security-reviewer-in-the-project-file` keeps the reviewer optional, `litespec/core/release#review-the-security-queue-separately-from-reviewed` keeps the queue a list, and `litespec/core/release#advise-without-gating-as-an-agent` counts the agent reading."
-reopenedWhen: A consumer ships a tier 1 record that a second person must countersign.
+consequences: "`litespec/core/release#refuse-self-review-alone-for-risk-bearing-behavior` states the solo rule, `litespec/core/release#name-the-security-reviewer-in-the-project-file` keeps the reviewer optional, `litespec/core/release#review-the-security-queue-separately-from-reviewed` keeps the queue a list, and `litespec/core/release#advise-without-gating-as-an-agent` counts the agent reading."
+reopenedWhen: A consumer ships a record carrying a risk class that a second person must countersign.
 basedOn:
   - research/lower-layers-practice

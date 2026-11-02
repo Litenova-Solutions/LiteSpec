@@ -12,8 +12,8 @@ public sealed class ProofTargetTests
     public void Proof_Targets_Hold_Frontend_Provisions_And_No_Other_Provision()
     {
         using var temp = Cli.Temp("proof-targets");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "docs"));
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{ "owners": ["lending-team"] }""");
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """{ "owners": ["lending-team"] }""");
         var model = new ProjectModel
         {
             Config = ConsumerConfig.Load(temp.Path),

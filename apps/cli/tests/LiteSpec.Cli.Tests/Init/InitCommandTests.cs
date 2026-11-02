@@ -24,7 +24,7 @@ public sealed class InitCommandTests
         var result = Cli.Run("init", "--preset", preset, "--size", "small", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var paths = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, "litespec.project.json")))!["paths"]!.AsObject();
+        var paths = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json")))!["paths"]!.AsObject();
         Assert.Equal(expected, paths.ContainsKey("uiPackage"));
         Assert.Equal(expected, paths.ContainsKey("uiPatterns"));
     }
@@ -40,7 +40,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Fill these placeholders before validating: __OWNER__.", result.Stdout, StringComparison.Ordinal);
-        var text = File.ReadAllText(Path.Combine(consumer.Path, "litespec.project.json"));
+        var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json"));
         Assert.Contains("\"apps/api/shop.slnx\"", text, StringComparison.Ordinal);
         Assert.Contains("\"@shop/ui\"", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__PROJECT__", text, StringComparison.Ordinal);
@@ -57,7 +57,7 @@ public sealed class InitCommandTests
         var result = Cli.Run("init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path, "--name", "Team Expenses");
 
         Assert.Equal(0, result.Status);
-        var text = File.ReadAllText(Path.Combine(consumer.Path, "litespec.project.json"));
+        var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json"));
         Assert.Contains("\"@team-expenses/ui\"", text, StringComparison.Ordinal);
         Assert.Contains("\"apps/api/Team Expenses.slnx\"", text, StringComparison.Ordinal);
     }
@@ -73,14 +73,15 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         var agents = Path.Combine(consumer.Path, "AGENTS.md");
-        var glossary = Path.Combine(consumer.Path, "docs", "glossary.yaml");
-        var cast = Path.Combine(consumer.Path, "docs", "domain", "example-cast.md");
-        Assert.Contains("litespec.project.json", File.ReadAllText(agents), StringComparison.Ordinal);
+        var glossary = Path.Combine(consumer.Path, ".litespec", "glossary.yaml");
+        var cast = Path.Combine(consumer.Path, ".litespec", "example-cast.md");
+        Assert.Contains(".litespec/project.json", File.ReadAllText(agents), StringComparison.Ordinal);
         Assert.Contains("glossary.schema.json", File.ReadAllText(glossary), StringComparison.Ordinal);
         Assert.Contains("type: example-cast", File.ReadAllText(cast), StringComparison.Ordinal);
         Assert.Contains($"Wrote {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {glossary}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {cast}.", result.Stdout, StringComparison.Ordinal);
+        Assert.Equal("model/\nbook/\n", File.ReadAllText(Path.Combine(consumer.Path, ".litespec", ".gitignore")));
         Assert.Contains("Fill every <placeholder> in the copied files before validating.", result.Stdout, StringComparison.Ordinal);
     }
 
@@ -175,7 +176,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         Assert.Equal("# Ours\n", File.ReadAllText(agents));
         Assert.Contains($"'{agents}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
-        Assert.True(File.Exists(Path.Combine(consumer.Path, "docs", "glossary.yaml")));
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec", "glossary.yaml")));
     }
 
     /// <summary>Init with a missing scaffold template names the checkout file and writes nothing.</summary>
@@ -193,7 +194,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(1, result.Status);
         Assert.Contains("holds no readable templates/consumer/project-agents.md", result.Stderr, StringComparison.Ordinal);
-        Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
+        Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec/project.json")));
     }
 
     /// <summary>Init writes a project file from each preset.</summary>
@@ -226,7 +227,7 @@ public sealed class InitCommandTests
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
-        var target = Path.Combine(consumer.Path, "litespec.project.json");
+        var target = Path.Combine(consumer.Path, ".litespec", "project.json");
         Assert.Contains(target, result.Stdout);
         Assert.Contains("litespec consumer", result.Stdout);
 
@@ -244,7 +245,7 @@ public sealed class InitCommandTests
         Assert.Equal(platform, only["platform"]!.GetValue<string>());
 
         // Fields the template owns and the preset does not name survive the overlay.
-        Assert.Equal("docs", project["paths"]!["docs"]!.GetValue<string>());
+        Assert.Equal(".litespec", project["paths"]!["docs"]!.GetValue<string>());
     }
 
     /// <summary>Init defaults the project name to the root folder's name.</summary>
@@ -261,7 +262,7 @@ public sealed class InitCommandTests
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
-        var project = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, "litespec.project.json")))!.AsObject();
+        var project = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json")))!.AsObject();
         Assert.Equal(new DirectoryInfo(consumer.Path).Name, project["project"]!["name"]!.GetValue<string>());
     }
 
@@ -274,7 +275,7 @@ public sealed class InitCommandTests
         using var consumer = Cli.Temp("init-consumer");
         FixtureHome(home.Path);
 
-        var target = Path.Combine(consumer.Path, "litespec.project.json");
+        var target = Path.Combine(consumer.Path, ".litespec/project.json");
         File.WriteAllText(target, "{\"sentinel\": true}\n");
 
         var result = Cli.Run(
@@ -303,7 +304,7 @@ public sealed class InitCommandTests
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown preset 'nope'", result.Stderr);
         Assert.Contains("android-client, blazor-client, dotnet-react, dotnet-svelte", result.Stderr);
-        Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
+        Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec/project.json")));
     }
 
     /// <summary>Init with a bad size names the accepted sizes.</summary>
@@ -321,7 +322,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown size 'medium'; use small or large.", result.Stderr);
-        Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
+        Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec/project.json")));
     }
 
     /// <summary>Init without a size is a usage error.</summary>
@@ -385,7 +386,7 @@ public sealed class InitCommandTests
 
         var templateDir = Path.Combine(home, "templates", "consumer");
         Directory.CreateDirectory(templateDir);
-        File.WriteAllText(Path.Combine(templateDir, "litespec.project.json"), """
+        File.WriteAllText(Path.Combine(templateDir, "project.json"), """
             {
               "project": {
                 "name": "template-name"
@@ -394,7 +395,7 @@ public sealed class InitCommandTests
               "stacks": [],
               "reviewedLiteSpecVersion": "0.0.0-template",
               "paths": {
-                "docs": "docs",
+                "docs": ".litespec",
                 "frontends": []
               },
               "selectedExtensions": []

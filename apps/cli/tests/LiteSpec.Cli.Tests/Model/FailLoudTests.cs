@@ -13,7 +13,7 @@ public sealed class FailLoudTests
     public void Worker_Root_Defaults_To_The_Worker_Project()
     {
         using var temp = Cli.Temp("fail-loud");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"stacks": ["dotnet"]}""");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """{"stacks": ["dotnet"]}""");
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Shop.Worker"));
 
         var config = ConsumerConfig.Load(temp.Path);
@@ -66,7 +66,7 @@ public sealed class FailLoudTests
     {
         using var temp = Cli.Temp("fail-loud");
         File.WriteAllText(
-            Path.Combine(temp.Path, "litespec.project.json"),
+            Path.Combine(temp.Path, ".litespec/project.json"),
             """{"stacks": ["dotnet"], "proof": {"jobTriggerSteps": ["ClockSteps"]}}""");
 
         Assert.Equal(["ClockSteps"], ConsumerConfig.Load(temp.Path).JobTriggerSteps);
@@ -116,7 +116,7 @@ public sealed class FailLoudTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, "litespec.project.json"),
+            Path.Combine(root, ".litespec/project.json"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "application": "src/App", "domain": "src/Domain",

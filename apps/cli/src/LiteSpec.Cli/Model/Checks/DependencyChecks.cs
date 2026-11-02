@@ -8,8 +8,8 @@ namespace LiteSpec.Model.Checks;
 ///     The dependency checks, kept in one class so the partial checker holds only the entry point.
 /// </summary>
 /// <follows>litespec/workspace/dependencies#approve-new-packages-explicitly</follows>
-/// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
-/// <follows>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</follows>
 internal static class DependencyChecks
 {
     /// <summary>The six facts every admits entry names.</summary>

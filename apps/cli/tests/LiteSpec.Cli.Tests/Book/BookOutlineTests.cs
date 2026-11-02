@@ -388,7 +388,7 @@ public sealed class BookOutlineTests
                     ["tier"] = "G",
                     ["message"] = "Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.",
                     ["subject"] = "use-case/lending.borrow-copy",
-                    ["path"] = "docs/borrow-copy.yaml",
+                    ["path"] = ".litespec/borrow-copy.yaml",
                     ["line"] = 3,
                 },
                 new JsonObject

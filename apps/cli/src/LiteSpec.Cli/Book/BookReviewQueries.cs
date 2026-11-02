@@ -3,8 +3,8 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     The review readings over the index: the review batches, one record's tier
-///     and risk, and the records serving a journey or its steps.
+///     The review readings over the index: the review batches, one record's risk
+///     classes and approval, and the records serving a journey or its steps.
 /// </summary>
 /// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookReviewQueries
@@ -17,18 +17,27 @@ static class BookReviewQueries
     public static ReviewBundle ReviewData(BookIndex index, JsonNode? findingsFile, string root) =>
         new(BookReviewQueue.Compute(index, root, findingsFile, DateOnly.FromDateTime(DateTime.UtcNow)));
 
-    /// <summary>One record's tier: the tier the model states, or 1 when its record carries risk, else 3.</summary>
+    /// <summary>One record's risk classes, in model order.</summary>
     /// <param name="record">The record.</param>
-    /// <returns>The record's tier.</returns>
-    public static int TierOf(JsonObject record)
+    /// <returns>The risk class names the record carries, empty when it carries no risk.</returns>
+    public static IReadOnlyList<string> RiskClassesOf(JsonObject record)
     {
-        if (record["tier"] is JsonValue scalar && scalar.TryGetValue<int>(out var tier) && tier is 1 or 3)
+        var classes = new List<string>();
+        foreach (var item in BookRender.Fields(record)?["risk"] as JsonArray ?? [])
         {
-            return tier;
+            if (item is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text is { Length: > 0 })
+            {
+                classes.Add(text);
+            }
         }
 
-        return HasRisk(record) ? 1 : 3;
+        return classes;
     }
+
+    /// <summary>One record's approval from the project approval table, as the model states it.</summary>
+    /// <param name="record">The record.</param>
+    /// <returns>The approval object with its approver and rule, or null when the model states none.</returns>
+    public static JsonObject? ApprovalOf(JsonObject record) => record["approval"] as JsonObject;
 
     /// <summary>Whether a record carries any risk value.</summary>
     /// <param name="record">The record.</param>

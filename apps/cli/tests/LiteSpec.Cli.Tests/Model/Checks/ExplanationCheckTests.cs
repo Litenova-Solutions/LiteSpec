@@ -12,14 +12,14 @@ public sealed class ExplanationCheckTests
     public void Orphaned_Explanation_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "stray.md");
+        var file = Path.Combine(temp.Path, ".litespec", "stray.md");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "# Stray\n\nNo record stands beside this file.\n");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-orphaned");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Explanation file 'docs/stray.md' stands beside no record file.", finding.Message);
+        Assert.Equal("Explanation file '.litespec/stray.md' stands beside no record file.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Null(finding.Subject);
@@ -31,7 +31,7 @@ public sealed class ExplanationCheckTests
     public void Readme_Without_Frontmatter_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var folder = Path.Combine(temp.Path, "docs");
+        var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "README.md"), "# Lending\n\nThe lending module.\n");
         var model = TestModel.Model(TestModel.Config(temp.Path));
@@ -45,7 +45,7 @@ public sealed class ExplanationCheckTests
     public void Document_With_Frontmatter_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var folder = Path.Combine(temp.Path, "docs");
+        var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "guide.md"), "---\ntype: reference\nid: guide/lending\n---\n\n# Guide\n");
         var model = TestModel.Model(TestModel.Config(temp.Path));
@@ -59,7 +59,7 @@ public sealed class ExplanationCheckTests
     public void Explanation_Beside_Its_Record_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var folder = Path.Combine(temp.Path, "docs");
+        var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "loan.yaml"), "type: aggregate\n");
         File.WriteAllText(Path.Combine(folder, "loan.md"), "# Loan\n\nA loan lends one copy to one reader.\n");
@@ -74,14 +74,14 @@ public sealed class ExplanationCheckTests
     public void Decision_Without_An_Explanation_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "decisions", "0001-loan-period.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "decisions", "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Decision 'decision/0001-loan-period' holds no explanation file 'docs/decisions/0001-loan-period.md'.", finding.Message);
+        Assert.Equal("Decision 'decision/0001-loan-period' holds no explanation file '.litespec/decisions/0001-loan-period.md'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("decision/0001-loan-period", finding.Subject);
@@ -187,14 +187,14 @@ public sealed class ExplanationCheckTests
     public void Topic_Without_An_Explanation_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "borrowing.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "borrowing.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("topic", "topic/borrowing", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "reviewBy": "2027-04-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Topic 'topic/borrowing' holds no explanation file 'docs/borrowing.md'.", finding.Message);
+        Assert.Equal("Topic 'topic/borrowing' holds no explanation file '.litespec/borrowing.md'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("topic/borrowing", finding.Subject);
@@ -253,14 +253,14 @@ public sealed class ExplanationCheckTests
     public void Research_Without_An_Explanation_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "docs", "benchmarks.yaml");
+        var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/loan-period-benchmarks", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Research 'research/loan-period-benchmarks' holds no explanation file 'docs/benchmarks.md'.", finding.Message);
+        Assert.Equal("Research 'research/loan-period-benchmarks' holds no explanation file '.litespec/benchmarks.md'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("research/loan-period-benchmarks", finding.Subject);

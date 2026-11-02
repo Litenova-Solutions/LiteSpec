@@ -2,7 +2,7 @@
 
 ## Answer
 
-This record distils Part 1 of the hierarchy release investigation, written 2026-10-30, into the claims this release relies on. It is the first record to carry the new `conclusion` field about its own type. The consumer's research folder (`docs/intent/research/`, 29 records plus its index) was read directly on 2026-10-30.
+This record distils Part 1 of the hierarchy release investigation, written 2026-10-30, into the claims this release relies on. It is the first record to carry the new `conclusion` field about its own type. The consumer's research folder (`.litespec/intent/research/`, 29 records plus its index) was read directly on 2026-10-30.
 
 The consumer research record carries a required frontmatter `question`, a required `sources` array, and one required body section, Answer. Three gaps follow. First, there is no conclusion anywhere a tool can read: Answer is body prose, and the approval hash for research covers only `sources` and `question`, so an approved record's actual finding can be edited without reopening its approval. Second, the book renders only `question` and `sources` for research, so a decision citing research through `basedOn` points at a page whose takeaway no field states. Third, the schema does not enforce the read date the provision already requires: `read` is optional on a source entry. Confidence is high: each gap was read from the schema, the template, the validator, the checker, the approver, and the book field list.
 

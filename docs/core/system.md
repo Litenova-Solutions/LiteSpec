@@ -6,11 +6,11 @@ LiteSpec is a system for building software from approved written records: the re
 
 ## Concepts
 
-### Company Context
+### Product Scope
 
-Litenova Solutions authors LiteSpec and uses it as the engineering system for its own software. Another technical team can adopt the same system: the pages state the rules, and this context explains the defaults behind them.
+LiteSpec specifies one bounded-context business application: the behavior the application performs, the data it holds, and the limits it enforces. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces. Running the company that builds the application sits outside the standard: a price as an offer, a market, a hiring or sales action, a launch calendar, a company goal and a founder risk enter a consumer's records only as a constraint, a limit the application enforces or an authority imposes, or as dated research. Plan entitlements the software enforces stay as application behavior in settings and permissions; the price list as a company offer does not.
 
-One person currently operates Litenova Solutions as its technical contributor, so LiteSpec assumes technical contributors rather than separate departments. One person can hold product, domain, architecture, implementation, testing, release, and operations responsibilities at the same time. The system names each responsibility instead: a decision owner, an implementation owner, and an operations owner identify who answers for what, and one person can hold all three.
+LiteSpec names responsibilities instead of departments: a decision owner, an implementation owner, and an operations owner identify who answers for what, and one person can hold all three. One person can hold product, domain, architecture, implementation, testing, release, and operations responsibilities at the same time.
 
 Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never owns unresolved product policy, legal judgment, financial decisions, or risk acceptance; those stay with accountable people.
 
@@ -38,7 +38,7 @@ The system holds one delivery approach and one operating model:
 
 | Layer | Meaning | Concrete Example |
 |:---|:---|:---|
-| LiteSpec | The complete system of standards, records, implementation, verification, operations, and release control. | The repository structure, provision IDs, templates, tests, runbooks, and release records. |
+| LiteSpec | The complete product specification: standards, records, implementation, verification, and the operating behavior the application performs. | The repository structure, provision IDs, templates, tests, runbooks, and release records. |
 | Record-Driven Delivery | Approved records select work and define completion. | `use-case/spending.submit-expense` defines behavior before its handler, endpoint, and tests are accepted. |
 | Agent-Driven Engineering | Agents perform substantial engineering execution within approved scope and report decisions that need an accountable person. | An agent loads the submission record, implements it, runs its checks, and reports an unknown approval policy. |
 
@@ -48,7 +48,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -62,7 +62,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Agents meet open questions in the middle of a task: an unknown approval policy, an unclear access rule, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and recording the question in a draft decision, with a decider and a decide-by date, keeps the choice visible and owned, instead of buried in code nobody approved. Decision owners approve outcomes, terms, policies, criteria, commitments, and risk, and an agent contribution stays a proposal until one of them accepts it.
 
-**Reviewed for:** The draft decision pages under `docs/intent/decisions/` naming the open question, the decider, and the decide-by date.
+**Reviewed for:** The draft decision pages under `.litespec/intent/decisions/` naming the open question, the decider, and the decide-by date.
 
 ### Drive Work from Approved Records
 
@@ -160,13 +160,13 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#keep-operational-and-security-references-under-operations`
 
-**Default:** Keep operating and security reference prose under `docs/behavior/operations/`.
+**Default:** Keep operating and security reference prose under `.litespec/behavior/operations/`.
 
 **Replacement:** A consumer names its own home for operating and security reference prose in its documentation.
 
-**Rationale:** One home for operating and security reference prose means an on-call reader looks in `docs/behavior/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case fields and rules, since those are what the code and tests prove.
+**Rationale:** One home for operating and security reference prose means an on-call reader looks in `.litespec/behavior/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case fields and rules, since those are what the code and tests prove.
 
-**Reviewed for:** Operating and security reference prose under `docs/behavior/operations/`, or the project documentation naming the replacement home.
+**Reviewed for:** Operating and security reference prose under `.litespec/behavior/operations/`, or the project documentation naming the replacement home.
 
 ### Use Established Technical Terms
 

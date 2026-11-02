@@ -129,7 +129,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             return Invalid;
         }
 
-        var roots = DocRoots(projectText, DirectoryOf(project.Path));
+        var roots = DocRoots(projectText, RepositoryRootOf(DirectoryOf(project.Path)));
 
         if (roots.Count == 0)
         {
@@ -261,13 +261,29 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     {
         foreach (var text in texts)
         {
-            if (text.Path.EndsWith("litespec.project.json", StringComparison.OrdinalIgnoreCase))
+            if (text.Path.Replace('\\', '/').EndsWith("/.litespec/project.json", StringComparison.OrdinalIgnoreCase))
             {
                 return text;
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     The repository root holding the project file: the folder above
+    ///     <c>.litespec/</c> when the file sits in that folder, else its own folder.
+    /// </summary>
+    /// <param name="projectDir">The directory that holds the project file.</param>
+    /// <returns>The repository root the project file's paths resolve against.</returns>
+    private static string RepositoryRootOf(string projectDir)
+    {
+        var cleaned = projectDir.Replace('\\', '/');
+        var slash = cleaned.LastIndexOf('/');
+
+        return cleaned.EndsWith("/.litespec", StringComparison.OrdinalIgnoreCase) && slash > 0
+            ? cleaned.Substring(0, slash)
+            : cleaned;
     }
 
     /// <summary>Returns the roots.</summary>
@@ -290,12 +306,12 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
         if (docs.Count == 0)
         {
-            docs.Add("docs");
+            docs.Add(".litespec");
         }
 
         if (behavior.Count == 0)
         {
-            behavior.Add("docs/behavior");
+            behavior.Add(".litespec/behavior");
         }
 
         var roots = new List<string>();

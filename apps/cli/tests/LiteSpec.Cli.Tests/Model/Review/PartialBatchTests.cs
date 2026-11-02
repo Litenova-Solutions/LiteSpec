@@ -8,13 +8,13 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class PartialBatchTests
 {
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.yaml");
+        root, ".litespec", "product", "lending", "borrowing.yaml");
 
     static string Manifest(string root) => ReviewPages.Page(
-        root, "docs", "proof", "approvals", "2026-11-20-lending-rule.json");
+        root, ".litespec", "proof", "approvals", "2026-11-20-lending-rule.json");
 
     /// <summary>Adds one open question to the entry carrying the id.</summary>
     /// <param name="path">The page file path.</param>
@@ -161,7 +161,7 @@ public sealed class PartialBatchTests
         Assert.Contains("Sample (1 of 1", result.Output);
         Assert.DoesNotContain("Refused", result.Output);
         Assert.Equal(before, File.ReadAllText(LoanAggregate(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 
     /// <summary>A module and type batch without a named owner approver is refused whole.</summary>
@@ -183,7 +183,7 @@ public sealed class PartialBatchTests
         Assert.Equal(1, result.Status);
         Assert.Contains("needs --by naming a project owner", result.Output);
         Assert.Equal(before, File.ReadAllText(LoanAggregate(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 
     /// <summary>A module and type batch no record passes is refused whole and writes nothing.</summary>
@@ -206,6 +206,6 @@ public sealed class PartialBatchTests
         Assert.Contains("rule/loan.has-one-borrower: has open questions", result.Output);
         Assert.Contains("Refused: 1 guard failures.", result.Output);
         Assert.Equal(before, File.ReadAllText(LoanAggregate(fixture.Path)));
-        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, "docs", "proof", "approvals")));
+        Assert.False(Directory.Exists(ReviewPages.Page(fixture.Path, ".litespec", "proof", "approvals")));
     }
 }

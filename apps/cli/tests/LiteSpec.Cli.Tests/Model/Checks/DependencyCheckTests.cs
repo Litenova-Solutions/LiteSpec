@@ -16,7 +16,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
@@ -37,7 +37,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
         WriteDecision(temp.Path, CompleteAdmits);
         WriteFollower(temp.Path);
 
@@ -47,13 +47,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A pinned package at its pin with an accepted license reports nothing.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Pinned_Package_At_Pin_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT", "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -61,13 +61,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A pinned package shipped at another version reports dependency-version-drift.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Version_Drift_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "1.0.0", "MIT", "pkg:nuget/Marten@1.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "1.0.0", "MIT", "pkg:nuget/Marten@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
@@ -83,13 +83,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A direct package under a rejected license reports dependency-license-unknown.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
+    /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
     public void License_Not_Accepted_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "AGPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "AGPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
@@ -104,13 +104,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>An expression with every identifier accepted reports no license finding.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
+    /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
     public void Expression_With_All_Licenses_Accepted_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR Apache-2.0", "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR Apache-2.0", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -118,13 +118,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>An expression with one identifier rejected reports dependency-license-unknown.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
+    /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
     public void Expression_With_One_License_Rejected_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR GPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR GPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
@@ -134,13 +134,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A license the admitting decision names reports no license finding.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
+    /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
     public void License_Named_On_Admission_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "2.0.0", "GPL-3.0-only", "pkg:nuget/UnknownLib@2.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "2.0.0", "GPL-3.0-only", "pkg:nuget/UnknownLib@2.0.0")));
         WriteDecision(temp.Path, GplAdmits);
         WriteFollower(temp.Path);
 
@@ -156,7 +156,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT", "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT", "pkg:nuget/Marten@9.50.1")));
         WriteDecision(temp.Path, IncompleteAdmits);
         WriteFollower(temp.Path);
 
@@ -180,7 +180,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "docs", "proof", "sbom"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec", "proof", "sbom"));
         WriteDecision(temp.Path, CompleteAdmits);
         WriteFollower(temp.Path);
 
@@ -190,12 +190,12 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>Without paths.sbom the bill checks stay silent over a violating bill.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Without_Sbom_Path_Bill_Checks_Silent()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(
             ("UnknownLib", "9.9.9", "GPL-3.0-only", "pkg:nuget/UnknownLib@9.9.9"),
             ("Marten", "1.0.0", "AGPL-3.0-only", "pkg:nuget/Marten@1.0.0")));
 
@@ -205,12 +205,12 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A configured bill of materials path that does not exist reports reader-missing naming the path.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Configured_Sbom_Missing_Reports_Reader_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
-        ConfigureSbomPath(temp.Path, "docs/proof/sbom/missing.json");
+        ConfigureSbomPath(temp.Path, ".litespec/proof/sbom/missing.json");
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
@@ -222,13 +222,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A configured bill of materials that is not JSON reports reader-missing naming the file.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Configured_Sbom_Unparsable_Reports_Reader_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/broken.json", "not json");
+        Write(temp.Path, ".litespec/proof/sbom/broken.json", "not json");
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
@@ -239,13 +239,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A configured bill of materials that is neither SPDX nor CycloneDX reports reader-missing naming the file.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Configured_Sbom_Neither_Format_Reports_Reader_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/other.json", """{"name": "not a bill of materials"}""");
+        Write(temp.Path, ".litespec/proof/sbom/other.json", """{"name": "not a bill of materials"}""");
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
@@ -257,13 +257,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A configured bill of materials that yields no packages reports reader-missing naming the file.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Configured_Sbom_With_No_Packages_Reports_Reader_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/empty.spdx.json", SpdxDoc());
+        Write(temp.Path, ".litespec/proof/sbom/empty.spdx.json", SpdxDoc());
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
@@ -297,7 +297,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.cdx.json", CycloneDxDoc(("UnknownCdx", "1.0.0", "MIT", false, "pkg:nuget/UnknownCdx@1.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.cdx.json", CycloneDxDoc(("UnknownCdx", "1.0.0", "MIT", false, "pkg:nuget/UnknownCdx@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
@@ -309,13 +309,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A CycloneDX pinned package at its pin with an accepted license reports nothing.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void CycloneDx_Pinned_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.cdx.json", CycloneDxDoc(("Marten", "9.50.1", "MIT", false, "pkg:nuget/Marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.cdx.json", CycloneDxDoc(("Marten", "9.50.1", "MIT", false, "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -323,13 +323,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>A NuGet pin matches whatever case the bill spells the name in.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void NuGet_Pin_Match_Ignores_Case()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("marten", "9.50.1", "MIT", "pkg:nuget/marten@9.50.1")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("marten", "9.50.1", "MIT", "pkg:nuget/marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -343,7 +343,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("React", "19.3.0", "MIT", "pkg:npm/React@19.3.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("React", "19.3.0", "MIT", "pkg:npm/React@19.3.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
@@ -353,13 +353,13 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>An npm package at its pin with an accepted license reports nothing.</summary>
-    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Npm_Pinned_Package_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("react", "19.3.0", "MIT", "pkg:npm/react@19.3.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("react", "19.3.0", "MIT", "pkg:npm/react@19.3.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -376,9 +376,9 @@ public sealed class DependencyCheckTests
 
     static void ConfigureSbom(string root)
     {
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        node["paths"]!.AsObject()["sbom"] = new JsonArray("docs/proof/sbom");
+        node["paths"]!.AsObject()["sbom"] = new JsonArray(".litespec/proof/sbom");
         node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
@@ -386,7 +386,7 @@ public sealed class DependencyCheckTests
     static void ConfigureSbomPath(string root, string sbom)
     {
         ConfigureSbom(root);
-        var file = Path.Combine(root, "litespec.project.json");
+        var file = Path.Combine(root, ".litespec/project.json");
         var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(sbom);
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
@@ -394,8 +394,8 @@ public sealed class DependencyCheckTests
 
     static void WriteDecision(string root, string admitsJson)
     {
-        TestRecords.Write(root, "docs/implementation/decisions/0099-admit-extra-package.yaml", DecisionJson("decision/0099-admit-extra-package", admitsJson));
-        TestRecords.Explain(root, "docs/implementation/decisions/0099-admit-extra-package.md", DecisionExplanation);
+        TestRecords.Write(root, ".litespec/implementation/decisions/0099-admit-extra-package.yaml", DecisionJson("decision/0099-admit-extra-package", admitsJson));
+        TestRecords.Explain(root, ".litespec/implementation/decisions/0099-admit-extra-package.md", DecisionExplanation);
     }
 
     static void WriteFollower(string root) =>

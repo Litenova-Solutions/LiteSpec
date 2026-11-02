@@ -2,7 +2,7 @@
 
 ## Intent
 
-Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages; this page states the language of project records.
+Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values and codes of project records.
 
 ## Concepts
 
@@ -42,9 +42,9 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 
 Gherkin fields keep Gherkin practice: `given` is the starting state (present tense, or past tense for an earlier act), `when` is one act by a named actor (present tense), `then` is the observable outcome (present tense, without "should"). A result's `meaning` says what is now true (success) or what the caller is told (refusal).
 
-Person: record values are third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business. Nothing says "you". Capitalized modal words belong only to LiteSpec's own provisions; a project's record states a fact or a commitment as a fact.
+Person: record values are third person. Intent chapter prose (The Situation, What We Do) may say "we" for the business. Nothing says "you". Capitalized modal words belong only to LiteSpec's own provisions; a project's record states a fact or a commitment as a fact. Voice, tense and person beyond this table follow the [Writing Standard](writing.md).
 
-Quantities: dates are ISO 8601 dates, durations ISO 8601 durations (`P7Y`, `PT10M`), money is `{ amount, currency }` with an ISO 4217 code, and prose writes numbers with their unit ("95 percent", "3 seconds").
+Quantities: dates are ISO 8601 dates, durations ISO 8601 durations (`P7Y`, `PT10M`), money is `{ amount, currency }` with an ISO 4217 code. How prose writes a number with its unit follows the [Writing Standard](writing.md).
 
 ### Value Style
 
@@ -98,9 +98,11 @@ Each record type takes the name form its row gives, in the word class of what th
 | exception | noun phrase of what it allows | `payment-retries-later` |
 | term | the singular word itself | `booking` |
 
+A record name is not its title. Every record title takes the title form of its type on the [Writing Standard](writing.md) page.
+
 ### Spelling and Fixed Names
 
-American spelling is the project spelling for field names, enum values, and prose: `license` rather than `licence`, and `pseudonymize` rather than `pseudonymise`. Each British form reads as a rejected word beside its American spelling.
+American spelling is the project spelling for field names and enum values: `license` rather than `licence`, and `pseudonymize` rather than `pseudonymise`. Each British form reads as a rejected word beside its American spelling. Prose spelling follows the [Writing Standard](writing.md).
 
 Names an outside standard fixes stay exactly as that standard spells them. Gherkin fixes `given`, `when`, and `then`, and CloudEvents fixes its attribute names; these are the only names outside the word classes.
 
@@ -220,9 +222,9 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **ID:** `litespec/core/language#write-in-american-english`
 
-**Statement:** Every field name, enum value, and prose word MUST use American spelling.
+**Statement:** Every field name and enum value MUST use American spelling.
 
-**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names, enum values, and prose alike. Each British form reads as a rejected word beside its American spelling.
+**Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form reads as a rejected word beside its American spelling.
 
 **Example:** Claimwick writes `license` and `pseudonymize` in field names, values, and prose.
 

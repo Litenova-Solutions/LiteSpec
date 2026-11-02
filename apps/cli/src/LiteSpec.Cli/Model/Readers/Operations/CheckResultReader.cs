@@ -6,7 +6,7 @@ namespace LiteSpec.Model.Readers.Operations;
 ///     Reads the check results the drills and measuring harnesses write under
 ///     paths.checkResults, beside the measured-check results of the test run.
 /// </summary>
-/// <follows>litespec/quality/operations#record-each-drill-run-as-a-check-result</follows>
+/// <follows>litespec/ext/delivery#record-each-drill-run-as-a-check-result</follows>
 static class CheckResultReader
 {
     /// <summary>Reads every check result under the check results folder.</summary>

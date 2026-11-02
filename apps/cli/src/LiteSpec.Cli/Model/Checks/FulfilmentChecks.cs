@@ -63,7 +63,7 @@ internal static class FulfilmentChecks
         }
     }
 
-    /// <summary>Reports a requirement naming no reason in cites: tier A, tier G when it carries risk.</summary>
+    /// <summary>Reports a requirement naming no reason in cites: level A, level G when it carries a risk class.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRequirementCited(ProjectModel model, List<Finding> findings)
@@ -72,7 +72,7 @@ internal static class FulfilmentChecks
         {
             if (requirement.Ids(RecordFields.Cites).Count == 0)
             {
-                findings.Add(Tiered("requirement-cites-missing", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
+                findings.Add(RiskGraded("requirement-cites-missing", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
             }
         }
     }

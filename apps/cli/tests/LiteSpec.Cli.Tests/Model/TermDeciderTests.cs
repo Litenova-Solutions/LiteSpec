@@ -70,12 +70,12 @@ public sealed class TermDeciderTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {"project": {"name": "Term Decider Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.0.0", "owners": ["lending-team"],
-                  "paths": {"docs": "docs", "glossary": "docs/glossary.yaml", "testRoots": [], "frontends": []}}
+                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.1.0", "owners": ["lending-team"],
+                  "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []}}
                 """);
-            TestRecords.Write(temp.Path, "docs/glossary.yaml", $$"""
+            TestRecords.Write(temp.Path, ".litespec/glossary.yaml", $$"""
                 {"schemaVersion": 2, "terms": [{{term}}], "mannered": []}
                 """);
 

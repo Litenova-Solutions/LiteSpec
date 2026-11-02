@@ -271,7 +271,7 @@ public sealed class BehaviorUnrecordedTests
     public void Screen_Calls_Are_Skipped_For_Client_Only_Shape()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"shape": "client-only"}""");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """{"shape": "client-only"}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Screens.Add(new ScreenInfo(
             "catalog",

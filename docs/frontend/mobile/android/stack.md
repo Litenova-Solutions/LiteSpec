@@ -8,7 +8,7 @@ The Android stack is the technology binding for a product that ships a native An
 
 ### Route Entry Bindings
 
-A route entry is a destination: an `Activity` or fragment class that is a navigation destination. Its screen mark sits on that destination class in the .NET mark style the project declares in `litespec.project.json`, read by the .NET reader. A host activity that only hosts destinations, layout files, and classes that are not destinations are not route entries and carry no screen mark.
+A route entry is a destination: an `Activity` or fragment class that is a navigation destination. Its screen mark sits on that destination class in the .NET mark style the project declares in `.litespec/project.json`, read by the .NET reader. A host activity that only hosts destinations, layout files, and classes that are not destinations are not route entries and carry no screen mark.
 
 ## Standards
 
@@ -77,13 +77,13 @@ dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 
 **ID:** `litespec/frontend/mobile/android/stack#record-a-package-size-budget`
 
-**Default:** Record the published AAB size as a limit entry in `docs/behavior/operations/limits.yaml`.
+**Default:** Record the published AAB size as a limit entry in `.litespec/behavior/operations/limits.yaml`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
 **Rationale:** An install payload is the slowest moment of adoption, so its size deserves a reviewed number instead of a surprise. A recorded budget on the published AAB size makes growth visible before the store listing carries it. Untracked sizes grow with each asset until installs stall on slow networks.
 
-**Reviewed for:** Which package sizes miss their AAB limit entry in `docs/behavior/operations/limits.yaml`? Look in the limits file beside the publish job.
+**Reviewed for:** Which package sizes miss their AAB limit entry in `.litespec/behavior/operations/limits.yaml`? Look in the limits file beside the publish job.
 
 ### Store Streamed Media Uncompressed
 

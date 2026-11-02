@@ -60,7 +60,7 @@ public sealed class ModelFormatTests
     {
         using var consumer = WriteConsumer();
         File.WriteAllText(
-            Path.Combine(consumer.Path, "docs", "product", "broken.yaml"),
+            Path.Combine(consumer.Path, ".litespec", "product", "broken.yaml"),
             "type: product\nid: [unclosed\n");
 
         var result = Cli.Run("model", "format", "--root", consumer.Path);
@@ -75,7 +75,7 @@ public sealed class ModelFormatTests
     /// <param name="root">The consumer root folder.</param>
     /// <returns>The record file's full path.</returns>
     static string RecordPath(string root) =>
-        Path.Combine(root, "docs", "product", "brief.yaml");
+        Path.Combine(root, ".litespec", "product", "brief.yaml");
 
     /// <summary>The canonical text with its first two lines swapped: still in the subset, outside canonical form.</summary>
     /// <param name="canonical">The canonical record file text.</param>
@@ -94,13 +94,13 @@ public sealed class ModelFormatTests
         try
         {
             File.WriteAllText(
-                Path.Combine(temp.Path, "litespec.project.json"),
+                Path.Combine(temp.Path, ".litespec/project.json"),
                 """
                 {"project": {"name": "Format Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.0.0", "owners": ["lending-team"],
-                  "paths": {"docs": "docs", "glossary": "docs/glossary.yaml", "testRoots": [], "frontends": []}}
+                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.1.0", "owners": ["lending-team"],
+                  "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []}}
                 """);
-            TestRecords.Write(temp.Path, "docs/product/brief.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/product/brief.yaml", """
                 {
                   "type": "product",
                   "id": "product/library",

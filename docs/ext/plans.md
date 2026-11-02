@@ -30,7 +30,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Example:** The monthly plan names its fee, its month period, and the use cases and amounts it unlocks.
 
-**Reviewed for:** The requirement pages under `docs/intent/` hold one record per plan with its price, billing period, and entitlements.
+**Reviewed for:** The requirement pages under `.litespec/intent/` hold one record per plan with its price, billing period, and entitlements.
 
 ### Gate Behavior Through Permissions
 

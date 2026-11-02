@@ -35,15 +35,15 @@ cd "$starter"
 dotnet new tool-manifest >/dev/null
 dotnet tool install LiteSpec.Cli --local --version "$version" --add-source "$packages" >/dev/null
 dotnet litespec init --preset dotnet-react --size small
-test -f litespec.project.json
-test "$(jq -r .reviewedLiteSpecVersion litespec.project.json)" = "$version"
+test -f .litespec/project.json
+test "$(jq -r .reviewedLiteSpecVersion .litespec/project.json)" = "$version"
 
 cd "$claimwick"
 
 # Build the model, then render the book from the model file the build writes.
 dotnet litespec model build
-test -f "$claimwick/.model/model.json"
-dotnet litespec book --model "$claimwick/.model/model.json" --out "$work/book"
+test -f "$claimwick/.litespec/model/model.json"
+dotnet litespec book --model "$claimwick/.litespec/model/model.json" --out "$work/book"
 test -f "$work/book/index.html"
 
 dotnet litespec model query use-case/spending.submit-expense >/dev/null

@@ -264,19 +264,19 @@ public sealed class FollowsCheckTests
 
         try
         {
-            Write(temp.Path, "litespec.project.json", """
+            Write(temp.Path, ".litespec/project.json", """
                 {"project": {"name": "Marks Follows Attribute Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.0.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.1.0", "owners": ["lending-team"],
                   "marks": "attribute",
-                  "paths": {"docs": "docs", "glossary": "docs/glossary.yaml", "testRoots": [], "frontends": []},
+                  "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []},
                   "stackConfig": {"dotnet": {"application": "apps/api/src/Library.Application"}}}
                 """);
-            Write(temp.Path, "docs/glossary.yaml", """
+            Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, "docs/implementation/decisions/0002-store-loans-as-documents.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/implementation/decisions/0002-store-loans-as-documents.yaml", """
                 {
                   "type": "decision",
                   "id": "decision/0002-store-loans-as-documents",
@@ -290,7 +290,7 @@ public sealed class FollowsCheckTests
                   "reopenedWhen": "Queries pass one hundred a day"
                 }
                 """);
-            TestRecords.Explain(temp.Path, "docs/implementation/decisions/0002-store-loans-as-documents.md", """
+            TestRecords.Explain(temp.Path, ".litespec/implementation/decisions/0002-store-loans-as-documents.md", """
                 # Store loans as documents
 
                 ## Context
