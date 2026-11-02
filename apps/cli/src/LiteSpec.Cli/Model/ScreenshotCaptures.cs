@@ -32,7 +32,7 @@ static class ScreenshotCaptures
                 continue;
             }
 
-            var captures = ForRoute(model, address);
+            var captures = ForRoute(model, address, record.Field("entryPoint"));
 
             model.Captures[record.Id] = captures;
             model.CaptureState[record.Id] = captures.Count > 0 ? "captured" : "route-not-captured";
@@ -42,8 +42,9 @@ static class ScreenshotCaptures
     /// <summary>The captures the galleries hold for one route address, in theme and width order.</summary>
     /// <param name="model">The built project model holding the consumer configuration.</param>
     /// <param name="address">The route address the screen serves, or null when it serves none.</param>
+    /// <param name="entryPoint">The entry point the screen belongs to, or null when unknown; a gallery inside a frontend folder serves only that frontend's entry point.</param>
     /// <returns>The captures matching the route slug under the configured pattern, or an empty list when none matches.</returns>
-    public static IReadOnlyList<ScreenCapture> ForRoute(ProjectModel model, string? address)
+    public static IReadOnlyList<ScreenCapture> ForRoute(ProjectModel model, string? address, string? entryPoint = null)
     {
         if (address is not { Length: > 0 } || model.Config.ScreenshotGalleries.Count == 0)
         {
@@ -55,7 +56,7 @@ static class ScreenshotCaptures
 
         foreach (var gallery in model.Config.ScreenshotGalleries)
         {
-            if (!Directory.Exists(gallery))
+            if (!Directory.Exists(gallery) || !ServesEntryPoint(model, gallery, entryPoint))
             {
                 continue;
             }
@@ -86,12 +87,31 @@ static class ScreenshotCaptures
     }
 
     /// <summary>
-    ///     The route slug of a screen address: the leading slash dropped, segments
-    ///     joined with a hyphen, a parameter segment reduced to its name, and the
-    ///     root route named <c>home</c>.
+    ///     Whether a gallery folder may hold captures for a screen of the entry point: a gallery
+    ///     inside a declared frontend folder holds only that frontend's routes, so two frontends
+    ///     that both serve <c>/</c> never share a capture.
     /// </summary>
-    /// <param name="address">The route address, such as <c>/events/[id]</c>.</param>
-    /// <returns>The route slug, such as <c>events-id</c>, or <c>home</c> for the root route.</returns>
+    /// <param name="model">The built project model holding the declared frontends.</param>
+    /// <param name="gallery">The absolute gallery folder.</param>
+    /// <param name="entryPoint">The screen's entry point, or null when unknown.</param>
+    /// <returns>True when the gallery belongs to no frontend, the entry point is unknown, or the frontend serves it.</returns>
+    static bool ServesEntryPoint(ProjectModel model, string gallery, string? entryPoint)
+    {
+        if (entryPoint is not { Length: > 0 })
+        {
+            return true;
+        }
+
+        var full = Path.GetFullPath(gallery);
+        var owner = model.Config.Frontends.FirstOrDefault(frontend =>
+            full.StartsWith(Path.GetFullPath(frontend.Path) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase));
+
+        return owner?.EntryPoint is not { Length: > 0 } served || string.Equals(served, entryPoint, StringComparison.Ordinal);
+    }
+
+    /// <summary>The route slug of an address: the path without its leading slash, segments joined with a hyphen, parameters reduced to their names, and the root named <c>home</c>.</summary>
+    /// <param name="address">The route address.</param>
+    /// <returns>The slug the gallery pattern's <c>{route}</c> placeholder matches.</returns>
     public static string RouteSlug(string address)
     {
         var path = address.Split('?', '#')[0].Trim().Trim('/');
