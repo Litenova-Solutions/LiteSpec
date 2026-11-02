@@ -26,7 +26,6 @@ LiteSpec 3.1.0 specifies the product, not the company, gives every record what a
 - A problem is a pain of a person or organization outside the team. It requires `affects`, whose first entry is the primary sufferer, and `affectsSegment`, `costToday` and `workaroundToday`, and lists `evidence` entries with `claim`, `source`, `readOn` and `kind` (`observed`, `reported` or `assumed`). The model computes `evidenceStrength`; an approved problem needs observed or reported evidence. Its explanation file has the sections Who Has It, What They Do Today, Evidence, What Would Retire It.
 - An actor's `kind` is `person` or `organization`, and `belongsToTeam` says whether it works for the team building the product. An external system names no actor; internal machinery is never an actor.
 - A journey requires `description`. A step names at most one performer: an actor at a handoff, or the external system, job or reaction in `system` when no person acts.
-- A refused feature may omit `solves`.
 - New checks: `problem-sufferer-invalid`, `problem-cost-missing`, `problem-workaround-missing`, `problem-evidence-missing`, `problem-statement-invalid`, `problem-duplicate`, `actor-unused`, `goal-mover-missing` and `term-missing`.
 
 ### Model

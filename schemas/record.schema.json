@@ -2112,7 +2112,8 @@
         "owner",
         "status",
         "offering",
-        "lifecycle"
+        "lifecycle",
+        "solves"
       ],
       "properties": {
         "type": { "const": "feature" },
@@ -2156,7 +2157,7 @@
             "properties": { "lifecycle": { "const": "refused" } }
           },
           "then": {
-            "required": ["refusedBecause"],
+            "required": ["refusedBecause", "solves"],
             "not": { "required": ["advances"] }
           }
         },
