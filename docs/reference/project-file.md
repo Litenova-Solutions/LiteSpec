@@ -176,8 +176,8 @@ A project whose owners list holds one name needs no second reviewer.
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `docs` | string | no | none |
-| `glossary` | string | no | `docs/glossary.yaml` under the documentation root |
+| `docs` | string | no | `.litespec` |
+| `glossary` | string | no | `.litespec/glossary.yaml` |
 | `glossaryScan` | array of string | no | none |
 | `unstructuredDocs` | array of string | no | none |
 | `behaviorDocs` | string | yes | none |
