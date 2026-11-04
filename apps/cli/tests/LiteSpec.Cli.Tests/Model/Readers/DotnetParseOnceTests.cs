@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Readers;
 
-/// <summary>Proves the backend reader reads and parses each file once per model build.</summary>
+/// <summary>Proves the backend reader reads and parses each file once per model run.</summary>
 public sealed class DotnetParseOnceTests
 {
     /// <summary>Each Backend File Is Parsed Once Per Read.</summary>

@@ -1,5 +1,9 @@
 # Model Context Protocol
 
+**Stack:** any
+
+**Layer:** web-api
+
 ## Intent
 
 A Model Context Protocol server lets a large language model (LLM) client on the user's own machine call the product's public API. This page states how that server presents itself, describes its tools, and words its refusals; the API pages own the behavior the server calls. A project selects it when it ships such a server, so the model plans from accurate tool descriptions and every write waits for the person's confirmation.
@@ -24,6 +28,10 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#record-the-server-as-an-entry-point`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** A project shipping an MCP server MUST record it as an entry point of kind `mcp` whose title names the MCP server.
 
 **Rationale:** The entry point record names how callers arrive: `litespec/core/access#name-every-entry-point-with-its-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
@@ -33,6 +41,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 ### Pass Server Instructions at Initialize
 
 **ID:** `litespec/ext/mcp#pass-server-instructions-at-initialize`
+
+**Strength:** rule
 
 **Statement:** An MCP server MUST pass an `instructions` value at initialize stating its transport, its audience, its write surface, and its refusal behavior.
 
@@ -45,6 +55,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 ### Write One Tool Description for One Decision
 
 **ID:** `litespec/ext/mcp#write-one-tool-description-for-one-decision`
+
+**Strength:** rule
 
 **Statement:** An MCP tool MUST title its action imperatively, describe its behavior declaratively, use positive parameter polarity, and state its side effects.
 
@@ -71,6 +83,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#scope-each-tool-to-named-use-cases`
 
+**Strength:** rule
+
 **Statement:** Each tool MUST name the use cases and permissions it reaches.
 
 **Rationale:** Each tool opens product behavior to a model acting for the user, so the team names exactly which use cases and permissions each tool reaches. Without the named scope, a reviewer cannot tell whether a tool reads one account or writes across many, and a broad tool ships without the scrutiny its reach needs.
@@ -81,15 +95,19 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#confirm-every-writing-tool`
 
+**Strength:** rule
+
 **Statement:** Every tool that writes MUST refuse until the person confirms the write.
 
-**Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms keeps the person behind every change while leaving reads fast. Without confirmation, one misunderstood sentence becomes a changed record nobody approved.
+**Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms keeps the person behind every change while leaving reads fast. Without confirmation, one misunderstood sentence becomes a changed record nobody confirmed.
 
 **Reviewed for:** Each writing tool refuses until the person confirms the write.
 
 ### Exclude Secrets and Personal Data
 
 **ID:** `litespec/ext/mcp#exclude-secrets-and-personal-data`
+
+**Strength:** rule
 
 **Statement:** Tool descriptions and logs MUST exclude secrets and personal data from every field they carry.
 
@@ -100,6 +118,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 ### State the Distribution and Update Path
 
 **ID:** `litespec/ext/mcp#state-the-distribution-and-update-path`
+
+**Strength:** rule
 
 **Statement:** The server documentation MUST state how a user installs and updates the server.
 
@@ -112,6 +132,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 ### State the Refusing Side on Each Refusal
 
 **ID:** `litespec/ext/mcp#state-the-refusing-side-on-each-refusal`
+
+**Strength:** default
 
 **Default:** Prefix an input-shape refusal with `Needs:`, a human-confirmation refusal with `Needs confirmation:`, and a server-side refusal with `Refused:`.
 

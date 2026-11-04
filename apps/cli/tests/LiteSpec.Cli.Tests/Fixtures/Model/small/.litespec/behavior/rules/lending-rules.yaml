@@ -1,13 +1,14 @@
 type: rule-set
 title: Lending rules
+summary: Barcodes stay unique across the library.
 records:
-  - type: rule
-    id: rule/lending.copy-barcode-unique
-    title: Copy barcode unique
-    kind: cross-aggregate
-    statement: A copy barcode names one copy across the library.
-    governs:
-      - aggregate/lending.copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.copy-shelf-home
+- type: rule
+  id: rule/lending.copy-barcode-unique
+  title: Copy barcode unique
+  kind: cross-aggregate
+  statement: A copy barcode names one copy across the library.
+  governs:
+  - aggregate/lending.copy
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.copy-shelf-home

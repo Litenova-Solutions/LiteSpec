@@ -2,7 +2,7 @@
 
 ## Intent
 
-The example pages show LiteSpec applied instead of described, following Claimwick, one small product in which employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones, from its first Intent record through Behavior, Implementation, and Proof. A record is one piece of product intent held in a short YAML record file, and every product fact on these pages comes from the records of the Claimwick product in `examples/claimwick/`, a real LiteSpec project that `litespec consumer`, `litespec ui`, and `litespec model check` pass. The pages carry no rules of their own: each rule lives on the standards page the text cites. The library product illustrates single provisions and is not a walkable consumer; Claimwick is the end-to-end example.
+The example pages show LiteSpec applied instead of described, following Claimwick, one small product in which employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones, from its first Intent record through Behavior, Implementation, and Proof. A record is one piece of product intent held in a short YAML record file, and every product fact on these pages comes from the records of the Claimwick product in `examples/claimwick/`, a real LiteSpec project that `litespec model check` passes. The pages carry no rules of their own: each rule lives on the standards page the text cites. The library product illustrates single provisions and is not a walkable consumer; Claimwick is the end-to-end example.
 
 ## How to Read the Example
 
@@ -45,4 +45,4 @@ Read the pages in the order below: the product first, then its modules and recor
 - [Modules and Records](modules-and-records.md): the spending module, its aggregates with data classes, rules, access chain, entry point with its screen, external system, use cases, and the reaction, jobs, notifications, setting, integration event, and retention row around them.
 - [A Use Case in Code](a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](the-screen.md): the expenses list screen, the generated client it reads through, and the UI pattern it starts from.
-- [The Model and Its Checks](model-and-checks.md): model build, check, and query runs, the book journey detail and diffs, and the CI jobs that run the checks.
+- [The Model and Its Checks](model-and-checks.md): check and query runs, the book journey detail and contract breaks, and the CI jobs that run the checks.

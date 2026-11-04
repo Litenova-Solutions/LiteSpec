@@ -6,20 +6,26 @@ access:
   grant: permission/borrow-copy
   tenant: own
 fulfills:
-  - requirement/borrowing.loan-period-days
+- requirement/borrowing.loan-period-days
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/loan.loan-extended
+- event/loan.loan-extended
+idempotency:
+  mode: none
+  reason: Each call extends its own loan, and extending past the due date is refused.
+audit:
+  level: none
+  target: No audit trail; the loan record shows each extension.
 records:
-  - type: result
-    id: result/extend-loan.extended
-    title: Extended
-    outcome: success
-    meaning: The loan is extended.
-  - type: result
-    id: result/extend-loan.extension-refused
-    title: Extension refused
-    outcome: refusal
-    code: lending.extension-refused
-    meaning: The extension is refused.
+- type: result
+  id: result/extend-loan.extended
+  title: Extended
+  outcome: success
+  meaning: The loan is extended.
+- type: result
+  id: result/extend-loan.extension-refused
+  title: Extension refused
+  outcome: refusal
+  code: lending.extension-refused
+  meaning: The extension is refused.

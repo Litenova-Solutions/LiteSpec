@@ -24,7 +24,7 @@ The command merges the preset over `consumer/project.json`, stamps the release v
 
 `consumer/` holds one starting point per record type and page style, plus the project file, the language file, the design contract, the UI catalog, and the source lock. [consumer/README.md](consumer/README.md) maps each file to the consumer path it targets, from `.litespec/intent/product.yaml` to `packages/ui/ui-source-lock.json`.
 
-Each record template is a YAML record file shaped like [record.schema.json](../schemas/record.schema.json) with working example values; an article type's template also has its explanation file, and a document style's template is a Markdown document. A value in `<...>` is a placeholder where the author writes; `litespec-maintain validate` skips placeholders when it validates the shape. Replace every `<placeholder>` and `__PROJECT__` value before committing. `litespec init` fills the project placeholders in `.litespec/project.json` and lists the ones it leaves, and `litespec consumer` refuses a project file that still holds one. Do not edit [consumer/README.md](consumer/README.md): it is the template index the validator checks.
+Each record template is a YAML record file shaped like [record.schema.json](../schemas/record.schema.json) with working example values; an article type's template also has its explanation file, and a document style's template is a Markdown document. A value in `<...>` is a placeholder where the author writes; `litespec-maintain validate` skips placeholders when it validates the shape. Replace every `<placeholder>` and `__PROJECT__` value before committing. `litespec init` fills the project placeholders in `.litespec/project.json` and lists the ones it leaves, and `litespec model check` refuses a project file that still holds one. Do not edit [consumer/README.md](consumer/README.md): it is the template index the validator checks.
 
 ### Presets
 
@@ -32,7 +32,7 @@ Each record template is a YAML record file shaped like [record.schema.json](../s
 
 ### Standard Seeds
 
-`standard/` holds the seeds for LiteSpec pages: `topic.md`, `extension.md`, `command.md`, `how-to.md`, and `tutorial.md`. The validator parses each seed as the page class it produces, so the seed always passes the contract it teaches: `command.md` as a tools page, `extension.md` as an extension page, `how-to.md` as a guide page, `tutorial.md` as a tutorial page, and `topic.md` as a core page.
+`standard/` holds the seeds for LiteSpec pages: `extension.md`, `command.md`, `reference.md`, `how-to.md`, and `tutorial.md`. The validator parses each seed as the page class it produces, so the seed always passes the contract it teaches: `command.md` as a tools page, `extension.md` as an extension page, `reference.md` as a reference page, `how-to.md` as a guide page, and `tutorial.md` as a tutorial page.
 
 ## How It Works
 
@@ -42,7 +42,7 @@ Record authors copy templates by hand into the paths [consumer/README.md](consum
 
 ## How to Change One Safely
 
-- For a record template, keep the frontmatter shaped like [record.schema.json](../schemas/record.schema.json), with every author-written value in the `<...>` placeholder form the validator skips, and the body sections matching the page style the [authoring standard](../docs/core/authoring.md) defines. Copy the changed file into a scratch consumer and run `litespec consumer --root <folder>` there.
+- For a record template, keep the frontmatter shaped like [record.schema.json](../schemas/record.schema.json), with every author-written value in the `<...>` placeholder form the validator skips, and the body sections matching the page style the [authoring standard](../docs/core/authoring.md) defines. Copy the changed file into a scratch consumer and run `litespec model check --root <folder>` there.
 - For `.litespec/project.json` or a preset, keep both valid against the project schema. `litespec-maintain validate` checks the shipped template. Keep [consumer/README.md](consumer/README.md) rows in sync: every row names a file that exists, and every shipped file appears in a row.
 - For a standard seed, keep it passing its virtual page contract. `litespec-maintain validate` parses each one.
 - Update the CLI reader and its tests when the shape changes, with one passing case and one failing case.
@@ -51,8 +51,8 @@ Record authors copy templates by hand into the paths [consumer/README.md](consum
 ## How to Test It
 
 - `litespec-maintain validate` covers the shipped project template, the template index in both directions, every record template against the record schema with placeholders skipped, and the standard seeds as virtual pages.
-- `litespec consumer --root <folder>` proves a changed record template validates in place.
-- `dotnet test --solution LiteSpec.slnx` runs the Init, Consumer, and Maintain suites with their fixtures.
+- `litespec model check --root <folder>` proves a changed record template validates in place.
+- `dotnet test --solution LiteSpec.slnx` runs the Init, Model, and Maintain suites with their fixtures.
 
 ## Limits
 

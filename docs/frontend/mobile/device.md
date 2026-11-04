@@ -1,5 +1,8 @@
 # Mobile Device Capabilities
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 A mobile app borrows device capabilities: the camera roll, the microphone, the speaker, and the permissions guarding them. This page states how the app picks media, requests permissions, plays sound, and declares what it uses. A team that applies it while adding a device feature keeps the app asking for the least access and behaving while shared hardware is busy.
@@ -16,6 +19,8 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#prefer-permissionless-system-pickers`
 
+**Strength:** rule
+
 **Statement:** An app MUST pick photos and files through the system picker that needs no storage permission when the platform offers one.
 
 **Rationale:** A system picker that needs no storage permission shows the visitor exactly what the app receives: the chosen items and nothing else. Requesting broad storage access instead asks for the whole library to read one photo, which the visitor has good reason to refuse. Using the permissionless picker where the platform offers one keeps the app's access to what the visitor chose.
@@ -25,6 +30,8 @@ A picker lends one item without granting access to the library; a permission gra
 ### Request a Permission at the Point of Use
 
 **ID:** `litespec/frontend/mobile/device#request-a-permission-at-the-point-of-use`
+
+**Strength:** rule
 
 **Statement:** A runtime permission MUST be requested when the visitor starts the action that needs it, never at launch.
 
@@ -36,6 +43,8 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#hold-audio-focus-while-playing-sound`
 
+**Strength:** rule
+
 **Statement:** An app playing audible sound MUST request audio focus and pause when it loses focus.
 
 **Rationale:** One speaker serves every app, so playback without focus talks over navigation prompts, calls, and other players. Requesting focus before playing lets the platform arbitrate, and pausing on focus loss yields to whatever took it. Resuming waits for focus to return rather than grabbing it back.
@@ -46,6 +55,8 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#pause-media-in-the-background`
 
+**Strength:** rule
+
 **Statement:** Sound and video MUST pause when the app leaves the foreground and resume only when it returns.
 
 **Rationale:** An app the visitor can no longer see should go quiet: background sound from a hidden app reads as a bug, and background video decodes frames nobody watches. Pausing on leaving the foreground frees the speaker and the decoder for the app now in front. Resuming only on return keeps playback tied to the visible screen.
@@ -55,6 +66,8 @@ A picker lends one item without granting access to the library; a permission gra
 ### Declare Only Used Permissions
 
 **ID:** `litespec/frontend/mobile/device#declare-only-used-permissions`
+
+**Strength:** rule
 
 **Statement:** The app manifest MUST declare only the permissions the app's current features use.
 
@@ -67,6 +80,8 @@ A picker lends one item without granting access to the library; a permission gra
 ### Keep Device Work in the Foreground
 
 **ID:** `litespec/frontend/mobile/device#keep-device-work-in-the-foreground`
+
+**Strength:** default
 
 **Default:** Run no background service, scheduled job, or push handler without a project decision naming it.
 

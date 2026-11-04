@@ -1,5 +1,9 @@
 # Audit Trail
 
+**Stack:** any
+
+**Layer:** application
+
 ## Intent
 
 An audit trail proves who attempted what inside data one party owns while another party acts in it, including attempts the system refused. This page states what the trail stores for each attempt, which attempts it covers, where the producer runs, how the store resists tampering, and how a reviewer reads the trail. A team whose system acts in another party's data selects this extension and keeps one trail that proves accountability instead of reconstructing the answer from logs and domain events (facts the system recorded as completed).
@@ -36,6 +40,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-audit-adoption-decision`
 
+**Strength:** rule
+
 **Statement:** An audit adoption decision MUST record its audited categories, threshold, access model, integrity method, and records entry.
 
 **Rationale:** Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation instead of reconstructing it from the code, which would give two reviewers two different policies.
@@ -45,6 +51,10 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Declare Audit Selection on Every Command
 
 **ID:** `litespec/ext/audit#declare-audit-selection-on-every-command`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Every command use case MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
 
@@ -58,6 +68,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#audit-async-work-at-request-time`
 
+**Strength:** rule
+
 **Statement:** Work that runs after its request MUST write its audit record at request time.
 
 **Rationale:** The actor, the origin, and the grant exist when the request arrives; the later run carries worker identity under system auth, which says nothing about who asked. Writing the record at request time ties the attempt to the caller who made it. A record written when the background run starts would attribute every scheduled and deferred act to the worker instead of the requester.
@@ -67,6 +79,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Cover the Required Audit Categories
 
 **ID:** `litespec/ext/audit#cover-the-required-audit-categories`
+
+**Strength:** rule
 
 **Statement:** An audit selection MUST include authentication, authorization denial, grant change, monetary action, tenant configuration, personal-data read, bulk export, and background-process change.
 
@@ -78,6 +92,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-indiscriminate-auditing`
 
+**Strength:** rule
+
 **Statement:** A project MUST NOT audit every Command without a recorded selection.
 
 **Rationale:** A trail that records every Command buries the sensitive action inside routine traffic, and the reviewer who has to read it stops reading. Volume then defeats the review the trail exists to support. A recorded selection keeps the trail small enough to read.
@@ -87,6 +103,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Emit Audit Records at the Mediation Boundary
 
 **ID:** `litespec/ext/audit#emit-audit-records-at-the-mediation-boundary`
+
+**Strength:** rule
 
 **Statement:** An audit producer MUST run in the mediation pipeline stages that dispatch the Command.
 
@@ -100,6 +118,10 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#restrict-handler-contribution-to-determined-values`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** A handler MUST contribute only the audit values that the handler alone determines.
 
 **Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-audit-values-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest invites a second copy of each field that drifts from the first.
@@ -112,6 +134,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-derived-audit-trails`
 
+**Strength:** rule
+
 **Statement:** An audit trail MUST NOT be derived from domain events, database triggers, or change data capture.
 
 **Rationale:** Domain events, triggers, and change data capture describe committed state change. They carry no refused attempt, no use-case identity, and no request origin, which are the fields a reviewer reads. A trail derived from them answers what changed and never who attempted it.
@@ -122,6 +146,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-required-audit-fields`
 
+**Strength:** rule
+
 **Statement:** An audit record MUST contain actor, action, target, outcome, business time, record time, and tenant, fixed where the tenancy extension is absent.
 
 **Rationale:** Actor, action, target, outcome, the two times, and the tenant together answer who attempted what, against whose data, with what result, and when. Business time states when the action happened and record time states when the evidence was written, so a delayed write stays visible as a delay. A record missing any of them leaves the accountability question half answered.
@@ -131,6 +157,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### State the Action as Use-Case Identity
 
 **ID:** `litespec/ext/audit#state-the-action-as-use-case-identity`
+
+**Strength:** rule
 
 **Statement:** An audit `action` MUST use the identity of the use case that the actor invoked.
 
@@ -144,6 +172,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-refusal-code-on-an-unsuccessful-attempt`
 
+**Strength:** rule
+
 **Statement:** An audit record with a `denied` or `failed` outcome MUST carry the refusal `code` that the attempt produced.
 
 **Rationale:** A refused permission and an exhausted precondition need different responses, but both look like failure without a code. The refusal `code` tells the reviewer which one the attempt produced. It also lets trend queries count one kind of refusal across the whole trail.
@@ -154,6 +184,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#version-the-audit-record-shape`
 
+**Strength:** rule
+
 **Statement:** An audit record MUST carry an explicit schema version.
 
 **Rationale:** A retained record outlives several shapes of the application that wrote it. An explicit version lets a later reader parse each record in the shape it was written in. Without it, every shape change forces a rewrite of retained evidence.
@@ -163,6 +195,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Use a Closed Actor Set
 
 **ID:** `litespec/ext/audit#use-a-closed-actor-set`
+
+**Strength:** rule
 
 **Statement:** An audit actor MUST be one of `person`, `company`, `provider`, `system`, or `guest`.
 
@@ -176,6 +210,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-delegated-administrative-access`
 
+**Strength:** rule
+
 **Statement:** An action that an actor takes under an administrative or support grant MUST record that the grant was used.
 
 **Rationale:** Support staff act inside customer data under a grant, and without a marker their actions read exactly like customer actions. The marker makes a no-silent-access commitment demonstrable: every supplier-side action says so on its own record. A reviewer who cannot separate the two cannot verify the commitment.
@@ -185,6 +221,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Record Every Attempt Outcome
 
 **ID:** `litespec/ext/audit#record-every-attempt-outcome`
+
+**Strength:** rule
 
 **Statement:** An audit record MUST carry an outcome of `succeeded`, `denied`, or `failed`.
 
@@ -198,6 +236,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-refused-authorization`
 
+**Strength:** rule
+
 **Statement:** An authorization decision that refuses an audited action MUST produce an audit record.
 
 **Rationale:** Repeated refusal is the first indicator of a compromised or probing account, and no other record holds it: nothing changed, so nothing else was written. Each refusal therefore writes its own record. A trail without refusals shows an attacker who never failed.
@@ -207,6 +247,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Record Failed Audited Attempts
 
 **ID:** `litespec/ext/audit#record-failed-audited-attempts`
+
+**Strength:** rule
 
 **Statement:** An audited action that the actor was permitted to take and that did not complete MUST produce an audit record.
 
@@ -218,6 +260,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-request-origin`
 
+**Strength:** rule
+
 **Statement:** An audit record produced from an inbound request MUST carry the request origin address, the client description, and the request identifier.
 
 **Rationale:** Two records naming one account state nothing about location. The same account acting from two countries within one minute states that the account is compromised, but only when each record carries origin, client, and request identifier. The request identifier further joins the record to the exact request in the diagnostic log.
@@ -227,6 +271,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Record the Operation Trace Identity
 
 **ID:** `litespec/ext/audit#record-the-operation-trace-identity`
+
+**Strength:** rule
 
 **Statement:** An audit record MUST carry the trace identifier of the operation that produced it.
 
@@ -238,6 +284,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-secrets-and-payment-data`
 
+**Strength:** rule
+
 **Statement:** An audit record MUST NOT contain a credential, token, session identifier, encryption key, or payment instrument value.
 
 **Rationale:** The trail is retained, widely readable, and append-only, which is the worst combination for a secret: retention extends the exposure and append-only removes the repair. A credential or payment value written once stays readable for the whole retention period. Secrets and payment values therefore travel in the systems built to hold them, never in the trail.
@@ -247,6 +295,8 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 ### Exclude Personal Data Beyond Actor Identity
 
 **ID:** `litespec/ext/audit#exclude-personal-data-beyond-actor-identity`
+
+**Strength:** rule
 
 **Statement:** An audit record MUST NOT contain personal data other than the pseudonymous identifier of the actor and the target.
 
@@ -262,6 +312,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#exclude-state-snapshots`
 
+**Strength:** rule
+
 **Statement:** An audit record MUST NOT contain a copy of the state before or after the audited change.
 
 **Rationale:** The domain event stream already holds each change under its own retention. Copying before and after state into the trail duplicates that storage and widens every record with data the reviewer did not ask for. The trail adds the actor and the reason value, which nothing else holds, and leaves the change itself to the stream.
@@ -271,6 +323,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 ### Commit a Success Record with Its Business Change
 
 **ID:** `litespec/ext/audit#commit-a-success-record-with-its-business-change`
+
+**Strength:** rule
 
 **Statement:** An audit record with a `succeeded` outcome MUST commit in the same database transaction as the change it describes.
 
@@ -282,6 +336,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#write-an-unsuccessful-record-outside-the-failed-transaction`
 
+**Strength:** rule
+
 **Statement:** An audit record with a `denied` or `failed` outcome MUST be written on a connection that the failing transaction does not roll back.
 
 **Rationale:** A denied or failed attempt ends with its transaction rolling back, which would take a record written inside it. The record therefore travels on a connection the rollback does not touch. The evidence of a refusal outlives the refusal itself.
@@ -291,6 +347,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 ### Stage the Audit Write Before the Business Commit
 
 **ID:** `litespec/ext/audit#stage-the-audit-write-before-the-business-commit`
+
+**Strength:** rule
 
 **Statement:** An audit producer that stages a success record MUST run before the pipeline stage that commits the business transaction.
 
@@ -302,6 +360,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#publish-unsuccessful-write-failures`
 
+**Strength:** rule
+
 **Statement:** An audit deployment MUST publish the write failure count of its unsuccessful-outcome path.
 
 **Rationale:** The separate connection for unsuccessful records accepts a rare lost record when the process dies between the refusal and the write. Continuous loss is a defect, not bad luck, and only a published count separates the two. The deployment publishes that count so monitoring tells rarity from breakage.
@@ -312,6 +372,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#scope-every-record-to-its-tenant`
 
+**Strength:** rule
+
 **Statement:** An audit record describing an action inside tenant-owned data MUST carry the identity of that tenant.
 
 **Rationale:** The tenant is the filter for every read of the trail: each customer reads its own records and no one else's. A record without a tenant identity serves an internal reviewer and no customer. Scoping every record at write time keeps that filter exact.
@@ -321,6 +383,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 ### Enforce Append-Only Through Storage Privilege
 
 **ID:** `litespec/ext/audit#enforce-append-only-through-storage-privilege`
+
+**Strength:** rule
 
 **Statement:** An audit store MUST refuse update and delete through the privileges granted to the writing account.
 
@@ -333,6 +397,8 @@ A pseudonymous identifier is still personal data where the party holding it can 
 ### Provide Tamper Evidence
 
 **ID:** `litespec/ext/audit#provide-tamper-evidence`
+
+**Strength:** rule
 
 **Statement:** An audit store MUST chain each record to its predecessor with a SHA-256 hash over a canonical serialization of both.
 
@@ -348,6 +414,8 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#anchor-the-audit-chain-outside-its-own-store`
 
+**Strength:** advice
+
 **Statement:** An audit store SHOULD publish a periodic checkpoint of its chain head to a destination that the store's own operators cannot rewrite.
 
 **Deviation:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
@@ -362,6 +430,10 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** An audit deployment MUST verify its integrity chain on a recurring schedule and raise an alert on a break.
 
 **Rationale:** Tamper evidence nobody checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns the chain into a standing claim the deployment re-proves on each run. The alert carries the break to an operator instead of waiting for the next review.
@@ -371,6 +443,8 @@ The algorithm is named because two implementations that each choose their own ca
 ### Add a Correcting Record
 
 **ID:** `litespec/ext/audit#add-a-correcting-record`
+
+**Strength:** rule
 
 **Statement:** A correction to the trail MUST be a new record that references the earlier one.
 
@@ -382,6 +456,8 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#retain-each-category-for-its-declared-period`
 
+**Strength:** rule
+
 **Statement:** An audit deployment MUST delete a record after the retention period declared for its category.
 
 **Rationale:** Each category declares its retention in the adoption decision, and the deployment deletes records when that period ends. Deletion on schedule keeps retention defensible: kept data has a declared reason and nothing kept lacks one. An indefinite period is the hardest retention to defend and the easiest to correct at design time.
@@ -391,6 +467,8 @@ The algorithm is named because two implementations that each choose their own ca
 ### Remove the Identity Mapping on Erasure
 
 **ID:** `litespec/ext/audit#remove-the-identity-mapping-on-erasure`
+
+**Strength:** rule
 
 **Statement:** An erasure request MUST remove the mapping from actor identifier to person and retain every audit record.
 
@@ -402,6 +480,10 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#give-the-trail-a-read-path`
 
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
+
 **Statement:** An audited system MUST provide a trail read as a use case with its access grant, filtered by tenant, actor, action, target, and outcome.
 
 **Rationale:** A trail no use case reads is storage, not a control. The read path is a use case with its own access grant: the actor holds a role at a role scope, the role allows the permission, and the grant permits the read. Tenant, actor, action, target, and outcome filters keep each reader inside the records they may see.
@@ -411,6 +493,10 @@ The algorithm is named because two implementations that each choose their own ca
 ### Audit Reads of the Trail
 
 **ID:** `litespec/ext/audit#audit-reads-of-the-trail`
+
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
 
 **Statement:** A read of the audit trail MUST itself produce an audit record.
 
@@ -422,6 +508,10 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#record-personal-data-reads`
 
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
+
 **Statement:** A query returning personal data across a boundary MUST produce an audit record, defining the account boundary in the adoption decision where tenancy is absent.
 
 **Rationale:** A read changes no state and therefore leaves no other trace, so a disclosure without a record cannot be investigated. The audit record on a cross-boundary personal-data query states who read whose data and when. Where tenancy is absent, the adoption decision defines the account boundary the rule watches.
@@ -431,6 +521,10 @@ The algorithm is named because two implementations that each choose their own ca
 ### Record a Bulk Read Inside Its Own Boundary
 
 **ID:** `litespec/ext/audit#record-a-bulk-read-inside-its-own-boundary`
+
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
 
 **Statement:** A query returning personal data for more subjects than its declared threshold MUST produce an audit record, inside one tenant or account boundary as well.
 
@@ -444,6 +538,10 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#record-bulk-export`
 
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
+
 **Statement:** An export that returns a set of records to a caller MUST produce an audit record naming the requested scope.
 
 **Rationale:** Bulk extraction is the highest-consequence read in most products: one call moves a dataset across the boundary. Naming the requested scope states what left the system. Without it, the project learns the shape of a leak from the party that received it.
@@ -453,6 +551,8 @@ The algorithm is named because two implementations that each choose their own ca
 ### Reject an Undeclared Command
 
 **ID:** `litespec/ext/audit#reject-an-undeclared-command`
+
+**Strength:** rule
 
 **Statement:** An automated check MUST fail when a Command declares neither an audit position nor an exemption, with a composition refusal at startup satisfying this rule.
 
@@ -466,6 +566,8 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#keep-audit-infrastructure-in-one-location`
 
+**Strength:** default
+
 **Default:** Keep the audit record, its store, the producer, and the integrity job under `Infrastructure/Auditing/`.
 
 **Replacement:** A consumer records an audit-layout convention naming where its audit parts live.
@@ -477,6 +579,10 @@ The algorithm is named because two implementations that each choose their own ca
 ### Declare Audit Selection Beside the Command
 
 **ID:** `litespec/ext/audit#declare-audit-selection-beside-the-command`
+
+**Strength:** default
+
+**Applies to:** artifact: command-handler
 
 **Default:** Declare the action, target kind, category, and reason selector as an attribute on the Command type, beside the use-case `audit` field.
 
@@ -490,6 +596,8 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#use-a-fixed-category-vocabulary`
 
+**Strength:** default
+
 **Default:** Classify each audited action as `authentication`, `authorization-denial`, `grant-change`, `monetary-action`, `tenant-configuration`, `personal-data-read`, `bulk-export`, or `background-process-change`.
 
 **Replacement:** A consumer records a category convention naming the audit categories it uses.
@@ -502,6 +610,8 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#store-the-trail-beside-the-business-data`
 
+**Strength:** default
+
 **Default:** Store audit records in the business database, under a separate account holding `INSERT` and `SELECT` privileges.
 
 **Replacement:** A consumer records a trail-store convention naming where its audit records live.
@@ -513,6 +623,8 @@ The algorithm is named because two implementations that each choose their own ca
 ### Publish a Copy to the Security Platform
 
 **ID:** `litespec/ext/audit#publish-a-copy-to-the-security-platform`
+
+**Strength:** default
 
 **Default:** Publish a copy of each record to an external security platform through the outbox, and keep the local store authoritative.
 

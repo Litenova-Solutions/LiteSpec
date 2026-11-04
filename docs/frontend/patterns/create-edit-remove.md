@@ -1,5 +1,9 @@
 # Create, Edit and Remove Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 Staff create records such as expenses, trips, and fares, change them, and remove one or several, and this page shows the layout for each task as drawn options with a named default to build, including the special cases: draft-first creation, corrections to the past, duplicates, hand ordering, restoring archived work, invitations, publishing, and scheduled changes. The product owner chooses among the options when the team builds or revises a working screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they commit.
@@ -20,6 +24,8 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#confirm-or-undo-every-removal`
 
+**Strength:** rule
+
 **Statement:** Every removal MUST either offer undo or ask for confirmation before it runs.
 
 **Rationale:** Staff remove the wrong record by misreading a row or misclicking, and without a way back the record is gone. An undo toast restores a reversible removal in one click, while a confirmation dialog makes an irreversible removal a deliberate choice. Either way the reader gets a moment to catch the mistake before it becomes permanent.
@@ -29,6 +35,8 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 ### Show the Created Record
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#show-the-created-record`
+
+**Strength:** rule
 
 **Statement:** A successful create MUST take the reader to the created record or show it in place.
 
@@ -41,6 +49,8 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 ### Creating One Record
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#creating-one-record`
+
+**Strength:** default
 
 **Question:** Staff create records such as trips, reversals, and fares. A create with one to four inputs fits a dialog, and a longer one needs a page; a drawer never holds a create. The decision is which shape each create takes: dialog, page, template, copy, inline row, file import, steps, or a shortcut from elsewhere.
 
@@ -270,6 +280,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#changing-a-record-that-already-exists`
 
+**Strength:** default
+
 **Question:** Staff change records that already exist, from renaming a trip to raising a budget ceiling. The decision is how the edit commits: one save per page, one per section, inline in the list, in a dialog or side panel, with impact stated first, blocked with a way out, or saved automatically. The hazard to avoid is the reader who edits one section and saves another, believing both are saved.
 
 **Default:** `one-save-per-page`
@@ -464,6 +476,8 @@ page
 ### Removing Something
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#removing-something`
+
+**Strength:** default
 
 **Question:** Staff remove records that should no longer be active. The decision is which kind of removal each record gets: archive, delete, blocked removal with the blocker named, reversal for money, void for codes, suspend for running services, a thirty-day trash, or an undo toast. Archive is preferred over delete because it is reversible and keeps the audit trail.
 
@@ -668,6 +682,8 @@ page
 ### Removing Several at Once
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#removing-several-at-once`
+
+**Strength:** default
 
 **Question:** Staff remove or reverse several records at once. The count itself is the risk, so the reader checks how many records and how much money are involved before committing. The decision is how the confirmation carries that check for small and large selections.
 
@@ -878,6 +894,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#creating-a-record-and-then-filling-it-in`
 
+**Strength:** default
+
 **Question:** A new record such as a trip needs a name, a date, a site, a priced fare, and a cost centre before it can file, but staff may not know all five at once. The decision is how much a create requires up front and how the record gets finished: name-only draft, everything required, series defaults, checklist, wizard, nothing until publish, home-page guide, or point-of-use nudges.
 
 **Default:** `create-with-a-name-fill-the-rest-later`
@@ -1086,6 +1104,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#changing-something-that-has-already-happened`
 
+**Strength:** default
+
 **Question:** A record of what is true now cannot always be edited: an expense already paid must stay reconstructable for billing and audits. The decision is which shape each after-the-fact change takes: old value kept beside the new, refusal with the newer way named, dated correction, scheduled window, scoped change, reversal, version history, or two-person approval.
 
 **Default:** `the-old-value-stays-on-the-record-beside-the-new`
@@ -1276,6 +1296,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#duplicating-a-record`
 
+**Strength:** default
+
 **Question:** A duplicate is a create that starts from something. The copy carries the setup and never the history: ceilings and a trip plan travel, and expenses and money stay with the original.
 
 **Default:** `a-dialog-that-says-what-the-copy-carries`
@@ -1433,6 +1455,8 @@ page
 ### Putting a List in Order by Hand
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#putting-a-list-in-order-by-hand`
+
+**Strength:** default
 
 **Question:** Policies, plan entries, and portal sections all have an order the reader sets. The spender reads the order the reader left, so the control must work for a mouse, a keyboard, and a finger.
 
@@ -1596,6 +1620,8 @@ page
 ### Restoring an Archived Record
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#restoring-an-archived-record`
+
+**Strength:** default
 
 **Question:** Archive is only safe if restore works. A restore returns the record to where it was, with its history, and says so when something changed while it was away, such as a name taken since.
 
@@ -1763,6 +1789,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#inviting-a-team-member`
 
+**Strength:** default
+
 **Question:** Trip crew join per trip, and staff join per company. An invitation names the person, the role, and the scope before sending, because wrongly granted access must be found and removed later.
 
 **Default:** `invite-by-email-with-the-role-chosen-first`
@@ -1929,6 +1957,8 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-policy`
 
+**Strength:** default
+
 **Question:** A draft is private until spenders can see it. Publishing says what spenders will find, and unpublishing says what happens to what they found, because filed expenses outlive either command.
 
 **Default:** `publish-with-the-readiness-check-beside-it`
@@ -2092,6 +2122,8 @@ page
 ### Scheduling a Change for Later
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#scheduling-a-change-for-later`
+
+**Strength:** default
 
 **Question:** Ceilings, fees, and live windows change on fixed dates. A scheduled change names the value, the date, and the way to stop it, and the record shows both the current and the coming value until the date arrives.
 

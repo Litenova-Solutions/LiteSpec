@@ -1,5 +1,8 @@
 # .NET Stack
 
+**Stack:** dotnet
+**Layer:** records
+
 ## Intent
 
 A backend built on .NET declares the `dotnet` stack in `.litespec/project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
@@ -16,6 +19,8 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack`
 
+**Strength:** rule
+
 **Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.json`.
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
@@ -25,6 +30,8 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 ### Read .NET Code Through the Stack Reader
 
 **ID:** `litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader`
+
+**Strength:** rule
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
@@ -37,6 +44,8 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 ### Write Each Mark in the Declared Style
 
 **ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
+
+**Strength:** rule
 
 **Statement:** A .NET mark MUST be an `implements`, `proves`, or `follows` documentation tag when `marks` is `xml`, and an `Implements`, `Proves`, or `Follows` attribute when `marks` is `attribute`.
 
@@ -65,6 +74,8 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 
 **ID:** `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`
 
+**Strength:** rule
+
 **Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
 
 **Rationale:** The record states each identifier and refusal code once, so a second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record: the event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. Without the analyzer package, the value stays hand-written and the check compares it with the record.
@@ -84,6 +95,8 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records`
 
+**Strength:** rule
+
 **Statement:** Code MUST read a use case's identity, its grant, a permission's facts, and a role's permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.
 
 **Rationale:** Each of these facts is written once, on a record or in a mark, and a hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project: `LiteSpecRegistry` answers a message type's use case (`UseCaseOf`), a marked type's use case (`UseCaseOfType`), a message type's grant (`GrantOf`), and in an API project an operation name's use case (`UseCaseOfOperation`); `LiteSpecPermissions` holds one constant and one entry per `permission/` record; and `LiteSpecRoles` holds each role's scope and the permissions its record allows. A role that names a permission no record declares, and two records that generate one name, stop at build time.
@@ -96,6 +109,8 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types`
 
+**Strength:** rule
+
 **Statement:** A project that references the analyzer package MUST declare every marked domain event and rule exception as a `partial` type.
 
 **Rationale:** The source generator adds the runtime value as a second part of the type, and a type that is not `partial` cannot take one. The generator writes a value only where no member of that name is declared in source, so a hand-written value is compared with the record rather than duplicated. A code fix adds `partial` and deletes a hand-written value that equals the record.
@@ -107,6 +122,8 @@ The generated part holds `public const string Classification = "event/expense.su
 ### Write Test Results the Model Builder Reads
 
 **ID:** `litespec/backend/dotnet/stack#write-test-results-the-model-builder-reads`
+
+**Strength:** rule
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 

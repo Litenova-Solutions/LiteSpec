@@ -3,20 +3,20 @@ id: decision/0005-render-receipts-as-pdf
 title: Render Receipts as PDF
 summary: Finance keeps each receipt as a file next to the expense.
 options:
-  - name: PDF library
-    pros: Receipts download as files finance keeps.
-    cons: A new package to admit and update.
-  - name: HTML to PDF browser
-    pros: No new package lands.
-    cons: Rendering differs per browser and prints poorly.
+- name: PDF library
+  pros: Receipts download as files finance keeps.
+  cons: A new package to admit and update.
+- name: HTML to PDF browser
+  pros: No new package lands.
+  cons: Rendering differs per browser and prints poorly.
 choice: PDF library
 consequences: Each receipt downloads as a file finance keeps.
 reopenedWhen: Receipts stop needing a downloadable file, or the library stops fitting.
 admits:
-  - package: nuget:PdfSharp
-    layer: Infrastructure
-    license: MIT
-    location: in-process
-    failureBehavior: the receipt download fails and the expense stays readable
+- package: nuget:PdfSharp
+  layer: Infrastructure
+  license: MIT
+  location: in-process
+  failureBehavior: the receipt download fails and the expense stays readable
 basedOn:
-  - constraint/tax-receipt-retention
+- constraint/tax-receipt-retention

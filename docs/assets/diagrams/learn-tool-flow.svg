@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540" role="img" aria-labelledby="learn-tool-flow-title learn-tool-flow-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="learn-tool-flow-title">Where each tool runs in one change</title>
-  <desc id="learn-tool-flow-desc">One change runs seven steps in order: litespec init writes the project file once, you write the records, litespec consumer validates the project file and pages, you build the code while the analyzers flag slips, litespec model build and check computes the links and then the findings, the CI gates run for the changed areas, and litespec book reads the project as a site.</desc>
+  <desc id="learn-tool-flow-desc">One change runs seven steps in order: litespec init writes the project file once, you write the records, litespec model check validates the project file and pages, you build the code while the analyzers flag slips, litespec model check computes the links and then the findings, the CI gates run for the changed areas, and litespec book reads the project as a site.</desc>
   <defs>
     <marker id="learn-tool-flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -29,9 +29,9 @@
   <g style="fill: var(--fg, #19151c)" font-size="14" font-weight="600" text-anchor="middle">
     <text x="360" y="42">litespec init</text>
     <text x="360" y="112">Write the records</text>
-    <text x="360" y="182">litespec consumer</text>
+    <text x="360" y="182">litespec model check</text>
     <text x="360" y="252">Build the code</text>
-    <text x="360" y="322">litespec model build and check</text>
+    <text x="360" y="322">litespec model check</text>
     <text x="360" y="392">CI gates</text>
     <text x="360" y="462">litespec book</text>
   </g>

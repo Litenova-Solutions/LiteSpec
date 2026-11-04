@@ -162,7 +162,7 @@ public sealed class DotnetBackendReaderTests
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "Infra", "LoanRepository.cs", """
+        WriteSource(temp.Path, "Infrastructure", "LoanRepository.cs", """
             namespace Library.Infrastructure.Lending.Loans;
 
             public sealed class LoanRepository : ILoanRepository
@@ -236,7 +236,7 @@ public sealed class DotnetBackendReaderTests
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "application": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
             """);
 
     /// <summary>A Code Inside A Message Declares Nothing.</summary>

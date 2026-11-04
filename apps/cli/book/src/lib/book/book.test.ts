@@ -83,4 +83,11 @@ describe("book", () => {
     expect(book.view).toBe("security");
     expect(book.securityItems()).toEqual([]);
   });
+
+  it("shows both identifiers, the short one and the qualified one", async () => {
+    const book = await fixtureBook();
+    expect(book.qualifiedId("use-case/library.borrowing.borrow")).toBe("library/borrowing/use-case/borrow");
+    expect(book.qualifiedId("goal/faster-borrowing")).toBe("goal/faster-borrowing");
+    expect(book.qualifiedId("use-case/library.borrowing.borrow#s1")).toBe("library/borrowing/use-case/borrow");
+  });
 });

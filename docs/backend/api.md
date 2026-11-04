@@ -1,14 +1,17 @@
 # HTTP API
 
+**Stack:** any
+**Layer:** web-api
+
 ## Intent
 
-The WebApi project is the thin HTTP boundary of a LiteSpec backend: it converts each HTTP request into a message for the Application layer, dispatches it, and maps the result back to a stable HTTP response. This page states what one endpoint owns, how routes, errors, and collection paging behave, and how the OpenAPI contract, the machine-readable description of the API, is generated from the code. Keeping business rules, storage, and provider calls out of endpoints keeps HTTP replaceable transport, so the API evolves without touching business behavior.
+The WebApi layer is the thin HTTP boundary of a LiteSpec backend: it converts each HTTP request into a message for the Application layer, dispatches it, and maps the result back to a stable HTTP response. This page states what one endpoint owns, how routes, errors, and collection paging behave, and how the OpenAPI contract, the machine-readable description of the API, is generated from the code. Keeping business rules, storage, and provider calls out of endpoints keeps HTTP replaceable transport, so the API evolves without touching business behavior.
 
 ## Concepts
 
 ### Endpoints as Transport Adapters
 
-An endpoint does three things and nothing else: it converts HTTP input to an Application message, dispatches that message through its mediator, and maps the result to the HTTP response. One endpoint class serves one route operation. Business rules, persistence access, provider calls, and error mapping all live outside endpoints: the handler owns behavior, the guard owns target authorization, and one global handler owns error responses.
+An endpoint does three things and nothing else: it converts HTTP input to an Application message, dispatches that message through its mediator, and maps the result to the HTTP response. One endpoint class serves one route operation and sits in its use case folder, and the host maps the endpoints through the one public assembly marker. Business rules, persistence access, provider calls, and error mapping all live outside endpoints: the handler owns behavior, the guard owns target authorization, and one global handler owns error responses. The host also keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling, each carrying its mark.
 
 ### Errors as Problem Details
 
@@ -24,27 +27,39 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **ID:** `litespec/backend/api#map-one-operation-per-endpoint`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** An endpoint MUST map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
 **Rationale:** One endpoint class per route operation gives each route a single owner, so its input mapping, dispatch, and result mapping live in one place. An endpoint that served several operations would mix their mappings and force one class to change for unrelated routes.
 
 **Example:** At startup, the application discovers endpoint implementations, registers each one once, and maps them in deterministic name order. Discovery uses the platform's own reflection and dependency injection. It needs no separate scanning package.
 
-**Reviewed for:** Which mapped routes resolve outside one endpoint type with one mediator dispatch? Look at the route table in the WebApi project.
+**Reviewed for:** Which mapped routes resolve outside one endpoint type with one mediator dispatch? Look at the route table beside the use case folders.
 
 ### Keep Endpoint Dependencies Transport-Focused
 
 **ID:** `litespec/backend/api#keep-endpoint-dependencies-transport-focused`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** An endpoint MUST NOT take an aggregate repository, a persistence session or context, a provider client, or an application service.
 
 **Rationale:** An endpoint that took a repository, session, provider, or application service could reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; handlers take mediators and HTTP-boundary services such as an actor accessor.
 
-**Reviewed for:** Which endpoint constructors take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the WebApi project.
+**Reviewed for:** Which endpoint constructors take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the use case folders.
 
 ### Defer Error Mapping to the Global Handler
 
 **ID:** `litespec/backend/api#defer-error-mapping-to-the-global-handler`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** An endpoint MUST NOT catch a use-case failure, a domain failure, or a validation failure.
 
@@ -55,6 +70,10 @@ The OpenAPI document is generated from the code during the Release build, with n
 ### Apply Only Coarse Policies at the Endpoint
 
 **ID:** `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A WebApi endpoint MUST enforce only coarse authenticated, role, or scope policies, leaving target decisions to the application guard.
 
@@ -67,6 +86,8 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 ### Return Stable Problem Details
 
 **ID:** `litespec/backend/api#return-stable-problem-details`
+
+**Strength:** rule
 
 **Statement:** An error response MUST use [RFC 9457](https://datatracker.ietf.org/doc/html/rfc9457) Problem Details carrying a stable application `code`, the current `traceId`, and an `errors` entry for each field failure.
 
@@ -123,6 +144,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#use-consistent-status-codes`
 
+**Strength:** rule
+
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
 **Rationale:** A client branches on status before it reads a body, so a status that disagrees with the outcome table hides the real outcome. The stack derives the status from the use-case result: each success and refusal kind maps to exactly one status, with no recorded status on the record. The outcome table assigns each result its status once, and the operation returns exactly that status.
@@ -150,6 +173,10 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#bound-every-file-upload`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** A file upload operation MUST accept no file larger than the size its use-case record declares and no media type outside the media types its use-case record declares.
 
 **Rationale:** An upload without a declared size or media-type bound lets one caller send work the server never agreed to store or inspect. Declaring both bounds on the use-case record lets the server refuse an oversize file or an undeclared type before storage, and lets a reviewer see the limit beside the use case that owns the file.
@@ -161,6 +188,10 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 ### Prove Every Upload Type from Its Content
 
 **ID:** `litespec/backend/api#prove-every-upload-type-from-its-content`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A file upload operation MUST determine the file type from the file content rather than the media type or file name the client claims.
 
@@ -174,6 +205,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#store-every-upload-through-infrastructure`
 
+**Strength:** rule
+
 **Statement:** File storage for an upload MUST live in Infrastructure.
 
 **Rationale:** Storing a file is provider work, like storing an aggregate, so the endpoint stays a transport adapter and the handler stays on behavior. Infrastructure owns the storage provider, its configuration, and its errors, so a project can change where files live without touching an endpoint or a handler.
@@ -185,6 +218,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 ### Authorize Every File Download Through Its Owning Use Case
 
 **ID:** `litespec/backend/api#authorize-every-file-download-through-its-owning-use-case`
+
+**Strength:** rule
 
 **Statement:** A caller MUST reach a stored file only through a download use case authorized from the access that use case declares.
 
@@ -198,6 +233,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#require-the-marker-header-on-cookie-authenticated-writes`
 
+**Strength:** rule
+
 **Statement:** The API MUST refuse a cookie-authenticated write without the project's marker header.
 
 **Rationale:** Cookies travel with every request, including ones a malicious page triggers, so a cookie-authenticated write needs proof the project's own page sent it. A page on another site adds no custom header, so the header's absence exposes a cross-site forgery. A write is any request other than GET, HEAD, or OPTIONS. The header takes the form `X-<Project>-Request: 1`, with the exact name set in project configuration.
@@ -210,61 +247,41 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#keep-routes-resource-oriented`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** A route MUST use lowercase plural resource segments, kebab-case subresources, route parameters for identity, query parameters for filtering, and the body for command data.
 
-**Rationale:** A predictable route shape lets a caller derive an unfamiliar operation from a familiar one: plural resource segments, kebab-case subresources, route parameters for identity, query parameters for filtering, and command data in the body. A route that encoded actions or identities anywhere else would force the caller to read each route's documentation.
+**Rationale:** A predictable route shape lets a caller derive an unfamiliar operation from a familiar one: plural resource segments, kebab-case subresources, route parameters for identity, query parameters for filtering, and command data in the body. A route that encoded actions or identities anywhere else would force the caller to read each route's documentation. For a transition beyond the five verbs, [AIP-136](https://google.aip.dev/136) defines the custom-method form.
 
 **Example:** A route carries the authenticated actor identifier only when that actor is intentionally addressing another actor as a resource.
 
 **Reviewed for:** Which routes break the plural segments, kebab-case subresources, identity parameters, filter queries, or body command data? Look at the route table entries.
 
-### State an Unexpressible Transition as a Custom Method
-
-**ID:** `litespec/backend/api#state-an-unexpressible-transition-as-a-custom-method`
-
-**Statement:** A WebApi route MUST express a state transition the five HTTP verbs cannot carry as a POST custom method ending in a colon-suffixed verb.
-
-**Rationale:** Some transitions fit no standard verb, and stuffing them into one overloads its meaning. The custom-method form marks the final segment as a command rather than a nested resource: a path segment names a resource, while a state-noun segment such as `/closure` and a bare verb segment such as `/abandon` both encode the action without predicting each other. [AIP-136](https://google.aip.dev/136) defines this form.
-
-**Example:**
-
-```text
-POST /api/shipments/{shipmentId}:cancel
-POST /api/merchants/{merchantId}:close
-POST /api/orders/{orderId}/refund-requests/{refundId}:decide
-```
-
-The `operationId` keeps its verb-noun form, so `CancelShipment` names the same transition the path states.
-
-**Reviewed for:** Which transitions beyond the five verbs escape the POST custom method with a colon-suffixed verb? Look at the route table.
-
 ### Apply PATCH to a Partial Update
 
 **ID:** `litespec/backend/api#apply-patch-to-a-partial-update`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A WebApi operation MUST apply a partial update with PATCH and the `application/merge-patch+json` media type.
 
 **Rationale:** A partial update names only the fields it changes. Sending them with PATCH and the merge-patch media type gives those semantics a standard meaning; a PUT body for a partial change either repeats fields the caller does not change or invents merge semantics per field. [RFC 5789](https://datatracker.ietf.org/doc/html/rfc5789) defines PATCH and [RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386) defines the merge-patch media type.
 
-**Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT keeps replacing the whole resource, and DELETE stays a hard-state transition.
+**Example:** A partial update sends only the changed members with `Content-Type: application/merge-patch+json`, and the endpoint reads the body as a sparse patch. A PUT keeps replacing the whole resource ([RFC 9110 section 9.3.4](https://datatracker.ietf.org/doc/html/rfc9110#section-9.3.4)), and DELETE stays a hard-state transition.
 
 **Reviewed for:** Which partial updates arrive outside PATCH with the merge-patch media type? Look at the partial update requests.
-
-### Use PUT for a Whole Replacement
-
-**ID:** `litespec/backend/api#use-put-for-a-whole-replacement`
-
-**Statement:** A PUT operation MUST replace the whole resource or sub-resource its path names.
-
-**Rationale:** Whole replacement gives PUT one predictable meaning: the body becomes the resource, and an omitted member removes its value. A PUT body carrying a subset forces the server to choose between dropping omitted members and inventing per-field merges. Partial changes use PATCH instead, under `litespec/backend/api#apply-patch-to-a-partial-update`.
-
-**Example:** A whole replacement sends every editable member, and an omitted member removes its value rather than keeping the stored one.
-
-**Reviewed for:** Which PUT requests keep omitted members instead of removing them? Look at the PUT handlers.
 
 ### Bound Collection Queries
 
 **ID:** `litespec/backend/api#bound-collection-queries`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A collection endpoint MUST apply deterministic ordering, its record's declared default limit, and its record's declared maximum limit of 100 or lower.
 
@@ -289,6 +306,10 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **ID:** `litespec/backend/api#use-opaque-cursors-for-collection-paging`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** A collection endpoint MUST page with an opaque cursor and refuse a malformed cursor with 400 and code `invalid-cursor`.
 
 **Rationale:** A cursor that exposed offsets or internals lets callers craft requests against storage details and breaks when those details change. An opaque cursor keeps paging state server-defined, and the endpoint treats it as untrusted input: a malformed cursor, or an unsupported cursor version, answers 400 with code `invalid-cursor`.
@@ -298,6 +319,10 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 ### Version Cursors with Stable Sort Values
 
 **ID:** `litespec/backend/api#version-cursors-with-stable-sort-values`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A paging cursor MUST carry a version and the last stable sort values, including a unique tie-breaker, and no sensitive value in readable form.
 
@@ -309,7 +334,9 @@ The `operationId` keeps its verb-noun form, so `CancelShipment` names the same t
 
 **ID:** `litespec/backend/api#treat-openapi-as-a-generated-contract`
 
-**Statement:** A WebApi project MUST generate its OpenAPI document during the Release build.
+**Strength:** rule
+
+**Statement:** An application MUST generate its OpenAPI document during the Release build.
 
 **Rationale:** A handwritten contract drifts from the code it describes with the first unmirrored change. Generating the document during the Release build keeps the contract a function of the code, so the file the pinned generator reads stays current.
 
@@ -332,6 +359,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`
 
+**Strength:** rule
+
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and a summary.
 
 **Rationale:** Generated clients name their methods from `operationId`, so an unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.
@@ -341,6 +370,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 ### Name the Use Case on Every Published Operation
 
 **ID:** `litespec/backend/api#name-the-use-case-on-every-published-operation`
+
+**Strength:** rule
 
 **Statement:** Every operation in the generated contract MUST carry `x-litespec-use-case` naming the use case its endpoint implements.
 
@@ -354,7 +385,9 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#commit-the-generated-contract-its-consumers-read`
 
-**Statement:** A WebApi project MUST commit its generated OpenAPI artifact when a frontend or external consumer reads it.
+**Strength:** rule
+
+**Statement:** An application MUST commit its generated OpenAPI artifact when a frontend or external consumer reads it.
 
 **Rationale:** A committed artifact makes every contract change visible in review and lets CI fail when the document was not regenerated. Without the committed file, a breaking contract change hides inside a code change. Consumers read the artifact through the generated client, model, schema, and query-option packages.
 
@@ -363,6 +396,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 ### Reflect Enforced Authentication in the Contract
 
 **ID:** `litespec/backend/api#reflect-enforced-authentication-in-the-contract`
+
+**Strength:** rule
 
 **Statement:** A generated OpenAPI document MUST declare the security scheme and per-operation security requirement for every endpoint that enforces authentication.
 
@@ -375,6 +410,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 ### Publish Precise, Complete Schemas
 
 **ID:** `litespec/backend/api#publish-precise-complete-schemas`
+
+**Strength:** rule
 
 **Statement:** A generated schema MUST declare the closed value set, bounds, format, and required control headers of each field and parameter it describes.
 
@@ -390,7 +427,9 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#expose-development-tooling-in-development-only`
 
-**Statement:** A WebApi project MUST map its API exploration and diagnostic endpoints only when the host runs in the Development environment.
+**Strength:** rule
+
+**Statement:** An application MUST map its API exploration and diagnostic endpoints only when the host runs in the Development environment.
 
 **Rationale:** Development tooling exposes the full API surface for exploration, which is what development needs and what a hosted environment leaves unoffered. Mapping it in Development only keeps exploration local while hosted environments serve only the API.
 
@@ -399,6 +438,8 @@ An operation requiring a control header declares it as a required parameter, for
 ### Mirror a Domain Closed Set as a Transport Model of the Same Shape
 
 **ID:** `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`
+
+**Strength:** rule
 
 **Statement:** A WebApi transport model for a Domain closed set MUST preserve the shape of that set.
 
@@ -412,6 +453,8 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#publish-label-only-sets-as-string-enums`
 
+**Strength:** rule
+
 **Statement:** A transport model for a label-only set MUST publish its values as an OpenAPI string `enum`.
 
 **Rationale:** A label-only set carries no case data, so its labels are the complete contract and a string enum carries them exactly. The permission to use a plain enum for this one situation lives in `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`.
@@ -421,6 +464,8 @@ An operation requiring a control header declares it as a required parameter, for
 ### Mark Polymorphic Models with Discriminators
 
 **ID:** `litespec/backend/api#mark-polymorphic-models-with-discriminators`
+
+**Strength:** rule
 
 **Statement:** A data-bearing set MUST map to a polymorphic model with one case per variant, published as `oneOf` with a string discriminator.
 
@@ -440,6 +485,8 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#reject-a-collapsed-or-borrowed-wire-contract`
 
+**Strength:** rule
+
 **Statement:** A WebApi transport model MUST NOT collapse a data-bearing set into an `enum` or reuse a Domain or Application type as the wire contract.
 
 **Rationale:** Collapsing a data-bearing set into an enum discards the data that distinguishes its cases, and reusing a Domain or Application type as the wire contract couples the public contract to inner shapes. Each layer owns its own contract type per `litespec/backend/architecture#own-each-layers-contract-types`, so the wire contract is always a dedicated transport model. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`.
@@ -449,6 +496,8 @@ An operation requiring a control header declares it as a required parameter, for
 ### Keep One Name for a Use Case Across Layers
 
 **ID:** `litespec/backend/api#keep-one-name-for-a-use-case-across-layers`
+
+**Strength:** rule
 
 **Statement:** Each use case MUST carry its name unchanged in its message type, operation id, and audit action.
 
@@ -464,37 +513,41 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#use-this-endpoint-layout`
 
-**Default:** Group endpoint folders by module, then aggregate, then use case, following `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
+**Strength:** default
+
+**Applies to:** artifact: endpoint
+
+**Default:** Place each endpoint with its request and response models in its use case folder, shared transport types in the node `WebApi/` folders, and host-only endpoints in the host.
 
 **Replacement:** A project names its endpoint layout in its backend documentation.
 
-**Rationale:** Grouping endpoint folders by module, aggregate, and use case makes the folder path match the specification path. A reader locates an operation from its use-case identifier without searching.
+**Rationale:** An endpoint in its use case folder makes the folder path match the specification path. A reader locates an operation from its use-case identifier without searching. Transport types used by use cases of two or more aggregates sit in the module or aggregate `WebApi/` folder, while the host keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling.
 
-**Example:** The endpoint folders group by module, aggregate, and use case:
+**Example:** The endpoints sit in their use case folders:
 
 ```text
-WebApi/
-  Endpoints/
-    Posts/                          single aggregate whose name matches the module
-      CreateDraft/
-      GetPost/
-    Customers/                      two aggregates: operations nest under each aggregate
-      CustomerAccounts/
-        RestrictAccount/
-      Consents/
-        GrantConsent/
-  Errors/
-  Security/
-  OpenApi/
+{Product}/
+  Posts/                            single aggregate whose name matches the module
+    WebApi/                         transport types used by two or more Posts use cases
+    CreateDraft/                    endpoint, request model, and response model beside the handler
+    GetPost/
+  Customers/                        two aggregates: operations nest under each aggregate
+    CustomerAccounts/
+      WebApi/                       transport types used by two or more CustomerAccounts use cases
+      RestrictAccount/
+    Consents/
+      GrantConsent/
 ```
 
-Module nesting, including the single-aggregate flat form, follows the cited folder rule.
+Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-**Reviewed for:** Which endpoint folders break the module, aggregate, and use case grouping? Look at the endpoint folders.
+**Reviewed for:** Which endpoints sit outside their use case folder or the host, or which shared transport types sit outside the node `WebApi/` folders? Look at the endpoints beside the use case folders.
 
 ### Name Transport Types by Their Boundary Role
 
 **ID:** `litespec/backend/api#name-transport-types-by-their-boundary-role`
+
+**Strength:** default
 
 **Default:** Transport types take the names the suffix table assigns their roles.
 
@@ -509,6 +562,10 @@ Module nesting, including the single-aggregate flat form, follows the cited fold
 ### Name Routes from Resources
 
 **ID:** `litespec/backend/api#name-routes-from-resources`
+
+**Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Derive each route from its resource and subresource, and use an action segment only when the operation maps to neither.
 
@@ -531,6 +588,10 @@ GET    /api/posts?after={cursor}&limit=20
 
 **ID:** `litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb`
 
+**Strength:** default
+
+**Applies to:** artifact: endpoint
+
 **Default:** A command route carries the aggregate plural, and a custom action ends with the use-case verb as its last segment; a POST to the collection, a PUT, PATCH or DELETE on one resource, and a verb the HTTP method already says (POST for create, add and register; PUT or PATCH for change; DELETE for remove) keep the plain resource route.
 
 **Replacement:** A project names its route shape in its backend documentation.
@@ -550,6 +611,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#keep-numeric-transport-types-precise`
 
+**Strength:** default
+
 **Default:** Emit a plain numeric schema for an `int32` or `double` field, and reserve a string-or-number union for `int64` values beyond the JSON safe integer range.
 
 **Replacement:** A project names its numeric wire shapes in its backend documentation.
@@ -561,6 +624,8 @@ POST   /api/holds/{holdId}/cancel
 ### Model a Monetary Value as One Object
 
 **ID:** `litespec/backend/api#model-a-monetary-value-as-one-object`
+
+**Strength:** default
 
 **Default:** Carry a monetary value as one `Money` object in a response model and in a request where the caller chooses the currency.
 
@@ -576,6 +641,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#name-boolean-fields-as-conditions`
 
+**Strength:** default
+
 **Default:** Boolean fields use the same condition names as code, in camel case.
 
 **Replacement:** A project names its boolean wire shape in its backend documentation.
@@ -589,6 +656,8 @@ POST   /api/holds/{holdId}/cancel
 ### Name Time Fields with At
 
 **ID:** `litespec/backend/api#name-time-fields-with-at`
+
+**Strength:** default
 
 **Default:** Time fields end in `At`, following [AIP-142](https://google.aip.dev/142).
 
@@ -604,6 +673,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#use-standard-field-vocabulary`
 
+**Strength:** default
+
 **Default:** Field names use `created` over `placed`, `languageTag` over `locale`, and `displayName` over `keyName`.
 
 **Replacement:** A project names its field vocabulary in its backend documentation.
@@ -618,6 +689,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#name-failure-pairs-code-and-reason`
 
+**Strength:** default
+
 **Default:** A request body names a failure with `code` for the class and `reason` for the explanation.
 
 **Replacement:** A project names its failure pair shape in its backend documentation.
@@ -629,6 +702,10 @@ POST   /api/holds/{holdId}/cancel
 ### Name Path Parameters per Resource
 
 **ID:** `litespec/backend/api#name-path-parameters-per-resource`
+
+**Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Each path parameter names its own resource identity, and a `details` segment takes the aggregate name.
 
@@ -644,6 +721,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#avoid-noise-words-in-field-names`
 
+**Strength:** default
+
 **Default:** Field names carry no type prefix and no noise word.
 
 **Replacement:** A project names its field name rules in its backend documentation.
@@ -658,6 +737,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#declare-a-smaller-collection-maximum`
 
+**Strength:** default
+
 **Default:** A use case with stricter needs declares its smaller maximum in its record's `paging` and states the reason on its use-case record.
 
 **Replacement:** A project names its collection limit shape in its backend documentation.
@@ -670,6 +751,8 @@ POST   /api/holds/{holdId}/cancel
 
 **ID:** `litespec/backend/api#use-offsets-for-proven-bounded-datasets`
 
+**Strength:** default
+
 **Default:** A collection over a proven bounded dataset declares offset paging in its record while the public contract stays cursor-shaped.
 
 **Replacement:** A project names its paging shape in its backend documentation.
@@ -681,6 +764,8 @@ POST   /api/holds/{holdId}/cancel
 ### Generate the Contract Without Hosted Dependencies
 
 **ID:** `litespec/backend/api#generate-the-contract-without-hosted-dependencies`
+
+**Strength:** default
 
 **Default:** The generation run contacts no hosted dependency and runs no schema change, and the project records its chosen answer.
 

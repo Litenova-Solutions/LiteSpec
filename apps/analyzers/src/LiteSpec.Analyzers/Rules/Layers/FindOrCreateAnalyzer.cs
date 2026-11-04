@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -20,7 +21,7 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2014);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
@@ -30,13 +31,22 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     ///     context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterOperationBlockAction(AnalyzeBlock);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterOperationBlockAction(c => AnalyzeBlock(c, scope));
+    }
 
     /// <summary>Analyzes the block.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeBlock(OperationBlockAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeBlock(OperationBlockAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.OwningSymbol))
+        {
+            return;
+        }
+
         if (context.OwningSymbol is not IMethodSymbol method)
         {
             return;

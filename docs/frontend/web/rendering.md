@@ -1,121 +1,38 @@
 # Web Rendering and Routes
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
-A route in a TypeScript web frontend prefetches its reads in a loader, declares its search parameters in a schema, and reads through the query cache. This page states how the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) follow the rendering rules in [Frontend Rendering and Routes](../rendering.md): loaders, suspense reads, validated search, chunk splitting, intent preloading, metadata, caching, proxies, and the per-request server cache. A team that applies it while writing routes keeps every navigation fast, shareable, and free of stale or cross-actor data.
+A route in a TypeScript web frontend carries metadata deciding how links and search meet it. This page states the metadata rule the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) add to the rendering rules in [Frontend Rendering and Routes](../rendering.md). A team that applies it while writing routes keeps every public route linkable and every private route out of search.
 
-Rules with no neutral counterpart bind the web stacks alone.
+## Concepts
+
+### Rules Kept on the Base Page
+
+The rendering rules for loaders, suspense reads, search schemas, chunk splits, intent preloading, authenticated caching, proxies, the server cache, and shells live on [Frontend Rendering and Routes](../rendering.md). The web stacks add only the metadata rule this page states.
+
+- Loader prefetch: `litespec/frontend/rendering#load-route-data-before-rendering`
+- Suspense read: `litespec/frontend/rendering#read-route-data-from-the-route-cache`
+- Search schema: `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema`
+- Chunk split: `litespec/frontend/rendering#load-each-route-and-each-language-separately`
+- Intent preload: `litespec/frontend/rendering#prefetch-a-route-on-intent`
+- Authenticated caching: `litespec/frontend/rendering#keep-authenticated-caching-explicit`
+- Proxy behavior: `litespec/frontend/rendering#keep-proxy-behavior-at-the-edge`
+- Server cache: `litespec/frontend/rendering#build-the-server-data-cache-per-request`
+- Shell layout: `litespec/frontend/rendering#use-a-shared-layout-for-a-shell`
 
 ## Standards
-
-### Load Route Data in the Loader
-
-**ID:** `litespec/frontend/web/rendering#load-route-data-in-the-loader`
-
-**Statement:** A route's loader MUST prefetch each read it needs through the query cache before the component runs.
-
-**Rationale:** A loader that prefetches each read through the query cache lets the page render with its data instead of appearing first and spinning after. The cache owns freshness, so the router holds no second copy that could disagree with it. This realizes litespec/frontend/rendering#load-route-data-before-rendering.
-
-**Example:** An entity route prefetches its record and every read the record's own sections need.
-
-```tsx
-loader: async ({ context, params }) => {
-  const expense = await context.queryClient.ensureQueryData(expenseQuery(params.expenseId));
-
-  if (expense.spenderId !== null) {
-    await context.queryClient.ensureQueryData(spenderQuery(expense.spenderId));
-  }
-}
-```
-
-The Svelte load does the same:
-
-```ts
-export async function load({ parent, params }) {
-  const { queryClient } = await parent();
-  const expense = await queryClient.ensureQueryData(expenseQuery(params.expenseId));
-
-  if (expense.spenderId !== null) {
-    await queryClient.ensureQueryData(spenderQuery(expense.spenderId));
-  }
-
-  return { expenseId: params.expenseId };
-}
-```
-
-**Reviewed for:** Which routes that read declare no loader prefetching those reads through the query cache? Look in the route loaders.
-
-### Read Route Data with a Suspense Query
-
-**ID:** `litespec/frontend/web/rendering#read-route-data-with-a-suspense-query`
-
-**Statement:** A component MUST read route data with a suspense query over the same cache key its loader filled.
-
-**Rationale:** The loader filled one cache key, and the component reads that same key. A read naming another key issues a second request, and the two answers can disagree. A failed read reaches the route's error boundary, which draws the shared problem state instead of a half-rendered page. This realizes litespec/frontend/rendering#read-route-data-from-the-route-cache.
-
-**Example:**
-
-React:
-
-```tsx
-const { data: expense } = useSuspenseQuery(expenseQuery(expenseId));
-```
-
-Svelte:
-
-```ts
-const expense = createQuery(() => expenseQuery(expenseId));
-```
-
-**Reviewed for:** Which component reads name another key than the one their loader filled? Look in the component reads beside the loaders.
-
-### Keep Search Parameters Validated by a Schema
-
-**ID:** `litespec/frontend/web/rendering#keep-search-parameters-validated-by-a-schema`
-
-**Statement:** A route MUST declare its search parameters in a validated schema, including its filters and its page.
-
-**Rationale:** A filter declared in a schema makes the filtered list a link: shareable, bookmarkable, reopenable. The same filter in component state reaches nobody and is lost on the first navigation away. Validation keeps a hand-edited address from reaching the page as values the page cannot interpret. This realizes litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema.
-
-**Example:** The list schema declares its own text field and spreads the shared paging fields.
-
-```tsx
-validateSearch: z.object({ q: z.string().trim().catch("").default(""), ...pagingSearch }),
-```
-
-The Svelte page parses the same shape from the address:
-
-```ts
-const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
-```
-
-**Reviewed for:** Which routes leave search parameters outside a validated schema, and which components read the address directly? Look in the route schemas and the component sources.
-
-### Split One Chunk per Route and per Language
-
-**ID:** `litespec/frontend/web/rendering#split-one-chunk-per-route-and-per-language`
-
-**Statement:** A frontend MUST load each route and each language as its own chunk, with no icon set or language imported whole.
-
-**Rationale:** A signed-in user opens one address and reads one language, so the download should match: one chunk per route and one per language, with no icon set or language imported whole. Anything more makes a reader wait for code and words they will never see, like a Dutch reader downloading English for a dashboard they never leave. This realizes litespec/frontend/rendering#load-each-route-and-each-language-separately.
-
-**Example:** `loadDictionary` returns a dynamic import of one language. The React router plugin splits each route file, and SvelteKit splits each route folder.
-
-**Checked by:** `pnpm build` reports one output chunk per route and one per language, with no icon set or language imported whole.
-
-### Load a Route on Intent
-
-**ID:** `litespec/frontend/web/rendering#load-a-route-on-intent`
-
-**Statement:** A frontend MUST prefetch the route a pointer is over, and never treat that prefetch as a cache beyond the query cache.
-
-**Rationale:** Prefetching the route a pointer is over fills the query cache before the click, so most navigations render from data already held. The prefetch holds nothing beyond the query cache: two caches serve a stale answer beside a fresh one with no error anywhere. This realizes litespec/frontend/rendering#prefetch-a-route-on-intent.
-
-**Reviewed for:** Which routers skip preloading the route a pointer is over, or hold a cache beyond the query cache? Look in the router prefetch wiring.
 
 ### Define Route Metadata Deliberately
 
 **ID:** `litespec/frontend/web/rendering#define-route-metadata-deliberately`
+
+**Strength:** rule
+
+**Applies to:** artifact: route
 
 **Statement:** A public route MUST define its title, its description, its canonical address, and its indexing policy, while a private route refuses indexing.
 
@@ -125,78 +42,6 @@ const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 
 **Reviewed for:** Which public routes miss a title, description, canonical address, or indexing policy, and which private routes miss a `noindex` marker? Look in the route metadata.
 
-### Keep Authenticated Caching Explicit
-
-**ID:** `litespec/frontend/web/rendering#keep-authenticated-caching-explicit`
-
-**Statement:** Actor-specific data MUST declare its cache key, partition, invalidation owner, and security review before caching, beside the query definition setting the key.
-
-**Rationale:** A cache that outlives its actor serves one reader's data to another, so actor-specific data stays uncached until its cache key, partition, invalidation owner, and security review are declared beside the query definition that sets the key. A cache partitioned per request is the safe server shape, and an uncached read is the safe default. This realizes litespec/frontend/rendering#keep-authenticated-caching-explicit.
-
-**Reviewed for:** Which cached actor-specific reads lack a declared cache key, partition, invalidation owner, or security review beside their query definition? Look in the query definitions setting cache keys.
-
-### Keep Proxy Behavior at the Edge
-
-**ID:** `litespec/frontend/web/rendering#keep-proxy-behavior-at-the-edge`
-
-**Statement:** A development or edge proxy rule MUST route only, and never decide who the actor is or what the actor may read.
-
-**Rationale:** A development or edge proxy runs before the request reaches the API, so it cannot see the resource authorization depends on; any identity or permission decision it made would rest on missing facts. It routes only. Forwarding the API's own paths gives the browser one origin, which makes an HTTP-only session cookie a first-party cookie of the page. This realizes litespec/frontend/rendering#keep-proxy-behavior-at-the-edge.
-
-**Example:** A development proxy forwards `/api` and `/auth` to the API and changes nothing else.
-
-**Reviewed for:** Which development or edge proxy rules decide the actor or what the actor may read instead of routing only? Look in the proxy rules.
-
-### Build the Server Query Cache per Request
-
-**ID:** `litespec/frontend/web/rendering#build-the-server-query-cache-per-request`
-
-**Statement:** A server-rendered frontend MUST construct its query cache inside each request.
-
-**Rationale:** A server renders for many readers at once. A query cache built inside each request dies with its reader, so no reader sees another's data. A cache outliving one request would serve the next reader the previous reader's answer. This realizes litespec/frontend/rendering#build-the-server-data-cache-per-request.
-
-**Reviewed for:** Which server-rendered frontends construct their query cache outside a single request? Look in the request factory at the query client construction.
-
 ## Conventions
 
-### Use a Pathless Layout Route for a Shell
-
-**ID:** `litespec/frontend/web/rendering#use-a-pathless-layout-route-for-a-shell`
-
-**Default:** Give a shell a layout holding the frame every child route shares.
-
-**Replacement:** A consumer can replace this default with an explicit local convention.
-
-**Rationale:** A shell is the frame every child route shares, and a layout holds it without adding an address segment. The shell then never appears in a link, and every child route inherits the same frame. This realizes litespec/frontend/rendering#use-a-shared-layout-for-a-shell.
-
-**Reviewed for:** Which shells sit outside a shared layout holding the frame every child route shares? Look in the layout definitions.
-
-## Reference Example
-
-This informative example demonstrates `litespec/frontend/web/rendering#load-route-data-in-the-loader`, `litespec/frontend/web/rendering#keep-search-parameters-validated-by-a-schema`, and `litespec/frontend/web/rendering#read-route-data-with-a-suspense-query`.
-
-```tsx
-/**
- * Find any paid expense, for any spender, newest first.
- */
-export const Route = createFileRoute("/_console/expenses/")({
-  validateSearch: z.object({ q: z.string().trim().catch("").default(""), ...pagingSearch }),
-  loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(spenderExpensesQuery(deps.q, deps.page)),
-  component: ExpensesPage,
-});
-```
-
-The Svelte page does the same in its load:
-
-```svelte
-<script lang="ts">
-  import ExpensesPage from '#lib/modules/expenses/expenses/search-spender-expenses/expenses-page.svelte';
-
-  let { data } = $props();
-</script>
-
-<ExpensesPage search={data.search} />
-```
-
-The route resolves its input from the address, prefetches its reads, and composes the floorplan from module components. The query definition owns the typed call and the table owns its columns. The generated client calls in the route code are what link the route to its use cases.
+None.

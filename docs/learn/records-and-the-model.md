@@ -65,18 +65,18 @@ Each type has one home in the repository. Intent reads module, then feature, the
 
 ## How to Write a Feature Under a Module
 
-A feature lives in its module's folder and holds its requirements as entries. The Claimwick feature that carries the receipt rule lives at `.litespec/intent/modules/spending/features/approval.yaml`:
+A feature lives in its module's folder and holds its requirements as entries. The Claimwick feature that carries the receipt rule lives at `.litespec/intent/modules/spending/features/approval-reminders.yaml`:
 
 ```yaml
 type: feature
-id: feature/spending.approval
+id: feature/approval-reminders
 title: Expense Approval
 summary: Employees submit expenses and approvers decide them.
 solves:
   - problem/waiting-for-reimbursement
 records:
   - type: requirement
-    id: requirement/approval.receipt-over-threshold
+    id: requirement/approval-reminders.receipt-over-threshold
     title: Receipt over Threshold
     statement: An expense above the receipt threshold carries a receipt.
 ```

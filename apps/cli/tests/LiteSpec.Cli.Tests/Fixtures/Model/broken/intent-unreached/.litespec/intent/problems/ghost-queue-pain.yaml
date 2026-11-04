@@ -1,0 +1,12 @@
+type: problem
+id: problem/ghost-queue-pain
+title: Ghost queue pain
+affects:
+  - actor/reader
+summary: A ghost reader waits in a ghost queue past the pickup window and misses the hold.
+statement: Ghost readers miss pickup windows in ghost queues.
+evidence:
+  - claim: Ghost readers wait in ghost queues past pickup windows.
+    source: https://example.org/library/ghost-log
+    readOn: 2026-10-01
+    kind: reported

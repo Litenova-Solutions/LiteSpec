@@ -1,5 +1,9 @@
 # Persistence
 
+**Stack:** any
+
+**Layer:** infrastructure
+
 ## Intent
 
 Commands change aggregates and queries read them, with neither touching the database directly: repositories stage writes, the read session serves queries, and one post-handler commits each command. This page states that boundary, the transaction shape, and the obligations on stored data. One explicit boundary keeps storage decisions reviewable in Infrastructure instead of scattered through handlers.
@@ -10,7 +14,7 @@ Commands change aggregates and queries read them, with neither touching the data
 
 A command handler reaches persistence only through Domain repositories. It loads aggregates through their Domain repositories, calls Domain behavior, and stages the changed aggregates back through those repositories. Exactly one command post-handler then commits the scoped session. A query handler projects its result through the read session instead of loading an aggregate, with filtering, scope, ordering, and limit applied before materialization.
 
-In the Claimwick product, `use-case/spending.submit-expense` stages the new expense through its repository, and one post-handler commits once after the handler returns. A failed submission leaves the session uncommitted, so no partial expense is stored.
+In the Claimwick product, `use-case/spending.submit-expense` stages the new expense through its repository, and one post-handler commits once after the handler returns. A failed submission leaves the session uncommitted, so no partial expense is stored. One store stays the default, configured in the product-level `Infrastructure/` folder, while each module's mappings and repositories live in its own `Infrastructure/` folders.
 
 ### Consistency Modes
 
@@ -34,6 +38,10 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** A command handler MUST reach persistence only through a Domain repository, never through the session directly.
 
 **Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the scoped session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
@@ -44,6 +52,10 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#query-through-the-read-session`
 
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
+
 **Statement:** A query handler MUST project through the read session, applying filter, scope, ordering, and limit before materialization.
 
 **Rationale:** The session already projects, filters, and pages, so a read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that only repeats it. Applying filter, scope, ordering, and limit before materialization keeps that work in the database; materializing first loads rows the caller does not see. Ordering and paging follow `litespec/backend/api#bound-collection-queries`.
@@ -53,6 +65,8 @@ The manifest pins both providers' packages, because the extension is part of thi
 ### Commit Each Command Pipeline Once
 
 **ID:** `litespec/backend/persistence#commit-each-command-pipeline-once`
+
+**Strength:** rule
 
 **Statement:** Exactly one global command post-handler MUST commit the session for a command pipeline.
 
@@ -74,6 +88,8 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#honor-the-declared-consistency-mode`
 
+**Strength:** rule
+
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
 **Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the job resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
@@ -86,6 +102,8 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`
 
+**Strength:** rule
+
 **Statement:** A repository MUST register each touched aggregate with the internal scoped event buffer that the post-handler drains.
 
 **Rationale:** Pending events leave the process exactly when their write commits, so the post-handler drains the buffer and commits in one place. A public unit-of-work type exposes that mechanics to every handler; the internal buffer keeps it inside the pipeline. Async delivery leaves after the commit succeeds.
@@ -96,6 +114,10 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#keep-mappings-and-aliases-explicit`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** Each stored aggregate MUST declare a stable document alias, typed-identifier mapping, and the indexes its accepted queries need.
 
 **Rationale:** Document types and collection names are storage identity: if they followed code names, renaming a class orphans every stored document. An explicit alias, identifier mapping, and index list keeps storage identity independent of code names, with the store configuration owned in Infrastructure.
@@ -105,6 +127,10 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 ### Keep Serialization Behavior Out of Domain
 
 **ID:** `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`
+
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Infrastructure MUST own the JSON contract for stored documents, including member names, constructors, converters, and polymorphic registration.
 
@@ -118,6 +144,8 @@ Registration covers the types this store actually persists. The store that write
 
 **ID:** `litespec/backend/persistence#evolve-stored-document-contracts-explicitly`
 
+**Strength:** rule
+
 **Statement:** A rename, removal, type change, member move, or discriminator change MUST have a reviewed data transformation or an expand-and-contract rollout.
 
 **Rationale:** Stored JSON member names, required values, and discriminator values are database schema: old documents stay on disk after the code changes. Without a reviewed transformation or an expand-and-contract rollout, a rename or type change makes old documents unreadable. An additive member still defines its behavior for documents written earlier.
@@ -130,6 +158,10 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#bound-aggregate-document-growth`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** An aggregate document MUST NOT embed a collection that has no accepted business bound.
 
 **Rationale:** A document grows with every write to its collection, so an unbounded embedded collection eventually exceeds size limits and slows every load of its aggregate. Data without an accepted business bound belongs in another aggregate, an owned document record, or a separate query-shaped document, depending on the consistency boundary it needs.
@@ -139,6 +171,8 @@ An additive change is the only kind that needs no transformation, and it is addi
 ### Use Database Naming Conventions
 
 **ID:** `litespec/backend/persistence#use-database-naming-conventions`
+
+**Strength:** rule
 
 **Statement:** A PostgreSQL schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
 
@@ -150,9 +184,13 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#control-production-schema-changes`
 
+**Strength:** rule
+
+**Applies to:** artifact: migration
+
 **Statement:** A hosted environment MUST apply schema changes through a reviewed step before traffic shifts, not from a starting replica.
 
-**Rationale:** A schema change that runs from a starting replica races every other starting replica, and the winner is nondeterministic. A reviewed step produces an artifact that is approved before it runs, and a deployment step applies that migration before traffic shifts. Development and disposable integration databases still apply schema automatically.
+**Rationale:** A schema change that runs from a starting replica races every other starting replica, and the winner is nondeterministic. A reviewed step produces the migration artifact, and a deployment step applies that artifact before traffic shifts. Development and disposable integration databases still apply schema automatically.
 
 A tool that alters the schema from application startup is not a reviewed step whichever provider runs it.
 
@@ -161,6 +199,10 @@ A tool that alters the schema from application startup is not a reviewed step wh
 ### Test Persistence Against PostgreSQL
 
 **ID:** `litespec/backend/persistence#test-persistence-against-postgresql`
+
+**Strength:** rule
+
+**Applies to:** artifact: test
 
 **Statement:** Repository behavior, projections, mappings, correctness indexes, commit behavior, and schema application MUST run against the pinned PostgreSQL.
 
@@ -171,6 +213,10 @@ A tool that alters the schema from application startup is not a reviewed step wh
 ### Read Collection Queries in the Store with Paging and Filters
 
 **ID:** `litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters`
+
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
 
 **Statement:** Each collection query MUST page and filter in the store, never load a whole list to shape it in memory.
 
@@ -184,6 +230,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#assign-document-numbers-from-a-sequence`
 
+**Strength:** rule
+
 **Statement:** Each legal document number MUST allocate from a per-owner sequence taken in the command transaction.
 
 **Rationale:** A number computed from a count plus one hands two concurrent issues the same legal number. A per-owner counter row taken in the command transaction allocates each number once, whatever races it.
@@ -195,6 +243,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 ### Enforce Uniqueness in the Store
 
 **ID:** `litespec/backend/persistence#enforce-uniqueness-in-the-store`
+
+**Strength:** rule
 
 **Statement:** Each uniqueness rule MUST be enforced by the store, through a unique index over the stored value or, for a record that exists at most once per owner, through an identity derived from its owner.
 
@@ -208,6 +258,10 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#model-a-once-only-rule-as-aggregate-state`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** Each rule that an action happens at most once for a record MUST be state on that record's aggregate.
 
 **Rationale:** A flag on the aggregate travels with the record it guards, so the rule is checked where the record is changed: the aggregate sees the earlier action in its own state and refuses the repeat or leaves it without effect. A counter or marker kept anywhere else splits the rule from the record, and the two disagree under concurrent writes.
@@ -219,6 +273,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 ### Claim a Cross-Record Key at Commit
 
 **ID:** `litespec/backend/persistence#claim-a-cross-record-key-at-commit`
+
+**Strength:** rule
 
 **Statement:** A uniqueness rule that no single-record constraint can express MUST be declared by the aggregate as a key and claimed and released by persistence in the commit that changes the aggregate.
 
@@ -232,6 +288,10 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#keep-uniqueness-out-of-handlers`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** A handler MUST NOT reserve, claim, check or release a uniqueness key.
 
 **Rationale:** A reservation made in a handler runs outside the commit that needs it: it can leak when the command fails later, and it teaches every later handler to coordinate with the store directly. The store enforces the rule at commit through `litespec/backend/persistence#enforce-uniqueness-in-the-store` and `litespec/backend/persistence#claim-a-cross-record-key-at-commit`, and the pipeline turns a lost race into the use case conflict refusal under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, so the handler carries no reservation, check, or cleanup.
@@ -244,6 +304,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`
 
+**Strength:** rule
+
 **Statement:** Each unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
 
 **Rationale:** The pipeline fault classification turns a store fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name, so the classifier knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step. A classifier that builds the code from the lost key, one code per key scope, declares its template in the project file `refusals.composed`, so the model checks read each code as raised where its key scope is declared.
@@ -255,6 +317,10 @@ A tool that alters the schema from application startup is not a reviewed step wh
 ### Version Every Aggregate
 
 **ID:** `litespec/backend/persistence#version-every-aggregate`
+
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each stored aggregate MUST carry a version that the store compares at commit, so a lost update fails the commit.
 
@@ -270,45 +336,51 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#use-one-persistence-folder`
 
-**Default:** Place store configuration, repositories, commit behavior, and serialization under one Infrastructure persistence folder.
+**Strength:** default
+
+**Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/` folders.
 
 **Replacement:** A project names its persistence layout in its backend documentation.
 
-**Rationale:** One persistence folder holds store configuration, repositories, commit behavior, and serialization, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the project.
+**Rationale:** The product `Infrastructure/` folder holds store setup, session and commit plumbing, and serialization shared by every module, so every persistence type has one discoverable home. Each module's repositories and mappings sit in its own `Infrastructure/` folders beside the aggregates they store. Scattered configuration hides the provider setup across the product.
 
 **Example:**
 
 ```text
-{ProjectName}.Infrastructure/
-  Persistence/
-    Store/
-      StoreServiceRegistration
-      StoreConfiguration
-      Commands/
-        CommitCommandPostHandler
-      Events/
-        DomainEventBuffer
-      Posts/                        single aggregate whose name matches the module: files directly under the module
-        PostRepository
-        PostStoreConfiguration
-      Customers/                    two aggregates: one folder per aggregate
-        CustomerAccounts/
-          CustomerAccountRepository
-          CustomerAccountStoreConfiguration
-        Consents/
-          ConsentRepository
-          ConsentStoreConfiguration
+{Product}/
+  Infrastructure/                   store setup: registration, configuration, commit handler, event buffer
+    StoreServiceRegistration
+    StoreConfiguration
+    Commands/
+      CommitCommandPostHandler
+    Events/
+      DomainEventBuffer
+  Posts/                            single aggregate whose name matches the module: files directly under the module
+    Infrastructure/
+      PostRepository
+      PostStoreConfiguration
+  Customers/                        two aggregates: one folder per aggregate
+    CustomerAccounts/
+      Infrastructure/
+        CustomerAccountRepository
+        CustomerAccountStoreConfiguration
+    Consents/
+      Infrastructure/
+        ConsentRepository
+        ConsentStoreConfiguration
 ```
 
-The module folders follow `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`. A single-aggregate module stays flat when its aggregate root's plural name equals the module name. For example, `Post` stays flat under `Posts`. Otherwise, each aggregate takes its own folder.
+The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A single-aggregate module stays flat when its aggregate root's plural name equals the module name. For example, `Post` stays flat under `Posts`. Otherwise, each aggregate takes its own folder.
 
-The module folders follow the same module rule as every layer. Aggregate-specific configuration sits beside its aggregate, while session and commit plumbing sit under the store root.
+Aggregate-specific configuration sits beside its aggregate, while session and commit plumbing sit under the product store root.
 
-**Reviewed for:** Which store configuration, repository, or commit files sit outside the one persistence folder? Look at the persistence files in Infrastructure.
+**Reviewed for:** Which store setup, repository, or commit files sit outside the product or module `Infrastructure/` folders? Look at the persistence files beside the module tree.
 
 ### Use One Session per Command
 
 **ID:** `litespec/backend/persistence#use-one-session-per-command`
+
+**Strength:** default
 
 **Default:** Resolve one session for the repositories and the commit handler in one command.
 
@@ -322,6 +394,8 @@ The module folders follow the same module rule as every layer. Aggregate-specifi
 
 **ID:** `litespec/backend/persistence#review-query-plans-for-new-indexes`
 
+**Strength:** advice
+
 **Default:** Add an index only from an accepted query or a measured operating need, and inspect its plan on representative data.
 
 **Replacement:** A project names its index review in its backend documentation.
@@ -334,6 +408,8 @@ The module folders follow the same module rule as every layer. Aggregate-specifi
 
 **ID:** `litespec/backend/persistence#add-read-documents-for-query-shaped-data`
 
+**Strength:** default
+
 **Default:** Add a module-owned read document for repeated cross-aggregate composition, deep traversal, or a distorting index shape.
 
 **Replacement:** A project names its read document shape in its backend documentation.
@@ -345,6 +421,10 @@ The module folders follow the same module rule as every layer. Aggregate-specifi
 ### Persist One Explicit State Object
 
 **ID:** `litespec/backend/persistence#persist-one-explicit-state-object`
+
+**Strength:** default
+
+**Applies to:** artifact: state-record
 
 **Default:** Persist the aggregate state object itself rather than a flattened projection, round-tripping every state object through the configured serializer in integration tests.
 

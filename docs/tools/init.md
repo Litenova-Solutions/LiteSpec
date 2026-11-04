@@ -25,7 +25,7 @@ Four presets ship with the release:
 | `blazor-client` | `client-only` | `blazor` | `app` at `apps/app` on `blazor` |
 | `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` |
 
-Run this command once in an empty folder, then run `litespec consumer` to validate the new project.
+Run this command once in an empty folder, then run `litespec model check` to validate the new project.
 
 ## Arguments
 
@@ -65,4 +65,4 @@ litespec init --preset blazor-client --size large --name shop
 
 ## Underneath
 
-This command merges `templates/consumer/project.json` with `templates/presets/<name>.json` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `.litespec/glossary.yaml`, the example cast as `.litespec/example-cast.md`, and `.litespec/.gitignore`. Nothing beneath it is separately runnable. Validate the written file with `litespec consumer`.
+This command merges `templates/consumer/project.json` with `templates/presets/<name>.json` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `.litespec/glossary.yaml`, the example cast as `.litespec/example-cast.md`, and `.litespec/.gitignore`. Nothing beneath it is separately runnable. Validate the written file with `litespec model check`.

@@ -1,5 +1,9 @@
 # AI Assistance
 
+**Stack:** any
+
+**Layer:** application
+
 ## Intent
 
 Some queries are answered through a model that picks tools to gather facts and compose the answer. This page states the closed tool set, the structure-only scenarios, the pinned stub, and the provenance those queries carry. A project selects it for each query a model mediates.
@@ -24,6 +28,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#name-the-closed-tool-set`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A model-mediated query MUST name the closed set of tools the model calls.
 
 **Rationale:** A model with an open tool set invents tools, reaches past its grant, and surprises every review. A closed set names exactly what the model touches, so the grant, the tests, and the audit all read the same list.
@@ -35,6 +43,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 ### Refuse Unknown Tools
 
 **ID:** `litespec/ext/ai#refuse-unknown-tools`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** A model-mediated query MUST refuse a run that calls a tool outside its closed set.
 
@@ -48,6 +60,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#assert-structure-and-never-wording`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A scenario for a model-mediated query MUST assert the output structure and never its wording.
 
 **Rationale:** Model wording shifts between runs: the same facts arrive in different sentences. A scenario asserting exact words fails on a paraphrase, while a scenario asserting structure, fields, codes, and cited sources passes on every true answer.
@@ -59,6 +75,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 ### Pin a Deterministic Stub in Proof
 
 **ID:** `litespec/ext/ai#pin-a-deterministic-stub-in-proof`
+
+**Strength:** rule
+
+**Applies to:** artifact: test
 
 **Statement:** Proof for a model-mediated query MUST run against a deterministic stub pinned by version.
 
@@ -72,6 +92,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#record-provenance-in-the-output`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A model-mediated query MUST return provenance naming the model, the tools called, and the sources read.
 
 **Rationale:** An answer without provenance cannot be checked: nobody knows which model wrote it, which tools fed it, or which sources back it. Provenance names the three, so every answer carries its own audit trail.
@@ -83,6 +107,10 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 ### Bound Tool Calls per Query
 
 **ID:** `litespec/ext/ai#bound-tool-calls-per-query`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** A model-mediated query MUST bound how many tool calls one run makes.
 
@@ -97,6 +125,8 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 ### Record Every Model Run
 
 **ID:** `litespec/ext/ai#record-every-model-run`
+
+**Strength:** default
 
 **Default:** Each model run writes its prompt hash, the tools called, and the outcome to the run log.
 

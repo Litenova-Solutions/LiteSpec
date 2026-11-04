@@ -101,7 +101,7 @@ static class RecordPages
             "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.yaml"),
             "role" => Path.Combine(behavior, "access", "roles", $"{name}.yaml"),
             "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.yaml"),
-            "screen" => Path.Combine(behavior, "screens", $"{home}.{name}.yaml"),
+            "screen" => Path.Combine(behavior, "entry-points", home!, "screens", $"{home}.{name}.yaml"),
             "external-system" => Path.Combine(behavior, "external-systems", $"{name}.yaml"),
             "runbook" => Path.Combine(behavior, "runbooks", $"{name}.yaml"),
             "exception" => Path.Combine(docs, "governance", "exceptions", $"{name}.yaml"),

@@ -10,9 +10,6 @@
   ],
   "marks": "attribute",
   "reviewedLiteSpecVersion": "4.0.0",
-  "owners": [
-    "lending-team"
-  ],
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
@@ -35,10 +32,5 @@
       "webapi": "apps/api/src/Library.WebApi",
       "infrastructure": "apps/api/src/Library.Infrastructure"
     }
-  },
-  "vocabulary": {
-    "verbs": [
-      "borrow"
-    ]
   }
 }

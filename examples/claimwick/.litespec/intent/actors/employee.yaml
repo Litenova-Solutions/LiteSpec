@@ -5,5 +5,5 @@ summary: An employee submits expenses and attaches receipts.
 kind: person
 belongsToTeam: false
 holds:
-  - role: role/employee
-    scope: self
+- role: role/employee
+  scope: self

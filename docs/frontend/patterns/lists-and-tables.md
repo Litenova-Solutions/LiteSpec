@@ -1,5 +1,9 @@
 # List and Table Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 This page holds the patterns for the expenses list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, cards, and phone layout. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address`
 
+**Strength:** rule
+
 **Statement:** A list MUST keep its filters, sort order, and page in the URL.
 
 **Rationale:** A view kept in the address survives the back button, a refresh, and a pasted link, so all three return to the same rows. Without it, opening one record loses the filters the reader set, and a link sent to a colleague opens the unfiltered first page instead of the rows under discussion.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 ### Align Money to the Right with Its Currency
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency`
+
+**Strength:** rule
 
 **Statement:** A table MUST right-align a money column and show the currency of every amount in it.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 ### Choosing the Columns
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#choosing-the-columns`
+
+**Strength:** default
 
 **Question:** Which columns does the expenses table show. The reader picks rows by expense, spender, date, state, and money. The trip name sits under the expense code as a second line.
 
@@ -302,6 +312,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#sorting`
 
+**Strength:** default
+
 **Question:** How does a reader reorder the expenses table. The table starts newest first. Each sortable header offers its own order, and the sort lives in the URL so a link carries it.
 
 **Default:** `every-sortable-header-carries-an-arrow`
@@ -526,6 +538,8 @@ page
 ### Filters
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#filters`
+
+**Strength:** default
 
 **Question:** How does a reader narrow the expenses table. Search alone answers one question. Each closed filter control shows how many values it applies, and several categories never share one dropdown.
 
@@ -807,6 +821,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#row-density`
 
+**Strength:** default
+
 **Question:** How tall is a row in the expenses table. Carbon defines five heights from 24 to 64 pixels, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row, between `md` and `lg`.
 
 **Default:** `40-pixels-the-default`
@@ -1028,6 +1044,8 @@ page
 ### Bulk Action Bar
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#bulk-action-bar`
+
+**Strength:** default
 
 **Question:** What appears once expense rows are selected. The bar names the count and the money, then offers the commands. A reversal on the wrong scope is the expensive mistake this pattern guards against.
 
@@ -1274,6 +1292,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#pagination`
 
+**Strength:** default
+
 **Question:** How does a reader move through 268 expenses. The range and two chevrons move one page at a time. Numbered pages add a jump, and the count still says where the reader is.
 
 **Default:** `count-left-numbered-pages-right`
@@ -1490,6 +1510,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#row-actions`
 
+**Strength:** default
+
 **Question:** The expenses table shows rows of expenses. Each row may carry its own commands. How many commands sit on the row, and where do the rest live.
 
 **Default:** `one-inline-action-the-rest-in-a-row-menu`
@@ -1684,6 +1706,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#tables-own-states`
 
+**Strength:** default
+
 **Question:** The expenses table is sometimes empty, still loading, or failed to load. Each case needs its own words and layout. What shows for each state of the table itself.
 
 **Default:** `no-data-yet-table-replaced`
@@ -1870,6 +1894,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#status-in-a-column`
 
+**Strength:** default
+
 **Question:** Each expense row carries a state such as Paid or Disputed. Some states need a decision and some need none. How does the State column tell them apart.
 
 **Default:** `tone-only-on-the-states-that-block`
@@ -2047,6 +2073,8 @@ page
 ### Money Column
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#money-column`
+
+**Strength:** default
 
 **Question:** Each expense row shows what the spender was paid. The column header names the currency. What does the money cell say beyond the number.
 
@@ -2230,6 +2258,8 @@ page
 ### Exporting the List
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#exporting-the-list`
+
+**Strength:** default
 
 **Question:** A reader takes the expenses list elsewhere. Download serves one spreadsheet now. Print serves a paper sheet. A schedule serves a repeated question. Which export does the list offer.
 
@@ -2424,6 +2454,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#searching-with-highlighted-matches`
 
+**Strength:** default
+
 **Question:** A search box filters the expenses table. A match on an email looks the same as a match on a name. How does the list show why each row matched.
 
 **Default:** `matches-highlighted-in-the-cells`
@@ -2572,6 +2604,8 @@ page
 ### Grouped Rows
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#grouped-rows`
+
+**Strength:** default
 
 **Question:** Some questions are asked per group, not per row: what did today pay, what does each trip hold. A flat table answers them only after an export, while a group header with its own subtotal answers them on the page.
 
@@ -2751,6 +2785,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#inline-row-expansion`
 
+**Strength:** default
+
 **Question:** Some rows hold a second level: an expense holds its lines, its receipts, its history. Opening the record for each one costs a page load per row. An expansion row under the row itself answers the question where it was asked.
 
 **Default:** `expand-to-the-order-lines`
@@ -2903,6 +2939,8 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#pinned-and-resizing-columns`
 
+**Strength:** default
+
 **Question:** A wide table scrolls, and a scrolling table loses its bearings. The expense code leaves as the money arrives. Pinning the identity column keeps the row named, and resizing lets the reader spend width where their own data needs it.
 
 **Default:** `the-order-column-pinned-while-the-rest-scroll`
@@ -3041,6 +3079,8 @@ page
 ### Trips as a Grid
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#trips-as-a-grid`
+
+**Strength:** default
 
 **Question:** Trips are few and dated: the company runs a handful a month and asks how each one is doing. A table answers with rows of numbers, while a card answers with the trip itself: its dates, its client site, and how much of its budget is claimed.
 
@@ -3196,6 +3236,8 @@ page
 ### List on a Phone
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#list-on-a-phone`
+
+**Strength:** default
 
 **Question:** At 390 pixels the five-column table cannot survive: the columns either crush or scroll. Every option here answers the same question, what the expenses list becomes on a phone. Each one keeps a different capability: reading, sorting, acting, or comparing.
 

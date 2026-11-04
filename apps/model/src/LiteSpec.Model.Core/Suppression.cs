@@ -9,7 +9,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Partitions findings from exceptions, shared by every check host.
 /// </summary>
-/// <follows>litespec/core/model#apply-guidance-precedence</follows>
+/// <follows>litespec/core/agent#apply-guidance-precedence</follows>
 public static class Suppression
 {
     /// <summary>

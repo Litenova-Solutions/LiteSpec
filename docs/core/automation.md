@@ -1,5 +1,8 @@
 # Automation
 
+**Stack:** any
+**Layer:** application
+
 ## Intent
 
 Automation states the work that runs without a request: the reactions answering events and the jobs running on schedule, once, or by hand. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
@@ -47,6 +50,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#trigger-every-reaction-from-its-declared-events`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:reaction
+
 **Statement:** Each reaction MUST declare the events it answers in `triggeredBy` as a list of `event/...` or `integration-event/...` ids.
 
 **Rationale:** A reaction without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the events states when the reaction fires: the domain or integration events it answers, one id or a list. A `skippedWhen` clause states when it skips.
@@ -58,6 +65,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 ### Run Every Job from Its Declared Kind
 
 **ID:** `litespec/core/automation#run-every-job-from-its-declared-kind`
+
+**Strength:** rule
+
+**Applies to:** artifact: job
 
 **Statement:** Each job MUST declare its `kind` of `scheduled`, `one-off`, or `manual` with its `schedule` where scheduled.
 
@@ -71,6 +82,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#declare-every-reaction-and-job-edge-in-effects`
 
+**Strength:** rule
+
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
 **Rationale:** A reaction or job with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `runs`, `sends`, `emits`, or `calls` keeps every consequence of the reaction or job beside its trigger, under one grammar for every record that has edges, as the [use-cases page](use-cases.md) states.
@@ -80,6 +93,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 ### Write No Aggregate Directly from a Reaction or Job
 
 **ID:** `litespec/core/automation#write-no-aggregate-directly-from-a-reaction-or-job`
+
+**Strength:** rule
 
 **Statement:** A reaction or job MUST NOT write an aggregate except through the use case it runs.
 
@@ -91,6 +106,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes`
 
+**Strength:** rule
+
 **Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
 **Rationale:** Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code under the `On{Fact}` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions answering its event as a view derived from records.
@@ -100,6 +117,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 ### Name Each Reaction for Its Act and Its Trigger
 
 **ID:** `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:reaction
 
 **Statement:** Each reaction MUST be named `<verb>-<what>-on-<fact>` with a declared verb.
 
@@ -113,6 +134,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#name-each-job-for-the-use-case-it-runs`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** Each job MUST be named `<verb>-<what>` with the verb of a use case it runs.
 
 **Rationale:** A job selects items and runs one command for each, so naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#name-each-record-by-its-types-name-form` states.
@@ -125,6 +150,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job`
 
+**Strength:** rule
+
 **Statement:** Each reaction and each job MUST declare its `onFailure` in the one failure shape and its idempotency.
 
 **Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, holds never clear. Declaring `onFailure` states the failure shape beside the trigger: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `then` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure and `runbook` the recovery procedure. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeats collapse.
@@ -135,6 +162,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result`
 
+**Strength:** rule
+
 **Statement:** Each scenario on a reaction or job MUST end in a result of a use case its effects run.
 
 **Rationale:** A reaction or job scenario ending anywhere else proves another behavior story: it walks the trigger and asserts an ending no run use case declares. Ending in a run use case result keeps the scenario a proof of the reaction or job consequence.
@@ -144,6 +173,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 ### Keep Job Fields off Reactions
 
 **ID:** `litespec/core/automation#keep-job-fields-off-reactions`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:reaction
 
 **Statement:** A reaction MUST NOT carry `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
@@ -157,6 +190,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#guard-every-manual-job`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** Each job with `kind: manual` MUST state the guard it runs under.
 
 **Rationale:** Work a person starts without a guard runs anywhere by anyone: a rehearsal harness touches production, a manual sweep runs twice. Stating the guard keeps person-started work inside its fence, beside where it runs in `runsWhere`.
@@ -168,6 +205,10 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 ### Write Every Runbook to Run or Recover
 
 **ID:** `litespec/core/automation#write-every-runbook-to-run-or-recover`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:runbook
 
 **Statement:** Each runbook MUST state its `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 

@@ -77,7 +77,7 @@ public sealed class ModelFormatTests
     static string RecordPath(string root) =>
         Path.Combine(root, ".litespec", "product", "brief.yaml");
 
-    /// <summary>The canonical text with its first two lines swapped: still in the subset, outside canonical form.</summary>
+    /// <summary>The canonical text with its first two lines swapped: still YAML, outside canonical form.</summary>
     /// <param name="canonical">The canonical record file text.</param>
     /// <returns>The swapped text.</returns>
     static string Uncanonically(string canonical)

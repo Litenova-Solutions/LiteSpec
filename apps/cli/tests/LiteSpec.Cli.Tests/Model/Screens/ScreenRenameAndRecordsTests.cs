@@ -60,25 +60,7 @@ public sealed class ScreenRenameAndRecordsTests
     {
         using var fixture = ModelFixture.Prepare("large");
         var root = fixture.Path;
-        var screens = Path.Combine(root, ".litespec", "behavior", "screens");
-        Directory.CreateDirectory(screens);
-        File.WriteAllText(Path.Combine(screens, "library-app.loans.md"), """
-            ---
-            {
-              "type": "screen",
-              "id": "screen/library-app.loans",
-              "title": "Loans",
-              "owner": "lending-team",
-              "status": "reviewed",
-              "entryPoint": "entry-point/library-app",
-              "address": "/loans",
-              "offers": ["use-case/lending.list-loans"]
-            }
-            ---
-            # Loans
-            ## Summary
-            An employee sees their loans.
-            """);
+        var screens = Path.Combine(root, ".litespec", "behavior", "entry-points", "library-app", "screens");
 
         var route = Path.Combine(root, "apps", "catalog", "src", "routes", "loans", "+page.svelte");
 
@@ -89,10 +71,10 @@ public sealed class ScreenRenameAndRecordsTests
         var result = Cli.Run("rename", "screen/library-app.loans", "screen/library-app.loan-list", "--root", root);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(screens, "library-app.loan-list.md")));
-        Assert.False(File.Exists(Path.Combine(screens, "library-app.loans.md")));
+        Assert.True(File.Exists(Path.Combine(screens, "library-app.loan-list.yaml")));
+        Assert.False(File.Exists(Path.Combine(screens, "library-app.loans.yaml")));
         Assert.Contains("screen/library-app.loan-list", File.ReadAllText(route));
-        Assert.Contains("screen/library-app.loan-list", File.ReadAllText(Path.Combine(screens, "library-app.loan-list.md")));
+        Assert.Contains("screen/library-app.loan-list", File.ReadAllText(Path.Combine(screens, "library-app.loan-list.yaml")));
     }
 
     /// <summary>Rename Scenario Rewrites A Browser Tests Proves Call.</summary>

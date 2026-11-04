@@ -2,17 +2,7 @@
 
 ## Intent
 
-The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model build`, `check`, and `query`: how an exception (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what the diffs show, and which continuous integration jobs run these checks.
-
-## Building the Model
-
-`litespec model build` reads the written records, follows the marks in code and tests, the routes, and the latest test run, and writes `model.json` with every record and its resolved links. [Model Builder](../tools/model.md) states the five subcommands, and [Project Model](../core/model.md) states the records they read. The run below is against the Claimwick example:
-
-```text
-.litespec/model/model.json: 105 records, 9 handlers, 1 screen, 12 scenarios.
-```
-
-The counts name what the builder found: 105 records, 9 handlers, 1 screen, and 12 scenario tests. The 105 records are the page records, the entries on those pages including the approval-reminders requirements, and the 4 glossary terms. The 12 tests prove 11 of the 12 scenarios: Submit expense is proved twice, once by its acceptance scenario and once by its integration test. The file also adds the computed `implements`, `calls`, and `proves` links, and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Implemented and verified come from the builder, never from handwriting, per `litespec/core/model#compute-proof-statuses-in-the-builder`: a use case reads implemented when its handler exists, so deleting a handler flips the state on the next run with no record edit.
+The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model check` and `litespec model query`: how an exception (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what `model check --since` reports for a breaking contract change, and which continuous integration jobs run these checks.
 
 ## Checking the Model
 
@@ -120,17 +110,13 @@ The record reads `implemented` because its handler exists, and `proves` names th
 
 ## The Consumer Check
 
-`litespec consumer` checks the project configuration, the record files, and the language of a consumer repository, per [Validate Consumer](../tools/consumer.md). Against the Claimwick example it reports this, and exits zero:
+`litespec model check` runs the consumer pass over the project configuration, the record files, and the language of a consumer repository, per [Model Builder](../tools/model.md), and reports its findings in the same shape. Against the Claimwick example it reports this, and exits zero:
 
 ```text
-Consumer: ../expenses
-Files scanned: 44 under docs, record files: 44
-Glossary: 0 mannered term(s), 0 rejected synonym(s), documentation only
-
-PASS: project configuration, record files and glossary are valid.
+0 findings, 0 blocking, 0 known.
 ```
 
-The run scanned 44 files under `docs` and passed: no mannered term, no rejected synonym.
+The pass covered 44 files under `docs` and passed: no mannered term, no rejected synonym.
 
 ## The Journey Detail
 
@@ -162,29 +148,16 @@ Promises
 
 The finance lead reads the promises without opening a Behavior page.
 
-## The Diffs
+## The Breaking Contract Change
 
-`litespec model diff <base> --intent` shows Intent changes in product words for the finance lead, and `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both. Say the team raises the receipt threshold default from 25 to 50 EUR. The intent diff reads:
-
-```text
-MODIFIED requirement/approval-reminders.receipt-over-threshold
-  Statement: "An expense above the receipt threshold carries a receipt."
-  The default moved from EUR 25 to EUR 50 by decision/0001-receipt-threshold.
-```
-
-And the behavior diff reads:
+`litespec model check --since main` blocks only on findings about records and code changed since `main`, and reports every client-breaking contract change since `main` as a `contract-break` finding of level S: a removed result, a removed refusal code, or a changed integration event. Say the team removes the refusal code from the receipt-missing result of Submit expense. The run reports:
 
 ```text
-MODIFIED setting/spending.receipt-threshold
-  Default: EUR 25 -> EUR 50.
-MODIFIED scenario/submit-expense.submitting-above-threshold-without-a-receipt-is-refused
-  Given now exceeds EUR 50.
-
-Security queue: no access widenings, no new outside calls, no new personal-data flows.
+.litespec/behavior/modules/spending/expenses/submit-expense.yaml:1 [S contract-break] Refusal code 'spending.receipt-missing' of result 'result/submit-expense.receipt-missing' no longer exists.
 ```
 
-The developer sees which Behavior records the Intent change touched, and the security reviewer sees an empty queue.
+The developer sees which published contract the change breaks before it merges.
 
 ## The Continuous Integration Jobs That Run the Checks
 
-[Continuous Integration](../quality/ci.md) names the jobs each pull request runs, and every pull request runs the jobs its changed areas select, per `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. The `model` job runs `litespec model check`, is selected by a record, code, or test change, and runs for small and large projects alike. The `docs` job runs `litespec consumer` on a documentation change to check pages, configuration, language, and prose, with the output shown above. Every pull request also publishes a book preview, per `litespec/ext/delivery#publish-a-book-preview-for-every-change`, so reviewers read the change in product words. The `release` job reruns every job on the release commit and promotes the artifact that passed.
+[Continuous Integration](../quality/ci.md) names the jobs each pull request runs, and every pull request runs the jobs its changed areas select, per `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. The `model` job runs `litespec model check`, is selected by a record, code, or test change, and runs for small and large projects alike. The `docs` job runs `litespec model check` on a documentation change to check pages, configuration, language, and prose, with the output shown above. Every pull request also publishes a book preview, per `litespec/ext/delivery#publish-a-book-preview-for-every-change`, so reviewers read the change in product words. The `release` job reruns every job on the release commit and promotes the artifact that passed.

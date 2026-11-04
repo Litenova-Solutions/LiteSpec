@@ -8,7 +8,7 @@ public sealed class TestAssertionAnalyzerTests
 {
     /// <summary>LS4001 reports a test without an assertion.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 reports a test without an assertion")]
     public Task ReportsATestWithoutAnAssertion() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -36,7 +36,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 accepts a test that asserts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 accepts a test that asserts")]
     public Task AcceptsATestThatAsserts() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -72,7 +72,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 accepts a test calling a custom Assert helper.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 accepts a test calling a custom Assert helper")]
     public Task AcceptsACustomAssertHelper() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -103,7 +103,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 accepts a theory that asserts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 accepts a theory that asserts")]
     public Task AcceptsATheoryThatAsserts() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -130,7 +130,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 ignores a helper without a test attribute.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 ignores a helper without a test attribute")]
     public Task IgnoresAHelperWithoutAnAttribute() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -153,7 +153,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 ignores a test outside test projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 ignores a test outside test projects")]
     public Task IgnoresATestOutsideTestProjects() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -181,7 +181,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 follows the LiteSpecLayer property over the assembly name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -209,7 +209,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 reports a scenario whose steps assert nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 reports a scenario whose steps assert nothing")]
     public Task ReportsAScenarioWithoutAnAssertion() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
@@ -241,7 +241,7 @@ public sealed class TestAssertionAnalyzerTests
 
     /// <summary>LS4001 accepts a scenario whose step asserts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</proves>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact(DisplayName = "LS4001 accepts a scenario whose step asserts")]
     public Task AcceptsAScenarioWhoseStepAsserts() =>
         Verify.AnalyzerAsync<TestAssertionAnalyzer>("""

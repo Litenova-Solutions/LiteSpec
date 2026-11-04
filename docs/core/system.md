@@ -1,5 +1,9 @@
 # LiteSpec
 
+**Stack:** any
+
+**Layer:** records
+
 ## Intent
 
 LiteSpec is a system for building software from written records: the records state the required behavior, and people and agents build, verify, and operate against them. This page states what that system is and which parts it combines, while the intent, behavior, access, layers, and model pages state the records and the rules between them. A team starting a project reads it first, so every later choice lands in one shared model joining intent to code.
@@ -58,6 +62,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#keep-decision-authority-with-accountable-people`
 
+**Strength:** rule
+
 **Statement:** An agent MUST stop affected work and take to an accountable person an unknown fact that changes behavior, money, data, access, or recovery.
 
 **Rationale:** Agents meet unknowns in the middle of a task: an unknown access rule, an unclear retention limit, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and taking the question to that person keeps the choice visible instead of buried in code nobody stated. Accountable people decide outcomes, terms, policies, and criteria, and an agent contribution stays a proposal until one of them accepts it.
@@ -68,6 +74,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#drive-work-from-records`
 
+**Strength:** rule
+
 **Statement:** An agent MUST start behavior work from the Intent records and the Behavior records that own the behavior.
 
 **Rationale:** A prompt, ticket, chat message, or code comment can start work, but none of them holds the stated behavior. Starting from the owning records keeps the agent building what the records state, and keeps the records as the lasting statement of what the code does. Without this rule, each task reinterprets intent from its starting message, and the records drift from the code until nobody trusts either.
@@ -77,6 +85,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 ### Point Code and Tests up to Records
 
 **ID:** `litespec/core/system#point-code-and-tests-up-to-records`
+
+**Strength:** rule
 
 **Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
@@ -90,6 +100,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice`
 
+**Strength:** rule
+
 **Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or exception that shapes it.
 
 **Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or an exception allows it, and a `follows` mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a `follows` mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.
@@ -102,6 +114,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#declare-every-edge-between-records`
 
+**Strength:** rule
+
 **Statement:** Every edge between use cases, reactions, jobs, notifications, integration events, and external systems MUST be declared in a record and checked.
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
@@ -111,6 +125,10 @@ Each page owns its tables and rules, and this page cites them without copying. A
 ### Deliver One Complete Use Case
 
 **ID:** `litespec/core/system#deliver-one-complete-use-case`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** A use case MUST complete with behavior, persistence, entry points, evidence, and operating impact.
 
@@ -124,6 +142,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#update-records-with-behavior`
 
+**Strength:** rule
+
 **Statement:** An observable behavior change MUST update its use case page, implementation, tests, product records, decision, journey, and operating records together.
 
 **Rationale:** Records map to current names and paths only when each behavior change carries them along. A change that moves code but leaves the use case page, the tests, or the journey behind splits the project into stated fiction and unstated fact. Updating the records in the same change keeps the change to behavior and the change to its description in one place.
@@ -135,6 +155,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 ### Use the Docs Layout on the Model Page
 
 **ID:** `litespec/core/system#use-the-docs-layout-on-the-model-page`
+
+**Strength:** default
 
 **Default:** Use the docs layout the [model page](model.md) states under The Docs Layout, creating a directory only when its first real artifact exists.
 
@@ -148,6 +170,10 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#group-module-use-case-files-by-aggregate`
 
+**Strength:** default
+
+**Applies to:** artifact: record:use-case
+
 **Default:** Group module use case files under a plural kebab-case aggregate subdirectory, each holding that aggregate's page; a module with one aggregate of the module's own name may stay flat.
 
 **Replacement:** A consumer names its own module file grouping in its documentation.
@@ -159,6 +185,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 ### Keep Operational and Security References Under Operations
 
 **ID:** `litespec/core/system#keep-operational-and-security-references-under-operations`
+
+**Strength:** default
 
 **Default:** Keep operating and security reference prose under `.litespec/implementation/operations/`.
 
@@ -172,6 +200,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#use-established-technical-terms`
 
+**Strength:** default
+
 **Default:** Use aggregate, command, query, reaction, job, repository, projection, outbox, idempotency, and transaction with their accepted technical meanings.
 
 **Replacement:** A consumer names its own technical vocabulary in its documentation.
@@ -183,6 +213,8 @@ Each page owns its tables and rules, and this page cites them without copying. A
 ### Use Ordinary Capitalization in Prose
 
 **ID:** `litespec/core/system#use-ordinary-capitalization-in-prose`
+
+**Strength:** default
 
 **Default:** Write module, aggregate, use case, journey, rule, event, and decision as ordinary nouns in prose.
 

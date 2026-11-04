@@ -4,11 +4,11 @@ using static LiteSpec.Schemas.JsonSchemaSupport;
 namespace LiteSpec.Schemas;
 
 /// <summary>
-///     The local JSON Schema evaluator, and the keyword gate that makes it safe.
-///     Three validators read this module, so a second copy of the evaluator would
-///     drift from the first invisibly. The gate below is what makes a local
-///     evaluator safe: a keyword with no implementation fails the schema instead
-///     of passing unread.
+///     The JSON Schema check every validator uses: the keyword gate that makes
+///     it safe, and one validation path over the shared library, so a second
+///     copy of the check would drift from the first invisibly. The gate below
+///     is what makes a library check safe: a keyword with no implementation
+///     fails the schema instead of passing unread.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class JsonSchema
@@ -16,22 +16,25 @@ public static class JsonSchema
     /// <summary>The schema keywords that assert nothing (SCHEMA_ANNOTATIONS).</summary>
     public static readonly IReadOnlySet<string> Annotations = new HashSet<string>(StringComparer.Ordinal)
     {
-        "$schema", "$id", "$defs", "$comment", "title", "description", "default", "examples", "deprecated", "format",
+        "$schema", "$id", "$anchor", "$dynamicAnchor", "$defs", "$comment", "$vocabulary",
+        "title", "description", "default", "examples", "deprecated", "readOnly", "writeOnly",
+        "format", "contentMediaType", "contentEncoding",
     };
 
     /// <summary>
-    ///     Every keyword the evaluator implements. A keyword listed here without an
-    ///     implementation would read as an annotation and assert nothing, so every
-    ///     assertive name in this set has a branch in <see cref="Validate"/>, and every
-    ///     name outside it fails the schema rather than passing unread (SCHEMA_KEYWORDS).
+    ///     Every keyword the evaluator implements: the JSON Schema draft
+    ///     2020-12 vocabulary. A keyword outside this set fails the schema
+    ///     rather than passing unread (SCHEMA_KEYWORDS).
     /// </summary>
     public static readonly IReadOnlySet<string> Keywords = new HashSet<string>(Annotations.Concat([
-        "$ref", "type", "const", "enum", "pattern", "minLength", "maxLength",
+        "$ref", "$dynamicRef", "type", "const", "enum",
+        "pattern", "minLength", "maxLength",
         "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
-        "minItems", "maxItems", "uniqueItems", "items", "prefixItems", "contains",
-        "minProperties", "maxProperties", "required", "dependentRequired",
+        "minItems", "maxItems", "uniqueItems", "items", "prefixItems", "contains", "minContains", "maxContains",
+        "minProperties", "maxProperties", "required", "dependentRequired", "dependentSchemas",
         "properties", "patternProperties", "propertyNames", "additionalProperties",
         "allOf", "anyOf", "oneOf", "if", "then", "else", "not",
+        "unevaluatedItems", "unevaluatedProperties", "contentSchema",
     ]), StringComparer.Ordinal);
 
     /// <summary>
@@ -68,26 +71,8 @@ public static class JsonSchema
     /// <param name="root">The schema root.</param>
     /// <param name="location">The value location.</param>
     /// <param name="errors">The errors to append to.</param>
-    public static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors)
-    {
-        if (schema is not JsonObject obj)
-        {
-            return;
-        }
-
-        SchemaReferences.ValidateReference(value, obj, root, location, errors);
-        SchemaComposition.ValidateComposition(value, obj, root, location, errors);
-
-        if (!SchemaTypes.ValidateTypes(value, obj, location, errors))
-        {
-            return;
-        }
-
-        SchemaStrings.ValidateStrings(value, obj, location, errors);
-        SchemaNumbers.ValidateNumbers(value, obj, location, errors);
-        SchemaArrays.ValidateArrays(value, obj, root, location, errors);
-        SchemaObjects.ValidateObjects(value, obj, root, location, errors);
-    }
+    public static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors) =>
+        SchemaEvaluation.Validate(value, schema, root, location, errors);
 
     /// <summary>
     ///     Reads one JSON value against one schema file and returns the problems it
@@ -99,7 +84,7 @@ public static class JsonSchema
     /// <param name="location">The value location.</param>
     /// <param name="readJson">The reader that loads a schema file as JSON.</param>
     /// <returns>The problems found.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Problems reports a schema validation as problem text rather than crashing the caller, so every failure of the local evaluator becomes one problem message.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Problems reports a schema validation as problem text rather than crashing the caller, so every failure of the schema check becomes one problem message.")]
     public static List<string> Problems(string schemaFile, JsonNode? value, string location, Func<string, JsonNode?> readJson)
     {
         var schema = readJson(schemaFile);

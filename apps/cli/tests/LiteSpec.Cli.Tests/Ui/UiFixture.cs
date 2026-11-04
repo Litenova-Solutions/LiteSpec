@@ -153,31 +153,47 @@ sealed class UiFixture : IDisposable
         File.WriteAllText(file, value!.ToJsonString(Indented) + "\n");
     }
 
-    /// <summary>Runs <c>litespec ui</c> against the fixture.</summary>
+    /// <summary>One <c>model check</c> finding line: its path, line, level, code and message.</summary>
+    static readonly Regex FindingLine = new(
+        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|A)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
+        RegexOptions.Compiled);
+
+    /// <summary>The finding codes the controlled UI pass reports.</summary>
+    static readonly HashSet<string> UiCodes = new(StringComparer.Ordinal)
+    {
+        "exception-expired", "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
+        "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
+        "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",
+        "ui-catalog-invalid", "ui-route-suite-missing",
+    };
+
+    /// <summary>Runs <c>litespec model check</c> against the fixture.</summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
-    public CliResult Run() => Cli.Run("ui", "--root", Root);
+    public CliResult Run() => Cli.Run("model", "check", "--root", Root);
 
     /// <summary>
-    /// Runs <c>litespec ui</c> against the fixture with the LiteSpec home pointed at the
+    /// Runs <c>litespec model check</c> against the fixture with the LiteSpec home pointed at the
     /// fixture release, so the pattern pages it reads are the fixture pages.
     /// </summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
     public CliResult RunWithFixtureHome() => Cli.Run(
-        ["ui", "--root", Root],
+        ["model", "check", "--root", Root],
         null,
         new Dictionary<string, string> { ["LITESPEC_HOME"] = HomeDir });
 
-    /// <summary>Every problem line the run printed, without the leading marker.</summary>
-    /// <param name="result">The completed UI run.</param>
-    /// <returns>The problem lines without the bullet prefix.</returns>
+    /// <summary>Every controlled UI finding line the run printed.</summary>
+    /// <param name="result">The completed model check run.</param>
+    /// <returns>The finding lines whose code the controlled UI pass reports.</returns>
     public static List<string> Problems(CliResult result) => result.Output
         .Split('\n')
-        .Where(line => line.StartsWith("  - ", StringComparison.Ordinal))
-        .Select(line => line.Substring(4).TrimEnd('\r'))
+        .Select(line => line.TrimEnd('\r'))
+        .Select(line => FindingLine.Match(line))
+        .Where(match => match.Success && UiCodes.Contains(match.Groups["code"].Value))
+        .Select(match => match.Value)
         .ToList();
 
-    /// <summary>Asserts the run printed no problem, showing the full output when it did.</summary>
-    /// <param name="result">The completed UI run.</param>
+    /// <summary>Asserts the run printed no controlled UI problem, showing the full output when it did.</summary>
+    /// <param name="result">The completed model check run.</param>
     public static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
@@ -185,8 +201,8 @@ sealed class UiFixture : IDisposable
             $"Expected no problems but the validator reported:\n  - {string.Join("\n  - ", problems)}\nFull output:\n{result.Output}");
     }
 
-    /// <summary>Asserts one problem contains the expectation, showing the full output when none does.</summary>
-    /// <param name="result">The completed UI run.</param>
+    /// <summary>Asserts one controlled UI problem contains the expectation, showing the full output when none does.</summary>
+    /// <param name="result">The completed model check run.</param>
     /// <param name="expectation">The text one problem line must contain.</param>
     public static void AssertProblem(CliResult result, string expectation)
     {

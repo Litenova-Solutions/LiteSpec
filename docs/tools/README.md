@@ -10,14 +10,13 @@ In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli 
 
 The CLI needs the .NET 10 SDK. A project with a React or Svelte frontend also needs Node at the version the manifest pins (`stack.node`), because the tool reads those frontends with a bundled Node reader. It carries its release beside its own binary; set `LITESPEC_HOME` to point it at another copy. Set `LITESPEC_TIMING` to print the phase timings of `litespec model` on standard error.
 
-Every command accepts `--help`, and every validator accepts `--format json` for a caller that reads the result rather than the text.
+Every command accepts `--help`, and `model check` accepts `--format json` for a caller that reads the result rather than the text.
 
 ## Consumer Repository
 
 - [Initialize Consumer](init.md): writes `.litespec/project.json` for a new consumer from a preset.
 - [Scaffold Record](new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](rename.md): renames a record identifier and rewrites every link.
-- [Validate Consumer](consumer.md): checks a consumer's records and project record.
-- [Validate Controlled UI](ui.md): checks the shared UI package and each controlled web frontend.
-- [Model Builder](model.md): builds, checks, and diffs the project model, formats record files, renders generated regions, and answers record queries.
-- [Book](book.md): generates the project book from `model.json`: one offline shell with the outline and security views.
+- [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, and answers record queries.
+- [Book](book.md): generates the project book from the consumer root: one offline shell with the outline and security views.
+- [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.

@@ -65,7 +65,7 @@ public sealed class LinkExportTests
     }
 
     /// <summary>Derived Results Take The Written Form.</summary>
-    /// <proves>litespec/core/model#derive-generic-refusals</proves>
+    /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact]
     public void Derived_Results_Take_The_Written_Form()
     {
@@ -111,7 +111,7 @@ public sealed class LinkExportTests
     }
 
     /// <summary>Wave5 Objects Export Their Ids As Links.</summary>
-    /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
+    /// <proves>litespec/ext/jobs#state-each-step-compensation</proves>
     [Fact]
     public void Wave5_Objects_Export_Their_Ids_As_Links()
     {
@@ -137,7 +137,6 @@ public sealed class LinkExportTests
 
     /// <summary>Wave6 Effects Triggers And Steps Export Their Ids As Links.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
-    /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
     [Fact]
     public void Wave6_Effects_Triggers_And_Steps_Export_Their_Ids_As_Links()
     {

@@ -718,38 +718,6 @@
   overflow-wrap: anywhere;
 }
 
-/* The review line: people review the records above it, code proves the scenarios below. */
-.prose .trail-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: var(--space-3) 0;
-  padding: 0;
-  font-size: 12px;
-  color: var(--muted-fg);
-}
-
-.prose .trail-divider::before,
-.prose .trail-divider::after {
-  content: "";
-  flex: 1;
-  border-top: 1px dashed var(--rail);
-}
-
-.prose .trail-divider::before {
-  flex: 0 0 var(--space-4);
-}
-
-.prose .trail-divider-label {
-  font-weight: 600;
-  color: var(--fg-2);
-  white-space: nowrap;
-}
-
-.prose .trail-divider-note {
-  white-space: nowrap;
-}
-
 .prose .trail-facets {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -824,9 +792,5 @@
   .prose .trail-list .trail-list {
     margin-left: var(--space-2);
     padding-left: var(--space-3);
-  }
-
-  .prose .trail-divider-note {
-    white-space: normal;
   }
 }

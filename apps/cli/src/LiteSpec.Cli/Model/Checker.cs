@@ -15,8 +15,8 @@ static class Checker
     /// <summary>Every finding code an exception may name.</summary>
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
-        "record-invalid", "field-invalid", "identifier-invalid", "identifier-duplicate",
-        "use-case-name-clash", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "job-name-invalid", "reference-unknown",
+        "record-invalid", "folder-invalid", "module-undeclared", "record-placement-invalid", "identifier-folder-drift", "name-duplicate", "decision-number-duplicate", "link-locality-invalid", "module-dependency-invalid", "event-publisher-invalid", "intent-unreached", "role-orphaned", "permission-orphaned", "decision-decides-duplicate", "code-placement-drift", "field-invalid", "identifier-invalid", "identifier-duplicate",
+        "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "job-name-invalid", "reference-unknown",
         "exception-expired", "exception-finding-unknown",
         "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
         "refusal-unimplemented", "use-case-unimplemented", "proves-unreached", "use-case-unverified", "proof-invalid",
@@ -24,7 +24,7 @@ static class Checker
         "use-case-journey-missing",
         "use-case-scenario-missing", "requirement-fulfillment-missing",
         "requirement-cites-missing", "constraint-unreached",
-        "aggregate-name-clash", "decision-decides-missing", "decision-unimplemented", "decision-basis-missing", "link-unknown", "operation-use-case-drift", "constituent-parent-missing", "alert-link-missing", "alert-threshold-drift", "quality-alert-missing", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-undeclared", "dependency-version-drift", "dependency-license-unknown", "admission-invalid", "screen-unimplemented", "screen-offers-drift", "screen-serves-drift", "step-screen-missing", "refusal-sentence-missing", "reader-missing", "proves-duplicate",
+        "decision-decides-missing", "decision-unimplemented", "decision-basis-missing", "link-unknown", "operation-use-case-drift", "constituent-parent-missing", "alert-link-missing", "alert-threshold-drift", "quality-alert-missing", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-undeclared", "dependency-version-drift", "dependency-license-unknown", "admission-invalid", "screen-unimplemented", "screen-offers-drift", "screen-serves-drift", "step-screen-missing", "refusal-sentence-missing", "reader-missing", "proves-duplicate",
         "behavior-unrecorded", "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid", "mark-folder-drift",
         "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unimplemented", "use-case-act-missing",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
@@ -100,6 +100,13 @@ static class Checker
         Time("profile", () => SizeTypeChecks.Run(model, findings));
         Time("reach", () => ReachChecks.RunReach(model, findings));
         Time("behavior", () => ReachChecks.RunBehavior(model, findings));
+        Time("intent-unreached", () => ReachChecks.RunIntentUnreached(model, findings));
+        Time("role-orphaned", () => ReachChecks.RunRoleOrphan(model, findings));
+        Time("permission-orphaned", () => ReachChecks.RunPermissionOrphan(model, findings));
+        Time("decision-decides-duplicate", () => ReachChecks.RunDecisionConflict(model, findings));
+        Time("folders", () => FolderChecks.Run(model, findings));
+        Time("locality", () => LocalityChecks.Run(model, findings));
+        Time("placement", () => PlacementChecks.Run(model, findings));
         Time("marks", () => MarkChecks.Run(model, findings));
         Time("screens", () => ScreenChecks.Run(model, findings));
         Time("code", () => CodeChecks.Run(model, findings));

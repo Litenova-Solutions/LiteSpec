@@ -4,28 +4,17 @@ title: Receipt
 summary: A receipt is proof of payment attached to an expense.
 kind: entity
 states:
-  - name: Attached
-    meaning: The receipt sits on the expense.
+- name: Attached
+  meaning: The receipt sits on the expense.
 transitions:
-  - from: "-"
-    to: Attached
-    by: use-case/spending.attach-receipt
+- from: "-"
+  to: Attached
+  by: use-case/spending.attach-receipt
 records:
-  - type: rule
-    id: rule/receipt.attaches-before-decision
-    title: Attaches Before Decision
-    kind: precondition
-    statement: A receipt attaches before the expense is decided.
-    governs:
-      - use-case/spending.attach-receipt
-    refusal: result/attach-receipt.expense-decided
-    basedOn: []
-    fulfills:
-      - requirement/approval.receipt-over-threshold
-  - type: event
-    id: event/receipt.attached
-    title: Receipt Attached
-    meaning: A receipt was attached.
-    carries:
-      - receiptId
-      - expenseId
+- type: event
+  id: event/receipt.attached
+  title: Receipt Attached
+  meaning: A receipt was attached.
+  carries:
+  - receiptId
+  - expenseId

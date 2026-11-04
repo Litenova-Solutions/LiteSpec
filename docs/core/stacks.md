@@ -1,5 +1,9 @@
 # Technology Stacks
 
+**Stack:** any
+
+**Layer:** workspace
+
 ## Intent
 
 A stack binds the specification to one technology: a backend stack lives under `backend/`, a frontend stack under `frontend/`. Selecting one applies exactly the provisions, version pins, and checks that technology needs. This page states what selecting a stack applies, where its versions come from, and how a replacement names every baseline provision it replaces.
@@ -16,7 +20,7 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 Every SDK, framework, and package version resolves from `litespec.manifest.json`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
 
-When an extension or a deviation replaces baseline behavior, it names every baseline provision ID it replaces. A deviation is an exception of kind `departure` whose `covers` names the provision it replaces; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure is recorded as an exception whose `covers` names the provision it replaces; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
 ### Selection Diagnostics
 
@@ -35,6 +39,8 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#apply-the-complete-stack`
 
+**Strength:** rule
+
 **Statement:** A consumer selecting a stack MUST apply the pages in its folder, every folder above it, and their subfolders that hold no stack.
 
 **Rationale:** The stack is the unit of conformance: a consumer cannot claim a stack while silently omitting an applicable page. Applying the folder, every folder above it, and their stackless subfolders keeps inherited principles in force without restating them. A deeper page replaces only the provisions it names, so everything it leaves unnamed keeps applying.
@@ -44,6 +50,8 @@ These checks report a manifest selection no page can apply, so they are listed h
 ### Use Manifest Version Pins
 
 **ID:** `litespec/core/stacks#use-manifest-version-pins`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.json`.
 
@@ -55,17 +63,21 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#declare-replacements`
 
-**Statement:** An extension or a deviation MUST name every baseline provision ID it replaces.
+**Strength:** rule
 
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A deviation is an exception of kind `departure` whose `covers` names the provision, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+**Statement:** An extension or a departure MUST name every baseline provision ID it replaces.
 
-**Reviewed for:** Each extension or deviation names every baseline provision ID it replaces, with the rest staying active.
+**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure is recorded as an exception whose `covers` names the provision, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+
+**Reviewed for:** Each extension or departure names every baseline provision ID it replaces, with the rest staying active.
 
 ## Conventions
 
 ### Keep the Stack Visible
 
 **ID:** `litespec/core/stacks#keep-the-stack-visible`
+
+**Strength:** default
 
 **Default:** Name each selected stack in `.litespec/project.json` and the solution, applications, and commands in the root `AGENTS.md`.
 

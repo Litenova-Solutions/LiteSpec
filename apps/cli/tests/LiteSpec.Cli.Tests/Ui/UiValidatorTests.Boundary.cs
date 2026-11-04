@@ -39,10 +39,10 @@ public sealed partial class UiValidatorTests
             "/** Reads a value from `@base-ui/react` in the composite that wraps it. */\nexport function Case() {\n  return <main>Orders</main>;\n}\n"));
     }
 
-    // Application stylesheet (litespec/frontend/web/ui#keep-tokens-in-one-stylesheet).
+    // Application stylesheet (litespec/frontend/ui#keep-tokens-in-one-definition).
 
     /// <summary>An Application Stylesheet Importing The Package Tokens.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_The_Package_Tokens()
     {
@@ -51,7 +51,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Writing A Value From A Token.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void An_Application_Stylesheet_Writing_A_Value_From_A_Token()
     {
@@ -61,7 +61,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Declaring A Literal Value.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void An_Application_Stylesheet_Declaring_A_Literal_Value()
     {
@@ -72,7 +72,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Importing Nothing.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_Nothing()
     {
@@ -83,7 +83,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Importing A Third Party Sheet.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_A_Third_Party_Sheet()
     {
@@ -93,10 +93,10 @@ public sealed partial class UiValidatorTests
             "import 'bootstrap/dist/css/bootstrap.css' is outside the shared package");
     }
 
-    // Shared stylesheets (litespec/frontend/web/ui#keep-tokens-in-one-stylesheet).
+    // Shared stylesheets (litespec/frontend/ui#keep-tokens-in-one-definition).
 
     /// <summary>A Shared Stylesheet Written From Tokens.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void A_Shared_Stylesheet_Written_From_Tokens()
     {
@@ -107,7 +107,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Stylesheet Carrying A Literal Colour.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void A_Shared_Stylesheet_Carrying_A_Literal_Colour()
     {
@@ -120,7 +120,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Stylesheet Carrying A Hex Colour.</summary>
-    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
+    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
     public void A_Shared_Stylesheet_Carrying_A_Hex_Colour()
     {

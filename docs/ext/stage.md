@@ -1,5 +1,9 @@
 # Release Stage
 
+**Stack:** any
+
+**Layer:** operations
+
 ## Intent
 
 The release stage tells whether any deployment holds customer data yet, because several provisions assume a running service that the first builds do not have. This page states how a project declares its stage, which provisions the early stage defers and until when, and how a recorded decision ends the deferral. A project selects it while no deployment holds customer data, or afterwards to record a past move to production, so relaxed early provisions expire on a date instead of lingering by accident.
@@ -24,6 +28,8 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#declare-the-release-stage`
 
+**Strength:** rule
+
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.json`.
 
 **Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
@@ -34,11 +40,15 @@ It switches on no record type: the promotion decision is a core record every pro
 {"id": "stage", "criterion": "no deployment holds customer data", "releaseStage": "pre-production"}
 ```
 
-**Checked by:** `litespec consumer` refuses a `stage` selection with a missing or unknown `releaseStage`.
+**Checked by:** `litespec model check` reports `project-invalid` for a `stage` selection with a missing or unknown `releaseStage`.
 
 ### Defer Named Provisions Until Promotion
 
 **ID:** `litespec/ext/stage#defer-named-provisions-until-promotion`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:exception
 
 **Statement:** A `pre-production` consumer MUST record each deferred provision as a departure exception expiring at promotion, with a `production` consumer carrying no deferred provision.
 
@@ -50,11 +60,15 @@ It switches on no record type: the promotion decision is a core record every pro
 {"type": "exception", "id": "exception/compat-classification-until-promotion", "title": "Compat Classification Until Promotion", "kind": "departure", "covers": "litespec/ext/compat#classify-breaking-contract-changes", "paths": ["apps/api/**"], "reason": "No consumer reads the contract before the first deployment.", "expiresOn": "2026-12-01"}
 ```
 
-**Checked by:** `litespec consumer` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `exception-expired` for an exception past its `expiresOn`.
+**Checked by:** `litespec model check` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `exception-expired` for an exception past its `expiresOn`.
 
 ### Promote Through a Recorded Decision
 
 **ID:** `litespec/ext/stage#promote-through-a-recorded-decision`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** A consumer MUST record its promotion to `production` as a decision before its first deployment holds customer data, ending every deferred provision.
 

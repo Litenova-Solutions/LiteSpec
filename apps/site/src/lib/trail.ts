@@ -3,24 +3,20 @@
 //
 //   product      Claimwick: submit, approve, reimburse
 //     goal       Decided in days
-//   --- Review line: records above, code below
 //   code         Aggregate, command, endpoint, test
 //   facet  Where it lives  spending module > expense aggregate
 //
 // A node line is a record type, two or more spaces, and its text; indentation nests
-// it. A `---` line is the review line, and a `facet` line is a label and a path. The
-// site draws the outline as a tree.
+// it. A `facet` line is a label and a path. The site draws the outline as a tree.
 
 export interface TrailNode {
   type: string;
   text: string;
-  children: TrailItem[];
+  children: TrailNode[];
 }
 
-export type TrailItem = { kind: "node"; node: TrailNode } | { kind: "divider"; label: string };
-
 export interface Trail {
-  items: TrailItem[];
+  items: TrailNode[];
   facets: { label: string; path: string[] }[];
 }
 
@@ -29,17 +25,10 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
   const trail: Trail = { items: [], facets: [] };
   const errors: string[] = [];
   // The open lists by indentation: the list a node at that indentation joins.
-  const stack: { indent: number; items: TrailItem[] }[] = [{ indent: -1, items: trail.items }];
-  let pendingDivider: string | null = null;
+  const stack: { indent: number; items: TrailNode[] }[] = [{ indent: -1, items: trail.items }];
 
   for (const [index, raw] of text.split(/\r?\n/).entries()) {
     if (raw.trim() === "") continue;
-
-    const divider = /^\s*---\s*(.*)$/.exec(raw);
-    if (divider) {
-      pendingDivider = divider[1].trim() || "Review line";
-      continue;
-    }
 
     const facet = /^facet\s+(.+?)\s{2,}(.+)$/.exec(raw);
     if (facet) {
@@ -49,7 +38,7 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
 
     const node = /^(\s*)([a-z][a-z-]*)\s{2,}(.+)$/.exec(raw);
     if (!node) {
-      errors.push(`line ${index + 1}: expected "<type>  <text>", "--- <label>" or "facet <label>  <path>": ${raw.trim()}`);
+      errors.push(`line ${index + 1}: expected "<type>  <text>" or "facet <label>  <path>": ${raw.trim()}`);
       continue;
     }
 
@@ -57,18 +46,11 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
     while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
     const parent = stack[stack.length - 1];
 
-    // A review line lands where the next node does, so it divides siblings.
-    if (pendingDivider !== null) {
-      parent.items.push({ kind: "divider", label: pendingDivider });
-      pendingDivider = null;
-    }
-
     const entry: TrailNode = { type: node[2], text: node[3].trim(), children: [] };
-    parent.items.push({ kind: "node", node: entry });
+    parent.items.push(entry);
     stack.push({ indent, items: entry.children });
   }
 
-  if (pendingDivider !== null) trail.items.push({ kind: "divider", label: pendingDivider });
   return { trail, errors };
 }
 
@@ -89,23 +71,11 @@ function escape(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function renderItems(items: TrailItem[]): string {
+function renderItems(items: TrailNode[]): string {
   return `<ul class="trail-list">${items.map(renderItem).join("")}</ul>`;
 }
 
-function renderItem(item: TrailItem): string {
-  if (item.kind === "divider") {
-    const [title, ...rest] = item.label.split(":");
-    const note = rest.join(":").trim();
-    return (
-      `<li class="trail-divider" role="separator" aria-label="${escape(item.label)}">` +
-      `<span class="trail-divider-label">${escape(title.trim())}</span>` +
-      (note ? `<span class="trail-divider-note">${escape(note)}</span>` : "") +
-      `</li>`
-    );
-  }
-
-  const { node } = item;
+function renderItem(node: TrailNode): string {
   const group = GROUPS[node.type] ?? "build";
   const children = node.children.length > 0 ? renderItems(node.children) : "";
   return (

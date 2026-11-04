@@ -106,13 +106,13 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency 'flowbite-svelte' requires an exception");
     }
 
-    // Svelte baseline (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package,
+    // Svelte baseline (litespec/frontend/ui#pin-the-baseline-in-the-shared-package,
     // litespec/frontend/web/ui#track-source-changes,
     // litespec/frontend/ui#select-one-visual-authority,
     // litespec/frontend/components#compose-composites-in-page-code).
 
     /// <summary>A Svelte Package Validates Against The Svelte Baseline.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Svelte_Package_Validates_Against_The_Svelte_Baseline()
     {
@@ -176,7 +176,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Svelte_Source_Lock_Describing_A_Preset_The_Manifest_Does_Not_Pin()
     {
@@ -185,11 +185,11 @@ public sealed partial class UiValidatorTests
         fixture.MutateLock(sourceLock => ((JsonObject)sourceLock["preset"]!)["baseColor"] = "slate");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] preset.baseColor does not match the manifest baseline");
+            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] preset.baseColor does not match the manifest baseline");
     }
 
     /// <summary>A Svelte Source Lock Naming The React CLI Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Svelte_Source_Lock_Naming_The_React_CLI_Pin()
     {
@@ -202,7 +202,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Source Lock Naming Another Registry.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Svelte_Source_Lock_Naming_Another_Registry()
     {
@@ -218,7 +218,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Svelte Components Json Naming A Base Colour The Baseline Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Svelte_Components_Json_Naming_A_Base_Colour_The_Baseline_Does_Not_Pin()
     {
@@ -229,11 +229,11 @@ public sealed partial class UiValidatorTests
         UiFixture.WriteJson(fixture.ComponentsFile, components);
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be 'neutral'");
+            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be 'neutral'");
     }
 
     /// <summary>Svelte Components Json Naming Another Registry.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Svelte_Components_Json_Naming_Another_Registry()
     {
@@ -248,7 +248,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Registry Exception Carries The Frontend Provision.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Svelte_Registry_Exception_Carries_The_Frontend_Provision()
     {
@@ -257,7 +257,7 @@ public sealed partial class UiValidatorTests
         var components = (JsonObject)UiFixture.ReadJson(fixture.ComponentsFile)!;
         components["registry"] = "https://blocks.fixture.test";
         UiFixture.WriteJson(fixture.ComponentsFile, components);
-        fixture.WriteException("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteException("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
@@ -275,7 +275,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>The Fixture Is React Again After The Svelte Block.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void The_Fixture_Is_React_Again_After_The_Svelte_Block()
     {

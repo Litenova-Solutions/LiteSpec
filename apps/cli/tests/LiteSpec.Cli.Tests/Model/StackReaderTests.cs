@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -7,24 +8,25 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the stack readers keep the build identical and read JUnit results.</summary>
 public sealed class StackReaderTests
 {
-    /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
+    /// <summary>The builder reads the counts the fixture contents hold.</summary>
     /// <param name="fixture">The fixture size name the case builds, small or large.</param>
-    /// <param name="records">The record count the case expects the build to print.</param>
-    /// <param name="handlers">The handler count the case expects the build to print.</param>
-    /// <param name="screens">The screen count the case expects the build to print.</param>
-    /// <param name="scenarios">The scenario count the case expects the build to print.</param>
+    /// <param name="records">The record count the case expects the builder to read.</param>
+    /// <param name="handlers">The handler count the case expects the builder to read.</param>
+    /// <param name="screens">The screen count the case expects the builder to read.</param>
+    /// <param name="scenarios">The scenario count the case expects the builder to read.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small", 73, 7, 0, 0)]
-    [InlineData("large", 93, 7, 1, 9)]
-    public void Build_Prints_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
+    [InlineData("large", 94, 7, 1, 9)]
+    public void Build_Reads_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
-        var result = Cli.Run("model", "build", "--root", temp.Path);
-        Assert.Equal(0, result.Status);
-        Assert.Contains(
-            $"{records} records, {handlers} handlers, {screens} screens, {scenarios} scenarios.",
-            result.Stdout);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+
+        Assert.Equal(records, model.Records.Count);
+        Assert.Equal(handlers, model.Code.Handlers.Count);
+        Assert.Equal(screens, model.Screens.Count);
+        Assert.Equal(scenarios, model.Tests.Count);
     }
 
     /// <summary>A project naming neither dotnet nor blazor reads no .NET backend or scenarios.</summary>
@@ -39,28 +41,24 @@ public sealed class StackReaderTests
         project["stacks"] = new JsonArray(JsonValue.Create("react"));
         File.WriteAllText(projectFile, project.ToJsonString());
 
-        var result = Cli.Run("model", "build", "--root", temp.Path);
-        Assert.Equal(0, result.Status);
-        Assert.Contains("0 handlers", result.Stdout);
-        Assert.Contains("0 scenarios", result.Stdout);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+
+        Assert.Empty(model.Code.Handlers);
+        Assert.Empty(model.Tests);
     }
 
-    /// <summary>Clean fixtures write no test run: neither holds a result file.</summary>
+    /// <summary>Clean fixtures hold no test run: neither holds a result file.</summary>
     /// <param name="fixture">The fixture size name the case builds without a result file.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small")]
     [InlineData("large")]
-    public void Build_Writes_Null_Test_Run_Without_Result_Files(string fixture)
+    public void Build_Holds_Null_Test_Run_Without_Result_Files(string fixture)
     {
         using var temp = ModelFixture.Prepare(fixture);
-        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
-        Assert.Equal(0, result.Status);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        using var document = JsonDocument.Parse(File.ReadAllText(output));
-
-        Assert.Equal(JsonValueKind.Null, document.RootElement.GetProperty("testRun").ValueKind);
+        Assert.Null(model.TestRun);
     }
 
     /// <summary>A JUnit file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
@@ -96,11 +94,9 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/results.xml"), Path.Combine(resultsFolder, "results.xml"));
 
-        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
-        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
-        Assert.Equal(0, built.Status);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        using var document = JsonDocument.Parse(model.ToJson());
         var root = document.RootElement;
         var run = root.GetProperty("testRun");
 
@@ -145,11 +141,9 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/trx/results.trx"), Path.Combine(resultsFolder, "results.trx"));
 
-        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
-        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
-        Assert.Equal(0, built.Status);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        using var document = JsonDocument.Parse(model.ToJson());
         var root = document.RootElement;
         var run = root.GetProperty("testRun");
 
@@ -197,11 +191,9 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
-        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
-        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
-        Assert.Equal(0, built.Status);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        using var document = JsonDocument.Parse(model.ToJson());
         var root = document.RootElement;
         var run = root.GetProperty("testRun");
 
@@ -251,11 +243,9 @@ public sealed class StackReaderTests
         Directory.CreateDirectory(resultsFolder);
         File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
-        var output = Path.Combine(temp.Path, ".litespec/model", "model.json");
-        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
-        Assert.Equal(0, built.Status);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        using var document = JsonDocument.Parse(model.ToJson());
         var root = document.RootElement;
 
         Assert.Equal("specified", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());

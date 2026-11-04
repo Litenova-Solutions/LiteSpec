@@ -8,7 +8,7 @@ namespace LiteSpec.Consumer;
 ///     findings carried into this run's own list.
 /// </summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
-/// <follows>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</follows>
+/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
 /// <follows>litespec/frontend/web/ui#track-source-changes</follows>
 static class ControlledUiChecks
 {

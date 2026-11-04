@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,7 +21,7 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1011);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -29,9 +30,11 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
     ///     compilation context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
         context.RegisterSyntaxNodeAction(
-            Analyze,
+            c => Analyze(c, scope),
             SyntaxKind.ClassDeclaration,
             SyntaxKind.StructDeclaration,
             SyntaxKind.InterfaceDeclaration,
@@ -45,11 +48,18 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
             SyntaxKind.EventFieldDeclaration,
             SyntaxKind.FieldDeclaration,
             SyntaxKind.ConstructorDeclaration);
+    }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void Analyze(SyntaxNodeAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void Analyze(SyntaxNodeAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Node.SyntaxTree))
+        {
+            return;
+        }
+
         switch (context.Node)
         {
             case TypeDeclarationSyntax type:

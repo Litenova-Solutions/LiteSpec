@@ -42,10 +42,14 @@ public sealed class PageReaderTests
     [Fact(DisplayName = "reader passes a Statement inside a code span")]
     public void StatementCodeSpanPass()
     {
-        var found = Diagnose(root => StandardsFixture.Write(root, "docs/core/topic.md",
-            StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage,
-                "**Rationale:** The boundary gives reviewers one testable result.",
-                "**Rationale:** The boundary gives reviewers one testable result.\n\nThe `**Statement:**` label starts a rule.")));
+        var found = Diagnose(root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md",
+                StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage,
+                    "**Rationale:** The boundary gives reviewers one testable result.",
+                    "**Rationale:** The boundary gives reviewers one testable result.\n\nThe `**Statement:**` label starts a rule."));
+            StandardsFixture.RebuildIndex(root);
+        });
         Assert.Empty(found);
     }
 

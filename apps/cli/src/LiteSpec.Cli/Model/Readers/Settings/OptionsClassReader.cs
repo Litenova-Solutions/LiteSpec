@@ -1,3 +1,4 @@
+using LiteSpec.Model.Readers.Dotnet;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -20,7 +21,7 @@ static class OptionsClassReader
     {
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        foreach (var root in SourceRoots.BackendRoots(config))
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }

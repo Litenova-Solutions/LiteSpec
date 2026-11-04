@@ -2,7 +2,7 @@ namespace Library.Acceptance.Tests.Proof;
 
 public sealed class UnappliedProvisionProofTests
 {
-    /// <proves>litespec/frontend/blazor/browser#bound-what-is-stored</proves>
+    /// <proves>litespec/frontend/web/svelte/components#write-components-in-runes-mode</proves>
     [Fact]
     public void Bounds_storage()
     {

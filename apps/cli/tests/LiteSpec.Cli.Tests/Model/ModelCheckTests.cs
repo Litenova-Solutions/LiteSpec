@@ -8,7 +8,6 @@ public sealed class ModelCheckTests
     /// <summary>Every finding code the builder emits, one entry per broken overlay.</summary>
     static readonly string[] FindingCodeList =
     [
-        "aggregate-name-clash",
         "behavior-unrecorded",
         "calculation-table-missing",
         "consistency-cites-missing",
@@ -32,6 +31,19 @@ public sealed class ModelCheckTests
         "reaction-trigger-unknown",
         "record-link-missing",
         "record-invalid",
+        "folder-invalid",
+        "module-undeclared",
+        "record-placement-invalid",
+        "identifier-folder-drift",
+        "name-duplicate",
+        "decision-number-duplicate",
+        "link-locality-invalid",
+        "module-dependency-invalid",
+        "event-publisher-invalid",
+        "intent-unreached",
+        "role-orphaned",
+        "permission-orphaned",
+        "decision-decides-duplicate",
         "reference-unknown",
         "refusal-unimplemented",
         "requirement-fulfillment-missing",
@@ -47,7 +59,6 @@ public sealed class ModelCheckTests
         "state-unreached",
         "step-use-case-missing",
         "transition-unknown",
-        "use-case-name-clash",
         "use-case-unimplemented",
         "use-case-scenario-missing",
         "use-case-success-missing",
@@ -77,7 +88,7 @@ public sealed class ModelCheckTests
     {
         using var fixture = ModelFixture.Prepare("small");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
@@ -87,7 +98,7 @@ public sealed class ModelCheckTests
     {
         using var fixture = ModelFixture.Prepare("large");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>Broken overlay '&lt;code&gt;' exits 1 with its finding code in the output.</summary>
@@ -129,12 +140,12 @@ public sealed class ModelCheckTests
         WriteException(
             fixture.Path,
             "exception/list-loans-unimplemented",
-            "List loans unimplemented",
+            "List Loans Unimplemented",
             ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
             ["use-case/lending.list-loans", "screen/library-app.loans"],
             "2035-06-01");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>An expired exception exits 1.</summary>
@@ -146,7 +157,7 @@ public sealed class ModelCheckTests
         WriteException(
             fixture.Path,
             "exception/list-loans-unimplemented",
-            "List loans unimplemented",
+            "List Loans Unimplemented",
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
             "2020-01-01");
@@ -183,7 +194,8 @@ public sealed class ModelCheckTests
             + string.Join(",\n", subject.Select(entry => $"    \"{entry}\""))
             + "\n  ],\n"
             + $"  \"expiresOn\": \"{expiresOn}\",\n"
-            + "  \"reason\": \"Listing waits for the search index.\"\n"
+            + "  \"reason\": \"Listing waits for the search index.\",\n"
+            + "  \"exit\": \"The search index ships and listing loans gains its handler.\"\n"
             + "}\n";
     }
 

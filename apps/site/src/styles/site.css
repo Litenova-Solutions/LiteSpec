@@ -177,11 +177,12 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   font: 500 12px var(--sans); color: var(--muted-fg); white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-.badge-rule { background: var(--rule-bg); border-color: var(--rule-bd); color: var(--rule-fg); }
-.badge-convention { background: var(--conv-bg); border-color: var(--conv-bd); color: var(--conv-fg); }
-.badge-pattern { background: var(--pat-bg); border-color: var(--pat-bd); color: var(--pat-fg); }
+.badge-rule, .badge-strength-rule { background: var(--rule-bg); border-color: var(--rule-bd); color: var(--rule-fg); }
+.badge-convention, .badge-strength-default { background: var(--conv-bg); border-color: var(--conv-bd); color: var(--conv-fg); }
+.badge-pattern, .badge-strength-advice { background: var(--pat-bg); border-color: var(--pat-bd); color: var(--pat-fg); }
 .badge-warn { background: var(--warn-bg); border-color: var(--warn-bd); color: var(--warn-fg); }
-.badge-rule::before, .badge-convention::before, .badge-pattern::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .75; }
+.badge-rule::before, .badge-convention::before, .badge-pattern::before,
+.badge-strength-rule::before, .badge-strength-default::before, .badge-strength-advice::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .75; }
 .ver {
   display: inline-flex; align-items: center; gap: var(--gap-inline); height: 22px; padding: 0 var(--space-2);
   border: 1px solid var(--rule-bd); background: var(--rule-bg); color: var(--rule-fg);

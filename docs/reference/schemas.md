@@ -6,7 +6,7 @@ Every file a LiteSpec tool reads has one schema (a contract stating its exact sh
 
 ## Reference
 
-Every schema lives in `schemas/` at the repository root and uses JSON Schema draft 2020-12. Each schema carries an `$id` that equals its published URL, so the copy at `https://litespec.dev/4.0.0/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md), [consumer](../tools/consumer.md), and [ui](../tools/ui.md) pages state the commands that check each file. The release ships seven schemas, one per section below.
+Every schema lives in `schemas/` at the repository root and uses JSON Schema draft 2020-12. Each schema carries an `$id` that equals its published URL, so the copy at `https://litespec.dev/4.0.0/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md) and [model](../tools/model.md) pages state the commands that check each file. The release ships seven schemas, one per section below.
 
 ### Manifest Schema
 
@@ -37,7 +37,7 @@ The release manifest opens with these fields:
 |:---|:---|
 | File | `schemas/litespec-project.schema.json` |
 | Validates | `.litespec/project.json` in a consumer repository |
-| Checked by | `litespec consumer`, and `litespec-maintain validate` for the template copy |
+| Checked by | `litespec model check`, and `litespec-maintain validate` for the template copy |
 | Published URL | `https://litespec.dev/4.0.0/schemas/litespec-project.schema.json` |
 
 The top-level properties describe the project. `project` holds the project name. `size` is `small` or `large`. `shape` is `server` or `client-only`. `stacks` lists the selected stacks. `reviewedLiteSpecVersion` records the LiteSpec release the project last reviewed. `paths` locates the specification tree, the glossary, the UI package, and the frontends. `stackConfig` holds per-stack configuration, such as the .NET backend paths. `selectedExtensions` lists the active extensions with their criterion. `refusals` names the codes the derived generic results carry. `marks`, `proof`, `dependencies`, and `screenshots` carry further project choices. The [project file](project-file.md) states every field.
@@ -61,7 +61,7 @@ The consumer template opens with these fields:
 |:---|:---|
 | File | `schemas/record.schema.json` |
 | Validates | The record file of each consumer record page and the frontmatter of each document |
-| Checked by | `litespec consumer` |
+| Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/4.0.0/schemas/record.schema.json` |
 
 The schema holds no single property list. Instead it carries a `oneOf` across 36 page variants, one per record type and page style, so each record file and each document frontmatter matches exactly one variant: `productPage`, `goalPage`, `constraintPage`, `researchPage`, `decisionPage`, `problemPage`, `featurePage`, `actorPage`, `rolePage`, `journeyPage`, `modulePage`, `aggregatePage`, `useCasePage`, `reactionPage`, `jobPage`, `notificationPage`, `externalSystemPage`, `integrationEventPage`, `runbookPage`, `exceptionPage`, `permissionListPage`, `entryPointPage`, `entryPointListPage`, `screenPage`, `settingPage`, `settingSetPage`, `ruleSetPage`, `retentionSchedulePage`, `indexPage`, `tutorialPage`, `howToPage`, `referencePage`, `commandPage`, `configurationPage`, `glossaryPage`, and `exampleCastPage`. Each variant requires `type` plus its own fields, such as `id` and `title`. A record present in git is decided; no variant carries approval, status, or history fields.
@@ -86,7 +86,7 @@ A use case page requires `kind`, which is `command` or `query`, and the `access`
 |:---|:---|
 | File | `schemas/glossary.schema.json` |
 | Validates | The project glossary, by default `glossary.yaml` under the documentation root |
-| Checked by | `litespec consumer` |
+| Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/4.0.0/schemas/glossary.schema.json` |
 
 The top-level properties hold the closed vocabulary. `schemaVersion` is the constant `2`. `terms` holds one entry per concept, each with its `id`, `term`, `meaning`, `layer` of `intent` or `behavior`, `aliases` naming the established synonyms, `labels`, `rejected` synonyms, `broader` and `narrower` terms, and closed-set `values`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
@@ -106,7 +106,7 @@ The consumer glossary template carries real mannered entries:
 |:---|:---|
 | File | `schemas/design-contract.schema.json` |
 | Validates | The YAML metadata block that opens the `DESIGN.md` a shared UI package ships |
-| Checked by | `litespec ui` (`litespec/frontend/ui#publish-a-design-contract`) |
+| Checked by | `litespec model check` (`litespec/frontend/ui#publish-a-design-contract`) |
 | Published URL | `https://litespec.dev/4.0.0/schemas/design-contract.schema.json` |
 
 The top-level properties bind the contract to its package. `kind` is the constant `design-contract`. `schemaVersion` is the constant `1`. `package` names the shared UI package. `profile` names the density the worked example uses. `shell` names the application shell. `patterns` lists the floorplans the package provides.
@@ -130,7 +130,7 @@ The consumer template opens its design contract with these fields:
 |:---|:---|
 | File | `schemas/ui-pattern-catalog.schema.json` |
 | Validates | The workspace UI pattern catalog at `paths.uiPatterns` |
-| Checked by | `litespec ui` (`litespec/frontend/patterns#keep-one-pattern-catalog`) |
+| Checked by | `litespec model check` (`litespec/frontend/patterns#keep-one-pattern-catalog`) |
 | Published URL | `https://litespec.dev/4.0.0/schemas/ui-pattern-catalog.schema.json` |
 
 The top-level properties hold one decision per recurring UI question. `kind` is the constant `ui-pattern-catalog`. `schemaVersion` is the constant `1`. `registry` names the command that renders every option for visual review. `breakpoints` names the viewport widths in CSS pixels. `groups` holds the catalog groups. `patterns` holds the decisions, each with its `options`, chosen `decision`, `compact` behavior, and per-platform `implementations`.
@@ -152,7 +152,7 @@ The consumer template catalog opens with these fields:
 |:---|:---|
 | File | `schemas/ui-source-lock.schema.json` |
 | Validates | The source lock beside the one copy of the registry source |
-| Checked by | `litespec ui` (`litespec/frontend/web/ui#track-source-changes`) |
+| Checked by | `litespec model check` (`litespec/frontend/web/ui#track-source-changes`) |
 | Published URL | `https://litespec.dev/4.0.0/schemas/ui-source-lock.schema.json` |
 
 The top-level properties pin what was installed. `schemaVersion` is the constant `1`. `generator` is `shadcn/ui` or `shadcn-svelte`. `cli` is the pinned CLI version. `preset` repeats the manifest baseline the package installs. `registry` names where the source came from. `formatter` names the code formatter. `components` lists every installed primitive with its `name`, `address`, `status`, `paths`, `digest`, and `dependencies`.

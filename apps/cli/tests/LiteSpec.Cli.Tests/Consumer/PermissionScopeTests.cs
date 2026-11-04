@@ -1,36 +1,64 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
 /// <summary>
-/// Proves <c>litespec consumer</c> enforces the permission scope: an entry with
+/// Proves <c>litespec model check</c> enforces the permission scope: an entry with
 /// <c>scope</c> passes, one without fails with the schema error, and an entry
 /// with an unknown property still fails. Each test owns its own folder because
 /// tests run in parallel.
 /// </summary>
 public sealed class PermissionScopeTests
 {
-    /// <summary>The output lines that start with <c>  - </c>, without the prefix.</summary>
-    /// <param name="result">The completed consumer run.</param>
-    /// <returns>The problem lines without the bullet prefix.</returns>
-    static List<string> Problems(CliResult result) => result.Output
-        .Split('\n')
-        .Where(line => line.StartsWith("  - ", StringComparison.Ordinal))
-        .Select(line => line[4..])
-        .ToList();
+    /// <summary>One <c>model check</c> finding line: its path, line, level, code and message.</summary>
+    static readonly Regex FindingLine = new(
+        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|A)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
+        RegexOptions.Compiled);
 
-    /// <summary>Asserts a clean run: no problems and exit 0.</summary>
-    /// <param name="result">The completed consumer run.</param>
+    /// <summary>The schema <c>record-invalid</c> lines of one <c>model check</c> run, without the model pass phrasing.</summary>
+    /// <param name="result">The completed model check run.</param>
+    /// <returns>The schema problem lines.</returns>
+    static List<string> Problems(CliResult result)
+    {
+        var problems = new List<string>();
+
+        foreach (var line in result.Output.Split('\n'))
+        {
+            var match = FindingLine.Match(line.TrimEnd('\r'));
+
+            if (!match.Success || match.Groups["code"].Value != "record-invalid")
+            {
+                continue;
+            }
+
+            var message = match.Groups["message"].Value;
+
+            if (message.StartsWith("Record '", StringComparison.Ordinal)
+                || message.StartsWith("Screen '", StringComparison.Ordinal)
+                || message.StartsWith("Term '", StringComparison.Ordinal)
+                || message.StartsWith("Exception '", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            problems.Add(match.Value);
+        }
+
+        return problems;
+    }
+
+    /// <summary>Asserts a clean permission scope: no schema problem. The exit code belongs to the whole check, so it is not asserted here.</summary>
+    /// <param name="result">The completed model check run.</param>
     static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
-        Assert.Equal(0, result.Status);
         Assert.Empty(problems);
     }
 
     /// <summary>Asserts a failing run: exit 1 with some problem carrying the expectation.</summary>
-    /// <param name="result">The completed consumer run.</param>
+    /// <param name="result">The completed model check run.</param>
     /// <param name="expected">The text one problem line must contain.</param>
     static void AssertProblem(CliResult result, string expected)
     {
@@ -41,7 +69,7 @@ public sealed class PermissionScopeTests
 
     static CliResult RunConsumer(string root)
     {
-        string[] args = ["consumer", "--root", root];
+        string[] args = ["model", "check", "--root", root];
         return Cli.Run(args);
     }
 

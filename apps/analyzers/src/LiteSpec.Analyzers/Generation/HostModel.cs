@@ -1,12 +1,13 @@
 using System;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
-/// The compilation facts the generator reads beside the records and the marks: the project layer
-/// and whether xUnit v3 is referenced. The layer follows the same rule the layer resolver uses:
+/// The compilation facts the generator reads beside the records and the marks: the project layer,
+/// the backend layout, whether the compilation is the module-layout application project, and
+/// whether xUnit v3 is referenced. The layer follows the same rule the layer resolver uses:
 /// the declared LiteSpecLayer property first, then the assembly name suffix.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -14,15 +15,25 @@ internal sealed class HostModel : IEquatable<HostModel>
 {
     /// <summary>Initializes a new instance of the <see cref="HostModel"/> class.Creates a host model.</summary>
     /// <param name="layer">The project layer.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="applicationProject">Whether the compilation is the module-layout application project.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
-    public HostModel(Layer layer, bool xunitV3)
+    public HostModel(Layer layer, Layout layout, bool applicationProject, bool xunitV3)
     {
         Layer = layer;
+        Layout = layout;
+        ApplicationProject = applicationProject;
         XunitV3 = xunitV3;
     }
 
     /// <summary>Gets the project layer.</summary>
     public Layer Layer { get; }
+
+    /// <summary>Gets the backend layout the consumer builds.</summary>
+    public Layout Layout { get; }
+
+    /// <summary>Gets a value indicating whether whether the compilation is the module-layout application project.</summary>
+    public bool ApplicationProject { get; }
 
     /// <summary>Gets a value indicating whether whether the compilation references xUnit v3.</summary>
     public bool XunitV3 { get; }
@@ -41,23 +52,40 @@ internal sealed class HostModel : IEquatable<HostModel>
         return string.Empty;
     }
 
-    /// <summary>Creates a host model from the declared layer, the assembly name and the xUnit probe.</summary>
+    /// <summary>Reads the declared layout property, or the module layout when the project sets none.</summary>
+    /// <param name="options">The analyzer configuration options.</param>
+    /// <returns>The declared layout.</returns>
+    public static Layout DeclaredLayout(AnalyzerConfigOptionsProvider options)
+    {
+        if (options.GlobalOptions.TryGetValue(LayerResolver.LayoutPropertyKey, out var declared)
+            && !string.IsNullOrWhiteSpace(declared))
+        {
+            return LayerResolver.ParseLayout(declared);
+        }
+
+        return Layout.Modules;
+    }
+
+    /// <summary>Creates a host model from the declared layer, the layout, the assembly name and the xUnit probe.</summary>
     /// <param name="declared">The declared layer, or empty.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
     /// <returns>The host model.</returns>
-    public static HostModel Create(string declared, string assemblyName, bool xunitV3)
+    public static HostModel Create(string declared, Layout layout, string assemblyName, bool xunitV3)
     {
         var layer = declared.Length == 0
             ? LayerResolver.FromAssemblyName(assemblyName)
             : LayerResolver.Parse(declared);
+        var applicationProject = layout == Layout.Modules && declared.Length == 0 && layer == Layer.None;
 
-        return new HostModel(layer, xunitV3);
+        return new HostModel(layer, layout, applicationProject, xunitV3);
     }
 
     /// <inheritdoc />
     public bool Equals(HostModel? other) =>
-        other is not null && Layer == other.Layer && XunitV3 == other.XunitV3;
+        other is not null && Layer == other.Layer && Layout == other.Layout
+        && ApplicationProject == other.ApplicationProject && XunitV3 == other.XunitV3;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is HostModel other && Equals(other);
@@ -69,6 +97,8 @@ internal sealed class HostModel : IEquatable<HostModel>
         {
             var hash = 17;
             hash = hash * 31 + Layer.GetHashCode();
+            hash = hash * 31 + Layout.GetHashCode();
+            hash = hash * 31 + ApplicationProject.GetHashCode();
             hash = hash * 31 + XunitV3.GetHashCode();
 
             return hash;

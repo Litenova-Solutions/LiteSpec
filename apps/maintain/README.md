@@ -70,7 +70,7 @@ The `--help` text of each command is the contract quoted in `docs/maintain/`. Qu
 
 Authoring diagnostics carry one reporting shape: a stable code, a one-sentence message, a file path, and a 1-based line. Human output prints one line per finding to standard error. JSON output prints one object to standard output so a caller never parses the human lines back apart.
 
-`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `LAYER_UNLISTED`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare, so an undeclared code fails fast in tests instead of shipping as a typo. `WarningDiagnosticCodes` is the burn-down list for rules that warn without failing the build; it is empty today, and `Run` splits diagnostics into errors and warnings against it. Human output writes `Relative:Line [CODE] Message` per error, then a warning count section with `Run with --warnings to list every occurrence.` JSON output writes `tool`, `root`, `ok`, an `errors` array of `file`, `line`, `code`, and `message` objects, and a `warnings` array of the same shape. A passing human run prints `LiteSpec authoring checks passed.` A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines.
+`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `LAYER_UNLISTED`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare, so an undeclared code fails fast in tests instead of shipping as a typo. Every diagnostic is an error. Human output writes `Relative:Line [CODE] Message` per error. JSON output writes `tool`, `root`, `ok`, and an `errors` array of `file`, `line`, `code`, and `message` objects. A passing human run prints `LiteSpec authoring checks passed.` A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines.
 
 ## Release and Repository Roots
 
@@ -92,9 +92,8 @@ To add a fixture repository for a new case, follow the harness the area already 
 
 1. Add the code to `StableDiagnosticCodes` in `Authoring/StandardsValidator.cs`, in declaration order.
 2. Emit it through the `Add` callback inside `Validate` with the repository-relative file, the 1-based line, the code, and a message that names the file and the fix. Never construct a `StandardsDiagnostic` with a code the list does not hold.
-3. Decide the severity: codes in `WarningDiagnosticCodes` print under a warning count and exit 0; every other code exits 1. The list is empty today, so a new rule fails the build unless you add it there deliberately.
-4. Add a test under `Authoring/` that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test that the clean tree passes.
-5. Quote the code on the affected `docs/maintain/validate.md` behavior or the relevant standard page when the rule restates visible behavior.
+3. Add a test under `Authoring/` that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test that the clean tree passes.
+4. Quote the code on the affected `docs/maintain/validate.md` behavior or the relevant standard page when the rule restates visible behavior.
 
 ### Change a Message
 

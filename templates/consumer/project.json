@@ -48,11 +48,11 @@
         }
       }
     ],
-    "sites": [],
-    "glossaryScan": []
+    "sites": []
   },
   "stackConfig": {
     "dotnet": {
+      "application": "apps/api/src/__PROJECT__",
       "apiSolution": "apps/api/__PROJECT__.slnx"
     }
   },

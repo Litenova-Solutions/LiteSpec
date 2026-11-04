@@ -1,8 +1,11 @@
 # Mobile Structure
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
-A mobile consumer holds its apps in one .NET solution whose core projects carry the domain model and whose platform projects carry the screens. This page states that solution tree, the projects each shape holds, the screen folders, and the import direction between them. A team that applies it while adding apps and screens keeps every platform sharing one core and every layer building only on the layers inside it.
+A mobile consumer holds its apps in one .NET solution whose core projects carry the domain model and whose platform projects carry the screens. This page states that solution tree, the projects each shape holds, and the screen folders, with the import direction between them following `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`. A team that applies it while adding apps and screens keeps every platform sharing one core and every layer building only on the layers inside it.
 
 ## Concepts
 
@@ -15,6 +18,8 @@ Three core projects hold the shared code: Domain for rules and state, Applicatio
 ### Use the Mobile Solution Tree
 
 **ID:** `litespec/frontend/mobile/structure#use-the-mobile-solution-tree`
+
+**Strength:** rule
 
 **Statement:** A consumer selecting a mobile stack MUST hold its mobile apps in one solution at `apps/mobile/` with core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`.
 
@@ -44,6 +49,8 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **ID:** `litespec/frontend/mobile/structure#hold-the-domain-in-the-app-only-without-a-server`
 
+**Strength:** rule
+
 **Statement:** A mobile consumer MUST hold Domain, Application, and Infrastructure core projects in the `client-only` shape, and a `{ProjectName}.Client` core project with the generated API client instead of them in the `server` shape.
 
 **Rationale:** A product with no server carries its own domain model, so the app holds the Domain, Application, and Infrastructure projects that define it. A product with a server keeps its rules on the server, so the app holds a Client project with the generated API client and reaches every rule through that client rather than through a copy of the rules. A copied rule drifts from the server's rule on the first change, and the app then enforces a rule the server does not hold.
@@ -53,6 +60,8 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 ### Keep Core Projects Platform-Free
 
 **ID:** `litespec/frontend/mobile/structure#keep-core-projects-platform-free`
+
+**Strength:** rule
 
 **Statement:** Domain, Application, Infrastructure, and Client core projects MUST target plain .NET and reference no platform SDK type.
 
@@ -64,35 +73,21 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **ID:** `litespec/frontend/mobile/structure#organize-screens-by-module`
 
+**Strength:** rule
+
 **Statement:** A screen MUST live under `Screens/` in the platform project, in a folder for its module when the product has more than one module.
 
 **Rationale:** Screens grouped by module let a reader holding a module record find its screens by path, the way the frontend module mirror maps use cases to folders. A single-module product keeps its screens directly under `Screens/`, because one folder would add a level that distinguishes nothing. Use-case code reached from a screen lives in Application, so the screen folder holds the screen and the handler holds the behavior. This realizes litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case only as far as the screen path follows the module name.
 
 **Reviewed for:** Which screens sit outside `Screens/`, or outside their module folder in a multi-module product? Look in the platform project tree.
 
-### Keep Imports Directional
-
-**ID:** `litespec/frontend/mobile/structure#keep-imports-directional`
-
-**Statement:** A reference MUST point from the platform project to Infrastructure, Application, and Domain, from Infrastructure to Application and Domain, and from Application to Domain.
-
-**Rationale:** The direction keeps each layer testable with only the layers inside it: Domain references nothing, Application references only Domain, and the platform project reaches Infrastructure through the interfaces Application owns. A reference in the other direction drags the outer layer's platform and storage dependencies into the inner layer's tests. This realizes litespec/frontend/structure#order-imports-from-routes-to-shared-packages for the mobile tree.
-
-**Example:**
-
-```text
-Platform project -> Infrastructure, Application, Domain
-Infrastructure -> Application, Domain
-Application -> Domain
-```
-
-**Reviewed for:** Which references point against the declared direction from the platform project inward? Look in the project references.
-
 ## Conventions
 
 ### Place Platform Adapters in the Platform Project
 
 **ID:** `litespec/frontend/mobile/structure#place-platform-adapters-in-the-platform-project`
+
+**Strength:** default
 
 **Default:** Place adapters for players, pickers, sensors, and storage locations in the platform project behind an interface Application owns, one type per platform API surface.
 

@@ -25,7 +25,7 @@ static class HelperIndex
     {
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        foreach (var root in SourceRoots.BackendRoots(config))
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }

@@ -22,7 +22,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         ImmutableArray.Create(Descriptors.LS5005);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -33,22 +33,31 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
     private protected override void RegisterTraceability(
-        CompilationStartAnalysisContext context, TraceabilityContext state) =>
-        context.RegisterSymbolAction(c => Analyze(c, state), SymbolKind.NamedType);
+        CompilationStartAnalysisContext context, TraceabilityContext state)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterSymbolAction(c => Analyze(c, state, scope), SymbolKind.NamedType);
+    }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
-    private static void Analyze(SymbolAnalysisContext context, TraceabilityContext state)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void Analyze(SymbolAnalysisContext context, TraceabilityContext state, FileScope scope)
     {
         var type = (INamedTypeSymbol)context.Symbol;
+
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
 
         if (type.IsImplicitlyDeclared || type.TypeKind == TypeKind.Error)
         {
             return;
         }
 
-        var kind = KindReader.KindOf(type, state.Kinds, state.Project);
+        var kind = KindReader.KindOf(type, state.Kinds, state.ProjectOf(type));
 
         if (kind == CodeKind.DomainEvent)
         {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -28,7 +29,7 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2016);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
@@ -38,13 +39,22 @@ public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
     ///     compilation context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterSymbolAction(AnalyzeParameter, SymbolKind.Parameter);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterSymbolAction(c => AnalyzeParameter(c, scope), SymbolKind.Parameter);
+    }
 
     /// <summary>Analyzes the parameter.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeParameter(SymbolAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeParameter(SymbolAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var parameter = (IParameterSymbol)context.Symbol;
         if (parameter.IsImplicitlyDeclared)
         {

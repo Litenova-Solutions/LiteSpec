@@ -1,5 +1,8 @@
 # Page Frame Patterns
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 This page holds the layout pattern for each kind of page, from home and list to form, report, and outcome: home, list, queue, record, form, report, settings, editor, outcome, operations, schedule, setup, error, and drawer. A team building a new screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One layout per kind keeps every screen predictable, so a reader knows where the heading, actions, and content sit before reading.
@@ -20,6 +23,8 @@ The drawings on this page use the Claimwick expense product for Harbor and Pine:
 
 **ID:** `litespec/frontend/patterns/page-frames#name-the-page-in-one-heading`
 
+**Strength:** rule
+
 **Statement:** Each page MUST show one top-level heading that names the record, list, or task it holds.
 
 **Rationale:** One heading names the open record, list, or task, so a reader who arrived from a link or a search knows where they landed. Without it, two headings compete for that job, and the reader guesses which line to trust while assistive tech announces the wrong one.
@@ -29,6 +34,8 @@ The drawings on this page use the Claimwick expense product for Harbor and Pine:
 ### Show One Primary Action in a Page Frame
 
 **ID:** `litespec/frontend/patterns/page-frames#show-one-primary-action-in-a-page-frame`
+
+**Strength:** rule
 
 **Statement:** A page frame MUST show at most one primary action outside its rows and overlays.
 
@@ -41,6 +48,8 @@ The drawings on this page use the Claimwick expense product for Harbor and Pine:
 ### Home Page
 
 **ID:** `litespec/frontend/patterns/page-frames#home-page`
+
+**Strength:** default
 
 **Question:** The first page after sign-in tells the reader what needs doing now, most urgent first, before any figure. A home page typically holds a greeting, stat tiles, a setup section, a needs-attention list, and a coming-up list. The disagreement is how much of that sits above the fold, and whether the tiles lead or the work leads.
 
@@ -236,6 +245,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#list-page`
 
+**Strength:** default
+
 **Question:** Find one record among many. The frame is fixed: header, views, search, filters, one table, pagination. The decision is which controls earn their place, because a search box on its own is not enough across 268 rows.
 
 **Default:** `search-and-a-state-filter-only`
@@ -428,6 +439,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#queue`
 
+**Strength:** default
+
 **Question:** Process items in batches. The queue is the one list page where selection is the interface. The whole page has to answer what the checkbox selects, and what happens to a thousand of them.
 
 **Default:** `select-all-on-the-page-banner-for-the-rest`
@@ -608,6 +621,8 @@ page
 ### Record Page
 
 **ID:** `litespec/frontend/patterns/page-frames#record-page`
+
+**Strength:** default
 
 **Question:** One record, and everything done to it. The frame carries a summary, at most three sections, and an aside. The decision is how to divide the page: tabs against stacked sections, and what earns the aside.
 
@@ -822,6 +837,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#form-page`
 
+**Strength:** default
+
 **Question:** Take one command's input. New-record pages are often inconsistent. One wraps its fields in a section with a left label column, while another draws bare fields with no box and no Cancel. Both are this frame.
 
 **Default:** `one-section-one-column-of-fields-cancel-beside-save`
@@ -1011,6 +1028,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#report-page`
 
+**Strength:** default
+
 **Question:** Read figures over one period. An Harbor and Pine statement puts the period in the heading with August 2026 and October 2026 buttons beside it. Nothing says which is previous and which is next.
 
 **Default:** `chevron-pair-with-the-period-as-the-heading`
@@ -1198,6 +1217,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#settings-home`
 
+**Strength:** default
+
 **Question:** Find one setting among many areas. A settings home can carry a whole tree: thirty routes under `/settings`, and the home page has to hold all of them.
 
 **Default:** `grouped-links-one-line-each`
@@ -1365,6 +1386,8 @@ page
 ### Editor Page
 
 **ID:** `litespec/frontend/patterns/page-frames#editor-page`
+
+**Strength:** default
 
 **Question:** Edit what a spender sees, with a live preview beside the form. An expense form editor holds the look in a form. It shows the result in a preview card beside the form. It must carry a Cancel and a dirty state. Without them, leaving silently discards work.
 
@@ -1585,6 +1608,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#outcome-page`
 
+**Strength:** default
+
 **Question:** Where a flow ends: an expense confirmed, a payment that failed, a link that expired. One state, one statement of what happened, one next step. Flows often end in a toast instead, so this frame states what an ending page holds.
 
 **Default:** `one-statement-one-next-step`
@@ -1756,6 +1781,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#live-operations-page`
 
+**Strength:** default
+
 **Question:** Payout run day is happening: the cost centres are open, scanners are reading, and the finance lead needs the count at a glance. The decision is what earns the glance: the total, the per-cost-centre split, or only the exceptions.
 
 **Default:** `the-count-the-cost-centres-the-exceptions`
@@ -1909,6 +1936,8 @@ page
 ### Calendar or Schedule Page
 
 **ID:** `litespec/frontend/patterns/page-frames#calendar-or-schedule-page`
+
+**Strength:** default
 
 **Question:** Ninety-three trips ahead need a shape that answers when, not what. The decision is density: a grid that shows the month against a list that shows the next trip.
 
@@ -2069,6 +2098,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#onboarding-or-setup-page`
 
+**Strength:** default
+
 **Question:** A new company has an account and nothing else. The decision is how much the page does. A checklist waits, a wizard leads, and a single page states the three steps and gets out of the way.
 
 **Default:** `checklist-with-a-progress-bar`
@@ -2228,6 +2259,8 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#error-or-not-found-page`
 
+**Strength:** default
+
 **Question:** Something is missing, broken or refused. The decision is how much the page owns: a dead end with links back, or a working page that names the fix and offers it.
 
 **Default:** `centered-not-found-with-links-back`
@@ -2368,6 +2401,8 @@ page
 ### Record Drawer
 
 **ID:** `litespec/frontend/patterns/page-frames#record-drawer`
+
+**Strength:** default
 
 **Question:** Read a record without leaving the list. It exists so a reader can compare a row against what the row actually holds. The constraint is width: a 420-pixel drawer inside a 1440 screen holds facts and nothing else.
 

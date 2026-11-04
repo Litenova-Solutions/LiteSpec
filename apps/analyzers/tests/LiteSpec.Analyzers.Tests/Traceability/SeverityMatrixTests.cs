@@ -1,4 +1,3 @@
-using LiteSpec.Analyzers.Layers;
 using LiteSpec.Analyzers.Records;
 using LiteSpec.Analyzers.Rules.Traceability;
 using LiteSpec.Analyzers.Tests.Support;
@@ -56,7 +55,7 @@ public sealed class SeverityMatrixTests
 
     /// <summary>An exception covering the file stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An exception covering the file stays silent")]
     public Task ExceptionCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -80,7 +79,7 @@ public sealed class SeverityMatrixTests
 
     /// <summary>An exception covering the subject stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An exception covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -110,7 +109,7 @@ public sealed class SeverityMatrixTests
 
     /// <summary>An expired exception covers nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact(DisplayName = "An expired exception covers nothing")]
     public Task ExpiredExceptionCoversNothing() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -126,8 +125,8 @@ public sealed class SeverityMatrixTests
         var store = StoreWith([ProjectFile(), UseCase()]);
         var compilation = CSharpCompilation.Create("Shop.Application");
 
-        var first = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
-        var second = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
+        var first = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
+        var second = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
 
         Assert.Same(first, second);
         Assert.True(TraceabilityContext.TryGet(compilation, out var cached));
@@ -141,7 +140,7 @@ public sealed class SeverityMatrixTests
     {
         var store = StoreWith([ProjectFile(), UseCase(), Exception(["mark-missing"], paths: ["Source.cs"], id: "exception/marks-deferred"), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "exception/marks-styled"), Exception(["mark-missing"], paths: ["Old.cs"], id: "exception/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
-        var context = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
+        var context = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
 
         var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
         var byGap = new Finding("mark-style-invalid", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");

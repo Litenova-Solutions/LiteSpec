@@ -43,22 +43,24 @@ internal static class Descriptors
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
     /// <summary>The provision the related descriptors enforce: keep implementation types internal (litespec/backend/dotnet/architecture#keep-implementation-types-internal).</summary>
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
-    /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/architecture#use-five-application-projects).</summary>
-    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/architecture", "use-five-application-projects");
+    /// <summary>The provision the related descriptors enforce: use five application projects (litespec/backend/dotnet/ext/layer-projects#use-five-application-projects).</summary>
+    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/ext/layer-projects", "use-five-application-projects");
+    /// <summary>The provision the related descriptors enforce: respect layer direction in every file (litespec/backend/dotnet/architecture#respect-layer-direction-in-every-file).</summary>
+    private static readonly Provision RespectLayerDirection = Provision.Of("backend/dotnet/architecture", "respect-layer-direction-in-every-file");
+    /// <summary>The provision the related descriptors enforce: keep use case folders isolated (litespec/backend/dotnet/architecture#keep-use-case-folders-isolated).</summary>
+    private static readonly Provision UseCaseIsolation = Provision.Of("backend/dotnet/architecture", "keep-use-case-folders-isolated");
+    /// <summary>The provision the related descriptors enforce: reach another module only through contracts (litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts).</summary>
+    private static readonly Provision ModuleContracts = Provision.Of("backend/dotnet/architecture", "reach-another-module-only-through-contracts");
     /// <summary>The provision the related descriptors enforce: exclude mvc controllers from the stack (litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack).</summary>
     private static readonly Provision NoControllers = Provision.Of("backend/dotnet/api", "exclude-mvc-controllers-from-the-stack");
     /// <summary>The provision the related descriptors enforce: stage aggregate writes through repositories (litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories).</summary>
     private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
-    /// <summary>The provision the related descriptors enforce: name asynchronous methods completely (litespec/backend/dotnet/naming#name-asynchronous-methods-completely).</summary>
-    private static readonly Provision AsyncNames = Provision.Of("backend/dotnet/naming", "name-asynchronous-methods-completely");
+    /// <summary>The provision the related descriptors enforce: name asynchronous operations completely (litespec/workspace/naming#name-asynchronous-operations-completely).</summary>
+    private static readonly Provision AsyncNames = Provision.Of("workspace/naming", "name-asynchronous-operations-completely");
     /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
-    /// <summary>The provision the related descriptors enforce: organize a module by aggregate and concept (litespec/backend/domain#organize-a-module-by-aggregate-and-concept).</summary>
-    private static readonly Provision ModuleFolders = Provision.Of("backend/domain", "organize-a-module-by-aggregate-and-concept");
     /// <summary>The provision the related descriptors enforce: use architectural suffixes (litespec/workspace/naming#use-architectural-suffixes).</summary>
     private static readonly Provision RoleSuffixes = Provision.Of("workspace/naming", "use-architectural-suffixes");
-    /// <summary>The provision the related descriptors enforce: group event handlers by the fact they handle (litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle).</summary>
-    private static readonly Provision EventHandlerFolders = Provision.Of("workspace/naming", "group-event-handlers-by-the-fact-they-handle");
     /// <summary>The provision the related descriptors enforce: name result parts after their result (litespec/workspace/naming#name-result-parts-after-their-result).</summary>
     private static readonly Provision ResultParts = Provision.Of("workspace/naming", "name-result-parts-after-their-result");
     /// <summary>The provision the related descriptors enforce: name repository variables after their interface (litespec/workspace/naming#name-repository-variables-after-their-interface).</summary>
@@ -75,8 +77,8 @@ internal static class Descriptors
     private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
     /// <summary>The provision the related descriptors enforce: keep uniqueness out of handlers (litespec/backend/persistence#keep-uniqueness-out-of-handlers).</summary>
     private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
-    /// <summary>The provision the related descriptors enforce: prove each scenario with a test that calls its use case (litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case).</summary>
-    private static readonly Provision ScenarioProof = Provision.Of("backend/dotnet/testing", "prove-each-scenario-with-a-test-that-calls-its-use-case");
+    /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/backend/testing#mark-the-test-that-proves-each-scenario).</summary>
+    private static readonly Provision ScenarioProof = Provision.Of("backend/testing", "mark-the-test-that-proves-each-scenario");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
     /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>
@@ -91,7 +93,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
         "Domain uses '{0}' from '{1}', an outer-layer concern",
-        "Domain references only the .NET base class library and project-owned Domain types: no persistence, web, messaging, mediator, logging, configuration, dependency injection or serialization.");
+        "Domain references only the .NET base class library and project-owned Domain types: no persistence, web, messaging, mediator, logging, configuration, dependency injection, serialization, or Application, Infrastructure or WebApi type.");
 
     /// <summary>The LS1002 descriptor: Domain declares an enum.</summary>
     public static readonly DiagnosticDescriptor LS1002 = Create("LS1002", DomainCategory, ClosedSets,
@@ -161,12 +163,6 @@ internal static class Descriptors
         "Identifier '{0}' must be a readonly record struct wrapping one Guid with no implicit conversion",
         "An aggregate identity is a readonly record struct wrapping one version 7 Guid, with no implicit conversion, primitive alias, or public parameterless creation path.");
 
-    /// <summary>The LS1013 descriptor: Domain event sits outside the Events folder.</summary>
-    public static readonly DiagnosticDescriptor LS1013 = Create("LS1013", DomainCategory, ModuleFolders,
-        "Domain event sits outside the Events folder",
-        "Domain event '{0}' lives in '{1}', outside the Events folder the model reads",
-        "A domain event is declared in a file under its aggregate's Events folder, where the model builder discovers it.");
-
     /// <summary>The LS2001 descriptor: Implementation type is not internal sealed.</summary>
     public static readonly DiagnosticDescriptor LS2001 = Create("LS2001", LayersCategory, InternalImplementations,
         "Implementation type is not internal sealed",
@@ -202,12 +198,6 @@ internal static class Descriptors
         "Reaction or job name hides its kind",
         "'{0}' is a {1} and must be named '{2}'",
         "A reaction is named {Action}On{Fact}Handler, and a job *Job, *Worker, or *Recurring*, so the model builder discovers each reaction or job by name.");
-
-    /// <summary>The LS2008 descriptor: Event handler sits outside its fact folder.</summary>
-    public static readonly DiagnosticDescriptor LS2008 = Create("LS2008", LayersCategory, EventHandlerFolders,
-        "Event handler sits outside its fact folder",
-        "'{0}' handles '{1}' and must live in the 'On{2}' folder",
-        "An event handler lives in the On{Fact} folder inside its subscriber's aggregate folder, where {Fact} is the handled event name without its Event suffix. A handler of two facts reports nothing.");
 
     /// <summary>The LS2009 descriptor: Result part not named after its result.</summary>
     public static readonly DiagnosticDescriptor LS2009 = Create("LS2009", LayersCategory, ResultParts,
@@ -262,6 +252,24 @@ internal static class Descriptors
         "LiteSpecLayer names no known layer",
         "'{0}' names no known layer; use Domain, Application.Abstractions, Application, Infrastructure, WebApi, Worker, Test, or None",
         "The LiteSpecLayer property names one of the known application projects, Test, or None to opt out.");
+
+    /// <summary>The LS2018 descriptor: Application or WebApi names a type outside its layer.</summary>
+    public static readonly DiagnosticDescriptor LS2018 = Create("LS2018", LayersCategory, RespectLayerDirection,
+        "File names a type outside its layer",
+        "{0} uses '{1}', {2}",
+        "An Application file names no Infrastructure or WebApi type, no ASP.NET Core type, and no HttpContext. A WebApi file names no Infrastructure type, no repository, and no Domain type other than typed identifiers and shared-kernel values.");
+
+    /// <summary>The LS2019 descriptor: Use case names a type of another use case.</summary>
+    public static readonly DiagnosticDescriptor LS2019 = Create("LS2019", LayersCategory, UseCaseIsolation,
+        "Use case names a type of another use case",
+        "'{0}' lives in use case folder '{1}', which this use case may not name",
+        "A use case folder names no type declared in another use case folder. A reaction or job folder keeps the same boundary.");
+
+    /// <summary>The LS2020 descriptor: Module names a type outside another module's Contracts.</summary>
+    public static readonly DiagnosticDescriptor LS2020 = Create("LS2020", LayersCategory, ModuleContracts,
+        "Module names a type outside another module's Contracts",
+        "'{0}' lives in module '{1}' outside its Contracts folder",
+        "A module names another module's types only through its Contracts folder, including through global using directives.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

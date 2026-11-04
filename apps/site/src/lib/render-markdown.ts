@@ -247,14 +247,16 @@ function rewriteLinks(html: string, page: Page): string {
 }
 
 // The labels a provision paragraph can open with. A rule or convention card
-// sorts them into its parts: the statement, Why, Example and Check.
+// sorts them into its parts: the statement, Why, Example and Check. The Strength
+// paragraph never reaches this split: the header badge shows it, so wrapProvisions
+// drops it with the ID line.
 const labelSplit =
-  /(?=<p><strong>(?:Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
+  /(?=<p><strong>(?:Statement|Default|Replacement|Deviation|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
 const labelLead = /^<p><strong>([A-Z][a-z]+(?: [a-z]+)?):<\/strong>\s*/;
 
 // Pattern cards keep their body in order, with each label as a small tag.
 const labelPattern =
-  /<p><strong>(Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>/g;
+  /<p><strong>(Statement|Default|Replacement|Deviation|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>/g;
 
 function styleLabels(body: string): string {
   return body.replace(labelPattern, (_match, label: string) =>
@@ -294,7 +296,7 @@ function provisionParts(body: string, provision: Page["provisions"][number]): st
     (parts.get(label) ?? []).map((html) => html.replace(/^<p>/, `<p><span class="lbl" data-pagefind-ignore>${label}</span>`));
   const lead = provision.kind === "convention" ? "Default" : "Statement";
   const statement = take("Statement", "Default").join("");
-  const subs = [...tagged("Replacement"), ...tagged("Deviation")].map((html) => html.replace(/^<p>/, `<p class="provision-sub">`));
+  const subs = [...tagged("Replacement"), ...tagged("Deviation"), ...tagged("Applies to")].map((html) => html.replace(/^<p>/, `<p class="provision-sub">`));
   let out =
     `<div class="provision-statement"><span class="provision-eyebrow" data-pagefind-ignore>${lead}</span>` +
     `${highlightMust(statement)}${highlightMust(subs.join(""))}</div>`;
@@ -335,10 +337,11 @@ function highlightMust(body: string): string {
 }
 
 // Wraps each provision H3 with the elements it owns, up to the next H2 or H3,
-// in its card: the heading with kind and verification badges, the ID with
-// its copy button, then the body. A rule or convention body becomes its
-// statement and folding parts; a pattern body keeps its order. The ID line of
-// the Markdown is dropped from the body because the header shows the same ID.
+// in its card: the heading with kind, strength and verification badges, the ID
+// with its copy button, then the body. A rule or convention body becomes its
+// statement and folding parts; a pattern body keeps its order. The ID and
+// Strength lines of the Markdown are dropped from the body because the header
+// shows the same ID and strength.
 function wrapProvisions(html: string, page: Page): string {
   const provisions = new Map(page.provisions.map((provision) => [provision.slug, provision]));
   const pattern = /<h([23]) id="([^"]+)">[\s\S]*?<\/h\1>/g;
@@ -358,11 +361,17 @@ function wrapProvisions(html: string, page: Page): string {
       out += head.html + body;
       continue;
     }
-    const content = body.replace(/<p><strong>ID:<\/strong>[\s\S]*?<\/p>/g, "");
+    const content = body
+      .replace(/<p><strong>ID:<\/strong>[\s\S]*?<\/p>/g, "")
+      .replace(/<p><strong>Strength:<\/strong>[\s\S]*?<\/p>/g, "");
     const kindModifier =
       provision.kind === "rule" ? "provision-rule" : provision.kind === "convention" ? "provision-convention" : "provision-pattern";
     const badgeModifier =
       provision.kind === "rule" ? "badge-rule" : provision.kind === "convention" ? "badge-convention" : "badge-pattern";
+    const strengthBadge =
+      provision.strength === ""
+        ? ""
+        : `<span class="badge badge-strength-${escape(provision.strength)}">${escape(provision.strength)}</span>`;
     const markBadge =
       provision.mark === ""
         ? ""
@@ -371,7 +380,7 @@ function wrapProvisions(html: string, page: Page): string {
           : `<span class="badge">${escape(provision.mark)}</span>`;
     out +=
       `<section class="provision ${kindModifier}">` +
-      `<header class="provision-head">${head.html}<span class="provision-badges" data-pagefind-ignore><span class="badge ${badgeModifier}">${provision.kind}</span>${markBadge}</span></header>` +
+      `<header class="provision-head">${head.html}<span class="provision-badges" data-pagefind-ignore><span class="badge ${badgeModifier}">${provision.kind}</span>${strengthBadge}${markBadge}</span></header>` +
       `<div class="provision-id" data-pagefind-ignore><span class="provision-hash" aria-hidden="true">#</span><code>${escape(provision.id)}</code>` +
       `<button type="button" class="btn btn-ghost btn-icon btn-copy" data-copy="${escape(provision.id)}" aria-label="Copy provision ID">${iconSvg(paths.copy)}</button></div>` +
       (provision.kind === "pattern"

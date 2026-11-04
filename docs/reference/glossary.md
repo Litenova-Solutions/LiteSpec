@@ -18,7 +18,7 @@ Source: .NET Aspire.
 
 ### Architecture Layer
 
-One role in the backend layer structure, played by one layer project.
+One role a backend type plays, whatever folder or project holds it: Domain, Application, Infrastructure, or WebApi.
 
 Source: LiteSpec.
 
@@ -80,7 +80,7 @@ Source: LiteSpec.
 
 ### Layer Projects
 
-The application projects, each playing one architecture layer: Domain, Application.Abstractions, Application, Infrastructure, and WebApi.
+The backend layout with one project per architecture layer, selected through the layer-projects extension.
 
 Source: LiteSpec.
 
@@ -92,7 +92,7 @@ Source: the package managers.
 
 ### Module Layout
 
-The fixed folder layout of one module, holding its aggregates, use cases, and records.
+The default backend layout, with every module in one application project, layer folders at each node, and one flat folder per use case.
 
 Source: LiteSpec.
 
@@ -986,7 +986,7 @@ Source: LiteSpec.
 
 ### Finding
 
-One issue litespec model check or litespec consumer reports, with its level, code, message, path, and line.
+One issue litespec model check reports, with its level, code, message, path, and line.
 
 Source: LiteSpec.
 

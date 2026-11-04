@@ -13,6 +13,9 @@ static class StandardsFixture
     public static readonly string TopicPage = Normalize("""
         # Topic Standard
 
+        **Stack:** any
+        **Layer:** records
+
         ## Intent
 
         This page defines one repository topic.
@@ -22,6 +25,8 @@ static class StandardsFixture
         ### Keep the Topic Bounded
 
         **ID:** `litespec/core/topic#keep-the-topic-bounded`
+
+        **Strength:** rule
 
         **Statement:** Consumers MUST keep the topic inside its declared boundary.
 
@@ -35,6 +40,8 @@ static class StandardsFixture
 
         **ID:** `litespec/core/topic#use-the-default-location`
 
+        **Strength:** default
+
         **Default:** Store the topic in its owning documentation area.
 
         **Replacement:** A consumer can name another location through an explicit local convention.
@@ -46,6 +53,9 @@ static class StandardsFixture
     public static readonly string PatternPage = Normalize("""
         # Sample Patterns
 
+        **Stack:** any
+        **Layer:** frontend-ui
+
         ## Intent
 
         This page offers drawn options for one recurring question.
@@ -55,6 +65,8 @@ static class StandardsFixture
         ### Record Header
 
         **ID:** `litespec/frontend/patterns/sample#record-header`
+
+        **Strength:** default
 
         **Question:** How does the top of a record read?
 
@@ -98,6 +110,9 @@ static class StandardsFixture
     public static readonly string ExtensionPage = Normalize("""
         # Sample Extension
 
+        **Stack:** any
+        **Layer:** operations
+
         ## Intent
 
         This extension adds one optional capability.
@@ -120,6 +135,8 @@ static class StandardsFixture
 
         **ID:** `litespec/ext/sample#record-extension-activation`
 
+        **Strength:** rule
+
         **Statement:** Consumers MUST record activation on each applicable specification.
 
         **Checked by:** `litespec-maintain validate` confirms each applicable specification records its activation.
@@ -137,6 +154,9 @@ static class StandardsFixture
     public static readonly string StackPage = Normalize("""
         # Sample Stack
 
+        **Stack:** dotnet
+        **Layer:** domain
+
         ## Intent
 
         This stack selects one standards composition.
@@ -147,9 +167,76 @@ static class StandardsFixture
 
         **ID:** `litespec/backend/sample/stack#apply-the-complete-stack`
 
+        **Strength:** rule
+
         **Statement:** Consumers MUST apply every document in the selected stack composition.
 
         **Checked by:** `litespec-maintain validate` confirms every document in the selected stack composition.
+
+        ## Conventions
+
+        None.
+        """) + "\n";
+
+    /// <summary>The scope vocabulary page, with no provisions of its own.</summary>
+    public static readonly string ScopesPage = Normalize("""
+        # Provision Scopes
+
+        ## Intent
+
+        This page states the shared situation vocabulary each provision carries.
+
+        ## Concepts
+
+        ### The Four Fields
+
+        Each provision carries four scope fields.
+
+        | Field | Answers | Values |
+        |:---|:---|:---|
+        | `stack` | Which technology | `any`, `dotnet`, `react` |
+        | `layer` | Which part of the system | `records`, `domain`, `application`, `operations`, `frontend-ui`, `tests` |
+        | `artifact` | Which kind of thing is made | `aggregate`, `test`, `record:<type>` |
+        | `strength` | How binding it is | `rule`, `default`, `advice` |
+
+        ### Stack Values
+
+        | Value | Meaning |
+        |:---|:---|
+        | `any` | No technology; the provision applies to every stack. |
+        | `dotnet` | The .NET backend stack. |
+        | `react` | The React web stack. |
+
+        ### Layer Values
+
+        | Value | Meaning |
+        |:---|:---|
+        | `records` | Specification records and standards pages. |
+        | `domain` | Business state, rules, and language. |
+        | `application` | Use-case coordination and the pipeline. |
+        | `operations` | Releases, deployment, and support. |
+        | `frontend-ui` | Components, routes, and rendering. |
+        | `tests` | The suites that prove behavior. |
+
+        ### Artifact Values
+
+        | Value | Meaning |
+        |:---|:---|
+        | `aggregate` | The aggregate root with the entities it guards. |
+        | `test` | One test. |
+        | `record:<type>` | One record of that type, such as `record:use-case`. |
+
+        ### Strength Values
+
+        | Value | Meaning |
+        |:---|:---|
+        | `rule` | Follow it; deviate only through a recorded exception. |
+        | `default` | Follow it unless the project chooses otherwise, and record the choice. |
+        | `advice` | Experience; apply it with judgement and record nothing. |
+
+        ## Standards
+
+        None.
 
         ## Conventions
 
@@ -402,11 +489,12 @@ static class StandardsFixture
         Write(root, $"{project}/{file}", contents);
     }
 
-    /// <summary>Regenerates the provision index from the current standards.</summary>
+    /// <summary>Regenerates the provision index and its data file from the current standards.</summary>
     /// <param name="root">The temporary repository root folder.</param>
     public static void RebuildIndex(string root)
     {
         Write(root, Provisions.IndexPath, Provisions.BuildIndex(root) + "\n");
+        Write(root, Provisions.JsonPath, Provisions.BuildJson(root) + "\n");
     }
 
     /// <summary>
@@ -418,6 +506,7 @@ static class StandardsFixture
     public static void Base(string root)
     {
         Write(root, "docs/core/topic.md", TopicPage);
+        Write(root, "docs/core/scopes.md", ScopesPage);
         Write(root, "docs/ext/sample.md", ExtensionPage);
         Write(root, "docs/backend/sample/stack.md", StackPage);
         Write(root, "docs/frontend/patterns/sample.md", PatternPage);

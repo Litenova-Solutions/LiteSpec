@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -17,7 +18,7 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1003, Descriptors.LS1004);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -26,12 +27,16 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
     ///     context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterCompilationEndAction(Analyze);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterCompilationEndAction(c => Analyze(c, scope));
+    }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void Analyze(CompilationAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void Analyze(CompilationAnalysisContext context, FileScope scope)
     {
         var types = new List<INamedTypeSymbol>();
         CollectTypes(context.Compilation.Assembly.GlobalNamespace, types);
@@ -53,7 +58,7 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         var stateBases = FindStateBases(types, aggregates);
         foreach (var aggregate in aggregates)
         {
-            if (!HasAbstractRecordState(aggregate))
+            if (scope.AppliesTo(aggregate) && !HasAbstractRecordState(aggregate))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS1003, aggregate.Locations[0], aggregate.Name));
             }
@@ -62,7 +67,7 @@ public sealed class AggregateStateAnalyzer : LayerAnalyzer
         foreach (var type in types)
         {
             var stateBase = UnsealedCaseBase(type, stateBases);
-            if (stateBase != null)
+            if (stateBase != null && scope.AppliesTo(type))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Descriptors.LS1004, type.Locations[0], type.Name, stateBase.Name));

@@ -24,8 +24,6 @@ dotnet tool install LiteSpec.Cli --local --version "$version" --add-source "$pac
 # The packed tool must report the release the manifest names.
 test "$(dotnet litespec --version)" = "$version"
 
-dotnet litespec consumer
-dotnet litespec ui
 dotnet litespec model check
 
 # A fresh consumer starts with init, which reads the templates inside the package.
@@ -40,10 +38,9 @@ test "$(jq -r .reviewedLiteSpecVersion .litespec/project.json)" = "$version"
 
 cd "$claimwick"
 
-# Build the model, then render the book from the model file the build writes.
-dotnet litespec model build
-test -f "$claimwick/.litespec/model/model.json"
-dotnet litespec book --model "$claimwick/.litespec/model/model.json" --out "$work/book"
+# Render the generated outputs, then render the book from the consumer root.
+dotnet litespec model render
+dotnet litespec book --root "$claimwick" --out "$work/book"
 test -f "$work/book/index.html"
 
 dotnet litespec model query use-case/spending.submit-expense >/dev/null

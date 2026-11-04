@@ -1,3 +1,4 @@
+using LiteSpec.Model.Readers.Dotnet;
 using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
@@ -175,60 +176,15 @@ internal static class MarkChecks
     }
 
     /// <summary>
-    ///     The path segments of the file under its layer root, or null when the file sits
-    ///     under no layer root, under the cross-module contracts part, under provider
-    ///     plumbing, under the shared kernel, or in a layer root itself. A leading WebApi
-    ///     <c>Endpoints</c> folder is skipped, so the first segment is the module folder
-    ///     and the last is the file name.
+    ///     The path segments of the file under its module layout, with the module first and
+    ///     the file name last, or null when the file sits outside any module. Layer folders
+    ///     state no module segment, so they are left out in either layout.
     /// </summary>
     /// <param name="config">The project configuration that holds each layer root and the shared kernel path.</param>
     /// <param name="file">The full path of the file whose segments are wanted.</param>
-    /// <returns>The path segments under the layer root with the module first, or null when the file sits outside the module layout.</returns>
-    private static string[]? ModuleSegments(ConsumerConfig config, string file)
-    {
-        if (config.SharedKernel.Length > 0 && IsUnder(config.SharedKernel, file))
-        {
-            return null;
-        }
-
-        if (IsUnder(config.ApplicationRoot + ".Abstractions", file))
-        {
-            return null;
-        }
-
-        foreach (var root in new[] { config.ApplicationRoot, config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
-        {
-            if (root.Length == 0 || !IsUnder(root, file))
-            {
-                continue;
-            }
-
-            var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-            if (segments.Length < 2)
-            {
-                return null;
-            }
-
-            var first = 0;
-
-            if (root == config.WebApiRoot && segments[0].Equals("Endpoints", StringComparison.OrdinalIgnoreCase))
-            {
-                first = 1;
-            }
-
-            if (root == config.InfrastructureRoot && segments[0].Equals("Persistence", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            var rest = segments.Skip(first).ToArray();
-
-            return rest.Length >= 2 ? rest : null;
-        }
-
-        return null;
-    }
+    /// <returns>The path segments with the module first, or null when the file sits outside the module layout.</returns>
+    private static string[]? ModuleSegments(ConsumerConfig config, string file) =>
+        SourceRoots.ModulePath(config, file);
 
     /// <summary>
     ///     The use-case folder of a handler or endpoint: the third segment of module,
@@ -250,23 +206,6 @@ internal static class MarkChecks
         var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
 
         return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>Decides whether a file sits under a root folder rather than at or outside it.</summary>
-    /// <param name="root">The root folder path, empty when the layer is not configured.</param>
-    /// <param name="file">The full path of the file under test.</param>
-    /// <returns>True when the file path resolves beneath the root; otherwise false.</returns>
-    private static bool IsUnder(string root, string file)
-    {
-        if (root.Length == 0)
-        {
-            return false;
-        }
-
-        var relative = Path.GetRelativePath(root, file);
-
-        return !relative.StartsWith("..", StringComparison.Ordinal)
-            && !Path.IsPathRooted(relative);
     }
 
     /// <summary>
@@ -365,9 +304,10 @@ internal static class MarkChecks
     /// <summary>
     ///     Checks one mark naming a provision: a <c>follows</c> mark on an element
     ///     of any kind, or a <c>proves</c> mark on a test. It names a provision of
-    ///     the carried release, on a page the project's stacks and extensions apply.
+    ///     the carried release, on a page the project's stacks and extensions apply,
+    ///     which no selected extension replaces.
     /// </summary>
-    /// <param name="model">The loaded project model that holds the admitted provisions and applied pages.</param>
+    /// <param name="model">The loaded project model that holds the admitted provisions and the applied pages and provisions.</param>
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The mark that names the provision.</param>
     /// <param name="verb">The mark verb shown in the finding message.</param>
@@ -386,6 +326,12 @@ internal static class MarkChecks
             && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
         {
             findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
+        }
+        else if (model.AppliedProvisions.Count > 0
+            && Authoring.Provisions.Parse(id) is { }
+            && !model.AppliedProvisions.Contains(id))
+        {
+            findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which a selected extension replaces.", mark.File, mark.Line, id));
         }
     }
 

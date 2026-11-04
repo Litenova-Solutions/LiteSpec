@@ -1,5 +1,8 @@
 # Frontend Components
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 Every screen in a LiteSpec frontend draws with components from one shared UI package: small primitives such as inputs and badges, and larger composites such as sections and tables built from them. This page states what that package holds, how page code, the components under each route or module folder, composes its parts, and where a drawing that no composite makes belongs. Frontend developers and coding agents apply it whenever they build or change a screen, so the product keeps one visual language and a restyle stays a change in one place.
@@ -26,6 +29,8 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
+**Strength:** rule
+
 **Statement:** A workspace MUST hold its shared primitives and its composites in one shared UI package, with no copy in an application.
 
 **Rationale:** When two applications each hold a copy of one primitive, the first upstream update changes one copy and misses the other. Both copies still compile, so nothing reports the split, and the two applications drift into two visual languages. One package gives every application the same component, so one update reaches every screen.
@@ -37,6 +42,10 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 ### Compose Composites in Page Code
 
 **ID:** `litespec/frontend/components#compose-composites-in-page-code`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** A component under a route or module folder MUST import only the shared package's documented entry points.
 
@@ -52,11 +61,15 @@ EntitySection "title"
 
 The section imports only the shared package entry point, so the layout it draws is the one the shared package owns for every other entity page.
 
-**Checked by:** `litespec ui` reports `[litespec/frontend/components#compose-composites-in-page-code]` with the file and the refused import. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `[litespec/frontend/components#compose-composites-in-page-code]` with the file and the refused import. Run it at the consumer root.
 
 ### Write No Class Name in Page Code
 
 **ID:** `litespec/frontend/components#write-no-class-name-in-page-code`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** A component under a route or module folder MUST NOT declare a class or style binding.
 
@@ -70,6 +83,10 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A component under a route or module folder MUST NOT declare a layout or interactive element.
 
 **Rationale:** A raw element is only markup: it carries no focus handling, no state behavior, and no accessibility wiring, so each page that declares one rebuilds behavior the composite already carries, usually worse. The lint refusal names the composite to use instead, so the author gets the replacement in the same message as the refusal and does not have to search the shared package.
@@ -79,6 +96,10 @@ Each stack page names the class and style bindings this rule covers for its stac
 ### Prefer a Composite over a Primitive
 
 **ID:** `litespec/frontend/components#prefer-a-composite-over-a-primitive`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** Page code MUST import a composite wherever the shared package provides one.
 
@@ -92,6 +113,10 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** An exception file MAY declare custom styling only with semantic theme tokens.
 
 **Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values that no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible: its name says this page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern that marks an exception for its stack.
@@ -102,6 +127,10 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#add-a-missing-composite-to-the-shared-package`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A layout, a control, or a surface a second page needs MUST be added to the shared UI package, not written inside an application.
 
 **Rationale:** The second page that needs a layout, control, or surface proves the piece is shared, not page-specific. Written inside one application, it is reviewed against one use, styled for one context, and invisible to the floorplans that would carry it, so the third page writes it a third time or copies the first copy. Adding it to the shared package puts it where every page finds it and where its design is judged against every use.
@@ -111,6 +140,8 @@ Each stack page names the class and style bindings this rule covers for its stac
 ### Support Keyboard, Focus, Labels, and Announcements
 
 **ID:** `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`
+
+**Strength:** rule
 
 **Statement:** Interactive UI MUST support keyboard operation, visible focus, semantic elements, programmatic labels, and asynchronous status announcements.
 
@@ -138,6 +169,10 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **ID:** `litespec/frontend/components#render-data-states`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A data component MUST render loading, empty, error, forbidden, and ready.
 
 **Rationale:** A component that renders only its ready state leaves the reader with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test visiting it. Naming every arrival state up front gives each one a designed drawing.
@@ -150,6 +185,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#render-control-states`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A control MUST render disabled and pending so that a second submission stays impossible while one is in flight and recovery stays usable.
 
 **Rationale:** A control with no disabled state invites a second submission while the first is still in flight, and a control with no pending state shows no sign that anything is happening. Blocking the duplicate submission and keeping recovery usable give the reader one safe path: wait, or recover. State names are glossary terms, as under `litespec/frontend/components#render-data-states`.
@@ -159,6 +198,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 ### Keep Component Inputs Narrow
 
 **ID:** `litespec/frontend/components#keep-component-inputs-narrow`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** A composite MUST receive the values and callbacks it needs, not a client, a store, or an aggregate.
 
@@ -170,6 +213,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#use-declared-visual-variants`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A repeated component variant MUST use theme tokens through the shared package's variant helper rather than repeated literal values.
 
 **Rationale:** When each composite writes its own pixel values, colors, or conditional branches for one variant, the copies start equal and drift with every later edit, because nothing points the author at the other copies. The variant helper holds each variant once, in theme tokens, so a change to the variant reaches every composite that uses it and every value stays inside the theme.
@@ -180,6 +227,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#sanitize-untrusted-rich-content`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** A component MUST NOT render untrusted rich content without its recorded sanitization decision.
 
 **Rationale:** Rich content written by one user renders in another user's browser, so unsanitized markup is a script injection path: whoever writes the content runs code as every reader. The recorded decision names the sanitizer, the allowed elements and attributes, the link policy, and the test cases, so the boundary is explicit and reviewable instead of a different ad-hoc escape on every page.
@@ -189,6 +240,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 ### Use a Composite for a Content Image
 
 **ID:** `litespec/frontend/components#use-a-composite-for-a-content-image`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** An informative or decorative image MUST render through the shared image component, which owns its shape, its sizing, and its fallback.
 
@@ -202,6 +257,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#name-components-for-their-role`
 
+**Strength:** default
+
+**Applies to:** artifact: component
+
 **Default:** Name a component for the role it plays, such as `ExpenseLinesSection` or `ReplayDeliveryDialog`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -213,6 +272,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 ### Expose Card and Section Titles as Headings
 
 **ID:** `litespec/frontend/components#expose-card-and-section-titles-as-headings`
+
+**Strength:** default
+
+**Applies to:** artifact: component
 
 **Default:** Render a visible card, panel, or section title as a heading at its correct level.
 
@@ -226,6 +289,10 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#keep-domain-values-typed-until-display`
 
+**Strength:** default
+
+**Applies to:** artifact: component
+
 **Default:** Keep branded and generated identifier types until the presentation boundary converts them.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -237,6 +304,8 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 ### Keep Error Boundaries Scoped
 
 **ID:** `litespec/frontend/components#keep-error-boundaries-scoped`
+
+**Strength:** default
 
 **Default:** Use the route error surface for route failure, and a component boundary only where recovery keeps the page usable.
 

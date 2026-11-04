@@ -1,32 +1,18 @@
 # TypeScript Web Components
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
-Every screen in a TypeScript web frontend draws with composites, shared building blocks for layout and interaction, from one shared UI package, instead of each application drawing its own. This page states how the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) follow the component principles in [Frontend Components](../components.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.
+Every screen in a TypeScript web frontend draws with composites, shared building blocks for layout and interaction, from one shared UI package, instead of each application drawing its own. The component principles live in [Frontend Components](../components.md); this page states the TypeScript mechanism behind them for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): the registry source holding the primitives every composite builds on, the closed list of refused raw elements, visual files for drawings no composite makes, the raw HTML sinks kept away from untrusted content, the typed component boundaries, and the route checks both stacks share. A team that applies it while writing pages keeps layout and interaction inside governed composites instead of scattered raw elements.
 
-## Standards
+## Concepts
 
-### Keep Primitives and Composites in One Shared Package
+### TypeScript Mechanism
 
-**ID:** `litespec/frontend/web/components#keep-primitives-and-composites-in-one-shared-package`
-
-**Statement:** A workspace MUST hold its registry primitives and its composites in one shared UI package, with no copy in an application.
-
-**Rationale:** A primitive copied into two applications diverges on the first upstream update, and the divergence is invisible because both copies compile. One shared package holding the registry primitives and the composites keeps every application on the same source: an update lands once and reaches all of them. This realizes litespec/frontend/components#keep-shared-ui-in-one-package.
-
-**Example:** The primitives sit in one folder that the registry CLI writes. No one edits that folder by hand. The composites sit beside them and import them.
-
-**Reviewed for:** Which registry primitives or composites live under an application instead of the one shared package? Look in the workspace packages and the application sources.
-
-### Use No Raw Element in Page Code
-
-**ID:** `litespec/frontend/web/components#use-no-raw-element-in-page-code`
-
-**Statement:** A component under a route or module folder MUST NOT declare a layout or interactive element, and each refusal names the composite to use.
-
-**Rationale:** A raw layout or interactive element carries no focus management, no state, and no accessibility wiring, so each use rebuilds what a composite already provides. The lint refusal names the composite to use, so the reader gets the answer with the error instead of searching for it. This realizes litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code.
-
-**Example:** The refused elements and their replacements are one closed list.
+The registry CLI writes the primitives into one folder nobody edits by hand, and the composites sit beside them and import them, per `litespec/frontend/components#keep-shared-ui-in-one-package`. Page code declares no layout or interactive element, and each refusal names the composite to use, per `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`. The refused elements and their replacements are one closed list.
 
 | Refused | Use instead |
 |:---|:---|
@@ -38,13 +24,21 @@ Every screen in a TypeScript web frontend draws with composites, shared building
 | `table` | `DataTable` |
 | `img` | the shared image component, which `litespec/frontend/components#use-a-composite-for-a-content-image` owns |
 
-Text elements stay available, because a sentence is not a component decision: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry prose. The [floorplan](../ui.md) owns the `h1`, so it is absent from the list. Any other element follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
+Text elements stay available, because a sentence is not a component decision: `p`, `h2`, `h3`, `em`, `strong`, `ul`, `ol`, and `li` carry prose. The floorplan owns the `h1`. Any other element follows the same rule: page code declares no other element, and the author adds a composite or a visual file instead.
 
-**Checked by:** `pnpm eslint` refuses each raw layout or interactive element in route and module code, naming the composite to use.
+Class names merge through the one merge helper the shared package exports, with every merge or variant helper import inside it, per `litespec/frontend/components#write-no-class-name-in-page-code`. A drawing no composite makes lives in a visual file, which draws with semantic theme tokens only, per `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`. Each stack page names the visual file pattern, the class and style bindings, and the raw HTML sink for its stack.
+
+A visible card, panel, or section title renders as a heading at its correct level, per `litespec/frontend/components#expose-card-and-section-titles-as-headings`, and the route suite resolves each as a heading. The route suite checks keyboard reach, visible focus, target size, and status announcements on every route, per `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`. Stored rich content renders only under its recorded sanitization decision, per `litespec/frontend/components#sanitize-untrusted-rich-content`.
+
+## Standards
 
 ### Refuse Page Code Violations with ESLint
 
 **ID:** `litespec/frontend/web/components#refuse-page-code-violations-with-eslint`
+
+**Strength:** rule
+
+**Applies to:** artifact: component
 
 **Statement:** Route and module code MUST pass the ESLint rules that refuse raw layout and interactive elements, class and style bindings, and layout utilities outside visual files, with each refusal naming the composite to use.
 
@@ -52,58 +46,40 @@ Text elements stay available, because a sentence is not a component decision: `p
 
 **Checked by:** `pnpm eslint` reports no refused element, binding, or layout utility outside visual files in route and module code.
 
-### Place a Drawing No Composite Makes in a Visual File
+### Keep Component Boundaries Typed
 
-**ID:** `litespec/frontend/web/components#place-a-drawing-no-composite-makes-in-a-visual-file`
+**ID:** `litespec/frontend/web/components#keep-component-boundaries-typed`
 
-**Statement:** A visual file MAY write class names, and uses semantic theme tokens only.
+**Strength:** rule
 
-**Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, a public frame. Refusing them outright would push the drawing into an arbitrary value that no token governs. The visual file name declares the drawing visibly, and semantic theme tokens keep even the drawing inside the palette. Each stack page names the file pattern for its stack. This realizes litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file.
+**Applies to:** artifact: component
 
-**Reviewed for:** Which visual files use values other than semantic theme tokens, and which class names appear in other route or module files? Look in the visual files and the route and module sources.
+**Statement:** A component MUST type its props, its events, and its snippets under strict mode.
 
-### Meet Accessibility Requirements
+**Rationale:** An untyped prop fails at the call site the next author writes, which is the most expensive place to learn a shape: after writing the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events and snippets do the same for what the component reports and what it lets callers fill in. React components carry props and events; Svelte components add snippets.
 
-**ID:** `litespec/frontend/web/components#meet-accessibility-requirements`
+**Example:** A Svelte component types its props and derives its total; a React component types its props.
 
-**Statement:** The route suite MUST check keyboard reach, visible focus, target size, and status announcements on every route.
+```svelte
+<script lang="ts">
+  let { orderId }: { orderId: string } = $props();
+  let quantity = $state(1);
+  let unitPrice = $state(0);
+  let total = $derived(quantity * unitPrice);
+</script>
+```
 
-**Rationale:** Keyboard reach, visible focus, target size, and status announcements hold only when every route proves them. A route the suite skips can ship unreachable controls or silent updates with no error. Checking all four on every route makes the guarantees hold for the whole product, not just the routes somebody specified. This realizes litespec/frontend/components#support-keyboard-focus-labels-and-announcements.
+```tsx
+function OrderTotal({ orderId }: { orderId: string }) {
+  const [quantity, setQuantity] = useState(1);
+  const unitPrice = useUnitPrice(orderId);
+  const total = quantity * unitPrice;
+  return <Price value={total} />;
+}
+```
 
-**Checked by:** `tests/routes/every-route.spec.ts` tabs through every route and fails on an unreachable control, a missing focus indicator, an undersized target, or a silent status change.
-
-### Protect Rich Content Boundaries
-
-**ID:** `litespec/frontend/web/components#protect-rich-content-boundaries`
-
-**Statement:** A component MUST NOT pass untrusted content to a raw HTML sink.
-
-**Rationale:** A raw HTML sink renders whatever it receives, so untrusted content passed to it runs as page markup. Stored rich content therefore needs a decision record naming the sanitizer, the allowed elements and attributes, the link policy, and the test cases before any component renders it. Each stack page names the sink for its stack. This realizes litespec/frontend/components#sanitize-untrusted-rich-content.
-
-**Reviewed for:** Which stored-rich-content decisions lack a sanitizer, allowed elements and attributes, link policy, or test cases, and which components pass untrusted content to the named sink without one? Look in the decision records and the rendering components.
+**Checked by:** `svelte-check` fails on an untyped Svelte prop, event, or snippet, and `pnpm type-check` fails on an untyped React prop or event.
 
 ## Conventions
 
-### Give Card and Section Titles Heading Semantics
-
-**ID:** `litespec/frontend/web/components#give-card-and-section-titles-heading-semantics`
-
-**Default:** Render a visible card, panel, or section title as a heading element at its correct level.
-
-**Replacement:** A consumer can replace this default by naming its own title-to-heading mapping in its component documentation.
-
-**Rationale:** A title rendered as a non-heading element vanishes from the document outline and from the browser test that finds it, and some primitive sources default to exactly that. Rendering each visible card, panel, or section title as a heading at its correct level keeps the outline and the test intact. The route suite asserts each visible section title resolves as a heading. This realizes litespec/frontend/components#expose-card-and-section-titles-as-headings.
-
-**Checked by:** `tests/routes/every-route.spec.ts` resolves each visible card, panel, and section title as a heading at its level.
-
-### Compose Class Names in the Shared Package
-
-**ID:** `litespec/frontend/web/components#compose-class-names-in-the-shared-package`
-
-**Default:** Compose class names through the one merge helper the shared package exports, and keep every merge or variant helper import inside it.
-
-**Replacement:** A consumer can replace this default by naming its class-merging helper and its home package in its documentation.
-
-**Rationale:** Two merging helpers resolve the same class pair differently, so a second helper makes identical markup render differently by location. One merge helper exported by the shared package keeps conflict resolution identical everywhere. Page code holds no merge or variant helper import, because it has no decision to make.
-
-**Reviewed for:** Which class merges bypass the shared package merge helper, or import a merge or variant helper in route or module code? Look in the workspace imports.
+None.

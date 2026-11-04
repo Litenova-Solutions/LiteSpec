@@ -10,7 +10,7 @@ static class DomainTypeReader
 {
     /// <summary>
     ///     Reads every top-level Domain type of one file into the model: its name, namespace,
-    ///     file, line, and whether it carries a placing mark. Only files under the Domain root
+    ///     file, line, and whether it carries a placing mark. Only files of the Domain layer
     ///     are read. Nested types, generated types, enumerations and delegates are left out:
     ///     enumerations and delegates are not type declarations, so the type walk skips them.
     /// </summary>
@@ -21,7 +21,7 @@ static class DomainTypeReader
     /// <param name="model">The code model a domain type adds to.</param>
     public static void ReadDomainTypes(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
     {
-        if (!SourceRoots.IsUnder(config.DomainRoot, file))
+        if (SourceRoots.LayerOf(config, file) != "Domain")
         {
             return;
         }

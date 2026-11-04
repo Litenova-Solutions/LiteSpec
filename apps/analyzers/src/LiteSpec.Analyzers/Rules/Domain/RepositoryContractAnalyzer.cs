@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,7 +19,7 @@ public sealed class RepositoryContractAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1010);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -32,22 +33,30 @@ public sealed class RepositoryContractAnalyzer : LayerAnalyzer
         var queryable = context.Compilation.GetTypeByMetadataName("System.Linq.IQueryable");
         var genericQueryable = context.Compilation.GetTypeByMetadataName("System.Linq.IQueryable`1");
         var expression = context.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
         context.RegisterSyntaxNodeAction(
-            nodeContext => Analyze(nodeContext, queryable, genericQueryable, expression),
+            nodeContext => Analyze(nodeContext, scope, queryable, genericQueryable, expression),
             SyntaxKind.InterfaceDeclaration);
     }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="queryable">The queryable supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="genericQueryable">The generic queryable supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="expression">The expression supplied for the check, or null when the compilation does not provide it.</param>
     private static void Analyze(
         SyntaxNodeAnalysisContext context,
+        FileScope scope,
         INamedTypeSymbol? queryable,
         INamedTypeSymbol? genericQueryable,
         INamedTypeSymbol? expression)
     {
+        if (!scope.AppliesTo(context.Node.SyntaxTree))
+        {
+            return;
+        }
+
         var declaration = (InterfaceDeclarationSyntax)context.Node;
         var type = context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken);
         if (type is null || !type.Name.EndsWith("Repository", StringComparison.Ordinal))

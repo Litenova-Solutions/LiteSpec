@@ -76,7 +76,7 @@ public sealed partial class UiValidatorTests
     // Pattern catalog (litespec/frontend/patterns#keep-one-pattern-catalog,
     // litespec/frontend/patterns#record-every-option-considered,
     // litespec/frontend/patterns#declare-the-compact-behavior,
-    // litespec/frontend/web/patterns#implement-a-chosen-pattern-once,
+    // litespec/frontend/patterns#implement-a-chosen-pattern-once,
     // litespec/frontend/patterns#state-the-implementation-status).
 
     /// <summary>The Shipped Pattern Catalog Is Accepted.</summary>
@@ -203,7 +203,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Component Path That Does Not Exist.</summary>
-    /// <proves>litespec/frontend/web/patterns#implement-a-chosen-pattern-once</proves>
+    /// <proves>litespec/frontend/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
     public void A_Component_Path_That_Does_Not_Exist()
     {
@@ -221,7 +221,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Adopted Status With No Components.</summary>
-    /// <proves>litespec/frontend/web/patterns#implement-a-chosen-pattern-once</proves>
+    /// <proves>litespec/frontend/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
     public void An_Adopted_Status_With_No_Components()
     {

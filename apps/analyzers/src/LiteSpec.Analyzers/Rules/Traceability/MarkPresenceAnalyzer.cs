@@ -18,7 +18,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
         ImmutableArray.Create(Descriptors.LS5001);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None;
 
@@ -31,25 +31,32 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     private protected override void RegisterTraceability(
         CompilationStartAnalysisContext context, TraceabilityContext state)
     {
-        context.RegisterSymbolAction(c => AnalyzeType(c, state), SymbolKind.NamedType);
-        context.RegisterSymbolAction(c => AnalyzeMethod(c, state), SymbolKind.Method);
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterSymbolAction(c => AnalyzeType(c, state, scope), SymbolKind.NamedType);
+        context.RegisterSymbolAction(c => AnalyzeMethod(c, state, scope), SymbolKind.Method);
     }
 
     /// <summary>Analyzes the type.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
-    private static void AnalyzeType(SymbolAnalysisContext context, TraceabilityContext state)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeType(SymbolAnalysisContext context, TraceabilityContext state, FileScope scope)
     {
         var type = (INamedTypeSymbol)context.Symbol;
+
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
 
         if (type.IsImplicitlyDeclared || type.TypeKind == TypeKind.Error)
         {
             return;
         }
 
-        var kind = KindReader.KindOf(type, state.Kinds, state.Project);
+        var kind = KindReader.KindOf(type, state.Kinds, state.ProjectOf(type));
 
-        if (kind is null || !CheckedIn(kind.Value, state.Layer))
+        if (kind is null || !CheckedIn(kind.Value, state.LayerOf(type)))
         {
             return;
         }
@@ -73,9 +80,15 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     /// <summary>Analyzes the method.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
-    private static void AnalyzeMethod(SymbolAnalysisContext context, TraceabilityContext state)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeMethod(SymbolAnalysisContext context, TraceabilityContext state, FileScope scope)
     {
         var method = (IMethodSymbol)context.Symbol;
+
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
 
         if (method.IsImplicitlyDeclared || method.MethodKind != MethodKind.Ordinary)
         {
@@ -84,7 +97,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
 
         var kind = KindReader.KindOf(method, state.Kinds);
 
-        if (kind is null || !CheckedIn(kind.Value, state.Layer))
+        if (kind is null || !CheckedIn(kind.Value, state.LayerOf(method)))
         {
             return;
         }
@@ -116,7 +129,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     ///     layer checks their absence.
     /// </summary>
     /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when the checked-in condition holds; otherwise false.</returns>
     private static bool CheckedIn(CodeKind kind, Layer layer)
     {

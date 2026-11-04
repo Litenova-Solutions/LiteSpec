@@ -8,14 +8,14 @@ access:
   grant: permission/erase-personal-data
   tenant: own
 serves:
-  - journey/submit-and-reimburse#s8
+- journey/submit-and-reimburse#s8
 fulfills:
-  - requirement/approval.erase-after-retention
+- requirement/approval.erase-after-retention
 reachedThrough:
-  - entry-point/claimwick-app
+- entry-point/claimwick-app
 raises: []
 changes:
-  - aggregate/spending.expense
+- aggregate/spending.expense
 idempotency:
   mode: none
   reason: the first call deletes the expense, so a repeat finds nothing to erase
@@ -23,15 +23,15 @@ audit:
   level: none
   target: no audit trail; the example stores no audit entry
 records:
-  - type: result
-    id: result/erase-personal-data.erased
-    title: Erased
-    outcome: success
-    meaning: The personal data of the expense is erased.
-  - type: scenario
-    id: scenario/erase-personal-data.erasing-personal-data-succeeds
-    title: Erasing Personal Data Succeeds
-    given: An expense was reimbursed and its retention ended.
-    when: Finance erases the personal data of the expense.
-    then: The personal data of the expense is erased.
-    result: result/erase-personal-data.erased
+- type: result
+  id: result/erase-personal-data.erased
+  title: Erased
+  outcome: success
+  meaning: The personal data of the expense is erased.
+- type: scenario
+  id: scenario/erase-personal-data.erasing-personal-data-succeeds
+  title: Erasing Personal Data Succeeds
+  given: An expense was reimbursed and its retention ended.
+  when: Finance erases the personal data of the expense.
+  then: The personal data of the expense is erased.
+  result: result/erase-personal-data.erased

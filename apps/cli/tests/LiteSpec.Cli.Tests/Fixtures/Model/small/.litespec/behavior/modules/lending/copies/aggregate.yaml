@@ -1,45 +1,36 @@
 type: aggregate
 id: aggregate/lending.copy
 title: Copy
+kind: entity
 states:
-  - name: Available
-    meaning: The copy sits on its shelf.
-  - name: OnLoan
-    meaning: A reader holds the copy.
-  - name: Retired
-    meaning: The copy left lending.
+- name: Available
+  meaning: The copy sits on its shelf.
+- name: OnLoan
+  meaning: A reader holds the copy.
+- name: Retired
+  meaning: The copy left lending.
 transitions:
-  - from: "-"
-    to: Available
-    by: use-case/lending.register-copy
-  - from: Available
-    to: OnLoan
-  - from: OnLoan
-    to: Available
-  - from: Available
-    to: Retired
-    by: use-case/lending.retire-copy
+- from: "-"
+  to: Available
+  by: use-case/lending.register-copy
+- from: Available
+  to: OnLoan
+- from: OnLoan
+  to: Available
+- from: Available
+  to: Retired
+  by: use-case/lending.retire-copy
 records:
-  - type: rule
-    id: rule/copy.has-one-home-shelf
-    title: Has one home shelf
-    kind: invariant
-    statement: A copy has one home shelf.
-    governs:
-      - use-case/lending.register-copy
-    basedOn: []
-    fulfills:
-      - requirement/borrowing.copy-shelf-home
-  - type: event
-    id: event/copy.copy-registered
-    title: Copy registered
-    meaning: A copy was registered.
-    carries:
-      - copyId
-      - shelf
-  - type: event
-    id: event/copy.copy-retired
-    title: Copy retired
-    meaning: A copy was retired.
-    carries:
-      - copyId
+- type: event
+  id: event/copy.copy-registered
+  title: Copy registered
+  meaning: A copy was registered.
+  carries:
+  - copyId
+  - shelf
+- type: event
+  id: event/copy.copy-retired
+  title: Copy retired
+  meaning: A copy was retired.
+  carries:
+  - copyId

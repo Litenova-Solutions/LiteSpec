@@ -74,7 +74,8 @@ public sealed class PermissionTests
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
-            assemblyName: "Shop.Core");
+            assemblyName: "Shop.Core",
+            layout: "layer-projects");
 
         Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));

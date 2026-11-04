@@ -1,8 +1,0 @@
-type: actor
-id: actor/reader
-title: Reader
-kind: person
-belongsToTeam: false
-holds:
-  - role: role/reader
-    scope: self

@@ -6,29 +6,35 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s2
+- journey/borrow-and-return#s2
 fulfills:
-  - requirement/borrowing.max-active-loans
+- requirement/borrowing.max-active-loans
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/loan.loan-borrowed
+- event/loan.loan-borrowed
+idempotency:
+  mode: none
+  reason: Each call lends its own copy, and lending an unavailable copy is refused.
+audit:
+  level: none
+  target: No audit trail; the loan record shows each lending.
 records:
-  - type: result
-    id: result/borrow-copy.borrowed
-    title: Borrowed
-    outcome: success
-    meaning: The copy is lent.
-  - type: result
-    id: result/borrow-copy.copy-unavailable
-    title: Copy unavailable
-    outcome: refusal
-    code: lending.copy-not-available
-    meaning: The copy is unavailable.
-  - type: scenario
-    id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
-    title: Borrowing an available copy succeeds
-    given: A copy sits available on its shelf.
-    when: The reader borrows the copy.
-    then: The loan is active.
-    result: result/borrow-copy.borrowed
+- type: result
+  id: result/borrow-copy.borrowed
+  title: Borrowed
+  outcome: success
+  meaning: The copy is lent.
+- type: result
+  id: result/borrow-copy.copy-unavailable
+  title: Copy unavailable
+  outcome: refusal
+  code: lending.copy-not-available
+  meaning: The copy is unavailable.
+- type: scenario
+  id: scenario/borrow-copy.borrowing-an-available-copy-succeeds
+  title: Borrowing an available copy succeeds
+  given: A copy sits available on its shelf.
+  when: The reader borrows the copy.
+  then: The loan is active.
+  result: result/borrow-copy.borrowed

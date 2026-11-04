@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -17,12 +18,12 @@ public sealed class ReactScreenTests
         using var temp = ModelFixture.Prepare("large");
         AddReactFrontend(temp.Path);
 
-        var screens = BuildScreens(temp.Path).Where(screen => (string?)screen["frontend"] == "console").ToList();
+        var screens = BuildScreens(temp.Path).Where(screen => screen.Frontend == "console").ToList();
 
         Assert.Equal(
             ["/loans", "/loans/$loanId"],
-            screens.Select(screen => (string?)screen["route"]).OrderBy(route => route, StringComparer.Ordinal).ToList());
-        Assert.Contains(screens, screen => (string?)screen["file"] == "apps/console/src/routes/_console/loans/index.tsx");
+            screens.Select(screen => screen.Route).OrderBy(route => route, StringComparer.Ordinal).ToList());
+        Assert.Contains(screens, screen => screen.File == "apps/console/src/routes/_console/loans/index.tsx");
     }
 
     /// <summary>Root Lazy And Ignored Route Files Declare No Screen Of Their Own.</summary>
@@ -34,8 +35,8 @@ public sealed class ReactScreenTests
         AddReactFrontend(temp.Path);
 
         var files = BuildScreens(temp.Path)
-            .Where(screen => (string?)screen["frontend"] == "console")
-            .Select(screen => (string?)screen["file"])
+            .Where(screen => screen.Frontend == "console")
+            .Select(screen => screen.File)
             .ToList();
 
         Assert.DoesNotContain("apps/console/src/routes/__root.tsx", files);
@@ -58,14 +59,8 @@ public sealed class ReactScreenTests
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 
-    static List<JsonNode> BuildScreens(string root)
-    {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
-
-        return [.. JsonNode.Parse(File.ReadAllText(output))!["screens"]!.AsArray().OfType<JsonNode>()];
-    }
+    static List<ScreenInfo> BuildScreens(string root) =>
+        ModelBuilder.Build(ConsumerConfig.Load(root)).Screens.ToList();
 
     static void Write(string folder, string relative, string text)
     {

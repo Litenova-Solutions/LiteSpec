@@ -1,4 +1,0 @@
-type: runbook
-id: runbook/clear-stuck-holds
-title: Clear stuck holds
-trigger: A hold stays ready past its pickup window.

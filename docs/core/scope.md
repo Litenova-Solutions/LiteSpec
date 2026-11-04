@@ -1,5 +1,9 @@
 # Supported Scope
 
+**Stack:** any
+
+**Layer:** workspace
+
 ## Intent
 
 LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. This page states what each project choice decides, which extensions and outside constraints the project also declares, what claiming conformance means, and where the supported boundary ends. A team declares them once during inception, before writing anything else down, so agents and checks apply exactly the pages the project selected.
@@ -52,6 +56,8 @@ A consumer claims conformance when it applies every page its size, shape, and st
 
 **ID:** `litespec/core/scope#select-a-size-a-shape-and-stacks`
 
+**Strength:** rule
+
 **Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only.
 
 **Rationale:** One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures.
@@ -74,11 +80,13 @@ The diagram shows the three project choices and what each decides.
 
 ![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)
 
-**Checked by:** `litespec consumer` refuses a shape whose backend stack count is wrong and a platform that names no frontend stack.
+**Checked by:** `litespec model check` refuses a shape whose backend stack count is wrong and a platform that names no frontend stack.
 
 ### Keep One Bounded Context
 
 **ID:** `litespec/core/scope#keep-one-bounded-context`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST keep one business language and deployment boundary.
 
@@ -92,6 +100,8 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#keep-every-record-about-the-software`
 
+**Strength:** rule
+
 **Statement:** Every record MUST state something the software does, holds, refuses at runtime, or runs on, and translate into code, results, tests, or infrastructure.
 
 **Rationale:** A record about running the company states no behavior the checks confirm: retention, revenue, market sizing, sales tactics, and launch plans pass no software check. The software test in the Concepts section tells what belongs for each type, so a goal about nights without oversell stays while a goal about revenue leaves. A record that reaches no Behavior gets a blocking finding: it is either unfinished work for the backlog or not software.
@@ -103,6 +113,8 @@ The diagram shows the three project choices and what each decides.
 ### Select Conditional Extensions Explicitly
 
 **ID:** `litespec/core/scope#select-conditional-extensions-explicitly`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST select every extension whose activation criteria apply, and no extension whose criteria do not.
 
@@ -116,6 +128,8 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#record-selected-extensions`
 
+**Strength:** rule
+
 **Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.json`, each with its criterion.
 
 **Rationale:** The project record determines which extension boundaries apply to the project's work. Writing each selection with its criterion lets a later reader check whether the condition still holds. Without the record, extensions drift in through dependencies and prose while the checks apply a different set.
@@ -126,11 +140,13 @@ The diagram shows the three project choices and what each decides.
 { "id": "cache", "criterion": "expense reads miss the latency target" }
 ```
 
-**Checked by:** `litespec consumer` rejects a selection without a criterion.
+**Checked by:** `litespec model check` reports `project-invalid` for a selection without a criterion.
 
 ### Answer the Constraints Question
 
 **ID:** `litespec/core/scope#answer-the-constraints-question`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST state in `.litespec/project.json` whether any outside constraint applies to the project.
 
@@ -144,17 +160,21 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#declare-a-consumer-that-has-no-backend`
 
+**Strength:** rule
+
 **Statement:** A consumer with no server of its own MUST declare the `client-only` shape and record a decision naming the surfaces left without coverage.
 
 **Rationale:** The shape decides which backend pages still apply. A `client-only` product keeps a domain model, so it applies the backend architecture, domain, application, and identifier pages that the manifest lists under `shapes`. Persistence, the HTTP API, and API testing have no target without a server, and the decision names those uncovered surfaces. Adding a server only to obtain conformance contradicts `litespec/core/principles#require-current-complexity-activation`, which permits new machinery only for a current documented requirement.
 
 **Example:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request` already permits skipping a gate whose surface does not exist, so a missing backend gate is a recorded consequence rather than an unexplained absence.
 
-**Checked by:** `litespec consumer` refuses a `client-only` project that names a backend stack.
+**Checked by:** `litespec model check` refuses a `client-only` project that names a backend stack.
 
 ### Record Unsupported Scope Decisions
 
 **ID:** `litespec/core/scope#record-unsupported-scope-decisions`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, or large pipelines.
 
@@ -165,6 +185,8 @@ The diagram shows the three project choices and what each decides.
 ### Claim Conformance Only When Every Applicable Provision Holds
 
 **ID:** `litespec/core/scope#claim-conformance-only-when-every-applicable-provision-holds`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST meet every applicable provision before claiming conformance to LiteSpec.
 
@@ -178,6 +200,8 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#point-behavior-docs-at-the-behavior-root`
 
+**Strength:** rule
+
 **Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.json` to the folder that holds its Behavior records.
 
 **Rationale:** The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.
@@ -188,11 +212,13 @@ The diagram shows the three project choices and what each decides.
 { "paths": { "behaviorDocs": ".litespec/behavior" } }
 ```
 
-**Checked by:** `litespec consumer` rejects a project record without `paths.behaviorDocs`.
+**Checked by:** `litespec model check` reports `project-invalid` for a project record without `paths.behaviorDocs`.
 
 ### Keep Every LiteSpec File Under One Folder
 
 **ID:** `litespec/core/scope#keep-every-litespec-file-under-one-folder`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
 
@@ -208,6 +234,8 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#start-with-one-api-and-database`
 
+**Strength:** default
+
 **Default:** Use one API deployable and one database.
 
 **Replacement:** A consumer records a topology convention naming the deployables and stores it runs instead.
@@ -219,6 +247,8 @@ The diagram shows the three project choices and what each decides.
 ### Measure Capacity Before Expansion
 
 **ID:** `litespec/core/scope#measure-capacity-before-expansion`
+
+**Strength:** default
 
 **Default:** Record current load, latency target, and observed constraint before adding caches, replicas, queues, or partitioning.
 

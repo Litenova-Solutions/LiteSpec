@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The one canonical JSON writer: object keys sorted, strings re-encoded and
-///     numbers written by value, so the semantic hash and the model diff read
+///     numbers written by value, so the semantic hash and the contract-break comparison read
 ///     the same bytes for the same meaning.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>

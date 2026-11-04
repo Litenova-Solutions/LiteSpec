@@ -44,7 +44,7 @@ public sealed class FormatCheckTests
         Assert.DoesNotContain("format-drift", TestModel.Codes(model));
     }
 
-    /// <summary>A record file outside the YAML subset reports no format drift.</summary>
+    /// <summary>A record file that is not YAML reports no format drift.</summary>
     /// <proves>litespec/core/model#write-every-record-file-in-canonical-form</proves>
     [Fact]
     public void Unparsable_Record_File_Reports_No_Format_Drift()

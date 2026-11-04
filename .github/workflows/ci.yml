@@ -1,0 +1,191 @@
+name: CI
+
+# The four gates every change passes. The pull request, branch and release
+# workflows all call this one, so every gate runs the same jobs.
+#
+# The dotnet job builds and tests the solution. The standards job checks the
+# generated provision index, validates the repository and checks whitespace.
+# The web job checks, tests and builds the book client and tests and builds
+# the site. The package job packs the tool and the analyzers and installs the
+# tool the way a consumer does.
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        description: The build configuration to use.
+        type: string
+        default: Debug
+
+permissions:
+  contents: read
+
+jobs:
+  # Builds the solution and runs its tests.
+  dotnet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      # The CLI runs the frontend reader as a Node bundle and embeds the book client, which the CLI tests call.
+      - name: Configure Node.js for the frontend reader
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Build the frontend reader and the book client
+        run: |
+          npm install --global pnpm@11.28.5
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
+
+      - name: Build the solution
+        run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
+
+      - name: Test the solution
+        run: dotnet test --solution LiteSpec.slnx --configuration ${{ inputs.configuration }} --no-build
+
+  # Checks the standard itself: the provision index, the repository validation and whitespace.
+  standards:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Build the maintainer tool
+        run: dotnet build apps/maintain/src/LiteSpec.Maintain --configuration ${{ inputs.configuration }}
+
+      - name: Check the generated provision index
+        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --configuration ${{ inputs.configuration }} --no-build -- provisions --check
+
+      - name: Validate the LiteSpec repository
+        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --configuration ${{ inputs.configuration }} --no-build -- validate
+
+      # On a fresh checkout `git diff --check` has no change to examine, so
+      # compare the change itself: the pull request against its base, or the
+      # pushed commit against its parent when it has one.
+      - name: Check whitespace errors in the change
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags origin "$BASE_REF"
+            git diff --check "origin/$BASE_REF...HEAD"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            git diff --check HEAD~1 HEAD
+          fi
+
+  # The book client and the site: the client checks, tests and build, then the site tests and build.
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Install pnpm
+        run: npm install --global pnpm@11.28.5
+
+      # The book client: types and Svelte checks, its unit tests, and the build the CLI embeds.
+      - name: Install the book client dependencies
+        run: pnpm --dir apps/cli/book install --frozen-lockfile
+
+      - name: Check the book client
+        run: pnpm --dir apps/cli/book check
+
+      - name: Test the book client
+        run: pnpm --dir apps/cli/book test
+
+      - name: Build the book client
+        run: pnpm --dir apps/cli/book build
+
+      - name: Install the site dependencies
+        run: pnpm --dir apps/site install --frozen-lockfile
+
+      - name: Test the site, including the wireframe renderer against the CLI goldens
+        run: pnpm --dir apps/site test
+
+      # The same build the release deploys: Astro, then the Pagefind search index.
+      - name: Build the site
+        run: pnpm --dir apps/site build
+
+  # Packs the tool and the analyzers and installs the tool the way a consumer does.
+  package:
+    runs-on: ubuntu-24.04
+    # The default step timeout is six hours. A hung check would hold a runner
+    # for that long and report nothing useful at the end of it.
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      # The CLI runs the frontend reader as a Node bundle and embeds the book client, so
+      # both exist before the pack that ships them.
+      - name: Configure Node.js for the frontend reader
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Build the frontend reader and the book client
+        run: |
+          npm install --global pnpm@11.28.5
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
+
+      # The analyzers package carries the code fixes, which only a solution build produces.
+      - name: Build the CLI and the analyzers
+        run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
+
+      - name: Pack the tool and the analyzers
+        run: |
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --output artifacts
+          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration ${{ inputs.configuration }} --output artifacts
+
+      # A consumer installs the tool from a package and runs it outside this repository,
+      # where nothing but the release inside the package can answer.
+      - name: Run the packed tool the way a consumer installs it
+        run: .github/scripts/smoke-tool.sh artifacts
+
+      - name: Keep the packages for the publishing jobs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: packages
+          path: artifacts/*.nupkg
+          if-no-files-found: error

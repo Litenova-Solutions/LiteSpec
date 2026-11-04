@@ -8,7 +8,7 @@ public sealed class LayerNameAnalyzerTests
 {
     /// <summary>LS2017 reports an unknown LiteSpecLayer value on the first token.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#use-five-application-projects</proves>
+    /// <proves>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</proves>
     [Fact(DisplayName = "LS2017 reports an unknown LiteSpecLayer value on the first token")]
     public Task ReportsAnUnknownLayerValue() =>
         Verify.AnalyzerAsync<LayerNameAnalyzer>("""
@@ -21,7 +21,7 @@ public sealed class LayerNameAnalyzerTests
 
     /// <summary>LS2017 reports once on the first file across two files.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#use-five-application-projects</proves>
+    /// <proves>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</proves>
     [Fact(DisplayName = "LS2017 reports once on the first file across two files")]
     public Task ReportsOnceAcrossTwoFiles() =>
         Verify.AnalyzerAsync<LayerNameAnalyzer>(
@@ -46,7 +46,7 @@ public sealed class LayerNameAnalyzerTests
 
     /// <summary>LS2017 accepts Worker.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#use-five-application-projects</proves>
+    /// <proves>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</proves>
     [Fact(DisplayName = "LS2017 accepts Worker")]
     public Task AcceptsWorker() =>
         Verify.AnalyzerAsync<LayerNameAnalyzer>("""
@@ -59,7 +59,7 @@ public sealed class LayerNameAnalyzerTests
 
     /// <summary>LS2017 accepts the None opt-out.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#use-five-application-projects</proves>
+    /// <proves>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</proves>
     [Fact(DisplayName = "LS2017 accepts the None opt-out")]
     public Task AcceptsTheNoneOptOut() =>
         Verify.AnalyzerAsync<LayerNameAnalyzer>("""
@@ -72,7 +72,7 @@ public sealed class LayerNameAnalyzerTests
 
     /// <summary>LS2017 stays quiet without a declared value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#use-five-application-projects</proves>
+    /// <proves>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</proves>
     [Fact(DisplayName = "LS2017 stays quiet without a declared value")]
     public Task StaysQuietWithoutADeclaredValue() =>
         Verify.AnalyzerAsync<LayerNameAnalyzer>("""

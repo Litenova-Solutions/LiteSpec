@@ -1,0 +1,997 @@
+using LiteSpec.Model.Readers.Dotnet;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static LiteSpec.Model.Checks.FindingHelpers;
+
+namespace LiteSpec.Model.Checks;
+
+/// <summary>
+///     The placement checks: every backend mark sits under its record's qualified path with its namespace,
+///     every test mirrors the code it proves, every frontend module names a declared module, and every
+///     module folder names a declared record under a closed folder set.
+/// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/model#match-each-backend-mark-to-its-folder</follows>
+internal static class PlacementChecks
+{
+    /// <summary>Fixed folders at a product root, whatever its modules declare.</summary>
+    static readonly HashSet<string> ProductFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Domain", "Application", "Infrastructure", "WebApi",
+    };
+
+    /// <summary>Fixed folders at a module, whatever its aggregates declare.</summary>
+    static readonly HashSet<string> ModuleFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Contracts", "Domain", "Application", "Infrastructure", "WebApi",
+        "UseCases", "Reactions", "Jobs",
+    };
+
+    /// <summary>Fixed folders at an aggregate, whatever its use cases declare.</summary>
+    static readonly HashSet<string> AggregateFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Domain", "Application", "Infrastructure", "WebApi",
+    };
+
+    /// <summary>Namespace segments that state no placement: layers, plumbing, and record mirrors.</summary>
+    static readonly HashSet<string> PlacelessSegments = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Domain", "Application", "Abstractions", "Infrastructure", "WebApi", "Worker",
+        "Persistence", "Endpoints", "Contracts", "Events", "Exceptions",
+        "UseCases", "Reactions", "Jobs", "Tests", "Test", "Acceptance", "Integration", "Unit",
+    };
+
+    /// <summary>Directory names the folder walk leaves out: build output, installed packages and tool folders.</summary>
+    static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "bin", "obj", "TestResults", "node_modules", ".git",
+        ".svelte-kit", "build", "dist", "coverage",
+    };
+
+    /// <summary>Runs the placement checks.</summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void Run(ProjectModel model, List<Finding> findings)
+    {
+        CheckBackendPlacement(model, findings);
+        CheckTestPlacement(model, findings);
+        CheckFrontendPlacement(model, findings);
+        CheckClosedFolders(model, findings);
+    }
+
+    /// <summary>
+    ///     Reports every backend mark whose namespace or aggregate folder misses its record's qualified path:
+    ///     a use case mark outside its aggregate folder, an event or rule mark outside its module or aggregate,
+    ///     an external-system mark outside its module, and any of those with a namespace that names another path.
+    ///     A mark naming no record, a record of another type, or a record its kind does not take is
+    ///     <c>mark-unknown</c>, not drift. A host endpoint, a technical class, an aggregate method and a
+    ///     frontend element carry no backend placement, so they are left out.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckBackendPlacement(ProjectModel model, List<Finding> findings)
+    {
+        var namespaces = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.InTests
+                || element.Kind is CodeKind.Test or CodeKind.BrowserTest
+                    or CodeKind.FrontendModule or CodeKind.FrontendRoute
+                    or CodeKind.AggregateMethod or CodeKind.Technical)
+            {
+                continue;
+            }
+
+            if (element.Kind == CodeKind.Endpoint && IsHostEndpoint(model.Config, element.File))
+            {
+                continue;
+            }
+
+            foreach (var mark in element.Marks)
+            {
+                if (mark.Verb == MarkVerb.Follows)
+                {
+                    continue;
+                }
+
+                if (!model.ById.TryGetValue(mark.RecordId, out var record)
+                    || !MarkRules.Accepts(element.Kind, mark.RecordId))
+                {
+                    continue;
+                }
+
+                if (!Identifiers.TrySplit(mark.RecordId, out var prefix, out _, out _)
+                    || record.Type != prefix)
+                {
+                    continue;
+                }
+
+                // An endpoint in a host that marks no use case is a host endpoint, which
+                // carries its mark without a use case folder.
+                if (element.Kind == CodeKind.Endpoint
+                    && record.Type != RecordTypes.UseCase
+                    && (SourceRoots.IsUnder(model.Config.WebApiRoot, element.File) || SourceRoots.IsUnder(model.Config.WorkerRoot, element.File)))
+                {
+                    continue;
+                }
+
+                var path = PathOf(record, model.Config);
+
+                if (path.Module is null)
+                {
+                    continue;
+                }
+
+                if (!CheckBackendFolder(model.Config, element, mark, record, path, findings))
+                {
+                    CheckBackendNamespace(model.Config, element, mark, path, namespaces, findings);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports the backend folder the mark misses: the module folder for an event, rule or external-system
+    ///     mark, and the aggregate folder for a use case, event, rule or aggregate mark. The module and use case
+    ///     folders of a handler, endpoint, event handler, job host or aggregate root stay with
+    ///     <c>mark-folder-drift</c>, so a mark it reports is not reported here.
+    /// </summary>
+    /// <param name="config">The project configuration that holds each layer root.</param>
+    /// <param name="element">The marked code element whose folder is checked.</param>
+    /// <param name="mark">The mark naming the record the folder should hold.</param>
+    /// <param name="record">The marked record.</param>
+    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    private static bool CheckBackendFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, List<Finding> findings)
+    {
+        if (SourceRoots.ModulePath(config, element.File) is not { } segments)
+        {
+            return false;
+        }
+
+        if (!SameName(segments[0], path.Module!))
+        {
+            if (record.Type is RecordTypes.Event or RecordTypes.Rule or RecordTypes.ExternalSystem)
+            {
+                findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+                return true;
+            }
+
+            return false;
+        }
+
+        if (path.Aggregate is null
+            || record.Type is not (RecordTypes.UseCase or RecordTypes.Event or RecordTypes.Rule or RecordTypes.Aggregate))
+        {
+            return false;
+        }
+
+        if (element.Kind is CodeKind.Handler or CodeKind.Endpoint
+            && record.Type == RecordTypes.UseCase
+            && path.Name is not null
+            && UseCaseFolderOf(segments) is { } folder
+            && !SameName(folder, path.Name))
+        {
+            return false;
+        }
+
+        if (segments.Length < 3 || SameName(segments[1], path.Aggregate))
+        {
+            return false;
+        }
+
+        // A module with one aggregate of its own name stays flat, so the aggregate
+        // folder is missing only when the aggregate names its own folder.
+        if (SameName(path.Aggregate, path.Module!) && segments.Length == 3)
+        {
+            return false;
+        }
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+        return true;
+    }
+
+    /// <summary>
+    ///     The use-case folder of a handler or endpoint: the third segment of module,
+    ///     aggregate and use case, or the second of a flat module and use case. Null when
+    ///     the file sits directly in its module folder, where no use-case folder names it.
+    /// </summary>
+    /// <param name="segments">The file path segments with the module folder first and the file name last.</param>
+    /// <returns>The use case folder segment, or null when the file sits directly in its module folder.</returns>
+    private static string? UseCaseFolderOf(string[] segments) =>
+        segments.Length >= 4 ? segments[2] : segments.Length == 3 ? segments[1] : null;
+
+    /// <summary>Reports the backend namespace that names another path than the mark's qualified identifier.</summary>
+    /// <param name="config">The project configuration that holds the product name.</param>
+    /// <param name="element">The marked code element whose namespace is checked.</param>
+    /// <param name="mark">The mark naming the record the namespace should place.</param>
+    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckBackendNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, Dictionary<string, string> namespaces, List<Finding> findings)
+    {
+        var expected = ExpectedSegments(path);
+
+        if (expected.Count == 0)
+        {
+            return;
+        }
+
+        var product = SourceRoots.ProductName(config);
+
+        if (product.Length == 0)
+        {
+            return;
+        }
+
+        if (NamespaceOf(element.File, namespaces) is not { Length: > 0 } actual)
+        {
+            return;
+        }
+
+        if (!NamespaceMatches(product, actual, expected))
+        {
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
+        }
+    }
+
+    /// <summary>
+    ///     Reports every test whose folder or namespace misses the qualified path of the use case its scenario
+    ///     proves. A test proving another record carries no folder rule, and an adapter test under its adapter's
+    ///     Infrastructure path is exempt by kind. A mark naming no scenario is <c>mark-unknown</c>, not drift.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every record and each marked test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckTestPlacement(ProjectModel model, List<Finding> findings)
+    {
+        var namespaces = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.Kind != CodeKind.Test)
+            {
+                continue;
+            }
+
+            if (SourceRoots.LayerOf(model.Config, element.File) == "Infrastructure"
+                || SourceRoots.IsUnder(model.Config.InfrastructureRoot, element.File)
+                || LayerResolver.FolderLayer(element.File) == Layer.Infrastructure)
+            {
+                continue;
+            }
+
+            foreach (var mark in element.Marks)
+            {
+                if (mark.Verb != MarkVerb.Proves)
+                {
+                    continue;
+                }
+
+                if (!model.ById.TryGetValue(mark.RecordId, out var record)
+                    || record.Type != RecordTypes.Scenario)
+                {
+                    continue;
+                }
+
+                var path = UseCasePathOf(record, model.Config);
+
+                if (path.Module is null || path.Name is null)
+                {
+                    continue;
+                }
+
+                if (!CheckTestFolder(model.Config, element, mark, path, findings))
+                {
+                    CheckTestNamespace(model.Config, element, mark, path, namespaces, findings);
+                }
+            }
+        }
+    }
+
+    /// <summary>Reports the test folder that misses the qualified path of the scenario's use case.</summary>
+    /// <param name="config">The project configuration that holds each test root.</param>
+    /// <param name="element">The marked test whose folder is checked.</param>
+    /// <param name="mark">The proves mark naming the scenario.</param>
+    /// <param name="path">The module, aggregate and use case the scenario's qualified identifier states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    private static bool CheckTestFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, List<Finding> findings)
+    {
+        if (TestSegments(config, element.File) is not { } segments)
+        {
+            return false;
+        }
+
+        if (!SameName(segments[0], path.Module!))
+        {
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segments[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            return true;
+        }
+
+        if (path.Aggregate is not null && segments.Length >= 3 && !SameName(segments[1], path.Aggregate))
+        {
+            if (SameName(path.Aggregate, path.Module!))
+            {
+                return false;
+            }
+
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[1]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            return true;
+        }
+
+        var useCaseAt = path.Aggregate is not null && segments.Length >= 3 && SameName(segments[1], path.Aggregate) ? 2 : 1;
+
+        if (segments.Length > useCaseAt + 1 && !SameName(segments[useCaseAt], path.Name!))
+        {
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{segments[useCaseAt]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Reports the test namespace that names another path than the scenario's use case.</summary>
+    /// <param name="config">The project configuration that holds the product name.</param>
+    /// <param name="element">The marked test whose namespace is checked.</param>
+    /// <param name="mark">The proves mark naming the scenario.</param>
+    /// <param name="path">The module, aggregate and use case the scenario's qualified identifier states.</param>
+    /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckTestNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, Dictionary<string, string> namespaces, List<Finding> findings)
+    {
+        var product = SourceRoots.ProductName(config);
+
+        if (product.Length == 0)
+        {
+            return;
+        }
+
+        if (NamespaceOf(element.File, namespaces) is not { Length: > 0 } actual)
+        {
+            return;
+        }
+
+        var expected = new List<string> { Pascal(path.Module!) };
+
+        if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module!))
+        {
+            expected.Add(Pascal(path.Aggregate));
+        }
+
+        expected.Add(Pascal(path.Name!));
+
+        if (!NamespaceMatches(product, actual, expected))
+        {
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' declares namespace '{actual}', but '{mark.RecordId}' places it under '{product}.{string.Join(".", expected)}'.", mark.File, mark.Line, mark.RecordId));
+        }
+    }
+
+    /// <summary>
+    ///     Reports every frontend module folder that names no declared module. The use case the folder
+    ///     mirrors stays with the mirror check, so only the module segment against the declared modules
+    ///     is reported here. A project with no declared modules states no mirror, so it is left out.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every record and each frontend module.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendPlacement(ProjectModel model, List<Finding> findings)
+    {
+        var modules = DeclaredModules(model);
+
+        if (modules.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.Kind != CodeKind.FrontendModule)
+            {
+                continue;
+            }
+
+            var folder = Directory.Exists(element.File) ? element.File : Path.GetDirectoryName(element.File) ?? element.File;
+
+            foreach (var frontend in model.Config.Frontends)
+            {
+                if (ModuleSegment(frontend, folder) is not { } segment)
+                {
+                    continue;
+                }
+
+                if (!modules.Any(module => SameName(segment, module)))
+                {
+                    var mark = element.Marks.FirstOrDefault(mark => mark.Verb != MarkVerb.Follows);
+                    var subject = mark?.RecordId;
+                    var file = mark?.File ?? element.File;
+                    var line = mark?.Line ?? element.Line;
+
+                    findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{segment}', but no declared module names it.", file, line, subject));
+                }
+
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports every backend and frontend folder outside the closed folder sets, and every module and
+    ///     aggregate folder that names no declared record. Inside a layer folder subfolders are free, a host
+    ///     holds its endpoints and plumbing without a folder rule, and a project with no declared modules,
+    ///     aggregates or use cases states no names, so those folders are left out.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every declared module, aggregate and use case.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckClosedFolders(ProjectModel model, List<Finding> findings)
+    {
+        var modules = DeclaredModules(model);
+        var aggregates = DeclaredAggregates(model);
+        var useCases = DeclaredUseCases(model);
+
+        if (model.Config.ApplicationRoot.Length > 0 && Directory.Exists(model.Config.ApplicationRoot))
+        {
+            if (SourceRoots.IsProductRoot(model.Config.ApplicationRoot))
+            {
+                CheckProductRoot(model.Config, modules, aggregates, useCases, findings);
+            }
+            else
+            {
+                CheckLayerProject(model.Config, model.Config.ApplicationRoot, modules, findings);
+            }
+        }
+
+        foreach (var root in new[] { model.Config.DomainRoot, model.Config.InfrastructureRoot })
+        {
+            if (root.Length > 0 && Directory.Exists(root))
+            {
+                CheckLayerProject(model.Config, root, modules, findings);
+            }
+        }
+
+        // Hosts hold their endpoints and plumbing without a folder rule in the module
+        // layout; under layer-projects their module folders name declared modules.
+        if (!SourceRoots.IsProductRoot(model.Config.ApplicationRoot))
+        {
+            foreach (var root in new[] { model.Config.WebApiRoot, model.Config.WorkerRoot })
+            {
+                if (root.Length > 0 && Directory.Exists(root))
+                {
+                    CheckLayerProject(model.Config, root, modules, findings);
+                }
+            }
+        }
+
+        foreach (var frontend in model.Config.Frontends)
+        {
+            CheckFrontendRoot(model.Config, frontend, modules, findings);
+        }
+    }
+
+    /// <summary>Reports every folder under the one application root that breaks its level's closed set.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="modules">The declared module names.</param>
+    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckProductRoot(ConsumerConfig config, List<string> modules, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    {
+        foreach (var module in ChildFolders(config.ApplicationRoot))
+        {
+            var name = Path.GetFileName(module);
+
+            if (ProductFolders.Contains(name))
+            {
+                continue;
+            }
+
+            if (modules.Count > 0 && !modules.Any(declared => SameName(name, declared)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no layer folder or declared module.", module, 1, null));
+                continue;
+            }
+
+            CheckModuleLevel(config, module, name, aggregates, useCases, findings);
+        }
+    }
+
+    /// <summary>Reports every folder under one module that breaks the module level's closed set.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="module">The absolute module folder.</param>
+    /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregates">The declared aggregates by module and aggregate name.</param>
+    /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckModuleLevel(ConsumerConfig config, string module, string moduleName, IReadOnlyList<(string Module, string Aggregate)> aggregates, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(module))
+        {
+            var name = Path.GetFileName(child);
+
+            if (ModuleFolders.Contains(name))
+            {
+                if (string.Equals(name, "UseCases", StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckUseCasesLevel(config, child, moduleName, useCases, findings);
+                }
+
+                continue;
+            }
+
+            if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(name, aggregate.Aggregate)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or declared aggregate.", child, 1, null));
+                continue;
+            }
+
+            CheckAggregateLevel(config, child, moduleName, name, useCases, findings);
+        }
+    }
+
+    /// <summary>Reports every folder under one aggregate that breaks the aggregate level's closed set.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="aggregate">The absolute aggregate folder.</param>
+    /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="aggregateName">The aggregate folder name as written on disk.</param>
+    /// <param name="useCases">The declared use cases by module, aggregate and name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAggregateLevel(ConsumerConfig config, string aggregate, string moduleName, string aggregateName, IReadOnlyList<(string Module, string? Aggregate, string Name)> useCases, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(aggregate))
+        {
+            var name = Path.GetFileName(child);
+
+            if (AggregateFolders.Contains(name))
+            {
+                continue;
+            }
+
+            var owned = useCases
+                .Where(useCase => SameName(moduleName, useCase.Module) && useCase.Aggregate is not null && SameName(aggregateName, useCase.Aggregate))
+                .ToList();
+
+            if (owned.Count > 0 && !owned.Any(useCase => SameName(name, useCase.Name)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or declared use case.", child, 1, null));
+                continue;
+            }
+
+            CheckUseCaseFilesOnly(config, child, findings);
+        }
+    }
+
+    /// <summary>Reports every subfolder under a use case folder, which holds files only.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="useCase">The absolute use case folder.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseFilesOnly(ConsumerConfig config, string useCase, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(useCase))
+        {
+            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' sits in use case '{Path.GetFileName(useCase)}', which holds files only.", child, 1, null));
+        }
+    }
+
+    /// <summary>Reports every subfolder under a module-level use case folder, which holds files only.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="useCases">The absolute UseCases folder of one module.</param>
+    /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="declared">The declared use cases by module, aggregate and name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCasesLevel(ConsumerConfig config, string useCases, string moduleName, IReadOnlyList<(string Module, string? Aggregate, string Name)> declared, List<Finding> findings)
+    {
+        foreach (var child in ChildFolders(useCases))
+        {
+            var name = Path.GetFileName(child);
+            var owned = declared
+                .Where(useCase => SameName(moduleName, useCase.Module) && useCase.Aggregate is null)
+                .ToList();
+
+            if (owned.Count > 0 && !owned.Any(useCase => SameName(name, useCase.Name)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no declared use case.", child, 1, null));
+                continue;
+            }
+
+            CheckUseCaseFilesOnly(config, child, findings);
+        }
+    }
+
+    /// <summary>Reports every module folder under one layer project that names no declared module.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="root">The absolute layer project root.</param>
+    /// <param name="modules">The declared module names.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckLayerProject(ConsumerConfig config, string root, List<string> modules, List<Finding> findings)
+    {
+        if (modules.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var module in ChildFolders(root))
+        {
+            var name = Path.GetFileName(module);
+
+            if (name.Equals("Endpoints", StringComparison.OrdinalIgnoreCase) || name.Equals("Persistence", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!modules.Any(declared => SameName(name, declared)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+            }
+        }
+    }
+
+    /// <summary>Reports every module folder under one frontend modules root that names no declared module.</summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="frontend">The frontend whose modules root is checked.</param>
+    /// <param name="modules">The declared module names.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendRoot(ConsumerConfig config, FrontendConfig frontend, List<string> modules, List<Finding> findings)
+    {
+        if (modules.Count == 0 || !Directory.Exists(frontend.ModulesRoot))
+        {
+            return;
+        }
+
+        foreach (var module in ChildFolders(frontend.ModulesRoot))
+        {
+            var name = Path.GetFileName(module);
+
+            if (!modules.Any(declared => SameName(name, declared)))
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+            }
+        }
+    }
+
+    /// <summary>The module, aggregate and name the record's qualified identifier states for its folder and namespace.</summary>
+    /// <param name="record">The marked record.</param>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
+    /// <returns>The module, aggregate and name, with nulls where the qualified identifier states no placement.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) PathOf(Record record, ConsumerConfig config)
+    {
+        var qualified = record.QualifiedId.Length > 0
+            ? record.QualifiedId
+            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
+        var segments = qualified.Split('/');
+
+        if (segments.Length < 2 || segments[0] == record.Type)
+        {
+            return (null, null, null, record.Type == RecordTypes.UseCase);
+        }
+
+        var module = segments[0];
+        var at = Array.IndexOf(segments, record.Type, 1);
+
+        if (at < 0)
+        {
+            return record.Type == RecordTypes.Aggregate && segments.Length == 2
+                ? (module, segments[1], segments[1], false)
+                : (module, null, segments[^1], false);
+        }
+
+        // The aggregate sits directly under the module, even when the record nests
+        // deeper, such as an event its use case raises.
+        var aggregate = at > 1 ? segments[1] : null;
+        var name = at + 1 < segments.Length ? segments[at + 1] : null;
+
+        return (module, aggregate, name, record.Type == RecordTypes.UseCase);
+    }
+
+    /// <summary>The module, aggregate and use case the scenario's qualified identifier states for its test.</summary>
+    /// <param name="record">The marked scenario record.</param>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
+    /// <returns>The module, aggregate and use case home, with nulls where the qualified identifier states no placement.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) UseCasePathOf(Record record, ConsumerConfig config)
+    {
+        var qualified = record.QualifiedId.Length > 0
+            ? record.QualifiedId
+            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
+        var segments = qualified.Split('/');
+        var at = Array.IndexOf(segments, RecordTypes.UseCase);
+
+        if (at <= 0 || at + 1 >= segments.Length)
+        {
+            return (null, null, null, false);
+        }
+
+        var aggregate = at > 1 ? segments[at - 1] : null;
+
+        return (segments[0], aggregate, segments[at + 1], true);
+    }
+
+    /// <summary>The expected namespace segments after the product for the qualified path of the marked record type.</summary>
+    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <returns>The expected segments in placement order, or an empty list when the path states no placement.</returns>
+    private static List<string> ExpectedSegments((string? Module, string? Aggregate, string? Name, bool IsUseCase) path)
+    {
+        if (path.Module is null)
+        {
+            return [];
+        }
+
+        var expected = new List<string> { Pascal(path.Module) };
+
+        if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module))
+        {
+            expected.Add(Pascal(path.Aggregate));
+        }
+
+        if (path.Name is not null && path.IsUseCase && !SameName(path.Name, path.Aggregate ?? ""))
+        {
+            expected.Add(Pascal(path.Name));
+        }
+
+        return expected;
+    }
+
+    /// <summary>Whether the namespace places the element under the expected segments after the product.</summary>
+    /// <param name="product">The product name starting the namespace.</param>
+    /// <param name="actual">The declared namespace as written in the file.</param>
+    /// <param name="expected">The expected segments in placement order, without the product.</param>
+    /// <returns>True when the namespace starts at the product and carries each expected segment in order.</returns>
+    private static bool NamespaceMatches(string product, string actual, List<string> expected)
+    {
+        var segments = actual.Split('.').Where(segment => segment.Length > 0).ToList();
+
+        if (segments.Count == 0 || !SameName(segments[0], product))
+        {
+            return false;
+        }
+
+        var placed = segments.Skip(1).Where(segment => !PlacelessSegments.Contains(segment)).ToList();
+
+        if (placed.Count < expected.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < expected.Count; index++)
+        {
+            if (!SameName(placed[index], expected[index]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>The declared namespace of the file, or an empty string when the file cannot be read or declares none.</summary>
+    /// <param name="file">The full path of the file whose namespace is wanted.</param>
+    /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
+    /// <returns>The declared namespace, or an empty string when none could be read.</returns>
+    private static string NamespaceOf(string file, Dictionary<string, string> namespaces)
+    {
+        if (namespaces.TryGetValue(file, out var known))
+        {
+            return known;
+        }
+
+        string found = "";
+
+        try
+        {
+            if (File.Exists(file))
+            {
+                var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
+                var spaces = tree.GetRoot().DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().ToList();
+
+                if (spaces.FirstOrDefault(space => space is FileScopedNamespaceDeclarationSyntax) is { } scoped)
+                {
+                    found = scoped.Name.ToString();
+                }
+                else if (spaces.Count > 0)
+                {
+                    found = string.Join(".", spaces.Select(space => space.Name.ToString()));
+                }
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            found = "";
+        }
+
+        namespaces[file] = found;
+
+        return found;
+    }
+
+    /// <summary>Whether the endpoint sits in a host, where host endpoints carry their mark without a use case folder.</summary>
+    /// <param name="config">The project configuration naming the host roots.</param>
+    /// <param name="file">The full path of the endpoint file.</param>
+    /// <returns>True when the file sits under a host root in the module layout.</returns>
+    private static bool IsHostEndpoint(ConsumerConfig config, string file) =>
+        !SourceRoots.IsProductRoot(config.ApplicationRoot)
+            ? false
+            : SourceRoots.IsUnder(config.WebApiRoot, file) || SourceRoots.IsUnder(config.WorkerRoot, file);
+
+    /// <summary>The test path segments under the test project, or null when the file sits outside every test root or in a project root.</summary>
+    /// <param name="config">The project configuration that holds each test root.</param>
+    /// <param name="file">The full path of the test file.</param>
+    /// <returns>The path segments with the module first and the file name last, or null outside the test mirror.</returns>
+    private static string[]? TestSegments(ConsumerConfig config, string file)
+    {
+        foreach (var root in config.TestRoots)
+        {
+            if (!SourceRoots.IsUnder(root, file))
+            {
+                continue;
+            }
+
+            var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            if (segments.Length >= 3)
+            {
+                return segments.Skip(1).ToArray();
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    /// <summary>The module segment of a frontend module folder under the frontend modules root, or null outside it.</summary>
+    /// <param name="frontend">The frontend whose modules root the folder sits under.</param>
+    /// <param name="folder">The absolute folder path.</param>
+    /// <returns>The first folder segment under the modules root, or null outside the root.</returns>
+    private static string? ModuleSegment(FrontendConfig frontend, string folder)
+    {
+        if (!Directory.Exists(frontend.ModulesRoot))
+        {
+            return null;
+        }
+
+        var relative = Path.GetRelativePath(Path.GetFullPath(frontend.ModulesRoot), Path.GetFullPath(folder));
+
+        if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
+        {
+            return null;
+        }
+
+        var segments = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return segments.Length > 0 && segments[0] is not "." && segments[0].Length > 0 ? segments[0] : null;
+    }
+
+    /// <summary>The declared module names.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>The module names in model order.</returns>
+    private static List<string> DeclaredModules(ProjectModel model)
+    {
+        var modules = new List<string>();
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.Module)
+            {
+                continue;
+            }
+
+            var qualified = record.QualifiedId.Length > 0
+                ? record.QualifiedId
+                : QualifiedIdentifier.Of(record.Type, record.Id, record.File, model.Config);
+
+            if (qualified.Length > 0 && !qualified.Contains('/', StringComparison.Ordinal))
+            {
+                modules.Add(qualified);
+            }
+            else if (Identifiers.TrySplit(record.Id, out _, out _, out var name))
+            {
+                modules.Add(name);
+            }
+        }
+
+        return modules;
+    }
+
+    /// <summary>The declared aggregates by module and aggregate name.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>The module and aggregate names of each aggregate record with a placed qualified identifier.</returns>
+    private static List<(string Module, string Aggregate)> DeclaredAggregates(ProjectModel model)
+    {
+        var aggregates = new List<(string Module, string Aggregate)>();
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.Aggregate)
+            {
+                continue;
+            }
+
+            var path = PathOf(record, model.Config);
+
+            if (path.Module is not null && path.Aggregate is not null)
+            {
+                aggregates.Add((path.Module, path.Aggregate));
+            }
+        }
+
+        return aggregates;
+    }
+
+    /// <summary>The declared use cases by module, aggregate and name.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>The module, aggregate and name of each use case record with a placed qualified identifier.</returns>
+    private static List<(string Module, string? Aggregate, string Name)> DeclaredUseCases(ProjectModel model)
+    {
+        var useCases = new List<(string Module, string? Aggregate, string Name)>();
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.UseCase)
+            {
+                continue;
+            }
+
+            var path = PathOf(record, model.Config);
+
+            if (path.Module is not null && path.Name is not null)
+            {
+                useCases.Add((path.Module, path.Aggregate, path.Name));
+            }
+        }
+
+        return useCases;
+    }
+
+    /// <summary>The child folders of one folder in ordinal order, or an empty list when the folder cannot be read.</summary>
+    /// <param name="folder">The absolute folder to read.</param>
+    /// <returns>The child folders in ordinal order, without build output and tool folders.</returns>
+    private static List<string> ChildFolders(string folder)
+    {
+        try
+        {
+            return Directory.EnumerateDirectories(folder)
+                .Where(child => !SkippedFolders.Contains(Path.GetFileName(child)))
+                .OrderBy(child => child, StringComparer.Ordinal)
+                .ToList();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>Whether a folder name and a record name spell one name: case, hyphens and underscores ignored.</summary>
+    /// <param name="folder">The folder name as written on disk.</param>
+    /// <param name="name">The record name segment taken from the identifier.</param>
+    /// <returns>True when both names agree with case, hyphens and underscores ignored; otherwise false.</returns>
+    private static bool SameName(string folder, string name)
+    {
+        var left = folder.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+        var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
+
+        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>The PascalCase spelling of a kebab-case record name segment.</summary>
+    /// <param name="name">The record name segment.</param>
+    /// <returns>The segment with each word capitalized and its separators removed.</returns>
+    private static string Pascal(string name)
+    {
+        var built = new System.Text.StringBuilder();
+
+        foreach (var word in name.Split('-', '_'))
+        {
+            if (word.Length == 0)
+            {
+                continue;
+            }
+
+            built.Append(char.ToUpperInvariant(word[0]));
+
+            if (word.Length > 1)
+            {
+                built.Append(word[1..]);
+            }
+        }
+
+        return built.ToString();
+    }
+}

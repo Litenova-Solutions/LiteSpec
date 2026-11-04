@@ -1,8 +1,12 @@
 # React Stack
 
+**Stack:** react
+
+**Layer:** frontend-ui
+
 ## Intent
 
-A React frontend takes one of 3 rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a React frontend chooses the mode here before writing routes, and finds the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
+A React frontend takes one of 3 rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a React frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
 
 ## Concepts
 
@@ -36,27 +40,7 @@ The registry build command is `shadcn build`. The state-to-tone table lives in `
 
 ## Standards
 
-### Select a Rendering Mode by Audience
-
-**ID:** `litespec/frontend/web/react/stack#select-a-rendering-mode-by-audience`
-
-**Statement:** A React frontend MUST render as a static application when it is a console, and on the server when a public page is indexed.
-
-**Rationale:** A console opens inside the application a signed-in user already has, so its first response has nothing to index and ships as static files. A public page arrives by message or search result, so its title and links belong in the first response and it renders on the server. A page counts as indexed when its readers reach it from a message or a search result. A device client asks one question over and over and takes a static page with no router.
-
-**Example:** A back-office console and an internal admin console ship as static files. A public marketing site runs as a Node server that hydrates in the browser. A receipt-scan client ships as one static page.
-
-**Reviewed for:** Which frontends render in a mode their audience does not require? Look in the frontend rendering configuration.
-
-### Build a Device Client as One Static Page
-
-**ID:** `litespec/frontend/web/react/stack#build-a-device-client-as-one-static-page`
-
-**Statement:** A device client MUST ship as one static page with no router.
-
-**Rationale:** A device client shows one answer on repeat: one question, one screen, no navigation. A router would add downloads for destinations the client never visits. One static page carries exactly what the device needs.
-
-**Reviewed for:** Which device clients ship more than one page, or with a router? Look in the device client output.
+None.
 
 ## Conventions
 

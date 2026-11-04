@@ -6,29 +6,35 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s3
+- journey/borrow-and-return#s3
 fulfills:
-  - requirement/borrowing.loan-period-days
+- requirement/borrowing.loan-period-days
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/loan.loan-extended
+- event/loan.loan-extended
+idempotency:
+  mode: none
+  reason: Each call extends its own loan, and extending past the due date is refused.
+audit:
+  level: none
+  target: No audit trail; the loan record shows each extension.
 records:
-  - type: result
-    id: result/extend-loan.extended
-    title: Extended
-    outcome: success
-    meaning: The loan is extended.
-  - type: result
-    id: result/extend-loan.extension-refused
-    title: Extension refused
-    outcome: refusal
-    code: lending.extension-refused
-    meaning: The extension is refused.
-  - type: scenario
-    id: scenario/extend-loan.extending-an-active-loan-succeeds
-    title: Extending an active loan succeeds
-    given: A reader holds an active loan.
-    when: The reader extends the loan.
-    then: The loan is extended.
-    result: result/extend-loan.extended
+- type: result
+  id: result/extend-loan.extended
+  title: Extended
+  outcome: success
+  meaning: The loan is extended.
+- type: result
+  id: result/extend-loan.extension-refused
+  title: Extension refused
+  outcome: refusal
+  code: lending.extension-refused
+  meaning: The extension is refused.
+- type: scenario
+  id: scenario/extend-loan.extending-an-active-loan-succeeds
+  title: Extending an active loan succeeds
+  given: A reader holds an active loan.
+  when: The reader extends the loan.
+  then: The loan is extended.
+  result: result/extend-loan.extended

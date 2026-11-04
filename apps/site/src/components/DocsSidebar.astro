@@ -1,10 +1,11 @@
 ---
-// Left navigation of the docs pages: the full documentation tree grouped by
-// section, with collapsible folders. Every link is named by its page's title,
-// the same name the page's heading, breadcrumb and browser tab use; a folder's
-// overview page comes first inside it. The tree is built as a string because
-// Astro components cannot recurse; icons come from the shared icon paths.
-import { folderLabel, folderOverview, inDir, sectionOverview, sections } from "../lib/areas";
+// Left navigation of the docs pages: the full documentation tree grouped by docs
+// group, with an area label above each area inside a multi-area group and
+// collapsible folders. Every link is named by its page's title, the same name
+// the page's heading, breadcrumb and browser tab use; a folder's overview page
+// comes first inside it. The tree is built as a string because Astro components
+// cannot recurse; icons come from the shared icon paths.
+import { areaLabel, folderLabel, folderOverview, groups, inDir } from "../lib/areas";
 import { paths } from "../lib/icons";
 import { pages, pageUrl, type Page } from "../lib/spec";
 
@@ -42,12 +43,11 @@ const link = (page: Page): string =>
 const opensSubfolder = (page: Page, dir: string): boolean =>
   childDirs(dir).some((sub) => folderOverview(sub) === page);
 
-/** A folder's links: its overview first, then its pages, then its subfolders. A
- *  section overview already listed first is skipped. */
-const folderLinks = (dir: string, skip?: Page): string => {
+/** A folder's links: its overview first, then its pages, then its subfolders. */
+const folderLinks = (dir: string): string => {
   const overview = folderOverview(dir);
-  let inner = overview && overview !== skip ? link(overview) : "";
-  for (const page of inDir(dir).filter((page) => page !== overview && page !== skip && !opensSubfolder(page, dir))) inner += link(page);
+  let inner = overview ? link(overview) : "";
+  for (const page of inDir(dir).filter((page) => page !== overview && !opensSubfolder(page, dir))) inner += link(page);
   for (const sub of childDirs(dir)) inner += folderTree(sub);
   return inner;
 };
@@ -59,16 +59,20 @@ const folderTree = (dir: string): string => {
   return `<details${open}><summary>${escapeHtml(label)}${tag}${iconSvg("chevron", "icon chev")}</summary><div class="kids">${folderLinks(dir)}</div></details>`;
 };
 
-const sidebar = sections
-  .map((section) => {
-    const count = pages.filter((page) => section.areas.includes(page.area)).length;
-    const holds = section.areas.some((area) => current.startsWith(`docs/${area}/`));
-    const open = section.key === "learn" || holds;
-    const overview = sectionOverview(section);
-    const inner = (overview ? link(overview) : "") + section.areas.map((area) => folderLinks(`docs/${area}`, overview)).join("");
+const sidebar = groups
+  .map((group) => {
+    const count = pages.filter((page) => group.areas.includes(page.area)).length;
+    const holds = group.areas.some((area) => current.startsWith(`docs/${area}/`));
+    const open = group.key === "learn" || holds;
+    const inner = group.areas
+      .map((area) => {
+        const head = group.areas.length > 1 ? `<div class="area-h">${escapeHtml(areaLabel(area))}</div>` : "";
+        return head + folderLinks(`docs/${area}`);
+      })
+      .join("");
     return (
-      `<details class="sec"${open ? " open" : ""}>` +
-      `<summary class="sec-h collapse${holds ? " open-here" : ""}">${iconSvg(section.icon, "icon")}${escapeHtml(section.label)}<span class="count">${count}</span>${iconSvg("chevron", "icon chev")}</summary>` +
+      `<details class="group"${open ? " open" : ""}>` +
+      `<summary class="group-h collapse${holds ? " open-here" : ""}">${iconSvg(group.icon, "icon")}${escapeHtml(group.label)}<span class="count">${count}</span>${iconSvg("chevron", "icon chev")}</summary>` +
       `<div class="tree">${inner}</div></details>`
     );
   })

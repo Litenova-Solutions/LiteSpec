@@ -1,5 +1,9 @@
 # Form and Field Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 This page shows how each field kind takes its value to create or change records such as expenses, trips, and payouts, and how a form reports a refused submit or unsaved work: money, record pickers, dates, text, single choices, switches, uploads, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. Each answer is drawn as options with a named default to build, and the product owner chooses among the options when the team builds or revises a form. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick expense Ava files for the Rotterdam 
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#name-every-field-with-a-visible-label`
 
+**Strength:** rule
+
 **Statement:** Every field MUST carry a visible label that names its value.
 
 **Rationale:** A placeholder disappears on the first keystroke, so a filled field with no label no longer says what it holds. Screen readers announce the label, and sighted staff returning to a filled form read it to check each value before saving. Without a visible label, both groups guess what each value means.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick expense Ava files for the Rotterdam 
 ### Keep Entered Values After a Refused Submit
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#keep-entered-values-after-a-refused-submit`
+
+**Strength:** rule
 
 **Statement:** A form MUST keep every entered value when the API refuses a submit.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick expense Ava files for the Rotterdam 
 ### Money Field
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#money-field`
+
+**Strength:** default
 
 **Question:** The back office holds amounts, fees, reversals, and payout figures, and staff type every one of them; the software chooses none. The field is where that rule meets a keyboard. The decision is how a money field takes its value: text input shape, currency naming, symbol prefix, error wording, and totals restated beside it.
 
@@ -157,7 +167,7 @@ page
     text muted "Steps of one euro."
 ```
 
-**Rationale:** A plus and a minus sit on either side of the value. They cover the case where one amount is the common one. Small deviations are the exception.
+**Rationale:** A plus and a minus sit on either side of the value. They cover the case where one amount is the common one. Small differences are the exception.
 
 **Cost:** NN/g and Carbon both warn against a stepper for an amount. You cannot reach a continuous value by stepping. You cannot express EUR 1.50. This is the wrong control for this field.
 
@@ -249,6 +259,8 @@ page
 ### Choosing a Record
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#choosing-a-record`
+
+**Strength:** default
 
 **Question:** You choose a reference to another record from a picker showing names. Nobody types an identifier. The failure to avoid is a select reading "Choose a cost centre" beside a field holding "CC-0C893968A2" as if it were a value to type.
 
@@ -431,6 +443,8 @@ page
 ### Date and Time Field
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#date-and-time-field`
+
+**Strength:** default
 
 **Question:** Staff enter dates and times for trips, payouts, and trip plans. The decision is which control takes the value: three text inputs, one field with a calendar, date and time side by side, relative entry, or presets. The native browser date input is refused: it draws the browser chrome instead of the application control, and GDS rejected it for implementation problems across browsers.
 
@@ -623,6 +637,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#text-field-and-its-states`
 
+**Strength:** default
+
 **Question:** Every text field draws several states: empty, filled, focused, refused, disabled, and read-only. The label stays visible above the input in all of them. A placeholder is never the label, because it vanishes on the first keystroke.
 
 **Default:** `label-above-help-under-six-states-on-one-page`
@@ -806,6 +822,8 @@ page
 ### Choosing One of a Few Options
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#choosing-one-of-a-few-options`
+
+**Strength:** default
 
 **Question:** You choose from a closed set, such as a naming rule or a plan. The GOV.UK rules say a select is a last resort and radios beat a select. Nothing is pre-selected in a question, though settings allow it. The decision is which control carries the choice: radio list, segmented control, cards, select, checkbox list, listbox, or plain buttons.
 
@@ -1014,6 +1032,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#switch-or-a-checkbox`
 
+**Strength:** default
+
 **Question:** The payout editor holds a toggle for the cost-centre line, and settings pages hold many more switches and checkboxes. This pattern decides which control each setting deserves: switch or checkbox. It also decides what the label must say, since the label carries the difference between the two.
 
 **Default:** `a-switch-with-the-label-and-its-consequence`
@@ -1212,6 +1232,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#upload-field`
 
+**Strength:** default
+
 **Question:** Claimwick records take files: a receipt photo or a staff spreadsheet. A receipt needs a stated type and size, and a staff import needs stated columns and row-level refusals. The decision is how the upload field states its contract and reports progress and refusals.
 
 **Default:** `a-drop-zone-that-states-what-it-accepts`
@@ -1404,6 +1426,8 @@ page
 ### Reporting a Refused Submit
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#reporting-a-refused-submit`
+
+**Strength:** default
 
 **Question:** A submit refused by the API must report what is wrong and where. GOV.UK asks for a summary with focus and links, plus a message on each field, meeting WCAG 3.3.1 and 3.3.3. The decision is how the form carries that report.
 
@@ -1609,6 +1633,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#work-that-is-not-saved`
 
+**Strength:** default
+
 **Question:** A form must show work that is not saved. Nothing may read as saved before it is, and leaving must not drop typed work without a warning. The decision is how the form marks unsaved work and guards the way out.
 
 **Default:** `a-visible-unsaved-marker-beside-the-save`
@@ -1801,6 +1827,8 @@ page
 ### Picking a Period
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#picking-a-period`
+
+**Strength:** default
 
 **Question:** Payouts and reporting run on periods. Two typed dates cover every window but ask for both edges, while presets cover the common windows in one tap. The decision is how the period control combines typing and presets.
 
@@ -2007,6 +2035,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#slug-or-url-field-with-a-preview`
 
+**Strength:** default
+
 **Question:** A trip takes a slug, the short part typed in, and spenders read the full address: they link it and print it. The decision is how the field takes the slug and previews the address before saving.
 
 **Default:** `slug-with-the-live-address-under-it`
@@ -2166,6 +2196,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#capacity-field`
 
+**Strength:** default
+
 **Question:** A budget code takes money from one cost-centre budget: Amsterdam sales holds EUR 10,000, and every code draws from the same budget. The decision is how the capacity field shows the ceiling, the split, and the refusal past it.
 
 **Default:** `a-number-with-the-warehouse-ceiling-restated`
@@ -2320,6 +2352,8 @@ page
 ### Color Field for the Mail Accent
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#color-field-for-the-mail-accent`
+
+**Strength:** default
 
 **Question:** The company brands its approval mails with one accent color: a `#RRGGBB` value dark enough for white button text to read on it. The field takes the value and proves the contrast before the page refuses it.
 
@@ -2490,6 +2524,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-budget-codes`
 
+**Strength:** default
+
 **Question:** The trip budget holds TRIP10, MEAL20, and TAXI05: three groups with the same fields, each with its own name, ceiling, and allocation. The group repeats, and the budget counts every repetition.
 
 **Default:** `stacked-cards-one-per-type`
@@ -2659,6 +2695,8 @@ page
 ### Tag Input
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#tag-input`
+
+**Strength:** default
 
 **Question:** Expenses and trips carry short labels: travel, meals, client. Tags are typed freely but read everywhere, so the input must take new words and still keep old ones spelled one way.
 
@@ -2846,6 +2884,8 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#address-field`
 
+**Strength:** default
+
 **Question:** Harbor and Pine answers for its expenses with a name, an address, and a telephone number on every spender message. The address field takes the street the law asks for and the postcode the mail needs.
 
 **Default:** `postcode-lookup-that-fills-the-street`
@@ -3006,6 +3046,8 @@ page
 ### Email Body Editor
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#email-body-editor`
+
+**Strength:** default
 
 **Question:** Claimwick mails every spender when a payout is sent, and the message carries the spender name, the expense number, and the arrival date. The editor takes the company words once and fills the spender facts per expense.
 

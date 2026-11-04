@@ -4,166 +4,99 @@ title: Expense
 summary: An expense is one work cost an employee submitted.
 kind: entity
 states:
-  - name: Submitted
-    meaning: The expense waits for a decision.
-  - name: Approved
-    meaning: A manager approved the expense.
-  - name: Refused
-    meaning: A manager refused the expense.
-  - name: Reimbursed
-    meaning: The reimbursed state of an expense whose payout reached the submitter.
+- name: Submitted
+  meaning: The expense waits for a decision.
+- name: Approved
+  meaning: A manager approved the expense.
+- name: Refused
+  meaning: A manager refused the expense.
+- name: Reimbursed
+  meaning: The reimbursed state of an expense whose payout reached the submitter.
 transitions:
-  - from: "-"
-    to: Submitted
-    by: use-case/spending.submit-expense
-  - from: Submitted
-    to: Approved
-    by: use-case/spending.approve-expense
-  - from: Submitted
-    to: Refused
-    by: use-case/spending.refuse-expense
-  - from: Approved
-    to: Reimbursed
-    by: use-case/spending.reimburse-expense
+- from: "-"
+  to: Submitted
+  by: use-case/spending.submit-expense
+- from: Submitted
+  to: Approved
+  by: use-case/spending.approve-expense
+- from: Submitted
+  to: Refused
+  by: use-case/spending.refuse-expense
+- from: Approved
+  to: Reimbursed
+  by: use-case/spending.reimburse-expense
 data:
-  - name: employee
-    meaning: The employee who submitted the expense.
-    classification: personal
-    dataClass: submitter-contact
-  - name: amount
-    meaning: The exact amount with its currency.
-    classification: internal
-    dataClass: expense-ledger
-  - name: receipt
-    meaning: The proof of payment, when one is attached.
-    classification: internal
-    dataClass: expense-ledger
-  - name: state
-    meaning: The lifecycle state of the expense.
-    classification: internal
-    dataClass: expense-ledger
+- name: employee
+  meaning: The employee who submitted the expense.
+  classification: personal
+  dataClass: submitter-contact
+- name: amount
+  meaning: The exact amount with its currency.
+  classification: internal
+  dataClass: expense-ledger
+- name: receipt
+  meaning: The proof of payment, when one is attached.
+  classification: internal
+  dataClass: expense-ledger
+- name: state
+  meaning: The lifecycle state of the expense.
+  classification: internal
+  dataClass: expense-ledger
 dataClasses:
-  - name: submitter-contact
-    classification: personal
-    fields:
-      - employee
-    onErasure: pseudonymize
-    basis: business
-    period: P7Y
-    enforcedBy: job/spending.erase-expired-personal-data
-    purpose: Link each expense to the employee who submitted it.
-    basedOn:
-      - requirement/approval.erase-after-retention
-  - name: expense-ledger
-    classification: internal
-    fields:
-      - amount
-      - receipt
-      - state
-    onErasure: retain
-    basis: statute
-    period: P7Y
-    enforcedBy: record-expiry
-    purpose: Keep the tax file defensible.
+- name: submitter-contact
+  classification: personal
+  fields:
+  - employee
+  onErasure: pseudonymize
+  basis: business
+  period: P7Y
+  enforcedBy: job/spending.erase-expired-personal-data
+  purpose: Link each expense to the employee who submitted it.
+  basedOn:
+  - requirement/approval.erase-after-retention
+- name: expense-ledger
+  classification: internal
+  fields:
+  - amount
+  - receipt
+  - state
+  onErasure: retain
+  basis: statute
+  period: P7Y
+  enforcedBy: record-expiry
+  purpose: Keep the tax file defensible.
 records:
-  - type: rule
-    id: rule/expense.receipt-required-above-threshold
-    title: Receipt Required Above Threshold
-    kind: precondition
-    statement: An expense above the policy threshold needs a receipt.
-    governs:
-      - use-case/spending.submit-expense
-    refusal: result/submit-expense.receipt-missing
-    basedOn: []
-    fulfills:
-      - requirement/approval.receipt-over-threshold
-  - type: rule
-    id: rule/expense.approver-is-not-submitter
-    title: Approver Is Not Submitter
-    kind: precondition
-    statement: An approver is not the submitter.
-    governs:
-      - use-case/spending.approve-expense
-    refusal: result/approve-expense.own-expense
-    basedOn: []
-    fulfills:
-      - requirement/approval.no-self-approval
-  - type: rule
-    id: rule/expense.reimbursed-once
-    title: Reimbursed Once
-    kind: invariant
-    statement: An expense is reimbursed at most once.
-    governs:
-      - use-case/spending.reimburse-expense
-    refusal: result/reimburse-expense.already-reimbursed
-    basedOn: []
-    fulfills:
-      - requirement/approval.single-reimbursement
-  - type: rule
-    id: rule/expense.approved-before-reimbursement
-    title: Approved Before Reimbursement
-    kind: precondition
-    statement: An expense is reimbursed only after approval.
-    governs:
-      - use-case/spending.reimburse-expense
-    refusal: result/reimburse-expense.not-approved
-    basedOn: []
-    fulfills:
-      - requirement/approval.single-reimbursement
-  - type: rule
-    id: rule/expense.decided-from-submitted
-    title: Decided from Submitted
-    kind: precondition
-    statement: An expense is decided only from Submitted.
-    governs:
-      - use-case/spending.approve-expense
-      - use-case/spending.refuse-expense
-    refusal: result/approve-expense.not-submitted
-    basedOn: []
-    fulfills:
-      - requirement/approval.decided-within-five-days
-  - type: rule
-    id: rule/expense.export-carries-approved
-    title: Export Carries Approved
-    kind: precondition
-    statement: An export carries an approved expense.
-    governs:
-      - use-case/spending.export-expenses
-    refusal: result/export-expenses.nothing-approved
-    basedOn: []
-    fulfills:
-      - requirement/approval.decided-within-five-days
-  - type: event
-    id: event/expense.submitted
-    title: Expense Submitted
-    meaning: An expense was submitted.
-    carries:
-      - expenseId
-      - amount
-      - currency
-      - employeeId
-  - type: event
-    id: event/expense.approved
-    title: Expense Approved
-    meaning: An expense was approved.
-    carries:
-      - expenseId
-      - approvedBy
-      - decidedAt
-  - type: event
-    id: event/expense.refused
-    title: Expense Refused
-    meaning: An expense was refused.
-    carries:
-      - expenseId
-      - refusedBy
-      - decidedAt
-  - type: event
-    id: event/expense.reimbursed
-    title: Expense Reimbursed
-    meaning: An expense was reimbursed.
-    carries:
-      - expenseId
-      - amount
-      - currency
-      - reimbursedAt
+- type: event
+  id: event/expense.submitted
+  title: Expense Submitted
+  meaning: An expense was submitted.
+  carries:
+  - expenseId
+  - amount
+  - currency
+  - employeeId
+- type: event
+  id: event/expense.approved
+  title: Expense Approved
+  meaning: An expense was approved.
+  carries:
+  - expenseId
+  - approvedBy
+  - decidedAt
+- type: event
+  id: event/expense.refused
+  title: Expense Refused
+  meaning: An expense was refused.
+  carries:
+  - expenseId
+  - refusedBy
+  - decidedAt
+- type: event
+  id: event/expense.reimbursed
+  title: Expense Reimbursed
+  meaning: An expense was reimbursed.
+  carries:
+  - expenseId
+  - amount
+  - currency
+  - reimbursedAt

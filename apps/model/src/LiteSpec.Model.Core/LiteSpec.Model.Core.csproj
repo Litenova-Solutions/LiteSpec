@@ -12,6 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="YamlDotNet" />
+    </ItemGroup>
+
+    <ItemGroup>
         <InternalsVisibleTo Include="LiteSpec.Model.Tests" />
     </ItemGroup>
 

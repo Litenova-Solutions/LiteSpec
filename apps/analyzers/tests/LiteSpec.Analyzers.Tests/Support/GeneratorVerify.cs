@@ -23,16 +23,18 @@ internal static class GeneratorVerify
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="layer">The declared LiteSpecLayer property, or null to read the assembly name.</param>
     /// <param name="extraReferences">Further metadata references, such as xUnit.</param>
+    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>The run outcome.</returns>
     public static GeneratorRun Run(
         IReadOnlyList<(string Path, string Source)> sources,
         IReadOnlyList<(string Path, string Text)> additionalFiles,
         string assemblyName = "Shop.Domain",
         string? layer = null,
-        IEnumerable<MetadataReference>? extraReferences = null)
+        IEnumerable<MetadataReference>? extraReferences = null,
+        string? layout = null)
     {
         var compilation = CreateCompilation(sources, assemblyName, extraReferences);
-        var result = RunToResult(CreateDriver(additionalFiles, layer), compilation);
+        var result = RunToResult(CreateDriver(additionalFiles, layer, layout), compilation);
         var generated = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var item in result.Results)
@@ -98,9 +100,10 @@ internal static class GeneratorVerify
     /// <summary>Creates the generator driver with the additional files and the declared layer.</summary>
     /// <param name="additionalFiles">The additional files with their file paths.</param>
     /// <param name="layer">The declared LiteSpecLayer property, or null to read the assembly name.</param>
+    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>The driver.</returns>
     public static GeneratorDriver CreateDriver(
-        IReadOnlyList<(string Path, string Text)> additionalFiles, string? layer)
+        IReadOnlyList<(string Path, string Text)> additionalFiles, string? layer, string? layout = null)
     {
         var texts = new List<AdditionalText>();
 
@@ -113,7 +116,7 @@ internal static class GeneratorVerify
             [new LiteSpecGenerator().AsSourceGenerator()],
             additionalTexts: texts,
             parseOptions: new CSharpParseOptions(LanguageVersion.Latest, DocumentationMode.Parse),
-            optionsProvider: new GlobalOptionsProvider(layer),
+            optionsProvider: new GlobalOptionsProvider(layer, layout),
             driverOptions: new GeneratorDriverOptions(IncrementalGeneratorOutputKind.None, trackIncrementalGeneratorSteps: true));
     }
 
@@ -147,21 +150,33 @@ internal static class GeneratorVerify
         public override SourceText? GetText(CancellationToken cancellationToken = default) => source;
     }
 
-    /// <summary>Supplies <c>build_property.LiteSpecLayer</c> when a test sets a layer.</summary>
-    private sealed class GlobalOptionsProvider(string? layer) : AnalyzerConfigOptionsProvider
+    /// <summary>Supplies the declared build properties when a test sets them.</summary>
+    private sealed class GlobalOptionsProvider(string? layer, string? layout) : AnalyzerConfigOptionsProvider
     {
-        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer);
+        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer, layout);
 
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
 
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => GlobalOptions;
 
-        private sealed class Options(string? layer) : AnalyzerConfigOptions
+        private sealed class Options(string? layer, string? layout) : AnalyzerConfigOptions
         {
             public override bool TryGetValue(string key, out string value)
             {
-                value = layer ?? string.Empty;
-                return layer is not null && key == "build_property.LiteSpecLayer";
+                if (layer is not null && key == "build_property.LiteSpecLayer")
+                {
+                    value = layer;
+                    return true;
+                }
+
+                if (layout is not null && key == "build_property.LiteSpecLayout")
+                {
+                    value = layout;
+                    return true;
+                }
+
+                value = string.Empty;
+                return false;
             }
         }
     }

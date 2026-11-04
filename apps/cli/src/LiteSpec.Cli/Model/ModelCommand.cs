@@ -1,10 +1,11 @@
 using System.Text.Json;
+using LiteSpec.Consumer;
 using LiteSpec.Model.Diff;
 
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The <c>litespec model</c> command: build, check, render and query a consumer's project model.
+///     The <c>litespec model</c> command: check, format, render and query a consumer's project model.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class ModelCommand
@@ -12,7 +13,6 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model build --root <consumer> [--out model.json]
           litespec model check --root <consumer> [--format json] [--release] [--since <ref>]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
@@ -22,7 +22,7 @@ static class ModelCommand
         Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a file that would change with format --check, 2 usage error or a record file that does not parse.
         """;
 
-    /// <summary>Runs the model command: build, check, format, render or query.</summary>
+    /// <summary>Runs the model command: check, format, render or query.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
     /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
@@ -46,7 +46,6 @@ static class ModelCommand
             command switch
             {
                 "check" => ["--root", "--format", "--since"],
-                "build" => ["--root", "--out"],
                 _ => ["--root"],
             },
             maxPositionals: command switch
@@ -115,41 +114,26 @@ static class ModelCommand
         {
             switch (command)
             {
-                case "build":
-                {
-                    var model = ModelBuilder.Build(config);
-
-                    // The build writes the check result into the model, so the book
-                    // needs only model.json: one check run, on the model just built,
-                    // with the same severity decision and JSON shape as check --format json.
-                    var (checkFindings, checkKnown) = Checker.Check(model);
-                    model.FindingsJson = checkFindings
-                        .Select(finding => AsJson(config, finding, Decide(model, config, finding, false)))
-                        .Cast<object>()
-                        .ToList();
-                    model.KnownJson = checkKnown
-                        .Select(gap => AsKnownJson(config, gap))
-                        .Cast<object>()
-                        .ToList();
-                    var output = parsed.Value("--out") ?? Path.Combine(root, ".litespec", "model", "model.json");
-
-                    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
-                    File.WriteAllText(output, model.ToJson() + "\n");
-                    model.Ledger.Save(config);
-
-                    foreach (var file in FrontendRecords.Write(model))
-                    {
-                        Console.WriteLine(file);
-                    }
-
-                    Console.WriteLine($"{Relative(root, output)}: {model.Records.Count} records, {model.Code.Handlers.Count} handlers, {model.Screens.Count} screens, {model.Tests.Count} scenarios.");
-                    return 0;
-                }
-
                 case "check":
                 {
                     var model = ModelBuilder.Build(config);
-                    var (findings, known) = Checker.Check(model);
+                    var (modelFindings, known) = Checker.Check(model);
+                    var findings = modelFindings.ToList();
+
+                    // The consumer pass reads the project file, the record pages,
+                    // the glossary and the controlled UI into the same finding
+                    // shape, so one command and one CI step hold the whole consumer.
+                    try
+                    {
+                        var consumerRun = new ConsumerRun(root);
+                        consumerRun.Execute();
+                        findings.AddRange(consumerRun.Errors);
+                    }
+                    catch (FailFast fail)
+                    {
+                        Console.Error.WriteLine(fail.Message);
+                        return fail.Code;
+                    }
 
                     model.Ledger.Save(config);
                     var json = parsed.Json;
@@ -293,7 +277,11 @@ static class ModelCommand
                 case "render":
                 {
                     var model = ModelBuilder.Build(config);
-                    var changed = Renderer.Render(model);
+
+                    // Render writes every generated output: the fenced regions in
+                    // explanation files and documents, and the records file each
+                    // web frontend imports from its frame.
+                    var changed = Renderer.Render(model).Concat(FrontendRecords.Write(model)).ToList();
 
                     foreach (var file in changed)
                     {
@@ -336,13 +324,6 @@ static class ModelCommand
             return 1;
         }
     }
-
-    /// <summary>A path relative to the root, written with forward slashes.</summary>
-    /// <param name="root">The root the path is made relative to.</param>
-    /// <param name="path">The absolute path to relativize.</param>
-    /// <returns>The relative path with forward slashes.</returns>
-    static string Relative(string root, string path) =>
-        Path.GetRelativePath(root, path).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>
     ///     Decides one finding's severity from its tier and the qualification

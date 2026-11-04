@@ -1,3 +1,3 @@
-# Lending rules
+# Lending Rules
 
 Barcodes stay unique across the library.

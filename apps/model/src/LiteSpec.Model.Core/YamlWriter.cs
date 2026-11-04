@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using System.Text.RegularExpressions;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Writes a value in the one canonical form of the strict YAML subset
-///     <see cref="YamlText"/> reads: block style, two-space indentation, sequences
-///     indented under their key, plain scalars where the core schema reads them back
-///     as the same string, double quotes otherwise, and literal blocks for multi-line
-///     text. Reading the output back with <see cref="YamlText.Parse"/> gives the same value.
+///     Writes a value as a YAML document YamlDotNet emits: block style, plain scalars
+///     where the core schema reads them back as the same string, double quotes
+///     otherwise, and literal blocks for multi-line text. Reading the output back with
+///     <see cref="YamlText.Parse"/> gives the same value.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public static class YamlWriter
@@ -29,22 +30,31 @@ public static class YamlWriter
     /// <returns>The YAML text.</returns>
     public static string Write(JsonText root, Func<JsonText, IReadOnlyList<string>>? keyOrder = null)
     {
-        var built = new StringBuilder();
+        var stream = new YamlStream();
+        stream.Documents.Add(new YamlDocument(ToNode(root, keyOrder, true)));
 
-        switch (root.Kind)
+        using var buffered = new StringWriter();
+        stream.Save(buffered, assignAnchors: false);
+
+        var text = buffered.ToString().Replace("\r\n", "\n");
+
+        if (text.StartsWith("---", StringComparison.Ordinal))
         {
-            case JsonKind.Object when root.Properties.Count > 0:
-                WriteObject(built, root, 0, keyOrder);
-                break;
-            case JsonKind.Array when root.Items.Count > 0:
-                WriteArray(built, root, 0, keyOrder);
-                break;
-            default:
-                built.Append(Inline(root) ?? Quote(root.GetString() ?? string.Empty)).Append('\n');
-                break;
+            var end = text.IndexOf('\n');
+            text = end < 0 ? string.Empty : text.Substring(end + 1);
         }
 
-        return built.ToString();
+        if (text.EndsWith("...\n", StringComparison.Ordinal))
+        {
+            text = text.Substring(0, text.Length - 4);
+        }
+
+        if (!text.EndsWith("\n", StringComparison.Ordinal))
+        {
+            text += "\n";
+        }
+
+        return text;
     }
 
     /// <summary>Whether a string can be written plain and read back as the same string.</summary>
@@ -71,7 +81,7 @@ public static class YamlWriter
 
         foreach (var character in text)
         {
-            if (character < ' ' || character == '\u007f' || character == '﻿')
+            if (character < ' ' || character == '\u007f' || character == '\uFEFF')
             {
                 return false;
             }
@@ -80,119 +90,63 @@ public static class YamlWriter
         return true;
     }
 
-    /// <summary>Writes an object's properties, one per line, at the indentation.</summary>
-    /// <param name="built">The text built so far.</param>
-    /// <param name="value">The object.</param>
-    /// <param name="indent">The indentation of its keys.</param>
+    /// <summary>Reads one JSON value as a YAML node with its style.</summary>
+    /// <param name="value">The JSON value.</param>
     /// <param name="keyOrder">The key order function.</param>
-    /// <param name="firstPrefix">The text that replaces the first key's indentation, for an object that starts on a dash line.</param>
-    private static void WriteObject(StringBuilder built, JsonText value, int indent, Func<JsonText, IReadOnlyList<string>>? keyOrder, string? firstPrefix = null)
-    {
-        var first = true;
-
-        foreach (var property in Ordered(value, keyOrder))
-        {
-            built.Append(first && firstPrefix is not null ? firstPrefix : new string(' ', indent));
-            first = false;
-            built.Append(PlainKey.IsMatch(property.Key) && !YamlText.ResolvesToNonString(property.Key) ? property.Key : Quote(property.Key));
-            built.Append(':');
-            WriteValue(built, property.Value, indent, keyOrder);
-        }
-    }
-
-    /// <summary>Writes an array's items, one dash each, at the indentation.</summary>
-    /// <param name="built">The text built so far.</param>
-    /// <param name="value">The array.</param>
-    /// <param name="indent">The indentation of its dashes.</param>
-    /// <param name="keyOrder">The key order function.</param>
-    private static void WriteArray(StringBuilder built, JsonText value, int indent, Func<JsonText, IReadOnlyList<string>>? keyOrder)
-    {
-        foreach (var item in value.Items)
-        {
-            if (item.Kind == JsonKind.Object && item.Properties.Count > 0)
-            {
-                WriteObject(built, item, indent + 2, keyOrder, new string(' ', indent) + "- ");
-                continue;
-            }
-
-            built.Append(' ', indent).Append('-');
-
-            if (item.Kind == JsonKind.Array && item.Items.Count > 0)
-            {
-                built.Append('\n');
-                WriteArray(built, item, indent + 2, keyOrder);
-                continue;
-            }
-
-            WriteValue(built, item, indent, keyOrder);
-        }
-    }
-
-    /// <summary>Writes the value after a key's colon or a dash, ending the line.</summary>
-    /// <param name="built">The text built so far.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="indent">The indentation of the key or dash.</param>
-    /// <param name="keyOrder">The key order function.</param>
-    private static void WriteValue(StringBuilder built, JsonText value, int indent, Func<JsonText, IReadOnlyList<string>>? keyOrder)
+    /// <param name="isRoot">Whether the value is the document root.</param>
+    /// <returns>The YAML node.</returns>
+    private static YamlNode ToNode(JsonText value, Func<JsonText, IReadOnlyList<string>>? keyOrder, bool isRoot)
     {
         switch (value.Kind)
         {
-            case JsonKind.Object when value.Properties.Count > 0:
-                built.Append('\n');
-                WriteObject(built, value, indent + 2, keyOrder);
-                return;
-            case JsonKind.Array when value.Items.Count > 0:
-                built.Append('\n');
-                WriteArray(built, value, indent + 2, keyOrder);
-                return;
+            case JsonKind.Object:
+                var mapping = new YamlMappingNode();
+
+                foreach (var property in Ordered(value, keyOrder))
+                {
+                    mapping.Add(ToKey(property.Key), ToNode(property.Value, keyOrder, false));
+                }
+
+                return mapping;
+            case JsonKind.Array:
+                var sequence = new YamlSequenceNode();
+
+                foreach (var item in value.Items)
+                {
+                    sequence.Add(ToNode(item, keyOrder, false));
+                }
+
+                return sequence;
             case JsonKind.String:
                 var text = value.GetString() ?? string.Empty;
 
-                if (text.IndexOf('\n') >= 0 && IsBlockSafe(text))
+                if (isRoot)
                 {
-                    WriteLiteral(built, text, indent + 2);
-                    return;
+                    return new YamlScalarNode(text) { Style = ScalarStyle.DoubleQuoted };
                 }
 
-                built.Append(' ').Append(IsPlainSafe(text) ? text : Quote(text)).Append('\n');
-                return;
+                if (text.IndexOf('\n') >= 0 && IsBlockSafe(text))
+                {
+                    return new YamlScalarNode(text) { Style = ScalarStyle.Literal };
+                }
+
+                return new YamlScalarNode(text) { Style = IsPlainSafe(text) ? ScalarStyle.Plain : ScalarStyle.DoubleQuoted };
+            case JsonKind.True:
+                return new YamlScalarNode("true") { Style = ScalarStyle.Plain };
+            case JsonKind.False:
+                return new YamlScalarNode("false") { Style = ScalarStyle.Plain };
+            case JsonKind.Null:
+                return new YamlScalarNode("null") { Style = ScalarStyle.Plain };
             default:
-                built.Append(' ').Append(Inline(value)).Append('\n');
-                return;
+                return new YamlScalarNode(value.ToJson()) { Style = ScalarStyle.Plain };
         }
     }
 
-    /// <summary>Writes multi-line text as a literal block.</summary>
-    /// <param name="built">The text built so far.</param>
-    /// <param name="text">The text.</param>
-    /// <param name="indent">The indentation of the block's lines.</param>
-    private static void WriteLiteral(StringBuilder built, string text, int indent)
-    {
-        var trailing = 0;
-
-        while (trailing < text.Length && text[text.Length - 1 - trailing] == '\n')
-        {
-            trailing++;
-        }
-
-        var header = trailing == 0 ? "|-" : trailing == 1 ? "|" : "|+";
-        built.Append(' ').Append(header).Append('\n');
-
-        foreach (var line in text.Substring(0, text.Length - trailing).Split('\n'))
-        {
-            if (line.Length > 0)
-            {
-                built.Append(' ', indent).Append(line);
-            }
-
-            built.Append('\n');
-        }
-
-        for (var extra = 1; extra < trailing; extra++)
-        {
-            built.Append('\n');
-        }
-    }
+    /// <summary>Reads one object key as a YAML scalar with its style.</summary>
+    /// <param name="key">The object key.</param>
+    /// <returns>The key node.</returns>
+    private static YamlScalarNode ToKey(string key) =>
+        new YamlScalarNode(key) { Style = PlainKey.IsMatch(key) && !YamlText.ResolvesToNonString(key) ? ScalarStyle.Plain : ScalarStyle.DoubleQuoted };
 
     /// <summary>Whether multi-line text reads back unchanged from a literal block.</summary>
     /// <param name="text">The text.</param>
@@ -220,7 +174,7 @@ public static class YamlWriter
 
             foreach (var character in line)
             {
-                if ((character < ' ' && character != '\t') || character == '\u007f' || character == '﻿')
+                if ((character < ' ' && character != '\t') || character == '\u007f' || character == '\uFEFF')
                 {
                     return false;
                 }
@@ -229,20 +183,6 @@ public static class YamlWriter
 
         return true;
     }
-
-    /// <summary>The inline text of a scalar or an empty collection, or null for a string.</summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The inline text.</returns>
-    private static string? Inline(JsonText value) => value.Kind switch
-    {
-        JsonKind.Object => "{}",
-        JsonKind.Array => "[]",
-        JsonKind.True => "true",
-        JsonKind.False => "false",
-        JsonKind.Null => "null",
-        JsonKind.Number => value.ToJson(),
-        _ => null,
-    };
 
     /// <summary>The properties in the key order, then the rest in written order.</summary>
     /// <param name="value">The object.</param>
@@ -286,9 +226,4 @@ public static class YamlWriter
 
         return ordered;
     }
-
-    /// <summary>A double-quoted string with JSON escapes.</summary>
-    /// <param name="text">The string.</param>
-    /// <returns>The quoted string.</returns>
-    private static string Quote(string text) => JsonText.Of(JsonKind.String, 1, text).ToJson();
 }

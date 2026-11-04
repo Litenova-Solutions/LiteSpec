@@ -37,17 +37,22 @@ static class Constituents
         var grouped = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var orphans = new List<DomainType>();
 
-        if (model.Config.DomainRoot.Length == 0)
+        // The Domain scope is the Domain project under layer-projects and the one
+        // application root in the module layout, where the reader already kept the
+        // Domain layer files only.
+        var scope = model.Config.DomainRoot.Length > 0 ? model.Config.DomainRoot : model.Config.ApplicationRoot;
+
+        if (scope.Length == 0)
         {
             return (grouped, orphans);
         }
 
-        var domain = Folder(model.Config.DomainRoot);
-        var aggregates = AggregateByFolder(model, domain);
+        var domain = Folder(scope);
+        var aggregates = AggregateByFolder(model, scope, domain);
 
         foreach (var type in model.Code.DomainTypes)
         {
-            if (type.HasMark || !IsUnder(model.Config.DomainRoot, type.File))
+            if (type.HasMark || !IsUnder(scope, type.File))
             {
                 continue;
             }
@@ -60,7 +65,7 @@ static class Constituents
 
             var folder = FolderOf(type.File);
 
-            if (Same(folder, domain) && model.Config.SharedKernel.Length == 0)
+            if (model.Config.SharedKernel.Length == 0 && IsKernelFolder(model, scope, folder))
             {
                 Add(grouped, "kernel", Entry(model, type));
                 continue;
@@ -128,9 +133,10 @@ static class Constituents
     ///     carrying none or several aggregate marks hold no entry, so the walk passes through.
     /// </summary>
     /// <param name="model">The built project model holding the aggregate root elements.</param>
-    /// <param name="domain">The normalized Domain root folder the walk stays inside.</param>
+    /// <param name="scope">The Domain scope root holding the roots.</param>
+    /// <param name="domain">The normalized Domain scope folder the walk stays inside.</param>
     /// <returns>The aggregate id for each folder declaring exactly one aggregate root.</returns>
-    private static Dictionary<string, string> AggregateByFolder(ProjectModel model, string domain)
+    private static Dictionary<string, string> AggregateByFolder(ProjectModel model, string scope, string domain)
     {
         var roots = new Dictionary<string, List<(string Class, string Aggregate)>>(Comparer);
 
@@ -138,7 +144,7 @@ static class Constituents
         {
             if (element.Kind != CodeKind.AggregateRoot
                 || SingleAggregate(element.Marks) is not { } aggregate
-                || !IsUnder(model.Config.DomainRoot, element.File))
+                || !IsUnder(scope, element.File))
             {
                 continue;
             }
@@ -175,6 +181,21 @@ static class Constituents
         }
 
         return aggregates;
+    }
+
+    /// <summary>Whether the folder is the kernel home: the scope root itself under layer-projects, the product Domain folder in the module layout.</summary>
+    /// <param name="model">The built project model holding the declared roots.</param>
+    /// <param name="scope">The Domain scope root the walk stays inside.</param>
+    /// <param name="folder">The normalized folder holding the type.</param>
+    /// <returns>True when the folder holds shared-kernel types.</returns>
+    private static bool IsKernelFolder(ProjectModel model, string scope, string folder)
+    {
+        if (model.Config.DomainRoot.Length > 0)
+        {
+            return Same(folder, Folder(scope));
+        }
+
+        return UnderOrSame(Folder(Path.Combine(scope, "Domain")), folder);
     }
 
     /// <summary>The one aggregate mark the element carries, or null when it carries none or several.</summary>

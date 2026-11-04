@@ -1,5 +1,8 @@
 # Mobile Testing
 
+**Stack:** any
+**Layer:** tests
+
 ## Intent
 
 The mobile app proves its behavior at two boundaries: core tests without a device, and device tests that drive each screen on an emulator or device. This page states how it follows the testing principles in [Frontend Testing](../testing.md) and where each kind of test lives. A team that applies it while writing tests keeps fast tests fast and still proves every screen where users meet it.
@@ -16,6 +19,8 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **ID:** `litespec/frontend/mobile/testing#test-the-core-as-plain-net`
 
+**Strength:** rule
+
 **Statement:** Domain, Application, Infrastructure, and Client tests MUST run as plain .NET test projects with no emulator.
 
 **Rationale:** The core holds no platform type, so its tests need no emulator, device, or platform host. They run as plain .NET test projects in xunit.v3, the test framework the manifest pins. A core test that needs a device proves the layering already broke, and the fix belongs in the layering rather than in the test setup. This realizes litespec/frontend/testing#match-test-level-to-risk.
@@ -26,6 +31,8 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **ID:** `litespec/frontend/mobile/testing#prove-screens-on-a-device-or-emulator`
 
+**Strength:** rule
+
 **Statement:** Each screen a use case reaches MUST have a device test that drives it on an emulator or device.
 
 **Rationale:** Screens render through the platform toolkit, so only a device test meets them where users do: layout, insets, back behavior, and accessibility. A screen no device test drives is proved by nothing, whatever the core tests cover. Driving each screen a use case reaches on an emulator or device keeps every reachable screen proved. This realizes litespec/frontend/testing#match-test-level-to-risk.
@@ -35,6 +42,8 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 ### Prove Touch and Text Accessibility on a Device
 
 **ID:** `litespec/frontend/mobile/testing#prove-touch-and-text-accessibility-on-a-device`
+
+**Strength:** rule
 
 **Statement:** A device test for each screen MUST check that every interactive view carries a content description and the platform-minimum touch target, and that text scales with the system font scale.
 
@@ -47,6 +56,8 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 ### Run the Release Build Before a Release
 
 **ID:** `litespec/frontend/mobile/testing#run-the-release-build-before-a-release`
+
+**Strength:** default
 
 **Default:** Install and walk the release build on one physical device per platform before publishing, and record the device and result.
 

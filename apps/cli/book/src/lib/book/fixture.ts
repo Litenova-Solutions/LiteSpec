@@ -25,6 +25,7 @@ const records: Record<string, Record<string, any>> = {
   },
   "use-case/library.borrowing.borrow": {
     type: "use-case", title: "Borrow",
+    qualifiedId: "library/borrowing/use-case/borrow",
     fields: {},
     impl: [{ path: "src/borrow.ts", line: 12, kind: "handler" }],
     tests: [],

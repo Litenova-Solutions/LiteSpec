@@ -32,6 +32,12 @@ sealed class ProjectModel
     ///     be read, so a provision check falls back to existence only.
     /// </summary>
     public IReadOnlySet<string> AppliedPages { get; set; } = new HashSet<string>(StringComparer.Ordinal);
+    /// <summary>
+    ///     Gets or sets the provisions the project's stacks and extensions apply: every provision
+    ///     on an applied page except the provisions a selected extension replaces. Empty when the
+    ///     carried release cannot be read, so a provision check falls back to page membership only.
+    /// </summary>
+    public IReadOnlySet<string> AppliedProvisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     /// <summary>Gets or sets what the backend source says: handlers, events and marked elements.</summary>
     public CodeModel Code { get; set; } = new();
     /// <summary>Gets the route screens the frontend readers found.</summary>

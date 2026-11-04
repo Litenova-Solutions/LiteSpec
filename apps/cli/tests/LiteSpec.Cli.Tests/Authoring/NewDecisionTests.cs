@@ -103,12 +103,19 @@ public sealed class NewDecisionTests
     public void NewDecisionRefusesAnInvalidName(string name)
     {
         using var fixture = ModelFixture.Prepare("small");
+        var decisions = Path.Combine(fixture.Path, ".litespec", "intent", "decisions");
+        var before = Directory.Exists(decisions)
+            ? Directory.GetFiles(decisions).Order(StringComparer.Ordinal).ToArray()
+            : [];
 
         var result = Cli.Run(
             "new", "decision", name, "--root", fixture.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.False(Directory.Exists(Path.Combine(fixture.Path, ".litespec", "intent", "decisions")));
+        var after = Directory.Exists(decisions)
+            ? Directory.GetFiles(decisions).Order(StringComparer.Ordinal).ToArray()
+            : [];
+        Assert.Equal(before, after);
     }
 
     /// <summary>New help documents the decision form.</summary>

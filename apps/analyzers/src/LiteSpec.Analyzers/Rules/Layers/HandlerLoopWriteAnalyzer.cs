@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -19,7 +20,7 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2015);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
@@ -29,13 +30,22 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
     ///     context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterOperationAction(AnalyzeLoop, OperationKind.Loop);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterOperationAction(c => AnalyzeLoop(c, scope), OperationKind.Loop);
+    }
 
     /// <summary>Analyzes the loop.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeLoop(OperationAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeLoop(OperationAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+        {
+            return;
+        }
+
         var loop = (ILoopOperation)context.Operation;
         if (loop.LoopKind is not (LoopKind.For or LoopKind.ForEach or LoopKind.While))
         {

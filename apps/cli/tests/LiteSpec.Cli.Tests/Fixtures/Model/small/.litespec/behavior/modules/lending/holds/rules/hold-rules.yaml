@@ -1,0 +1,26 @@
+type: rule-set
+title: Hold rules
+summary: Each hold names one copy and cancels only from Waiting.
+records:
+- type: rule
+  id: rule/hold.names-one-copy
+  title: Names one copy
+  kind: invariant
+  statement: A hold names one copy.
+  governs:
+  - use-case/lending.place-hold
+  refusal: result/place-hold.hold-already-waiting
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.hold-pickup-window
+- type: rule
+  id: rule/hold.waiting-before-cancel
+  title: Waiting before cancel
+  kind: precondition
+  statement: A hold cancels only from Waiting.
+  governs:
+  - use-case/lending.cancel-hold
+  refusal: result/cancel-hold.hold-ended
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.hold-pickup-window

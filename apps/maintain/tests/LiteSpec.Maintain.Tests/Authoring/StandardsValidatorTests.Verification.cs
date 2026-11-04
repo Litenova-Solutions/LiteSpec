@@ -102,24 +102,24 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
-    /// <summary>Checkable evidence naming a consumer finding code.</summary>
+    /// <summary>Checkable evidence naming a retired glossary finding code.</summary>
     /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
-    [Fact(DisplayName = "checkable evidence naming a consumer finding code")]
-    public void CheckableEvidenceConsumerFindingCode() => Check(
+    [Fact(DisplayName = "checkable evidence naming a retired glossary finding code")]
+    public void CheckableEvidenceRetiredGlossaryCode() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding."));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec model check` reports no `GLOSSARY_REJECTED_SYNONYM` finding."));
             StandardsFixture.RebuildIndex(root);
         },
-        []);
+        ["CHECKED_BY_UNKNOWN"]);
 
-    /// <summary>Checkable evidence naming the consumer-side tool path.</summary>
+    /// <summary>Checkable evidence naming the rules command.</summary>
     /// <proves>litespec/core/authoring#name-observable-evidence-in-verification-lines</proves>
-    [Fact(DisplayName = "checkable evidence naming the consumer-side tool path")]
-    public void CheckableEvidenceConsumerToolPath() => Check(
+    [Fact(DisplayName = "checkable evidence naming the rules command")]
+    public void CheckableEvidenceRulesCommand() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec consumer` confirms the topic stays inside its declared boundary."));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec rules` lists the provisions for the changed file."));
             StandardsFixture.RebuildIndex(root);
         },
         []);

@@ -1,3 +1,6 @@
+using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+
 namespace LiteSpec.Model;
 
 /// <summary>
@@ -33,25 +36,19 @@ static class SourceTree
         ".svelte-kit", "build", "dist", "coverage",
     };
 
+    /// <summary>The one include that collects every file at any depth.</summary>
+    private static readonly string[] AllFiles = ["**/*"];
+
+    /// <summary>The glob excludes that leave out every skipped directory at any depth.</summary>
+    private static readonly string[] SkippedExcludes = [.. Skipped.Select(name => "**/" + name + "/**/*")];
+
     /// <summary>
     ///     Every file under a directory, recursively, in a stable order.
     /// </summary>
     /// <param name="directory">The directory to walk, recursively.</param>
     /// <returns>Every file under the directory in ordinal path order, or an empty list when the directory does not exist.</returns>
-    public static IReadOnlyList<string> Files(string directory)
-    {
-        if (!Directory.Exists(directory))
-        {
-            return [];
-        }
-
-        var found = new List<string>();
-
-        Walk(directory, found);
-        found.Sort(StringComparer.Ordinal);
-
-        return found;
-    }
+    public static IReadOnlyList<string> Files(string directory) =>
+        Match(directory, AllFiles, SkippedExcludes);
 
     /// <summary>
     ///     Every file matching one of several extensions under a directory.
@@ -66,24 +63,36 @@ static class SourceTree
                                              file.EndsWith(extension, StringComparison.OrdinalIgnoreCase))),
     ];
 
-    /// <summary>Adds every file under the directory to the list, skipping build output and tool folders.</summary>
-    /// <param name="directory">The directory to walk recursively.</param>
-    /// <param name="found">The file paths collected so far, appended in place.</param>
-    private static void Walk(string directory, List<string> found)
+    /// <summary>
+    ///     Every file under a directory that matches one of the include patterns and none of the exclude patterns, in a stable order.
+    /// </summary>
+    /// <param name="directory">The directory to walk, recursively.</param>
+    /// <param name="includes">The glob patterns a file matches to be collected.</param>
+    /// <param name="excludes">The glob patterns that leave a file out, or null for none.</param>
+    /// <param name="comparison">How patterns compare against file names.</param>
+    /// <returns>Every matching file under the directory in ordinal path order, or an empty list when the directory does not exist.</returns>
+    public static IReadOnlyList<string> Match(string directory, IEnumerable<string> includes, IEnumerable<string>? excludes = null, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
     {
-        foreach (var file in Directory.EnumerateFiles(directory))
+        if (!Directory.Exists(directory))
         {
-            found.Add(file);
+            return [];
         }
 
-        foreach (var child in Directory.EnumerateDirectories(directory))
-        {
-            if (Skipped.Contains(Path.GetFileName(child)))
-            {
-                continue;
-            }
+        var matcher = new Matcher(comparison);
+        matcher.AddIncludePatterns(includes);
 
-            Walk(child, found);
+        if (excludes is not null)
+        {
+            matcher.AddExcludePatterns(excludes);
         }
+
+        var found = matcher.Execute(new DirectoryInfoWrapper(new DirectoryInfo(directory)))
+            .Files
+            .Select(match => Path.Combine(directory, match.Path.Replace('/', Path.DirectorySeparatorChar)))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        found.Sort(StringComparer.Ordinal);
+
+        return found;
     }
 }

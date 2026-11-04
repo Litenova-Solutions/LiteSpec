@@ -1,5 +1,8 @@
 # Access
 
+**Stack:** any
+**Layer:** records
+
 ## Intent
 
 Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Actors and roles live in Intent as product decisions users see; permissions, entry points, and external systems live in Behavior as access design. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
@@ -70,6 +73,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#keep-access-records-in-their-homes`
 
+**Strength:** rule
+
 **Statement:** An access record MUST live in the home its type names.
 
 **Rationale:** One home per type tells a reader where to open a record and tells the book where to render it. A record kept anywhere else looks written while readers open the home and find nothing there.
@@ -79,6 +84,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Name Every Actor with Its Kind
 
 **ID:** `litespec/core/access#name-every-actor-with-its-kind`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:actor
 
 **Statement:** An actor MUST name its kind in `kind`.
 
@@ -92,6 +101,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-every-role-hold-with-its-scope`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:actor
+
 **Statement:** An actor that acts through a role MUST record the hold in `holds`.
 
 **Rationale:** The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The scope bounds each grant, so one role grants platform reach to one actor and self reach to another.
@@ -102,11 +115,15 @@ An actor, role, or external system page carries a `summary` field stating what t
 "holds": [{ "role": "role/employee", "scope": "self" }]
 ```
 
-**Reviewed for:** Which actor holds lack a role or a scope? Look at `holds` on each actor page.
+**Checked by:** `litespec model check` reports `role-orphan` for a role held by no actor.
 
 ### Scope Every Role
 
 **ID:** `litespec/core/access#scope-every-role`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:role
 
 **Statement:** A role MUST name its scope in `scope`.
 
@@ -120,17 +137,25 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-permissions-through-roles`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:role
+
 **Statement:** A role MUST name the permissions it allows in `allows`.
 
 **Rationale:** The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.
 
 **Example:** `role/employee` allows `permission/submit-expense`, which the submit use case cites in its grant.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry.
+**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry, and `permission-orphan` for a permission allowed by no role.
 
 ### State Every Permission with Its Meaning
 
 **ID:** `litespec/core/access#state-every-permission-with-its-meaning`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:permission
 
 **Statement:** A permission MUST state what it allows in `meaning`.
 
@@ -144,6 +169,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#state-the-scope-of-every-permission`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:permission
+
 **Statement:** Each permission MUST state the scope at which a role grants it.
 
 **Rationale:** A grant without a named reach is decided in code: each check looks up the reach beside the permission list, and code then holds a second list of permissions.
@@ -155,6 +184,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Declare Access on Every Use Case
 
 **ID:** `litespec/core/access#declare-access-on-every-use-case`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
@@ -172,6 +205,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** Each entry point MUST name its auth kinds from session, token, device, link, app, and none.
 
 **Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
@@ -183,6 +220,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Grant Every Use Case Through a Declared Grant
 
 **ID:** `litespec/core/access#grant-every-use-case-through-a-declared-grant`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each access declaration MUST name its grant as a permission, a self grant, anonymous, or system.
 
@@ -196,6 +237,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#remove-a-target-that-must-be-the-caller`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A message whose target must be the caller MUST carry no target and act on the caller, or declare a self grant that the authorization guard enforces.
 
 **Rationale:** A target that must equal the caller is a value the caller could forge: each handler would compare it with the verified identity, and each comparison is authorization logic in a handler. Carrying no target leaves nothing to forge, and the call acts on the caller from verified claims. Where the target must stay on the message, a self grant states the scope beside the use case, and the guard enforces it.
@@ -207,6 +252,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Scope Every Grant to Its Tenant Reach
 
 **ID:** `litespec/core/access#scope-every-grant-to-its-tenant-reach`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each access declaration MUST name its tenant scope as own, cross, public, or none.
 
@@ -220,6 +269,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A grant that depends on a setting or a plan MUST cite that setting or plan.
 
 **Rationale:** An entitlement allows one tenant what another is refused, so the grant alone reads as unequal treatment. Citing the setting or plan shows the commercial or configured reason behind the difference, and gives the reviewer the range and setter to judge it against.
@@ -231,6 +284,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Prove Hierarchies Derived Trust and Delegation with Scenarios
 
 **ID:** `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** A hierarchy, derived trust, or delegation pattern MUST prove its allowed and refused calls with scenarios.
 
@@ -244,6 +301,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`
 
+**Strength:** rule
+
 **Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil`, held on an aggregate the access model reads and granted and revoked by its own use cases.
 
 **Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant.
@@ -255,6 +314,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Grant Across Tenants Only Through Declared Delegation
 
 **ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`
+
+**Strength:** rule
 
 **Statement:** A grant that acts across tenants through delegation MUST declare its delegation grant on both sides.
 
@@ -268,6 +329,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#name-every-entry-point-with-its-kind`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** An entry point MUST name its kind in `kind`.
 
 **Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, and served content serves a static file. Without the kind, a webhook and a page look alike.
@@ -279,6 +344,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
 **ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
 
 **Statement:** A served content entry point MUST carry path, contentType, cacheControl, versioning, and fulfills.
 
@@ -292,6 +361,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#declare-every-operation-on-every-external-system`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:external-system
+
 **Statement:** An external system MUST declare every operation the product may call in `operations`.
 
 **Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency with no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
@@ -303,6 +376,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Declare Erasure for Every External System
 
 **ID:** `litespec/core/access#declare-erasure-for-every-external-system`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:external-system
 
 **Statement:** An external system MUST declare how personal data it holds is erased in `erasure`.
 
@@ -316,6 +393,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
+**Strength:** rule
+
 **Statement:** An actor or role page MUST carry a `summary` field.
 
 **Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
@@ -326,6 +405,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:external-system
+
 **Statement:** An external system page MUST carry a `summary` field.
 
 **Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
@@ -335,6 +418,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Keep Permission Lists to Entries
 
 **ID:** `litespec/core/access#keep-permission-lists-to-entries`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:permission-list
 
 **Statement:** A module permissions file MUST hold entries only.
 
@@ -347,6 +434,10 @@ An actor, role, or external system page carries a `summary` field stating what t
 ### Use Three Conventional Scope Levels
 
 **ID:** `litespec/core/access#use-three-conventional-scope-levels`
+
+**Strength:** default
+
+**Applies to:** artifact: record:role
 
 **Default:** Use `platform`, `tenant`, and `self` as role scopes.
 

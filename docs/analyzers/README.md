@@ -2,17 +2,17 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 43 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the application project, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 44 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
-Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm each project layer, read the first findings, and record an exception for a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
+Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm the layout, read the first findings, and record an exception for a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
 
 ## How a Rule Decides to Run
 
-Three facts predict whether a rule runs in a project.
+Three facts predict whether a rule runs on a file.
 
-First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild property when it is set, and from the assembly name suffix otherwise. The `LiteSpecLayer` property wins when both exist.
+First, the analyzers work out the file's layer from its folder and, in a use case folder, its role suffix. A file under a `Domain/`, `Application/`, `Infrastructure/`, or `WebApi/` folder takes that layer. A file in a use case folder takes WebApi when its type name ends in `Endpoint`, `RequestModel`, or `ResponseModel`, and Application when it ends in `Command`, `Query`, `Result`, `Handler`, or `Validator`, as [the naming page](../workspace/naming.md) states. Test files take Test. When the project selects the `layer-projects` extension, the analyzers read the layer from the assembly name suffix instead, as the table below states, with an explicit `LiteSpecLayer` value winning when both exist.
 
 | Assembly name suffix | Layer |
 |:---|:---|
@@ -24,9 +24,9 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 | `Shop.Worker` | Worker |
 | `Shop.Domain.Tests` | Test |
 
-Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in an opted-out project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`.
+Under `layer-projects`, any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in an opted-out project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`. The package sets the layout from `selectedExtensions` in `.litespec/project.json`, so no extra wiring is needed.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, WebApi, and Worker. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application, Infrastructure, and Worker. `LS2003` and `LS2006` run in WebApi. `LS2017` reports an unknown declared value in any project. Style rules run in every production project. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
+Second, a rule runs only on the files whose layer its provision covers. Domain rules run on Domain files. `LS2001` runs on Application, Infrastructure, WebApi, and Worker files. `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files. `LS2003` and `LS2006` run on WebApi files. `LS2017` reports an unknown declared value in any project. `LS2018` runs on Application and WebApi files. `LS2019` and `LS2020` run on every layer except Test. Style rules run in every production layer. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
@@ -105,4 +105,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where an exception allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 43 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 44 rules, grouped by layer.

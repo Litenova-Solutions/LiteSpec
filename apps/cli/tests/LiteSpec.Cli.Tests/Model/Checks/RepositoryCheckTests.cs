@@ -50,7 +50,7 @@ public sealed class RepositoryCheckTests
                 Loan Load(Guid id);
             }
             """);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Infra"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Infrastructure"));
         var model = ChangedLoanModel(temp.Path);
         model.Code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
 
@@ -72,7 +72,7 @@ public sealed class RepositoryCheckTests
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "Infra", "LoanRepository.cs", """
+        WriteSource(temp.Path, "Infrastructure", "LoanRepository.cs", """
             namespace Library.Infrastructure.Lending.Loans;
 
             public sealed class LoanRepository : ILoanRepository
@@ -101,10 +101,18 @@ public sealed class RepositoryCheckTests
     static DomainType RepositoryInterface(string root) =>
         new("ILoanRepository", "Library.Domain.Lending.Loans", Path.Combine(root, "ILoanRepository.cs"), 1, false);
 
-    /// <summary>Creates the Infrastructure folder the default project layout resolves to.</summary>
+    /// <summary>Creates the Infrastructure folder and declares it, so the check reads past the empty-root gate.</summary>
     /// <param name="root">The fixture root folder to create the folder under.</param>
-    static void CreateInfrastructure(string root) =>
+    static void CreateInfrastructure(string root)
+    {
         Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Infrastructure"));
+        File.WriteAllText(
+            Path.Combine(root, ".litespec/project.json"),
+            """
+            {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
+              "infrastructure": "apps/api/src/Library.Infrastructure"}}}
+            """);
+    }
 
     static void WriteProject(string root) =>
         File.WriteAllText(
@@ -112,7 +120,7 @@ public sealed class RepositoryCheckTests
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "application": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

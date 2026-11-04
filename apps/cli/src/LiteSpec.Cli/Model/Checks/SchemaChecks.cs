@@ -11,8 +11,7 @@ namespace LiteSpec.Model.Checks;
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
 /// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
-/// <follows>litespec/core/domain-model#state-each-saga-step-with-its-compensation</follows>
-/// <follows>litespec/core/domain-model#close-every-saga-with-named-exits-and-a-driver</follows>
+/// <follows>litespec/ext/jobs#state-each-step-compensation</follows>
 internal static class SchemaChecks
 {
     /// <summary>The saga field naming what moves the saga: one job, reaction or person.</summary>

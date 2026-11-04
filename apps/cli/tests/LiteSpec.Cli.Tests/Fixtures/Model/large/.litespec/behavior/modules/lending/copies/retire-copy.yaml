@@ -6,29 +6,35 @@ access:
   grant: permission/manage-copies
   tenant: own
 serves:
-  - journey/borrow-and-return#s8
+- journey/borrow-and-return#s8
 fulfills:
-  - requirement/borrowing.copy-shelf-home
+- requirement/borrowing.copy-shelf-home
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/copy.copy-retired
+- event/copy.copy-retired
+idempotency:
+  mode: none
+  reason: Each call retires its own copy, and retiring a copy on loan is refused.
+audit:
+  level: none
+  target: No audit trail; the copy record shows each retirement.
 records:
-  - type: result
-    id: result/retire-copy.retired
-    title: Retired
-    outcome: success
-    meaning: The copy is retired.
-  - type: result
-    id: result/retire-copy.copy-on-loan
-    title: Copy on loan
-    outcome: refusal
-    code: lending.copy-on-loan
-    meaning: The copy is on loan.
-  - type: scenario
-    id: scenario/retire-copy.retiring-an-available-copy-succeeds
-    title: Retiring an available copy succeeds
-    given: A copy sits available past weeding.
-    when: The librarian retires the copy.
-    then: The copy is retired.
-    result: result/retire-copy.retired
+- type: result
+  id: result/retire-copy.retired
+  title: Retired
+  outcome: success
+  meaning: The copy is retired.
+- type: result
+  id: result/retire-copy.copy-on-loan
+  title: Copy on loan
+  outcome: refusal
+  code: lending.copy-on-loan
+  meaning: The copy is on loan.
+- type: scenario
+  id: scenario/retire-copy.retiring-an-available-copy-succeeds
+  title: Retiring an available copy succeeds
+  given: A copy sits available past weeding.
+  when: The librarian retires the copy.
+  then: The copy is retired.
+  result: result/retire-copy.retired

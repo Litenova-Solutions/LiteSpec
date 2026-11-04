@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
-using LiteSpec.Analyzers.Layers;
 using LiteSpec.Analyzers.Rules;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
@@ -32,7 +31,7 @@ internal static class Emitter
         ImmutableArray<MarkedType> types,
         HostModel host)
     {
-        if (host.Layer == Layer.None)
+        if (host.Layer == Layer.None && !host.ApplicationProject)
         {
             return;
         }
@@ -94,12 +93,13 @@ internal static class Emitter
             }
         }
 
-        EmitRegistry(context, ordered, grants, host.Layer);
+        EmitRegistry(context, ordered, grants, host.Layer == Layer.WebApi || host.ApplicationProject);
 
         if (host.Layer == Layer.Domain
             || host.Layer == Layer.Application
             || host.Layer == Layer.Infrastructure
-            || host.Layer == Layer.WebApi)
+            || host.Layer == Layer.WebApi
+            || host.ApplicationProject)
         {
             EmitPermissions(context, records);
             EmitRoles(context, records);
@@ -263,16 +263,16 @@ internal static class Emitter
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="types">The types collected so far, in discovery order.</param>
     /// <param name="grants">The access grants read from the record pages, by use-case identifier.</param>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="webApi">Whether the compilation hosts endpoints.</param>
     private static void EmitRegistry(
         SourceProductionContext context,
         List<MarkedType> types,
         Dictionary<string, string> grants,
-        Layer layer)
+        bool webApi)
     {
         var messages = MessageUseCasesOf(context, types);
         var operations = OperationUseCasesOf(types);
-        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(types, grants, messages, operations, layer == Layer.WebApi));
+        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(types, grants, messages, operations, webApi));
     }
 
     /// <summary>

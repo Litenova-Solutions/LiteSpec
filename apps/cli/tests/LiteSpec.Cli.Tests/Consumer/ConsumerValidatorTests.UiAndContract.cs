@@ -84,9 +84,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.WriteFile(folder.Path, ".litespec/project.json", "{\n");
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(2, result.Status);
-        var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
-        Assert.Equal(false, (bool?)parsed["ok"]);
-        Assert.Contains("not valid JSON", parsed["problems"]?.ToJsonString() ?? string.Empty, StringComparison.Ordinal);
+        Assert.Contains("not valid JSON", result.Output, StringComparison.Ordinal);
     }
 
     /// <summary>Failing run writes its problems as an array.</summary>
@@ -102,10 +100,11 @@ public sealed partial class ConsumerValidatorTests
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
-        Assert.Equal(false, (bool?)parsed["ok"]);
-        Assert.Equal("consumer", (string?)parsed["tool"]);
-        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem!["message"] ?? string.Empty);
-        Assert.Contains(problems, problem => problem.Contains("requires an H2 'Context'", StringComparison.Ordinal));
+        var messages = parsed["findings"]!.AsArray()
+            .Select(finding => (JsonObject)finding!)
+            .Where(finding => (string?)finding["code"] == "page-section-missing")
+            .Select(finding => (string?)finding["message"] ?? string.Empty);
+        Assert.Contains(messages, message => message.Contains("requires an H2 'Context'", StringComparison.Ordinal));
     }
 
     /// <summary>Machine-readable problems carry their code and level.</summary>
@@ -121,15 +120,20 @@ public sealed partial class ConsumerValidatorTests
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
-        var problems = parsed["problems"]!.AsArray().Select(problem => (JsonObject)problem!).ToList();
-        Assert.NotEmpty(problems);
-        Assert.All(problems, problem =>
+        var findings = parsed["findings"]!.AsArray()
+            .Select(finding => (JsonObject)finding!)
+            .Where(finding => (string?)finding["code"] == "page-section-missing")
+            .ToList();
+        Assert.NotEmpty(findings);
+        Assert.All(findings, finding =>
         {
-            Assert.Equal("G", (string?)problem["level"]);
-            Assert.Equal("page-section-missing", (string?)problem["code"]);
-            Assert.Equal(".litespec/product/decisions/0001-launch.md", (string?)problem["path"]);
-            Assert.Equal(1, (int?)problem["line"]);
-            Assert.Equal("decision/0001-launch", (string?)problem["subject"]);
+            Assert.Equal("G", (string?)finding["level"]);
+            Assert.Equal("page-section-missing", (string?)finding["code"]);
+            Assert.Equal("blocking", (string?)finding["outcome"]);
+            Assert.Contains("requires an H2 'Context'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);
+            Assert.Equal(".litespec/product/decisions/0001-launch.md", (string?)finding["path"]);
+            Assert.Equal(1, (int?)finding["line"]);
+            Assert.Equal("decision/0001-launch", (string?)finding["subject"]);
         });
     }
 

@@ -1,13 +1,13 @@
 using System.Collections.Immutable;
 using System.Linq;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2017: the declared LiteSpecLayer names no known layer.</summary>
-/// <follows>litespec/backend/dotnet/architecture#use-five-application-projects</follows>
+/// <follows>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LayerNameAnalyzer : DiagnosticAnalyzer
 {

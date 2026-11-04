@@ -9,18 +9,6 @@
     "svelte"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [
-    "constraint",
-    "research",
-    "setting",
-    "runbook"
-  ],
-  "constraints": {
-    "answered": true
-  },
-  "owners": [
-    "lending-team"
-  ],
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
@@ -35,7 +23,8 @@
         "path": "apps/catalog",
         "platform": "svelte",
         "ui": {
-          "profile": "application-balanced"
+          "profile": "application-balanced",
+          "globalCss": "apps/catalog/src/styles.css"
         }
       }
     ],
@@ -61,15 +50,5 @@
       "webapi": "apps/api/src/Library.WebApi"
     }
   },
-  "selectedExtensions": [],
-  "vocabulary": {
-    "verbs": [
-      "borrow",
-      "extend",
-      "nightly",
-      "place",
-      "register",
-      "return"
-    ]
-  }
+  "selectedExtensions": []
 }

@@ -19,14 +19,14 @@ public sealed class ProofTargetTests
             Config = ConsumerConfig.Load(temp.Path),
             Provisions = new HashSet<string>(StringComparer.Ordinal)
             {
-                "litespec/frontend/web/ui#check-every-route-in-a-browser",
+                "litespec/frontend/ui#check-every-route",
                 "litespec/backend/persistence#commit-each-command-pipeline-once",
             },
         };
 
         var targets = FrontendRecords.ProofTargetIds(model);
 
-        Assert.Contains("litespec/frontend/web/ui#check-every-route-in-a-browser", targets);
+        Assert.Contains("litespec/frontend/ui#check-every-route", targets);
         Assert.DoesNotContain("litespec/backend/persistence#commit-each-command-pipeline-once", targets);
     }
 }

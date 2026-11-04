@@ -1,0 +1,16 @@
+type: decision
+id: decision/0001-hold-window
+title: Hold window
+options:
+  - name: 3 days
+    pros: Holds turn over fast.
+    cons: Readers rush to the desk.
+  - name: 7 days
+    pros: Most readers reach the desk in a week.
+    cons: Copies wait longer.
+choice: 7 days
+consequences: Copies wait longer.
+reopenedWhen: Reader demand shifts.
+decides:
+  - requirement/borrowing.hold-pickup-window
+basedOn: []

@@ -10,10 +10,10 @@ Each page here follows one frontend principle page and states what the two web s
 
 ## Shared Web Pages
 
-- [Web Structure](structure.md): the folders, toolchain, import direction, and commands both stacks share.
-- [Web Rendering and Routes](rendering.md): loaders, validated search, chunk splitting, and per-request caching.
+- [Web Structure](structure.md): the application tree, the frame, use-case marks, and the generated records file.
+- [Web Rendering and Routes](rendering.md): the route metadata rule both stacks share.
 - [TypeScript Web Components](components.md): the registry source, the closed element list, and the shared route checks.
-- [Web UI](ui.md): the pinned baseline, tokens, registry, and browser suites for shared UI.
+- [Web UI](ui.md): the registry build, suite marks, CSS decisions, and source rules for shared UI.
 - [Web UI Patterns](patterns.md): one implementation per platform for each chosen pattern.
 - [Web Data and State](data.md): the generated client, failure mapping, cache updates, and state ownership.
 - [Web Testing](testing.md): Vitest beside the module and Playwright against a running stack.

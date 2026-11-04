@@ -1,5 +1,8 @@
 # Frontend Structure
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 A LiteSpec frontend holds three parts: a frame holding what every route shares, routes for the addresses it serves, and one module folder per backend use case it calls, with the module tree mirroring the backend module folders in kebab case. This page states those parts, the import direction between them, and where a file shared by several use cases belongs. Frontend developers and agents apply it whenever they add or move frontend code, so a reader holding a use-case specification finds the frontend code that serves it without a second map.
@@ -24,6 +27,8 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`
 
+**Strength:** rule
+
 **Statement:** A frontend MUST organize its code into a frame, routes, and use-case modules.
 
 **Rationale:** Three parts give every file one home by answering one question: is it cross-cutting, is it an address, or does it serve one use case. Without the split, shared values hide inside routes, use-case code hides inside shared folders, and no author can tell where a new file belongs. The three parts make the answer mechanical.
@@ -43,9 +48,11 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/reads/{use-case}/` for a query describing no one aggregate, resolving to the backend folder of the same names.
+**Strength:** rule
 
-**Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case id resolves its frontend folder by rule. The frontend structure test holds the mirror on every build under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
+**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/use-cases/{use-case}/` for a query describing no one aggregate, resolving to the one backend folder of the same names.
+
+**Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case id resolves its frontend folder by rule. The backend holds one folder per use case, so the mirror names one folder. The frontend structure test holds the mirror on every build under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
 **Example:** One backend folder and its frontend counterpart are the same path in two spellings.
 
@@ -63,7 +70,7 @@ For example, the Claimwick product lists expenses through `use-case/spending.lis
 
 The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and ListExpenses.
 
-A query that describes no one aggregate has its record home under `reads/` beside its module, so its folder mirrors that home with two names instead of three: a query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/reads/read-spending-summary/` and `<backend>/Spending/Reads/ReadSpendingSummary/`. The running Claimwick example holds no such reads query.
+A query that describes no one aggregate has its record home under `use-cases/` beside its module, so its folder mirrors that home with two names instead of three: a query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/use-cases/read-spending-summary/` and `<backend>/Spending/UseCases/ReadSpendingSummary/`. The running Claimwick example holds no such module-level query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
@@ -75,6 +82,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#keep-a-use-case-folder-flat`
 
+**Strength:** rule
+
 **Statement:** A folder named for one use case MUST hold files and no subfolder.
 
 **Rationale:** A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the mirror checkable to the bottom.
@@ -84,6 +93,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 ### Place a Shared File in the Folder That Owns It
 
 **ID:** `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`
+
+**Strength:** rule
 
 **Statement:** A file read by several use cases of one aggregate MUST sit flat in that aggregate's folder.
 
@@ -97,17 +108,23 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`
 
-**Statement:** A folder under `src` MUST NOT be named `shared`, `common`, `utils`, `util`, `helpers`, `misc`, `components`, `hooks`, `types`, or `services`.
+**Strength:** rule
 
-**Rationale:** A folder named `shared`, `utils`, or `components` can refuse nothing: every author with a file of unclear ownership drops it there. The folder collects unrelated code that escapes review against the use cases it serves, and finding a file means searching a pile instead of translating a use case path. The refused names force each file into the folder that owns it.
+**Statement:** A folder under an application's `src` MUST NOT be named `shared`, `common`, `utils`, `util`, `helpers`, `misc`, `components`, `hooks`, `types`, or `services`.
+
+**Rationale:** A folder named `shared`, `utils`, or `components` can refuse nothing: every author with a file of unclear ownership drops it there. The folder collects unrelated code that escapes review against the use cases it serves, and finding a file means searching a pile instead of translating a use case path. The refused names force each file into the folder that owns it. The rule covers an application's `src`, not a shared package's internals, which the package owns.
 
 **Example:** A shared query three use cases read sits flat in the aggregate folder, not in a `shared/` folder beside them.
 
-**Reviewed for:** Which folders under `src` carry a refused name? Look in the folder tree.
+**Reviewed for:** Which folders under an application's `src` carry a refused name? Look in the application folder tree.
 
 ### Keep a Route Entry Thin
 
 **ID:** `litespec/frontend/structure#keep-a-route-entry-thin`
+
+**Strength:** rule
+
+**Applies to:** artifact: route
 
 **Statement:** A route entry MUST hold its input, its load, and its component, with no reusable logic and no reference to another route entry.
 
@@ -121,6 +138,10 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#mark-each-route-with-its-screen`
 
+**Strength:** rule
+
+**Applies to:** artifact: route
+
 **Statement:** A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.
 
 **Rationale:** The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable: a web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran, and a Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.
@@ -132,6 +153,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 ### Order Imports from Routes to Shared Packages
 
 **ID:** `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`
+
+**Strength:** rule
 
 **Statement:** An import MUST point from a route to a module to the frame to a shared package, and never in the reverse direction.
 
@@ -151,6 +174,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-applications-independent`
 
+**Strength:** rule
+
 **Statement:** A frontend MUST NOT import source from another frontend.
 
 **Rationale:** Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. An import from another application's source ties the two together: a change to one breaks or redeploys the other. Code two applications genuinely share moves down into a shared package, which names neither application.
@@ -161,6 +186,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-shared-packages-non-application-specific`
 
+**Strength:** rule
+
 **Statement:** A shared package MUST NOT contain page composition, feature state, authentication policy, or application components.
 
 **Rationale:** Shared packages hold what serves every frontend and names none of them: the generated client, the shared UI package, the locale dictionaries, and the frontend tooling. Page composition, feature state, authentication policy, or application components kept there would bind every application to one application's choices. Application-specific code stays in the application, where it can change without touching the rest.
@@ -170,6 +197,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 ### Locate Cross-Route Values in the Frame
 
 **ID:** `litespec/frontend/structure#locate-cross-route-values-in-the-frame`
+
+**Strength:** rule
 
 **Statement:** A frontend MUST place cross-route values in its frame: client configuration, session read, language choice, permissions, formatting, and shell data.
 
@@ -183,6 +212,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages`
 
+**Strength:** default
+
 **Default:** Expose a shared package only through its documented public entry points.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -194,6 +225,10 @@ The direction refuses three imports: a module reaching a route, a shared package
 ### Place Tests at Their Ownership Boundary
 
 **ID:** `litespec/frontend/structure#place-tests-at-their-ownership-boundary`
+
+**Strength:** default
+
+**Applies to:** artifact: test
 
 **Default:** Place a logic test beside its module, and keep browser suites under one tests root per frontend.
 

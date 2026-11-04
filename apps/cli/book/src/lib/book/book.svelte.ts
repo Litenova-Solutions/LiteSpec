@@ -324,6 +324,8 @@ export class Book {
   has(id: string) { this.rev; const b = base(id); return !!(this.rec[b] || this.node[b]); }
   title(id: string) { this.rev; const b = base(id); return this.rec[b]?.title ?? this.node[b]?.label ?? b; }
   typeOf(id: string) { this.rev; const b = base(id); return this.rec[b]?.type ?? this.node[b]?.type ?? b.split("/")[0]; }
+  /** The qualified identifier of a record: the computed placement form, else the identifier itself. */
+  qualifiedId(id: string) { this.rev; const b = base(id); return this.rec[b]?.qualifiedId || b; }
   fields(id: string): Fields { return this.get(id)?.fields ?? {}; }
   kids(id: string) { this.rev; return this.kidsOf[base(id)] ?? []; }
   parent(id: string) { this.rev; return this.parentOf[base(id)] ?? null; }

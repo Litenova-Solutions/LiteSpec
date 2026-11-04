@@ -1,5 +1,8 @@
 # Use Cases
 
+**Stack:** any
+**Layer:** records
+
 ## Intent
 
 Use Cases states what the system does and what it answers: the commands and queries, their verbs, inputs, effects, endings, scenarios, and the settings they read. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
@@ -124,15 +127,23 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST declare one kind: command or query.
 
 **Rationale:** The kind decides what the use case is allowed to touch: a command changes, a query reads. A use case with no kind leaves each reader to allow it everything, and the checks no shape to confirm. When-X-do-Y behavior and work without a request are reaction and job records, as the [Automation page](automation.md) states.
 
-**Checked by:** `litespec consumer` fails a use-case page without `kind` or with an unknown kind.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case page without `kind` or with an unknown kind.
 
 ### Start Every Use Case with a Declared Verb
 
 **ID:** `litespec/core/use-cases#start-every-use-case-with-a-declared-verb`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project records as conventions.
 
@@ -146,6 +157,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#keep-one-kind-per-verb`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST open with a verb of its own kind, or with an either verb.
 
 **Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project records which of its domain verbs read; its other domain verbs open either kind. The `use-case-verb-invalid` check reports a use case whose verb names the other kind.
@@ -157,6 +172,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Name What a Use Case Acts on from the Model
 
 **ID:** `litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST name, after its verb, an aggregate, a declared part, or a glossary term.
 
@@ -170,6 +189,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each command use case MUST share its verb with the aggregate method its handler calls.
 
 **Rationale:** The use case is the doorway into one aggregate act. A different word at the door and at the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule. A command that records a request for work an event handler finishes after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires, performs the request: its method starts with `Request` and passes.
@@ -182,11 +205,15 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#connect-each-use-case-to-intent`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST name a journey step in `serves` or a requirement in `fulfills`.
 
 **Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-link-missing` check reports a use case with neither field, and `step-use-case-missing` reports a journey step no use case serves.
 
-**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval.single-reimbursement`.
+**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval-reminders.single-reimbursement`.
 
 **Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`.
 
@@ -194,17 +221,25 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#grant-each-use-case-scoped-access`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
 **Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who may act and how far the call reaches beside the behavior. The [Access page](access.md) states the grant forms and the tenant meanings, and the door the call arrives through states how the caller proved identity. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
 
 **Example:** The reimburse-expense command declares the reimburse-expense permission with own tenant scope, reached through a session door, while the self-checkout scan declares a system grant through a device door.
 
-**Checked by:** `litespec consumer` fails a use-case page without `access` carrying grant and tenant scope.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case page without `access` carrying grant and tenant scope.
 
 ### Name the Entry Points That Reach Each Use Case
 
 **ID:** `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
@@ -215,6 +250,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Describe Every Use Case Input with Origin and Classification
 
 **ID:** `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use-case input MUST declare its name, meaning, type, origin, and classification.
 
@@ -229,11 +268,15 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ]
 ```
 
-**Checked by:** `litespec consumer` fails a use-case input without name, meaning, or type, without `of` on an `id` or `choice` field, or with `of` on another type.
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case input without name, meaning, or type, without `of` on an `id` or `choice` field, or with `of` on another type.
 
 ### Bound Every Caller-Supplied Input Value
 
 **ID:** `litespec/core/use-cases#bound-every-caller-supplied-input-value`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each input value with `origin: caller` on a money or access path MUST cite the rule bounding it.
 
@@ -247,6 +290,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST name every aggregate it changes in `changes` and every aggregate it reads in `reads`.
 
 **Rationale:** A write no record names is invisible: the handler touches a second aggregate, the second aggregate changes, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `changes`.
@@ -256,6 +303,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### State the Consistency of Every Use Case
 
 **ID:** `litespec/core/use-cases#state-the-consistency-of-every-use-case`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST declare its write consistency in `consistency`.
 
@@ -269,27 +320,37 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each effect entry MUST carry exactly one verb and its timing.
 
 **Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `runs`, `sends`, `emits`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling states every coupling as data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. The `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The reimburse-expense command emits the reimbursed integration event after commit.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-timing-invalid` for a command `sends` or `calls` effect with `inline` timing; `litespec consumer` fails an effect entry without exactly one verb or its timing.
+**Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-timing-invalid` for a command `sends` or `calls` effect with `inline` timing; `litespec model check` reports `record-invalid` for an effect entry without exactly one verb or its timing.
 
 ### State the Transaction Sharing of Every Inline Call
 
 **ID:** `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each inline `runs` effect MUST state whether it shares the caller transaction in `sharesTransaction`.
 
 **Rationale:** An inline call without a stated transaction is a coin toss at failure: the caller rolls back while the issued work stands, or the reverse. Stating whether the call shares the caller transaction makes the failure shape reviewable beside the edge.
 
-**Checked by:** `litespec consumer` fails an inline `runs` effect without `sharesTransaction`.
+**Checked by:** `litespec model check` reports `record-invalid` for an inline `runs` effect without `sharesTransaction`.
 
 ### Keep the Effect Graph Free of Cycles
 
 **ID:** `litespec/core/use-cases#keep-the-effect-graph-free-of-cycles`
+
+**Strength:** rule
 
 **Statement:** The effect graph MUST hold no cycle except through a domain event carrying its end condition.
 
@@ -301,6 +362,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-events-each-use-case-raises`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST name the domain events it raises in `raises`.
 
 **Rationale:** An event raised but unnamed leaves reactions waiting: downstream behavior answers a fact no behavior admits raising. Naming the raised events ties each fact to the behavior announcing it.
@@ -311,25 +376,37 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each use case MUST declare its idempotency mode with the key, scope, or reason that mode needs.
 
 **Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction key names fields of the triggering event and a job key names fields of its run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
 
-**Checked by:** `litespec consumer` fails a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
+**Checked by:** `litespec model check` reports `record-invalid` for a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
 
 ### State the Audit Position of Every Command
 
 **ID:** `litespec/core/use-cases#state-the-audit-position-of-every-command`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each command MUST declare its audit level and target, or its exemption with its justification.
 
 **Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. A level of `none` is not audited; async work audits at request time.
 
-**Checked by:** `litespec consumer` fails a command without an audit level and target or an exemption with its justification.
+**Checked by:** `litespec model check` reports `record-invalid` for a command without an audit level and target or an exemption with its justification.
 
 ### Declare Every Query Output
 
 **ID:** `litespec/core/use-cases#declare-every-query-output`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each query MUST declare its output in named `include` groups.
 
@@ -343,6 +420,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#justify-every-wider-visibility`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the requirement widening it in `cites`.
 
 **Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement states the view. Citing the requirement in `cites` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
@@ -352,6 +433,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Declare Paging on Every Collection Query
 
 **ID:** `litespec/core/use-cases#declare-paging-on-every-collection-query`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each collection query MUST declare its paging with `mode` of `pages`, or `{ "mode": "none", "reason": "..." }` with its reason.
 
@@ -363,6 +448,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Each query reading lagging aggregates MUST set `builtAsynchronously` with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and a lag scenario.
 
 **Rationale:** A read built asynchronously without a mark is trusted as fresh: screens show yesterday figures as now, and nobody warned them. Marking the query, with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and one scenario covering the lag, states the staleness beside the promise.
@@ -372,6 +461,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### End Every Use Case in Named Results
 
 **ID:** `litespec/core/use-cases#end-every-use-case-in-named-results`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:result
 
 **Statement:** Each use case MUST declare its success result and every refusal with its code.
 
@@ -385,6 +478,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:result
+
 **Statement:** Each refusal code MUST read `<module>.<noun>-<state>` and name the state, not the failure.
 
 **Rationale:** The code is a public contract; `invalid`, `failed` or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change. The prefix names the module that owns the refused state, which may differ from the module of the refusing use case; a shared kernel declares its prefix in `refusals.prefixes`, and a code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in `refusals.composed`.
@@ -396,6 +493,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Retire Refusal Codes with Their Replacements
 
 **ID:** `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:result
 
 **Statement:** A refusal code in use MUST be retired with its replacement named, never renamed or reused.
 
@@ -409,6 +510,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#order-every-refusal-list-by-precedence`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:result
+
 **Statement:** Each use case MUST list its refusals so the first match wins.
 
 **Rationale:** Two refusals matching one call need an order: without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. The derived refusals come first, forbidden then invalid input, followed by the written refusals in the order the page lists them, so the first match is the one every architecture layer reports.
@@ -418,6 +523,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Record Attempts Behind Recorded Refusals
 
 **ID:** `litespec/core/use-cases#record-attempts-behind-recorded-refusals`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:result
 
 **Statement:** Each refusal carrying `recorded: true` MUST store the attempt with its reason.
 
@@ -431,6 +540,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:result
+
 **Statement:** Each success result with recorded outcomes MUST list them in `codes`.
 
 **Rationale:** A success hiding several recorded outcomes forces callers to guess: borrow and renew both succeed, but the due date and the analytics differ. Listing the closed codes inside the success states each recorded outcome beside the ending.
@@ -443,6 +556,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:result
+
 **Statement:** A use case MUST NOT write a generic forbidden or invalid-input refusal as a record.
 
 **Rationale:** Hand-written generic refusals multiply: hundreds of pages each declare their own forbidden, and each drifts in wording and code. Deriving them from the grant in `access` and the rules in `input` keeps one forbidden and one invalid input per use case, current with the grant: the builder derives `result/<use-case>.forbidden` and `result/<use-case>.invalid-input`. Scenarios point at the derived results without anyone writing them.
@@ -453,15 +570,23 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-result-each-scenario-ends-in`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:scenario
+
 **Statement:** Each scenario MUST name the result it ends in, written or derived.
 
 **Rationale:** A scenario that names no result illustrates behavior without asserting an ending: it reads well and proves nothing. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. The `scenario-result-unknown` check reports a scenario ending in an unknown result.
 
-**Checked by:** `litespec consumer` fails a scenario entry without `result`, and `litespec model check` reports `scenario-result-unknown` for a scenario ending in an unknown result.
+**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `result`, and `scenario-result-unknown` for a scenario ending in an unknown result.
 
 ### Prove Every Written Result with a Scenario
 
 **ID:** `litespec/core/use-cases#prove-every-written-result-with-a-scenario`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:result
 
 **Statement:** Each written result MUST be shown by at least one scenario of its use case.
 
@@ -474,6 +599,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Write Every Scenario in Given When Then
 
 **ID:** `litespec/core/use-cases#write-every-scenario-in-given-when-then`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:scenario
 
 **Statement:** Each scenario MUST state its `given`, `when`, and `then`.
 
@@ -493,11 +622,15 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 }
 ```
 
-**Checked by:** `litespec consumer` fails a scenario entry without `given`, `when`, or `then`.
+**Checked by:** `litespec model check` reports `record-invalid` for a scenario entry without `given`, `when`, or `then`.
 
 ### Exercise Rules from Scenarios
 
 **ID:** `litespec/core/use-cases#exercise-rules-from-scenarios`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:scenario
 
 **Statement:** A scenario MAY name the rules it shows in `exercises`.
 
@@ -511,6 +644,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#share-scenario-setup-in-background`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A use case MAY hold the shared Given of its scenarios in `background`.
 
 **Rationale:** Every scenario repeating the same setup buries the step that differs: readers reread one Given on each story. Holding the shared Given once in `background` leaves each scenario its own situation, action, and assertion.
@@ -522,6 +659,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Write Prose on Every Use Case
 
 **ID:** `litespec/core/use-cases#write-prose-on-every-use-case`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST carry `summary`.
 
@@ -535,6 +676,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#hold-every-setting-default-to-a-requirement`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:setting
+
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
 **Rationale:** A default no requirement holds is a figure nobody stated: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of product, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-requirement-missing` check reports such a default with no cited requirement.
@@ -546,6 +691,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### Name the Settings Each Use Case Reads
 
 **ID:** `litespec/core/use-cases#name-the-settings-each-use-case-reads`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** Each use case MUST name the settings it reads in `reads`.
 
@@ -559,6 +708,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:setting
+
 **Statement:** A setting the operator sets MUST name its configuration path in `key`.
 
 **Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets is held as data by an aggregate instead, and names no key.
@@ -571,6 +724,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:setting
+
 **Statement:** A setting with a `key` MUST be bound by an options class that carries an `implements` mark naming the setting and whose section and property spell the key.
 
 **Rationale:** The options class is where configuration becomes a typed value the code reads, so it is the code element that implements the setting. Marking it names the promise the class holds, and comparing its section name and property with the record's key finds the renamed section or the typo before the product starts with a default.
@@ -582,6 +739,10 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 ### State the Unit of Every Quantity Setting
 
 **ID:** `litespec/core/use-cases#state-the-unit-of-every-quantity-setting`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:setting
 
 **Statement:** Each setting whose value is a number or a duration MUST declare its `unit`.
 

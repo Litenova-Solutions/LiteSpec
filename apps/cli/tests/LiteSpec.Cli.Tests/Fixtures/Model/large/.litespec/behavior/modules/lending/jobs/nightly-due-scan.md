@@ -1,3 +1,3 @@
-# Nightly due scan
+# Nightly Due Scan
 
 Each night the scan marks the loans that passed their due date.

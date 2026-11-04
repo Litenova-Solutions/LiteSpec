@@ -11,7 +11,7 @@ static class RepositoryImplementationReader
     ///     Reads every Infrastructure class implementing a domain repository
     ///     interface into the model, through its declared base list: the class
     ///     name, the repository interface it names, and its location. Only files
-    ///     under the Infrastructure root are read, and nested types are left out.
+    ///     of the Infrastructure layer are read, and nested types are left out.
     /// </summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="file">The file.</param>
@@ -19,7 +19,7 @@ static class RepositoryImplementationReader
     /// <param name="model">The code model a repository implementation adds to.</param>
     public static void ReadRepositoryImplementations(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
     {
-        if (!SourceRoots.IsUnder(config.InfrastructureRoot, file))
+        if (SourceRoots.LayerOf(config, file) != "Infrastructure")
         {
             return;
         }
@@ -67,7 +67,7 @@ static class RepositoryImplementationReader
     {
         var holders = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        foreach (var root in SourceRoots.BackendRoots(config))
         {
             foreach (var file in SourceTree.Files(root, ".cs"))
             {

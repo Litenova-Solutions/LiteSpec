@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,7 +11,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Style;
 
 /// <summary>LS3001: an asynchronous method ends in Async.</summary>
-/// <follows>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</follows>
+/// <follows>litespec/workspace/naming#name-asynchronous-operations-completely</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AsyncMethodAnalyzer : LayerAnalyzer
 {
@@ -19,7 +20,7 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS3001);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None && layer != Layer.Test;
 
@@ -27,7 +28,8 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
-        var types = new WellKnownTypes(context.Compilation);
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        var types = new WellKnownTypes(context.Compilation, scope);
         context.RegisterSymbolAction(types.AnalyzeMethod, SymbolKind.Method);
         context.RegisterOperationAction(types.AnalyzeLocalFunction, OperationKind.LocalFunction);
     }
@@ -43,11 +45,15 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
         private readonly INamedTypeSymbol? _valueTask;
         /// <summary>Stores the generic value task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _genericValueTask;
+        /// <summary>Stores the scope used by the well known types code.</summary>
+        private readonly FileScope _scope;
 
         /// <summary>Initializes a new instance of the <see cref="WellKnownTypes"/> class.</summary>
         /// <param name="compilation">The compilation whose types and references the check reads.</param>
-        public WellKnownTypes(Compilation compilation)
+        /// <param name="scope">Whether the rule applies to each file.</param>
+        public WellKnownTypes(Compilation compilation, FileScope scope)
         {
+            _scope = scope;
             _task = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
             _genericTask = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
             _valueTask = compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask");
@@ -58,6 +64,11 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
         /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
         public void AnalyzeMethod(SymbolAnalysisContext context)
         {
+            if (!_scope.AppliesTo(context.Symbol))
+            {
+                return;
+            }
+
             var method = (IMethodSymbol)context.Symbol;
             if (method.MethodKind != MethodKind.Ordinary
                 || method.IsImplicitlyDeclared
@@ -73,6 +84,11 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
         /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
         public void AnalyzeLocalFunction(OperationAnalysisContext context)
         {
+            if (!_scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+            {
+                return;
+            }
+
             var symbol = ((ILocalFunctionOperation)context.Operation).Symbol;
             if (symbol is null || symbol.IsImplicitlyDeclared || symbol.DeclaringSyntaxReferences.Length == 0)
             {

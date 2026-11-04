@@ -17,6 +17,7 @@ public sealed class CleanMarksTests
                 "mark-count-invalid",
                 "mark-style-invalid",
                 "mark-folder-drift",
+                "code-placement-drift",
                 "runtime-value-drift",
                 "act-event-undeclared",
                 "act-event-unimplemented",

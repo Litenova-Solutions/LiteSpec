@@ -1,5 +1,8 @@
 # Continuous Integration
 
+**Stack:** any
+**Layer:** operations
+
 ## Intent
 
 Every pull request runs a fixed set of CI jobs, and each job checks one surface: compilation, tests, measured checks, the project model of records joined to code, documentation, and generated contracts. This page names those jobs and states which file changes select each one. No change merges with its surface unchecked; mutation testing, the supply-chain gate, artifact promotion, branch protection and the release job live in the [Delivery extension](../ext/delivery.md) for projects that select it.
@@ -17,7 +20,7 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 | test-frontend | Lint, type-check, and route suite pass. | Frontend change. | `pnpm lint`, `pnpm type-check`, and the route suite. | Runs. | Runs. |
 | measure | Each measured check the change names passes. | Backend, frontend, or measured-requirement change. | k6 thresholds, Lighthouse CI assert, and the ZAP baseline; results feed the model. | Runs. | Runs. |
 | model | Model check, then every check reading `model.json`. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
-| docs | Page contract, configuration, language, prose. | Documentation change. | `litespec consumer`. | Runs. | Runs. |
+| docs | Page contract, configuration, language, prose. | Documentation change. | `litespec model check`. | Runs. | Runs. |
 | contract | Published document and clients unchanged. | API or contract change. | Regenerate, then `git diff --exit-code`. | Runs. | Runs. |
 
 A project that selects the [Delivery extension](../ext/delivery.md) adds the mutation, supply-chain and release jobs that extension states, with the same selection and promotion rules.
@@ -34,7 +37,7 @@ Each measured requirement names its check, and each kind of measure has one tool
 | Availability and latency objectives | OpenTelemetry signals | Production dashboards linked in the book, with OpenSLO files where the Delivery extension applies. |
 | Security | An ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks | ZAP results under `TestResults/` with scan reports showing no unaccepted finding. |
 
-The [security page](security.md) states the ASVS target and the security scans, the [operations page](operations.md) states the availability objectives and dashboards, and `litespec/frontend/web/ui#check-every-route-in-a-browser` states the route suite.
+The [security page](security.md) states the ASVS target and the security scans, the [operations page](operations.md) states the availability objectives and dashboards, and `litespec/frontend/ui#check-every-route` states the route suite.
 
 ### The Supply-Chain Gate
 
@@ -46,6 +49,8 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request`
 
+**Strength:** rule
+
 **Statement:** Every pull request MUST run the jobs the jobs table selects for its changed areas.
 
 **Rationale:** Each job guards one surface, so a pull request that skips the job for its changed area merges unchecked work. A job skipped because its surface did not change is recorded with that reason on the pull request, which keeps the skipped surface visible to the reviewer. A project that selects the Delivery extension adds its supply-chain gate as one of these jobs under `litespec/ext/delivery#enforce-the-supply-chain-gate`.
@@ -56,15 +61,19 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#check-documentation-on-every-pull-request`
 
+**Strength:** rule
+
 **Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, language, or prose rules.
 
 **Rationale:** Documentation breaks take many small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix at the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.
 
-**Checked by:** `litespec consumer` fails on a page that breaks the page contract, configuration, language, or prose rules.
+**Checked by:** `litespec model check` fails on a page that breaks the page contract, configuration, language, or prose rules.
 
 ### Keep Generated Contracts Fresh
 
 **ID:** `litespec/quality/ci#keep-generated-contracts-fresh`
+
+**Strength:** rule
 
 **Statement:** CI MUST regenerate committed OpenAPI and API types from source deterministically and fail on any difference.
 
@@ -76,6 +85,8 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#refuse-backend-calls-outside-the-generated-client`
 
+**Strength:** rule
+
 **Statement:** The contract job MUST fail a pull request whose frontend code calls the backend outside the generated client.
 
 **Rationale:** Regenerating the contract proves the committed client matches the API, but a hand-written fetch beside it still compiles and drifts on the next contract change. Failing the pull request keeps every backend call inside the generated client that `litespec/frontend/data#use-one-configured-client-per-application` names, so a contract change breaks the build at the call sites that must move.
@@ -85,6 +96,8 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 ### Run Measured Checks on Every Pull Request
 
 **ID:** `litespec/quality/ci#run-measured-checks-on-every-pull-request`
+
+**Strength:** rule
 
 **Statement:** The measure job MUST run the check each measured requirement names for its kind.
 

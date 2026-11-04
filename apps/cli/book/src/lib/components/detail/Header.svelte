@@ -6,7 +6,8 @@
   import { Button } from "$lib/components/ui/button";
 
   // The page header: the breadcrumb from the parent chain, the title, the type
-  // line, the identifier with its copy buttons, and the traversal row.
+  // line, the identifier and the qualified identifier with their copy buttons,
+  // and the traversal row.
   let { id, r }: { id: string; r: BookRecord } = $props();
   const b = $derived(base(id));
   const chain = $derived.by(() => {
@@ -96,6 +97,18 @@
   >
     <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{b}</code>
   </button>
+  {#if r.qualifiedId && r.qualifiedId !== b}
+    <span class="text-muted-foreground">Qualified</span>
+    <button
+      type="button"
+      class="cursor-pointer rounded-sm"
+      aria-label={"Copy qualified ID " + r.qualifiedId}
+      title="Copy qualified ID"
+      onclick={() => copyText(r.qualifiedId ?? "")}
+    >
+      <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{r.qualifiedId}</code>
+    </button>
+  {/if}
   {#if r.src}
     <SourceLink src={r.src} />
   {/if}

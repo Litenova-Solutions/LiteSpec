@@ -1,54 +1,54 @@
 schemaVersion: 2
 terms:
-  - id: term/expense
-    term: expense
-    meaning: One work cost an employee submitted for approval.
-    layer: behavior
-    aliases: []
-    labels:
-      nl: uitgave
-      de: Ausgabe
-    rejected:
-      - word: voucher
-        reason: A voucher names the payout slip.
-  - id: term/receipt
-    term: receipt
-    meaning: Proof of payment attached to an expense.
-    layer: behavior
-    aliases: []
-    labels:
-      nl: bonnetje
-      de: Beleg
-    rejected:
-      - word: docket
-        reason: A docket names the shipping list.
-  - id: term/policy
-    term: policy
-    meaning: The company spending policy and its receipt threshold.
-    layer: behavior
-    aliases: []
-    labels:
-      nl: beleid
-      de: Richtlinie
-    rejected: []
-  - id: term/approver
-    term: approver
-    meaning: The manager who decides a submitted expense.
-    layer: intent
-    aliases: []
-    labels:
-      nl: goedkeurder
-      de: Genehmiger
-    rejected: []
-  - id: term/personal-data
-    term: personal data
-    meaning: Facts identifying an employee, erased on request.
-    layer: behavior
-    aliases: []
-    labels:
-      nl: persoonsgegevens
-      de: personenbezogene Daten
-    rejected: []
+- id: term/expense
+  term: expense
+  meaning: One work cost an employee submitted for approval.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: uitgave
+    de: Ausgabe
+  rejected:
+  - word: voucher
+    reason: A voucher names the payout slip.
+- id: term/receipt
+  term: receipt
+  meaning: Proof of payment attached to an expense.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: bonnetje
+    de: Beleg
+  rejected:
+  - word: docket
+    reason: A docket names the shipping list.
+- id: term/policy
+  term: policy
+  meaning: The company spending policy and its receipt threshold.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: beleid
+    de: Richtlinie
+  rejected: []
+- id: term/approver
+  term: approver
+  meaning: The manager who decides a submitted expense.
+  layer: intent
+  aliases: []
+  labels:
+    nl: goedkeurder
+    de: Genehmiger
+  rejected: []
+- id: term/personal-data
+  term: personal data
+  meaning: Facts identifying an employee, erased on request.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: persoonsgegevens
+    de: personenbezogene Daten
+  rejected: []
 mannered:
-  - term: one-way-door
-    instead: irreversible
+- term: one-way-door
+  instead: irreversible

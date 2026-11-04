@@ -4,20 +4,8 @@ title: Policy
 summary: The policy is the company spending policy and its receipt threshold.
 kind: entity
 states:
-  - name: Active
-    meaning: The policy threshold applies.
+- name: Active
+  meaning: The policy threshold applies.
 transitions:
-  - from: "-"
-    to: Active
-records:
-  - type: rule
-    id: rule/policy.threshold-never-negative
-    title: Threshold Never Negative
-    kind: invariant
-    statement: A threshold is never negative.
-    governs:
-      - use-case/spending.change-receipt-threshold
-    refusal: result/change-receipt-threshold.negative-threshold
-    basedOn: []
-    fulfills:
-      - requirement/approval.receipt-over-threshold
+- from: "-"
+  to: Active

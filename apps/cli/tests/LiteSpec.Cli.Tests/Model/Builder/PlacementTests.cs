@@ -125,7 +125,7 @@ public sealed class PlacementTests
     }
 
     /// <summary>Derived refusal results carry the qualified identifier of their use case file.</summary>
-    /// <proves>litespec/core/model#derive-generic-refusals</proves>
+    /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact]
     public void Derived_Results_Carry_Qualified_Ids()
     {

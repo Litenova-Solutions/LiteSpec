@@ -1,5 +1,9 @@
 # Dialog and Overlay Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation, and this page shows when each overlay fits and how it opens, holds focus, and closes, as drawn options with a named default to build. The product owner chooses among the options when the team adds a confirmation, a side preview, or any floating layer. Right-sized overlays keep staff oriented: the page stays visible behind short tasks, and irreversible commands get the full attention they need.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#name-the-command-on-a-confirm-action`
 
+**Strength:** rule
+
 **Statement:** A confirmation dialog MUST label its confirm action with the command it runs.
 
 **Rationale:** Staff often scan only the buttons before clicking, so the button text is the last chance to state what happens. A button labeled `OK` or `Yes` forces the reader to reread the dialog title to know what they confirm, and under time pressure they click without rereading and run the wrong command.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 ### Return Focus When an Overlay Closes
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#return-focus-when-an-overlay-closes`
+
+**Strength:** rule
 
 **Statement:** An overlay MUST return focus to the control that opened it when it closes.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 ### Confirming a Command That Cannot Be Taken Back
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#confirming-a-command-that-cannot-be-taken-back`
+
+**Strength:** default
 
 **Question:** When does a command deserve a confirmation step? A payout-run cancellation cannot be taken back. A confirmation used on routine commands becomes a reflex click that protects nothing.
 
@@ -245,6 +255,8 @@ page
 ### Short Task in a Dialog
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#short-task-in-a-dialog`
+
+**Strength:** default
 
 **Question:** A short task with one to four inputs and nothing to consult fits a dialog. More than four inputs, sections, or steps belong on a full page. The decision is which surface each short command takes, and what to do when a dialog would need a second dialog.
 
@@ -458,6 +470,8 @@ page
 ### Drawer Beside the List
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#drawer-beside-the-list`
+
+**Strength:** default
 
 **Question:** A list action opens a drawer so a reader can see a record without leaving the list. The drawer holds read-only context that supports the task. Below a narrow width the drawer takes the whole screen with a Back control.
 
@@ -700,6 +714,8 @@ page
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#toast-at-the-edge-of-the-screen`
 
+**Strength:** default
+
 **Question:** A command ends with a short message at the edge of the screen. One message carries at most one action. Nothing critical belongs in something that disappears on a timer.
 
 **Default:** `a-confirmation-that-closes-by-itself`
@@ -888,6 +904,8 @@ page
 ### Menu of a Row's Commands
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#menu-of-a-rows-commands`
+
+**Strength:** default
 
 **Question:** A row with several commands shows the first inline and keeps the rest behind a menu. The decision is how that menu groups its items, explains disabled ones, and handles search and submenus.
 
@@ -1106,6 +1124,8 @@ page
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#short-panel-that-opens-beside-a-control`
 
+**Strength:** default
+
 **Question:** A popover is a small panel anchored to a control: not a dialog and not a toast. It closes when the reader looks away. The decision is what earns such a panel: term explanations, row previews, pickers, calendars, copy confirmations, hover cards, or coach marks.
 
 **Default:** `a-popover-that-explains-what-a-term-means`
@@ -1310,6 +1330,8 @@ page
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#bar-that-stays-while-the-reader-works`
 
+**Strength:** default
+
 **Question:** A persistent bar is a band the page keeps, worded as a fact about the page, the deployment, or the record. A tone may not paint a full-width band on a page about other work. The decision is which facts earn a bar and where each bar sits.
 
 **Default:** `a-neutral-band-for-what-this-page-is`
@@ -1487,6 +1509,8 @@ page
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#bottom-sheet-on-a-phone`
 
+**Strength:** default
+
 **Question:** On a phone there is no beside and no center: a dialog becomes a sheet from the bottom edge. Material keeps a modal bottom sheet one swipe from dismissed, with a handle, a title, and actions stacked full width.
 
 **Default:** `order-actions-in-a-bottom-sheet`
@@ -1661,6 +1685,8 @@ page
 ### Dialog with a Long Body and a Sticky Footer
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#dialog-with-a-long-body-and-a-sticky-footer`
+
+**Strength:** default
 
 **Question:** Some commands need more words than a dialog holds: terms, line items, per-audience consequences. The footer must stay where the thumb is while the body scrolls, or the reader agrees to what they cannot see.
 
@@ -1850,6 +1876,8 @@ page
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#keyboard-shortcut-help-overlay`
 
+**Strength:** default
+
 **Question:** Staff who live in lists learn keys faster than clicks. Linear and GitHub both answer `?` with an overlay, grouped by where the keys work, closable with the same key.
 
 **Default:** `a-grouped-grid-of-shortcuts`
@@ -2029,6 +2057,8 @@ page
 ### Context Menu Where the Pointer Is
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#context-menu-where-the-pointer-is`
+
+**Strength:** default
 
 **Question:** A right click asks what this thing can do. Linear and VS Code answer at the pointer with the same commands the row menu holds. The menu is a shortcut rather than a second set.
 

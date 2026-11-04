@@ -417,6 +417,11 @@ public sealed partial class StandardsValidatorTests
             "VERIFY_ORDER",
             "VERIFY_TEMPLATED_EVIDENCE",
             "VALUE_STYLE",
+            "GENERATED_STALE",
+            "SCOPE_BLOCK",
+            "SCOPE_NARROW",
+            "SCOPE_VALUE",
+            "STRENGTH_LINE",
         };
 
         foreach (var code in StandardsValidator.StableDiagnosticCodes)

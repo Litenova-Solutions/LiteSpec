@@ -1,5 +1,9 @@
 # Plans and Entitlements
 
+**Stack:** any
+
+**Layer:** application
+
 ## Intent
 
 A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows. This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan. A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
@@ -24,6 +28,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#record-each-plan-once`
 
+**Strength:** rule
+
 **Statement:** A consumer selecting `plans` MUST record each plan once with its name and entitlements.
 
 **Rationale:** A plan named in two places disagrees the day one updates without the other: one record promises what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
@@ -36,6 +42,10 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#gate-behavior-through-permissions`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A gated use case MUST declare a permission that only an entitled plan grants.
 
 **Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other instead of a second access system beside the first.
@@ -45,6 +55,10 @@ It switches on no record type: plans live as policy requirements, gated behavior
 ### Bound Plan Amounts in Settings
 
 **ID:** `litespec/ext/plans#bound-plan-amounts-in-settings`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:setting-set
 
 **Statement:** Each amount a plan allows MUST live as a setting the gated use case cites.
 
@@ -58,6 +72,10 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#refuse-runs-beyond-entitlement`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** A use case run past its plan MUST end in the refusal result the use case names for that run.
 
 **Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states, so callers branch on one code instead of guessing from an error page. The code stays stable while prices and allowances move.
@@ -68,6 +86,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#resolve-the-acting-plan-from-trusted-context`
 
+**Strength:** rule
+
 **Statement:** The product MUST resolve the acting plan from verified subscription state, never from caller input.
 
 **Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
@@ -77,6 +97,10 @@ It switches on no record type: plans live as policy requirements, gated behavior
 ### Hide Unentitled Actions on Screens
 
 **ID:** `litespec/ext/plans#hide-unentitled-actions-on-screens`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:screen
 
 **Statement:** A screen MUST NOT offer an action the acting plan does not entitle.
 
@@ -89,6 +113,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 ### Resolve the Acting Plan in the Authorization Pipeline
 
 **ID:** `litespec/ext/plans#resolve-the-acting-plan-in-the-authorization-pipeline`
+
+**Strength:** default
 
 **Default:** Resolve the acting plan where the pipeline authorizes the use case.
 

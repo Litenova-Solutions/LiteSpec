@@ -9,9 +9,9 @@ schedule:
 selection: Decided expenses past their retention.
 runbook: runbook/clear-stuck-reimbursements
 effects:
-  - runs: use-case/spending.erase-personal-data
-    timing: async
+- runs: use-case/spending.erase-personal-data
+  timing: async
 fulfills:
-  - requirement/approval.erase-after-retention
+- requirement/approval.erase-after-retention
 reads:
-  - aggregate/spending.expense
+- aggregate/spending.expense

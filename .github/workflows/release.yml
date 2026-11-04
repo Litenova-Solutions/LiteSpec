@@ -15,27 +15,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # The same sharded suites a pull request runs, in the Release configuration.
-  tests:
-    uses: ./.github/workflows/tests.yml
+  # The same four gates a pull request runs, in the Release configuration.
+  ci:
+    uses: ./.github/workflows/ci.yml
     with:
       configuration: Release
 
-  verify:
+  version:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 5
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: "**/packages.lock.json"
 
       # The tag, the manifest and both packages name one release. The version test in
       # the suite holds the manifest, the packages, the changelog and the templates
@@ -50,50 +43,8 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # The CLI runs the frontend reader as a Node bundle and embeds the book client, so
-      # both exist before the pack that ships them.
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
-
-      - name: Install pnpm for the frontend reader
-        run: npm install --global pnpm@11.28.5
-
-      - name: Build the frontend reader and the book client
-        run: |
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-          pnpm --dir apps/cli/book install --frozen-lockfile
-          pnpm --dir apps/cli/book build
-
-      - name: Build
-        run: dotnet build LiteSpec.slnx --configuration Release
-
-      - name: Check the generated provision index
-        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --configuration Release --no-build -- provisions --check
-
-      - name: Validate the LiteSpec repository
-        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --configuration Release --no-build -- validate
-
-      - name: Pack the tool and the analyzers
-        run: |
-          dotnet pack apps/cli/src/LiteSpec.Cli --configuration Release --output artifacts/packages
-          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration Release --output artifacts/packages
-
-      - name: Run the packed tool the way a consumer installs it
-        run: .github/scripts/smoke-tool.sh artifacts/packages
-
-      - name: Keep the packages for the publishing jobs
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: packages
-          path: artifacts/packages/*.nupkg
-          if-no-files-found: error
-
   nuget:
-    needs: [tests, verify]
+    needs: [ci, version]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     # Trusted publishing: nuget.org exchanges this run's OIDC token for a short-lived key,
@@ -128,7 +79,7 @@ jobs:
         run: dotnet nuget push "packages/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   github-release:
-    needs: [verify, nuget]
+    needs: [version, nuget]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -147,7 +98,7 @@ jobs:
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.verify.outputs.version }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
           awk -v heading="## v$VERSION" '$0 == heading {found = 1; next} found && /^## v/ {exit} found' CHANGELOG.md > notes.md
           if [ ! -s notes.md ]; then

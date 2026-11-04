@@ -1,5 +1,8 @@
 # Executable BDD Acceptance Tests
 
+**Stack:** dotnet
+**Layer:** tests
+
 ## Intent
 
 This extension adds executable BDD scenarios for cross-layer examples that need review in business language and execution through a public boundary such as the HTTP API. Test authors write them as Reqnroll Gherkin features or as LightBDD feature classes, and use them for the critical examples its rules select, so product, domain, engineering, and testing discussions share one executable example. Each BDD scenario proves one scenario record from the written specification, which stays the behavior source.
@@ -33,6 +36,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#select-shared-critical-examples`
 
+**Strength:** rule
+
 **Statement:** A test author MUST create a BDD scenario only when business-language form improves shared understanding of cross-layer behavior.
 
 **Rationale:** A scenario costs maintenance on every behavior change, so the suite earns its keep only where business-language form improves shared understanding of cross-layer behavior. Each selected scenario gives product, domain, engineering, and testing discussions one executable example instead of four retellings.
@@ -43,6 +48,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#avoid-routine-scenario-duplication`
 
+**Strength:** rule
+
 **Statement:** A test author MUST NOT duplicate every unit or validation test as a BDD scenario.
 
 **Rationale:** A unit test fails at the exact rule and runs in milliseconds; the same test duplicated as a BDD scenario fails at a public boundary after a full setup. Duplication slows the suite and moves the failure away from its cause, so routine behavior stays in its narrower tests.
@@ -52,6 +59,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Prove a Scenario from Every BDD Scenario
 
 **ID:** `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`
+
+**Strength:** rule
 
 **Statement:** Every BDD scenario MUST carry one `proves` claim naming the scenario it proves.
 
@@ -65,6 +74,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#drive-public-behavior`
 
+**Strength:** rule
+
 **Statement:** A BDD step MUST call the HTTP API or another declared public system boundary.
 
 **Rationale:** A step that calls the HTTP API or another declared public boundary proves what a caller can observe. A step that reaches past the boundary depends on implementation details, so a refactoring breaks the scenario without breaking the behavior.
@@ -74,6 +85,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Assert Observable Outcomes
 
 **ID:** `litespec/backend/dotnet/ext/bdd#assert-observable-outcomes`
+
+**Strength:** rule
 
 **Statement:** A BDD scenario MUST assert a response, later read, durable event, audit record, or other observable outcome.
 
@@ -85,6 +98,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#limit-database-assertions`
 
+**Strength:** rule
+
 **Statement:** A BDD scenario MUST use direct database assertions only for a documented durable boundary.
 
 **Rationale:** The database is an implementation detail, so asserting its rows couples the scenario to storage shapes. A direct assertion is allowed only for a documented durable boundary, such as an outbox record, where the stored row is itself the promised evidence.
@@ -94,6 +109,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Own Scenario Data
 
 **ID:** `litespec/backend/dotnet/ext/bdd#own-scenario-data`
+
+**Strength:** rule
 
 **Statement:** Each BDD scenario MUST own its identifiers, actor context, requests, responses, and expected state.
 
@@ -105,6 +122,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#isolate-scenario-execution`
 
+**Strength:** rule
+
 **Statement:** The acceptance suite MUST reset database state between scenarios and avoid scenario-order dependencies.
 
 **Rationale:** State left by one scenario becomes a hidden precondition of the next, and the suite passes only in one order. Resetting database state between scenarios removes that coupling, so any scenario runs alone or in any order.
@@ -114,6 +133,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Translate Business Phrases
 
 **ID:** `litespec/backend/dotnet/ext/bdd#translate-business-phrases`
+
+**Strength:** rule
 
 **Statement:** A BDD step definition MUST translate a business phrase into a typed test-driver call.
 
@@ -125,6 +146,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#exclude-production-internals`
 
+**Strength:** rule
+
 **Statement:** A BDD step definition MUST NOT resolve repositories, handlers, sessions, or the production service provider.
 
 **Rationale:** Resolving a repository, handler, session, or the production service provider runs the behavior without the boundary the scenario claims to verify. The scenario then passes while the public path stays untested, so step definitions resolve none of them.
@@ -134,6 +157,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Preserve Scenario Failures
 
 **ID:** `litespec/backend/dotnet/ext/bdd#preserve-scenario-failures`
+
+**Strength:** rule
 
 **Statement:** A BDD hook MUST await asynchronous setup and cleanup without replacing the original scenario failure.
 
@@ -147,6 +172,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module`
 
+**Strength:** default
+
 **Default:** Group feature files or feature classes under module folders in `Acceptance.Tests`.
 
 **Replacement:** A project names its own feature grouping in its documentation.
@@ -158,6 +185,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Keep Steps Vocabulary-Scoped
 
 **ID:** `litespec/backend/dotnet/ext/bdd#keep-steps-vocabulary-scoped`
+
+**Strength:** default
 
 **Default:** Keep step definitions narrow and reusable only within one business vocabulary.
 
@@ -171,6 +200,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **ID:** `litespec/backend/dotnet/ext/bdd#limit-scenario-context`
 
+**Strength:** default
+
 **Default:** Store values for one scenario in a scenario context object.
 
 **Replacement:** A project names its own scenario-context use in its documentation.
@@ -182,6 +213,8 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 ### Mark Pull-Request Scenarios
 
 **ID:** `litespec/backend/dotnet/ext/bdd#mark-pull-request-scenarios`
+
+**Strength:** default
 
 **Default:** Mark the small pull-request subset separately from the proves claim: a Reqnroll scenario with the `@critical` tag, a LightBDD scenario with a critical test trait.
 

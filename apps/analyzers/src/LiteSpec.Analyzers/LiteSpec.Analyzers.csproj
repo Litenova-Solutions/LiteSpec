@@ -35,6 +35,8 @@
     <ItemGroup>
         <!-- The oldest compiler the package supports: the .NET 9.0.300 SDK and Visual Studio 17.14. -->
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" PrivateAssets="all" />
+        <!-- The YAML reader the shared rule library uses, kept private and packed beside it. -->
+        <PackageReference Include="YamlDotNet" PrivateAssets="all" GeneratePathProperty="true" />
     </ItemGroup>
 
     <ItemGroup>
@@ -63,6 +65,7 @@
         <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)LiteSpec.Model.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)LiteSpec.Model.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(PkgYamlDotNet)/lib/netstandard2.0/YamlDotNet.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- The code fixes build in their own project, which references this one; pack the solution build of it. -->
         <None Include="../LiteSpec.Analyzers.CodeFixes/$(OutputPath)LiteSpec.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="build/LiteSpec.Analyzers.props" Pack="true" PackagePath="build" />

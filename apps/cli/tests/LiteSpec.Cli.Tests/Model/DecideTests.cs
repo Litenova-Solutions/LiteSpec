@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -32,8 +33,8 @@ public sealed class DecideTests
     [Fact]
     public void Reader_Unavailable_Reports_When_CI_Is_Unset()
     {
-        using var fixture = ModelFixture.Prepare("small");
-        AddWebFrontend(fixture.Path);
+        // The large fixture carries a controlled svelte frontend, whose screens the Node reader reads.
+        using var fixture = ModelFixture.Prepare("large");
 
         string[] args = ["model", "check", "--root", fixture.Path, "--format", "json"];
         var json = Cli.Run(args, environment: new Dictionary<string, string>
@@ -43,7 +44,7 @@ public sealed class DecideTests
         });
         var (outcome, _) = OutcomeOf(json.Stdout, "reader-missing");
 
-        Assert.Equal(0, json.Status);
+        Assert.True(json.Status == 0, json.Output);
         Assert.Equal("reported", outcome);
     }
 
@@ -58,7 +59,7 @@ public sealed class DecideTests
         var loose = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (looseOutcome, _) = OutcomeOf(loose.Stdout, "use-case-unverified");
 
-        Assert.Equal(0, loose.Status);
+        Assert.True(loose.Status == 0, loose.Output);
         Assert.Equal("reported", looseOutcome);
 
         var strict = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json", "--release");
@@ -68,26 +69,24 @@ public sealed class DecideTests
         Assert.Equal("blocking", strictOutcome);
     }
 
-    /// <summary>Writes a scenario for borrow-copy with no proving test.</summary>
+    /// <summary>Appends a scenario entry to borrow-copy with no proving test.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
-        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-draft-scenario.yaml", """
+        var page = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
+        record["records"]!.AsArray().Add(JsonNode.Parse("""
             {
               "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
               "title": "Borrowing an available copy succeeds",
               "given": "A copy sits available on its shelf.",
               "when": "The reader borrows the copy.",
-              "result": "result/borrow-copy.borrowed",
-              "then": "The loan is active."
+              "then": "The loan is active.",
+              "result": "result/borrow-copy.borrowed"
             }
-            """);
-        TestRecords.Explain(root, ".litespec/behavior/modules/lending/loans/borrow-copy-draft-scenario.md", """
-            # Borrowing an available copy succeeds
-
-            A reader borrows an available copy.
-            """);
+            """));
+        File.WriteAllText(page, RecordFile.Write(record));
     }
 
     /// <summary>Declares a Svelte frontend the reader cannot reach once Node is hidden from PATH.</summary>

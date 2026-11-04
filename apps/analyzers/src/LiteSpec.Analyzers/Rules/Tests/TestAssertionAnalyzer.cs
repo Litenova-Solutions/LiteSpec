@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Tests;
 
 /// <summary>LS4001: a test method contains at least one assertion, directly or in a step it calls.</summary>
-/// <follows>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</follows>
+/// <follows>litespec/backend/testing#mark-the-test-that-proves-each-scenario</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TestAssertionAnalyzer : LayerAnalyzer
 {
@@ -18,7 +19,7 @@ public sealed class TestAssertionAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS4001);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Test;
 
@@ -27,13 +28,22 @@ public sealed class TestAssertionAnalyzer : LayerAnalyzer
     ///     context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterOperationBlockAction(Analyze);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterOperationBlockAction(c => Analyze(c, scope));
+    }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void Analyze(OperationBlockAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void Analyze(OperationBlockAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.OwningSymbol))
+        {
+            return;
+        }
+
         if (context.OwningSymbol is not IMethodSymbol method
             || !IsTestMethod(method)
             || ContainsAssertion(context))

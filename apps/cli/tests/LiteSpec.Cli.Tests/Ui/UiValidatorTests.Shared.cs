@@ -89,7 +89,14 @@ public sealed partial class UiValidatorTests
     {
         using var fixture = UiFixture.Create();
         fixture.WriteException("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
-        UiFixture.AssertClean(fixture.Run());
+        var problems = UiFixture.Problems(fixture.Run());
+
+        // The model check owns the expiry of every exception, so it reports this
+        // one; the UI validator must not read it. The UI expiry line carries the
+        // provision in brackets, which the model line never does.
+        Assert.DoesNotContain(
+            problems,
+            problem => problem.Contains("[litespec/core/agent#select-task-context]", StringComparison.Ordinal));
     }
 
     /// <summary>Exceptions Folder Set Through Paths Records Exception.</summary>
@@ -110,7 +117,7 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
     }
 
-    // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
+    // Shared package (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
 
     /// <summary>A Controlled Frontend With No Shared Package.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
@@ -151,7 +158,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Package With No Public Export.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Shared_Package_With_No_Public_Export()
     {
@@ -164,7 +171,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Package Declaring The Same Export Twice.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Shared_Package_Declaring_The_Same_Export_Twice()
     {
@@ -178,7 +185,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Source Lock Outside The Package Root.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Source_Lock_Outside_The_Package_Root()
     {
@@ -191,7 +198,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Components Json Naming An Icon Library The Baseline Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Components_Json_Naming_An_Icon_Library_The_Baseline_Does_Not_Pin()
     {
@@ -203,7 +210,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Source_Lock_Describing_A_Preset_The_Manifest_Does_Not_Pin()
     {
@@ -212,21 +219,21 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "preset.style does not match the manifest baseline");
     }
 
-    // Additional registries (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
+    // Additional registries (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
 
     /// <summary>An Additional Registry With The Exception Passes Both Gates.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void An_Additional_Registry_With_The_Exception_Passes_Both_Gates()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
-        fixture.WriteException("extra-registry", "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteException("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>The Configuration Gate Refuses Without The Exception.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void The_Configuration_Gate_Refuses_Without_The_Exception()
     {
@@ -234,11 +241,11 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] an additional registry requires an exception");
+            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] an additional registry requires an exception");
     }
 
     /// <summary>The Source Lock Gate Refuses Without The Exception.</summary>
-    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void The_Source_Lock_Gate_Refuses_Without_The_Exception()
     {
@@ -246,7 +253,7 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] registry 'fixture' is not the built-in shadcn registry");
+            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] registry 'fixture' is not the built-in shadcn registry");
     }
 
     // Source lock (litespec/frontend/web/ui#track-source-changes).

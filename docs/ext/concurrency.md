@@ -1,5 +1,8 @@
 # Concurrency and Idempotency
 
+**Stack:** any
+**Layer:** application
+
 ## Intent
 
 Concurrency and idempotency rules stop overlapping writes from silently overwriting each other and stop a retried request from executing twice. This page states how a project documents conflicting writes, coordinates them with versions, and makes retried operations return one result through client keys and fingerprints. A team applies it when overlap or retry can corrupt behavior, so its callers get one predictable outcome instead of a silent overwrite or a duplicated effect.
@@ -26,6 +29,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#document-write-conflict-behavior`
 
+**Strength:** rule
+
 **Statement:** A conflicting-write use case MUST document conflicting operations, invalid combined result, expected winner behavior, and user-visible conflict response.
 
 **Rationale:** Version coordination exists to protect one invariant. Naming the conflicting operations, the invalid combined result, the expected winner, and the caller-visible response states which invariant that is. An implementation without that document cannot tell a conflict it has to reject from contention it has to absorb.
@@ -35,6 +40,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Limit Version Checks
 
 **ID:** `litespec/ext/concurrency#limit-version-checks`
+
+**Strength:** rule
 
 **Statement:** An implementation MUST NOT require a caller-supplied version without a documented conflicting-write case.
 
@@ -46,6 +53,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#compare-expected-aggregate-versions`
 
+**Strength:** rule
+
 **Statement:** An implementation MUST compare the caller-supplied version with the stored version in the same transaction as the change.
 
 **Rationale:** The caller-supplied version marks which write the caller saw, and the stored version marks what the database holds. Comparing the two in the same transaction as the change detects a competing accepted write against the same state, through the selected persistence model. A comparison outside the transaction races the commit it claims to guard.
@@ -55,6 +64,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Map Failed Expected Versions
 
 **ID:** `litespec/ext/concurrency#map-failed-expected-versions`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** An HTTP API MUST map a failed expected version to status 409 Problem Details with a stable code.
 
@@ -66,6 +79,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#reject-silent-overwrites`
 
+**Strength:** rule
+
 **Statement:** An implementation MUST NOT silently overwrite a conflicting accepted change.
 
 **Rationale:** A conflicting write that silently replaces the accepted change destroys work another caller committed. The losing caller never learns its change is gone. Rejecting the conflict instead hands the caller the facts it needs to reconcile.
@@ -75,6 +90,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Apply HTTP Version Preconditions
 
 **ID:** `litespec/ext/concurrency#apply-http-version-preconditions`
+
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** An HTTP operation requiring a caller version MUST return a strong persistence-derived `ETag` and require `If-Match` on writes.
 
@@ -88,6 +107,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#return-precondition-outcomes`
 
+**Strength:** rule
+
+**Applies to:** artifact: endpoint
+
 **Statement:** An HTTP API MUST return 428 `precondition_required` for missing `If-Match` and 409 `version_conflict` for stale versions.
 
 **Rationale:** A missing `If-Match` and a stale version are different caller mistakes with different fixes: send the version, or re-read and retry. Status 428 `precondition_required` names the omission and 409 `version_conflict` names the stale version. One code for both would leave the caller guessing which fix applies.
@@ -97,6 +120,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Hide Provider Version Values
 
 **ID:** `litespec/ext/concurrency#hide-provider-version-values`
+
+**Strength:** rule
 
 **Statement:** An HTTP API MUST NOT expose a provider-specific version value in another contract field.
 
@@ -108,6 +133,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#run-idempotency-in-the-pipeline`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** Idempotency MUST run as a pipeline stage after authorization and validation, before the handler.
 
 **Rationale:** Authorization and validation run first, so a denied or invalid attempt neither consumes a client key nor replays a stored result. The handler runs after, so a replayed key returns the stored response without executing the handler again. Any other order either spends keys on attempts the pipeline would refuse or executes work the store already accepted.
@@ -117,6 +146,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Scope Client Keys
 
 **ID:** `litespec/ext/concurrency#scope-client-keys`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An idempotent operation MUST scope its client key to the tenant, authenticated actor, and operation.
 
@@ -128,6 +161,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#store-idempotency-state-atomically`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** An idempotent operation MUST store its fingerprint, state, response status, response body, and expiry with its business change in one provider transaction.
 
 **Rationale:** The fingerprint, state, response status, response body, and expiry describe the accepted change, so they commit with it in one provider transaction. One transaction leaves neither a completed record without its change nor a change without its replay record. A retry then replays exactly what the first attempt accepted.
@@ -137,6 +174,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Reject Conflicting Key Reuse
 
 **ID:** `litespec/ext/concurrency#reject-conflicting-key-reuse`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An idempotent operation MUST reject reuse of one key with a different request fingerprint.
 
@@ -148,6 +189,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#enforce-key-uniqueness`
 
+**Strength:** rule
+
 **Statement:** An idempotency store MUST enforce a unique constraint on tenant, actor, operation, and client key.
 
 **Rationale:** Two concurrent requests can arrive with the same key before either commits. The unique constraint on tenant, actor, operation, and client key admits one winner and rejects the other at the store. Application code alone cannot order two requests that arrive together. A project without the tenancy extension uses one fixed tenant value.
@@ -157,6 +200,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Canonicalize Request Fingerprints
 
 **ID:** `litespec/ext/concurrency#canonicalize-request-fingerprints`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An idempotency implementation MUST derive its fingerprint from canonical mapped command input, route identity, and the authenticated actor identifier, excluding credentials and the client key.
 
@@ -168,6 +215,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#protect-fingerprint-source-data`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** An idempotency implementation MUST store a cryptographic hash when support does not require original sensitive request content.
 
 **Rationale:** The fingerprint needs to compare requests, not to show what they contained. A cryptographic hash preserves the comparison while the original sensitive content stays out of the store. Support keeps original content only where it needs the original to help.
@@ -177,6 +228,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Replay Completed Results
 
 **ID:** `litespec/ext/concurrency#replay-completed-results`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** A completed idempotent retry MUST return the original response status and body.
 
@@ -188,6 +243,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#define-concurrent-retry-behavior`
 
+**Strength:** rule
+
 **Statement:** An idempotent use case MUST define whether a concurrent request waits, reports in-progress, or returns a stable conflict.
 
 **Rationale:** An identical request can arrive while the first is still running. The use case states whether the concurrent request waits, learns the work is in progress, or receives a stable conflict. Without one documented result, each implementation invents its own and callers handle all of them.
@@ -197,6 +254,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Reload Concurrent Winners
 
 **ID:** `litespec/ext/concurrency#reload-concurrent-winners`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** A losing concurrent idempotency request MUST reload and replay the winning record when its fingerprint matches.
 
@@ -208,6 +269,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#discard-failed-replay-state`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** A failed pre-commit idempotent request MUST leave neither the business change nor a completed replay record.
 
 **Rationale:** A request that fails before commit changed nothing, so it leaves neither the business change nor a completed replay record. A leftover completed record would replay success for work that never happened. Clean state lets a later retry perform the operation for the first time.
@@ -217,6 +282,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Delay Irreversible Provider Calls
 
 **ID:** `litespec/ext/concurrency#delay-irreversible-provider-calls`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An idempotent operation MUST NOT perform an irreversible provider call before its business transaction commits.
 
@@ -228,6 +297,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#route-required-external-effects-durably`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** An idempotent operation MUST use the outbox extension or a documented provider idempotency contract for required external effects.
 
 **Rationale:** A required external effect has to survive retries without duplicating. The outbox extension delivers it durably after commit, or a documented provider idempotency contract lets the provider absorb the replay. An effect with neither path fires once per retry.
@@ -237,6 +310,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Set Key Retention
 
 **ID:** `litespec/ext/concurrency#set-key-retention`
+
+**Strength:** rule
 
 **Statement:** An idempotency owner MUST record key retention as a setting record set from the caller retry window and business risk.
 
@@ -248,6 +323,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#bound-expired-record-cleanup`
 
+**Strength:** rule
+
 **Statement:** An idempotency owner MUST remove expired records through a bounded maintenance process.
 
 **Rationale:** Expired keys accumulate without cleanup, and cleanup without bounds steals capacity from live work. A bounded maintenance process removes expired records within fixed limits on rate and batch. The store stays small without starving the application.
@@ -257,6 +334,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Retain Safe Retry Keys
 
 **ID:** `litespec/ext/concurrency#retain-safe-retry-keys`
+
+**Strength:** rule
 
 **Statement:** An idempotency owner MUST NOT expire a key before callers can safely retry.
 
@@ -268,6 +347,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#declare-replayed-transport-outcomes`
 
+**Strength:** rule
+
 **Statement:** An idempotent use case MUST list the statuses and headers stored for replay.
 
 **Rationale:** A completed retry reproduces the stored statuses and headers instead of the live ones. The declared list states which statuses and headers the store holds. A reviewer reads the list to learn exactly what a retry can return.
@@ -278,6 +359,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#restrict-replay-data`
 
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
+
 **Statement:** An idempotent implementation MUST store only safe response fields required to reproduce an accepted result.
 
 **Rationale:** The store holds what a retry needs to reproduce the accepted result and nothing more. Each extra field widens the sensitive data held under the key's retention. A field that serves no replay need stays out.
@@ -287,6 +372,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Exclude Unsafe Replay Outcomes
 
 **ID:** `litespec/ext/concurrency#exclude-unsafe-replay-outcomes`
+
+**Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An idempotent implementation MUST NOT replay authentication failures, transient server failures, `Set-Cookie`, `Cache-Control`, `Vary`, `Expires`, `Age`, hop-by-hop headers, tokens, or secrets.
 
@@ -300,6 +389,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#use-the-standard-idempotency-header`
 
+**Strength:** default
+
+**Applies to:** artifact: endpoint
+
 **Default:** Use `Idempotency-Key` for HTTP commands that accept client keys, bounded to 255 characters of visible ASCII.
 
 **Replacement:** A consumer records a client-key convention naming the header and value bounds its commands accept.
@@ -311,6 +404,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Keep Idempotency Persistence in Infrastructure
 
 **ID:** `litespec/ext/concurrency#keep-idempotency-persistence-in-infrastructure`
+
+**Strength:** default
 
 **Default:** Keep idempotency persistence and transaction handling in Infrastructure.
 
@@ -324,6 +419,8 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#map-replay-responses-at-the-api-boundary`
 
+**Strength:** default
+
 **Default:** Keep replay response mapping at the API boundary.
 
 **Replacement:** A consumer records a replay-mapping convention naming where its replay mapping lives.
@@ -335,6 +432,10 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 ### Declare Applicable Headers
 
 **ID:** `litespec/ext/concurrency#declare-applicable-headers`
+
+**Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Declare the idempotency header as required on each applicable HTTP operation.
 

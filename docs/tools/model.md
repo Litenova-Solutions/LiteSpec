@@ -2,12 +2,11 @@
 
 ## Name
 
-`litespec model` builds the project model, checks it, formats record files, renders generated regions, and answers record queries.
+`litespec model` checks the project model, formats record files, renders generated outputs, and answers record queries.
 
 ## Synopsis
 
 ```bash
-litespec model build [--root <consumer>] [--out <file>]
 litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
@@ -16,21 +15,20 @@ litespec model query [--root <consumer>] <id>
 
 ## Description
 
-The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`. `build` runs the checks once on the model it built and writes the result into `model.json` as `findings` and `known`, the same objects `check --format json` writes, so the book reads its findings from the model and needs no separate findings file.
+The model builder reads the written records, the code marks, the routes, the tests, and the latest test run into one model. The model holds every record, each with its identifier and its qualified identifier, and its resolved links. It names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Computed states are never written on a record; the book shows them. The model also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`.
 
-Each screen in `screens` lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. `links.calls` carries one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
+Each screen lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. The `calls` links carry one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
 A proof goes stale when its scenario changes after the proof passed. `.litespec/proof/proofs.json` is committed: for each scenario it holds the scenario hash and its test body's hash at the last passing run. On every later build, a scenario whose hash or test body differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
-The five subcommands share one reader:
+The four subcommands share one reader:
 
-- `build` writes `model.json` under `.litespec/model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`, each requirement, use case, journey, feature and goal with its `completion`, and each screen with its `captures` and `captureState` from the screenshot galleries the project file names.
-- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It prints a summary before the detail: every open blocking finding in full, one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `record-invalid G 3`, and the totals line. With `--release` the release-readiness findings block: `use-case-unverified`. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report; it also reports every client-breaking contract change since `<ref>`: a removed result, a removed refusal code, and a changed integration event: each as a `contract-break` finding of level S, which always blocks.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, and reports those findings in the same shape, so one command and one CI step hold the whole consumer. It prints a summary before the detail: every open blocking finding in full, one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `record-invalid G 3`, and the totals line. With `--release` the release-readiness findings block: `use-case-unverified`. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report; it also reports every client-breaking contract change since `<ref>`: a removed result, a removed refusal code, and a changed integration event: each as a `contract-break` finding of level S, which always blocks.
 - `format` rewrites every record file under the record roots, and the glossary file, into canonical form. With `--check` it writes nothing and lists each file that would change.
-- `render` rewrites the fenced generated regions in explanation files and documents, and touches no text outside them.
-- `query` prints one record with its links in both directions. Agents use it to load a record's context.
+- `render` rewrites the fenced generated regions in explanation files and documents, touching no text outside the fences, and writes `litespec-records.ts` into each React and Svelte frontend frame.
+- `query` prints one record with its links in both directions, showing both its identifier and its qualified identifier. Agents use it to load a record's context.
 
 A finding that an exception covers is reported as known and exits zero, as the [model page](../core/model.md) states under The Model Builder. An exception on a use case also covers the findings about the scenarios and results it holds. An expired exception fails the check.
 
@@ -41,6 +39,8 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `record-invalid` | G | A record file fails to parse, or a record fails the shape its type requires. | Correct the file so it parses and matches the shape its type requires. |
 | `identifier-invalid` | G | An identifier breaks the form its type requires. | Rename the identifier to the required form. |
 | `identifier-duplicate` | G | One identifier names two records. | Give one of the records a new identifier. |
+| `identifier-folder-drift` | G | An identifier's module segment disagrees with its folder. | Rename the identifier to its folder's module and update every citation. |
+| `name-duplicate` | G | One name segment names two records in the product. | Give one of the records a new name. |
 | `field-invalid` | G | A field holds a value outside its shape. | Write the field in its declared shape. |
 | `reference-unknown` | G | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
@@ -50,7 +50,10 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `requirement-measure-missing` | G (A for a statement naming a number with no `measure`) | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
 | `requirement-cites-missing` | G | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
+| `intent-unreached` | G | An Intent record reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
 | `decision-decides-missing` | G | A product decision names nothing it decides. | Name the records the decision decides. |
+| `decision-number-duplicate` | G | Two decisions share one number. | Give one decision the next free number. |
+| `decision-decides-duplicate` | G | Two decisions decide one record. | Keep one decision on the record and move the other. |
 | `use-case-journey-missing` | G | A public use case sits in no journey and names no background caller. It runs at large size only. | Walk the use case in a journey, or name its background caller. |
 | `state-unreached` | G | A state is reached by no transition. | Add a transition that reaches the state, or remove the state. |
 | `transition-unknown` | G | A transition names a missing state or use case. | Point the transition at a written state and a written use case. |
@@ -60,8 +63,6 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `rule-name-invalid` | G | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
 | `exception-expired` | G | An exception stands past its expiresOn date. | Fix the finding, or extend the exception with a new expiresOn date. |
 | `exception-finding-unknown` | G | An exception names a finding code no check emits. | Name a finding code a check emits. |
-| `aggregate-name-clash` | G | Two aggregates share one name across the project. | Give one aggregate a new name. |
-| `use-case-name-clash` | G | Two use cases share one name across the project. | Give one use case a new name. |
 | `use-case-verb-invalid` | G | A query opens with a changing verb, or a command opens with a reading verb. | Open the name with a verb of its kind. |
 | `reaction-name-invalid` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. | Rename the reaction to `<verb>-<what>-on-<fact>` with a declared verb. |
 | `job-name-invalid` | G | A job name does not start with the verb of a use case it runs. | Start the job name with the verb of a use case it runs. |
@@ -77,10 +78,18 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. | Declare the erasure position of the field. |
 | `record-link-missing` | G | A use case, reaction, job, notification or setting names neither `serves` nor `fulfills`. | Link the record with `serves` or `fulfills`. |
 | `record-parent-missing` | G | A feature `solves` names no problem, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
+| `folder-invalid` | G | A folder sits outside the closed set of its layer and level. | Move the folder into the closed set its layer and level allow, or remove it. |
+| `module-undeclared` | G | A `modules/<m>/` folder names no declared module. | Declare the module with a module record, or remove the folder. |
+| `record-placement-invalid` | G | A record sits outside the folder and level its type allows, or a `module.yaml` holds rules. | Move the record to its home, or move the rules to a rule-set file. |
+| `role-orphan` | G | A role is held by no actor. | Hold the role from an actor, or remove the role. |
+| `permission-orphan` | G | A permission is allowed by no role. | Allow the permission from a role, or remove the permission. |
 | `feature-goal-missing` | G | A feature advances no goal. | Advance a goal from the feature. |
 | `result-scenario-missing` | A (G for success results) | A written result is shown by no scenario. | Write a scenario that shows the result. |
 | `step-use-case-missing` | G | A journey step is served by no use case, reaction or job. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. | Serve the step from a use case, a reaction or a job. |
 | `effect-loop-invalid` | G | The effect graph cycles outside a domain event with a stated end condition. | Break the cycle, or route it through a domain event with a stated end condition. |
+| `module-dependency-invalid` | G | Module `dependsOn` links form a cycle. | Break the cycle so one module stops depending on the other. |
+| `link-locality-invalid` | G | Within one layer, a module record is linked from another module outside a declared `dependsOn` or an integration event. | Move the record to product level, or declare the module tie. |
+| `event-publisher-invalid` | G | An integration event has more than one publishing module. | Keep one publishing module and read the event from the other modules. |
 | `consistency-cites-missing` | G | An atomic use case changing more than one aggregate names no rule in `cites`. | Cite the atomicity rule in `cites`. |
 | `query-output-missing` | G | A query declares no `output`. | Declare the `output` of the query. |
 | `paging-undeclared` | G | A collection query declares no `paging`. | Declare the `paging` of the query. |
@@ -105,6 +114,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `mark-count-invalid` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. | Carry the marks the marks table names, each once. |
 | `mark-style-invalid` | S | A C# mark is written in the style the project did not declare. | Rewrite the mark in the declared style. |
 | `mark-folder-drift` | S | A handler, endpoint, event handler, job host or aggregate root marks a use case, reaction, job or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
+| `code-placement-drift` | S | A code element, test, or folder sits outside its record's qualified path, or a folder names no declared record. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. | Match the value to what the record states. |
 | `act-event-undeclared` | S | A root method marked with a use case raises an event the use case does not list in `raises`. | List the event in `raises`, or stop raising it. |
 | `act-event-unimplemented` | S | A use case lists an event in `raises` that no root method marked with it raises. | Raise the event from a marked root method, or remove it from `raises`. |
@@ -168,21 +178,43 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `dependency-count-invalid` | A | A handler, reaction or job takes more than ten constructor dependencies. | Split the handler, reaction, or job until it takes ten dependencies or fewer. |
 | `effect-timing-invalid` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. | Send or call after the commit, from an event handler or a job. |
 | `partial-missing` | S | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. | Declare the domain event or rule exception `partial`. |
+| `project-invalid` | G | The project file breaks the project schema, holds an unfilled template placeholder, or names a release other than the installed tool release. | Write the project file in the declared shape and adopt the installed release. |
+| `project-path-invalid` | G | A configured path is not a path, names no file, or the page scan finds no record or Markdown file. | Point the path at a file that exists. |
+| `stack-invalid` | G | A named stack ships in no pinned release, a client-only project names a backend stack, the backends are not exactly one, a stack requirement is unnamed, or a frontend stack pairs with the wrong backend. | Name the stacks the pinned release ships, in a valid combination. |
+| `extension-invalid` | G | A selected extension ships in no pinned release, or supports a stack the project does not name. | Name an extension the pinned release ships for the selected stacks. |
+| `stage-deferral-invalid` | G | A deferral exception names a provision the pinned release does not ship. | Point the deferral at a provision of the pinned release. |
+| `page-invalid` | G | A record file holds a document type or an article type without its explanation file, or a Markdown file is neither an explanation beside its record nor a document with a frontmatter block. | Keep records in record files with their explanations beside them, and open every document with a frontmatter block. |
+| `page-section-missing` | G | A research or decision explanation, or a document, lacks a required H2 section. | Add the required H2 section. |
+| `page-heading-invalid` | G | A page title or section heading breaks Title Case. | Write the heading in Title Case. |
+| `page-example-too-long` | G | An Example section runs past the 120 word bound. | Shorten the Example section to 120 words. |
+| `glossary-invalid` | G | The glossary is not YAML or breaks the glossary schema. | Write the glossary in the declared shape. |
+| `frontend-invalid` | G | A declared frontend path names no file, or the controlled UI run fails. | Point the frontend path at a folder that exists. |
+| `ui-package-invalid` | G | No shared UI package is declared for the controlled frontends, or the declaration is incomplete or points outside the package. | Declare one shared package with every key pointing inside it. |
+| `ui-baseline-missing` | G | The pinned release names no UI baseline for the package platform. | Adopt a release that pins the UI baseline. |
+| `ui-frontend-invalid` | G | A controlled frontend lacks its `ui` block, names a profile outside the three, or points at a missing path or stylesheet. | Give the frontend a `ui` block with a valid density profile and paths that exist. |
+| `ui-components-invalid` | G | The committed baseline configuration differs from the manifest baseline or adds a registry without an exception. | Match the committed configuration to the manifest baseline. |
+| `ui-sourcelock-invalid` | G | The source lock names an unpinned CLI, a preset or registry outside the baseline, or a copied source whose digest changed. | Match the source lock and its digests to the pinned baseline. |
+| `ui-design-contract-invalid` | G | The design contract lacks its metadata block, breaks the metadata shape, or misses a required section. | Write the contract with its metadata block and required sections. |
+| `ui-stylesheet-invalid` | G | A stylesheet declares a feature style, a literal color, an unapproved import, or malformed CSS, or a source file carries an inline style. | Keep feature styles in shared components and tokens in the token stylesheet. |
+| `ui-class-invalid` | G | A class string carries an arbitrary value, a raw palette value, or an important modifier. | Use a semantic token or a declared variant. |
+| `ui-import-invalid` | G | Application code reaches a primitive library, an internal package path, or a table library directly. | Reach shared UI through the public entry points only. |
+| `ui-dependency-invalid` | G | A second general-purpose visual dependency lacks an exception. | Depend on one visual system, or record an exception. |
+| `ui-catalog-invalid` | G | The pattern catalog is missing, breaks its schema, or names an unknown pattern, option, or component path. | Write the catalog against the LiteSpec pattern pages. |
+| `ui-route-suite-missing` | G | A route has no route suite proving it in a browser. | Prove every route in the route suite. |
 
-The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `alert-inventory`, `runbook-index`, and `operations-log`.
+The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `alert-inventory`, `runbook-index`, and `operations-log`. It also writes `litespec-records.ts` into every React and Svelte frontend frame: the use-case and screen ids of that frontend's own entry points with the `proves` helper browser tests annotate with.
 
 ## Arguments
 
 | Argument | Required | Effect |
 |:---|:---|:---|
-| `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
+| `<id>` | for `query` | Prints the record with this identifier or qualified identifier and its links both ways. |
 
 ## Options
 
 | Option | Default | Effect |
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | Selects the consumer repository to read. |
-| `--out <file>` | `.litespec/model/model.json` under the root | Writes the model to this file instead. Only `build` reads it. |
 | `--format <name>` | human lines | Only `check` reads it. It accepts `json` and writes the findings as one JSON object. |
 | `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified`. |
 | `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. |
@@ -199,19 +231,13 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 
 ## Examples
 
-Build the model for a consumer:
-
-```bash
-litespec model build --root ../consumer
-```
-
 Check the model and read the findings from another program:
 
 ```bash
 litespec model check --root ../consumer --format json
 ```
 
-Render the generated regions after a record change:
+Render the generated outputs after a record change:
 
 ```bash
 litespec model render --root ../consumer
@@ -235,6 +261,12 @@ Print one record with its links:
 litespec model query --root ../consumer use-case/orders.cancel-order
 ```
 
+Print one record by its qualified identifier:
+
+```bash
+litespec model query --root ../consumer finance/problem/organizers-wait-for-ticket-money
+```
+
 Check for release, with the release-readiness findings blocking:
 
 ```bash
@@ -249,6 +281,6 @@ litespec model check --root ../consumer --since main
 
 ## Underneath
 
-A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
+A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per command run that builds the model, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.json`. It reads shared provisions from the release the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. A check `--since` base is read through an archive into a temporary folder, which is removed after the check. Nothing beneath it is separately runnable.

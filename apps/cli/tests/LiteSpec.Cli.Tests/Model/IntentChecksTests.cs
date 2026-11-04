@@ -8,10 +8,10 @@ namespace LiteSpec.Tests.Model;
 public sealed class IntentChecksTests
 {
     /// <summary>The problem record file of the large fixture.</summary>
-    const string ProblemFile = ".litespec/product/problems/overdue-loans-pile-up.yaml";
+    const string ProblemFile = ".litespec/intent/problems/overdue-loans-pile-up.yaml";
 
     /// <summary>The journey record file of the large fixture.</summary>
-    const string JourneyFile = ".litespec/product/journeys/borrow-and-return.yaml";
+    const string JourneyFile = ".litespec/intent/journeys/borrow-and-return.yaml";
 
     /// <summary>A problem whose primary sufferer belongs to the team blocks with problem-sufferer-invalid.</summary>
     /// <proves>litespec/core/intent#admit-only-outside-pains-as-problems</proves>
@@ -21,7 +21,7 @@ public sealed class IntentChecksTests
         using var fixture = ModelFixture.Prepare("large");
         TestRecords.Write(
             fixture.Path,
-            ".litespec/behavior/actors/platform-staff.yaml",
+            ".litespec/intent/actors/platform-staff.yaml",
             """
             {
               "type": "actor",
@@ -67,7 +67,7 @@ public sealed class IntentChecksTests
         using var fixture = ModelFixture.Prepare("large");
         TestRecords.Write(
             fixture.Path,
-            ".litespec/behavior/actors/visitor.yaml",
+            ".litespec/intent/actors/visitor.yaml",
             """
             {
               "type": "actor",
@@ -92,7 +92,7 @@ public sealed class IntentChecksTests
         using var fixture = ModelFixture.Prepare("large");
         TestRecords.Write(
             fixture.Path,
-            ".litespec/product/goals/more-members.yaml",
+            ".litespec/intent/goals/more-members.yaml",
             """
             {
               "type": "goal",
@@ -134,9 +134,9 @@ public sealed class IntentChecksTests
     public void Undefined_Capitalized_Phrase_Advises()
     {
         using var fixture = ModelFixture.Prepare("large");
-        TestRecords.Explain(fixture.Path, ".litespec/behavior/actors/librarian.md", "# Librarian\n\nDesign Partners meet at the desk each month.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/behavior/actors/reader.md", "# Reader\n\nDesign Partners borrow first each season.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/product/problems/overdue-loans-pile-up.md", "# Overdue Loans Pile Up\n\nDesign Partners report lost due dates at the desk.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/librarian.md", "# Librarian\n\nDesign Partners meet at the desk each month.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/reader.md", "# Reader\n\nDesign Partners borrow first each season.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/problems/overdue-loans-pile-up.md", "# Overdue Loans Pile Up\n\nDesign Partners report lost due dates at the desk.\n");
 
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
@@ -149,11 +149,9 @@ public sealed class IntentChecksTests
     public void Model_Writes_Evidence_Strength()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "build", "--root", fixture.Path);
+        var model = ModelBuilder.Build(ConsumerConfig.Load(fixture.Path));
 
-        Assert.Equal(0, result.Status);
-        var model = File.ReadAllText(Path.Combine(fixture.Path, ".litespec/model", "model.json"));
-        Assert.Contains("\"evidenceStrength\": \"reported\"", model);
+        Assert.Contains("\"evidenceStrength\": \"reported\"", model.ToJson());
     }
 
     /// <summary>Reads one fixture record file as a JSON object.</summary>

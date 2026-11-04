@@ -206,9 +206,10 @@ internal static class OperationsChecks
 
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
-    ///     the carried release on an applied page, or a decision or exception.
+    ///     the carried release on an applied page, which no selected extension
+    ///     replaces, or a decision or exception.
     /// </summary>
-    /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and every record.</param>
+    /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and provisions and every record.</param>
     /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
     /// <param name="mark">The follows mark read from the operations file.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -228,6 +229,12 @@ internal static class OperationsChecks
                 && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
             {
                 findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
+            }
+            else if (model.AppliedProvisions.Count > 0
+                && Authoring.Provisions.Parse(id) is { }
+                && !model.AppliedProvisions.Contains(id))
+            {
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which a selected extension replaces.", mark.File, mark.Line, id));
             }
 
             return;

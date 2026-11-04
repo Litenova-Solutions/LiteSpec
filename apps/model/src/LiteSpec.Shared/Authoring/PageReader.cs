@@ -520,6 +520,71 @@ public sealed class PageReader
         return false;
     }
 
+    /// <summary>Whether the line is a scope line with the field it declares.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <param name="rest">The declared field with its values, when the line is a scope line.</param>
+    /// <returns>True when the line is a scope line.</returns>
+    public static bool TryParseScopeLine(string line, out string rest)
+    {
+        rest = "";
+        const string stackPrefix = "**Stack:**";
+        const string layerPrefix = "**Layer:**";
+        string? field = null;
+        string? values = null;
+        if (line.StartsWith(stackPrefix, StringComparison.Ordinal))
+        {
+            field = "stack";
+            values = line[stackPrefix.Length..].Trim();
+        }
+        else if (line.StartsWith(layerPrefix, StringComparison.Ordinal))
+        {
+            field = "layer";
+            values = line[layerPrefix.Length..].Trim();
+        }
+
+        if (field is null)
+        {
+            return false;
+        }
+
+        rest = $"{field}: {values}";
+        return true;
+    }
+
+    /// <summary>Whether the line is a Strength line with the strength it names.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <param name="strength">The named strength, when the line is a Strength line.</param>
+    /// <returns>True when the line is a Strength line.</returns>
+    public static bool TryParseStrengthLine(string line, out string strength)
+    {
+        strength = "";
+        const string prefix = "**Strength:**";
+        if (!line.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        strength = line[prefix.Length..].Trim();
+        return true;
+    }
+
+    /// <summary>Whether the line is an Applies to line with the fields it narrows.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <param name="rest">The narrowed fields, when the line is an Applies to line.</param>
+    /// <returns>True when the line is an Applies to line.</returns>
+    public static bool TryParseAppliesToLine(string line, out string rest)
+    {
+        rest = "";
+        const string prefix = "**Applies to:**";
+        if (!line.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        rest = line[prefix.Length..].Trim();
+        return true;
+    }
+
     /// <summary>Reads the label a paragraph opens with.</summary>
     /// <param name="inline">The paragraph content.</param>
     /// <returns>The label name, or null when the paragraph opens with no label.</returns>

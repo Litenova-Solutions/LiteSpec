@@ -25,4 +25,5 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
 - [Scope](scope.md): the one size, one shape, and stacks each project selects.
 - [Stacks](stacks.md): what selecting a stack applies, and what each stack folder holds.
+- [Provision Scopes](scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Maintaining](maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.

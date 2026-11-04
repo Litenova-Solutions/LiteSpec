@@ -2,11 +2,11 @@ type: problem
 id: problem/expenses-wait-weeks
 title: Expenses Wait Weeks
 affects:
-  - actor/employee
+- actor/employee
 summary: Submitted expenses wait weeks for a decision, so employees chase managers by email. Decisions arrive late without notice.
 statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
 evidence:
-  - claim: Employees wait three weeks on average for reimbursement.
-    source: research/approval-time-benchmarks
-    readOn: 2026-11-01
-    kind: reported
+- claim: Employees wait three weeks on average for reimbursement.
+  source: research/approval-time-benchmarks
+  readOn: 2026-11-01
+  kind: reported

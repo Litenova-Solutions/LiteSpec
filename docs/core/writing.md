@@ -1,5 +1,8 @@
 # Writing
 
+**Stack:** any
+**Layer:** workspace
+
 ## Intent
 
 Writing states how every project writes its records, explanation files and documentation pages, so a reader who arrives cold on one page still learns who acts, what is at stake and what holds. Authors and agents apply it to every record value, explanation file, document, code comment, changelog and decision record. The [Record Language](language.md) page states the names, values and codes of project records; this page states the prose.
@@ -64,6 +67,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-for-the-reader-who-arrives-cold`
 
+**Strength:** rule
+
 **Statement:** Every record, explanation section and documentation page MUST open by naming who it concerns and what is at stake, before any pointer to another page.
 
 **Rationale:** Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration.
@@ -75,6 +80,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Put the Actor First
 
 **ID:** `litespec/core/writing#put-the-actor-first`
+
+**Strength:** rule
 
 **Statement:** Every sentence in a record MUST name its actor as its subject, in the active voice and the present tense.
 
@@ -88,6 +95,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#use-literal-words`
 
+**Strength:** rule
+
 **Statement:** Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.
 
 **Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.
@@ -99,6 +108,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Keep Each Record Sentence Within Twenty-Five Words
 
 **ID:** `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words`
+
+**Strength:** rule
 
 **Statement:** Every sentence in a record `statement` or `summary` MUST hold at most 25 words.
 
@@ -112,6 +123,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#give-each-paragraph-one-idea`
 
+**Strength:** rule
+
 **Statement:** Every paragraph in an explanation file or document MUST carry one idea, on one line in Markdown, with a list only where the items are truly parallel.
 
 **Rationale:** A paragraph that holds a rule, an exception and a fallback in one block forces the reader hunting for one of them to untangle all three. One idea per paragraph puts each fact where a scanning reader finds it, and one line per paragraph keeps diffs readable, so a changed sentence shows as one changed line. A list drawn from prose that is not parallel hides the reasoning that connects its items; connected reasoning stays in prose, and only parallel items become a list.
@@ -123,6 +136,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Apply Plain Mechanics
 
 **ID:** `litespec/core/writing#apply-plain-mechanics`
+
+**Strength:** rule
 
 **Statement:** Every page MUST use American spelling, the serial comma, numerals for numbers of 10 and above and for every quantity with a unit, ISO dates in fields and long-form dates in prose, straight quotes, and ASCII characters only.
 
@@ -136,6 +151,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-every-record-title-in-title-case`
 
+**Strength:** rule
+
 **Statement:** Every record title MUST use Title Case, carry no final period, and hold at most eight words.
 
 **Rationale:** A title is the record's name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming who and the pain. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
@@ -147,6 +164,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Name Each Title in Its Record Type Form
 
 **ID:** `litespec/core/writing#name-each-title-in-its-record-type-form`
+
+**Strength:** rule
 
 **Statement:** Every record title MUST name its subject literally in the one title form the title-form table gives its record type.
 
@@ -160,6 +179,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#state-each-statement-without-modal-words`
 
+**Strength:** rule
+
 **Statement:** Every record `statement` MUST hold one sentence in the present tense with no modal word.
 
 **Rationale:** A statement states what holds, as a fact a builder implements. A modal word such as must, should, shall, may, can or will turns the fact into an intention, a permission or a promise, and each reader grades its strength differently. One sentence keeps one commitment per statement, so a change to one commitment changes one statement. The value style on the [Record Language](language.md) page states the same form; this provision states the prose reason and the check covers every record type.
@@ -171,6 +192,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Open Each Summary with Who and What Is at Stake
 
 **ID:** `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`
+
+**Strength:** rule
 
 **Statement:** Every `summary` MUST restate who it concerns and what is at stake in its first sentence, with any pointer to another page after that content.
 
@@ -184,6 +207,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#keep-company-facts-out-of-intent-prose`
 
+**Strength:** rule
+
 **Statement:** Intent prose MUST state only behavior the application performs, data it holds, or a limit it enforces, with no schedule, effort, headcount, price as a company offer, market fact or launch date.
 
 **Rationale:** Intent records state what the product promises, and a promise mixed with how the company runs buries the product fact a builder came for. A launch date in a problem, a headcount in a goal, or a price list in a feature reads as part of the promise and changes with every company change, even when the product behavior stands still. Company facts enter only as a constraint the application enforces or as dated research, where their form states what they are. The scope boundary itself lives on the [Scope](scope.md) and [Intent](intent.md) pages; this provision states the prose consequence.
@@ -195,6 +220,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Give Each Explanation File Its Fixed Sections
 
 **ID:** `litespec/core/writing#give-each-explanation-file-its-fixed-sections`
+
+**Strength:** rule
 
 **Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
 
@@ -208,6 +235,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-each-documentation-page-as-one-kind`
 
+**Strength:** rule
+
 **Statement:** Every documentation page MUST do one of the four documentation jobs, open as that kind opens, and state its reader and its purpose in its first lines.
 
 **Rationale:** A tutorial that stops to explain a trade-off loses the reader mid-path, and a reference page that teaches leaves the reader hunting for the value they came to look up. One job per page puts each fact where its reader looks for it, and the opening tells a reader from a search result within two sentences whether this page answers their question. A README earns its first screen the same way: what the folder holds, who reads it, and where each reader goes next, before any file list. The page styles and their sections live in the [Authoring Standard](authoring.md); this provision states the prose each kind opens with.
@@ -219,6 +248,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Comment on Why, Not What
 
 **ID:** `litespec/core/writing#comment-on-why-not-what`
+
+**Strength:** rule
 
 **Statement:** Every code comment and API summary MUST state why the code is as it is or what the code cannot express, with no commented-out code and no history.
 
@@ -232,6 +263,8 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-each-changelog-as-a-release-comparison`
 
+**Strength:** rule
+
 **Statement:** Every changelog entry MUST state the present behavior, who it affects and what the reader does, comparing with the previous release only inside the changelog.
 
 **Rationale:** A changelog serves a reader deciding whether to upgrade and a reader checking what changed after upgrading, and both need the observable change, its condition and the required action, never an inventory of the work. Stating the present state first lets every other page describe what is true today without carrying a former behavior; the changelog is the one place where the comparison with the previous release belongs. A breaking change, a removal and a security fix each state what stops working, who is affected, and the replacement or action, in the entry itself rather than behind a link.
@@ -243,6 +276,10 @@ A code comment states why the code is as it is, or what the code cannot express 
 ### Compare Real Options in Each Decision Record
 
 **ID:** `litespec/core/writing#compare-real-options-in-each-decision-record`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** Every decision record MUST compare its real options on their merits in Context and Options Considered, then state the chosen outcome and what would reopen it.
 

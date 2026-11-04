@@ -32,8 +32,11 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
             return;
         }
 
-        var layer = LayerResolver.Resolve(context.Compilation, context.Options);
-        var state = TraceabilityContext.GetOrCreate(context.Compilation, layer, store);
+        var state = TraceabilityContext.GetOrCreate(
+            context.Compilation,
+            FileScope.DeclaredLayout(context.Options),
+            FileScope.DeclaredLayer(context.Options),
+            store);
 
         RegisterTraceability(context, state);
     }

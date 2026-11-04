@@ -7,21 +7,21 @@ access:
   grant: permission/list-expenses
   tenant: own
 serves:
-  - journey/submit-and-reimburse#s5
+- journey/submit-and-reimburse#s5
 fulfills:
-  - requirement/approval.decided-within-five-days
+- requirement/approval.decided-within-five-days
 reachedThrough:
-  - entry-point/claimwick-app
+- entry-point/claimwick-app
 raises: []
 output:
   include:
     rows:
       fields:
-        - name: expenses
-          meaning: "The set of rows with one row per expense: its identity, amount, currency, state and submission time, newest first."
+      - name: expenses
+        meaning: "The set of rows with one row per expense: its identity, amount, currency, state and submission time, newest first."
       classification: internal
       reads:
-        - aggregate/spending.expense
+      - aggregate/spending.expense
       freshness:
         mode: immediate
 paging:
@@ -31,20 +31,20 @@ paging:
   defaultLimit: 25
   maxLimit: 100
 reads:
-  - aggregate/spending.expense
+- aggregate/spending.expense
 idempotency:
   mode: none
   reason: the query reads expenses without changing them
 records:
-  - type: result
-    id: result/list-expenses.listed
-    title: Listed
-    outcome: success
-    meaning: The expenses are listed.
-  - type: scenario
-    id: scenario/list-expenses.listing-own-expenses-succeeds
-    title: Listing Own Expenses Succeeds
-    given: An employee submitted two expenses.
-    when: The employee lists their expenses.
-    then: Both expenses are listed.
-    result: result/list-expenses.listed
+- type: result
+  id: result/list-expenses.listed
+  title: Listed
+  outcome: success
+  meaning: The expenses are listed.
+- type: scenario
+  id: scenario/list-expenses.listing-own-expenses-succeeds
+  title: Listing Own Expenses Succeeds
+  given: An employee submitted two expenses.
+  when: The employee lists their expenses.
+  then: Both expenses are listed.
+  result: result/list-expenses.listed

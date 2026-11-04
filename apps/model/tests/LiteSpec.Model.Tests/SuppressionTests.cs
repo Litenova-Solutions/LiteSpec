@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class SuppressionTests
 {
     /// <summary>An open exception moves its covered finding to known.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Open_Exception_Covers_Its_Finding()
     {
@@ -44,7 +44,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>An expired exception keeps its finding reported.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Expired_Exception_Keeps_Its_Finding()
     {
@@ -80,7 +80,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>An exception holds only the codes it covers, not every finding on its subject.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Exception_Covers_Only_Its_Codes()
     {
@@ -116,7 +116,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>A paths glob holds a finding on a matching file, even with no subject.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Paths_Glob_Covers_A_Subjectless_Finding()
     {
@@ -152,7 +152,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>A paths glob keeps a finding on a file outside the glob reported.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Paths_Glob_Misses_Another_Folder()
     {
@@ -188,7 +188,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>A departure holds the codes its provision governs.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Departure_Covers_Its_Provisions_Codes()
     {
@@ -231,7 +231,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>A departure holds nothing when no provision lookup is given.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Departure_Covers_Nothing_Without_A_Lookup()
     {
@@ -267,7 +267,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>An expiry finding is never held, even on the exception's own subject.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Expiry_Finding_Is_Never_Held()
     {
@@ -303,7 +303,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>An exception naming a use case also holds findings about its scenarios.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Use_Case_Subject_Covers_Its_Scenario()
     {

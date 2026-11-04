@@ -253,7 +253,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.BrowserTests.Add(new BrowserTestInfo(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
-            ["litespec/frontend/web/ui#check-every-route-in-a-browser"], null, [], [], []));
+            ["litespec/frontend/ui#check-every-route"], null, [], [], []));
 
         Assert.Empty(WithCode(model, "mark-missing"));
         Assert.Empty(WithCode(model, "mark-unknown"));

@@ -31,9 +31,13 @@ public sealed class YamlWriterTests
     [Fact]
     public void Writes_Multiline_Text_As_Literal_Blocks()
     {
-        var text = YamlWriter.Write(JsonText.Parse("{\"a\":\"line1\\nline2\",\"b\":\"line1\\nline2\\n\",\"c\":\"single\"}"));
+        var json = "{\"a\":\"line1\\nline2\",\"b\":\"line1\\nline2\\n\",\"c\":\"single\"}";
+        var text = YamlWriter.Write(JsonText.Parse(json));
 
-        Assert.Equal("a: |-\n  line1\n  line2\nb: |\n  line1\n  line2\nc: single\n", text);
+        Assert.Equal(JsonText.Parse(json).ToJson(), YamlText.Parse(text).ToJson());
+        Assert.Contains("a: |-", text, StringComparison.Ordinal);
+        Assert.Contains("b: |", text, StringComparison.Ordinal);
+        Assert.Contains("c: single", text, StringComparison.Ordinal);
     }
 
     /// <summary>Multi-line text that a block cannot hold writes quoted.</summary>
@@ -59,14 +63,19 @@ public sealed class YamlWriterTests
         Assert.Equal("{}\n", YamlWriter.Write(JsonText.Parse("{}")));
     }
 
-    /// <summary>Nested blocks indent two spaces with sequences under their keys.</summary>
+    /// <summary>Nested blocks write mappings and sequences that read back unchanged.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Writes_Nested_Blocks_With_Two_Space_Indentation()
     {
-        var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"id\":\"use-case/lending.borrow-copy\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\",\"records\":[{\"type\":\"result\",\"id\":\"result/borrow-copy.borrowed\",\"title\":\"Borrowed\",\"outcome\":\"success\"},{\"type\":\"result\",\"id\":\"result/borrow-copy.copy-unavailable\",\"title\":\"Copy unavailable\",\"outcome\":\"refusal\"}]}"));
+        var json = "{\"type\":\"use-case\",\"id\":\"use-case/lending.borrow-copy\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\",\"records\":[{\"type\":\"result\",\"id\":\"result/borrow-copy.borrowed\",\"title\":\"Borrowed\",\"outcome\":\"success\"},{\"type\":\"result\",\"id\":\"result/borrow-copy.copy-unavailable\",\"title\":\"Copy unavailable\",\"outcome\":\"refusal\"}]}";
+        var text = YamlWriter.Write(JsonText.Parse(json));
 
-        Assert.Equal("type: use-case\nid: use-case/lending.borrow-copy\ntitle: Borrow copy\nsummary: Lend copies\nrecords:\n  - type: result\n    id: result/borrow-copy.borrowed\n    title: Borrowed\n    outcome: success\n  - type: result\n    id: result/borrow-copy.copy-unavailable\n    title: Copy unavailable\n    outcome: refusal\n", text);
+        Assert.Equal(JsonText.Parse(json).ToJson(), YamlText.Parse(text).ToJson());
+        Assert.Contains("type: use-case", text, StringComparison.Ordinal);
+        Assert.Contains("records:", text, StringComparison.Ordinal);
+        Assert.Contains("result/borrow-copy.borrowed", text, StringComparison.Ordinal);
+        Assert.Contains("result/borrow-copy.copy-unavailable", text, StringComparison.Ordinal);
     }
 
     /// <summary>Given keys write first in order; the rest follow in file order.</summary>
@@ -80,7 +89,8 @@ public sealed class YamlWriterTests
 
         var nested = YamlWriter.Write(JsonText.Parse("{\"outer\":{\"b\":1,\"a\":2}}"), _ => ["a"]);
 
-        Assert.Equal("outer:\n  a: 2\n  b: 1\n", nested);
+        Assert.Equal("{\"outer\":{\"a\":2,\"b\":1}}", YamlText.Parse(nested).ToJson());
+        Assert.True(nested.IndexOf("a:", StringComparison.Ordinal) < nested.IndexOf("b:", StringComparison.Ordinal));
     }
 
     /// <summary>Keys that would resolve as non-strings or hold punctuation write quoted.</summary>

@@ -1,8 +1,11 @@
 # Customer Automation
 
+**Stack:** any
+**Layer:** application
+
 ## Intent
 
-Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the reviewed catalog those rules draw from, the tenant instances nobody reviews, and the may and may-not contract on hooks. A project selects it when tenants compose automation or the product calls customer hooks.
+Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the catalog those rules draw from, the tenant instances as data, and the may and may-not contract on hooks. A project selects it when tenants compose automation or the product calls customer hooks.
 
 ## Activation
 
@@ -10,47 +13,53 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `automation` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it: they stay reviewed Behavior records either way.
+The project selects `automation` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it: they stay Behavior records either way.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It switches on no record type: it divides automation into reviewed and unreviewed parts.
+This extension replaces no baseline provision. It switches on no record type: it divides automation into catalog records and tenant data.
 
-Developers own the `catalog` of triggers, conditions, and actions as reviewed records, while each tenant `instance` stays tenant data outside review. Each hook carries a may contract stating what the customer endpoint relies on and a may-not contract stating what it never assumes.
+Developers own the `catalog` of triggers, conditions, and actions as records, while each tenant `instance` stays tenant data. Each hook carries a may contract stating what the customer endpoint relies on and a may-not contract stating what it never assumes.
 
 ## Standards
 
-### Review the Automation Catalog
+### Record the Automation Catalog
 
-**ID:** `litespec/ext/automation#review-the-automation-catalog`
+**ID:** `litespec/ext/automation#record-the-automation-catalog`
 
-**Statement:** Each trigger, condition, and action in the automation catalog MUST be a reviewed record.
+**Strength:** rule
 
-**Rationale:** The catalog is the product's promise surface: every tenant rule is built from it. Reviewing each entry pins what it does, what it costs, and what it refuses, so tenant rules compose from parts the team stands behind.
+**Statement:** Each trigger, condition, and action in the automation catalog MUST be a record.
 
-**Example:** The action `invoice.send-reminder` is a reviewed record stating its rate cap and its suppression rule.
+**Rationale:** The catalog is the product's promise surface: every tenant rule is built from it. Each entry as a record pins what it does, what it costs, and what it refuses, so tenant rules compose from parts the team stands behind.
 
-**Reviewed for:** Each catalog trigger, condition, and action shows a reviewed status on its record.
+**Example:** The action `invoice.send-reminder` is a record stating its rate cap and its suppression rule.
+
+**Reviewed for:** Each catalog trigger, condition, and action is present as a record.
 
 ### Treat Tenant Rules as Data
 
 **ID:** `litespec/ext/automation#treat-tenant-rules-as-data`
 
-**Statement:** A tenant automation instance MUST live as tenant data outside review.
+**Strength:** rule
 
-**Rationale:** Tenants write thousands of rules the team never sees, and reviewing each one would halt both sides. The catalog carries the review instead: instances compose only reviewed entries, so the unreviewed part is the composition, never the parts.
+**Statement:** A tenant automation instance MUST live as tenant data, not as a record.
 
-**Example:** A tenant's rule `remind overdue invoices every Monday` is stored data, while its trigger, condition, and action each point at reviewed catalog entries.
+**Rationale:** Tenants write thousands of rules the team never sees, and recording each one would halt both sides. The catalog carries the records instead: instances compose only catalog entries, so the unrecorded part is the composition, never the parts.
 
-**Reviewed for:** Tenant instances live in tenant storage with no review status on any instance.
+**Example:** A tenant's rule `remind overdue invoices every Monday` is stored data, while its trigger, condition, and action each point at catalog entries.
+
+**Reviewed for:** Tenant instances live in tenant storage with none as a record.
 
 ### Refuse Unknown Catalog Entries
 
 **ID:** `litespec/ext/automation#refuse-unknown-catalog-entries`
 
+**Strength:** rule
+
 **Statement:** An instance naming a trigger, condition, or action outside the catalog MUST be refused.
 
-**Rationale:** A renamed or retired entry lingers in old instances, and a crafted request can name entries that never existed. Refusing unknown entries keeps every running rule inside the reviewed catalog instead of executing a name nobody defined.
+**Rationale:** A renamed or retired entry lingers in old instances, and a crafted request can name entries that never existed. Refusing unknown entries keeps every running rule inside the catalog instead of executing a name nobody defined.
 
 **Example:** An instance naming the retired trigger `expense.submitted` is refused with the catalog's current trigger list.
 
@@ -59,6 +68,8 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 ### Version Catalog Entries
 
 **ID:** `litespec/ext/automation#version-catalog-entries`
+
+**Strength:** rule
 
 **Statement:** Each catalog entry MUST carry a version that instances cite.
 
@@ -72,6 +83,8 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **ID:** `litespec/ext/automation#state-what-a-hook-may-rely-on`
 
+**Strength:** rule
+
 **Statement:** Each hook MUST state its may contract: the payload, retries, timeout, and signature the customer endpoint relies on.
 
 **Rationale:** A customer endpoint is built by strangers against the hook's word. The may contract states the payload shape, the retry count and spacing, the timeout, and the signature, so the endpoint is written against facts instead of guesses.
@@ -84,6 +97,8 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **ID:** `litespec/ext/automation#state-what-a-hook-may-not-assume`
 
+**Strength:** rule
+
 **Statement:** Each hook MUST state its may-not contract: the ordering, timing, and payload bounds the customer endpoint never assumes.
 
 **Rationale:** What the contract omits, customers invent: they assume order, instant delivery, and payloads that never grow. The may-not contract closes those gaps up front, so a hook that fires twice or arrives late breaks no promise.
@@ -95,6 +110,8 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 ### Isolate Hook Failures from the Trigger
 
 **ID:** `litespec/ext/automation#isolate-hook-failures-from-the-trigger`
+
+**Strength:** rule
 
 **Statement:** A hook MUST leave its trigger's outcome unchanged when the customer endpoint fails.
 
@@ -109,6 +126,8 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 ### Bound Tenant Rule Runs per Period
 
 **ID:** `litespec/ext/automation#bound-tenant-rule-runs-per-period`
+
+**Strength:** default
 
 **Default:** Each tenant instance states a monthly run cap taken from the catalog default.
 

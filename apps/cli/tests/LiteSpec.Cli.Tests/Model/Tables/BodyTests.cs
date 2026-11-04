@@ -1,5 +1,5 @@
 using System.Text.Json;
-using LiteSpec.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Tests.Model.Tables;
 
@@ -27,11 +27,10 @@ public sealed class BodyTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static JsonElement Record(JsonDocument document, string id) =>

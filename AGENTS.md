@@ -23,7 +23,9 @@ LiteSpec is clean, plain, straightforward and, above all, consistent. Every chan
 5. **Straightforward.** The rule comes first, then the reason, then one concrete example from the Claimwick expense product or the library product. Plain words, short sentences, and the obvious name for each thing.
 6. **Readable cold.** Every page, record and book page stands alone for a reader who arrives from a link with nothing read before it: it says what kind of thing it is, who it concerns and what is at stake before it points anywhere else. A field a reader needs gets a place in the record type, never a convention in prose. (`litespec/core/writing#write-for-the-reader-who-arrives-cold`)
 7. **The product, not the company.** LiteSpec specifies the application: behavior it performs, data it holds and limits it enforces. Running the company (prices as an offer, markets, sales, hiring, launch dates, founder risks) stays out; it enters only as a constraint or as dated research. Engineering practice a small project can skip lives in the opt-in `delivery` extension.
-8. **Completion before approval.** What a reader asks first is how much of a thing exists and is proven. Compute it from the model and show it first; approval is the accountable decision beside it, not the headline.
+8. **Completion is computed.** What a reader asks first is how much of a thing exists and is proven. The model computes it from code, tests and passing scenarios, and nobody types it.
+9. **Guidance states its strength.** Every provision says whether it is a rule, a default or advice, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+10. **Tools stay small.** A command, check, generated file or package exists because the owner approved it, and is removed when nothing uses it.
 
 LiteSpec serves many projects. Never name a consumer project in it.
 
@@ -32,7 +34,7 @@ LiteSpec serves many projects. Never name a consumer project in it.
 | Repository | You change | You run |
 |:---|:---|:---|
 | LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, the tests |
-| A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec consumer`, `dotnet litespec ui`, `dotnet litespec model`, and the gates its CI selects |
+| A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec model check`, `dotnet litespec book`, `dotnet litespec rules`, and the gates its CI selects |
 
 In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate` and `provisions`.
 
@@ -54,7 +56,7 @@ Sources: `litespec/core/agent#select-task-context`, `litespec/core/agent#read-th
 
 ## Precedence
 
-When guidance overlaps, apply it in this order: a project deviation, a selected extension's replacement, a deeper page, then a shallower page. A deviation carries a reason and a review date.
+When guidance overlaps, apply it in this order: a project deviation, a selected extension's replacement, a deeper page, then a shallower page. A deviation names the provision it replaces and carries a reason and a scope.
 
 If two requirements conflict and nothing above decides, stop. Quote both provision IDs and their paths, and ask for a decision.
 
@@ -64,24 +66,27 @@ Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#s
 
 1. Confirm the scope of the request and which repositories it touches.
 2. Read `git status` and leave unrelated work alone.
-3. Check the manifest before you change a dependency. Add a package only with approval.
-4. Change the record files, explanation files, code, tests, contracts and operations that belong together in one change.
-5. Keep your working files under `.agents/`.
+3. Check the manifest before you change a dependency. Add a package only with owner approval.
+4. Run `litespec rules <path>` before editing a file.
+5. Change the record files, explanation files, code, tests, contracts and operations that belong together in one change.
+6. Keep your working files under `.agents/`.
 
-Don't add an unapproved package, schema migration, authentication change, public break or external side effect.
+Don't add a package the owner has not approved, a schema migration, an authentication change, a public break or an external side effect.
 
-Sources: `litespec/core/agent#make-coherent-scoped-changes`, `litespec/core/agent#inspect-existing-work-before-editing`, `litespec/workspace/dependencies#approve-new-packages-explicitly`, `litespec/core/system#update-records-with-behavior`, `litespec/core/agent#keep-agent-working-files-under-agents`, `litespec/core/agent#restrict-unapproved-side-effects`.
+Sources: `litespec/core/agent#make-coherent-scoped-changes`, `litespec/core/agent#inspect-existing-work-before-editing`, `litespec/workspace/dependencies#approve-new-packages-explicitly`, `litespec/core/system#update-records-with-behavior`, `litespec/core/agent#keep-agent-working-files-under-agents`, `litespec/core/agent#restrict-unapproved-side-effects`, `litespec/core/agent#load-applicable-provisions-before-editing`.
 
 ## Writing
 
 Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check and what the page contract needs: ASCII only, one term per concept from the glossary, capitalized modal words only inside a Statement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases.
 
-Each page uses the sections of its page style. A Standard states one testable obligation. Every provision has the same layout, in this order:
+Each page uses the sections of its page style. A Standard states one testable obligation. Every provision states its strength and where it applies, and has the same layout, in this order:
 
 ```markdown
 ### Keep Shared UI in One Package
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
+
+**Strength:** rule
 
 **Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default and Rationale, with an optional Compact)
 
@@ -92,7 +97,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 **Reviewed for:** ...   (or Checked by: the command, the finding code and the scope)
 ```
 
-The ID line holds the ID the heading derives. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
+The ID line holds the ID the heading derives, and the Strength line states rule, default or advice. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
 
 Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
 
@@ -108,17 +113,17 @@ Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, 
 
 Read the full provision before you apply any of these:
 
-- Use Domain, Application.Abstractions, Application, Infrastructure and WebApi as the application projects. (`litespec/backend/dotnet/architecture#use-five-application-projects`)
+- Use one application project ordered module, then aggregate, then use case. (`litespec/backend/dotnet/architecture#use-one-application-project`)
 - Put a type in the lowest folder that holds every consumer naming it. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`)
 - Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
 - Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
 - Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
 - Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize every architecture layer by the same modules, aggregates and use cases. (`litespec/backend/architecture#organize-every-layer-by-module-and-use-case`)
+- Organize code by module, aggregate and use case. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`)
 - Write commands through repositories, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
 - Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
-- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#select-one-visual-authority`, `litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package`)
+- Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#select-one-visual-authority`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)
 
 ## UI Patterns
 
@@ -134,10 +139,10 @@ Sources: `litespec/frontend/patterns#keep-one-pattern-catalog`, `litespec/fronte
 
 The book is the model made readable, so it follows LiteSpec and adds nothing of its own:
 
-1. Outline it by the record layers (Intent, Behavior, Implementation, Proof) with the governance records beside them, and place each record under the record its identifier and links name.
-2. Label everything with a record type, a field name, a status, or a glossary term.
+1. Outline it by the record layers (Intent, Behavior, Implementation, Proof) with the governance records beside them, and place each record under the record its folder and links name.
+2. Label everything with a record type, a field name, a computed state, or a glossary term.
 3. Explain each term with its glossary definition or its record type's question.
-4. Show only statuses, counts, orders and findings that the builder, a check or the review queue computes.
+4. Show only statuses, counts, orders and findings that the builder or a check computes.
 5. When the book needs a fact LiteSpec does not define, add it to LiteSpec first as a record field, a computed status or a check.
 6. Link every record, code element, test and finding to its file and line.
 
@@ -163,8 +168,8 @@ Sources: `litespec/core/authoring#run-repeatable-authoring-checks`, `litespec/qu
 
 ## Finishing
 
-Compare what the change does with the active records. Report each exact command, its result, what the evidence covers, and every check you skipped with the reason.
+Compare what the change does with the active records. Report each exact command, its result, what the evidence covers, and every check you skipped with the reason. Name the provisions `rules` returned and how each was judged.
 
 Leave no placeholder implementation, `TODO` or untracked generated output.
 
-Sources: `litespec/core/release#report-verification-exactly`, `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/release#regenerate-application-contracts`.
+Sources: `litespec/core/release#report-verification-exactly`, `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/release#regenerate-application-contracts`, `litespec/core/agent#name-judged-provisions-in-the-completion-report`.

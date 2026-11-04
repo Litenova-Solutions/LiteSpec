@@ -57,50 +57,8 @@ static class PageChecks
     /// <param name="run">The state of the run.</param>
     public static void CollectFiles(ConsumerRun run)
     {
-        var glossaryFile = run.GlossaryFile;
-        Walk(run.DocsRoot);
-
-        void Walk(string directory)
-        {
-            if (!Directory.Exists(directory))
-            {
-                return;
-            }
-
-            foreach (var entry in Directory.GetFileSystemEntries(directory).OrderBy(name => name, StringComparer.Ordinal))
-            {
-                var name = Path.GetFileName(entry) ?? "";
-
-                // The generated model and book under the record root hold no pages.
-                if (string.Equals(directory, run.DocsRoot, StringComparison.Ordinal)
-                    && (name is "model" or "book"))
-                {
-                    continue;
-                }
-
-                if (name == "node_modules" || name.StartsWith('.'))
-                {
-                    continue;
-                }
-
-                if (Directory.Exists(entry))
-                {
-                    Walk(entry);
-                }
-                else if (IsScanned(name) && File.Exists(entry) && !entry.Equals(glossaryFile, StringComparison.OrdinalIgnoreCase))
-                {
-                    run.Files.Add(entry);
-                }
-            }
-        }
+        run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, run.GlossaryFile));
     }
-
-    /// <summary>Whether the page scan reads the file: a record file or a Markdown file.</summary>
-    /// <param name="name">The file name.</param>
-    /// <returns>True for a record file or a Markdown file.</returns>
-    static bool IsScanned(string name) =>
-        name.EndsWith(RecordFile.Extension, StringComparison.Ordinal)
-        || name.EndsWith(RecordFile.ExplanationExtension, StringComparison.Ordinal);
 
     /// <summary>
     ///     Validates each record file and each Markdown file. Files are independent, so the

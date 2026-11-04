@@ -1,5 +1,8 @@
 # Mobile Screens and Navigation
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 A mobile app renders its screens with the platform's native views, holds navigation in one controller, and follows the platform's back, inset, and motion behavior. This page states those screen and navigation rules for every mobile stack. A team that applies it while adding screens keeps navigation in one place and every screen behaving the way the platform's users expect.
@@ -16,6 +19,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#render-with-the-platforms-own-views`
 
+**Strength:** rule
+
 **Statement:** A mobile app MUST render every screen with the platform's native UI toolkit, with no product screen in a WebView or a cross-platform UI layer.
 
 **Rationale:** The platform's native toolkit gives each screen the platform's behavior for focus, text input, and accessibility without extra work. A WebView or a cross-platform layer reimplements that behavior and lags behind it, so the screen feels foreign on its own platform. One toolkit also keeps every screen testable through the platform's own device tests.
@@ -26,6 +31,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#own-navigation-in-one-controller`
 
+**Strength:** rule
+
 **Statement:** The current screen, the open overlay, and the history MUST live in one controller per app, with screens raising events instead of navigating.
 
 **Rationale:** One controller holding the current screen, the open overlay, and the history gives every navigation question one answer. A screen that navigates on its own hides a second history no other screen can read, so back behavior and deep links disagree with what the screen shows. Events keep screens decoupled from the controller, so the controller alone decides what each event opens.
@@ -35,6 +42,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 ### Route App Links to Journey Entry Screens
 
 **ID:** `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
+
+**Strength:** rule
 
 **Statement:** A screen a journey can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
 
@@ -48,6 +57,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#follow-the-system-back-gesture`
 
+**Strength:** rule
+
 **Statement:** The system back gesture MUST close the open overlay first, then step back one screen, and leave the app only from the first screen.
 
 **Rationale:** Users learn one back behavior per platform: the gesture dismisses what is on top before it leaves where they are. An app that leaves from a deeper screen, or that traps the gesture on the first screen, breaks a habit the whole platform teaches. Overlay first, then one screen back, then out from the first screen matches that habit on every screen. Each stack page names how the platform's back signal reaches the controller.
@@ -57,6 +68,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 ### Draw Edge to Edge with Insets
 
 **ID:** `litespec/frontend/mobile/screens#draw-edge-to-edge-with-insets`
+
+**Strength:** rule
 
 **Statement:** Screens MUST draw under the system bars and apply the system bar and cutout insets to their controls and text.
 
@@ -68,6 +81,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#honor-reduced-motion`
 
+**Strength:** rule
+
 **Statement:** When the system turns animations off, a screen MUST replace looping motion and video with a still state.
 
 **Rationale:** Some users turn animations off because motion causes discomfort, so a screen that keeps looping motion ignores an explicit request. A still state shows the same content without the movement: the final frame, the resting layout. Applying the system's setting on every screen keeps the whole app honoring one choice.
@@ -78,6 +93,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#release-media-with-its-screen`
 
+**Strength:** rule
+
 **Statement:** A player, animator, or decoded image MUST be released or cancelled when its view leaves the window.
 
 **Rationale:** Media holds memory and hardware the app no longer shows once its view leaves the window. A player that keeps playing, or a decoded image that stays resident, drains the battery and starves the screen the user now sees. Releasing with the view ties each resource's life to the screen that uses it.
@@ -87,6 +104,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 ### Meet Touch and Text Accessibility
 
 **ID:** `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility`
+
+**Strength:** rule
 
 **Statement:** Every interactive view MUST carry a content description, meet a minimum touch target of 48 dp on Android or 44 pt on iOS, and scale its text with the system font scale.
 
@@ -99,6 +118,8 @@ A screen is one full-window state of the app, such as the expense list or the re
 ### Restore the Visitor's Place
 
 **ID:** `litespec/frontend/mobile/screens#restore-the-visitors-place`
+
+**Strength:** default
 
 **Default:** Save the controller's navigation state in the platform's saved-state mechanism so a process recreation returns to the same screen.
 

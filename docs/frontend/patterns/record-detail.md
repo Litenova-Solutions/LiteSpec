@@ -1,5 +1,8 @@
 # Record Detail Patterns
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 One screen shows one record of the product, with its state, facts, history, and the commands a reader may run, and this page holds the patterns for that screen: header, tabs, summary, aside, timeline, relations, refusals, change history, notes, attachments, identifiers, phone header, neighbor movement, and the worked expense example. A team building a record screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared record shape keeps every record readable in the same order, so support finds the state and the next step without hunting.
@@ -20,6 +23,8 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **ID:** `litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header`
 
+**Strength:** rule
+
 **Statement:** A record header wireframe MUST show at most one primary action.
 
 **Rationale:** One primary action names the step readers take most often next on the record, such as Message spender on expense EXP-1042. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong command.
@@ -30,6 +35,8 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **ID:** `litespec/frontend/patterns/record-detail#hold-built-record-headers-to-one-primary-action`
 
+**Strength:** rule
+
 **Statement:** A built record header MUST show at most one primary action.
 
 **Rationale:** The wireframe check stops at the drawing: a built header can still ship two primary actions where the drawing showed one. One primary action on the built header keeps the next step a single answer on the screen readers use.
@@ -39,6 +46,8 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 ### Keep Destructive Commands Out of the Primary Place
 
 **ID:** `litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place`
+
+**Strength:** rule
 
 **Statement:** A destructive command MUST NOT take the primary action's place or style in a record header.
 
@@ -51,6 +60,8 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 ### Record Header
 
 **ID:** `litespec/frontend/patterns/record-detail#record-header`
+
+**Strength:** default
 
 **Question:** One record, stated at the top. A record header always carries a title. It carries a breadcrumb when the record has a parent. It offers exactly one primary action, with everything else secondary beside it. A common failure puts a destructive action where the primary should be.
 
@@ -279,6 +290,8 @@ page
 
 **ID:** `litespec/frontend/patterns/record-detail#record-tabs`
 
+**Strength:** default
+
 **Question:** A record holds at most three sections, and further facets become tabs. A policy record carries four facets. Tab sets stay small, at six at most, and the active tab stays in the URL.
 
 **Default:** `four-tabs-with-the-active-one-in-the-url`
@@ -481,6 +494,8 @@ page
 ### Record Summary
 
 **ID:** `litespec/frontend/patterns/record-detail#record-summary`
+
+**Strength:** default
 
 **Question:** The section at the top of a record answers what the reader is looking at without scrolling. It states the record's identity. A summary that states supporting information answers the wrong question.
 
@@ -697,6 +712,8 @@ page
 ### Record Aside
 
 **ID:** `litespec/frontend/patterns/record-detail#record-aside`
+
+**Strength:** default
 
 **Question:** A record page has an aside slot for what supports the record rather than describing it. An expense record puts its history there, which is the right use. A record with no supporting content leaves the slot empty.
 
@@ -934,6 +951,8 @@ page
 
 **ID:** `litespec/frontend/patterns/record-detail#record-timeline`
 
+**Strength:** default
+
 **Question:** What happened to one record. Entries read newest first. Every entry carries a timestamp and a byline, because the reader asks who did this and when.
 
 **Default:** `newest-first-with-actor-and-timestamp`
@@ -1122,6 +1141,8 @@ page
 ### Related Records
 
 **ID:** `litespec/frontend/patterns/record-detail#related-records`
+
+**Strength:** default
 
 **Question:** An expense belongs to a trip, a spender, and a cost centre. A trip belongs to a client and a schedule. A common failure states the parent in prose in the description rather than linking to it.
 
@@ -1330,6 +1351,8 @@ page
 
 **ID:** `litespec/frontend/patterns/record-detail#record-the-reader-may-not-change`
 
+**Strength:** default
+
 **Question:** Some records refuse some roles. A page a role cannot use shows the refusal with the reason and the grant that helps. The question is whether the refusal covers the whole page or a part of one.
 
 **Default:** `the-commands-are-refused-the-record-is-not`
@@ -1531,6 +1554,8 @@ page
 ### Record Change History
 
 **ID:** `litespec/frontend/patterns/record-detail#record-change-history`
+
+**Strength:** default
 
 **Question:** Several people touch one expense before the week ends. The spender corrects an email. The approver answers. Finance adds a note.
 
@@ -1752,6 +1777,8 @@ page
 
 **ID:** `litespec/frontend/patterns/record-detail#record-notes`
 
+**Strength:** default
+
 **Question:** Finance thinks on the record, not beside it. They record why the receipt was resent. They record what the spender was told. They record what still waits. A note is staff writing with a byline and a time. The reader must always know whether the spender can see it.
 
 **Default:** `a-notes-section-with-the-composer-on-top`
@@ -1916,6 +1943,8 @@ page
 
 **ID:** `litespec/frontend/patterns/record-detail#record-attachments`
 
+**Strength:** default
+
 **Question:** A dispute needs its evidence, a trip needs its receipts, and a policy needs its versions. An attachment is a file the company put on the record, with who added it and when. The reader must know what each file is before opening it.
 
 **Default:** `a-file-list-with-a-drop-zone`
@@ -2069,6 +2098,8 @@ page
 ### Property List with Copy
 
 **ID:** `litespec/frontend/patterns/record-detail#property-list-with-copy`
+
+**Strength:** default
 
 **Question:** Support reads a reference out on the phone and pastes an identifier into a dispute. A property list is a set of labeled values where the identifiers copy with one click. The reader must know the copy landed.
 
@@ -2227,6 +2258,8 @@ page
 ### Record Header on a Phone
 
 **ID:** `litespec/frontend/patterns/record-detail#record-header-on-a-phone`
+
+**Strength:** default
 
 **Question:** Approvers read expenses on a phone between meetings, 390 px wide, one hand free. The header must state which record, what state, and the one step that matters without scrolling sideways or hiding the title.
 
@@ -2387,6 +2420,8 @@ page
 ### Previous and Next Record
 
 **ID:** `litespec/frontend/patterns/record-detail#previous-and-next-record`
+
+**Strength:** default
 
 **Question:** Finance works a queue, not a record. The next expense in the list waits. The next dispute waits for an answer. Moving on must be one step that keeps the list order. The reader never returns to the list merely to open its neighbor.
 
@@ -2558,6 +2593,8 @@ page
 ### Expense Record
 
 **ID:** `litespec/frontend/patterns/record-detail#expense-record`
+
+**Strength:** default
 
 **Question:** The expense is the record finance opens most. Ava submitted EXP-1042. It totals EUR 125.00 for two fares, a booking fee, and breakfast. It must state its lines, its payments, and its reversals in one reading. The money adds up. Every reversal reads against the payment it reverses.
 

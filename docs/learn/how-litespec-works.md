@@ -38,7 +38,7 @@ summary: An employee submits a work expense.
 serves:
   - journey/submit-and-reimburse#s1
 fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval-reminders.receipt-over-threshold
 access:
   grant: permission/submit-expense
   tenant: own

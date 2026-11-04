@@ -5,6 +5,7 @@
 // disagree with each other. Endpoints stay thin: they pick a builder and set
 // the content type.
 import path from "node:path";
+import { groups } from "./areas";
 import {
   appliedPages,
   backendStacks,
@@ -134,43 +135,17 @@ export function layerText(layer: Layer): string {
   return concatenatedMarkdown(entries);
 }
 
-const AREA_ORDER = [
-  "core",
-  "workspace",
-  "quality",
-  "backend",
-  "frontend",
-  "ext",
-  "reference",
-  "tools",
-  "tutorial",
-  "guide",
-];
-
-const AREA_TITLES: Record<string, string> = {
-  core: "Core",
-  workspace: "Workspace",
-  quality: "Quality",
-  backend: "Backend",
-  frontend: "Frontend",
-  ext: "Extensions",
-  reference: "Reference",
-  tools: "Tools",
-  tutorial: "Tutorial",
-  guide: "Guide",
-};
-
 function finish(lines: string[]): string {
   return `${lines.join("\n").replace(/\n+$/, "")}\n`;
 }
 
-/** The /<version>/llms.txt index: every page grouped by area with its raw URL. */
+/** The /<version>/llms.txt index: every page grouped as the docs navigation groups it, with its raw URL. */
 export function versionLlmsText(): string {
   const lines = [`# LiteSpec ${version}`, ""];
   lines.push(
     `> LiteSpec ${version} is the contract for one bounded-context business application. Every page below links its raw Markdown, described in one line.`,
     "",
-    "This index lists every page of the release in area order. Fetch a page's raw Markdown link to read it as plain text.",
+    "This index lists every page of the release in docs group order. Fetch a page's raw Markdown link to read it as plain text.",
     "",
     `To read the whole release as one file, fetch ${absoluteUrl(`/${version}/llms-full.txt`)}. It holds every page except the UI pattern pages. To read only what one project applies, start from the selection index in ${absoluteUrl("/llms.txt")} that matches the project's shape and stacks.`,
     "",
@@ -184,11 +159,11 @@ export function versionLlmsText(): string {
       "",
     );
   }
-  for (const area of AREA_ORDER) {
-    const group = pages.filter((page) => page.area === area);
-    if (group.length === 0) continue;
-    lines.push(`## ${AREA_TITLES[area]}`, "");
-    for (const page of group) {
+  for (const group of groups) {
+    const entries = group.areas.flatMap((area) => pages.filter((page) => page.area === area));
+    if (entries.length === 0) continue;
+    lines.push(`## ${group.label}`, "");
+    for (const page of entries) {
       lines.push(`- [${page.title}](${absoluteUrl(rawUrl(page))}): ${describe(page)}`);
     }
     lines.push("");

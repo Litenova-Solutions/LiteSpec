@@ -9,7 +9,7 @@ namespace LiteSpec.Ui;
 ///     shared stylesheets beside it, and each application stylesheet.
 /// </summary>
 /// <follows>litespec/frontend/web/ui#restrict-css-decisions</follows>
-/// <follows>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</follows>
+/// <follows>litespec/frontend/ui#keep-tokens-in-one-definition</follows>
 sealed class StylesheetChecks
 {
     /// <summary>The state of the run.</summary>
@@ -352,7 +352,7 @@ sealed class StylesheetChecks
         var imports = GlobalImport.Matches(text).Cast<Match>().Select(match => match.Groups[2].Value).ToList();
         if (imports.Count == 0)
         {
-            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] imports no stylesheet; an application stylesheet imports the shared package's token stylesheet", file);
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/ui#keep-tokens-in-one-definition] imports no stylesheet; an application stylesheet imports the shared package's token stylesheet", file);
             return;
         }
 
@@ -367,7 +367,7 @@ sealed class StylesheetChecks
 
             if (!value.StartsWith(prefix, StringComparison.Ordinal))
             {
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'", file);
             }
         }
 
@@ -390,13 +390,13 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] declares '{property}'; a value written in an application belongs in the shared package's tokens", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] declares '{property}'; a value written in an application belongs in the shared package's tokens", file);
             }
         }
 
         if (packageRoot is not null && !FileWalk.Within(Path.GetFullPath(session.Root), packageRoot))
         {
-            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace", file);
+            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace", file);
         }
     }
 
@@ -404,7 +404,7 @@ sealed class StylesheetChecks
     // utilities, device rules, and display helpers, written from tokens. A literal
     // color here is a second token sheet beside the first, so every stylesheet but
     // the token sheet is held to the same rule as an application stylesheet.
-    // (litespec/frontend/web/ui#keep-tokens-in-one-stylesheet)
+    // (litespec/frontend/ui#keep-tokens-in-one-definition)
     /// <summary>
     ///     Validates the stylesheets the shared package ships beside the token sheet.
     /// </summary>
@@ -436,7 +436,7 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] literal color '{match.Value}' belongs in the token stylesheet", file);
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/ui#keep-tokens-in-one-definition] literal color '{match.Value}' belongs in the token stylesheet", file);
             }
         }
     }

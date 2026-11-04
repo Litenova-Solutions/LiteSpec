@@ -1,0 +1,4 @@
+type: module
+id: module/lending
+title: Lending
+dependsOn: []

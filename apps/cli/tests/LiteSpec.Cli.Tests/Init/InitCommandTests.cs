@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Init;
 /// <summary>Tests for <c>litespec init</c>.</summary>
 public sealed class InitCommandTests
 {
-    const string FixtureVersion = "9.9.9-test";
+    const string FixtureVersion = "9.9.9";
 
     /// <summary>Init keeps the shared UI package only for a controlled web frontend.</summary>
     /// <param name="preset">The preset name that selects the stack combination.</param>
@@ -253,7 +253,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var target = Path.Combine(consumer.Path, ".litespec", "project.json");
         Assert.Contains(target, result.Stdout);
-        Assert.Contains("litespec consumer", result.Stdout);
+        Assert.Contains("litespec model check", result.Stdout);
 
         var project = JsonNode.Parse(File.ReadAllText(target))!.AsObject();
         Assert.Equal(shape, project["shape"]!.GetValue<string>());

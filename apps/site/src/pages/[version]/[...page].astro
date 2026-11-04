@@ -11,7 +11,7 @@ import PatternViewer from "../../components/PatternViewer.astro";
 import "../../styles/docs.css";
 import "../../styles/prose.css";
 import "../../styles/code.css";
-import { folderLabel, folderOverview, foldersOf, pageName, sectionHome, sectionOf, sections } from "../../lib/areas";
+import { folderLabel, folderOverview, foldersOf, groupHome, groupOf, groups, pageName } from "../../lib/areas";
 import { breadcrumbs, lastModified, pageTitle, techArticle } from "../../lib/seo";
 import { htmlPath, pageByFile, pages, pageUrl, rawUrl, version, type Page } from "../../lib/spec";
 import { renderPage } from "../../lib/render-markdown";
@@ -30,7 +30,7 @@ const page = pageByFile(file);
 if (!page) throw new Error(`No page for ${file}`);
 
 const { html, intro, toc } = await renderPage(page);
-const section = sectionOf(page.area);
+const group = groupOf(page.area);
 const isPattern = page.style === "pattern";
 const markdownUrl = rawUrl(page);
 const editUrl = `https://github.com/Litenova-Solutions/LiteSpec/blob/v${version}/${page.file}`;
@@ -47,19 +47,19 @@ const description =
   plainLead.length >= 60
     ? plainLead.slice(0, 300)
     : `${pageName(page)}: ${plainLead === "" ? "" : `${plainLead} `}Part of LiteSpec ${version}, the specification standard for building business applications with AI agents.`;
-// The breadcrumb: the release, the section, each folder between the section and
-// the page, and the page. Every name is the one the sidebar shows.
-const home = sectionHome(section);
+// The breadcrumb: the group, each folder between the group and the page, and the
+// page. Every name is the one the sidebar shows.
+const home = groupHome(group);
 const crumbs: { name: string; url: string | null }[] = [
-  { name: section.label, url: home && home.file !== page.file ? pageUrl(home) : null },
+  { name: group.label, url: home && home.file !== page.file ? pageUrl(home) : null },
   ...foldersOf(page).map((dir) => {
     const overview = folderOverview(dir);
     return { name: folderLabel(dir).label, url: overview && overview.file !== page.file ? pageUrl(overview) : null };
   }),
 ];
-// Neighbors in sidebar order: section by section, and inside a folder its overview first,
+// Neighbors in sidebar order: group by group, and inside a folder its overview first,
 // then its pages, then its subfolders. The root index has no page here, so it is never a neighbor.
-const sectionIndex = (entry: Page) => sections.findIndex((entry2) => entry2.areas.includes(entry.area));
+const groupIndex = (entry: Page) => groups.findIndex((entry2) => entry2.areas.includes(entry.area));
 const treeKey = (entry: Page) => {
   const parts = entry.path.split("/");
   const name = parts.pop() ?? "";
@@ -67,8 +67,8 @@ const treeKey = (entry: Page) => {
   return [...parts.map((part) => `1${part}`), `0${overview ? 0 : 1}${String(pages.indexOf(entry)).padStart(4, "0")}`].join("/");
 };
 const ordered = pages
-  .filter((entry) => entry.path !== "README" && sectionIndex(entry) >= 0)
-  .sort((a, b) => sectionIndex(a) - sectionIndex(b) || (treeKey(a) < treeKey(b) ? -1 : treeKey(a) > treeKey(b) ? 1 : 0));
+  .filter((entry) => entry.path !== "README" && groupIndex(entry) >= 0)
+  .sort((a, b) => groupIndex(a) - groupIndex(b) || (treeKey(a) < treeKey(b) ? -1 : treeKey(a) > treeKey(b) ? 1 : 0));
 const at = ordered.findIndex((entry) => entry.file === page.file);
 const prev = at > 0 ? ordered[at - 1] : null;
 const next = at >= 0 && at < ordered.length - 1 ? ordered[at + 1] : null;
@@ -77,13 +77,13 @@ const active: "docs" | "patterns" =
 ---
 
 <Base
-  title={pageTitle(pageName(page), section.label)}
+  title={pageTitle(pageName(page), group.label)}
   description={description}
   rawUrl={markdownUrl}
   active={active}
   ogType="article"
   jsonLd={[
-    techArticle({ title: pageName(page), description, path: pageUrl(page), modified: lastModified(page.file), section: section.label }),
+    techArticle({ title: pageName(page), description, path: pageUrl(page), modified: lastModified(page.file), section: group.label }),
     breadcrumbs([
       { name: "LiteSpec", path: "/" },
       ...crumbs.map((crumb) => ({ name: crumb.name, path: crumb.url })),
@@ -107,9 +107,9 @@ const active: "docs" | "patterns" =
             <>
               <span aria-hidden="true">/</span>
               {crumb.url ? (
-                <a class:list={[{ "crumb-area": index === 0 }]} href={crumb.url}>{index === 0 && <Icon name={section.icon} class="icon-sm" />}{crumb.name}</a>
+                <a class:list={[{ "crumb-area": index === 0 }]} href={crumb.url}>{index === 0 && <Icon name={group.icon} class="icon-sm" />}{crumb.name}</a>
               ) : (
-                <span class:list={["crumb-text", { "crumb-area": index === 0 }]}>{index === 0 && <Icon name={section.icon} class="icon-sm" />}{crumb.name}</span>
+                <span class:list={["crumb-text", { "crumb-area": index === 0 }]}>{index === 0 && <Icon name={group.icon} class="icon-sm" />}{crumb.name}</span>
               )}
             </>
           ))}

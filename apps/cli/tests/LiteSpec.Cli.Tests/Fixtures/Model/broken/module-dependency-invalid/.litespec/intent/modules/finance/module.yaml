@@ -1,0 +1,5 @@
+type: module
+id: module/finance
+title: Finance
+dependsOn:
+  - module/lending

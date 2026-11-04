@@ -8,9 +8,6 @@
     "svelte"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "owners": [
-    "lending-team"
-  ],
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
@@ -24,12 +21,6 @@
         "path": "apps/web",
         "platform": "svelte"
       }
-    ]
-  },
-  "vocabulary": {
-    "verbs": [
-      "borrow",
-      "list"
     ]
   }
 }

@@ -4,14 +4,14 @@ title: Approval Reminder
 summary: The reminder names the expense and its waiting time. Each waiting expense earns one reminder.
 template: approval-reminder-manager
 addresses:
-  - actor/manager
+- actor/manager
 channel:
-  - email
+- email
 consent: Managers accept reminders with the approver role.
 frequency: once
 dedupKey: approval-reminder-{expenseId}
 params:
-  - submitterName
+- submitterName
 locale: English only; the template ships one language.
 fulfills:
-  - requirement/approval.decided-within-five-days
+- requirement/approval.decided-within-five-days

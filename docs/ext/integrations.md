@@ -1,5 +1,9 @@
 # External Integrations
 
+**Stack:** any
+
+**Layer:** infrastructure
+
 ## Intent
 
 External integrations connect the product to providers it does not control, which can fail, change their responses, or deliver one message twice. This page states how a use case (one command or query the product offers) names the outside behavior it needs, where provider details live, how failures map to project-owned results with stable refusal codes, and how tests simulate the network boundary. A team applies it for each use case that calls a provider, receives a webhook, or imports provider-shaped data, so a provider change touches one folder instead of the whole codebase.
@@ -24,6 +28,10 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#record-each-provider-as-an-external-system`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:external-system
+
 **Statement:** An integration MUST record its provider as an external system naming its operations and erasure.
 
 **Rationale:** The external-system record bounds the dependency: its summary names the party behind it, `litespec/core/access#declare-every-operation-on-every-external-system` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
@@ -34,9 +42,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#call-only-declared-operations`
 
+**Strength:** rule
+
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
-**Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency, and the security queue has no stated edge to review. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
@@ -45,6 +55,8 @@ This extension switches on no optional record type. Each provider is recorded as
 ### Run Provider Calls from Event Handlers or Jobs
 
 **ID:** `litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs`
+
+**Strength:** advice
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
@@ -60,6 +72,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#define-business-action-ports`
 
+**Strength:** rule
+
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
 **Rationale:** The use case needs a behavior, such as sending a payout, not a provider. A public interface named for that business action states the need with no provider in sight. Application then depends on the behavior while providers come and go behind it.
@@ -71,6 +85,8 @@ This extension switches on no optional record type. Each provider is recorded as
 ### Isolate Provider Implementations
 
 **ID:** `litespec/ext/integrations#isolate-provider-implementations`
+
+**Strength:** rule
 
 **Statement:** Infrastructure MUST own provider clients, SDKs, authentication, and transport models.
 
@@ -84,6 +100,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#bind-client-configuration`
 
+**Strength:** rule
+
 **Statement:** An external client MUST bind its base address, credentials, timeout, and policy through validated options.
 
 **Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Binding them through validated options checks each value at startup. A missing or invalid value fails fast instead of misdirecting the first live call.
@@ -93,6 +111,8 @@ This extension switches on no optional record type. Each provider is recorded as
 ### Use Managed HTTP Clients
 
 **ID:** `litespec/ext/integrations#use-managed-http-clients`
+
+**Strength:** rule
 
 **Statement:** An HTTP integration MUST use `HttpClientFactory` and applicable service discovery.
 
@@ -104,6 +124,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#reject-per-request-http-clients`
 
+**Strength:** rule
+
 **Statement:** An HTTP integration MUST NOT construct a new HTTP client for each request.
 
 **Rationale:** A new HTTP client per request skips the central handler configuration and opens sockets the process never reuses. Under load, the exhausted sockets fail calls that the provider would have served. Managed clients reuse what per-request construction throws away.
@@ -113,6 +135,8 @@ This extension switches on no optional record type. Each provider is recorded as
 ### Bound Transient Retries
 
 **ID:** `litespec/ext/integrations#bound-transient-retries`
+
+**Strength:** rule
 
 **Statement:** An external client MUST retry transient failures with bounded attempts and jitter.
 
@@ -124,6 +148,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#protect-non-idempotent-calls`
 
+**Strength:** rule
+
 **Statement:** An external client MUST NOT retry a non-idempotent provider call without provider idempotency and documented replay behavior.
 
 **Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
@@ -133,6 +159,8 @@ This extension switches on no optional record type. Each provider is recorded as
 ### Translate Provider Failure Outcomes
 
 **ID:** `litespec/ext/integrations#translate-provider-failure-outcomes`
+
+**Strength:** rule
 
 **Statement:** An integration MUST map provider errors to project-owned results and stable diagnostics.
 
@@ -148,6 +176,8 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **ID:** `litespec/ext/integrations#exclude-provider-internals`
 
+**Strength:** rule
+
 **Statement:** An API MUST NOT expose provider bodies, credentials, headers, exception types, or internal account identifiers.
 
 **Rationale:** Provider bodies, headers, exception types, and account identifiers carry secrets, implementation details, and sometimes another account's data. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
@@ -158,6 +188,10 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **ID:** `litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:integration-event
+
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
 **Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
@@ -167,6 +201,8 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 ### Verify Inbound Provider Messages
 
 **ID:** `litespec/ext/integrations#verify-inbound-provider-messages`
+
+**Strength:** rule
 
 **Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing.
 
@@ -182,6 +218,8 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#process-duplicate-messages-safely`
 
+**Strength:** rule
+
 **Statement:** An inbound provider handler MUST store or process duplicate events idempotently.
 
 **Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
@@ -192,17 +230,23 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#reject-formula-leading-import-values`
 
+**Strength:** rule
+
 **Statement:** A CSV or spreadsheet import MUST reject or neutralize a value that begins with a formula-leading character.
 
 **Rationale:** The formula-leading characters are the equals sign, the plus sign, the minus sign, the at sign, the tab, and the carriage return. Escaping when you export protects the reader of that export. It does not protect the reader of the next export. A different report can re-export an unchanged imported value without escaping it. [CSV injection](https://owasp.org/www-community/attacks/CSV_Injection) travels through the store, so the boundary that admits the value is where it stops.
 
-**Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect the owner cannot see.
+**Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect nobody can trace.
 
 **Reviewed for:** Which CSV or spreadsheet imports keep a formula-leading value without rejection or neutralization? Look at the import boundaries.
 
 ### Simulate Integration Boundaries
 
 **ID:** `litespec/ext/integrations#simulate-integration-boundaries`
+
+**Strength:** rule
+
+**Applies to:** artifact: test
 
 **Statement:** An integration test MUST use WireMock.Net or a protocol-specific local endpoint.
 
@@ -213,6 +257,10 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 ### Cover Provider Failure Modes
 
 **ID:** `litespec/ext/integrations#cover-provider-failure-modes`
+
+**Strength:** rule
+
+**Applies to:** artifact: test
 
 **Statement:** An integration test MUST cover timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, and unexpected response shape.
 
@@ -228,6 +276,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **ID:** `litespec/ext/integrations#group-provider-code`
 
+**Strength:** default
+
 **Default:** Place provider code under `Infrastructure/Integrations/{Provider}/`.
 
 **Replacement:** A project names another root for provider code in its documentation.
@@ -240,6 +290,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **ID:** `litespec/ext/integrations#keep-provider-components-together`
 
+**Strength:** default
+
 **Default:** Keep one options class, client, transport models, mappings, and registration module in each provider folder.
 
 **Replacement:** A project names another grouping for provider components in its documentation.
@@ -251,6 +303,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 ### Keep Ports Near Use Cases
 
 **ID:** `litespec/ext/integrations#keep-ports-near-use-cases`
+
+**Strength:** default
 
 **Default:** Keep business-action ports with their Application use cases.
 

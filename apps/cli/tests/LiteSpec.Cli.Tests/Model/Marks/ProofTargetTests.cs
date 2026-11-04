@@ -163,7 +163,7 @@ public sealed class ProofTargetTests
             finding => FileName(finding) == "UnappliedProvisionProofTests.cs");
 
         Assert.Contains("which sits on a page the project's stacks and extensions do not apply.", finding.Message);
-        Assert.Equal("litespec/frontend/blazor/browser#bound-what-is-stored", finding.Subject);
+        Assert.Equal("litespec/frontend/web/svelte/components#write-components-in-runes-mode", finding.Subject);
     }
 
     /// <summary>No other mark-unknown fires in the proof-targets fixture.</summary>

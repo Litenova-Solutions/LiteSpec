@@ -1,10 +1,9 @@
 using LiteSpec;
 using LiteSpec.Authoring;
 using LiteSpec.Book;
-using LiteSpec.Consumer;
 using LiteSpec.Init;
 using LiteSpec.Model;
-using LiteSpec.Ui;
+using LiteSpec.Rules;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
 // than the Windows code page, which turns a non-ASCII character into a control byte.
@@ -17,10 +16,9 @@ const string usage = """
       init          Write .litespec/project.json from a preset.
       new           Scaffold a record page and reserve its identifier.
       rename        Rename a record identifier and rewrite every link.
-      consumer      Validate the consumer's project file, records and language.
-      ui            Validate the controlled web UI contract.
-      model         Build, check, render or query the project model.
+      model         Check, format, render or query the project model.
       book          Generate the project book from model.json.
+      rules         List the provisions that govern a path or record.
 
     Run 'litespec <command> --help' for a command's options.
     'litespec --version' prints the LiteSpec release this tool ships in.
@@ -42,10 +40,9 @@ return LastResort.Run(
         "init" => InitCommand.Run(rest),
         "new" => NewCommand.Run(rest),
         "rename" => RenameCommand.Run(rest),
-        "consumer" => ConsumerValidator.Run(rest),
-        "ui" => UiValidator.Run(rest),
         "model" => ModelCommand.Run(rest),
         "book" => BookCommand.Run(rest),
+        "rules" => RulesCommand.Run(rest),
         _ => Unknown(args[0]),
     },
     args);

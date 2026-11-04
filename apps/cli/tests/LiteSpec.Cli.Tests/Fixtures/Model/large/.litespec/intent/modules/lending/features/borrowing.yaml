@@ -3,38 +3,38 @@ id: feature/borrowing
 title: Borrowing
 offering: Readers borrow and return copies and place holds, and every copy keeps one home shelf.
 solves:
-  - problem/overdue-loans-pile-up
+- problem/overdue-loans-pile-up
 records:
-  - type: requirement
-    id: requirement/borrowing.max-active-loans
-    title: Max active loans
-    kind: functional
-    statement: A reader holds at most five active loans.
-    rationale: Readers borrow enough for a term without starving holds.
-    cites:
-      - research/loan-period-benchmarks
-      - constraint/library-privacy-law
-  - type: requirement
-    id: requirement/borrowing.loan-period-days
-    title: Loan period days
-    kind: functional
-    statement: A loan lasts 21 days.
-    rationale: Three weeks lets most readers finish while copies keep moving.
-    cites:
-      - research/loan-period-benchmarks
-  - type: requirement
-    id: requirement/borrowing.hold-pickup-window
-    title: Hold pickup window
-    kind: functional
-    statement: A ready hold waits seven days.
-    rationale: A week gives readers time to reach the desk before the hold lapses.
-    cites:
-      - research/loan-period-benchmarks
-  - type: requirement
-    id: requirement/borrowing.copy-shelf-home
-    title: Copy shelf home
-    kind: functional
-    statement: A copy lives on one home shelf.
-    rationale: One home shelf keeps every copy findable.
-    cites:
-      - research/loan-period-benchmarks
+- type: requirement
+  id: requirement/borrowing.max-active-loans
+  title: Max active loans
+  kind: functional
+  statement: A reader holds at most five active loans.
+  rationale: Readers borrow enough for a term without starving holds.
+  cites:
+  - research/loan-period-benchmarks
+  - constraint/library-privacy-law
+- type: requirement
+  id: requirement/borrowing.loan-period-days
+  title: Loan period days
+  kind: functional
+  statement: A loan lasts 21 days.
+  rationale: Three weeks lets most readers finish while copies keep moving.
+  cites:
+  - research/loan-period-benchmarks
+- type: requirement
+  id: requirement/borrowing.hold-pickup-window
+  title: Hold pickup window
+  kind: functional
+  statement: A ready hold waits seven days.
+  rationale: A week gives readers time to reach the desk before the hold lapses.
+  cites:
+  - research/loan-period-benchmarks
+- type: requirement
+  id: requirement/borrowing.copy-shelf-home
+  title: Copy shelf home
+  kind: functional
+  statement: A copy lives on one home shelf.
+  rationale: One home shelf keeps every copy findable.
+  cites:
+  - research/loan-period-benchmarks

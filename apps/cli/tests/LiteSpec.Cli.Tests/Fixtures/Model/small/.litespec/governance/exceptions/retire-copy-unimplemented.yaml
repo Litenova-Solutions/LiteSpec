@@ -3,9 +3,9 @@ id: exception/retire-copy-unimplemented
 title: Retire copy unimplemented
 kind: gap
 covers:
-  - use-case-unimplemented
+- use-case-unimplemented
 subject:
-  - use-case/lending.retire-copy
+- use-case/lending.retire-copy
 reason: Retirement waits for the weeding policy.
 exit: Retiring a copy has no handler yet. The gap closes when the weeding policy lands.
 expiresOn: 2035-06-01

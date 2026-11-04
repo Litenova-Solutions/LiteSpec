@@ -1,0 +1,47 @@
+type: rule-set
+title: Loan rules
+summary: Each loan has one borrower, extends before its due date, and returns while active.
+records:
+- type: rule
+  id: rule/loan.has-one-borrower
+  title: Has one borrower
+  kind: invariant
+  statement: A loan has one borrower.
+  governs:
+  - use-case/lending.borrow-copy
+  refusal: result/borrow-copy.copy-unavailable
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.max-active-loans
+- type: rule
+  id: rule/loan.borrowed-copy-never-leaves-unscanned
+  title: Borrowed copy never leaves unscanned
+  kind: precondition
+  statement: A borrowed copy never leaves unscanned.
+  governs:
+  - use-case/lending.borrow-copy
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.loan-period-days
+- type: rule
+  id: rule/loan.extended-before-due
+  title: Extended before due
+  kind: precondition
+  statement: A loan extends only before its due date.
+  governs:
+  - use-case/lending.extend-loan
+  refusal: result/extend-loan.extension-refused
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.loan-period-days
+- type: rule
+  id: rule/loan.returned-while-active
+  title: Returned while active
+  kind: precondition
+  statement: A loan returns only while active.
+  governs:
+  - use-case/lending.return-copy
+  refusal: result/return-copy.loan-inactive
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.loan-period-days

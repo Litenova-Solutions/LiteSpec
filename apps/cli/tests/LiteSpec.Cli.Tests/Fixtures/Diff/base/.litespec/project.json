@@ -4,12 +4,10 @@
   },
   "size": "small",
   "shape": "server",
-  "stacks": ["dotnet"],
-  "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [],
-  "owners": [
-    "lending-team"
+  "stacks": [
+    "dotnet"
   ],
+  "reviewedLiteSpecVersion": "4.0.0",
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",

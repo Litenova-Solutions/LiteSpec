@@ -1,0 +1,16 @@
+type: decision
+id: decision/0002-ghost-period
+title: Ghost period
+options:
+  - name: 14 days
+    pros: Ghost copies turn over fast.
+    cons: Ghost readers rush.
+  - name: 21 days
+    pros: Ghost readers finish in time.
+    cons: Ghost holds wait longer.
+choice: 21 days
+consequences: Ghost holds wait longer.
+reopenedWhen: Ghost demand shifts.
+decides:
+  - requirement/borrowing.loan-period-days
+basedOn: []

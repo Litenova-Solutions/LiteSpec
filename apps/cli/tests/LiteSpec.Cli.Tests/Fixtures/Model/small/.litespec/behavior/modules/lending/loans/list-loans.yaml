@@ -6,19 +6,19 @@ access:
   grant: permission/read-loans
   tenant: own
 fulfills:
-  - requirement/borrowing.max-active-loans
+- requirement/borrowing.max-active-loans
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises: []
 output:
   include:
     rows:
       fields:
-        - name: loans
-          meaning: "One row per loan: its identity, copy, reader, and due date."
+      - name: loans
+        meaning: "One row per loan: its identity, copy, reader, and due date."
       classification: internal
       reads:
-        - aggregate/lending.loan
+      - aggregate/lending.loan
       freshness:
         mode: immediate
 paging:
@@ -27,9 +27,12 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
+idempotency:
+  mode: none
+  reason: The query reads loans without changing them.
 records:
-  - type: result
-    id: result/list-loans.listed
-    title: Listed
-    outcome: success
-    meaning: The loans are listed.
+- type: result
+  id: result/list-loans.listed
+  title: Listed
+  outcome: success
+  meaning: The loans are listed.

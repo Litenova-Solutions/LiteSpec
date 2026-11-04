@@ -1,8 +1,11 @@
 # Authoring Standard
 
+**Stack:** any
+**Layer:** workspace
+
 ## Intent
 
-Every page in LiteSpec, and every record file, explanation file, and document in a project built with it, shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the strict YAML subset for record files, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
+Every page in LiteSpec, and every record file, explanation file, and document in a project built with it, shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the YAML reader for record files, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
 
 ## Concepts
 
@@ -36,8 +39,8 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 
 | Page style | Where it lives | Template | Sections, in order |
 |:---|:---|:---|:---|
-| Topic | Any area page that owns provisions | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions, optional Reference Example |
-| Stack | `stack.md` in a stack folder | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions |
+| Topic | Any area page that owns provisions | None | Intent, optional Concepts, Standards, Conventions, optional Reference Example |
+| Stack | `stack.md` in a stack folder | None | Intent, optional Concepts, Standards, Conventions |
 | Extension | An `ext/` folder | `templates/standard/extension.md` | Intent, Activation, Baseline Relationship, Standards, Conventions, Dependencies |
 | Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Intent, optional Concepts, optional Standards, optional Conventions, Patterns |
 | Reference | `docs/reference/` except the generated provision index, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Intent, Reference, optional Notes |
@@ -99,6 +102,7 @@ A document carries an optional YAML frontmatter block between `---` lines holdin
 These rules apply to every Markdown page style:
 
 - A LiteSpec page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
+- A page that owns provisions declares its scope in two lines directly under its title, a `**Stack:**` line and a `**Layer:**` line, as [Provision Scopes](scopes.md) states.
 - A Markdown page has one H1.
 - The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
 - A consumer module or aggregate page is `module.yaml` or `aggregate.yaml`, never `README.md`.
@@ -111,9 +115,9 @@ These rules apply to every Markdown page style:
 - An Activation section states the activation scope, the kinds, and the criterion that selects the extension.
 - A Baseline Relationship section compares against the baseline it replaces; obligations belong in Standards.
 
-### Strict YAML Subset
+### YAML Reader
 
-A record file holds one YAML mapping written in the strict subset the reader accepts: block mappings and sequences, plain, double-quoted, and single-quoted scalars, literal blocks (`|`, `|-`, `|+`), and `[]` and `{}` only as empty collections. The subset refuses comments, anchors, aliases, tags, `---` and `...` markers, folded `>` blocks, other flow collections, multi-line plain scalars, tabs in indentation, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
+A record file holds one YAML mapping, read by YamlDotNet. The reader accepts the YAML YamlDotNet reads, except it refuses an empty document, a document that does not start at the first column, `---` and `...` markers, tabs in indentation, folded `>` blocks, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
 
 ### Canonical Record Form
 
@@ -197,6 +201,10 @@ Every provision has the same parts in the same order:
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
+**Strength:** rule
+
+**Applies to:** artifact: component
+
 **Statement:** Shared primitives and composites MUST live in the one shared UI package.
 
 **Rationale:** ...
@@ -210,12 +218,13 @@ A provision adds `**Applies to:**` only when it is narrower than its page, for e
 
 1. The heading names the provision.
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
-3. `Applies to` follows the ID line only when the provision is narrower than its page; otherwise the page scope applies.
-4. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
-5. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
-6. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
+3. The Strength line grades how binding the provision is: `rule`, `default`, or `advice`, as [Provision Scopes](scopes.md) states.
+4. `Applies to` follows the Strength line only when the provision is narrower than its page; otherwise the page scope applies.
+5. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
+6. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
+7. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
-A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
+A Standard carries Strength `rule` or `advice`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
 
 ### Validator Diagnostics
 
@@ -251,6 +260,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#keep-authored-prose-ascii-safe`
 
+**Strength:** rule
+
 **Statement:** Authored prose MUST contain only ASCII unless code, data, or mathematical content requires another character.
 
 **Rationale:** Non-ASCII characters break in terminals, diffs, generated context, and plain-text tools: a curly quote becomes unreadable in one reader and a silent mismatch in another. ASCII prose renders the same everywhere the standard is read or checked.
@@ -263,6 +274,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#exclude-declared-content-paths-from-the-ascii-check`
 
+**Strength:** rule
+
 **Statement:** An ASCII check MUST exclude only the natural-language content paths that the project record declares.
 
 **Rationale:** A product whose subject is another language carries that language in its content files, where a diacritic is part of a word rather than a styling choice. Excluding only the declared content paths keeps the check strict everywhere else: documents about that content stay in scope, so styled prose filed beside content still meets the check.
@@ -272,6 +285,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Use One Normative Vocabulary
 
 **ID:** `litespec/core/authoring#use-one-normative-vocabulary`
+
+**Strength:** rule
 
 **Statement:** A Standards provision MUST use exactly one listed capitalized modal and no other capitalized normative term.
 
@@ -283,6 +298,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#restrict-normative-language-to-standards-and-conventions`
 
+**Strength:** rule
+
 **Statement:** A capitalized modal MUST appear only in a Statement, a Deviation, a Default, or a Replacement.
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
@@ -293,6 +310,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#use-one-term-for-one-concept`
 
+**Strength:** rule
+
 **Statement:** Authored prose MUST name each concept with its one glossary term.
 
 **Rationale:** A second name for one concept reads as a second concept: the reader hunts for a distinction the writer did not mean. One term per concept means each term is defined once and checked once. Settled by [decision/0018-one-record-language](decision/0018-one-record-language) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
@@ -302,6 +321,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Record the Project Vocabulary as Data
 
 **ID:** `litespec/core/authoring#record-the-project-vocabulary-as-data`
+
+**Strength:** rule
 
 **Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.json`.
 
@@ -321,15 +342,19 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope`
 
+**Strength:** rule
+
 **Statement:** Authored prose MUST NOT use a synonym that the project glossary rejects for the scope the page sits in.
 
 **Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
 
-**Checked by:** `litespec model check` reports no `GLOSSARY_REJECTED_SYNONYM` finding.
+**Reviewed for:** Which words on the page are synonyms the project glossary rejects for the scope the page sits in?
 
 ### State Mannered Terms Literally
 
 **ID:** `litespec/core/authoring#state-mannered-terms-literally`
+
+**Strength:** rule
 
 **Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
 
@@ -337,27 +362,13 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
 
-**Checked by:** `litespec model check` reports no `GLOSSARY_MANNERED_TERM` finding.
-
-### Check the Vocabulary on Every Surface a Reader Meets
-
-**ID:** `litespec/core/authoring#check-the-vocabulary-on-every-surface-a-reader-meets`
-
-**Statement:** A consumer MUST name every non-Markdown surface its vocabulary reaches in `paths.glossaryScan`, including source, interface copy, the API contract, and acceptance tests.
-
-**Rationale:** Documentation is often the smallest surface a reader meets; names in code, interface copy, contracts, and tests carry the vocabulary further. A rejection that stops at prose lets `ClientOrderId` breach a rejection of `client` where readers meet it most. A pattern that matches no file fails, so every listed surface meets the check.
-
-**Example:** A pattern that matches no file is an error, so every listed surface meets the check.
-
-```json
-{ "paths": { "glossaryScan": ["apps/*/lib/i18n/dictionaries/*.json", "apps/api/tests/**/*.feature"] } }
-```
-
-**Checked by:** `litespec model check` scans every `glossaryScan` pattern and fails a pattern that matches no file.
+**Reviewed for:** Which mannered terms on the page stand where the glossary asks for the literal word?
 
 ### Exclude the Compound That Names Another Concept
 
 **ID:** `litespec/core/authoring#exclude-the-compound-that-names-another-concept`
+
+**Strength:** rule
 
 **Statement:** A glossary rejection MUST list, in `except`, every compound in which a rejected word names a concept other than the one the rejection is about.
 
@@ -370,11 +381,13 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
   "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
 ```
 
-**Checked by:** `litespec model check` reports no `GLOSSARY_REJECTED_SYNONYM` finding inside an exempt compound.
+**Reviewed for:** Which compounds use a rejected word to name another concept without being listed in the rejection's `except`?
 
 ### Exclude Generated Regions from Prose Checks
 
 **ID:** `litespec/core/authoring#exclude-generated-regions-from-prose-checks`
+
+**Strength:** rule
 
 **Statement:** An authoring check MUST skip every generated region.
 
@@ -386,6 +399,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#use-controlled-capitalization`
 
+**Strength:** rule
+
 **Statement:** A page MUST use Title Case for its title and every heading.
 
 **Rationale:** Titles and headings read as names in indexes, tabs, and search results. Title Case capitalizes every word except articles (`a`, `an`, `the`), coordinating conjunctions (`and`, `but`, `for`, `nor`, `or`, `so`, `yet`), and prepositions of four letters or fewer (`as`, `at`, `by`, `for`, `from`, `in`, `into`, `of`, `off`, `on`, `onto`, `over`, `per`, `to`, `up`, `upon`, `via`, `with`); the first and last words stay capitalized, and code, identifiers, and file names keep their own case.
@@ -395,6 +410,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Use the Declared Page Contract
 
 **ID:** `litespec/core/authoring#use-the-declared-page-contract`
+
+**Strength:** rule
 
 **Statement:** An authored page MUST use the sections, in order, of its page style.
 
@@ -406,6 +423,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#limit-each-intent-to-three-sentences`
 
+**Strength:** rule
+
 **Statement:** An Intent section MUST hold at most three sentences.
 
 **Rationale:** The first sentence states the scope and boundary. The second states who applies the page and when. An optional third sentence relates the page to its neighbors.
@@ -416,6 +435,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#write-none-in-an-empty-required-section`
 
+**Strength:** rule
+
 **Statement:** A required section with nothing to say MUST contain only `None.`.
 
 **Rationale:** One fixed marker reads the same on every page and gives the validator one shape to accept.
@@ -425,6 +446,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Route the Reader Before Listing Pages
 
 **ID:** `litespec/core/authoring#route-the-reader-before-listing-pages`
+
+**Strength:** rule
 
 **Statement:** A documentation root index MUST state which page style answers which reader question before its first navigation group.
 
@@ -438,6 +461,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#name-the-tool-rather-than-the-mechanism`
 
+**Strength:** rule
+
 **Statement:** A tutorial step or how-to step MUST name the repository command that performs it, where one exists.
 
 **Rationale:** A procedure that lists what a command already does becomes a second copy of that command's behavior. The copy drifts from the tool, and readers follow stale steps. Naming the repository command delegates the steps to the tool that performs them.
@@ -450,6 +475,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#state-one-layer-per-page`
 
+**Strength:** rule
+
 **Statement:** A page MUST NOT describe both a command and the mechanism that command runs, outside an `Underneath` section.
 
 **Rationale:** A reader who wanted the command reads mechanism detail as noise, and a reader who wanted the mechanism reads the command wrapper as an obstacle. One documentation layer per page serves each reader, and the `Underneath` section holds the mechanism for the reader who asks for it.
@@ -459,6 +486,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Name the Escape from Every Abstraction
 
 **ID:** `litespec/core/authoring#name-the-escape-from-every-abstraction`
+
+**Strength:** rule
 
 **Statement:** A command page MUST state under `Underneath` what the command runs or the sentence `Nothing beneath this command is separately runnable.`.
 
@@ -472,6 +501,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#record-a-setting-as-reference`
 
+**Strength:** rule
+
 **Statement:** A configuration setting a reader can change MUST appear on a configuration page with its default, its scope, and what overrides it.
 
 **Rationale:** A setting introduced inside a procedure is found only by the reader who already knows which procedure mentioned it. A configuration page with the default, scope, and overrides puts every setting where a reader looks it up.
@@ -481,6 +512,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Cite Owned Content Instead of Copying It
 
 **ID:** `litespec/core/authoring#cite-owned-content-instead-of-copying-it`
+
+**Strength:** rule
 
 **Statement:** A page MUST link to content another page owns instead of restating it.
 
@@ -492,6 +525,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#keep-principle-pages-free-of-stack-detail`
 
+**Strength:** rule
+
 **Statement:** A principle page MUST NOT name a framework, a package, or a language-specific construct.
 
 **Rationale:** Technology lives in stack pages, so a principle holds for every stack. A framework name in a principle binds every stack to one choice.
@@ -501,6 +536,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Place Each Stack Binding on Its Stack Page
 
 **ID:** `litespec/core/authoring#place-each-stack-binding-on-its-stack-page`
+
+**Strength:** rule
 
 **Statement:** A stack-specific section MUST live on its stack page rather than on a shared page.
 
@@ -512,6 +549,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#split-extension-dependencies-into-three-labeled-lines`
 
+**Strength:** rule
+
 **Statement:** An extension Dependencies section MUST carry the lines Packages, Related extensions, and Guides.
 
 **Rationale:** Fixed labels separate package needs from related extensions and guides. A line with nothing to name holds `None.`.
@@ -522,6 +561,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#define-each-glossary-term-under-its-heading`
 
+**Strength:** rule
+
 **Statement:** A glossary entry MUST hold its definition in the paragraph under its term heading.
 
 **Rationale:** The heading anchor already carries the term identifier, so a `Term` line repeats it. Lines after the definition name the record layer, established aliases, the source, and rejected synonyms where they exist.
@@ -531,6 +572,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Order Glossary Groups Alphabetically
 
 **ID:** `litespec/core/authoring#order-glossary-groups-alphabetically`
+
+**Strength:** rule
 
 **Statement:** Glossary groups MUST stand in alphabetical order, each opening with one intro sentence.
 
@@ -544,6 +587,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#write-atomic-standards-provisions`
 
+**Strength:** rule
+
 **Statement:** A Standards provision MUST follow the Standard contract this page defines.
 
 **Rationale:** One provision with one obligation has one authority, one identifier, and one verification line. A provision that bundles two obligations leaves a project half-compliant with no identifier for the half it missed.
@@ -556,6 +601,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#identify-actionable-conventions`
 
+**Strength:** rule
+
 **Statement:** A Convention provision MUST follow the Convention contract this page defines.
 
 **Rationale:** A Convention heading under `## Conventions` makes each replaceable default traceable: a project cites exactly the default it replaces. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
@@ -566,6 +613,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#attach-examples-to-their-provisions`
 
+**Strength:** rule
+
 **Statement:** An informative example MUST belong to its provision or to a Reference Example that names every provision it demonstrates.
 
 **Rationale:** An example floating free of its provision reads as a second rule: readers obey the illustration instead of the obligation. Belonging to its provision, or to a Reference Example that names every provision it demonstrates, marks it as illustration.
@@ -575,6 +624,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Use the Declared Identifier Grammar
 
 **ID:** `litespec/core/authoring#use-the-declared-identifier-grammar`
+
+**Strength:** rule
 
 **Statement:** A provision ID MUST be `litespec/<page>#<slug>` as its ID line states it.
 
@@ -588,17 +639,21 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#name-the-owning-page-in-the-identifier`
 
+**Strength:** rule
+
 **Statement:** A provision ID's page segment MUST be its page's path under `docs/` without the `.md` extension.
 
 **Rationale:** The page segment is the file a reader opens and the address the provision carries on the published site. Deriving it from the path keeps the identifier and the file from disagreeing.
 
-**Example:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` and `litespec/frontend/blazor/structure#organize-features-by-module-and-use-case` are on two different pages.
+**Example:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` and `litespec/frontend/mobile/structure#organize-screens-by-module` are on two different pages.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_PAGE_FILENAME` or `ID_DUPLICATE` diagnostic.
 
 ### Keep Identifiers Out of Provision Headings
 
 **ID:** `litespec/core/authoring#keep-identifiers-out-of-provision-headings`
+
+**Strength:** rule
 
 **Statement:** A provision heading MUST carry no identifier text.
 
@@ -610,6 +665,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#exclude-a-sequence-number-from-the-identifier`
 
+**Strength:** rule
+
 **Statement:** A provision ID MUST NOT contain a sequence number.
 
 **Rationale:** A counter orders a provision among its siblings and says nothing about what it requires. Words name the obligation; numbers would renumber every sibling on each insertion and break citations for no gain.
@@ -619,6 +676,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Use the Declared Record Identifier Grammar
 
 **ID:** `litespec/core/authoring#use-the-declared-record-identifier-grammar`
+
+**Strength:** rule
 
 **Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
 
@@ -632,6 +691,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#place-the-id-under-every-provision-heading`
 
+**Strength:** rule
+
 **Statement:** Every provision heading MUST be followed by an ID line holding the provision's identity.
 
 **Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.
@@ -644,6 +705,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#map-provisions-to-evidence`
 
+**Strength:** rule
+
 **Statement:** Every provision MUST end its fields with exactly one verification line.
 
 **Rationale:** A provision with no verification line is a rule nobody checks: people assume a tool covers it while no tool was told. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
@@ -653,6 +716,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Mark Every Provision Checkable or Guidance
 
 **ID:** `litespec/core/authoring#mark-every-provision-checkable-or-guidance`
+
+**Strength:** rule
 
 **Statement:** A verification line MUST open with `Checked by` for a provision a tool checks or `Reviewed for` for one a person judges.
 
@@ -664,6 +729,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#name-observable-evidence-in-verification-lines`
 
+**Strength:** rule
+
 **Statement:** A verification line MUST name the observable evidence and where the reviewer looks.
 
 **Rationale:** A line that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
@@ -673,6 +740,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ### Give One Observable Fact One Mark Across Pages
 
 **ID:** `litespec/core/authoring#give-one-observable-fact-one-mark-across-pages`
+
+**Strength:** rule
 
 **Statement:** One observable fact MUST carry one mark across pages.
 
@@ -684,15 +753,19 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#regenerate-the-provision-index`
 
+**Strength:** rule
+
 **Statement:** A standards change MUST leave `docs/reference/provisions.md` equal to the output of `litespec-maintain provisions`.
 
-**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step. Regenerating it with `litespec-maintain provisions` on every standards change keeps the index and the pages from disagreeing.
+**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step. It carries each provision's scope and strength, so the CLI reads one file instead of parsing every page. Regenerating it with `litespec-maintain provisions` on every standards change keeps the index and the pages from disagreeing.
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
 ### Declare Structured Specification Metadata
 
 **ID:** `litespec/core/authoring#declare-structured-specification-metadata`
+
+**Strength:** rule
 
 **Statement:** Every record file and every document frontmatter block MUST satisfy the record schema for its declared type.
 
@@ -712,6 +785,8 @@ title: Submit Expense
 
 **ID:** `litespec/core/authoring#use-one-metadata-carrier`
 
+**Strength:** rule
+
 **Statement:** A consumer page MUST use its record file as its only metadata carrier.
 
 **Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.
@@ -721,6 +796,8 @@ title: Submit Expense
 ### Classify Every Specification File
 
 **ID:** `litespec/core/authoring#classify-every-specification-file`
+
+**Strength:** rule
 
 **Statement:** Every file under the consumer documentation root MUST be a record file, an explanation file beside its record file, or a document, or sit under a declared unstructured path.
 
@@ -732,6 +809,8 @@ title: Submit Expense
 
 **ID:** `litespec/core/authoring#start-each-explanation-file-with-its-title`
 
+**Strength:** rule
+
 **Statement:** An explanation file MUST open with one H1 title and section its content with H2 sections.
 
 **Rationale:** One shape puts the title and each section in the same place on every explanation. The H1 carries the record title, and each H2 carries one section from the table on this page or a free section; Notes take free `###` headings under their H2.
@@ -741,6 +820,8 @@ title: Submit Expense
 ### Derive a Computed Fact Instead of Restating It
 
 **ID:** `litespec/core/authoring#derive-a-computed-fact-instead-of-restating-it`
+
+**Strength:** rule
 
 **Statement:** A specification MUST name the source or the command that produces any count, census, or membership list derived between records.
 
@@ -758,6 +839,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#keep-code-out-of-intent-and-behavior-fields`
 
+**Strength:** rule
+
 **Statement:** No field on an Intent or Behavior record MUST be filled from code.
 
 **Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state becomes a backlog item outside the repository. Derivation between records stays allowed.
@@ -769,6 +852,8 @@ The figures below render from the retention schedule at build time.
 ### Scaffold Pages and Reserve Identifiers
 
 **ID:** `litespec/core/authoring#scaffold-pages-and-reserve-identifiers`
+
+**Strength:** rule
 
 **Statement:** An author MUST scaffold a new page with `litespec new <type> <id>`, which reserves its identifier.
 
@@ -782,6 +867,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#rewrite-every-link-on-a-rename`
 
+**Strength:** rule
+
 **Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
 
 **Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.
@@ -793,6 +880,8 @@ The figures below render from the retention schedule at build time.
 ### Validate a Single Page Before Committing
 
 **ID:** `litespec/core/authoring#validate-a-single-page-before-committing`
+
+**Strength:** rule
 
 **Statement:** An author MUST validate a single page before committing it.
 
@@ -806,6 +895,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#run-repeatable-authoring-checks`
 
+**Strength:** rule
+
 **Statement:** A standards change MUST pass the repository validator, the test suite, and `git diff --check`.
 
 **Rationale:** The repository validator, the test suite, and `git diff --check` each catch what the others miss: structure, behavior, and whitespace. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command.
@@ -815,6 +906,8 @@ The figures below render from the retention schedule at build time.
 ### Validate Current Standards Material
 
 **ID:** `litespec/core/authoring#validate-current-standards-material`
+
+**Strength:** rule
 
 **Statement:** The standards validator MUST evaluate only current standards material.
 
@@ -826,6 +919,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#exclude-historical-transition-material`
 
+**Strength:** rule
+
 **Statement:** Current standards material MUST NOT contain history-specific paths, IDs, terms, aliases, replacement maps, release migration material, compatibility rules, or transition checks.
 
 **Rationale:** A snapshot that carries aliases, maps, migration notes, or transition checks for other releases forces every reader to learn releases they did not pin. The published snapshot states its own contract and nothing else. An extension's `Baseline Relationship` section names a provision it replaces inside this release, which is a current replacement rather than history.
@@ -835,6 +930,8 @@ The figures below render from the retention schedule at build time.
 ### Publish Each Release as a Complete Contract
 
 **ID:** `litespec/core/authoring#publish-each-release-as-a-complete-contract`
+
+**Strength:** rule
 
 **Statement:** A LiteSpec release MUST state every active provision without depending on an earlier release.
 
@@ -846,6 +943,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#exclude-cross-release-compatibility-work`
 
+**Strength:** rule
+
 **Statement:** The LiteSpec repository MUST NOT publish a compatibility guarantee, migration path, deprecation period, or identifier alias between its own releases.
 
 **Rationale:** LiteSpec is a pinned contract, not a running service: consumers adopt a release whole, on their own schedule. Compatibility guarantees, migration paths, deprecation periods, and identifier aliases between LiteSpec releases would promise a continuity the model does not offer. A consumer product keeps its own API compatibility, migration, deprecation, and rollback provisions for its own users.
@@ -855,6 +954,8 @@ The figures below render from the retention schedule at build time.
 ### Keep a Pinned Release for as Long as It Serves
 
 **ID:** `litespec/core/authoring#keep-a-pinned-release-for-as-long-as-it-serves`
+
+**Strength:** rule
 
 **Statement:** A consumer MAY keep any published LiteSpec release for as long as it chooses.
 
@@ -866,6 +967,8 @@ The figures below render from the retention schedule at build time.
 
 **ID:** `litespec/core/authoring#record-the-reviewed-litespec-release`
 
+**Strength:** rule
+
 **Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.json`.
 
 **Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
@@ -875,6 +978,8 @@ The figures below render from the retention schedule at build time.
 ### Review Each Term for Its Lookalikes
 
 **ID:** `litespec/core/authoring#review-each-term-for-its-lookalikes`
+
+**Strength:** rule
 
 **Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
 
@@ -887,6 +992,8 @@ The figures below render from the retention schedule at build time.
 ### State What Happens in Every Behavior Statement
 
 **ID:** `litespec/core/authoring#state-what-happens-in-every-behavior-statement`
+
+**Strength:** advice
 
 **Statement:** A rule statement, scenario step, and result meaning SHOULD avoid words that hide behavior.
 
@@ -903,6 +1010,8 @@ The figures below render from the retention schedule at build time.
 ### Prefer Direct Action Headings
 
 **ID:** `litespec/core/authoring#prefer-direct-action-headings`
+
+**Strength:** default
 
 **Default:** Start a Standard or Convention heading with a concrete action verb.
 

@@ -12,7 +12,7 @@ namespace LiteSpec.Ui;
 /// <follows>litespec/frontend/patterns#record-every-option-considered</follows>
 /// <follows>litespec/frontend/patterns#declare-the-compact-behavior</follows>
 /// <follows>litespec/frontend/patterns#state-the-implementation-status</follows>
-/// <follows>litespec/frontend/web/patterns#implement-a-chosen-pattern-once</follows>
+/// <follows>litespec/frontend/patterns#implement-a-chosen-pattern-once</follows>
 sealed class CatalogChecks
 {
     /// <summary>The state of the run.</summary>
@@ -206,7 +206,7 @@ sealed class CatalogChecks
 
                         if (!FileWalk.Exists(session.FilePath(component)))
                         {
-                            session.Add("ui-catalog-invalid", $"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target}.components[{index}] does not exist '{component}'", file);
+                            session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#implement-a-chosen-pattern-once] {target}.components[{index}] does not exist '{component}'", file);
                         }
                     }
                 }
@@ -215,7 +215,7 @@ sealed class CatalogChecks
                 var status = JsonRead.Child(implementation, "status");
                 if (status is { Node: JsonValue statusValue } && statusValue.TryGetValue<string>(out var statusText) && statusText == "adopted" && (!components.Found || (components.Node is JsonArray adopted && adopted.Count == 0)))
                 {
-                    session.Add("ui-catalog-invalid", $"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target} has status 'adopted' with no components", file);
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#implement-a-chosen-pattern-once] {target} has status 'adopted' with no components", file);
                 }
 
                 var gap = JsonRead.Child(implementation, "gap");

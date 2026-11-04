@@ -6,20 +6,26 @@ access:
   grant: permission/place-hold
   tenant: own
 fulfills:
-  - requirement/borrowing.hold-pickup-window
+- requirement/borrowing.hold-pickup-window
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/hold.hold-canceled
+- event/hold.hold-canceled
+idempotency:
+  mode: none
+  reason: Each call cancels its own hold, and canceling an ended hold is refused.
+audit:
+  level: none
+  target: No audit trail; the hold record shows each cancellation.
 records:
-  - type: result
-    id: result/cancel-hold.canceled
-    title: Canceled
-    outcome: success
-    meaning: The hold is canceled.
-  - type: result
-    id: result/cancel-hold.hold-ended
-    title: Hold ended
-    outcome: refusal
-    code: lending.hold-not-waiting
-    meaning: The hold already left the queue.
+- type: result
+  id: result/cancel-hold.canceled
+  title: Canceled
+  outcome: success
+  meaning: The hold is canceled.
+- type: result
+  id: result/cancel-hold.hold-ended
+  title: Hold ended
+  outcome: refusal
+  code: lending.hold-not-waiting
+  meaning: The hold already left the queue.

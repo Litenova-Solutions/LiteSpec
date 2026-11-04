@@ -17,7 +17,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-link-missing", check.Output, StringComparison.Ordinal);
     }
 
@@ -27,11 +27,11 @@ public sealed class OperationsCheckTests
     public void Title_Named_Rule_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteWatchedSetup(temp.Path, AlertPassing);
+        WriteWatchedSetup(temp.Path, AlertGrafana);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-link-missing", check.Output, StringComparison.Ordinal);
     }
 
@@ -148,7 +148,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-threshold-drift", check.Output, StringComparison.Ordinal);
     }
 
@@ -164,7 +164,7 @@ public sealed class OperationsCheckTests
         var drift = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.Contains("[A]", drift, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", drift, StringComparison.Ordinal);
         Assert.Contains("requirement/performance.list-loans-latency", drift, StringComparison.Ordinal);
@@ -176,8 +176,7 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Alert_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, RunbookFile, RunbookJson);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, AlertFile, AlertPassing);
@@ -196,8 +195,7 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Check_Result_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
         Write(temp.Path, CaddyFile, CaddyPassing);
@@ -205,7 +203,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
@@ -215,8 +213,7 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Exception_Reports_Known()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         WriteRecord(temp.Path, ExceptionFile, ExceptionJson, ExceptionExplanation);
 
@@ -234,8 +231,7 @@ public sealed class OperationsCheckTests
     public void Quality_With_No_Alert_Or_Check_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -253,8 +249,7 @@ public sealed class OperationsCheckTests
     public void Passing_Check_Result_Counts_Toward_Measure()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
         Write(temp.Path, CaddyFile, CaddyPassing);
@@ -264,7 +259,7 @@ public sealed class OperationsCheckTests
         var unmeasured = check.Output.Split('\n').Where(candidate =>
             candidate.Contains("[requirement-measure-missing]", StringComparison.Ordinal));
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.All(unmeasured, line =>
             Assert.DoesNotContain("requirement/performance.list-loans-latency", line, StringComparison.Ordinal));
     }
@@ -275,8 +270,7 @@ public sealed class OperationsCheckTests
     public void Failing_Check_Result_Counts_Nothing()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
-        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing.Replace("\"passed\": true", "\"passed\": false"));
         SetPaths(temp.Path, checkResults: CheckResultsDir);
@@ -300,7 +294,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("mark-missing", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("mark-unknown", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("decision-unimplemented", check.Output, StringComparison.Ordinal);
@@ -372,7 +366,7 @@ public sealed class OperationsCheckTests
         var render = Cli.Run("model", "render", "--root", temp.Path);
         var limits = File.ReadAllText(Path.Combine(temp.Path, LimitsFile.Replace('/', Path.DirectorySeparatorChar)));
 
-        Assert.Equal(0, render.Status);
+        Assert.True(render.Status == 0, render.Output);
         Assert.Contains("| Requirement | Alert | Runbook | Severity | File |", limits, StringComparison.Ordinal);
         Assert.Contains("requirement/performance.list-loans-latency", limits, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", limits, StringComparison.Ordinal);
@@ -381,10 +375,21 @@ public sealed class OperationsCheckTests
         Assert.Contains("deploy/alerts/lending.yaml", limits, StringComparison.Ordinal);
     }
 
-    static void WriteWatchedSetup(string root, string alert)
+    // The latency requirement, the decision that decides it, and the list-loans use case that
+    // fulfills it, so the requirement reaches Behavior as every Intent record must.
+    static void WriteLatencyRequirement(string root)
     {
         WriteRecord(root, RequirementFile, RequirementJson, RequirementExplanation);
         WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
+        var useCase = Path.Combine(root, ListLoansFile);
+        var text = File.ReadAllText(useCase).Replace("\r\n", "\n", StringComparison.Ordinal);
+        const string Fulfills = "fulfills:\n- requirement/borrowing.max-active-loans\n";
+        File.WriteAllText(useCase, text.Replace(Fulfills, Fulfills + "- requirement/performance.list-loans-latency\n", StringComparison.Ordinal));
+    }
+
+    static void WriteWatchedSetup(string root, string alert)
+    {
+        WriteLatencyRequirement(root);
         WriteRecord(root, RunbookFile, RunbookJson);
         WriteRecord(root, DecisionFile, DecisionJson, DecisionExplanation);
         Write(root, AlertFile, alert);
@@ -435,6 +440,7 @@ public sealed class OperationsCheckTests
     }
 
     const string RequirementFile = ".litespec/intent/modules/lending/features/performance.yaml";
+    const string ListLoansFile = ".litespec/behavior/modules/lending/loans/list-loans.yaml";
     const string RunbookFile = ".litespec/implementation/runbooks/slow-listings.yaml";
     const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing.yaml";
 

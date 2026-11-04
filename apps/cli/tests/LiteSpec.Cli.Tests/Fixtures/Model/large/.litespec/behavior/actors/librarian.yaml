@@ -1,8 +1,0 @@
-type: actor
-id: actor/librarian
-title: Librarian
-kind: person
-belongsToTeam: false
-holds:
-  - role: role/librarian
-    scope: platform

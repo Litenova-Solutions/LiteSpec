@@ -33,9 +33,6 @@ internal sealed class FieldValidator
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
     private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
 
-    /// <summary>Gets the fields declared as a date or a milestone.</summary>
-    private static readonly HashSet<string> DateOrMilestoneFields = new(["dueBy"], StringComparer.Ordinal);
-
     // The word-class names the schemas carry: a link verb holds links, a
     // closed-set noun holds an enum, and a prose noun holds text. A name
     // outside every set faces no class rule.
@@ -54,7 +51,7 @@ internal sealed class FieldValidator
 
     /// <summary>Gets the field names that name prose.</summary>
     private static readonly HashSet<string> ProseNouns = new(
-        ["statement", "meaning", "rationale", "summary", "conclusion", "failure", "exclusions"],
+        ["statement", "meaning", "rationale", "summary", "conclusion", "failure"],
         StringComparer.Ordinal);
 
     // The participle stems a suffix test cannot see: irregular verbs whose
@@ -198,11 +195,10 @@ internal sealed class FieldValidator
                 }
 
                 if (ResolvesToDef(node, "nonEmptyString", defs, [])
-                    && !DateOrMilestoneFields.Contains(field)
                     && EndsByOrOn(field)
                     && reported.Add("string:" + field))
                 {
-                    add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` reads as a deadline or a recorded date but holds a plain string; make it an ISO date or declare it a date-or-milestone field");
+                    add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` reads as a deadline or a recorded date but holds a plain string; make it an ISO date");
                 }
 
                 if (nouns.Contains(field))
@@ -235,7 +231,6 @@ internal sealed class FieldValidator
                 // holds a date; anything else carries a participle stem.
                 if (field.Length > 2
                     && field.EndsWith("By", StringComparison.Ordinal)
-                    && !DateOrMilestoneFields.Contains(field)
                     && !ResolvesToIsoDate(node, defs, []))
                 {
                     var stem = field[..^2];

@@ -26,13 +26,12 @@ Declare the application tree and mirror the backend use case path for each route
 
 ### Compose Each Route from One Floorplan
 
-Compose each route from one floorplan. This satisfies `litespec/frontend/web/ui#compose-each-route-from-one-floorplan`.
+Compose each route from one floorplan. This satisfies `litespec/frontend/ui#compose-each-route-from-one-floorplan`.
 
 ### Pin the Baseline in the Shared Package
 
-Pin the shadcn-svelte baseline in the shared package. This satisfies `litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package`.
+Pin the shadcn-svelte baseline in the shared package. This satisfies `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`.
 
 ## Check
 
-- `litespec ui` exits `0` from the consumer root.
-- `litespec model build` followed by `litespec model check` links each new screen to its use case with no finding.
+- `litespec model check` exits `0` from the consumer root and links each new screen to its use case with no finding.

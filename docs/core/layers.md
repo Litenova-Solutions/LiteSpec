@@ -1,5 +1,9 @@
 # Record Layers
 
+**Stack:** any
+
+**Layer:** records
+
 ## Intent
 
 LiteSpec records form four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation builds that behavior in code, and Proof shows that it holds. This page states the translation rules between the record layers: Specify, Implement, and Verify. Agents apply it at every record-layer boundary, and readers use it to judge whether each record layer says only what belongs to it.
@@ -37,6 +41,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#write-each-layer-from-the-layer-above-it`
 
+**Strength:** rule
+
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
 **Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. An agent either writes the missing record above such code or removes the code, so the specification wins where Intent has spoken.
@@ -48,6 +54,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 ### Add Behavior Detail When Specifying Intent
 
 **ID:** `litespec/core/layers#add-behavior-detail-when-specifying-intent`
+
+**Strength:** rule
 
 **Statement:** Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
@@ -61,6 +69,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#send-commercial-and-observable-figures-to-the-owner`
 
+**Strength:** rule
+
 **Statement:** Behavior that meets a figure the owner sets MUST send it to the owner instead of fixing it.
 
 **Rationale:** The [model page](model.md) holds the one list of figures the owner sets: prices, fees, rates, terms, markets, payers, retention periods, freshness, and figures that differ by tenant, market, or date. Each figure is a business choice, and only an accountable person makes it. An agent that fixed one would bury a commitment in a Behavior record nobody chose. The figure becomes a question to the owner or a backlog item, never a silent default.
@@ -72,6 +82,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 ### Implement Only Declared Behavior
 
 **ID:** `litespec/core/layers#implement-only-declared-behavior`
+
+**Strength:** rule
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
@@ -85,6 +97,10 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#prove-each-scenario-through-the-public-boundary`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:scenario
+
 **Statement:** At large size, or with the `bdd` extension, each scenario MUST be proved by one test through the public boundary.
 
 **Rationale:** Small projects carry no scenarios unless the `bdd` extension switches them on, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof.
@@ -94,6 +110,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 ### Raise Open Needs as Owner Questions or Backlog Items
 
 **ID:** `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items`
+
+**Strength:** rule
 
 **Statement:** A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a question to the owner or a backlog item, never as code.
 
@@ -107,6 +125,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`
 
+**Strength:** rule
+
 **Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
 
 **Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory.
@@ -119,6 +139,10 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#close-incident-exceptions-within-seven-days`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:exception
+
 **Statement:** A production incident fix that ships before its records are updated MUST carry an incident exception expiring within seven days.
 
 **Rationale:** A production incident ships its fix at once, at 02:00 if that is when the page fires. The incident exception records what shipped and why, and the records are updated before it expires. An expired exception is a blocking finding, so the gap stays visible until the records close it.
@@ -129,6 +153,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
 
+**Strength:** rule
+
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.
 
 **Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint that follows cites the research, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
@@ -138,6 +164,10 @@ A fact learned from the world enters Intent as research or a constraint that cit
 ### Build Ahead of a Regulation Only Under Its Constraint
 
 **ID:** `litespec/core/layers#build-ahead-of-a-regulation-only-under-its-constraint`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:constraint
 
 **Statement:** Behavior that anticipates a regulation with a deadline MUST follow that regulation's constraint.
 

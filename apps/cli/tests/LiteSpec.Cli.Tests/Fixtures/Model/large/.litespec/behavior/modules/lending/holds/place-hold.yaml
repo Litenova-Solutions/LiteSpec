@@ -6,29 +6,35 @@ access:
   grant: permission/place-hold
   tenant: own
 serves:
-  - journey/borrow-and-return#s6
+- journey/borrow-and-return#s6
 fulfills:
-  - requirement/borrowing.hold-pickup-window
+- requirement/borrowing.hold-pickup-window
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/hold.hold-placed
+- event/hold.hold-placed
+idempotency:
+  mode: none
+  reason: Each call places its own hold, and placing a duplicate hold is refused.
+audit:
+  level: none
+  target: No audit trail; the hold record shows each placement.
 records:
-  - type: result
-    id: result/place-hold.placed
-    title: Placed
-    outcome: success
-    meaning: The hold is placed.
-  - type: result
-    id: result/place-hold.hold-already-waiting
-    title: Hold already waiting
-    outcome: refusal
-    code: lending.hold-already-waiting
-    meaning: A hold is already waiting.
-  - type: scenario
-    id: scenario/place-hold.placing-a-hold-succeeds
-    title: Placing a hold succeeds
-    given: A copy is on loan to another reader.
-    when: The reader places a hold.
-    then: The hold is placed.
-    result: result/place-hold.placed
+- type: result
+  id: result/place-hold.placed
+  title: Placed
+  outcome: success
+  meaning: The hold is placed.
+- type: result
+  id: result/place-hold.hold-already-waiting
+  title: Hold already waiting
+  outcome: refusal
+  code: lending.hold-already-waiting
+  meaning: A hold is already waiting.
+- type: scenario
+  id: scenario/place-hold.placing-a-hold-succeeds
+  title: Placing a hold succeeds
+  given: A copy is on loan to another reader.
+  when: The reader places a hold.
+  then: The hold is placed.
+  result: result/place-hold.placed

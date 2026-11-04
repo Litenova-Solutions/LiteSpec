@@ -1,5 +1,8 @@
 # Dependencies
 
+**Stack:** `any`
+**Layer:** `workspace`
+
 ## Intent
 
 Dependencies are the packages a codebase takes on, and each one adds updates, advisories, and migration work. This page states which dependencies each layer, from Domain to the API host, may take, where each package version is pinned, and what a new package needs before it lands. It applies to anyone who adds a package, references another layer, or connects two frontends.
@@ -8,12 +11,12 @@ Dependencies are the packages a codebase takes on, and each one adds updates, ad
 
 ### Layers and Their Packages
 
-The backend holds five architecture layers: Domain, Application.Abstractions, Application, Infrastructure, and WebApi. Each layer takes only the packages its provisions allow:
+The backend holds four architecture layers: Domain, Application, Infrastructure, and WebApi. Each layer is a role a type plays, whatever folder or project holds it. Each layer takes only the packages its provisions allow:
 
 - Domain takes none.
 - Application takes messaging and read abstractions, plus the one declared read boundary.
 - Infrastructure takes providers and adapters.
-- Delivery, the layer that hosts the API, takes host, authentication, and documentation packages.
+- WebApi, the layer that hosts the API, takes host, authentication, and documentation packages.
 - Test projects take test-only packages.
 
 ### Pins and the Manifest
@@ -32,45 +35,55 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#follow-the-declared-dependency-graph`
 
+**Strength:** rule
+
 **Statement:** A dependency between layers or modules MUST follow the declared graph and add no other edge.
 
 **Rationale:** The declared graph is the list of crossings review checks. An undeclared edge lets a layer reach past its boundary, and review finds no graph that forbids it. Each new edge then needs an explicit decision instead of arriving silently with an import.
 
-**Reviewed for:** Each layer and module dependency follows the declared graph; read the project references under `apps/api/src` and the imports in `apps/`.
+**Reviewed for:** Each layer and module dependency follows the declared graph; read the references between layer folders under `apps/api/src` and the imports in `apps/`.
 
 ### Keep Domain Dependency-Free
 
 **ID:** `litespec/workspace/dependencies#keep-domain-dependency-free`
 
+**Strength:** rule
+
 **Statement:** The Domain layer MUST depend on no external package or framework.
 
 **Rationale:** Domain holds business rules, and business rules outlive frameworks. Depending on no external package or framework keeps the rules testable and portable on their own. Persistence, messaging, web, injection, serialization, and logging libraries all stay outside.
 
-**Reviewed for:** The Domain project manifest references no external package or framework.
+**Reviewed for:** No Domain layer folder needs an external package or framework; read the Domain layer folders and the manifests that serve them.
 
 ### Keep Application Free of Provider Packages
 
 **ID:** `litespec/workspace/dependencies#keep-application-free-of-provider-packages`
 
+**Strength:** rule
+
 **Statement:** Application MUST depend only on messaging abstractions, required read abstractions, and the one declared read boundary.
 
 **Rationale:** Application coordinates use cases through abstractions; Infrastructure hides the technology behind them. A provider package in Application makes the coordination layer depend on the technology Infrastructure was meant to hide, so a provider change reaches two layers. Only messaging abstractions, required read abstractions, and the one declared read boundary stay.
 
-**Reviewed for:** The Application project manifest references only messaging abstractions, read abstractions, and the declared read boundary.
+**Reviewed for:** The Application layer folders reference only messaging abstractions, read abstractions, and the declared read boundary; read those folders and the manifests that serve them.
 
 ### Keep Providers in Infrastructure
 
 **ID:** `litespec/workspace/dependencies#keep-providers-in-infrastructure`
 
+**Strength:** rule
+
 **Statement:** A database provider, external SDK, resilience, discovery, or serialization adapter MUST live in Infrastructure.
 
 **Rationale:** A database provider, an external SDK, and resilience, discovery, and serialization adapters all change with their technology. Keeping them in Infrastructure keeps each provider change inside one layer, apart from the read boundary the ownership table assigns to Application.
 
-**Reviewed for:** Database providers, external SDKs, and resilience, discovery, and serialization adapters appear only in the Infrastructure project manifest.
+**Reviewed for:** Database providers, external SDKs, and resilience, discovery, and serialization adapters appear only in the Infrastructure layer folders; read those folders and the manifests that serve them.
 
 ### Pin Every Dependency Version Centrally
 
 **ID:** `litespec/workspace/dependencies#pin-every-dependency-version-centrally`
+
+**Strength:** rule
 
 **Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.json` states where it states one.
 
@@ -84,6 +97,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#approve-new-packages-explicitly`
 
+**Strength:** rule
+
 **Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, license, processing location, account owner, failure behavior, and operating cost.
 
 **Rationale:** A package arrives with a cost nobody revisits: updates, advisories, license review, and migration work, and a hosted one adds a place personal data may travel and an account someone must own. The decision answers those while the alternatives are still fresh: its options and choice give the use case and the alternatives, its `reopenedWhen` gives the removal condition, and its `admits` entry gives the facts a dependency gate asks per package. A baseline package lands in the manifest in the same change as its decision. A consumer-owned package lands in the consumer's central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.
@@ -96,6 +111,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-frontend-applications-isolated`
 
+**Strength:** rule
+
 **Statement:** A frontend MUST NOT import another application's source or another module's internal feature files.
 
 **Rationale:** When one frontend imports another's source, neither can change its internals without checking the other, so the two release as one. A frontend also stays out of another module's internal feature files for the same reason. Sharing goes through a shared package with a documented public entry point that depends on no application.
@@ -105,6 +122,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 ### Keep the Approved Web UI Dependency Boundary
 
 **ID:** `litespec/workspace/dependencies#keep-the-approved-web-ui-dependency-boundary`
+
+**Strength:** rule
 
 **Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.json`, and a Svelte web frontend from `uiBaselineSvelte`.
 
@@ -118,6 +137,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-generated-packages-dependency-light`
 
+**Strength:** default
+
 **Default:** Keep generated API types free of dependencies and limit the shared client to the pinned generator's runtime, its query plugin, and those types.
 
 **Replacement:** A project whose client needs more records its own client dependency set in the client package manifest.
@@ -129,6 +150,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 ### Keep Test Dependencies in Test Projects
 
 **ID:** `litespec/workspace/dependencies#keep-test-dependencies-in-test-projects`
+
+**Strength:** default
 
 **Default:** Keep assertion, substitution, host, container, and architecture-test packages inside test projects.
 
@@ -142,6 +165,8 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer`
 
+**Strength:** default
+
 **Default:** Assign each baseline package to the owning layer named in the table in this section.
 
 **Replacement:** A project that moves a baseline package records its own owning layer in the decision that admits the move.
@@ -153,7 +178,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 | Domain | None |
 | Application | Required abstractions only, plus the declared read boundary |
 | Infrastructure | Providers and adapters required by implemented ports |
-| Delivery | Host, authentication, and documentation packages |
+| WebApi | Host, authentication, and documentation packages |
 | Test code | Test-only packages |
 
 A new package joins the narrowest layer that needs it. A central version entry does not authorize every layer to reference that package: the table decides who takes what. A consumer references conditional packages only after their extension activates.

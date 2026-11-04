@@ -36,6 +36,12 @@ internal sealed class ValidationContext
     /// <summary>Gets the provision identifiers collected while parsing, mapped to their first location.</summary>
     public Dictionary<string, string> GlobalIds { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>The scope vocabulary, loaded once per run.</summary>
+    private Scopes? vocabulary;
+
+    /// <summary>Gets the scope vocabulary of docs/core/scopes.md.</summary>
+    public Scopes Vocabulary => vocabulary ??= Scopes.Load(Root);
+
     /// <summary>Gets the page contract and per-page parse validator.</summary>
     public PageValidator Pages { get; }
 

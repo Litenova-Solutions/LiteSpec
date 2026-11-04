@@ -1,5 +1,8 @@
 # Operations
 
+**Stack:** any
+**Layer:** operations
+
 ## Intent
 
 Operating a product means starting it, watching it, and answering failures with procedures the records name, and this page states how a LiteSpec product does each: local startup, diagnostics, and alerts that each name their runbook. It applies to everyone who operates a release and to any change that touches schema, external dependencies, background work, or failure recovery. A product that follows it stays observable with one maintainer on call; deployment, rollback, backup, restore and the alerting regime live in the [Delivery extension](../ext/delivery.md) for projects that select it.
@@ -40,6 +43,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#start-the-stack-with-one-local-command`
 
+**Strength:** rule
+
 **Statement:** A workspace MUST start WebApi, PostgreSQL, configured frontends, and its Worker where one exists, with one local command named in the consumer `AGENTS.md`.
 
 **Rationale:** A stack that needs several terminals and a wiki page starts differently for every developer, and the differences become bug reports nobody can reproduce. One named command brings WebApi, PostgreSQL, the frontends, and the background Worker up together, so every developer and every agent starts from the same running system. The baseline command is Aspire's `AppHost`, with `ServiceDefaults` supplying the shared discovery, health, resilience, and telemetry defaults its resources rely on. A workspace that orchestrates the same set another way satisfies this rule with its own command: the obligation is that one command brings the stack up, not that one tool does.
@@ -50,6 +55,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#emit-correlated-diagnostics`
 
+**Strength:** rule
+
 **Statement:** A host MUST emit structured logs, traces, and metrics, with correlation identifiers on logs and traces and service labels on metrics.
 
 **Rationale:** Each running service is a host, and one request often crosses several. Logs and traces carry timestamp, level, service, environment, trace identifier, and span identifier, and metrics carry service and environment labels. The correlation identifiers let one request be followed across every host it touched, which is the only trail a cross-host failure leaves. Stable event names keep dashboards working across releases instead of breaking each time a message is reworded.
@@ -59,6 +66,8 @@ The sub-processor list names every provider that processes personal data for the
 ### Point Every Runtime Record at Its Use Case
 
 **ID:** `litespec/quality/operations#point-every-runtime-record-at-its-use-case`
+
+**Strength:** rule
 
 **Statement:** A host MUST carry the use-case identity of every mediated message, resolved from the generated registry, as `litespec.use_case` on its span, its log scope, and its error report.
 
@@ -72,11 +81,13 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert`
 
+**Strength:** rule
+
 **Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
 
 **Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states for projects that select the Delivery extension.
 
-**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/spending.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
+**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/expense-submission.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
 
 **Checked by:** `litespec model check` reports `alert-link-missing` (level S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
 
@@ -84,17 +95,21 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
 
+**Strength:** rule
+
 **Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a gap exception.
 
 **Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with a reason, an exit and an expiry date, instead of passing silently.
 
-**Example:** `requirement/spending.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
+**Example:** `requirement/expense-submission.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
 **Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no gap exception covering `quality-alert-missing` lists in its `subject`.
 
 ### Point Each Operations File at Its Decision
 
 **ID:** `litespec/quality/operations#point-each-operations-file-at-its-decision`
+
+**Strength:** rule
 
 **Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, exception, or provision it carries out.
 
@@ -108,11 +123,11 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#pass-trace-context-in-the-w3c-format`
 
+**Strength:** rule
+
 **Statement:** A host MUST read and write trace context as the [W3C Trace Context](https://www.w3.org/TR/trace-context/) `traceparent` and `tracestate` headers, using one configured propagator.
 
-**Rationale:** An identifier that each host formats its own way correlates nothing across the boundary between them. `traceparent` is the format OpenTelemetry implements and every managed backend accepts, so a trace crosses a frontend, an API, a background host, and a provider without translation.
-
-One propagator, the component that reads and writes the headers, is the part that matters: two configured propagators produce two identifiers for one request, and the trace splits at whichever hop reads the other one.
+**Rationale:** An identifier that each host formats its own way correlates nothing across the boundary between them. `traceparent` is the format OpenTelemetry implements and every managed backend accepts, so a trace crosses a frontend, an API, a background host, and a provider without translation. One propagator, the component that reads and writes the headers, is the part that matters: two configured propagators produce two identifiers for one request, and the trace splits at whichever hop reads the other one.
 
 **Example:** The trace identifier in a Problem Details response is the `trace-id` field of the current `traceparent`, which is what `litespec/backend/api#return-stable-problem-details` returns.
 
@@ -121,6 +136,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 ### Separate Liveness and Readiness
 
 **ID:** `litespec/quality/operations#separate-liveness-and-readiness`
+
+**Strength:** rule
 
 **Statement:** A host MUST expose `/health/live` without dependency checks and `/health/ready` including its critical dependencies.
 
@@ -132,6 +149,10 @@ One propagator, the component that reads and writes the headers, is the part tha
 
 **ID:** `litespec/quality/operations#apply-schema-changes-outside-request-startup`
 
+**Strength:** rule
+
+**Applies to:** artifact: migration
+
 **Statement:** A hosted schema change MUST run as a dedicated release step before traffic shifts, reviewed against both application versions.
 
 **Rationale:** Schema work is a release step, not a startup step. A replica that applies schema at startup races its siblings, and each one serves traffic against a half-applied schema until the race settles. Running the change as one dedicated step before traffic shifts, reviewed against both the old and the new application version, keeps every replica on the same schema from its first request.
@@ -141,6 +162,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 ### Operate Background Work Independently
 
 **ID:** `litespec/quality/operations#operate-background-work-independently`
+
+**Strength:** rule
 
 **Statement:** A Worker MUST publish its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior.
 
@@ -152,6 +175,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 
 **ID:** `litespec/quality/operations#bound-external-calls`
 
+**Strength:** rule
+
 **Statement:** Every network call MUST declare an explicit timeout and cancellation path, with retries only for idempotent operations named by a bounded retry policy.
 
 **Rationale:** Every network call waits on a system the product does not control. Without an explicit timeout and cancellation path, one slow provider holds a request thread until that unrelated system recovers, and each held thread is one less thread for healthy requests. Retries stay bounded and idempotent-only, because retrying a call that already acted repeats the act.
@@ -162,6 +187,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 
 **ID:** `litespec/quality/operations#list-every-sub-processor`
 
+**Strength:** rule
+
 **Statement:** A release MUST call only providers the generated sub-processor list names from the project's provider actors.
 
 **Rationale:** Customers ask which providers touch their data, and the sub-processor list is the answer. The model builder renders it from the provider actor records, so a provider added in code but missing from the list answers that question wrong. Generating the list from records keeps the answer and the code in step.
@@ -171,6 +198,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 ### Name Every Runbook from an Alert, Job, Reaction or Failure Policy
 
 **ID:** `litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
+
+**Strength:** rule
 
 **Statement:** Every runbook record MUST be named by at least one alert, job, reaction or failure policy.
 
@@ -184,6 +213,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 
 **ID:** `litespec/quality/operations#keep-production-secrets-out-of-the-repository`
 
+**Strength:** rule
+
 **Statement:** Production environment values MUST live on the host, never in the repository.
 
 **Rationale:** A secret committed once lives in history after deletion, readable to everyone the repository ever reaches. Keeping production values on the host and only placeholders in a repository example file keeps the values with the deployment that needs them and out of every clone.
@@ -195,6 +226,8 @@ One propagator, the component that reads and writes the headers, is the part tha
 ### Keep Runbooks Near Project Documentation
 
 **ID:** `litespec/quality/operations#keep-runbooks-near-project-documentation`
+
+**Strength:** default
 
 **Default:** Place a runbook under `.litespec/implementation/runbooks/` when it answers product-wide failures, or under `.litespec/implementation/modules/<module>/runbooks/` when every record naming it sits in one module, stating trigger, impact, prerequisites, procedure, verification, recovery, and escalation, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
 

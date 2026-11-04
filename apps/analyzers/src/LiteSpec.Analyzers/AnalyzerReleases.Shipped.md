@@ -19,14 +19,12 @@ LS1009 | LiteSpec.Domain | Error | Descriptors
 LS1010 | LiteSpec.Domain | Error | Descriptors
 LS1011 | LiteSpec.Domain | Error | Descriptors
 LS1012 | LiteSpec.Domain | Error | Descriptors
-LS1013 | LiteSpec.Domain | Error | Descriptors
 LS2001 | LiteSpec.Layers | Error | Descriptors
 LS2003 | LiteSpec.Layers | Error | Descriptors
 LS2004 | LiteSpec.Layers | Error | Descriptors
 LS2005 | LiteSpec.Layers | Error | Descriptors
 LS2006 | LiteSpec.Layers | Error | Descriptors
 LS2007 | LiteSpec.Layers | Error | Descriptors
-LS2008 | LiteSpec.Layers | Error | Descriptors
 LS2009 | LiteSpec.Layers | Error | Descriptors
 LS2010 | LiteSpec.Layers | Error | Descriptors
 LS2011 | LiteSpec.Layers | Error | Descriptors
@@ -36,6 +34,9 @@ LS2014 | LiteSpec.Layers | Error | Descriptors
 LS2015 | LiteSpec.Layers | Error | Descriptors
 LS2016 | LiteSpec.Layers | Error | Descriptors
 LS2017 | LiteSpec.Layers | Error | Descriptors
+LS2018 | LiteSpec.Layers | Error | Descriptors
+LS2019 | LiteSpec.Layers | Error | Descriptors
+LS2020 | LiteSpec.Layers | Error | Descriptors
 LS3001 | LiteSpec.Style | Error | Descriptors
 LS3004 | LiteSpec.Style | Error | Descriptors
 LS4001 | LiteSpec.Tests | Error | Descriptors

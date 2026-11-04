@@ -1,4 +1,6 @@
+using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
+using LiteSpec.Schemas;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Authoring;
@@ -80,7 +82,7 @@ public sealed partial class StandardsValidatorTests
     public void UnsupportedSchemaKeyword() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"unevaluatedProperties\":false}");
+            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"example\":{\"version\":\"4.0.0\"}}");
             StandardsFixture.Write(root, "litespec.manifest.json", "{}");
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
@@ -91,7 +93,7 @@ public sealed partial class StandardsValidatorTests
     public void UnsupportedSchemaKeywordInBranch() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"anyOf\":[{\"type\":\"object\",\"properties\":{\"version\":{\"contentEncoding\":\"base64\"}}}]}");
+            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"anyOf\":[{\"type\":\"object\",\"properties\":{\"version\":{\"example\":\"4.0.0\"}}}]}");
             StandardsFixture.Write(root, "litespec.manifest.json", "{}");
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
@@ -102,7 +104,7 @@ public sealed partial class StandardsValidatorTests
     public void UnsupportedSchemaKeywordInPropertyNames() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"contentMediaType\":\"text/plain\"}}");
+            StandardsFixture.Write(root, "schemas/litespec-manifest.schema.json", "{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"example\":\"version\"}}");
             StandardsFixture.Write(root, "litespec.manifest.json", "{}");
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
@@ -731,4 +733,167 @@ public sealed partial class StandardsValidatorTests
                 "\"package\":\"@sample/ui\",\"shell\":\"sample\",\"patterns\":[\"list-page\"]}"));
         },
         []);
+
+    /// <summary>Missing required property names its pointer.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "missing required property names its pointer")]
+    public void MissingRequiredPropertyNamesItsPointer()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"type\":\"object\",\"required\":[\"title\"],\"properties\":{\"title\":{\"type\":\"string\"}}}",
+            "{}"));
+
+        Assert.Equal("value.json: missing required property 'title'", error);
+    }
+
+    /// <summary>Unknown property names its key.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "unknown property names its key")]
+    public void UnknownPropertyNamesItsKey()
+    {
+        var error = Assert.Single(ValidateJson(
+            "{\"type\":\"object\",\"properties\":{\"a\":{}},\"additionalProperties\":false}",
+            "{\"a\":1,\"b\":2}"));
+
+        Assert.Equal("value.json: unknown property 'b'", error);
+    }
+
+    /// <summary>Minimum items keeps its count.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "minimum items keeps its count")]
+    public void MinimumItemsKeepsItsCount()
+    {
+        var error = Assert.Single(ValidateJson("{\"type\":\"array\",\"minItems\":1}", "[]"));
+
+        Assert.Equal("value.json: array has fewer than 1 items", error);
+    }
+
+    /// <summary>OneOf counts its shapes.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "oneOf counts its shapes")]
+    public void OneOfCountsItsShapes()
+    {
+        var error = Assert.Single(ValidateJson("{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}", "1.5"));
+
+        Assert.Equal("value.json: value matches 0 of 2 allowed shapes, expected exactly 1 (shape 1: expected string; shape 2: expected integer)", error);
+    }
+
+    /// <summary>AnyOf names its shapes.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "anyOf names its shapes")]
+    public void AnyOfNamesItsShapes()
+    {
+        var error = Assert.Single(ValidateJson("{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"boolean\"}]}", "1"));
+
+        Assert.Equal("value.json: value matches none of the 2 allowed shapes (shape 1: expected string; shape 2: expected boolean)", error);
+    }
+
+    /// <summary>Problems prefix the gate before the validation.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "problems prefix the gate before the validation")]
+    public void ProblemsPrefixGateBeforeValidation()
+    {
+        var schema = JsonNode.Parse("{\"type\":\"object\",\"mystery\":true}")!;
+        var problems = JsonSchema.Problems("schema.json", JsonNode.Parse("\"x\""), "value.json", _ => schema);
+
+        Assert.Equal(2, problems.Count);
+        Assert.Equal("value.json: unsupported JSON Schema keyword 'mystery' at '#'", problems[0]);
+        Assert.Equal("value.json: expected object", problems[1]);
+    }
+
+    /// <summary>Subschema resolves references against the root.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "subschema resolves references against the root")]
+    public void SubschemaResolvesReferencesAgainstRoot()
+    {
+        var root = JsonNode.Parse("{\"$defs\":{\"page\":{\"type\":\"object\",\"properties\":{\"id\":{\"$ref\":\"#/$defs/id\"}}},\"id\":{\"type\":\"string\",\"minLength\":2}}}")!.AsObject();
+        var page = root["$defs"]!.AsObject()["page"]!;
+        var errors = new List<string>();
+        JsonSchema.Validate(JsonNode.Parse("{\"id\":\"x\"}"), page, root, "value.json", errors);
+
+        var error = Assert.Single(errors);
+
+        Assert.Equal("value.json/id: string is shorter than 2", error);
+    }
+
+    /// <summary>Const names its value.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "const names its value")]
+    public void ConstNamesItsValue()
+    {
+        var error = Assert.Single(ValidateJson("{\"const\":\"a\"}", "\"b\""));
+
+        Assert.Equal("value.json: expected constant \"a\"", error);
+    }
+
+    /// <summary>Pattern names its expression.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "pattern names its expression")]
+    public void PatternNamesItsExpression()
+    {
+        var error = Assert.Single(ValidateJson("{\"pattern\":\"^a\"}", "\"b\""));
+
+        Assert.Equal("value.json: string does not match ^a", error);
+    }
+
+    /// <summary>Gate flags an unknown keyword.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "gate flags an unknown keyword")]
+    public void GateFlagsUnknownKeyword()
+    {
+        var found = new List<string>();
+        JsonSchema.UnsupportedKeywords(
+            JsonNode.Parse("{\"type\":\"object\",\"example\":\"v\"}"),
+            "s.json",
+            "#",
+            (relative, line, code, message) => found.Add($"{relative}:{line}:{code}:{message}"));
+
+        var single = Assert.Single(found);
+
+        Assert.Equal("s.json:1:SCHEMA_UNSUPPORTED_KEYWORD:unsupported JSON Schema keyword 'example' at '#'", single);
+    }
+
+    /// <summary>Gate passes implemented keywords.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "gate passes implemented keywords")]
+    public void GatePassesImplementedKeywords()
+    {
+        var found = new List<string>();
+        JsonSchema.UnsupportedKeywords(
+            JsonNode.Parse("{\"type\":\"object\",\"unevaluatedProperties\":false,\"dependentSchemas\":{\"a\":{\"type\":\"string\"}},\"properties\":{\"a\":{\"contentEncoding\":\"base64\",\"contentMediaType\":\"text/plain\",\"readOnly\":true},\"b\":{\"minContains\":1}},\"$vocabulary\":{}}"),
+            "s.json",
+            "#",
+            (relative, line, code, message) => found.Add($"{relative}:{line}:{code}:{message}"));
+
+        Assert.Empty(found);
+    }
+
+    /// <summary>Gate reaches dependent schemas.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "gate reaches dependent schemas")]
+    public void GateReachesDependentSchemas()
+    {
+        var found = new List<string>();
+        JsonSchema.UnsupportedKeywords(
+            JsonNode.Parse("{\"dependentSchemas\":{\"a\":{\"example\":1}}}"),
+            "s.json",
+            "#",
+            (relative, line, code, message) => found.Add($"{relative}:{line}:{code}:{message}"));
+
+        var single = Assert.Single(found);
+
+        Assert.Equal("s.json:1:SCHEMA_UNSUPPORTED_KEYWORD:unsupported JSON Schema keyword 'example' at '#/dependentSchemas/a'", single);
+    }
+
+    /// <summary>Validates one JSON value against one JSON schema.</summary>
+    /// <param name="schemaJson">The schema text.</param>
+    /// <param name="valueJson">The value text.</param>
+    /// <returns>The schema errors.</returns>
+    static List<string> ValidateJson(string schemaJson, string valueJson)
+    {
+        var schema = JsonNode.Parse(schemaJson)!;
+        var errors = new List<string>();
+        JsonSchema.Validate(JsonNode.Parse(valueJson), schema, schema, "value.json", errors);
+        return errors;
+    }
 }

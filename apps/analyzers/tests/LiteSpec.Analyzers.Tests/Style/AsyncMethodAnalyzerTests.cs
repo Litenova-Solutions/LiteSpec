@@ -9,7 +9,7 @@ public sealed class AsyncMethodAnalyzerTests
 {
     /// <summary>LS3001 reports Task and ValueTask methods without Async.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 reports Task and ValueTask methods without Async")]
     public Task ReportsTaskMethodsWithoutAsync() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -27,7 +27,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 reports the same breach in WebApi.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 reports the same breach in WebApi")]
     public Task ReportsTheSameBreachInWebApi() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -43,7 +43,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 accepts a complete asynchronous signature.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 accepts a complete asynchronous signature")]
     public Task AcceptsACompleteSignature() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -62,7 +62,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 ignores an override and reports its base.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 ignores an override and reports its base")]
     public Task IgnoresAnOverrideAndReportsItsBase() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -83,7 +83,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 ignores the Main entry point.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 ignores the Main entry point")]
     public Task IgnoresTheMainEntryPoint() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -99,7 +99,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 reports a local function but not a lambda.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 reports a local function but not a lambda")]
     public Task ReportsALocalFunctionButNotALambda() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -130,7 +130,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 ignores a framework contract implementation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 ignores a framework contract implementation")]
     public Task IgnoresAFrameworkContractImplementation() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -147,7 +147,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 reports a controller action.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 reports a controller action")]
     public Task ReportsAControllerAction() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -170,7 +170,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 ignores a breach outside the five projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 ignores a breach outside the five projects")]
     public Task IgnoresABreachOutsideTheFiveProjects() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -186,7 +186,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 follows the LiteSpecLayer property over the assembly name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -202,7 +202,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 ignores the top-level statements entry point.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 ignores the top-level statements entry point")]
     public Task IgnoresTopLevelStatementsEntryPoint() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -214,7 +214,7 @@ public sealed class AsyncMethodAnalyzerTests
 
     /// <summary>LS3001 reports a synchronous Task.FromResult factory.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
+    /// <proves>litespec/workspace/naming#name-asynchronous-operations-completely</proves>
     [Fact(DisplayName = "LS3001 reports a synchronous Task.FromResult factory")]
     public Task ReportsASynchronousTaskFactory() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""

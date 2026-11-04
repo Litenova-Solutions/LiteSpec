@@ -1,0 +1,6 @@
+type: goal
+id: goal/stray-goal
+title: Stray Goal
+statement: Readers wait less.
+measure: Median pickup wait.
+target: Under two days.

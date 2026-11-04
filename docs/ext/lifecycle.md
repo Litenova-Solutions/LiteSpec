@@ -1,5 +1,9 @@
 # Data Lifecycle
 
+**Stack:** any
+
+**Layer:** application
+
 ## Intent
 
 Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. This page states what the team writes down for each lifetime and which behavior the code owns: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case (one command or query the product offers) needs them, and authorized, audited operations throughout. A team selects it for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
@@ -26,6 +30,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#record-lifecycle-scope`
 
+**Strength:** rule
+
 **Statement:** A lifecycle record MUST name classification, retention, deletion trigger, hold, export, restore, and backup.
 
 **Rationale:** A lifecycle record names every choice the team makes about a record's lifetime in one place: what kind of data it is, how long it stays, what triggers deletion, and how holds, exports, restores, and backups behave. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records.
@@ -35,6 +41,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Default to Hard Delete
 
 **ID:** `litespec/ext/lifecycle#default-to-hard-delete`
+
+**Strength:** rule
 
 **Statement:** A lifecycle implementation MUST use hard delete when no accepted retention or restore requirement applies.
 
@@ -48,6 +56,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#model-retained-lifecycle-states`
 
+**Strength:** rule
+
 **Statement:** A soft-deleted or archived record MUST have a business reason and explicit state transition.
 
 **Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row the code treats specially in scattered places.
@@ -60,6 +70,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#reject-hidden-lifecycle-flags`
 
+**Strength:** rule
+
 **Statement:** A lifecycle implementation MUST NOT use a hidden boolean as its sole lifecycle behavior.
 
 **Rationale:** A boolean column that only the storage layer reads can flip without running the business checks: no authorization, no audit entry, no named transition a reviewer can find. The record then looks deleted in one query and active in another, depending on which filter the query remembered. An explicit lifecycle operation keeps the flag, where one exists, as an effect of the transition rather than the transition itself.
@@ -69,6 +81,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Model Lifecycle Operations in Domain
 
 **ID:** `litespec/ext/lifecycle#model-lifecycle-operations-in-domain`
+
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** A Domain aggregate MUST expose delete, archive, and restore as explicit behavior when those operations apply.
 
@@ -80,6 +96,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#authorize-lifecycle-changes`
 
+**Strength:** rule
+
 **Statement:** A lifecycle operation MUST apply its documented authorization.
 
 **Rationale:** Deleting or restoring the wrong record harms a customer or breaks a legal duty, so each lifecycle operation checks that the actor may perform it.
@@ -89,6 +107,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Audit Lifecycle Changes
 
 **ID:** `litespec/ext/lifecycle#audit-lifecycle-changes`
+
+**Strength:** rule
 
 **Statement:** A lifecycle operation MUST record its audit as an audit record when audit is selected and a standalone record otherwise.
 
@@ -100,6 +120,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#exclude-persistence-only-lifecycle-behavior`
 
+**Strength:** rule
+
 **Statement:** A lifecycle rule MUST NOT rely only on persistence filters or property setters.
 
 **Rationale:** A query filter or a property setter runs without the business checks: it filters rows in storage while the aggregate never learns the transition happened. The product then enforces lifecycle in two places that disagree, and a new query that skips the filter exposes data the lifecycle retired.
@@ -109,6 +131,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Exclude Inactive Records from Normal Reads
 
 **ID:** `litespec/ext/lifecycle#exclude-inactive-records-from-normal-reads`
+
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
 
 **Statement:** A normal query MUST exclude deleted or archived records.
 
@@ -120,6 +146,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#authorize-lifecycle-access-paths`
 
+**Strength:** rule
+
+**Applies to:** artifact: query-handler
+
 **Statement:** An administrative or restore query MUST use a named path with explicit authorization.
 
 **Rationale:** Restore and administration queries reach records normal queries cannot see, so they need a path of their own with checks of their own. Without the named path, a privileged read hides inside normal query code and inherits normal authorization, which grants too much to too many callers.
@@ -129,6 +159,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Define Post-Deletion References
 
 **ID:** `litespec/ext/lifecycle#define-post-deletion-references`
+
+**Strength:** rule
 
 **Statement:** A lifecycle specification MUST define post-deletion behavior for cross-aggregate references, exports, and unique constraints.
 
@@ -140,6 +172,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#define-storage-lifecycle-behavior`
 
+**Strength:** rule
+
 **Statement:** A Marten lifecycle implementation MUST define document state, filtered queries, indexes, purge transformations, and contract evolution.
 
 **Rationale:** A document store keeps whatever the aggregate writes, so the team states how each lifecycle state lands in the document: which state the document carries, which queries filter it, which indexes serve those queries, how a purge rewrites the document, and how the contract changes when the shape does. Without those choices, the business transition lands in storage by accident and each query invents its own filter.
@@ -149,6 +183,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Define Relational Lifecycle Behavior
 
 **ID:** `litespec/ext/lifecycle#define-relational-lifecycle-behavior`
+
+**Strength:** rule
 
 **Statement:** An EF Core lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.
 
@@ -160,6 +196,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#test-provider-lifecycle-paths`
 
+**Strength:** rule
+
+**Applies to:** artifact: test
+
 **Statement:** A selected persistence provider MUST test normal and lifecycle query paths.
 
 **Rationale:** Filters, indexes, and migrations behave differently per provider, and a filter that works on documents can fail on tables. Tests that read through both the normal path and the lifecycle path on the selected provider catch the difference before a customer does.
@@ -169,6 +209,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Bound Purge and Archive Work
 
 **ID:** `litespec/ext/lifecycle#bound-purge-and-archive-work`
+
+**Strength:** rule
 
 **Statement:** A purge or archive operation MUST be resumable, bounded, cancellation-aware, and observable.
 
@@ -180,6 +222,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#preserve-legal-hold-data`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** A retention job MUST preserve data under legal hold.
 
 **Rationale:** A legal hold suspends the duty to delete: the named data stays until the hold releases, even when its retention date passes. A retention job that ignores the hold destroys evidence the organization had a duty to keep.
@@ -190,6 +236,10 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#record-retention-progress`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** A retention job MUST record its progress.
 
 **Rationale:** A retention run can stop midway through millions of rows, and recorded progress tells the next run where to resume. Observable progress tells the operator whether the job moves or stalls.
@@ -199,6 +249,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Record the Release of a Legal Hold
 
 **ID:** `litespec/ext/lifecycle#record-the-release-of-a-legal-hold`
+
+**Strength:** rule
 
 **Statement:** A legal-hold release MUST record actor, data covered, reason, and resumed retention: an audit record when audit is selected, a standalone record otherwise.
 
@@ -212,6 +264,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#align-backup-deletion-behavior`
 
+**Strength:** rule
+
 **Statement:** Backup and replica operations MUST follow the documented deletion guarantee.
 
 **Rationale:** A deletion promise covers every copy the product keeps, including backups and replicas that restore for months after the live row disappears. When backup behavior stays undocumented, the team promises erasure it cannot deliver and learns the gap during an audit or a restore.
@@ -223,6 +277,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 ### Name Soft-Delete Timestamps
 
 **ID:** `litespec/ext/lifecycle#name-soft-delete-timestamps`
+
+**Strength:** default
 
 **Default:** Use `deleted_at_utc` when a soft-delete timestamp is required.
 
@@ -236,17 +292,21 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#keep-archive-records-module-owned`
 
+**Strength:** default
+
 **Default:** Keep archive records under the owning module.
 
 **Replacement:** A project keeps archive records in one shared archive area.
 
-**Rationale:** The module that defines what the record means also defines what its archive means and who may read it. An archive kept elsewhere answers to two owners, and its access checks drift from the module's own.
+**Rationale:** The module that defines what the record means also defines what its archive means and who may read it. An archive kept elsewhere sits under two modules, and its access checks drift from its home module.
 
 **Reviewed for:** Archive records sit under their owning module, or the project keeps them in one shared archive area.
 
 ### Separate Query-Shaped History
 
 **ID:** `litespec/ext/lifecycle#separate-query-shaped-history`
+
+**Strength:** default
 
 **Default:** Use a separate read model when archived history is query-shaped instead of an aggregate invariant.
 

@@ -1,8 +1,11 @@
 # .NET Configuration
 
+**Stack:** dotnet
+**Layer:** workspace
+
 ## Intent
 
-A .NET backend pins its SDK, build settings, package versions, and local tools to fixed versions through files at fixed paths. This page states what each file sets and how backend settings bind to named options classes that the host validates at startup, so every machine builds the same output and bad configuration fails before the process takes traffic. The shared configuration rules live on [Configuration](../../workspace/config.md); this page holds only their .NET form.
+A .NET backend pins its SDK, build settings, package versions, and local tools to fixed versions through files at fixed paths. This page states what each file sets, so every machine builds the same output. The shared configuration rules live on [Configuration](../../workspace/config.md); this page holds only their .NET form.
 
 ## Concepts
 
@@ -10,15 +13,13 @@ A .NET backend pins its SDK, build settings, package versions, and local tools t
 
 Four files at fixed paths decide how the backend builds, wherever it builds. The root `global.json` names the lowest SDK that can build the workspace. `apps/api/Directory.Build.props` sets the target framework and the build settings every project shares. `apps/api/Directory.Packages.props` pins every NuGet version in one place, so project files name packages without versions. The root `.config/dotnet-tools.json` pins the local tools that documented commands invoke.
 
-### Options Binding
-
-Backend settings bind to named options classes that the host validates at startup for required fields, ranges, and formats. A process with bad configuration then fails before it takes traffic, instead of failing the first request that reads the setting.
-
 ## Standards
 
 ### Set the SDK Floor at the Workspace Root
 
 **ID:** `litespec/backend/dotnet/config#set-the-sdk-floor-at-the-workspace-root`
+
+**Strength:** rule
 
 **Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestMajor`.
 
@@ -30,6 +31,8 @@ Backend settings bind to named options classes that the host validates at startu
 
 **ID:** `litespec/backend/dotnet/config#centralize-net-build-settings`
 
+**Strength:** rule
+
 **Statement:** `apps/api/Directory.Build.props` MUST set the target framework of the manifest .NET stack release, and enable nullable types, implicit usings, and warnings as errors.
 
 **Rationale:** When each project sets its own framework, nullability, usings, and warnings, one project silently builds under weaker rules and its warnings go unread. One file owns those settings, so a change applies to every project and review sees it in one diff.
@@ -39,6 +42,8 @@ Backend settings bind to named options classes that the host validates at startu
 ### Centralize NuGet Versions
 
 **ID:** `litespec/backend/dotnet/config#centralize-nuget-versions`
+
+**Strength:** rule
 
 **Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry the exact manifest pins.
 
@@ -50,33 +55,13 @@ Backend settings bind to named options classes that the host validates at startu
 
 **ID:** `litespec/backend/dotnet/config#commit-the-tool-manifest`
 
+**Strength:** rule
+
 **Statement:** The root `.config/dotnet-tools.json` MUST pin every local .NET tool that a documented command invokes.
 
-**Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing` names.
+**Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines` names.
 
 **Reviewed for:** Which local tools that a documented command invokes escape the root `.config/dotnet-tools.json` pin, including the Stryker.NET runner? Look at the tool manifest.
-
-### Validate Backend Options at Startup
-
-**ID:** `litespec/backend/dotnet/config#validate-backend-options-at-startup`
-
-**Statement:** A configuration section MUST bind to a named options class validated for required fields, ranges, and formats at startup.
-
-**Rationale:** A required setting read through a raw lookup fails on the first request that needs it, which may be hours after a bad deploy. Binding each section to a validated options class fails startup instead, with the field, range, or format named. This provision states the .NET form of `litespec/workspace/config#validate-backend-configuration-at-startup`.
-
-**Reviewed for:** Which configuration sections lack a named options class validated for required fields, ranges, and formats at startup? Look at each section beside its options class.
-
-### Bind Setting Records to Options
-
-**ID:** `litespec/backend/dotnet/config#bind-setting-records-to-options`
-
-**Statement:** A setting record set by the decider or the operator MUST bind to a named options class validated at startup.
-
-**Rationale:** The setting record owns its value type, its default, its range, its unit, and what happens at the bound, and the options class carries them with checks for required fields, ranges, and formats. A `secret` setting binds from secret storage, never from a committed file. A tenant-set setting is stored data, not configuration: the handler reads it per tenant, and no options class carries it.
-
-**Example:** The receipt threshold binds to `SpendingOptions` with its range; startup fails when the configured value leaves the range.
-
-**Reviewed for:** Which decider-set or operator-set settings lack a startup-validated options class, or which tenant-set values escape stored tenant state? Look at each setting beside its options class.
 
 ## Conventions
 

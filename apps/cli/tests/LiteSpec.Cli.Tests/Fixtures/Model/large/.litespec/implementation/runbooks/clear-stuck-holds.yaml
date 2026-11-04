@@ -1,0 +1,10 @@
+type: runbook
+id: runbook/clear-stuck-holds
+title: Clear stuck holds
+trigger: A hold stays ready past its pickup window.
+impact: The ready copy stays on the pickup shelf, and the next hold in the queue waits.
+prerequisites: Desk access to the holds queue.
+procedure: Open the holds queue, find the stuck hold, and cancel it so the copy returns to lending.
+verification: The copy shows as available, and the next hold in the queue is offered the copy.
+recovery: Re-place the hold when the reader still wants the copy.
+escalation: The head librarian reviews holds that stick twice.

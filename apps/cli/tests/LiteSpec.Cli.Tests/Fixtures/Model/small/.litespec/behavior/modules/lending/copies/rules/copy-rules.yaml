@@ -1,0 +1,14 @@
+type: rule-set
+title: Copy rules
+summary: Each copy keeps one home shelf.
+records:
+- type: rule
+  id: rule/copy.has-one-home-shelf
+  title: Has one home shelf
+  kind: invariant
+  statement: A copy has one home shelf.
+  governs:
+  - use-case/lending.register-copy
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.copy-shelf-home

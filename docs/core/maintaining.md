@@ -1,5 +1,9 @@
 # Maintaining the Standards
 
+**Stack:** any
+
+**Layer:** workspace
+
 ## Intent
 
 LiteSpec publishes each release as one complete contract, so the repository holding the standard needs its own operating rules. This page states them: how a provision, one identified obligation on a page, moves from draft to active to retired, how a rename replaces every citation of the old name in one change, and how a maintainer publishes a release from a git tag. The rules keep every provision identifier resolvable and every release reproducible from its tag.
@@ -45,6 +49,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#state-the-provision-lifecycle`
 
+**Strength:** rule
+
 **Statement:** A maintainer MUST keep each provision in exactly one of three states: draft, active, or retired.
 
 **Rationale:** The three states tell a maintainer what an identifier promises. An active identifier names a rule that holds and that its verification line says how to check. A retired identifier names nothing, so a citation to it is a defect rather than a reference. Without the lifecycle, a half-written provision and a removed one look identical to a cited one.
@@ -56,6 +62,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 ### Replace Every Citation on a Rename
 
 **ID:** `litespec/core/maintaining#replace-every-citation-on-a-rename`
+
+**Strength:** rule
 
 **Statement:** A provision rename MUST replace every citation of the old identifier in one change.
 
@@ -69,6 +77,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`
 
+**Strength:** rule
+
 **Statement:** A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.
 
 **Rationale:** A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing.
@@ -78,6 +88,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 ### List Every Stack Shape and Extension in the Manifest
 
 **ID:** `litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest`
+
+**Strength:** rule
 
 **Statement:** The LiteSpec manifest MUST list every stack, shape, extension, and version pin the release carries.
 
@@ -91,6 +103,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow`
 
+**Strength:** rule
+
 **Statement:** Every top-level class that declares a method in a .NET source project under `apps/`, and every test that verifies a provision, MUST name its provision in a mark: a `follows` mark on the class and a `proves` mark on the test.
 
 **Rationale:** LiteSpec's own tools are technical classes: they serve no product record, and each exists because a provision requires a check, a reader, or a generator of its shape. A `follows` mark is the reverse index from that code to the provision, so a retired or renamed provision finds every class still built for it, and a `proves` mark finds the tests that keep its check honest. LiteSpec keeps the research and decisions behind its provisions as records under `docs/intent/`, in the shapes a consumer uses; its provisions remain its specification, and the marks point at them directly. The site under `apps/site` is TypeScript with no mark form in the maintainer tool, so it carries no marks.
@@ -102,6 +116,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 ### Record the Reasoning Behind Each Release
 
 **ID:** `litespec/core/maintaining#record-the-reasoning-behind-each-release`
+
+**Strength:** rule
 
 **Statement:** A maintainer MUST keep the research and decisions behind each release as records under `docs/intent/`.
 

@@ -177,6 +177,15 @@ public sealed partial class PatternPage
                 continue;
             }
 
+            // The Strength and Applies to lines frame every provision, a pattern included;
+            // the provision scope check owns them.
+            if (pattern is not null && option is null
+                && (LiteSpec.Authoring.PageReader.TryParseStrengthLine(line, out _) || LiteSpec.Authoring.PageReader.TryParseAppliesToLine(line, out _)))
+            {
+                field = null;
+                continue;
+            }
+
             var labeled = FieldLine().Match(line);
 
             if (labeled.Success && pattern is not null)

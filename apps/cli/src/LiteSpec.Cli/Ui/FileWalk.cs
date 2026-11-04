@@ -1,3 +1,5 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Ui;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace LiteSpec.Ui;
 ///     and every file under a directory that matches, in a stable order.
 /// </summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
-/// <follows>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</follows>
+/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
 /// <follows>litespec/frontend/web/ui#track-source-changes</follows>
 static class FileWalk
 {
@@ -38,54 +40,18 @@ static class FileWalk
     /// <param name="directory">The directory to walk.</param>
     /// <param name="predicate">Whether a file is collected.</param>
     /// <returns>The collected files.</returns>
-    public static List<string> Walk(string directory, Func<string, bool> predicate)
-    {
-        var result = new List<string>();
-        WalkInto(directory, predicate, result);
-        return result;
-    }
+    public static List<string> Walk(string directory, Func<string, bool> predicate) =>
+        SourceTree.Match(directory, ["**/*"], Excludes(), StringComparison.Ordinal)
+            .Where(predicate)
+            .ToList();
 
     /// <summary>
-    ///     Collects the matching files under one directory into the result.
+    ///     The glob excludes that leave out every ignored directory at any depth.
+    ///     Build output is generated, not authored: scanning it reports the bundler's
+    ///     own CSS as a source violation, which no consumer can fix. Native runtime
+    ///     directories hold copied web assets rather than authored source.
     /// </summary>
-    /// <param name="directory">The directory to walk.</param>
-    /// <param name="predicate">Whether a file is collected.</param>
-    /// <param name="result">The collected files.</param>
-    static void WalkInto(string directory, Func<string, bool> predicate, List<string> result)
-    {
-        if (!Directory.Exists(directory))
-        {
-            return;
-        }
-
-        // Build output is generated, not authored. Scanning it reports the bundler's
-        // own CSS as a source violation, which no consumer can fix. Native runtime
-        // directories hold copied web assets rather than authored source.
-        foreach (var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos().OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
-        {
-            if (IgnoredDirectories.Contains(entry.Name))
-            {
-                continue;
-            }
-
-            if ((entry.Attributes & FileAttributes.ReparsePoint) != 0)
-            {
-                if (predicate(entry.FullName))
-                {
-                    result.Add(entry.FullName);
-                }
-
-                continue;
-            }
-
-            if ((entry.Attributes & FileAttributes.Directory) != 0)
-            {
-                WalkInto(entry.FullName, predicate, result);
-            }
-            else if (predicate(entry.FullName))
-            {
-                result.Add(entry.FullName);
-            }
-        }
-    }
+    /// <returns>The exclude patterns.</returns>
+    static string[] Excludes() =>
+        [.. IgnoredDirectories.SelectMany(name => new[] { "**/" + name, "**/" + name + "/**/*" })];
 }

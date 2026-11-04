@@ -23,32 +23,32 @@ function discover(folder: string): string[] {
 
 for (const address of discover(routesRoot)) {
   test.describe(`route ${address}`, () => {
-    test("renders one floorplan from a named registry item", proves("litespec/frontend/web/ui#check-every-route-in-a-browser"), async ({ page }) => {
+    test("renders one floorplan from a named registry item", proves("litespec/frontend/ui#check-every-route"), async ({ page }) => {
       await page.goto(address);
       await expect(page.locator("[data-floorplan]")).toHaveCount(1);
       await expect(page.locator("[data-registry-item]")).toHaveCount(1);
     });
 
-    test("has one heading and one main landmark", proves("litespec/frontend/web/ui#check-every-route-in-a-browser"), async ({ page }) => {
+    test("has one heading and one main landmark", proves("litespec/frontend/ui#check-every-route"), async ({ page }) => {
       await page.goto(address);
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(page.locator("main")).toHaveCount(1);
     });
 
-    test("reports zero WCAG 2.2 AA violations", proves("litespec/frontend/web/ui#check-every-route-in-a-browser"), async ({ page }) => {
+    test("reports zero WCAG 2.2 AA violations", proves("litespec/frontend/ui#check-every-route"), async ({ page }) => {
       await page.goto(address);
       const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag22aa"]).analyze();
       expect(results.violations).toEqual([]);
     });
 
-    test("reflows at 320 CSS pixels without horizontal scrolling", proves("litespec/frontend/web/ui#check-every-route-in-a-browser"), async ({ page }) => {
+    test("reflows at 320 CSS pixels without horizontal scrolling", proves("litespec/frontend/ui#check-every-route"), async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 640 });
       await page.goto(address);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
       expect(overflow).toBe(false);
     });
 
-    test("shows a visible focus on the first interactive element", proves("litespec/frontend/web/ui#check-every-route-in-a-browser"), async ({ page }) => {
+    test("shows a visible focus on the first interactive element", proves("litespec/frontend/ui#check-every-route"), async ({ page }) => {
       await page.goto(address);
       await page.keyboard.press("Tab");
       const focused = page.locator(":focus-visible");

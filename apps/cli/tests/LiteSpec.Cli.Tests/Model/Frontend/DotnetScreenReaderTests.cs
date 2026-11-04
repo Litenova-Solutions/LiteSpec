@@ -160,7 +160,7 @@ public sealed class DotnetScreenReaderTests
             "Pages/ExpenseList.razor",
             "@page \"/expenses\"\n",
             "Pages/ExpenseList.razor.cs",
-            "namespace Web.Pages;\n\n/// <follows>litespec/frontend/blazor/stack#publish-static-webassembly-output</follows>\npublic partial class ExpenseList\n{\n}\n");
+            "namespace Web.Pages;\n\n/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>\npublic partial class ExpenseList\n{\n}\n");
 
         var route = Assert.Single(DotnetScreenReader.Read(Config(root, "blazor")));
 

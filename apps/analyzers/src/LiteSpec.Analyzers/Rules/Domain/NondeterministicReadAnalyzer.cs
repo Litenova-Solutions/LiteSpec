@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -17,7 +18,7 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1009);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -28,7 +29,8 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
-        var types = new WellKnownTypes(context.Compilation);
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        var types = new WellKnownTypes(context.Compilation, scope);
         context.RegisterOperationAction(types.AnalyzeProperty, OperationKind.PropertyReference);
         context.RegisterOperationAction(types.AnalyzeInvocation, OperationKind.Invocation);
         context.RegisterOperationAction(types.AnalyzeCreation, OperationKind.ObjectCreation);
@@ -53,11 +55,15 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
         private readonly INamedTypeSymbol? _random;
         /// <summary>Stores the random number generator used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _randomNumberGenerator;
+        /// <summary>Stores the scope used by the well known types code.</summary>
+        private readonly FileScope _scope;
 
         /// <summary>Initializes a new instance of the <see cref="WellKnownTypes"/> class.</summary>
         /// <param name="compilation">The compilation whose types and references the check reads.</param>
-        public WellKnownTypes(Compilation compilation)
+        /// <param name="scope">Whether the rule applies to each file.</param>
+        public WellKnownTypes(Compilation compilation, FileScope scope)
         {
+            _scope = scope;
             _dateTime = compilation.GetTypeByMetadataName("System.DateTime");
             _dateTimeOffset = compilation.GetTypeByMetadataName("System.DateTimeOffset");
             _timeProvider = compilation.GetTypeByMetadataName("System.TimeProvider");
@@ -72,6 +78,11 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
         /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
         public void AnalyzeProperty(OperationAnalysisContext context)
         {
+            if (!_scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+            {
+                return;
+            }
+
             var reference = (IPropertyReferenceOperation)context.Operation;
             if (!IsNondeterministicProperty(reference.Property))
             {
@@ -85,6 +96,11 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
         /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
         public void AnalyzeInvocation(OperationAnalysisContext context)
         {
+            if (!_scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+            {
+                return;
+            }
+
             var invocation = (IInvocationOperation)context.Operation;
             var method = invocation.TargetMethod;
             var containing = method.ContainingType;
@@ -105,6 +121,11 @@ public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
         /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
         public void AnalyzeCreation(OperationAnalysisContext context)
         {
+            if (!_scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+            {
+                return;
+            }
+
             var creation = (IObjectCreationOperation)context.Operation;
             if (!IsType(creation.Type, _random))
             {

@@ -1,5 +1,8 @@
 # Frontend Rendering and Routes
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, and how each route state renders. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.
@@ -24,6 +27,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#load-route-data-before-rendering`
 
+**Strength:** rule
+
+**Applies to:** artifact: route
+
 **Statement:** A route MUST load each read it needs through one shared cache before its view renders.
 
 **Rationale:** A view that renders before its reads complete shows a spinner after it appears, then swaps the spinner for content: two drawings for one navigation, with layout shifting between them. Loading each read through one shared cache before the view renders gives the page its data in place. The cache owns freshness, so the router keeps no second copy that could disagree.
@@ -36,6 +43,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#read-route-data-from-the-route-cache`
 
+**Strength:** rule
+
+**Applies to:** artifact: route
+
 **Statement:** A view MUST read route data through the same cache entry its route filled.
 
 **Rationale:** A view that reads under another key issues a second request for data the route already loaded, and the two answers can disagree when the data changes between them. Reading through the same cache entry the route filled renders the data the route approved. A failed read reaches the route's error boundary, which draws the shared problem state instead of a half-rendered view.
@@ -45,6 +56,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 ### Keep Address Parameters Validated by a Schema
 
 **ID:** `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema`
+
+**Strength:** rule
+
+**Applies to:** artifact: route
 
 **Statement:** A route MUST declare its address parameters in a validated schema, including its filters and its page.
 
@@ -58,6 +73,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#load-each-route-and-each-language-separately`
 
+**Strength:** rule
+
+**Applies to:** artifact: route
+
 **Statement:** A frontend MUST load each route and each language as its own download, with no icon set or language loaded whole.
 
 **Rationale:** A reader opens one address and reads one language, so downloading every route and every language up front wastes the reader's time on code and copy outside what they read. Each route and each language ships as its own download: a reader in Dutch who stays on the dashboard downloads neither English nor the routes outside their path. No icon set or language loads whole for the same reason.
@@ -70,6 +89,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#prefetch-a-route-on-intent`
 
+**Strength:** rule
+
+**Applies to:** artifact: route
+
 **Statement:** A frontend MUST prefetch the route the reader signals intent toward, without treating that prefetch as a cache beyond the shared cache.
 
 **Rationale:** When the reader signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route's data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only: a router that kept its own second cache would serve a stale answer beside the fresh one.
@@ -79,6 +102,10 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 ### Represent Route States
 
 **ID:** `litespec/frontend/rendering#represent-route-states`
+
+**Strength:** rule
+
+**Applies to:** artifact: route
 
 **Statement:** A data-driven route MUST define its loading, empty, error, forbidden, not-found, and ready behavior.
 
@@ -92,6 +119,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#keep-authenticated-caching-explicit`
 
+**Strength:** rule
+
 **Statement:** Actor-specific data MUST declare its cache key, partition, invalidation owner, and security review before caching, beside the read definition setting the key.
 
 **Rationale:** A cache entry that ignores whose data it holds serves one actor's answer to another reader: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.
@@ -101,6 +130,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 ### Keep Proxy Behavior at the Edge
 
 **ID:** `litespec/frontend/rendering#keep-proxy-behavior-at-the-edge`
+
+**Strength:** rule
 
 **Statement:** A development or edge proxy rule MUST route only, and never decide who the actor is or what the actor may read.
 
@@ -114,6 +145,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#build-the-server-data-cache-per-request`
 
+**Strength:** rule
+
 **Statement:** A server-rendered frontend MUST construct its data cache inside each request.
 
 **Rationale:** A server renders for many readers at once. A data cache shared across requests serves the next reader the previous reader's answer, leaking one actor's data to another with no error to report it. Constructing the cache inside each request gives every reader a fresh cache that dies with the response.
@@ -125,6 +158,10 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 ### Use a Shared Layout for a Shell
 
 **ID:** `litespec/frontend/rendering#use-a-shared-layout-for-a-shell`
+
+**Strength:** default
+
+**Applies to:** artifact: route
 
 **Default:** Give a shell a layout holding the frame every child route shares.
 
@@ -138,6 +175,10 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#keep-layouts-stable`
 
+**Strength:** default
+
+**Applies to:** artifact: route
+
 **Default:** Keep a layout to the frame and the providers every child route needs.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -149,6 +190,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 ### Keep Server-Only Code Identifiable
 
 **ID:** `litespec/frontend/rendering#keep-server-only-code-identifiable`
+
+**Strength:** default
 
 **Default:** Keep a module reading a request header, a cookie, or a server secret in a file whose name and place show the server ownership.
 

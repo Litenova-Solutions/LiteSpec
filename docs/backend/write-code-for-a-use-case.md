@@ -12,22 +12,22 @@ Each row names one code element, the folder that holds it, the mark it carries, 
 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|
-| Command or query handler | The use-case folder in Application | `implements` naming `use-case/<module>.<name>` | `use-case-act-missing`, `write-undeclared`, `effect-undeclared` |
-| Command or query message | The use-case folder beside its handler | None; the handler folder places it | `name-drift` |
-| Validator | The use-case folder beside its message | `implements` naming `use-case/<module>.<name>` | Review the validator body |
-| Result type | The use-case folder beside its handler | None; the handler folder places it | `result-undeclared` |
-| Aggregate root | The aggregate folder in Domain | `implements` naming `aggregate/<module>.<name>` | `aggregate-unimplemented` |
+| Command or query handler | The use case folder | `implements` naming `use-case/<module>.<name>` | `use-case-act-missing`, `write-undeclared`, `effect-undeclared` |
+| Command or query message | The use case folder beside its handler | None; the handler folder places it | `name-drift` |
+| Validator | The use case folder beside its message | `implements` naming `use-case/<module>.<name>` | Review the validator body |
+| Result type | The use case folder beside its handler | None; the handler folder places it | `result-undeclared` |
+| Aggregate root | The aggregate `Domain/` folder | `implements` naming `aggregate/<module>.<name>` | `aggregate-unimplemented` |
 | Root method that changes state | On the aggregate root | `implements` naming `use-case/<module>.<name>`, exactly one | `use-case-act-missing`, `mark-count-invalid`, `act-event-undeclared`, `act-event-unimplemented` |
-| Domain event | The `Events` folder of its aggregate | `implements` naming `event/<aggregate>.<fact>` | `act-event-undeclared`, `act-event-unimplemented`, `LS1013` |
-| Refusal type | The refusals of its aggregate | `implements` naming `rule/<home>.<name>` | `refusal-unimplemented` |
-| Repository interface | The aggregate folder in Domain | None; the aggregate folder places it | `constituent-parent-missing` |
-| Repository implementation | The persistence folder in Infrastructure | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | `repository-unimplemented` |
-| Endpoint | The use-case folder under `Endpoints` in WebApi | `implements` naming `use-case/<module>.<name>` | `use-case-endpoint-missing`, `operation-use-case-drift` |
-| Request and response models | The endpoint folder beside the endpoint | None; the endpoint folder places them | Review the transport models |
-| Event handler class | The `On{Fact}` folder in Application | `implements` naming `reaction/<module>.<name>` | `reaction-unimplemented`, `effect-undeclared` |
-| Scheduled or manual host | Infrastructure, or Worker when the project has one | `implements` naming `job/<module>.<name>` | `job-unimplemented` |
-| External-system port | Application beside the aggregate it serves | `implements` naming `external-system/<name>` | `external-system-unimplemented` |
-| Test | The test project for its boundary | `proves` naming `scenario/<use-case>.<name>` | `proves-unreached`, `use-case-scenario-missing`, `use-case-unverified` |
+| Domain event | The `Events/` folder of its aggregate `Domain/` folder | `implements` naming `event/<aggregate>.<fact>` | `act-event-undeclared`, `act-event-unimplemented`, `code-placement-drift` |
+| Refusal type | The `Refusals/` folder of its aggregate `Domain/` folder | `implements` naming `rule/<home>.<name>` | `refusal-unimplemented` |
+| Repository interface | The aggregate `Domain/` folder | None; the aggregate folder places it | `constituent-parent-missing` |
+| Repository implementation | The aggregate `Infrastructure/` folder | `implements` naming `aggregate/<module>.<name>`, or derived from the interface | `repository-unimplemented` |
+| Endpoint | The use case folder, or the host for a host-only endpoint | `implements` naming `use-case/<module>.<name>` | `use-case-endpoint-missing`, `operation-use-case-drift` |
+| Request and response models | The use case folder beside the endpoint, or the node `WebApi/` folder when shared | None; the endpoint folder places them | Review the transport models |
+| Event handler class | The `Reactions/On{Fact}` folder | `implements` naming `reaction/<module>.<name>` | `reaction-unimplemented`, `effect-undeclared` |
+| Scheduled or manual host | The module `Jobs/` folder, hosted in Infrastructure or Worker | `implements` naming `job/<module>.<name>` | `job-unimplemented` |
+| External-system port | The node `Application/` folder beside the aggregate it serves, or the owning module `Contracts/` when called from another module | `implements` naming `external-system/<name>` | `external-system-unimplemented` |
+| Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | `proves-unreached`, `use-case-scenario-missing`, `use-case-unverified` |
 
 Screens stay outside this table: whether a browser reaches a use case depends on the deployment. The [Project Model](../core/model.md) states the mark rules, and [System](../core/system.md) requires each mark; each stack page states the written form its language takes.
 

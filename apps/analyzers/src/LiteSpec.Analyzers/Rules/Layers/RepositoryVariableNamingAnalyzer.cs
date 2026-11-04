@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,7 +19,7 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2010);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) =>
         layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
@@ -30,15 +31,22 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeParameter, SymbolKind.Parameter);
-        context.RegisterSymbolAction(AnalyzeField, SymbolKind.Field);
-        context.RegisterOperationAction(AnalyzeDeclarator, OperationKind.VariableDeclarator);
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterSymbolAction(c => AnalyzeParameter(c, scope), SymbolKind.Parameter);
+        context.RegisterSymbolAction(c => AnalyzeField(c, scope), SymbolKind.Field);
+        context.RegisterOperationAction(c => AnalyzeDeclarator(c, scope), OperationKind.VariableDeclarator);
     }
 
     /// <summary>Analyzes the parameter.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeParameter(SymbolAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeParameter(SymbolAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var parameter = (IParameterSymbol)context.Symbol;
         if (parameter.IsImplicitlyDeclared || !TryGetExpectedName(parameter.Type, out var expected))
         {
@@ -63,8 +71,14 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
 
     /// <summary>Analyzes the field.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeField(SymbolAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeField(SymbolAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var field = (IFieldSymbol)context.Symbol;
         if (field.IsImplicitlyDeclared || !TryGetExpectedName(field.Type, out var expected))
         {
@@ -90,8 +104,14 @@ public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
 
     /// <summary>Analyzes the declarator.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void AnalyzeDeclarator(OperationAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeDeclarator(OperationAnalysisContext context, FileScope scope)
     {
+        if (!scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+        {
+            return;
+        }
+
         var declarator = (IVariableDeclaratorOperation)context.Operation;
         var local = declarator.Symbol;
         if (!TryGetExpectedName(local.Type, out var expected))

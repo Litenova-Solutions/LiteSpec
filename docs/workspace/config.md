@@ -1,5 +1,8 @@
 # Configuration
 
+**Stack:** `any`
+**Layer:** `workspace`
+
 ## Intent
 
 Configuration is every value a workspace sets outside code: version pins, backend and frontend settings, environment access, secrets, and toolchain versions. This page states where each value lives, who owns it, and when a bad value fails. It applies to anyone who adds a setting, a dependency, or a tool to the workspace.
@@ -20,6 +23,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#validate-backend-configuration-at-startup`
 
+**Strength:** rule
+
 **Statement:** A backend configuration section MUST bind to a named settings type validated for required fields, ranges, and formats at startup.
 
 **Rationale:** A missing or malformed setting fails somewhere: at startup with a named field, or at the first request that needs it with a downstream error. Binding each section to a validated settings type fails at startup, while the deployment can still stop. Reading a required setting through a raw configuration lookup defers the failure to the first request that needs it.
@@ -29,6 +34,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ### Validate Frontend Environment Access
 
 **ID:** `litespec/workspace/config#validate-frontend-environment-access`
+
+**Strength:** rule
 
 **Statement:** A frontend MUST read environment variables through one validated module separating server-only from browser-visible values, at `src/lib/env.ts` through the framework alias.
 
@@ -40,6 +47,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#keep-secrets-outside-source-control`
 
+**Strength:** rule
+
 **Statement:** A tracked configuration file MUST contain only safe defaults and placeholders.
 
 **Rationale:** A tracked file reaches every clone and stays in history after deletion. Local development uses user secrets and hosted environments use the deployment platform, so no real value needs to be tracked. Safe defaults and placeholders keep the tracked file runnable as documentation.
@@ -49,6 +58,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ### Use One Frontend Dependency Graph
 
 **ID:** `litespec/workspace/config#use-one-frontend-dependency-graph`
+
+**Strength:** rule
 
 **Statement:** A TypeScript workspace MUST use one root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml`.
 
@@ -60,6 +71,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#pin-the-javascript-toolchain`
 
+**Strength:** rule
+
 **Statement:** Root `package.json` MUST declare the manifest pnpm stack release in `packageManager` and a Node.js engine matching the manifest node stack release.
 
 **Rationale:** Different Node.js or pnpm releases resolve, build, and lint differently. Declaring the manifest pnpm release in `packageManager` and a matching Node.js engine keeps every developer and CI on the same toolchain. CI provisions that Node.js release and invokes the declared pnpm release, so local and CI resolve identically.
@@ -69,6 +82,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ### Pin the React Version in the ESLint Flat Config
 
 **ID:** `litespec/workspace/config#pin-the-react-version-in-the-eslint-flat-config`
+
+**Strength:** rule
 
 **Statement:** When the workspace holds a React frontend, its ESLint flat config MUST set a concrete `settings.react.version` rather than leave it at `detect`.
 
@@ -82,6 +97,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#keep-environment-examples-beside-applications`
 
+**Strength:** default
+
 **Default:** Keep a `.env.example` beside each frontend and deployable host listing required names and safe values.
 
 **Replacement:** A project that documents its environment centrally records its own example location in its project documentation.
@@ -93,6 +110,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ### Keep Local Overrides Untracked
 
 **ID:** `litespec/workspace/config#keep-local-overrides-untracked`
+
+**Strength:** default
 
 **Default:** Keep developer overrides in ignored local files or a platform secret store.
 
@@ -106,6 +125,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#keep-logging-configuration-provider-neutral`
 
+**Strength:** default
+
 **Default:** Emit structured logs through standard logging abstractions and keep exporter configuration in hosts.
 
 **Replacement:** A project committed to one log backend records its own logging setup in its host configuration.
@@ -117,6 +138,8 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ### Keep Documentation Directories Out of Build-Artifact Ignore Rules
 
 **ID:** `litespec/workspace/config#keep-documentation-directories-out-of-build-artifact-ignore-rules`
+
+**Strength:** default
 
 **Default:** Exclude a documentation directory from a build-artifact ignore rule that matches it by accident.
 

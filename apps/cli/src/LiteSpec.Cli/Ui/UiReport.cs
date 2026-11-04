@@ -4,7 +4,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Ui;
 
 /// <summary>The collected result of one <see cref="UiValidator.Validate"/> run.</summary>
-/// <param name="ExitCode">What <c>litespec ui</c> returns: 0 pass, 1 problems, 2 unusable root.</param>
+/// <param name="ExitCode">What the UI pass returns: 0 pass, 1 problems, 2 unusable root.</param>
 /// <param name="Problems">The findings the JSON output's problems array holds.</param>
 /// <param name="Consumer">The consumer root the run checked.</param>
 /// <param name="SharedPackage">The declared shared package, or null when none resolved.</param>

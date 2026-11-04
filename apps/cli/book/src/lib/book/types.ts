@@ -10,6 +10,8 @@ export interface TestStep {
 export interface BookRecord {
   type: string;
   title: string;
+  /** The qualified identifier, computed from the identifier segments plus placement; the identifier itself when placement adds no prefix. */
+  qualifiedId?: string;
   fields: Record<string, unknown>;
   layer?: string | null;
   src?: SourceRef | null;

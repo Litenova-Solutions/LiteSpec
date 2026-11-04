@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -16,18 +17,22 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS3004);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer != Layer.None && layer != Layer.Test;
 
     /// <summary>Registers the analysis actions for the sealed class analyzer rule with the compilation context.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private protected override void Register(CompilationStartAnalysisContext context) =>
-        context.RegisterCompilationEndAction(Analyze);
+    private protected override void Register(CompilationStartAnalysisContext context)
+    {
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterCompilationEndAction(c => Analyze(c, scope));
+    }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
-    private static void Analyze(CompilationAnalysisContext context)
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void Analyze(CompilationAnalysisContext context, FileScope scope)
     {
         var types = new List<INamedTypeSymbol>();
         CollectTypes(context.Compilation.Assembly.GlobalNamespace, types);
@@ -43,7 +48,7 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
 
         foreach (var type in types)
         {
-            if (IsSealableLeaf(type) && !derived.Contains(type.OriginalDefinition))
+            if (scope.AppliesTo(type) && IsSealableLeaf(type) && !derived.Contains(type.OriginalDefinition))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS3004, type.Locations[0], type.Name));
             }

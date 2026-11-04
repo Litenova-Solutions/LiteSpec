@@ -1,9 +1,0 @@
-type: entry-point-list
-title: Entry points
-records:
-  - type: entry-point
-    id: entry-point/library-app
-    title: Library app
-    kind: browser
-    auth:
-      - session

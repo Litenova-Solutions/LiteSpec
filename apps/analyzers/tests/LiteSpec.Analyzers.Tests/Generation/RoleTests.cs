@@ -191,7 +191,8 @@ public sealed class RoleTests
                 ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/list-expenses", "self")))),
-            assemblyName: "Shop.Core");
+            assemblyName: "Shop.Core",
+            layout: "layer-projects");
 
         Assert.False(run.Sources.ContainsKey("LiteSpecRoles.g.cs"), "The roles source must not be generated.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));

@@ -579,6 +579,189 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("rule/everything.shelf-marks-face-out", BookOutline.Build(model).Unplaced);
     }
 
+    /// <summary>A use case parents its folder node: the aggregate beside its file, or its module from the file when its home names another module.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Use_Case_Parents_Its_Aggregate_Folder()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("module", "module/copies", "Copies", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+            Record(
+                "use-case",
+                "use-case/lending.borrow-copy",
+                "Borrow Copy",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/borrow-copy.yaml"),
+            Record(
+                "use-case",
+                "use-case/copies.list-loans",
+                "List Loans",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/use-cases/list-loans.yaml"));
+
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "use-case/lending.borrow-copy"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "use-case/copies.list-loans"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("use-case/lending.borrow-copy", outline.Unplaced);
+        Assert.DoesNotContain("use-case/copies.list-loans", outline.Unplaced);
+        var loan = Find(outline.Layers, "aggregate/lending.loan");
+        Assert.NotNull(loan);
+        Assert.Contains(loan!.Children, child => string.Equals(child.Id, "use-case/lending.borrow-copy", StringComparison.Ordinal));
+        var module = Find(outline.Layers, "module/lending");
+        Assert.NotNull(module);
+        Assert.Contains(module!.Children, child => string.Equals(child.Id, "use-case/copies.list-loans", StringComparison.Ordinal));
+    }
+
+    /// <summary>A rule parents its folder node: the aggregate above its rules folder, its module from the file, or the product under behavior rules.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Rule_Parents_Its_Folder_Node()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+            Record(
+                "rule",
+                "rule/lending.discount-rounds-down",
+                "Discount Rounds Down",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/rules/discount-rounds-down.yaml"),
+            Record(
+                "rule",
+                "rule/loan.shelf-marks-face-out",
+                "Shelf Marks Face Out",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/rules/shelf-marks-face-out.yaml"),
+            Record(
+                "rule",
+                "rule/everything.cross-module-cap",
+                "Cross Module Cap",
+                "reviewed",
+                file: ".litespec/behavior/rules/cross-module-cap.yaml"));
+
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "rule/lending.discount-rounds-down"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "rule/loan.shelf-marks-face-out"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "rule/everything.cross-module-cap"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("rule/lending.discount-rounds-down", outline.Unplaced);
+        Assert.DoesNotContain("rule/loan.shelf-marks-face-out", outline.Unplaced);
+        Assert.DoesNotContain("rule/everything.cross-module-cap", outline.Unplaced);
+    }
+
+    /// <summary>A screen parents its entry-point folder: the entry point beside its screens folder, or the one its folder names.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Screen_Parents_Its_Entry_Point_Folder()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record(
+                "entry-point",
+                "entry-point/kiosk",
+                "Kiosk",
+                "reviewed",
+                file: ".litespec/behavior/entry-points/kiosk/entry-point.yaml"),
+            Record("entry-point", "entry-point/library-app", "Library App", "reviewed"),
+            Record(
+                "screen",
+                "screen/other.search",
+                "Search",
+                "reviewed",
+                file: ".litespec/behavior/entry-points/kiosk/screens/search.yaml"),
+            Record(
+                "screen",
+                "screen/other.list",
+                "List",
+                "reviewed",
+                file: ".litespec/behavior/entry-points/library-app/screens/list.yaml"));
+
+        Assert.Equal("entry-point/kiosk", BookParents.ParentOf(model, "screen/other.search"));
+        Assert.Equal("entry-point/library-app", BookParents.ParentOf(model, "screen/other.list"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("screen/other.search", outline.Unplaced);
+        Assert.DoesNotContain("screen/other.list", outline.Unplaced);
+        var kiosk = Find(outline.Layers, "entry-point/kiosk");
+        Assert.NotNull(kiosk);
+        Assert.Contains(kiosk!.Children, child => string.Equals(child.Id, "screen/other.search", StringComparison.Ordinal));
+    }
+
+    /// <summary>An aggregate and a reaction parent their module folder when their home names another module.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Aggregate_And_Module_Members_Parent_Their_Module_Folder()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("module", "module/copies", "Copies", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/copies.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+            Record(
+                "reaction",
+                "reaction/copies.send-due-reminder",
+                "Send Due Reminder",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/reactions/send-due-reminder.yaml"));
+
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "aggregate/copies.loan"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "reaction/copies.send-due-reminder"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("aggregate/copies.loan", outline.Unplaced);
+        Assert.DoesNotContain("reaction/copies.send-due-reminder", outline.Unplaced);
+    }
+
+    /// <summary>An event parents the aggregate whose folder holds its file, even when its home names no aggregate.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Event_Parents_Its_Aggregate_Folder()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                "Loan",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+            Record(
+                "event",
+                "event/other.loan-borrowed",
+                "Loan Borrowed",
+                "reviewed",
+                file: ".litespec/behavior/modules/lending/loans/events/loan-borrowed.yaml"));
+
+        Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "event/other.loan-borrowed"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("event/other.loan-borrowed", outline.Unplaced);
+        var loan = Find(outline.Layers, "aggregate/lending.loan");
+        Assert.NotNull(loan);
+        Assert.Contains(loan!.Children, child => string.Equals(child.Id, "event/other.loan-borrowed", StringComparison.Ordinal));
+    }
+
     static JsonObject Record(
         string type,
         string id,

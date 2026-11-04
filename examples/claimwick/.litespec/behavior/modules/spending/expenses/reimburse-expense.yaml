@@ -8,15 +8,15 @@ access:
   grant: permission/reimburse-expense
   tenant: own
 serves:
-  - journey/submit-and-reimburse#s4
+- journey/submit-and-reimburse#s4
 fulfills:
-  - requirement/approval.single-reimbursement
+- requirement/approval.single-reimbursement
 reachedThrough:
-  - entry-point/claimwick-app
+- entry-point/claimwick-app
 raises:
-  - event/expense.reimbursed
+- event/expense.reimbursed
 changes:
-  - aggregate/spending.expense
+- aggregate/spending.expense
 idempotency:
   mode: none
   reason: the first payment moves the expense to reimbursed, so the aggregate refuses a second payment
@@ -24,41 +24,41 @@ audit:
   level: none
   target: no audit trail; the example stores no audit entry
 records:
-  - type: result
-    id: result/reimburse-expense.reimbursed
-    title: Reimbursed
-    outcome: success
-    meaning: The expense is reimbursed.
-  - type: result
-    id: result/reimburse-expense.not-approved
-    title: Not Approved
-    outcome: refusal
-    code: spending.not-approved
-    meaning: The expense is not approved.
-  - type: result
-    id: result/reimburse-expense.already-reimbursed
-    title: Already Reimbursed
-    outcome: refusal
-    code: spending.already-reimbursed
-    meaning: The expense is already reimbursed.
-  - type: scenario
-    id: scenario/reimburse-expense.reimbursing-an-approved-expense-succeeds
-    title: Reimbursing an Approved Expense Succeeds
-    given: A manager approved an expense.
-    when: Finance reimburses the expense.
-    then: The expense is reimbursed.
-    result: result/reimburse-expense.reimbursed
-  - type: scenario
-    id: scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused
-    title: Reimbursing an Unapproved Expense Is Refused
-    given: An employee submitted an expense with its receipt.
-    when: Finance reimburses the expense.
-    then: The reimbursement is refused because the expense is not approved.
-    result: result/reimburse-expense.not-approved
-  - type: scenario
-    id: scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused
-    title: Reimbursing a Reimbursed Expense Is Refused
-    given: Finance reimbursed an expense.
-    when: Finance reimburses the expense again.
-    then: The reimbursement is refused because the expense is already reimbursed.
-    result: result/reimburse-expense.already-reimbursed
+- type: result
+  id: result/reimburse-expense.reimbursed
+  title: Reimbursed
+  outcome: success
+  meaning: The expense is reimbursed.
+- type: result
+  id: result/reimburse-expense.not-approved
+  title: Not Approved
+  outcome: refusal
+  code: spending.not-approved
+  meaning: The expense is not approved.
+- type: result
+  id: result/reimburse-expense.already-reimbursed
+  title: Already Reimbursed
+  outcome: refusal
+  code: spending.already-reimbursed
+  meaning: The expense is already reimbursed.
+- type: scenario
+  id: scenario/reimburse-expense.reimbursing-an-approved-expense-succeeds
+  title: Reimbursing an Approved Expense Succeeds
+  given: A manager approved an expense.
+  when: Finance reimburses the expense.
+  then: The expense is reimbursed.
+  result: result/reimburse-expense.reimbursed
+- type: scenario
+  id: scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused
+  title: Reimbursing an Unapproved Expense Is Refused
+  given: An employee submitted an expense with its receipt.
+  when: Finance reimburses the expense.
+  then: The reimbursement is refused because the expense is not approved.
+  result: result/reimburse-expense.not-approved
+- type: scenario
+  id: scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused
+  title: Reimbursing a Reimbursed Expense Is Refused
+  given: Finance reimbursed an expense.
+  when: Finance reimburses the expense again.
+  then: The reimbursement is refused because the expense is already reimbursed.
+  result: result/reimburse-expense.already-reimbursed

@@ -12,7 +12,7 @@ namespace LiteSpec.Ui;
 /// <summary>One in-process validation run: the errors, digests, and manifest it collects.</summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
 /// <follows>litespec/frontend/ui#use-the-product-profiles</follows>
-/// <follows>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</follows>
+/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
 /// <follows>litespec/frontend/web/ui#track-source-changes</follows>
 sealed class UiSession
 {
@@ -139,7 +139,7 @@ sealed class UiSession
         // An additional registry passes both registry gates under an exception against
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
-        var baselineOverride = uiExceptions.Any(exception => exception.Provision == "litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package");
+        var baselineOverride = uiExceptions.Any(exception => exception.Provision == "litespec/frontend/ui#pin-the-baseline-in-the-shared-package");
         var pkgValue = JsonRead.Chain(project, "paths", "uiPackage");
         var pkg = pkgValue.Found ? pkgValue.Node : null;
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
@@ -676,8 +676,8 @@ sealed class UiSession
         TrailingSpaces.Replace(Newline.Replace(contents, "\n"), "").TrimEnd() + "\n";
 
     // A value read against one of the shipped schemas. The keyword gate runs first,
-    // so a schema carrying a keyword this evaluator does not implement fails rather
-    // than passing unread.
+    // so a schema carrying a keyword outside the draft 2020-12 vocabulary fails
+    // rather than passing unread.
     /// <summary>
     ///     Validates one value against a shipped schema.
     /// </summary>
@@ -687,7 +687,7 @@ sealed class UiSession
     /// <param name="provisionId">The provision the findings cite.</param>
     /// <param name="code">The finding code.</param>
     /// <returns>True when the value is valid.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SchemaCheck records any failure of the local schema evaluator as a finding for the value, so an unsupported schema or malformed value reports instead of crashing validation.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SchemaCheck records any failure of schema validation as a finding for the value, so an unsupported schema or malformed value reports instead of crashing validation.")]
     public bool SchemaCheck(string schemaName, JsonNode? value, string label, string provisionId, string code)
     {
         var file = LiteSpecHome.PathTo($"schemas/{schemaName}");
@@ -750,7 +750,7 @@ sealed class UiSession
         }
         catch (JsonTextException cause)
         {
-            Add("ui-design-contract-invalid", $"metadata is not in the YAML subset ({cause.Message})", file);
+            Add("ui-design-contract-invalid", $"metadata is not YAML ({cause.Message})", file);
             return null;
         }
     }

@@ -1,5 +1,9 @@
 # Money, Time and Density Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 This page holds the patterns for writing amounts, statements, moments, periods, counts, charts, payouts, invoices, VAT, and identifiers at every width, read across tables, statements, charts, and phone screens. A team building a finance or reporting screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared way of writing figures keeps exports, statements, and screens agreeing, so finance can cite a figure without checking where it was read.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **ID:** `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount`
 
+**Strength:** rule
+
 **Statement:** Every amount MUST show its currency.
 
 **Rationale:** A currency on every amount keeps EUR 125.00 distinct from GBP 125.00 on every screen and export. Without it, a second currency turns each bare figure into a guess, and a pasted number carries no way to settle the guess.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 ### State the Time Zone of a Shared Moment
 
 **ID:** `litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment`
+
+**Strength:** rule
 
 **Statement:** A moment shown to readers in different time zones MUST state its time zone.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 ### Writing an Amount
 
 **ID:** `litespec/frontend/patterns/money-time-density#writing-an-amount`
+
+**Strength:** default
 
 **Question:** A reader meets amounts in tables, statements, and exports. One table writes EUR 45.00, and one statement writes the euro sign before 45.00. The question is which form the product keeps. It also asks how a negative reads and which separator the product uses.
 
@@ -269,6 +279,8 @@ page
 ### Statement That Adds Up
 
 **ID:** `litespec/frontend/patterns/money-time-density#statement-that-adds-up`
+
+**Strength:** default
 
 **Question:** A statement has one purpose. Money adds up top to bottom. Each kind forms a group with a subtotal. A grand total closes the statement at the foot. A count under each line helps a reader spot a missing line.
 
@@ -502,6 +514,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#writing-a-moment`
 
+**Strength:** default
+
 **Question:** Every date uses the zone the screen works in. Each table keeps one form. The expenses table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
@@ -676,6 +690,8 @@ page
 ### Choosing a Period
 
 **ID:** `litespec/frontend/patterns/money-time-density#choosing-a-period`
+
+**Strength:** default
 
 **Question:** A statements page can put the period in the heading. It offers two plain buttons beside it. Nothing says which is previous and which is next. The period cannot be typed.
 
@@ -885,6 +901,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#how-much-fits-before-it-breaks`
 
+**Strength:** default
+
 **Question:** A table can run at 47 pixels a row. Three columns hold two lines each. At 390 pixels a five-column table has to drop a column. It truncates names to Rotterdam with an ellipsis unless the page changes shape.
 
 **Default:** `the-full-width-with-nothing-truncated`
@@ -1077,6 +1095,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#counting-things`
 
+**Strength:** default
+
 **Question:** One rule governs this whole category: read a number the system can count; never type it. A hand-typed figure will not be updated and a reviewer will trust it anyway.
 
 **Default:** `counts-in-the-sidebar-on-the-rows-that-hold-work`
@@ -1258,6 +1278,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#spending-over-time`
 
+**Strength:** default
+
 **Question:** A dashboard can answer how the quarter is going with a number. A number says where the budget stands. Only a line says whether it is speeding up or slowing down.
 
 **Default:** `daily-columns-with-the-total-above`
@@ -1405,6 +1427,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#spending-by-expense-kind`
 
+**Strength:** default
+
 **Question:** The Rotterdam trip claims three expense kinds and a fee. The company asks which kind carries the quarter, and the answer is a share, not a total.
 
 **Default:** `horizontal-bars-with-the-figure-on-each-row`
@@ -1549,6 +1573,8 @@ page
 ### Spend Against the Budget
 
 **ID:** `litespec/frontend/patterns/money-time-density#spend-against-the-budget`
+
+**Strength:** default
 
 **Question:** The quarter budget holds EUR 10,000 and EUR 9,412 is claimed. The distance between the two is the decision to move money, hold claims, or call the budget spent.
 
@@ -1695,6 +1721,8 @@ page
 ### Figure Against an Earlier Period
 
 **ID:** `litespec/frontend/patterns/money-time-density#figure-against-an-earlier-period`
+
+**Strength:** default
 
 **Question:** A tile that says EUR 63,350.00 answers how much. Only the tile that adds August EUR 48,340.00 beside it answers whether the month was good.
 
@@ -1845,6 +1873,8 @@ page
 ### When the Money Arrives
 
 **ID:** `litespec/frontend/patterns/money-time-density#when-the-money-arrives`
+
+**Strength:** default
 
 **Question:** Finance holds the approved expenses and pays them out on payout days. Spenders plan around those days, so the schedule is a planning surface, not a history.
 
@@ -2000,6 +2030,8 @@ page
 ### Vendor's Invoice to the Company
 
 **ID:** `litespec/frontend/patterns/money-time-density#vendors-invoice-to-the-company`
+
+**Strength:** default
 
 **Question:** Billing holds what the company owes its software vendor: the Business subscription and anything metered. The invoice is the one document where the vendor is the seller. It reads as the sale of the vendor, not as the sale of the company.
 
@@ -2165,6 +2197,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#two-vat-rates-on-one-page`
 
+**Strength:** default
+
 **Question:** Books carry 9% and a hotel night carries 21%. The spender sees one total. The accounts show two rates on the page the tax return is built from.
 
 **Default:** `the-vat-split-under-the-order-total`
@@ -2327,6 +2361,8 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#numbers-at-phone-width`
 
+**Strength:** default
+
 **Question:** Alex Morgan checks the payout of the day from the office floor on a phone. At 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
 
 **Default:** `kpis-in-pairs-with-the-orders-under-them`
@@ -2487,6 +2523,8 @@ page
 ### Showing an Identifier
 
 **ID:** `litespec/frontend/patterns/money-time-density#showing-an-identifier`
+
+**Strength:** default
 
 **Question:** One design rule governs identifiers: an identifier shown on screen is labeled and copyable, and a raw code never reaches the screen. A payout page that shows SH-88213 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
 

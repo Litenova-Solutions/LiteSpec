@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -16,7 +17,7 @@ public sealed class ControllerAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2003);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.WebApi;
 
@@ -27,21 +28,29 @@ public sealed class ControllerAnalyzer : LayerAnalyzer
         var controllerBase = context.Compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ControllerBase");
         var controller = context.Compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.Controller");
         var apiController = context.Compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.ApiControllerAttribute");
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
         context.RegisterSymbolAction(
-            symbol => Analyze(symbol, controllerBase, controller, apiController), SymbolKind.NamedType);
+            symbol => Analyze(symbol, scope, controllerBase, controller, apiController), SymbolKind.NamedType);
     }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="controllerBase">The controller base supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="controller">The controller supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="apiController">The api controller supplied for the check, or null when the compilation does not provide it.</param>
     private static void Analyze(
         SymbolAnalysisContext context,
+        FileScope scope,
         INamedTypeSymbol? controllerBase,
         INamedTypeSymbol? controller,
         INamedTypeSymbol? apiController)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var type = (INamedTypeSymbol)context.Symbol;
         if (type.TypeKind != TypeKind.Class)
         {

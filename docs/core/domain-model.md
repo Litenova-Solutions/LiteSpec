@@ -1,5 +1,8 @@
 # Domain Model
 
+**Stack:** any
+**Layer:** domain
+
 ## Intent
 
 Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
@@ -52,7 +55,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `enforcedBy` | `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class. |
-| `reason`, `reviewBy`, `basedOn` | The reason and review date of an exemption, and the Intent records accepting retained or exempt personal data. |
+| `reason`, `basedOn` | The reason of an exemption, and the Intent records accepting retained or exempt personal data. |
 
 ### Sagas
 
@@ -98,6 +101,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#define-every-behavior-term-in-the-glossary`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:term
+
 **Statement:** Each term a Behavior record names MUST have a glossary entry stating its meaning.
 
 **Rationale:** Records and code share one language only when each word is defined once: a term used without an entry means whatever each reader guesses. The entry fixes the meaning, the rejected synonyms, and the wider and narrower terms, so reviewers and checks read the same word the same way.
@@ -109,6 +116,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Mark Each Term with Its Layer
 
 **ID:** `litespec/core/domain-model#mark-each-term-with-its-layer`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:term
 
 **Statement:** Each glossary term MUST carry its record layer, intent, behavior, or implementation, with the established synonyms its readers know in `aliases`.
 
@@ -122,6 +133,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#state-every-module-dependency`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:module
+
 **Statement:** Each module MUST name every module it depends on in `dependsOn`.
 
 **Rationale:** A module relies on the language and behavior of others, and each reliance shapes change: editing a module ripples into everything depending on it. Naming every reliance in `dependsOn` shows that ripple as data instead of leaving it for readers to reconstruct from prose.
@@ -131,6 +146,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Declare the Kind of Every Aggregate
 
 **ID:** `litespec/core/domain-model#declare-the-kind-of-every-aggregate`
+
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each aggregate MUST declare its kind: entity, saga, or store.
 
@@ -144,6 +163,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#name-the-owner-of-every-store`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** Each store MUST name its owning system or module in `owner`.
 
 **Rationale:** A store holds state no aggregate invariant guards, so nothing in the model explains who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner puts one party behind it, and keeps staff actions on it as ordinary use cases instead of unwritten operations.
@@ -153,6 +176,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Model Each Aggregate Lifecycle with States
 
 **ID:** `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`
+
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each entity and each saga MUST declare its lifecycle as `states` entries with a name and a meaning.
 
@@ -166,6 +193,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#leave-states-off-every-store`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** A store MUST carry no states.
 
 **Rationale:** A store holds state no aggregate invariant guards, so a lifecycle on it promises what nothing guards: states claim a reviewed path while any writer moves the rows. The store names its owner instead, as `litespec/core/domain-model#name-the-owner-of-every-store` states, and staff actions on it stay ordinary use cases.
@@ -178,49 +209,23 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#connect-every-state-through-transitions`
 
+**Strength:** rule
+
+**Applies to:** artifact: aggregate
+
 **Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
 
 **Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
 
 **Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state or use case.
 
-### State Each Saga Step with Its Compensation
-
-**ID:** `litespec/core/domain-model#state-each-saga-step-with-its-compensation`
-
-**Statement:** Each saga step MUST carry an `id`, name the use case it runs in `runs`, and name its compensation as `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
-
-**Rationale:** A step without a named undo leaves failure handling to the implementer: each handler invents its own reversal, and some invent none. Naming the compensating use case states the reversal beside the step, and `{ "mode": "none", "reason": "..." }` with its reason states why no reversal applies, such as money already moved. The step runs its use case on another aggregate, and it may carry a `guard` clause stating when it runs.
-
-**Example:** The hold-place step runs the place-hold use case and compensates with the release-hold use case, while the settle step carries `{ "mode": "none", "reason": "money has moved" }`.
-
-**Checked by:** `litespec model check` fails a saga step without `id`, `runs`, or `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
-
-### Close Every Saga with Named Exits and a Driver
-
-**ID:** `litespec/core/domain-model#close-every-saga-with-named-exits-and-a-driver`
-
-**Statement:** Each saga MUST name its exits with their triggers, its `finishedWhen`, and its `drivenBy`.
-
-**Rationale:** A saga with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, each a past participle or adjective, as `litespec/core/language#name-each-record-by-its-types-name-form` states. `finishedWhen` names the observable end in one sentence, and `drivenBy` names what moves the saga: `{ "job": "job/<...>" }`, `{ "reaction": "reaction/<...>" }`, or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }`. A driven saga also names its `cursor`, where resume state lives.
-
-**Example:** The return saga exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by the completion job and the librarian.
-
-**Checked by:** `litespec model check` fails a saga page without exits carrying names and triggers, `finishedWhen`, and `drivenBy`.
-
-### Prove Every Saga Guard and Exit with a Scenario
-
-**ID:** `litespec/core/domain-model#prove-every-saga-guard-and-exit-with-a-scenario`
-
-**Statement:** Each `guard` and each saga exit MUST have a scenario proving it.
-
-**Rationale:** A guard no scenario exercises is a condition nobody checked: it holds in prose and fails in code. A scenario per guard and per exit pins each branch as a checked fact, including the branches where the saga leaves early.
-
-**Reviewed for:** Which saga guards and exits lack a proving scenario? Look on the saga page and its use case pages.
-
 ### State Each Rule with Its Kind
 
 **ID:** `litespec/core/domain-model#state-each-rule-with-its-kind`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** Each rule MUST state its kind and its statement.
 
@@ -234,6 +239,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
+
 **Statement:** Each atomicity rule MUST name the aggregates it binds in `binds`.
 
 **Rationale:** An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a saga candidate, reported at level A.
@@ -245,6 +254,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Keep the Negation Word in the Rule Name
 
 **ID:** `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** A rule whose statement says `not`, `no`, `never`, or `cannot` MUST keep a restricting word in its name: `no`, `never`, `not`, `cannot`, `none`, `nothing`, `without`, `unless`, `non`, `refused`, `refuses`, `refusal`, `forbidden`, `blocked`, or `rejected`, a limit `only`, or a uniqueness `one-...-per-...`.
 
@@ -258,6 +271,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
+
 **Statement:** A rule spanning aggregates MUST live as an entry on a rule page.
 
 **Rationale:** An aggregate page holds what one aggregate guarantees; a rule spanning aggregates guarantees what no single aggregate owns. Giving such rules their own page keeps each aggregate page a true account of its aggregate, and gathers the shared rules where a reviewer judges them together.
@@ -267,6 +284,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Name the Refusal a Broken Rule Produces
 
 **ID:** `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** Each rule whose breach refuses a use case MUST name the refusal in `refusal`.
 
@@ -278,6 +299,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#release-every-reservation-by-a-named-use-case`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
+
 **Statement:** Each reservation rule MUST name the use case releasing it in `releasedBy`, or `{ "mode": "never", "reason": "..." }` with its cost.
 
 **Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start, and `{ "mode": "never", "reason": "..." }` with its cost admits a hold that truly lasts, with the price on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`). The `reservation-release-missing` check reports a reservation with no release.
@@ -287,6 +312,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Freeze Every Commercial Data Value
 
 **ID:** `litespec/core/domain-model#freeze-every-commercial-data-value`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its retained facts live in `retainedIn`.
 
@@ -298,6 +327,8 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#compute-shared-values-from-one-calculation-rule`
 
+**Strength:** rule
+
 **Statement:** A value shown by a query and recorded by a command MUST cite the same calculation rule in `computedBy` on both use cases.
 
 **Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code carries a mark naming the rule, and never the reverse.
@@ -307,6 +338,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Tabulate Every Calculation with Examples
 
 **ID:** `litespec/core/domain-model#tabulate-every-calculation-with-examples`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** Each calculation rule MUST be proven by a scenario carrying an `examples` table.
 
@@ -318,6 +353,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#state-each-event-with-meaning-and-carries`
 
+**Strength:** rule
+
+**Applies to:** artifact: domain-event
+
 **Statement:** Each event MUST state its meaning and the facts it carries.
 
 **Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
@@ -327,6 +366,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Name Every Event in the Past Tense
 
 **ID:** `litespec/core/domain-model#name-every-event-in-the-past-tense`
+
+**Strength:** rule
+
+**Applies to:** artifact: domain-event
 
 **Statement:** Each domain event MUST be named in the past tense.
 
@@ -340,6 +383,10 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#raise-every-event-through-its-aggregate-root`
 
+**Strength:** rule
+
+**Applies to:** artifact: domain-event
+
 **Statement:** Each event MUST be raised through its aggregate root.
 
 **Rationale:** The root is the one type through which outside behavior changes the aggregate, so it sees every change worth announcing. Raising each event there keeps the fact and its announcement in one step, and leaves no event announced for a change the aggregate never made.
@@ -349,6 +396,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Keep Model Invariants in Rules
 
 **ID:** `litespec/core/domain-model#keep-model-invariants-in-rules`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:rule
 
 **Statement:** A model invariant MUST live as a rule, never as a setting.
 
@@ -361,6 +412,10 @@ A domain event is an immutable statement that a business fact completed, named i
 ### Name Each Module After Its Capability
 
 **ID:** `litespec/core/domain-model#name-each-module-after-its-capability`
+
+**Strength:** default
+
+**Applies to:** artifact: record:module
 
 **Default:** Name each module after one capability the software offers, not after a company function or a catch-all, and split a module whose aggregates serve more than one capability into sibling modules.
 

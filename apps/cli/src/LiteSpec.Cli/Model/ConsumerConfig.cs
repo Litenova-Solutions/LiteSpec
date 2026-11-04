@@ -56,20 +56,23 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Gets the backend layers.</summary>
+    /// <summary>Gets the one code root: the application project holding every module at every layer, or the Application project under layer-projects.</summary>
     public string ApplicationRoot { get; private set; } = "";
 
-    /// <summary>Gets the domain layer.</summary>
+    /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string DomainRoot { get; private set; } = "";
 
-    /// <summary>Gets the HTTP layer.</summary>
+    /// <summary>Gets the WebApi host project.</summary>
     public string WebApiRoot { get; private set; } = "";
 
-    /// <summary>Gets the adapters.</summary>
+    /// <summary>Gets the Infrastructure project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string InfrastructureRoot { get; private set; } = "";
 
-    /// <summary>Gets the background worker.</summary>
+    /// <summary>Gets the background worker host project.</summary>
     public string WorkerRoot { get; private set; } = "";
+
+    /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
+    public bool IsLayerProjects { get; private set; }
 
     /// <summary>Gets the declared shared-kernel folder, or empty when the project declares none.</summary>
     public string SharedKernel { get; private set; } = "";
@@ -164,6 +167,20 @@ sealed class ConsumerConfig
                 : (JsonElement?)null;
 
         var problems = new List<Finding>();
+        var layerProjects = SelectsExtension(document.RootElement, "layer-projects");
+
+        string DeclaredRootOrEmpty(string field)
+        {
+            if (dotnet is not null
+                && dotnet.Value.TryGetProperty(field, out var value)
+                && value.ValueKind == JsonValueKind.String
+                && value.GetString() is { Length: > 0 } pattern)
+            {
+                return DeclaredRoot(field, pattern);
+            }
+
+            return "";
+        }
 
         string DeclaredRoot(string field, string fallback)
         {
@@ -199,10 +216,10 @@ sealed class ConsumerConfig
         config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
         config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
         config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
-        config.ApplicationRoot = DeclaredRoot("application", "apps/api/src/*.Application");
-        config.DomainRoot = DeclaredRoot("domain", "apps/api/src/*.Domain");
+        config.ApplicationRoot = DeclaredRoot("application", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*");
+        config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain") : DeclaredRootOrEmpty("domain");
         config.WebApiRoot = DeclaredRoot("webapi", "apps/api/src/*.WebApi");
-        config.InfrastructureRoot = DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure");
+        config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure") : DeclaredRootOrEmpty("infrastructure");
         config.WorkerRoot = DeclaredRoot("worker", "apps/api/src/*.Worker");
 
         if (dotnet is not null
@@ -289,6 +306,7 @@ sealed class ConsumerConfig
             }
 
             config.Extensions = ids;
+            config.IsLayerProjects = ids.Contains("layer-projects", StringComparer.Ordinal);
         }
 
         if (document.RootElement.TryGetProperty("proof", out var proof)
@@ -364,6 +382,38 @@ sealed class ConsumerConfig
     /// <returns>The path relative to the root, with forward slashes.</returns>
     public string Relative(string absolute) =>
         Path.GetRelativePath(Root, absolute).Replace(Path.DirectorySeparatorChar, '/');
+
+    /// <summary>Whether the declaration selects the extension id in selectedExtensions.</summary>
+    /// <param name="root">The declaration root object.</param>
+    /// <param name="id">The extension id to test for.</param>
+    /// <returns>True when selectedExtensions names the id as a string or an object with that id.</returns>
+    private static bool SelectsExtension(JsonElement root, string id)
+    {
+        if (!root.TryGetProperty("selectedExtensions", out var extensions)
+            || extensions.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        foreach (var entry in extensions.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.String
+                && string.Equals(entry.GetString(), id, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (entry.ValueKind == JsonValueKind.Object
+                && entry.TryGetProperty("id", out var named)
+                && named.ValueKind == JsonValueKind.String
+                && string.Equals(named.GetString(), id, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Reads a string array field, keeping only its string entries.</summary>
     /// <param name="element">The JSON object holding the field.</param>

@@ -1,5 +1,8 @@
 # Record Identifiers
 
+**Stack:** any
+**Layer:** records
+
 ## Intent
 
 Every record carries one identifier naming its type, its home, and its own name. This page states the identifier grammar for each record type, the rules for choosing names, and how citations resolve, with wire codes kept stable for deployed clients. The [Project Model](../core/model.md) states each type and its home; the checks here enforce the grammar.
@@ -8,7 +11,7 @@ Every record carries one identifier naming its type, its home, and its own name.
 
 ### Identifier Forms
 
-An identifier names its record type first, then the record name, with the owning home in between when the type has one. The model states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and an event home is an aggregate name. A use-case name is unique across the project, so a result cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification, and setting home is the module that owns it: `reaction/spending.send-approver-reminder-on-expense-submitted` is a reaction owned by the spending module. An integration event has no module home: `integration-event/expense.reimbursed` names the published set. A rule name keeps the negation its statement makes, as `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name` requires. A journey step identifier is `journey/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The model states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and an event home is an aggregate name. A use-case name is unique across the project, so a result cites only that name; an aggregate name is unique across the project, so a rule cites only that name. Both follow `litespec/core/model#keep-each-name-unique-in-the-product`. A reaction, job, notification, and setting home is the module that owns it: `reaction/spending.send-approver-reminder-on-expense-submitted` is a reaction owned by the spending module. An integration event has no module home: `integration-event/expense.reimbursed` names the published set. A rule name keeps the negation its statement makes, as `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name` requires. A journey step identifier is `journey/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
 
 ### Name Rules
 
@@ -17,9 +20,9 @@ The name is the last segment of the identifier: `submit-expense` in `use-case/sp
 - Write one to six lowercase words joined by hyphens.
 - Place digits inside a word; a name of digits alone breaks the rules.
 - Count the decision number as a word.
-- Keep a use case name unique across the project.
-- Keep an aggregate name unique across the project.
 - Let a person choose the name; no tool builds one by stripping words from a sentence.
+
+Use case and aggregate names stay unique across the project under `litespec/core/model#keep-each-name-unique-in-the-product`.
 
 ### Wire Codes
 
@@ -37,6 +40,8 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type`
 
+**Strength:** rule
+
 **Statement:** A record identifier MUST follow the form the model states for its record type.
 
 **Rationale:** A reader who meets `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
@@ -49,6 +54,8 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#name-records-with-one-to-six-words`
 
+**Strength:** rule
+
 **Statement:** A name MUST carry one to six lowercase hyphenated words.
 
 **Rationale:** A short hyphenated name reads aloud in review and stays stable when the record's wording changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.
@@ -57,29 +64,11 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Checked by:** `litespec model check` reports `identifier-invalid` for a name outside one to six lowercase hyphenated words.
 
-### Keep Use Case Names Unique Across the Project
-
-**ID:** `litespec/backend/identifiers#keep-use-case-names-unique-across-the-project`
-
-**Statement:** A use case name MUST be unique across the project.
-
-**Rationale:** A result cites only its use case name, as in `result/submit-expense.receipt-missing`. If two use cases shared the name `submit-expense`, that result points at two homes and the model check reports both.
-
-**Checked by:** `litespec model check` reports `use-case-name-clash` for a use-case name used twice.
-
-### Keep Aggregate Names Unique Across the Project
-
-**ID:** `litespec/backend/identifiers#keep-aggregate-names-unique-across-the-project`
-
-**Statement:** An aggregate name MUST be unique across the project.
-
-**Rationale:** A rule cites only its aggregate name, as in `rule/expense.approver-is-not-submitter`. If two aggregates shared the name `expense`, that rule points at two homes and a reader tells neither apart.
-
-**Checked by:** `litespec model check` reports `aggregate-name-clash` for an aggregate name used twice.
-
 ### Use Every Identifier Once
 
 **ID:** `litespec/backend/identifiers#use-every-identifier-once`
+
+**Strength:** rule
 
 **Statement:** A record identifier MUST name exactly one record.
 
@@ -93,6 +82,8 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#keep-wire-codes-stable`
 
+**Strength:** rule
+
 **Statement:** A wire code MUST stay unchanged once clients read it.
 
 **Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
@@ -103,6 +94,8 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#resolve-every-identifier-citation`
 
+**Strength:** rule
+
 **Statement:** Every identifier citation MUST resolve to a written record.
 
 **Rationale:** A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.
@@ -112,6 +105,8 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 ### Cite Shared Provisions in Their Published Form
 
 **ID:** `litespec/backend/identifiers#cite-shared-provisions-in-their-published-form`
+
+**Strength:** rule
 
 **Statement:** A shared provision citation MUST use its published identifier.
 

@@ -1,34 +1,86 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
 /// <summary>
-/// Proves <c>litespec consumer</c> against the fixture consumer, asserting the expected
-/// diagnostics. Each test owns its own folder because tests run in parallel.
+/// Proves the consumer pass inside <c>litespec model check</c> against the fixture
+/// consumer, asserting the expected diagnostics. Each test owns its own folder
+/// because tests run in parallel.
 /// </summary>
 public sealed partial class ConsumerValidatorTests
 {
-    /// <summary>The output lines that start with <c>  - </c>, without the prefix.</summary>
-    /// <param name="result">The completed consumer run.</param>
-    /// <returns>The problem lines without the bullet prefix.</returns>
-    static List<string> Problems(CliResult result) => result.Output
-        .Split('\n')
-        .Where(line => line.StartsWith("  - ", StringComparison.Ordinal))
-        .Select(line => line[4..])
-        .ToList();
+    /// <summary>One <c>model check</c> finding line: its path, line, level, code and message.</summary>
+    static readonly Regex FindingLine = new(
+        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|A)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
+        RegexOptions.Compiled);
 
-    /// <summary>Asserts a clean run: no problems and exit 0.</summary>
-    /// <param name="result">The completed consumer run.</param>
+    /// <summary>
+    ///     The finding codes the consumer pass reports: the project, page, glossary and
+    ///     frontend codes, the record code it shares with the model pass, and the
+    ///     controlled UI codes it carries in.
+    /// </summary>
+    static readonly HashSet<string> ConsumerCodes = new(StringComparer.Ordinal)
+    {
+        "project-invalid", "project-path-invalid", "release-mismatch", "stack-invalid", "extension-invalid",
+        "stage-deferral-invalid", "page-invalid", "page-section-missing", "page-heading-invalid",
+        "page-example-too-long", "glossary-invalid", "frontend-invalid", "record-invalid",
+        "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
+        "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
+        "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",
+        "ui-catalog-invalid", "ui-route-suite-missing",
+    };
+
+    /// <summary>The consumer pass finding lines of one <c>model check</c> run.</summary>
+    /// <param name="result">The completed model check run.</param>
+    /// <returns>The finding lines the consumer pass reports.</returns>
+    static List<string> Problems(CliResult result)
+    {
+        var problems = new List<string>();
+
+        foreach (var line in result.Output.Split('\n'))
+        {
+            var match = FindingLine.Match(line.TrimEnd('\r'));
+
+            if (!match.Success || !ConsumerCodes.Contains(match.Groups["code"].Value))
+            {
+                continue;
+            }
+
+            // record-invalid is shared: the model pass phrases its own record
+            // findings as "Record '...'", so only the schema messages belong here.
+            if (match.Groups["code"].Value == "record-invalid"
+                && IsModelRecordMessage(match.Groups["message"].Value))
+            {
+                continue;
+            }
+
+            problems.Add(match.Value);
+        }
+
+        return problems;
+    }
+
+    /// <summary>Whether a record-invalid message is phrased by the model pass.</summary>
+    /// <param name="message">The finding message to judge.</param>
+    /// <returns>True when the message opens with a model record subject.</returns>
+    static bool IsModelRecordMessage(string message) =>
+        message.StartsWith("Record '", StringComparison.Ordinal)
+        || message.StartsWith("Screen '", StringComparison.Ordinal)
+        || message.StartsWith("Term '", StringComparison.Ordinal)
+        || message.StartsWith("Exception '", StringComparison.Ordinal);
+
+    /// <summary>Asserts a clean consumer pass: no consumer problem. The exit code belongs to the whole check, so it is not asserted here.</summary>
+    /// <param name="result">The completed model check run.</param>
     static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
-        Assert.True(result.Status == 0, result.Output);
-        Assert.Empty(problems);
+        Assert.True(problems.Count == 0, result.Output);
     }
 
-    /// <summary>Asserts a failing run: exit 1 with some problem carrying the expectation.</summary>
-    /// <param name="result">The completed consumer run.</param>
+    /// <summary>Asserts a failing run: exit 1 with some consumer problem carrying the expectation. Every consumer finding blocks, so the exit follows.</summary>
+    /// <param name="result">The completed model check run.</param>
     /// <param name="expected">The text one problem line must contain.</param>
     static void AssertProblem(CliResult result, string expected)
     {
@@ -37,28 +89,24 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains(problems, problem => problem.Contains(expected, StringComparison.Ordinal));
     }
 
-    /// <summary>
-    /// Asserts no problem names the diagnostic. The exit code follows the problems
-    /// actually printed: 1 when any problem remains, 0 otherwise.
-    /// </summary>
-    /// <param name="result">The completed consumer run.</param>
+    /// <summary>Asserts no consumer problem names the diagnostic.</summary>
+    /// <param name="result">The completed model check run.</param>
     /// <param name="absent">The diagnostic text no problem line may contain.</param>
     static void AssertAbsent(CliResult result, string absent)
     {
         var problems = Problems(result);
-        Assert.Equal(problems.Count > 0 ? 1 : 0, result.Status);
         Assert.All(problems, problem => Assert.DoesNotContain(absent, problem));
     }
 
     static CliResult RunConsumer(string root, params string[] extra)
     {
-        string[] args = ["consumer", "--root", root, ..extra];
+        string[] args = ["model", "check", "--root", root, ..extra];
         return Cli.Run(args);
     }
 
     static CliResult RunConsumer(string root, TempFolder home, params string[] extra)
     {
-        string[] args = ["consumer", "--root", root, ..extra];
+        string[] args = ["model", "check", "--root", root, ..extra];
         return Cli.Run(args, environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
     }
 

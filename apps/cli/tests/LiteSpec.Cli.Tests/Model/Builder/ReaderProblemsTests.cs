@@ -206,7 +206,13 @@ public sealed class ReaderProblemsTests
             """{"shape": "client-only", "stacks": []}""");
 
         using var home = Cli.Temp("reader-problems-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), "{ not json");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), "[]\n");
+        var schemas = Path.Combine(home.Path, "schemas");
+        Directory.CreateDirectory(schemas);
+        foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
+        {
+            File.Copy(schema, Path.Combine(schemas, Path.GetFileName(schema)));
+        }
 
         var check = Cli.Run(
             ["model", "check", "--root", consumer.Path],

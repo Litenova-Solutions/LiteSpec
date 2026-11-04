@@ -1,7 +1,7 @@
 namespace LiteSpec.Tests.Ui;
 
 /// <summary>
-/// <c>litespec ui</c> cases: one test per validator rule, asserting the expected diagnostics.
+/// Controlled UI pass cases: one test per validator rule, asserting the expected diagnostics.
 /// </summary>
 public sealed partial class UiValidatorTests
 {

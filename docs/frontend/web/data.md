@@ -1,8 +1,12 @@
 # Web Data and State
 
+**Stack:** any
+
+**Layer:** frontend-data
+
 ## Intent
 
-The frontend keeps no copy of the API contract: it generates its client, types, schemas, and query options from the published OpenAPI document. This page states how the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) follow the data rules in [Frontend Data and State](../data.md): the generated client, failure mapping, refusals, form validation, cache updates, state ownership, and localized copy. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.
+The frontend keeps no copy of the API contract: it generates its client, types, schemas, and query options from the published OpenAPI document. The data rules live in [Frontend Data and State](../data.md); this page holds the TypeScript mechanism behind them that the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) share. A team that applies it while writing data code keeps every application consistent with the contract and every failure recoverable by the reader.
 
 ## Concepts
 
@@ -24,17 +28,9 @@ The `code` field is the discriminator: the page branches on which code arrived, 
 
 The problem carries the `traceId` the API returns for the request, or the `X-Trace-Id` response header when the body carries none. Every error the user sees shows that identifier in copyable form inside its detail, while the headline states the message, so the user can paste it to support without reading it as the message.
 
-## Standards
+### TypeScript Mechanism
 
-### Generate the Client from the Published Contract
-
-**ID:** `litespec/frontend/web/data#generate-the-client-from-the-published-contract`
-
-**Statement:** A workspace MUST generate its client, types, schemas, query options, and mutation options from the API's published OpenAPI document.
-
-**Rationale:** A handwritten copy of a request, a response, or a schema drifts from the contract silently: the API changes and the copy still compiles. A generated client turns a contract change into a compile error in every application at once, so every affected call is fixed before anything ships. This realizes litespec/frontend/data#generate-the-client-from-the-published-contract.
-
-**Example:** The generator emits the operation functions, the TanStack Query options, and the zod schemas, and the package exports each as its own entry point.
+The generator behind `litespec/frontend/data#generate-the-client-from-the-published-contract` runs the hey-api plugins with the zod plugin, and each stack page names the TanStack Query plugin its client adds. The workspace regenerates with `pnpm api:types` and edits nothing under the generated directory, per `litespec/frontend/data#regenerate-the-client-rather-than-editing-it`.
 
 ```json
 {
@@ -42,29 +38,13 @@ The problem carries the `traceId` the API returns for the request, or the `X-Tra
 }
 ```
 
-Each stack adds the TanStack Query plugin its stack page names.
+A successful command invalidates the TanStack Query entries its command changed, per `litespec/frontend/data#update-the-cache-a-command-changed`. A form validates against the generated zod schema extended with the application's own rules, per `litespec/frontend/data#validate-a-form-with-the-generated-schema`:
 
-**Checked by:** `pnpm api:types` regenerates the client from the published OpenAPI document, and the contract check fails when the committed output differs.
+```ts
+zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.reason.trim().min(1, words.ui.required) })
+```
 
-### Map Every Failure to One Problem Type
-
-**ID:** `litespec/frontend/web/data#map-every-failure-to-one-problem-type`
-
-**Statement:** A frontend MUST convert every failure into one problem type, deciding from its code and showing the `traceId` in copyable form in each error's detail.
-
-**Rationale:** A raw response body shown to the user leaks whatever the API included and offers no consistent recovery path. Deciding from the code keeps each page's behavior stable across reworded messages, because a code is a published identifier. Showing the `traceId` in copyable form in the detail lets support find the exact request the user saw fail, without making an identifier the headline. This realizes litespec/frontend/data#map-every-failure-to-one-problem-type.
-
-**Reviewed for:** Which rendered errors carry a raw body instead of one problem shape decided from the code, or hide the `traceId` from copyable detail? Look in the error surfaces.
-
-### Place a Refusal Beside What Was Refused
-
-**ID:** `litespec/frontend/web/data#place-a-refusal-beside-what-was-refused`
-
-**Statement:** A refusal MUST render beside the record or control that was refused, in the sentence the application holds for that code.
-
-**Rationale:** A refusal at the top of a page says that something failed but not what. Rendered beside the record or control that was refused, in the application's own sentence for that code, it tells the user what was asked and denied. The code in the markup lets a browser test provoke that exact refusal by name. This realizes litespec/frontend/data#place-a-refusal-beside-what-was-refused.
-
-**Example:** The refusal alert carries the code so a browser test can address it.
+A refusal renders through the shared problem alert beside the refused record or control, per `litespec/frontend/data#place-a-refusal-beside-what-was-refused`:
 
 ```tsx
 <ProblemAlert error={mutation.error} describe={describe} />
@@ -74,92 +54,12 @@ Each stack adds the TanStack Query plugin its stack page names.
 <ProblemAlert error={mutation.error} describe={describe} />
 ```
 
-**Reviewed for:** Which refusals render away from their refused record or control, or outside the application's sentence for that code? Look in the screens beside the refusing controls.
+Failures map to the problem type above, per `litespec/frontend/data#map-every-failure-to-one-problem-type`. State ownership, locale dictionaries, the frame root, and the shared form entry point follow `litespec/frontend/data#assign-state-to-the-narrowest-owner`, `litespec/frontend/data#localize-copy-through-locale-dictionaries`, `litespec/frontend/data#keep-the-client-boundary-in-the-frame`, and `litespec/frontend/data#build-a-form-on-the-shared-form-library`; each stack page names the component state, the dictionary library, the frame root, and the form entry point for its stack.
 
-### Validate a Form with the Generated Schema
+## Standards
 
-**ID:** `litespec/frontend/web/data#validate-a-form-with-the-generated-schema`
-
-**Statement:** A form MUST validate against the generated schema for its request body, extended with the application's own rules rather than replaced by them.
-
-**Rationale:** The generated schema is the contract, so validating against it holds the form to what the API accepts even where the browser accepts more. The application extends the schema with its required messages and any rule the contract cannot express, rather than replacing it with a restatement that drifts. A form validated only by hand restates the contract and breaks silently when the contract changes. This realizes litespec/frontend/data#validate-a-form-with-the-generated-schema.
-
-**Example:** The generated schema gains one field rule in the application's words.
-
-```ts
-zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.reason.trim().min(1, words.ui.required) })
-```
-
-**Reviewed for:** Which forms validate outside the generated schema extended with the application's own rules? Look in the form sources and the specifications submitting contract-invalid input.
-
-### Update the Cache a Command Changed
-
-**ID:** `litespec/frontend/web/data#update-the-cache-a-command-changed`
-
-**Statement:** A successful command MUST invalidate every query whose answer it changed, and no other query.
-
-**Rationale:** The query cache owns freshness, so a command that changes a record must invalidate that record's queries: otherwise the page shows the old record until something else refetches. Invalidating no further matters too, because each unrelated invalidation costs a request on every affected page. Invalidating exactly the changed queries keeps reads fresh without wasted traffic. This realizes litespec/frontend/data#update-the-cache-a-command-changed.
-
-**Example:** A mutation invalidates the TanStack Query entries its command changed, and no others.
-
-**Reviewed for:** Which successful commands leave a changed TanStack Query entry cached, or invalidate one their command left unchanged? Look in the command call sites and the cache keys.
-
-### Assign State to the Narrowest Owner
-
-**ID:** `litespec/frontend/web/data#assign-state-to-the-narrowest-owner`
-
-**Statement:** A value MUST live with the narrowest owner that can hold it: server data, then the address, then form state, then the component's own state.
-
-**Rationale:** Each value has a narrowest owner that can hold it: server data in the cache, shared address state in the address, form input in form state, and anything else in the component's own state. A store above that order re-renders unrelated components on every change and hides where the value changes. Each stack page names the component's own state for its stack. This realizes litespec/frontend/data#assign-state-to-the-narrowest-owner.
-
-**Reviewed for:** Which values live above their narrowest owner instead of the query cache, the address, form state, or the named component state? Look in the state declarations.
-
-### Localize Copy Through Locale Dictionaries
-
-**ID:** `litespec/frontend/web/data#localize-copy-through-locale-dictionaries`
-
-**Statement:** Copy MUST resolve through locale dictionaries with fill and plural support, one chunk per language, and typed keys with a declared fallback.
-
-**Rationale:** One sentence copied into two components drifts at the first rewording. Locale dictionaries with fill and plural support keep one sentence in one place, one chunk per language keeps a reader's download to the language they read, and typed keys with a declared fallback fail a missing key where the fallback says instead of rendering nothing. This realizes litespec/frontend/data#localize-copy-through-locale-dictionaries.
-
-**Example:** Each stack page names its dictionary library. A workspace may carry its own dictionary machinery when it meets the same contract.
-
-**Reviewed for:** Which copy bypasses the dictionary library its stack page names, or misses fill, plurals, chunking, typed keys, or a declared fallback? Look in the copy call sites and the dictionaries.
+None.
 
 ## Conventions
 
-### Keep the Client Boundary in the Frame
-
-**ID:** `litespec/frontend/web/data#keep-the-client-boundary-in-the-frame`
-
-**Default:** Place the client configuration, problem mapping, and download helpers in the frame root, keeping them out of every use-case folder.
-
-**Replacement:** A consumer can replace this default by naming its client-boundary folders in its documentation.
-
-**Rationale:** Client configuration, problem mapping, and download helpers serve every use case, so they belong in the frame root rather than copied per folder. One place means a base-address or header change is one edit instead of one per application. Each stack page names the frame root for its stack. This realizes litespec/frontend/data#keep-the-client-boundary-in-the-frame.
-
-**Reviewed for:** Which client configuration, problem mapping, or download helpers sit outside the frame root the stack page names? Look in the frame root and the use-case folders.
-
-### Regenerate the Client Rather Than Editing It
-
-**ID:** `litespec/frontend/web/data#regenerate-the-client-rather-than-editing-it`
-
-**Default:** Regenerate the client from the document with the workspace's `api:types` command, and edit nothing under the generated directory.
-
-**Replacement:** A consumer can replace this default by naming its client-refresh command and generated directory in its documentation.
-
-**Rationale:** The generated directory is output: a hand edit there works until the next generation overwrites it. Regenerating with the workspace's `api:types` command keeps the committed output provably equal to the document, and a reviewer reruns that command to check. This realizes litespec/frontend/data#regenerate-the-client-rather-than-editing-it.
-
-**Checked by:** `pnpm api:types` regenerates the client, and committed output that differs from generated output fails the contract check.
-
-### Build a Form on the Shared Form Library
-
-**ID:** `litespec/frontend/web/data#build-a-form-on-the-shared-form-library`
-
-**Default:** Build a form on the shared package's form entry point and its registered field components.
-
-**Replacement:** A consumer can replace this default by naming its form entry point and field components in its documentation.
-
-**Rationale:** A form library reached for directly in each use-case folder gives every folder its own idea of a field, and none of them knows how to show a refusal. Building on the shared package's form entry point and registered field components keeps every form's fields and refusal display identical. Each stack page names the form entry point for its stack. This realizes litespec/frontend/data#build-a-form-on-the-shared-form-library.
-
-**Reviewed for:** Which forms bypass the form entry point their stack page names or the shared registered field components? Look in the form sources.
+None.

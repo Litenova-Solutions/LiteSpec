@@ -52,7 +52,7 @@ sealed class DotnetBackendReader : IBackendReader
 
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        foreach (var root in SourceRoots.BackendRoots(config))
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
@@ -190,7 +190,7 @@ sealed class DotnetBackendReader : IBackendReader
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
-        var readElements = MarkFacts.Read(tree, context, SourceRoots.ProjectOf(config, file));
+        var readElements = MarkFacts.Read(tree, context, SourceRoots.ProjectOf(config, file), SourceRoots.LayerOf(config, file));
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()

@@ -6576,8 +6576,8 @@
         "slug":  "review-the-automation-catalog"
     },
     {
-        "heading":  "Review the Security Queue Separately from Reviewed",
-        "slug":  "review-the-security-queue-separately-from-reviewed"
+        "heading":  "Review the Security Checklist Separately from Reviewed",
+        "slug":  "review-the-security-checklist-separately-from-reviewed"
     },
     {
         "heading":  "Rewrite Every Link on a Rename",
@@ -6896,8 +6896,8 @@
         "slug":  "secret-inventory"
     },
     {
-        "heading":  "Security Queue",
-        "slug":  "security-queue"
+        "heading":  "Security Checklist",
+        "slug":  "security-checklist"
     },
     {
         "heading":  "Security Review",
@@ -8112,8 +8112,8 @@
         "slug":  "the-running-example"
     },
     {
-        "heading":  "The Security Queue",
-        "slug":  "the-security-queue"
+        "heading":  "The Security Checklist",
+        "slug":  "the-security-checklist"
     },
     {
         "heading":  "The Settings",

@@ -283,7 +283,7 @@ public sealed class BehaviorUnrecordedTests
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
     /// <summary>Approved Exception Holds The Findings On The Paths It Names.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Approved_Exception_Holds_The_Findings_On_The_Paths_It_Names()
     {
@@ -302,7 +302,7 @@ public sealed class BehaviorUnrecordedTests
     }
 
     /// <summary>Exception Past Its Expires On Holds Nothing.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Exception_Past_Its_Expires_On_Holds_Nothing()
     {

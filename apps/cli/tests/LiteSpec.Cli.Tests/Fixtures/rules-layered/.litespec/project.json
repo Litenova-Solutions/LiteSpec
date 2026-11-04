@@ -1,0 +1,31 @@
+{
+  "$schema": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
+  "project": {
+    "name": "Layered"
+  },
+  "size": "large",
+  "shape": "server",
+  "stacks": [
+    "dotnet"
+  ],
+  "reviewedLiteSpecVersion": "4.0.0",
+  "paths": {
+    "docs": ".litespec",
+    "behaviorDocs": ".litespec/behavior",
+    "glossary": ".litespec/glossary.yaml",
+    "testRoots": [
+      "apps/api/tests"
+    ]
+  },
+  "stackConfig": {
+    "dotnet": {
+      "application": "apps/api/src/Demo.Application",
+      "domain": "apps/api/src/Demo.Domain",
+      "webapi": "apps/api/src/Demo.WebApi",
+      "infrastructure": "apps/api/src/Demo.Infrastructure"
+    }
+  },
+  "selectedExtensions": [
+    "layer-projects"
+  ]
+}

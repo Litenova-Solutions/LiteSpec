@@ -316,4 +316,112 @@ public sealed class DomainOuterLayerAnalyzerTests
                     }
                     """),
             ], assemblyName: "Shop.Core", layer: "Domain");
+
+    /// <summary>LS1001 reports a Domain file naming an Application type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 reports a Domain file naming an Application type")]
+    public Task ReportsADomainFileNamingAnApplicationType() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("NightHall/Organizations/Teams/Domain/Team.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class Team
+                    {
+                        internal Team Rename({|LS1001:CreateTeamCommand|} command) => this;
+                    }
+                    """),
+                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class CreateTeamCommand
+                    {
+                    }
+                    """),
+            ], assemblyName: "NightHall");
+
+    /// <summary>LS1001 reports a Domain file naming Infrastructure and WebApi types.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 reports a Domain file naming Infrastructure and WebApi types")]
+    public Task ReportsADomainFileNamingInfrastructureAndWebApiTypes() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("NightHall/Organizations/Teams/Domain/Team.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class Team
+                    {
+                        internal void Link({|LS1001:TeamStore|} store, {|LS1001:CreateTeamEndpoint|} endpoint)
+                        {
+                        }
+                    }
+                    """),
+                ("NightHall/Organizations/Teams/Infrastructure/TeamStore.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class TeamStore
+                    {
+                    }
+                    """),
+                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class CreateTeamEndpoint
+                    {
+                    }
+                    """),
+            ], assemblyName: "NightHall");
+
+    /// <summary>LS1001 accepts a Domain file naming only Domain types.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 accepts a Domain file naming only Domain types")]
+    public Task AcceptsADomainFileNamingOnlyDomainTypes() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("NightHall/Organizations/Teams/Domain/Team.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed class Team
+                    {
+                        internal Team Rename(TeamName name) => this;
+                    }
+                    """),
+                ("NightHall/Organizations/Teams/Domain/TeamName.cs", """
+                    namespace NightHall.Organizations.Teams;
+
+                    internal sealed record TeamName(string Value);
+                    """),
+            ], assemblyName: "NightHall");
+
+    /// <summary>LS1001 reports an outer-layer namespace under layer-projects.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 reports an outer-layer namespace under layer-projects")]
+    public Task ReportsAnOuterLayerNamespaceUnderLayerProjects() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("Shop.Domain/Orders/Order.cs", """
+                    using {|LS1001:Marten|};
+
+                    namespace Shop.Orders;
+
+                    public sealed class Order
+                    {
+                        public void Store({|LS1001:IDocumentSession|} session)
+                        {
+                        }
+                    }
+                    """),
+                ("Shop.Domain/Stubs.cs", """
+                    namespace Marten
+                    {
+                        public interface IDocumentSession
+                        {
+                        }
+                    }
+                    """),
+            ], assemblyName: "Shop.Domain", layout: "layer-projects");
 }

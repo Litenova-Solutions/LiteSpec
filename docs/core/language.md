@@ -1,5 +1,9 @@
 # Record Language
 
+**Stack:** any
+
+**Layer:** records
+
 ## Intent
 
 Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values and codes of project records.
@@ -117,21 +121,23 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `drift` | the built thing differs from its record | `setting-key-drift` |
 | `invalid` | a value breaks its form | `field-invalid` |
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
-| `clash` | two names collide | `aggregate-name-clash` |
+| `clash` | two names collide | `term-clash` |
 | `expired` | the date passed | `exception-expired` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
 
-A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Change codes in `litespec model diff` follow the same pattern with past participles (`refusal-added`, `rule-weakened`, `requirement-narrowed`). Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
+A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
-Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`). Exit codes stay 0 for clean, 1 for blocking, and 2 for bad arguments. Book labels come from the Links table's reads-as phrases and the glossary only.
+Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`). Exit codes stay 0 for clean, 1 for blocking, and 2 for bad arguments. Book labels come from the Links table's reads-as phrases and the glossary only.
 
 ## Standards
 
 ### Name Each Field by Its Word Class
 
 **ID:** `litespec/core/language#name-each-field-by-its-word-class`
+
+**Strength:** rule
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
@@ -145,6 +151,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#name-a-boolean-as-a-predicate`
 
+**Strength:** rule
+
 **Statement:** Every boolean field MUST read as a present-tense predicate that is true about the record when the value is true.
 
 **Rationale:** A boolean without a prefix reads as a fact about the record: `applies` says the constraint applies, and `recorded` says the entry is recorded. An `is` or `has` prefix adds a word that says nothing the value does not already say. The predicate form keeps every boolean readable in a sentence about its record.
@@ -156,6 +164,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 ### Name Each Date by What It Marks
 
 **ID:** `litespec/core/language#name-each-date-by-what-it-marks`
+
+**Strength:** rule
 
 **Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
@@ -169,6 +179,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#write-each-kind-of-text-in-its-form`
 
+**Strength:** rule
+
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
 **Rationale:** Each kind of text has one reader and one job: a requirement promises, an event reports, and a runbook step instructs. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
@@ -180,6 +192,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 ### Write Each Value in the Value Style
 
 **ID:** `litespec/core/language#write-each-value-in-the-value-style`
+
+**Strength:** rule
 
 **Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, and `title` value MUST use the value style the value-style table states.
 
@@ -193,6 +207,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#write-quantities-in-standard-units`
 
+**Strength:** rule
+
 **Statement:** Every quantity in a record MUST use an ISO 8601 date, an ISO 8601 duration, an amount with an ISO 4217 currency, or a number with its unit.
 
 **Rationale:** Free-text quantities hide behind local habits: one record writes `7 years`, another writes `seven years`, and a check matches neither. ISO dates, ISO durations, and ISO currency codes give every quantity one written form across records and tools. Prose keeps numbers readable by writing each with its unit.
@@ -204,6 +220,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 ### Name Each Record by Its Types Name Form
 
 **ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
+
+**Strength:** rule
 
 **Statement:** Every record name MUST use the name form the record-name table gives its type.
 
@@ -217,6 +235,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#write-in-american-english`
 
+**Strength:** rule
+
 **Statement:** Every field name and enum value MUST use American spelling.
 
 **Rationale:** One spelling per word keeps each term defined once and checked once: `license` in one record and `licence` in another split every search and every listing. American spelling is the project spelling for field names and enum values; prose spelling follows the [Writing Standard](writing.md). Each British form reads as a rejected word beside its American spelling.
@@ -228,6 +248,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 ### Keep Names an Outside Standard Fixes
 
 **ID:** `litespec/core/language#keep-names-an-outside-standard-fixes`
+
+**Strength:** rule
 
 **Statement:** Every name an outside standard fixes MUST stay exactly as that standard spells it.
 
@@ -241,6 +263,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#name-each-finding-code-by-subject-and-problem`
 
+**Strength:** rule
+
 **Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fourteen problem words.
 
 **Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fourteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
@@ -253,6 +277,8 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **ID:** `litespec/core/language#write-each-finding-message-as-a-fact`
 
+**Strength:** rule
+
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
 **Rationale:** A message that states a fact survives every reader: the terminal and the book both show what is true. Advice belongs in the finding table on the [model page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
@@ -261,21 +287,11 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are k
 
 **Reviewed for:** Which finding messages instruct instead of stating a fact, or open without the subject and identifier? Look at the messages the change adds.
 
-### Name Each Change Code with a Past Participle
-
-**ID:** `litespec/core/language#name-each-change-code-with-a-past-participle`
-
-**Statement:** Every change code in `litespec model diff` MUST read as `<subject>-<past participle>`.
-
-**Rationale:** A diff compares two runs, so its codes read as what changed: a past participle says what the newer run added, removed, or weakened. The subject-problem shape keeps change codes comparable with finding codes. `refusal-added`, `rule-weakened`, and `requirement-narrowed` show the form.
-
-**Example:** A refusal added between two runs diffs as `refusal-added`.
-
-**Reviewed for:** Which change codes miss the past-participle form? Look at the diff codes the change adds.
-
 ### Name Commands as Verbs and Flags by What They Set
 
 **ID:** `litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set`
+
+**Strength:** rule
 
 **Statement:** Every subcommand MUST read as a verb and every flag as the mode or value it sets.
 

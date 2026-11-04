@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,7 +19,7 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1012);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -31,16 +32,23 @@ public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
     {
         var guid = context.Compilation.GetTypeByMetadataName("System.Guid");
         var reported = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
-        context.RegisterSymbolAction(symbol => Analyze(symbol, guid, reported), SymbolKind.NamedType);
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
+        context.RegisterSymbolAction(symbol => Analyze(symbol, scope, guid, reported), SymbolKind.NamedType);
     }
 
     /// <summary>Analyzes the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="guid">The guid supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="reported">The reported this operation works with.</param>
     private static void Analyze(
-        SymbolAnalysisContext context, INamedTypeSymbol? guid, ConcurrentDictionary<ISymbol, byte> reported)
+        SymbolAnalysisContext context, FileScope scope, INamedTypeSymbol? guid, ConcurrentDictionary<ISymbol, byte> reported)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var type = (INamedTypeSymbol)context.Symbol;
         if (type.DeclaringSyntaxReferences.Length == 0)
         {

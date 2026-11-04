@@ -1,0 +1,10 @@
+type: rule-set
+title: Finance rules
+records:
+  - type: rule
+    id: rule/finance.refund-needs-receipt
+    title: Refund needs receipt
+    kind: invariant
+    statement: A refund needs a receipt.
+    governs:
+      - aggregate/lending.loan

@@ -5,7 +5,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The two files a record lives in: the record file, <c>&lt;name&gt;.yaml</c>, holding
-///     every field in the strict YAML subset, and the optional explanation file beside
+///     every field as YAML, and the optional explanation file beside
 ///     it, <c>&lt;name&gt;.md</c>, holding Markdown that explains the record. Every reader
 ///     and writer of record files goes through this type, so the file rules sit in one place.
 /// </summary>
@@ -47,7 +47,7 @@ static class RecordFile
     /// <param name="root">The parsed value as JSON.</param>
     /// <param name="tree">The parsed value with the line of every node.</param>
     /// <param name="error">Why parsing failed, naming the line.</param>
-    /// <returns>Whether the text is in the YAML subset.</returns>
+    /// <returns>Whether the text parsed as YAML.</returns>
     public static bool TryParse(string text, out JsonElement root, out JsonText tree, out string error)
     {
         try
@@ -78,7 +78,7 @@ static class RecordFile
     public static string Write(JsonNode root) => YamlWriter.Write(JsonText.Parse(root.ToJsonString()), RecordKeyOrder.For);
 
     /// <summary>
-    ///     The canonical text of a record file, or null when the text is not in the subset.
+    ///     The canonical text of a record file, or null when the text is not YAML.
     /// </summary>
     /// <param name="text">The file text.</param>
     /// <returns>The canonical text.</returns>
@@ -99,7 +99,7 @@ static class RecordFile
     ///     checkout may turn LF into CRLF, and the record reads the same either way.
     /// </summary>
     /// <param name="text">The file text.</param>
-    /// <param name="canonical">The canonical text, or null when the text is not in the subset.</param>
+    /// <param name="canonical">The canonical text, or null when the text is not YAML.</param>
     /// <returns>True when the text differs from its canonical form in line ends at most.</returns>
     public static bool IsCanonical(string text, out string? canonical)
     {

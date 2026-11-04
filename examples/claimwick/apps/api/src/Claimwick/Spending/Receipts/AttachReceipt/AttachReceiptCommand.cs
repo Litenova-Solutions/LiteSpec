@@ -1,0 +1,3 @@
+namespace Claimwick.Spending.Receipts.AttachReceipt;
+
+public sealed record AttachReceiptCommand(Guid ReceiptId, Guid ExpenseId);

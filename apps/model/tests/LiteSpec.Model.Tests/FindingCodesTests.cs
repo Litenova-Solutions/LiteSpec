@@ -201,7 +201,7 @@ public sealed class FindingCodesTests
             return true;
         }
 
-        // The model diff names a breaking contract change contract-break.
+        // The --since run names a breaking contract change contract-break.
         if (string.Equals(code, "contract-break", StringComparison.Ordinal))
         {
             return true;

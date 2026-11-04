@@ -1,0 +1,9 @@
+type: actor
+id: actor/librarian
+title: Librarian
+summary: A librarian registers copies, retires them, and keeps the shelves in order.
+kind: person
+belongsToTeam: false
+holds:
+- role: role/librarian
+  scope: platform

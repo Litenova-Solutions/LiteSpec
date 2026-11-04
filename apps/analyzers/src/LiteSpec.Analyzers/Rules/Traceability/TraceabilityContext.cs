@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using LiteSpec.Analyzers.Layers;
 using LiteSpec.Analyzers.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
@@ -28,15 +27,17 @@ internal sealed class TraceabilityContext
     private readonly List<LiveException> live;
 
     /// <summary>Initializes a new instance of the <see cref="TraceabilityContext"/> class.Creates the context for one compilation.</summary>
-    /// <param name="layer">The layer the compilation belongs to.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <param name="kinds">The cross-file kind names.</param>
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        Layer layer, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        Layout layout, string? declared, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
-        Layer = layer;
+        Layout = layout;
+        Declared = declared;
         Store = store;
         Kinds = kinds;
         EventIds = eventIds;
@@ -57,8 +58,11 @@ internal sealed class TraceabilityContext
         }
     }
 
-    /// <summary>Gets the layer the compilation belongs to.</summary>
-    public Layer Layer { get; }
+    /// <summary>Gets the backend layout the consumer builds.</summary>
+    public Layout Layout { get; }
+
+    /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
+    public string? Declared { get; }
 
     /// <summary>Gets the consumer's records.</summary>
     public RecordStore Store { get; }
@@ -72,8 +76,44 @@ internal sealed class TraceabilityContext
     /// <summary>Gets the assembly name, for project checks.</summary>
     public string Project { get; }
 
-    /// <summary>Gets a value indicating whether whether the compilation is a test project.</summary>
-    public bool OnTest => Layer == Layer.Test;
+    /// <summary>Returns the layer of the file declaring the symbol, or None when it has none.</summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The layer.</returns>
+    public Layer LayerOf(ISymbol symbol)
+    {
+        foreach (var reference in symbol.DeclaringSyntaxReferences)
+        {
+            return LayerResolver.FileLayer(reference.SyntaxTree?.FilePath, Project, Layout, Declared);
+        }
+
+        return Layer.None;
+    }
+
+    /// <summary>
+    ///     The project name the kind reader checks the symbol against: the assembly
+    ///     name under layer-projects, otherwise the short name of the symbol's file layer.
+    /// </summary>
+    /// <param name="symbol">The symbol declared by the element under inspection.</param>
+    /// <returns>The project name.</returns>
+    public string ProjectOf(ISymbol symbol)
+    {
+        if (Layout == Layout.LayerProjects)
+        {
+            return Project;
+        }
+
+        switch (LayerOf(symbol))
+        {
+            case Layer.Domain: return "Domain";
+            case Layer.ApplicationAbstractions: return "Application.Abstractions";
+            case Layer.Application: return "Application";
+            case Layer.Infrastructure: return "Infrastructure";
+            case Layer.WebApi: return "WebApi";
+            case Layer.Worker: return "Worker";
+            case Layer.Test: return "Test";
+            default: return Project;
+        }
+    }
 
     /// <summary>
     ///     Whether a live exception covers the finding, as
@@ -129,10 +169,11 @@ internal sealed class TraceabilityContext
     ///     for the aggregate roots, domain exceptions, marked ports and event ids.
     /// </summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layer">The layer the compilation belongs to.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, Layer layer, RecordStore store)
+    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, RecordStore store)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -166,7 +207,7 @@ internal sealed class TraceabilityContext
         }
 
         return new TraceabilityContext(
-            layer, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
+            layout, declared, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
     }
 
     /// <summary>Reads the cached context for the compilation, when one was built.</summary>
@@ -181,22 +222,24 @@ internal sealed class TraceabilityContext
     ///     every traceability analyzer reuses the one walk over the source types.
     /// </summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layer">The layer the compilation belongs to.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, Layer layer, RecordStore store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, RecordStore store)
     {
         if (Cache.TryGetValue(compilation, out var cached)
-            && cached.Layer == layer
+            && cached.Layout == layout
+            && cached.Declared == declared
             && ReferenceEquals(cached.Store, store))
         {
             return cached;
         }
 
-        var created = Create(compilation, layer, store);
+        var created = Create(compilation, layout, declared, store);
         var result = Cache.GetValue(compilation, _ => created);
 
-        if (result.Layer == layer && ReferenceEquals(result.Store, store))
+        if (result.Layout == layout && result.Declared == declared && ReferenceEquals(result.Store, store))
         {
             return result;
         }

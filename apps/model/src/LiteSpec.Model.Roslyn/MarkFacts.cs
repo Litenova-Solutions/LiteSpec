@@ -22,10 +22,14 @@ public static class MarkFacts
     ///     The short project name holding the tree, or null when unknown.
     ///     See <see cref="KindReader" /> for how a null project reads ports and endpoints.
     /// </param>
+    /// <param name="containingLayer">
+    ///     The layer holding the tree, or null when unknown.
+    ///     A known layer matches beside the project, so a type in the one product project reads by its layer.
+    /// </param>
     /// <returns>The marked or markable elements, in document order.</returns>
     /// <exception cref="ArgumentNullException">The tree or context is null.</exception>
     public static IReadOnlyList<MarkableElement> Read(
-        SyntaxTree tree, KindContext context, string? containingProject = null)
+        SyntaxTree tree, KindContext context, string? containingProject = null, string? containingLayer = null)
     {
         if (tree is null)
         {
@@ -42,7 +46,7 @@ public static class MarkFacts
         {
             if (node is TypeDeclarationSyntax type)
             {
-                var kind = KindReader.KindOf(type, context, containingProject);
+                var kind = KindReader.KindOf(type, context, containingProject, containingLayer);
                 var marks = MarkReader.Read(type);
                 if (kind is not null || marks.Count > 0)
                 {

@@ -25,7 +25,6 @@ Both fixtures exit 0 under `check`. Each names the same owner, reviews every Beh
 
 The builder and the suite use these codes:
 
-- `aggregate-name-clash`
 - `approval-reopened`
 - `behavior-unrecorded`
 - `calculation-table-missing`
@@ -41,10 +40,16 @@ The builder and the suite use these codes:
 - `exception-finding-unknown`
 - `identifier-duplicate`
 - `identifier-invalid`
+- `identifier-folder-drift`
+- `name-duplicate`
+- `decision-number-duplicate`
 - `field-invalid`
 - `use-case-journey-missing`
 - `exception-expired`
 - `link-unknown`
+- `link-locality-invalid`
+- `module-dependency-invalid`
+- `event-publisher-invalid`
 - `notification-sender-missing`
 - `job-guard-missing`
 - `owner-unknown`
@@ -55,7 +60,14 @@ The builder and the suite use these codes:
 - `reaction-trigger-unknown`
 - `record-link-missing`
 - `record-invalid`
+- `folder-invalid`
+- `module-undeclared`
+- `record-placement-invalid`
 - `reference-unknown`
+- `intent-unreached`
+- `role-orphaned`
+- `permission-orphaned`
+- `decision-decides-duplicate`
 - `refusal-unimplemented`
 - `requirement-fulfillment-missing`
 - `requirement-measure-missing`
@@ -73,7 +85,6 @@ The builder and the suite use these codes:
 - `transcription-expired`
 - `transcription-status-invalid`
 - `transition-unknown`
-- `use-case-name-clash`
 - `use-case-unimplemented`
 - `use-case-scenario-missing`
 - `use-case-success-missing`

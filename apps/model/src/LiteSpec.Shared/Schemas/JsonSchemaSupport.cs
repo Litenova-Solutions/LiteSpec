@@ -1,14 +1,12 @@
-using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
 namespace LiteSpec.Schemas;
 
 /// <summary>
-///     The JSON value helpers every schema keyword family shares.
+///     The JSON value helpers the schema check shares.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal static class JsonSchemaSupport
@@ -16,24 +14,6 @@ internal static class JsonSchemaSupport
     // Compact JSON with relaxed escaping, so structural comparison and diagnostic text stay stable.
     /// <summary>Gets the compact JSON options used for structural comparison and diagnostic text.</summary>
     internal static readonly JsonSerializerOptions CompactJson = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-
-    // A schema repeats its patterns and references on every value it meets: a
-    // record schema with hundreds of nested records resolves the same reference
-    // thousands of times per page. Each distinct expression compiles once, each
-    // reference resolves once per schema root, and the keyword gate walks each
-    // schema once. The tables hold no diagnostic text, only the parsed shapes,
-    // so every finding reads exactly as before.
-    /// <summary>Gets the cache of compiled schema patterns, by expression.</summary>
-    private static readonly ConcurrentDictionary<string, Regex> PatternCache = new(StringComparer.Ordinal);
-
-    /// <summary>Gets the empty property map an object schema falls back to.</summary>
-    internal static readonly JsonObject NoProperties = new();
-
-    /// <summary>Returns the compiled pattern for an expression, compiling it once.</summary>
-    /// <param name="pattern">The pattern expression.</param>
-    /// <returns>The compiled pattern.</returns>
-    internal static Regex CachedPattern(string pattern) =>
-        PatternCache.GetOrAdd(pattern, expression => new Regex(expression, RegexOptions.Compiled));
 
     /// <summary>Reports the JavaScript truthiness of a JSON value.</summary>
     /// <param name="node">The JSON value.</param>
@@ -49,15 +29,19 @@ internal static class JsonSchemaSupport
         _ => true,
     };
 
-    /// <summary>Tries to read a JSON value as a number.</summary>
+    /// <summary>Tries to read a schema number, whatever numeric form the parser gave it.</summary>
     /// <param name="node">The JSON value.</param>
     /// <param name="value">The number, when the value holds one.</param>
     /// <returns>True when the value holds a number.</returns>
-    internal static bool TryNumber(JsonNode? node, out double value)
+    internal static bool TrySchemaNumber(JsonNode? node, out double value)
     {
-        if (node is JsonValue candidate && candidate.TryGetValue<double>(out var number))
+        // A schema number arrives int-backed, long-backed, or double-backed
+        // depending on the parser, and each form reads differently, so the
+        // check reads the JSON text every form prints.
+        var text = node?.ToJsonString();
+
+        if (text is not null && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
         {
-            value = number;
             return true;
         }
 
@@ -65,47 +49,10 @@ internal static class JsonSchemaSupport
         return false;
     }
 
-    /// <summary>Tries to read an array index from a pointer segment.</summary>
-    /// <param name="key">The pointer segment.</param>
-    /// <param name="array">The array to index.</param>
-    /// <param name="element">The element, when the segment is a valid index.</param>
-    /// <returns>True when the segment is a valid index.</returns>
-    internal static bool TryArrayIndex(string key, JsonArray array, out JsonNode? element)
-    {
-        element = null;
-
-        if (key.Length == 0 || (key.Length > 1 && key[0] == '0'))
-        {
-            return false;
-        }
-
-        foreach (var ch in key)
-        {
-            if (ch < '0' || ch > '9')
-            {
-                return false;
-            }
-        }
-
-        if (!int.TryParse(key, NumberStyles.None, CultureInfo.InvariantCulture, out var index) || index >= array.Count)
-        {
-            return false;
-        }
-
-        element = array[index];
-        return true;
-    }
-
     /// <summary>Prints a JSON value in compact form, or the text null for a missing value.</summary>
     /// <param name="node">The JSON value.</param>
     /// <returns>The compact JSON text.</returns>
     internal static string Stringify(JsonNode? node) => node is null ? "null" : node.ToJsonString(CompactJson);
-
-    /// <summary>Reports whether two JSON values are deeply equal.</summary>
-    /// <param name="left">The left value.</param>
-    /// <param name="right">The right value.</param>
-    /// <returns>True when the values are deeply equal.</returns>
-    internal static bool JsonEqual(JsonNode? left, JsonNode? right) => JsonNode.DeepEquals(left, right);
 
     /// <summary>Reads a required-property name from a JSON value.</summary>
     /// <param name="node">The JSON value.</param>

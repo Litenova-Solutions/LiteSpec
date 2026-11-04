@@ -2,44 +2,99 @@
 
 ## v4.0.0
 
-LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It changes what LiteSpec is: a strict specification model that a tool checks, beside graded engineering provisions that agents retrieve by situation, with git as the decision record and no approval or review workflow. It replaces 3.0.0 with no compatibility layer, and a consumer records `4.0.0` in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.
+LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.
 
-### One Folder per Consumer
+### Part A: The Nature of LiteSpec
 
-- Every LiteSpec file in a consumer lives under `.litespec/` at the repository root: `.litespec/project.json` (was `litespec.project.json`), `.litespec/glossary.yaml`, the record layers `.litespec/intent/`, `.litespec/behavior/`, `.litespec/implementation/`, `.litespec/proof/` and `.litespec/governance/`, and the generated `.litespec/model/` and `.litespec/book/`, which `.litespec/.gitignore` ignores.
-- Every command finds the consumer by walking up to the first folder holding `.litespec/project.json`. Paths in the project file stay relative to the repository root.
+- The specification model is strict: a record follows its schema, links resolve, and code and tests mark the records they serve; a violation is a defect.
+- Each provision states its strength, rule, default or advice, and where it applies; a check exists where one is cheap and sure.
+- Git is the decision record: a record in the repository is decided, and the pull request that changes it is its review.
+- The specification is closed: an agent builds what the specification states and takes anything missing to the owner or the backlog board.
+- Every record is about the software: what the application does, holds, refuses at runtime or runs on.
 
-### Writing
+### Part B: Git Is the Decision Record
 
-- The new [Writing](docs/core/writing.md) standard sets voice, tone, grammar, sentence and paragraph rules, characters, one title form per record type, the fixed explanation sections per type, and the four documentation kinds, for LiteSpec and every consumer.
-- Checks report a title over eight words, a sentence over 25 words in a statement, summary, situation or description, and a modal word in a statement.
+- Records carry no history of their own; git carries who changed what and when.
+- Completion is computed from code, tests and passing scenarios, and the book shows it first.
+- An exception carries reason, exit and expiry; an expired exception is a blocking finding.
+- A date about the outside world sits with its source as `readOn`.
 
-### Scope
+### Part C: Eight Commands
 
-- An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces. Prices as an offer, markets, sales, hiring, launch dates and founder risks stay out; they enter only as a constraint or as dated research.
-- `intent-area-invalid` rejects Intent areas named `business`, `company`, `go-to-market`, `markets` or `roadmap`.
-- The new opt-in `delivery` extension holds the release, CI, operations, dependency and structure provisions a small project can skip; the core keeps what every project needs to keep the specification honest.
-- `runbook-unused` reports a runbook that no alert, job, reaction or failure policy names.
+- The CLI has eight commands: `init`, `new`, `rename`, `model check`, `model format`, `model query`, `book` and `rules`.
+- `model check` is the one command CI runs: schema, folders, names, links, locality, reachability, marks and exceptions.
+- `model render` has three regions: `alert-inventory`, `runbook-index` and `operations-log`.
+- An additional command, finding code, analyzer rule or generated file needs an owner decision that records it.
 
-### Intent Records
+### Part D: Provisions by Situation
 
-- A problem is a pain of a person or organization outside the team. It requires `affects`, whose first entry is the primary sufferer, and `affectsSegment`, `costToday` and `workaroundToday`, and lists `evidence` entries with `claim`, `source`, `readOn` and `kind` (`observed`, `reported` or `assumed`). The model computes `evidenceStrength`; an approved problem needs observed or reported evidence. Its explanation file has the sections Who Has It, What They Do Today, Evidence, What Would Retire It.
-- An actor's `kind` is `person` or `organization`, and `belongsToTeam` says whether it works for the team building the product. An external system names no actor; internal machinery is never an actor.
-- A journey requires `description`. A step names at most one performer: an actor at a handoff, or the external system, job or reaction in `system` when no person acts.
-- New checks: `problem-sufferer-invalid`, `problem-cost-missing`, `problem-workaround-missing`, `problem-evidence-missing`, `problem-statement-invalid`, `problem-duplicate`, `actor-unused`, `goal-mover-missing` and `term-missing`.
+- Each page declares its stack and layer; a provision adds `Applies to` only when narrower than its page.
+- Every provision states `Strength`: rule, default or advice.
+- The provision index carries scope and strength; the site groups Standard, Reference, Learn and LiteSpec's own records.
 
-### Model
+### Part E: Rules for the File at Hand
 
-- The risk tier is gone. A record's `risk` classes show by name, and the project file's `approvals` table names who approves each class and the default rule for records with no risk class. The review queue, batches and ballots group by risk class; `litespec model review --risk <class>|none` filters them.
-- The model computes `completion` for every requirement, use case, journey, feature and goal: a stage of `unfulfilled`, `specified`, `implemented` or `proven`, whether proof is known, the children holding it back, and labelled counts. A parent is only as far as its weakest in-scope child. `feature-shipped-drift` flags a shipped feature below proven.
-- The project file's `screenshots` setting names gallery folders and a file-name pattern; the model records each screen's `captures` and `captureState`.
+- `litespec rules <path or record id>` lists the applying provisions grouped by strength, with why each was retrieved; `--full` adds rationale and example.
+- Project conventions and departures merge into the result; a departure shows in place of the provision it replaces.
+- A retrieval evaluation with a precision target proves the command.
 
-### Book
+### Part F: The Consumer Uses the Same Structure
 
-- Every record page follows one anatomy: breadcrumb, title, a visible type line with the type's question, the identifier with Copy Title and Copy ID, the lead sentence, the completion block, one aligned field table, prose, and links grouped by relation. Facts are table rows, never badges or nested cards.
-- Lists group by fields the records already have, with counts and completion per group, and show `Show all N` instead of cutting silently.
-- A screen page leads with its captured screenshot, with desktop, phone, light and dark variants.
-- Glossary terms in prose link to their definitions.
+- Layer and artifact derive from the stack structure and the records a file marks.
+- Project conventions live in `.litespec/governance/conventions/` in provision shape.
+- A departure names the provision it replaces and a scope.
+- Records use the same layer and artifact terms, so one query answers file, records and provisions together.
+
+### Part G: Surfaces That State the Nature
+
+- The README, AGENTS.md, the core pages, the command pages, the templates and this changelog state the nature above.
+- The docs index groups pages with generated counts; the site navigation follows the same groups.
+
+### Part H: Consumers Adopt the Whole Contract
+
+- A consumer pins one release and adopts a later release by accepting its whole contract.
+
+### Part I: Every Record Is About the Software
+
+- Intent reads module, then feature, then requirement; Behavior reads module, then aggregate, then use case.
+- Features sit under `intent/modules/<module>/features/` with their requirements as entries; a requirement identifier has the form `requirement/<feature>.<name>`.
+- A folder under `intent/modules/` that names no declared module is a blocking finding.
+- Reachability blocks: a goal reaches a journey or a quality requirement, a problem reaches a feature or requirement, a feature or requirement reaches Behavior, a constraint is answered, research is cited, and a decision decides a record that reaches Behavior.
+- Identifiers are short and unique in the product; the qualified identifier is computed from identifier segments plus placement, never written.
+
+### Part J: One Placement Model for Every Layer
+
+- Every record has one parent; the container is the parent; product, module, aggregate and entry point are the only folder nodes.
+- Behavior, Implementation and Governance place each type per the placement table in the model page; Proof holds no authored records.
+- Code and tests match the qualified identifier of the record they mark in folder and namespace, including frontend module folders.
+- Module `dependsOn` holds no cycle; an integration event has one publishing module.
+
+### Part K: Fields That State the Product
+
+- Every record carries type, id, title, terms and records plus its type fields; every record carries one `summary`, and a record that makes a testable claim carries one `statement`.
+- The project file carries project, size, shape, stacks, stackConfig, paths, marks, proof, dependencies, screenshots, refusals, selectedExtensions and `reviewedLiteSpecVersion`.
+- `risk` sits on permission only; `setBy` uses product, operator or tenant; a rule names where retained facts live in `retainedIn`; a use case states its field read and write lifecycle.
+
+### Part L: Complete Work Before Merging
+
+- A branch may be incomplete; what merges is complete. `model check` reports reachability locally and blocks in the pull-request check; an exception with `expiresOn` parks one record.
+- The folder wins: an identifier whose home segment disagrees with its folder is a blocking finding; each name segment is unique in the product.
+- Tiers: G reads records and always blocks, S reads code and blocks where qualified, A reports and never blocks.
+- An exception is live when present and unexpired.
+
+### Part M: The Module Layout as the Default Architecture
+
+- Layers are roles: Domain, Application, Infrastructure and WebApi with the reference table the architecture page states.
+- One application project holds every module; hosts hold composition and HTTP plumbing.
+- The folder tree uses closed folder sets per level; use case folders are flat; cross-module access runs only through `Contracts/` along `dependsOn`.
+- The `layer-projects` extension holds the five-project layout for consumers that select it.
+
+### Part N: Gaps Closed in the Standard
+
+- A deviation is an exception of kind departure whose `covers` names the provision it replaces.
+- Product patterns live in `implementation/patterns/`; product copy rules live in `implementation/writing/`; document pages may sit at a layer root.
+- Module rules live in `behavior/modules/<module>/rules/`; adapter tests sit under the adapter's `Infrastructure/` path.
+- Guidance precedence lives in one provision on the agent page.
 
 ## v3.0.0
 

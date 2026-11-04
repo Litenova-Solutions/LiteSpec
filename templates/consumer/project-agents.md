@@ -1,4 +1,4 @@
-# <Project> agent context
+# <Project> Agent Context
 
 ## LiteSpec
 This project follows LiteSpec __LITESPEC_VERSION__: size __SIZE__, shape __SHAPE__, stacks __STACKS__, extensions none.
@@ -8,7 +8,9 @@ UI work: the pattern pages listed in that index.
 
 Read `.litespec/project.json` before changing the project. (litespec/core/agent#select-task-context)
 
-Run `dotnet litespec rules <path>` before editing a file, and answer each returned provision's "Reviewed for" question before reporting done. (litespec/core/agent#select-task-context)
+Run `dotnet litespec rules <path>` before editing a file. (litespec/core/agent#select-task-context)
+
+Answer each returned provision's "Reviewed for" question before reporting done. (litespec/core/agent#select-task-context)
 
 Query the model builder for the records a task touches, with their links and the tool-read code and test state, instead of reading page lists. (litespec/core/agent#select-task-context, litespec/core/scope#record-selected-extensions)
 
@@ -43,10 +45,10 @@ Run metadata and model checks for each changed record, source, or test. Query th
 
 Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)
 
-Compose each route from one floorplan in the frontend `DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/web/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
+Compose each route from one floorplan in the frontend `DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/frontend/web/ui#prove-every-result-a-route-calls)
+Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/frontend/ui#prove-every-result-a-route-calls)
 
-Run `dotnet litespec ui` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/web/ui#prove-ui-behavior-and-appearance, litespec/frontend/web/ui#check-every-route-in-a-browser)
+Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 
 Record an exception before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)

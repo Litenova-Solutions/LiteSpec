@@ -326,7 +326,7 @@ static class InitCommand
             Console.WriteLine("Fill every <placeholder> in the copied files before validating.");
         }
 
-        Console.WriteLine("Next step: dotnet litespec consumer");
+        Console.WriteLine("Next step: dotnet litespec model check");
         return 0;
     }
 

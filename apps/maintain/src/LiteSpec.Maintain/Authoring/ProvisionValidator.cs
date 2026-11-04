@@ -25,19 +25,12 @@ internal sealed partial class ProvisionValidator
 
     /// <summary>Gets the shipped litespec command names.</summary>
     private static readonly HashSet<string> LiteSpecCommands = new(
-        ["consumer", "ui", "model", "book", "init", "new", "rename"],
+        ["model", "book", "init", "new", "rename", "rules"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the shipped litespec-maintain command names.</summary>
     private static readonly HashSet<string> MaintainCommands = new(
         ["validate", "provisions"],
-        StringComparer.Ordinal);
-
-    // The consumer findings that carry their own codes outside the shared
-    // finding registry: the glossary scan reports these two from ProseLanguage.
-    /// <summary>Gets the consumer finding codes reported outside the shared finding registry.</summary>
-    private static readonly HashSet<string> ConsumerFindingCodes = new(
-        ["GLOSSARY_MANNERED_TERM", "GLOSSARY_REJECTED_SYNONYM"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the provision field labels.</summary>
@@ -81,10 +74,13 @@ internal sealed partial class ProvisionValidator
             var fenceReported = false;
             foreach (var item in provision.Body)
             {
-                // The ID line and the verification line belong to the provision
-                // frame, not to its labeled fields; the identity and verification
-                // checks own them.
-                if (PageReader.TryParseIdLine(item.Line, out _) || PageReader.TryParseVerificationLine(item.Line, out _, out _))
+                // The ID, Strength, Applies to, and verification lines belong to the
+                // provision frame, not to its labeled fields; the identity, scope, and
+                // verification checks own them.
+                if (PageReader.TryParseIdLine(item.Line, out _)
+                    || PageReader.TryParseVerificationLine(item.Line, out _, out _)
+                    || PageReader.TryParseStrengthLine(item.Line, out _)
+                    || PageReader.TryParseAppliesToLine(item.Line, out _))
                 {
                     continue;
                 }
@@ -374,6 +370,167 @@ internal sealed partial class ProvisionValidator
         }
     }
 
+    /// <summary>Reports whether a line is a Strength or Applies to frame line.</summary>
+    /// <param name="line">The line to read.</param>
+    /// <returns>True when the line is a scope frame line.</returns>
+    private static bool IsScopeFrameLine(string line) =>
+        PageReader.TryParseStrengthLine(line, out _) || PageReader.TryParseAppliesToLine(line, out _);
+
+    /// <summary>Reads the values of one scope field from parsed fields.</summary>
+    /// <param name="scope">The parsed scope fields.</param>
+    /// <param name="field">The field name.</param>
+    /// <returns>The field values in order.</returns>
+    private static List<string> ScopeValues(IReadOnlyList<Scopes.ScopeField> scope, string field) =>
+        scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values).ToList();
+
+    // Every provision carries its Strength line, and an Applies to line only when it narrows
+    // its page scope. Strength values are the three the scope page fixes; Scope and Applies to
+    // values come from the scope tables, so an unreadable vocabulary skips value checks while
+    // presence and narrowing still run. One line reports one scope defect: a line with a value
+    // defect reports no narrowing defect beside it.
+    /// <summary>Checks the Strength and Applies to lines of every provision on a page.</summary>
+    /// <param name="relative">The repository-relative path.</param>
+    /// <param name="reader">The parsed page.</param>
+    /// <param name="provisions">The provisions to check.</param>
+    internal void CheckProvisionScopes(string relative, PageReader reader, List<Provision> provisions)
+    {
+        var add = Context.Add;
+        var vocabulary = Context.Vocabulary;
+        var page = Scopes.ReadPageScope(reader);
+        var pageStacks = ScopeValues(page, "stack");
+        var pageLayers = ScopeValues(page, "layer");
+        foreach (var provision in provisions)
+        {
+            // A pattern's fields end at its first option; everything below that
+            // is drawn options, not the pattern's own fields.
+            var cutoff = reader.Headings
+                .Where(heading => heading.Level == 4 && heading.Line > provision.Line)
+                .Select(heading => heading.Line)
+                .Append(int.MaxValue)
+                .Min();
+            var fields = provision.Section == "Patterns"
+                ? provision.Body.TakeWhile(item => item.Number < cutoff).ToList()
+                : provision.Body;
+
+            var strengths = fields.Where(item => PageReader.TryParseStrengthLine(item.Line, out _)).ToList();
+            if (strengths.Count == 0)
+            {
+                add(relative, provision.Line, "STRENGTH_LINE", $"provision '{provision.Id}' carries no Strength line; write `**Strength:** rule`, `default`, or `advice` directly after its ID line");
+            }
+            else if (PageReader.TryParseStrengthLine(strengths[0].Line, out var named) && !Scopes.StrengthValues.Contains(Scopes.Unquote(named)))
+            {
+                add(relative, strengths[0].Number, "STRENGTH_LINE", $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `rule`, `default`, and `advice`");
+            }
+
+            var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();
+            if (applies.Count == 0)
+            {
+                continue;
+            }
+
+            if (!PageReader.TryParseAppliesToLine(applies[0].Line, out var rest))
+            {
+                continue;
+            }
+
+            var narrowed = Scopes.ParseScopeFields(rest);
+            if (narrowed.Count == 0)
+            {
+                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, or artifact");
+                continue;
+            }
+
+            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name != "stack" && name != "layer" && name != "artifact");
+            if (unknown is not null)
+            {
+                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, or artifact");
+                continue;
+            }
+
+            var clean = true;
+            foreach (var field in narrowed)
+            {
+                if (field.Values.Count == 0)
+                {
+                    add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
+                    clean = false;
+                    continue;
+                }
+
+                if (!vocabulary.Readable)
+                {
+                    continue;
+                }
+
+                foreach (var value in field.Values)
+                {
+                    var known = field.Name switch
+                    {
+                        "stack" => vocabulary.Stacks.Contains(value),
+                        "layer" => vocabulary.Layers.Contains(value),
+                        _ => vocabulary.IsArtifact(value),
+                    };
+                    if (!known)
+                    {
+                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
+                        clean = false;
+                    }
+                }
+            }
+
+            if (!clean || page.Count == 0)
+            {
+                continue;
+            }
+
+            var stacks = ScopeValues(narrowed, "stack");
+            var layers = ScopeValues(narrowed, "layer");
+            var widened = false;
+            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0;
+            if (stacks.Count > 0 && pageStacks.Count > 0)
+            {
+                if (pageStacks.Contains("any"))
+                {
+                    // Naming `any` repeats the page, which reports as wide; any stack set
+                    // without it narrows the page to those stacks.
+                    if (!stacks.Contains("any"))
+                    {
+                        strictlyNarrower = true;
+                    }
+                }
+                else if (!stacks.All(pageStacks.Contains))
+                {
+                    widened = true;
+                }
+                else if (!pageStacks.All(stacks.Contains))
+                {
+                    strictlyNarrower = true;
+                }
+            }
+
+            if (layers.Count > 0 && pageLayers.Count > 0)
+            {
+                if (!layers.All(pageLayers.Contains))
+                {
+                    widened = true;
+                }
+                else if (!pageLayers.All(layers.Contains))
+                {
+                    strictlyNarrower = true;
+                }
+            }
+
+            if (widened)
+            {
+                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' widens its page scope");
+            }
+            else if (!strictlyNarrower)
+            {
+                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' is as wide as its page scope; narrow it or remove the line");
+            }
+        }
+    }
+
     /// <summary>Checks the inline verification line of every provision on a page.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
@@ -443,10 +600,11 @@ internal sealed partial class ProvisionValidator
 
             var (found, position) = lines[0];
             var after = fields.Skip(position + 1).ToList();
-            if (after.Any(item => (reader.LabelAtLine.TryGetValue(item.Number, out var label) && ProvisionLabels.Contains(label))
-                || PageReader.TryParseVerificationLine(item.Line, out _, out _)
-                || item.Fenced
-                || item.Line.Trim().Length > 0))
+            if (after.Any(item => !IsScopeFrameLine(item.Line)
+                && ((reader.LabelAtLine.TryGetValue(item.Number, out var label) && ProvisionLabels.Contains(label))
+                    || PageReader.TryParseVerificationLine(item.Line, out _, out _)
+                    || item.Fenced
+                    || item.Line.Trim().Length > 0)))
             {
                 add(relative, found.Number, "VERIFY_ORDER", $"verification line for '{provision.Id}' must be last among its fields");
             }
@@ -547,11 +705,10 @@ internal sealed partial class ProvisionValidator
             }
         }
 
-        // Every other backticked span names a finding code, an analyzer rule, a
-        // maintainer diagnostic, or a consumer finding code. A kebab-case span
-        // ending in a problem word is read as a finding code; an all-caps span
-        // with an underscore is read as a maintainer diagnostic or a consumer
-        // finding code, so acronyms and single words stay prose.
+        // Every other backticked span names a finding code, an analyzer rule, or a
+        // maintainer diagnostic. A kebab-case span ending in a problem word is read
+        // as a finding code; an all-caps span with an underscore is read as a
+        // maintainer diagnostic, so acronyms and single words stay prose.
         string? pin = null;
         HashSet<string>? shipped = null;
         var shippedRead = false;
@@ -573,9 +730,9 @@ internal sealed partial class ProvisionValidator
             }
             else if (MaintainCodePattern().IsMatch(span))
             {
-                if (!StableCodeSet.Contains(span) && !ConsumerFindingCodes.Contains(span))
+                if (!StableCodeSet.Contains(span))
                 {
-                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code or a consumer finding code");
+                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
                 }
             }
             else if (FindingCodePattern().IsMatch(span) && !Finding.Tiers.ContainsKey(span))

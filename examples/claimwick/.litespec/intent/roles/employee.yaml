@@ -4,5 +4,5 @@ title: Employee
 summary: Employees act on their own expenses.
 scope: self
 allows:
-  - permission/submit-expense
-  - permission/list-expenses
+- permission/submit-expense
+- permission/list-expenses

@@ -1,5 +1,9 @@
 # Admin Screen Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, spreadsheet imports, the payout account, subscription invoices, and budget codes. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-a-new-secret-once`
 
+**Strength:** rule
+
 **Statement:** A screen MUST show a newly created API key or secret in full only once, at creation.
 
 **Rationale:** A secret that stays readable on screen can be copied by anyone who later opens the page, including from a shared screen or a screenshot. Showing it once forces the person creating it to store it in a vault or environment file at once, so no later visit can leak it.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 ### Show What a Role Allows Before Granting It
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it`
+
+**Strength:** rule
 
 **Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 ### Team Members and Their Roles
 
 **ID:** `litespec/frontend/patterns/admin-screens#team-members-and-their-roles`
+
+**Strength:** default
 
 **Question:** The team is the staff who work for the company, and a role states what each person may do. The staff member holding the Owner role invites people, grants roles, limits some staff to one cost centre, and suspends or removes people. Everyone else sees names and roles, and nothing more.
 
@@ -194,6 +204,8 @@ page
 ### API Keys and Webhooks
 
 **ID:** `litespec/frontend/patterns/admin-screens#api-keys-and-webhooks`
+
+**Strength:** default
 
 **Question:** Company systems read the product through API keys. Expense updates reach those systems through webhooks. A key secret shows once and never again. Each webhook delivery states whether it arrived. A missed expense update is money unaccounted for.
 
@@ -358,6 +370,8 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets`
 
+**Strength:** default
+
 **Question:** Staff, budget lines, and payout consents arrive from spreadsheets. Each import names what was brought in and what was refused. Each refusal names why. Finance fixes refused rows without importing the file twice.
 
 **Default:** `imports-with-the-refused-rows-below`
@@ -513,6 +527,8 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#connecting-the-payment-account`
 
+**Strength:** default
+
 **Question:** Reimbursements leave through the company payout account. Each payout sends an approved expense to its spender. The company connects the account once. It chooses which payout methods to offer. It reads what each method costs.
 
 **Default:** `connected-account-with-the-methods-below`
@@ -665,6 +681,8 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#supplier-invoice`
 
+**Strength:** default
+
 **Question:** Claimwick invoices the company each month. The invoice holds the plan, the fee per expense, and the text-message cost. The company reads what each line charges. It downloads the invoice for the books. It pays by direct debit under its mandate.
 
 **Default:** `invoice-sheet-with-its-lines`
@@ -814,6 +832,8 @@ page
 ### Budget Codes and Advances
 
 **ID:** `litespec/frontend/patterns/admin-screens#budget-codes-and-advances`
+
+**Strength:** default
 
 **Question:** A code funds one trip against its budget. Each code has its own ceiling, claim limit, and dates. Finance watches what each code spends. It retires what leaks. It issues new codes for trips and projects.
 

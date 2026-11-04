@@ -219,7 +219,7 @@ public sealed class HandlerShapeCheckTests
 
     /// <summary>Approved Exception Holds An Inline Call On Its Subject.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void Approved_Exception_Holds_An_Inline_Call_On_Its_Subject()
     {

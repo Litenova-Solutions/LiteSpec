@@ -41,14 +41,16 @@ public sealed class LiteSpecGenerator : IIncrementalGenerator
 
         var declaredLayer = context.AnalyzerConfigOptionsProvider
             .Select(static (options, _) => HostModel.DeclaredLayer(options));
+        var declaredLayout = context.AnalyzerConfigOptionsProvider
+            .Select(static (options, _) => HostModel.DeclaredLayout(options));
         var assemblyName = context.CompilationProvider
             .Select(static (compilation, _) => compilation.AssemblyName ?? string.Empty);
         var xunit = context.CompilationProvider
             .Select(static (compilation, _) =>
                 compilation.GetTypeByMetadataName(XunitTraitAttributeName) is not null);
-        var host = declaredLayer.Combine(assemblyName).Combine(xunit)
+        var host = declaredLayer.Combine(declaredLayout).Combine(assemblyName).Combine(xunit)
             .Select(static (combined, _) => HostModel.Create(
-                combined.Left.Left, combined.Left.Right, combined.Right));
+                combined.Left.Left.Left, combined.Left.Left.Right, combined.Left.Right, combined.Right));
 
         var input = records.Combine(marked.Collect()).Combine(host);
         context.RegisterSourceOutput(input, static (production, combined) => Emitter.Execute(

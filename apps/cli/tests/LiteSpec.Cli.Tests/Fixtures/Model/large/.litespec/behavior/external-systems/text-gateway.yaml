@@ -1,0 +1,18 @@
+type: external-system
+id: external-system/text-gateway
+title: Text gateway
+summary: The text gateway sends overdue notices to readers.
+failure: Notices queue until the gateway answers.
+operations:
+- name: send-overdue-notice
+  direction: out
+  timeout: 5 seconds
+  onTimeout: The notice queues for the next run.
+  response: A delivery receipt.
+  cache: none, every notice is sent once
+- name: receive-delivery-receipt
+  direction: in
+  timeout: none
+  onTimeout: Receipts arrive when the gateway answers.
+  response: The receipt id.
+  cache: none, each receipt is read once

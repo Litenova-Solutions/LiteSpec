@@ -1,0 +1,22 @@
+type: decision
+id: decision/0001-loan-period
+title: Loan period
+options:
+- name: 14 days
+  pros: Copies turn over fast for holds.
+  cons: Readers rush through long books.
+- name: 21 days
+  pros: Most readers finish in three weeks.
+  cons: Holds wait a week longer.
+- name: 28 days
+  pros: Slow readers keep up.
+  cons: Popular copies sit idle.
+choice: 21 days
+consequences: Holds wait longer.
+reopenedWhen: Reader demand shifts.
+decides:
+- requirement/borrowing.max-active-loans
+- requirement/borrowing.loan-period-days
+- requirement/borrowing.hold-pickup-window
+- requirement/borrowing.copy-shelf-home
+basedOn: []

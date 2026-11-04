@@ -1,0 +1,9 @@
+type: job
+id: job/finance.announce-loan-borrowed
+title: Announce loan borrowed
+kind: manual
+guard: An operator starts the announcement.
+effects:
+  - emits: integration-event/loan-borrowed
+fulfills:
+  - requirement/borrowing.loan-period-days

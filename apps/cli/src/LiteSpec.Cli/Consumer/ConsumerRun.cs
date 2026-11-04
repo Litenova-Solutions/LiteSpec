@@ -5,9 +5,11 @@ using LiteSpec.Model;
 namespace LiteSpec.Consumer;
 
 /// <summary>
-///     The mutable state of one run: the roots, the findings, and the one text cache
-///     every read passes through so a file the checks revisit is read once and reused.
-///     One instance is passed to every check of the run.
+///     The mutable state of the consumer pass inside <c>model check</c>: the roots,
+///     the findings, and the one text cache every read passes through so a file the
+///     checks revisit is read once and reused. One instance is passed to every check
+///     of the pass, and the caller reports the collected findings in the one finding
+///     shape.
 /// </summary>
 /// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
@@ -17,18 +19,13 @@ sealed class ConsumerRun
     ///     Initializes a new instance of the <see cref="ConsumerRun"/> class.
     /// </summary>
     /// <param name="root">The consumer repository root.</param>
-    /// <param name="json">Whether the report is written as JSON.</param>
-    public ConsumerRun(string root, bool json)
+    public ConsumerRun(string root)
     {
         Root = root;
-        Json = json;
     }
 
     /// <summary>Gets the consumer repository root.</summary>
     public string Root { get; }
-
-    /// <summary>Gets a value indicating whether gets whether the report is written as JSON.</summary>
-    public bool Json { get; }
 
     /// <summary>Gets the findings the checks reported.</summary>
     public List<Finding> Errors { get; } = [];
@@ -100,11 +97,13 @@ sealed class ConsumerRun
     /// <summary>Gets or sets the declared shared UI package.</summary>
     public JsonNode? UiPackage { get; set; }
 
-    /// <summary>Gets or sets the glossary line the human report prints.</summary>
+    /// <summary>Gets or sets the glossary summary the glossary check writes.</summary>
     public string GlossarySummary { get; set; } = "";
 
     /// <summary>
-    ///     Runs every check of the consumer validator in order.
+    ///     Runs every check of the consumer pass in order, collecting the findings.
+    ///     A malformed input ends the pass through <see cref="FailFast"/>; the
+    ///     caller prints the carried message and returns the carried exit code.
     /// </summary>
     public void Execute()
     {
@@ -117,7 +116,7 @@ sealed class ConsumerRun
         {
             if (!File.Exists(schemaFile))
             {
-                FailInput($"Schema '{Relative(StandardsRoot, schemaFile)}' is missing from the pinned LiteSpec release; the validator cannot run without it");
+                FailInput($"Schema '{Relative(StandardsRoot, schemaFile)}' is missing from the pinned LiteSpec release; the check cannot run without it");
             }
         }
 
@@ -126,8 +125,7 @@ sealed class ConsumerRun
 
         if (!File.Exists(projectFile))
         {
-            Console.Error.WriteLine($"No .litespec/project.json at {Root}");
-            throw new FailFast(2);
+            throw new FailFast(2, $"No .litespec/project.json at {Root}");
         }
 
         try
@@ -173,78 +171,9 @@ sealed class ConsumerRun
     }
 
     /// <summary>
-    ///     Writes the machine-readable or human-readable report and returns the exit code.
-    /// </summary>
-    /// <returns>The exit code: 0 when no problem was reported, 1 otherwise.</returns>
-    public int Report()
-    {
-        // A machine reader gets the findings as objects and the counts as fields, so
-        // nothing has to be recovered by parsing the human lines back apart.
-        // Every finding carries its code, level, path, line and subject, the one
-        // finding shape the model check reads. Consumer findings read pages only
-        // and always block, so G.
-        if (Json)
-        {
-            var payload = new JsonObject
-            {
-                ["tool"] = "consumer",
-                ["consumer"] = Root,
-                ["ok"] = Errors.Count == 0,
-                ["scanned"] = new JsonObject { ["documentationRoot"] = DocsPath, ["files"] = Files.Count, ["pages"] = Pages },
-                ["problems"] = new JsonArray([.. Errors.Select(ProblemJson)]),
-            };
-
-            CliJson.Write(payload);
-
-            return Errors.Count > 0 ? 1 : 0;
-        }
-
-        Console.WriteLine($"Consumer: {Root}");
-        Console.WriteLine($"Files scanned: {Files.Count} under {DocsPath}, pages: {Pages}");
-        Console.WriteLine(GlossarySummary);
-
-        if (Errors.Count > 0)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"FAIL ({Errors.Count} problem(s)):");
-
-            foreach (var finding in Errors)
-            {
-                Console.WriteLine($"  - {Relative(finding.Path)}:{finding.Line} [{finding.Tier}] [{finding.Code}] {finding.Message}");
-            }
-
-            return 1;
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("PASS: project configuration, record files, documents and glossary are valid.");
-        return 0;
-    }
-
-    /// <summary>One finding as its JSON object.</summary>
-    /// <param name="finding">The finding to project.</param>
-    /// <returns>The JSON object for the finding.</returns>
-    JsonNode ProblemJson(Finding finding)
-    {
-        var item = new JsonObject
-        {
-            ["code"] = finding.Code,
-            ["level"] = finding.Tier,
-            ["message"] = finding.Message,
-            ["path"] = Relative(finding.Path),
-            ["line"] = finding.Line,
-        };
-
-        if (finding.Subject is not null)
-        {
-            item["subject"] = finding.Subject;
-        }
-
-        return item;
-    }
-
-    /// <summary>
-    ///     Records one finding.
+    ///     Records one finding. Every finding carries its code, level, path, line
+    ///     and subject, the one finding shape the model check reports. Consumer
+    ///     findings read pages only and always block, so G.
     /// </summary>
     /// <param name="finding">The finding to record.</param>
     public void Err(Finding finding) => Errors.Add(finding);
@@ -395,37 +324,10 @@ sealed class ConsumerRun
         Path.GetRelativePath(root, file).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>
-    ///     Ends the run as a usage error with the path and the parse message. A stack
-    ///     trace would break the <c>--format json</c> contract a machine reader relies on.
+    ///     Ends the pass as a usage error, carrying the path and the parse message
+    ///     out to the caller. The pass writes nothing itself, so the caller's
+    ///     output contract stays intact whatever format it reports in.
     /// </summary>
     /// <param name="message">The problem text.</param>
-    public void FailInput(string message)
-    {
-        if (Json)
-        {
-            var problem = new JsonObject
-            {
-                ["code"] = "project-invalid",
-                ["level"] = "G",
-                ["message"] = message,
-                ["path"] = ".litespec/project.json",
-                ["line"] = 1,
-            };
-
-            CliJson.Write(new JsonObject
-            {
-                ["tool"] = "consumer",
-                ["consumer"] = Root,
-                ["ok"] = false,
-                ["scanned"] = new JsonObject { ["documentationRoot"] = ".litespec", ["files"] = 0, ["pages"] = 0 },
-                ["problems"] = new JsonArray(problem),
-            });
-        }
-        else
-        {
-            Console.Error.WriteLine(message);
-        }
-
-        throw new FailFast(2);
-    }
+    public static void FailInput(string message) => throw new FailFast(2, message);
 }

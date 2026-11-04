@@ -27,15 +27,7 @@ static class KindClosure
     public static (KindContext Context, QualifiedKinds Qualified) Of(
         ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
-        var backends = new[]
-        {
-            config.ApplicationRoot,
-            config.ApplicationRoot + ".Abstractions",
-            config.DomainRoot,
-            config.WebApiRoot,
-            config.InfrastructureRoot,
-            config.WorkerRoot,
-        };
+        var backends = SourceRoots.BackendRoots(config);
         var bySimple = new Dictionary<string, List<DeclaredType>>(StringComparer.Ordinal);
         var declaredTypes = new List<(TypeDeclarationSyntax Declared, string Qualified, bool PortRoot, bool TechnicalRoot, string File)>();
 

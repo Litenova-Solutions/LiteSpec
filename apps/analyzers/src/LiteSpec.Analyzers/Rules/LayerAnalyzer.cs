@@ -1,11 +1,13 @@
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules;
 
 /// <summary>
-///     The base of every LiteSpec analyzer: resolves the compilation's layer once, skips
-///     generated code, and registers the rule only in the layers it applies to.
+///     The base of every LiteSpec analyzer: skips opted-out compilations, gates a
+///     declared or layer-projects compilation once, and registers the rule for
+///     per-file gating under the module layout. Generated code is skipped.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public abstract class LayerAnalyzer : DiagnosticAnalyzer
@@ -17,16 +19,37 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            var layer = LayerResolver.Resolve(start.Compilation, start.Options);
-            if (layer != Layer.None && AppliesTo(layer))
+            var declared = FileScope.DeclaredLayer(start.Options);
+            if (declared is not null)
             {
+                var layer = LayerResolver.Parse(declared);
+                if (layer == Layer.None || !AppliesTo(layer))
+                {
+                    return;
+                }
+
                 Register(start);
+                return;
             }
+
+            if (FileScope.DeclaredLayout(start.Options) == Layout.LayerProjects)
+            {
+                var layer = LayerResolver.FromAssemblyName(start.Compilation.AssemblyName ?? string.Empty);
+                if (layer == Layer.None || !AppliesTo(layer))
+                {
+                    return;
+                }
+
+                Register(start);
+                return;
+            }
+
+            Register(start);
         });
     }
 
-    /// <summary>Whether the rule runs in a project of this layer.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <summary>Whether the rule runs on files of this layer.</summary>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected abstract bool AppliesTo(Layer layer);
 

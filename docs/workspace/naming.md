@@ -1,5 +1,8 @@
 # Naming and Code Style
 
+**Stack:** `any`
+**Layer:** `workspace`
+
 ## Intent
 
 Names are the first documentation a reader meets: a name states the business intent and architectural role without opening the file. In a LiteSpec codebase every architectural role carries a fixed suffix, every type an aggregate owns starts with its root's name, and every frontend file follows one casing map. This page states those suffixes, anchors, and casings, with the exception-naming, boolean, async, and language-version rules beside them, for anyone who names code, and especially for agents working across sessions.
@@ -12,7 +15,7 @@ An aggregate root is the single type through which outside code changes an aggre
 
 ### Role Suffixes
 
-Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result name, an endpoint in `Endpoint`. The Role Suffixes table below lists every role with its pattern and one example. Full suffixes keep coordination apart from projection and boundary data apart from business objects.
+Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result name, an endpoint in `Endpoint`. The Role Suffixes table below lists every role with its pattern and one example. Full suffixes keep coordination apart from projection and boundary data apart from business objects. In a use case folder the suffix also states the file's layer: a type whose name ends in `Endpoint`, `RequestModel`, or `ResponseModel` is WebApi, and one ending in `Command`, `Query`, `Result`, `Handler`, or `Validator` is Application.
 
 | Role | Pattern | Example |
 |:---|:---|:---|
@@ -48,6 +51,10 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`
 
+**Strength:** rule
+
+**Applies to:** `artifact: aggregate`
+
 **Statement:** An aggregate-owned type's qualified name MUST start with its aggregate root's full name.
 
 **Rationale:** Leading with the root name reveals the owner without folder context. The rule covers events, states, child entities, values, and discriminated unions. A type nested inside a declaring type inherits that type's prefix through its qualified name, so `PostState.Published` satisfies the rule while a flat `PostStatePublishedState` repeats the anchor twice.
@@ -59,6 +66,8 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 ### Use Architectural Suffixes
 
 **ID:** `litespec/workspace/naming#use-architectural-suffixes`
+
+**Strength:** rule
 
 **Statement:** An architectural type MUST carry the suffix its role assigns in the Role Suffixes table.
 
@@ -80,9 +89,11 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-result-parts-after-their-result`
 
+**Strength:** rule
+
 **Statement:** Each type nested in a use-case result MUST be named after the result it belongs to, as `{UseCase}QueryResult{Part}` or `{UseCase}CommandResult{Part}`.
 
-**Rationale:** A result part named for its own shape instead of its result collides with every other use case shaping the same thing: two summaries named `PostSummary` answer different queries with different fields. Leading with the full result name keeps each part beside the result it belongs to in every listing, and keeps command coordination apart from query projection without opening the file. The .NET form of this rule is `litespec/backend/dotnet/naming#name-result-parts-after-their-result`.
+**Rationale:** A result part named for its own shape instead of its result collides with every other use case shaping the same thing: two summaries named `PostSummary` answer different queries with different fields. Leading with the full result name keeps each part beside the result it belongs to in every listing, and keeps command coordination apart from query projection without opening the file.
 
 **Example:** `ListPostsQueryResultItem` belongs to `ListPostsQueryResult`, and `ReadLoanQueryResultHold` belongs to `ReadLoanQueryResult`.
 
@@ -92,21 +103,25 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-**Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the aggregate folder of the subscriber, and be named `{Action}On{Fact}Handler`.
+**Strength:** rule
 
-**Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers. The .NET form of this rule is `litespec/backend/dotnet/naming#group-event-handlers-by-the-fact-they-handle`.
+**Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the `Reactions/` folder of the subscriber module, and be named `{Action}On{Fact}Handler`.
 
-**Example:** `Loans/Loans/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
+**Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers.
 
-**Checked by:** `dotnet build` reports `LS2008` for an event handler declared outside the `On{Fact}` folder its event names, in the dotnet stack.
+**Example:** `Lending/Reactions/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
+
+**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler declared outside the `On{Fact}` folder its event names.
 
 ### Name Repository Variables After Their Interface
 
 **ID:** `litespec/workspace/naming#name-repository-variables-after-their-interface`
 
+**Strength:** rule
+
 **Statement:** Each repository parameter, field or local MUST be named after its interface without the `I` prefix, ending in `Repository`.
 
-**Rationale:** A short plural name hides which aggregate the variable guards: `orders` could be a list, a query, or the repository, and each reader guesses. Naming the variable after its interface keeps one name per repository at every use site, so a reviewer reads the dependency from the name alone. The .NET form of this rule is `litespec/backend/dotnet/naming#name-repository-variables-after-their-interface`.
+**Rationale:** A short plural name hides which aggregate the variable guards: `orders` could be a list, a query, or the repository, and each reader guesses. Naming the variable after its interface keeps one name per repository at every use site, so a reviewer reads the dependency from the name alone.
 
 **Example:** A parameter of type `IExpenseRepository` is named `expenseRepository`, and a field of type `ILoanRepository` is named `loanRepository`.
 
@@ -115,6 +130,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 ### Name Asynchronous Operations Completely
 
 **ID:** `litespec/workspace/naming#name-asynchronous-operations-completely`
+
+**Strength:** rule
 
 **Statement:** An asynchronous operation MUST reveal its asynchrony in its name and accept cancellation explicitly when the operation is cancelable.
 
@@ -126,6 +143,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-exceptions-by-failed-rule`
 
+**Strength:** rule
+
 **Statement:** An exception name MUST state the rule that failed, using `{DomainType}{Reason}Exception` for a Domain rejection.
 
 **Rationale:** An exception name is the first diagnosis: it states which rule failed on which type. `{DomainType}{Reason}Exception` puts both in the name. `DomainType` is the aggregate root or an anchored owned type, so the name always starts with the aggregate root.
@@ -135,6 +154,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 ### Use Intent-Revealing Boolean Names
 
 **ID:** `litespec/workspace/naming#use-intent-revealing-boolean-names`
+
+**Strength:** advice
 
 **Statement:** A boolean property or method MUST use `Is`, `Has`, `Can`, or a precise verb.
 
@@ -146,6 +167,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-current-language-features`
 
+**Strength:** advice
+
 **Statement:** Production code MUST target the pinned language version and use its current construct over an older equivalent.
 
 **Rationale:** A pinned language version gives every writer the same constructs. Using the current construct over its older equivalent keeps one idiom across the codebase instead of one per author. In the dotnet stack, collection expressions, pattern matching, and primary constructors express the same intent with less incidental code.
@@ -155,6 +178,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 ### Use Predictable Frontend Names
 
 **ID:** `litespec/workspace/naming#use-predictable-frontend-names`
+
+**Strength:** rule
 
 **Statement:** A frontend folder MUST use kebab-case, a component file and its export PascalCase, and a React hook file `use-{name}`.
 
@@ -168,11 +193,13 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#align-business-names-across-layers`
 
+**Strength:** default
+
 **Default:** Use one business name for a module across Domain, Application, endpoints, features, and documentation.
 
 **Replacement:** A project whose module carries different names per layer records its own per-layer names in its project documentation.
 
-**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Domain/Posts`, `features/posts`, and `.litespec/domain/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
+**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/domain/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
 
 **Reviewed for:** One business name for each module spans Domain, Application, endpoints, features, and documentation; where replaced, the project documentation names the project's own per-layer names.
 
@@ -180,17 +207,21 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#keep-namespaces-aligned-with-folders`
 
-**Default:** Start a namespace with the project name and follow the folders beneath the project root.
+**Strength:** default
+
+**Default:** Start a namespace with the product name and follow the folders beneath the application project root.
 
 **Replacement:** A project whose layout needs another root records its own namespace root in its project documentation.
 
-**Rationale:** Starting the namespace with the project name and following the folders beneath it puts each type exactly where its namespace says. Including `src` or `apps` couples the type name to a workspace layout decision. The project root is the directory holding the project file, so every folder above it stays outside the namespace.
+**Rationale:** Starting the namespace with the product name and following the folders beneath it puts each type exactly where its namespace says. Including `src` or `apps` couples the type name to a workspace layout decision. The application project root is the directory holding the application project file, so every folder above it stays outside the namespace.
 
-**Reviewed for:** Each namespace starts with its project name and follows the folders beneath the project root; where replaced, the project documentation names the project's own namespace root.
+**Reviewed for:** Each namespace starts with its product name and follows the folders beneath the application project root; where replaced, the project documentation names the project's own namespace root.
 
 ### Avoid Generic Type Names
 
 **ID:** `litespec/workspace/naming#avoid-generic-type-names`
+
+**Strength:** advice
 
 **Default:** Avoid `Manager`, `Helper`, `Processor`, `Common`, `Utility`, `BaseService`, `DataService`, `MessageBus`, `Engine`, `Facade`, `Wrapper`, and `Factory` when a narrower name exists.
 
@@ -203,6 +234,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 ### Derive Boundary Names from the Ubiquitous Term
 
 **ID:** `litespec/workspace/naming#derive-boundary-names-from-the-ubiquitous-term`
+
+**Strength:** default
 
 **Default:** Derive route segments and JSON field names from the current aggregate or ubiquitous term.
 

@@ -7,7 +7,7 @@
 
 ## Intent
 
-LiteSpec is a versioned specification standard for one bounded-context business application. It defines written records for what a product must do, and it ships a .NET command-line tool and Roslyn analyzers that check a project's records, code, and tests against those records.
+LiteSpec is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines two things. The specification model is the record types in which a product states what it must do, linked from Intent through Behavior to the code and tests that carry it. The engineering provisions are the experience of how to build such an application, each marked as a rule, a default or advice. Its tool checks the specification and its links, and helps agents find the provisions that apply.
 
 LiteSpec is for a team that builds one bounded-context business application with people and coding agents working from the same written source. Without a checked link between the written intent and the code, the two drift apart: a record says one thing, the code does another, and a test proves neither. LiteSpec holds the three together by giving each fact one written home and checking the connections between them.
 
@@ -17,8 +17,8 @@ A project describes itself with records: written statements of fixed types, join
 
 | Layer | What It Holds |
 |:---|:---|
-| Intent | Goals, requirements, and decisions that people approve. |
-| Behavior | Use cases, journeys, and rules that developers review. |
+| Intent | Goals, requirements, and decisions that state what the product promises. |
+| Behavior | Use cases, journeys, and rules that state how the system keeps the promises. |
 | Implementation | The code and screens that carry the behavior. |
 | Proof | The tests and checks that show the code matches the records. |
 
@@ -30,7 +30,13 @@ The `litespec` tool reads the records and the code, builds a project model, and 
 | S | Reads code through a stack reader. Blocks where the reader is qualified, and reports otherwise. |
 | A | Advisory. Reports and never blocks. |
 
-The tool renders the model as a book that a reviewer reads offline. The analyzers apply the same rules inside a .NET build.
+The tool renders the model as a book that a reader reads offline. The analyzers apply the same rules inside a .NET build.
+
+## How Agents Use It
+
+An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved. When a statement is not enough, it runs `litespec rules <path> --full` for rationale and example. It answers each returned provision's Reviewed for question before reporting done, and names the provisions it judged and how in its completion report.
+
+It loads record context through `litespec model query <record-id>`, which returns one record with its computed links. It builds only what the specification states; something that seems missing becomes a question to the owner or a backlog item, never code.
 
 ## Installation
 
@@ -48,14 +54,30 @@ Run `dotnet new tool-manifest` only when the repository has no `.config/dotnet-t
 
 ## First Check
 
-Run the consumer check from the consumer root after `init` writes the project file.
+Run the model check from the consumer root after `init` writes the project file.
 
 ```bash
-dotnet litespec consumer
 dotnet litespec model check
 ```
 
-`dotnet litespec consumer` validates the project file, the record files, and the language of the explanation files and documents. `dotnet litespec model check` builds the project model and reports each finding with its level, code, and location. See [Validate Consumer](docs/tools/consumer.md) and [Model Builder](docs/tools/model.md) for the exit codes and options.
+`dotnet litespec model check` validates the project file, the record files, and the language of the explanation files and documents, builds the project model, and reports each finding with its level, code, and location. See [Model Builder](docs/tools/model.md) for the exit codes and options.
+
+## Commands
+
+The CLI has eight commands.
+
+| Command | Does |
+|:---|:---|
+| `litespec init` | Writes `.litespec/project.json` for a new consumer from a preset. |
+| `litespec new` | Creates a record file in its one legal folder and reserves its identifier. |
+| `litespec rename` | Renames an identifier and rewrites every citation. |
+| `litespec model check` | Checks the specification, its links, and its marks. The one command CI runs. |
+| `litespec model format` | Rewrites record files into canonical form. |
+| `litespec model query` | Returns one record with its computed links. |
+| `litespec book` | Generates the project book from the model. |
+| `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength. |
+
+See the [command index](docs/tools/README.md) for every option.
 
 ## Stacks Supported
 

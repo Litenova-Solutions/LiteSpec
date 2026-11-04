@@ -16,10 +16,11 @@ internal static class SchemaGate
     private static readonly string[] ChildLists = ["allOf", "anyOf", "oneOf", "prefixItems"];
 
     /// <summary>Gets the subschema positions that hold a map of schemas.</summary>
-    private static readonly string[] ChildMaps = ["properties", "patternProperties", "$defs"];
+    private static readonly string[] ChildMaps = ["properties", "patternProperties", "$defs", "dependentSchemas"];
 
     /// <summary>Gets the subschema positions that hold one schema.</summary>
-    private static readonly string[] ChildValues = ["items", "contains", "propertyNames", "additionalProperties", "if", "then", "else", "not"];
+    internal static readonly string[] ChildValues =
+        ["items", "contains", "propertyNames", "additionalProperties", "if", "then", "else", "not", "unevaluatedItems", "unevaluatedProperties", "contentSchema"];
 
     /// <summary>Gets the gate messages cached per schema root.</summary>
     private static readonly ConditionalWeakTable<JsonNode, string[]> GateCache = new();
@@ -114,4 +115,90 @@ internal static class SchemaGate
             UnsupportedKeywords(schema, schemaFile, "#", (_, _, _, message) => found.Add(message));
             return found.ToArray();
         });
+
+    /// <summary>
+    ///     A copy of a schema carrying only implemented keywords, so the library
+    ///     judges the known subset while the gate reports the rest. The copy
+    ///     leaves the caller tree untouched.
+    /// </summary>
+    /// <param name="schema">The schema to copy.</param>
+    /// <returns>The copy without unknown keywords.</returns>
+    internal static JsonNode WithoutUnknownKeywords(JsonNode schema)
+    {
+        var clone = schema.DeepClone();
+        StripUnknownKeywords(clone);
+        return clone;
+    }
+
+    // The strip walks the same subschema positions as the gate, so it removes
+    // keywords where the gate reports them and never touches instance data held
+    // by keywords like const, enum, or required.
+    /// <summary>Removes each unimplemented keyword, descending into every subschema position.</summary>
+    /// <param name="node">The schema to strip.</param>
+    static void StripUnknownKeywords(JsonNode? node)
+    {
+        if (node is not JsonObject obj)
+        {
+            return;
+        }
+
+        var unknown = new List<string>();
+
+        foreach (var pair in obj)
+        {
+            if (!JsonSchema.Keywords.Contains(pair.Key))
+            {
+                unknown.Add(pair.Key);
+            }
+        }
+
+        foreach (var key in unknown)
+        {
+            obj.Remove(key);
+        }
+
+        foreach (var key in ChildLists)
+        {
+            if (!obj.TryGetPropertyValue(key, out var children) || children is not JsonArray list)
+            {
+                continue;
+            }
+
+            foreach (var child in list)
+            {
+                StripUnknownKeywords(child);
+            }
+        }
+
+        foreach (var key in ChildMaps)
+        {
+            if (!obj.TryGetPropertyValue(key, out var map))
+            {
+                continue;
+            }
+
+            if (map is JsonObject fields)
+            {
+                foreach (var (_, child) in fields)
+                {
+                    StripUnknownKeywords(child);
+                }
+            }
+            else if (map is JsonArray entries)
+            {
+                for (var index = 0; index < entries.Count; index++)
+                {
+                    StripUnknownKeywords(entries[index]);
+                }
+            }
+        }
+
+        foreach (var key in ChildValues)
+        {
+            if (obj.TryGetPropertyValue(key, out var child) && child is JsonObject)
+            {
+                StripUnknownKeywords(child);
+            }
+        }
+    }
 }

@@ -5,7 +5,7 @@ summary: The weekend export runs with no reviewer on shift.
 kind: departure
 covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
-  - use-case/spending.export-expenses
+- use-case/spending.export-expenses
 reason: The weekend export runs with no reviewer on shift.
 consequences: The weekend export skips the daily review. Finance runs the export alone, and a Monday review covers each weekend batch after the fact. The bypass ends when a reviewer covers weekends.
 expiresOn: 2027-01-01

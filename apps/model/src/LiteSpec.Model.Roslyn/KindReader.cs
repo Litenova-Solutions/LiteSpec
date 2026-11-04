@@ -64,9 +64,13 @@ public static class KindReader
     ///     project check, so a marked interface reads as a port, a marked class reads
     ///     as a job, and a type named <c>*Endpoint</c> reads as an endpoint.
     /// </param>
+    /// <param name="containingLayer">
+    ///     The layer holding the type, such as <c>Domain</c> or <c>Application</c>, or null when unknown.
+    ///     A known layer matches beside the project, so a type in the one product project reads by its layer.
+    /// </param>
     /// <returns>The kind, or null when the type is of no markable kind.</returns>
     /// <exception cref="ArgumentNullException">The type or context is null.</exception>
-    public static CodeKind? KindOf(TypeDeclarationSyntax type, KindContext context, string? containingProject = null)
+    public static CodeKind? KindOf(TypeDeclarationSyntax type, KindContext context, string? containingProject = null, string? containingLayer = null)
     {
         if (type is null)
         {
@@ -103,12 +107,12 @@ public static class KindReader
             return CodeKind.EventHandler;
         }
 
-        if (IsJob(type, containingProject))
+        if (IsJob(type, containingProject, containingLayer))
         {
             return CodeKind.Job;
         }
 
-        if (IsPort(type, containingProject))
+        if (IsPort(type, containingProject, containingLayer))
         {
             return CodeKind.Port;
         }
@@ -118,12 +122,12 @@ public static class KindReader
             return CodeKind.Adapter;
         }
 
-        if (IsEndpoint(type, containingProject))
+        if (IsEndpoint(type, containingProject, containingLayer))
         {
             return CodeKind.Endpoint;
         }
 
-        if (IsDomainService(type, containingProject))
+        if (IsDomainService(type, containingProject, containingLayer))
         {
             return CodeKind.DomainService;
         }
@@ -133,7 +137,7 @@ public static class KindReader
             return transitive;
         }
 
-        return IsTechnical(type, context, containingProject) ? CodeKind.Technical : (CodeKind?)null;
+        return IsTechnical(type, context, containingProject, containingLayer) ? CodeKind.Technical : (CodeKind?)null;
     }
 
     /// <summary>Recognizes the kind of a method declaration from syntax.</summary>
@@ -175,9 +179,13 @@ public static class KindReader
     ///     project check, so a marked interface reads as a port, a marked class reads
     ///     as a job, and a type named <c>*Endpoint</c> reads as an endpoint.
     /// </param>
+    /// <param name="containingLayer">
+    ///     The layer holding the type, such as <c>Domain</c> or <c>Application</c>, or null when unknown.
+    ///     A known layer matches beside the project, so a type in the one product project reads by its layer.
+    /// </param>
     /// <returns>The kind, or null when the type is of no markable kind.</returns>
     /// <exception cref="ArgumentNullException">The type or context is null.</exception>
-    public static CodeKind? KindOf(INamedTypeSymbol type, KindContext context, string? containingProject = null)
+    public static CodeKind? KindOf(INamedTypeSymbol type, KindContext context, string? containingProject = null, string? containingLayer = null)
     {
         if (type is null)
         {
@@ -214,12 +222,12 @@ public static class KindReader
             return CodeKind.EventHandler;
         }
 
-        if (IsJob(type, containingProject))
+        if (IsJob(type, containingProject, containingLayer))
         {
             return CodeKind.Job;
         }
 
-        if (IsPort(type, containingProject))
+        if (IsPort(type, containingProject, containingLayer))
         {
             return CodeKind.Port;
         }
@@ -229,17 +237,17 @@ public static class KindReader
             return CodeKind.Adapter;
         }
 
-        if (IsEndpoint(type, containingProject))
+        if (IsEndpoint(type, containingProject, containingLayer))
         {
             return CodeKind.Endpoint;
         }
 
-        if (IsDomainService(type, containingProject))
+        if (IsDomainService(type, containingProject, containingLayer))
         {
             return CodeKind.DomainService;
         }
 
-        return IsTechnical(type, containingProject) ? CodeKind.Technical : (CodeKind?)null;
+        return IsTechnical(type, containingProject, containingLayer) ? CodeKind.Technical : (CodeKind?)null;
     }
 
     /// <summary>Recognizes the kind of a method symbol.</summary>
@@ -442,19 +450,21 @@ public static class KindReader
     /// <summary>Whether the declaration is a job host.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a job host.</returns>
-    private static bool IsJob(TypeDeclarationSyntax type, string? containingProject) =>
+    private static bool IsJob(TypeDeclarationSyntax type, string? containingProject, string? containingLayer) =>
         IsClassLike(type) && (
             ((HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
                 && HasJobName(type.Identifier.ValueText))
-            || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
+            || (ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "Worker")
                 && HasMark(type, JobPrefix)));
 
     /// <summary>Whether the symbol is a job host.</summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a job host.</returns>
-    private static bool IsJob(INamedTypeSymbol type, string? containingProject)
+    private static bool IsJob(INamedTypeSymbol type, string? containingProject, string? containingLayer)
     {
         if (type.TypeKind != TypeKind.Class)
         {
@@ -474,7 +484,7 @@ public static class KindReader
             return true;
         }
 
-        return ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
+        return ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "Worker")
             && HasMark(type, JobPrefix);
     }
 
@@ -487,37 +497,41 @@ public static class KindReader
     /// <summary>Whether the declaration is a port: a marked interface in an application project.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a port.</returns>
-    private static bool IsPort(TypeDeclarationSyntax type, string? containingProject) =>
+    private static bool IsPort(TypeDeclarationSyntax type, string? containingProject, string? containingLayer) =>
         type is InterfaceDeclarationSyntax
-        && ProjectMatches(containingProject, "Application", "Application.Abstractions")
+        && ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions")
         && HasExternalSystemMark(type);
 
     /// <summary>Whether the symbol is a port: a marked interface in an application project.</summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a port.</returns>
-    private static bool IsPort(INamedTypeSymbol type, string? containingProject) =>
+    private static bool IsPort(INamedTypeSymbol type, string? containingProject, string? containingLayer) =>
         type.TypeKind == TypeKind.Interface
-        && ProjectMatches(containingProject, "Application", "Application.Abstractions")
+        && ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions")
         && HasExternalSystemMark(type);
 
     /// <summary>Whether the declaration is a domain service: a marked class in the domain project.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a domain service.</returns>
-    private static bool IsDomainService(TypeDeclarationSyntax type, string? containingProject) =>
+    private static bool IsDomainService(TypeDeclarationSyntax type, string? containingProject, string? containingLayer) =>
         type is ClassDeclarationSyntax
-        && ProjectMatches(containingProject, "Domain")
+        && ProjectMatches(containingProject, containingLayer, "Domain")
         && HasMark(type, RulePrefix);
 
     /// <summary>Whether the symbol is a domain service: a marked class in the domain project.</summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a domain service.</returns>
-    private static bool IsDomainService(INamedTypeSymbol type, string? containingProject) =>
+    private static bool IsDomainService(INamedTypeSymbol type, string? containingProject, string? containingLayer) =>
         type.TypeKind == TypeKind.Class
-        && ProjectMatches(containingProject, "Domain")
+        && ProjectMatches(containingProject, containingLayer, "Domain")
         && HasMark(type, RulePrefix);
 
     /// <summary>Whether the declaration carries an external-system mark.</summary>
@@ -667,22 +681,24 @@ public static class KindReader
     /// <summary>Whether the declaration is an endpoint.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is an endpoint.</returns>
-    private static bool IsEndpoint(TypeDeclarationSyntax type, string? containingProject) =>
+    private static bool IsEndpoint(TypeDeclarationSyntax type, string? containingProject, string? containingLayer) =>
         IsClassLike(type)
         && (HasBaseName(type, "IEndpoint")
             || (type.Identifier.ValueText.EndsWith("Endpoint", StringComparison.Ordinal)
-                && ProjectMatches(containingProject, "WebApi")));
+                && ProjectMatches(containingProject, containingLayer, "WebApi")));
 
     /// <summary>Whether the symbol is an endpoint.</summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is an endpoint.</returns>
-    private static bool IsEndpoint(INamedTypeSymbol type, string? containingProject) =>
+    private static bool IsEndpoint(INamedTypeSymbol type, string? containingProject, string? containingLayer) =>
         type.TypeKind == TypeKind.Class
         && (Implements(type, "IEndpoint")
             || (type.Name.EndsWith("Endpoint", StringComparison.Ordinal)
-                && ProjectMatches(containingProject, "WebApi")));
+                && ProjectMatches(containingProject, containingLayer, "WebApi")));
 
     /// <summary>
     ///     Whether the type declaration is a technical class: a top-level class in an
@@ -695,13 +711,14 @@ public static class KindReader
     /// <param name="type">The type declaration.</param>
     /// <param name="context">The cross-file names the host collected.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a technical class.</returns>
-    private static bool IsTechnical(TypeDeclarationSyntax type, KindContext context, string? containingProject)
+    private static bool IsTechnical(TypeDeclarationSyntax type, KindContext context, string? containingProject, string? containingLayer)
     {
         if (type is not ClassDeclarationSyntax
             || type.Parent is TypeDeclarationSyntax
             || containingProject is null
-            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
+            || !ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
         {
             return false;
         }
@@ -725,14 +742,15 @@ public static class KindReader
     /// </summary>
     /// <param name="type">The type symbol.</param>
     /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>True when the type is a technical class.</returns>
-    private static bool IsTechnical(INamedTypeSymbol type, string? containingProject)
+    private static bool IsTechnical(INamedTypeSymbol type, string? containingProject, string? containingLayer)
     {
         if (type.TypeKind != TypeKind.Class
             || type.IsRecord
             || type.ContainingType is not null
             || containingProject is null
-            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
+            || !ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
         {
             return false;
         }
@@ -1096,11 +1114,12 @@ public static class KindReader
         return false;
     }
 
-    /// <summary>Whether the containing project is one of the named projects.</summary>
+    /// <summary>Whether the containing project or layer is one of the named projects.</summary>
     /// <param name="containingProject">The short project name, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <param name="shortNames">The project names that match.</param>
-    /// <returns>True when the project matches; a null project matches every name.</returns>
-    private static bool ProjectMatches(string? containingProject, params string[] shortNames)
+    /// <returns>True when the project or the layer matches; a null project matches every name.</returns>
+    private static bool ProjectMatches(string? containingProject, string? containingLayer, params string[] shortNames)
     {
         if (containingProject is null)
         {
@@ -1114,8 +1133,22 @@ public static class KindReader
             {
                 return true;
             }
+
+            if (containingLayer is not null && LayerMatches(containingLayer, shortName))
+            {
+                return true;
+            }
         }
 
         return false;
     }
+
+    /// <summary>Whether the layer answers for the project name: the application layer and the contracts part answer for each other.</summary>
+    /// <param name="layer">The layer holding the type.</param>
+    /// <param name="shortName">The project name to match.</param>
+    /// <returns>True when the layer answers for the project name.</returns>
+    private static bool LayerMatches(string layer, string shortName) =>
+        shortName is "Application" or "Application.Abstractions"
+            ? layer is "Application" or "ApplicationAbstractions"
+            : layer == shortName;
 }

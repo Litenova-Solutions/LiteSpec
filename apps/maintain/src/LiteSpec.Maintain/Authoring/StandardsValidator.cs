@@ -8,13 +8,12 @@ internal static class StandardsValidator
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec-maintain validate [--root <path>] [--warnings] [--format json]
+        Usage: litespec-maintain validate [--root <path>] [--format json]
 
         Validates the authoring contract over the LiteSpec repository at --root,
         which defaults to the LiteSpec checkout.
 
           --root <path>   The repository root. Defaults to the LiteSpec checkout.
-          --warnings      List every warning occurrence instead of a count per code.
           --format json   Write one JSON object on stdout instead of human-readable lines.
           --help          Print this text and exit.
 
@@ -121,15 +120,13 @@ internal static class StandardsValidator
 
         "INDEX_MISSING_ROUTING",
         "LAYER_UNLISTED",
-    ];
 
-    /// <summary>
-    ///     Codes reported as warnings, which never fail the build. Each new rule lands
-    ///     here while existing content still carries the old form, and burns its count
-    ///     down as the pages are rewritten.
-    /// </summary>
-    public static readonly IReadOnlyList<string> WarningDiagnosticCodes =
-    [];
+        "GENERATED_STALE",
+        "SCOPE_BLOCK",
+        "SCOPE_NARROW",
+        "SCOPE_VALUE",
+        "STRENGTH_LINE",
+    ];
 
     /// <summary>Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.</summary>
     /// <param name="root">The repository root.</param>
@@ -217,8 +214,8 @@ internal static class StandardsValidator
         context.Manifest.CheckAnalyzerRelease(parsedPages);
         context.Records.CheckRecords(parsedPages);
 
-        // The provision index is derived. A stale page would send a reader to the wrong
-        // heading, so the gate compares it with the active standards.
+        // The provision index and its data file are derived. A stale page would send a
+        // reader to the wrong heading, so the gate compares both with the active standards.
         // (litespec/core/authoring#regenerate-the-provision-index)
         var indexFile = ValidatorSupport.JoinRoot(resolved, Provisions.IndexPath);
         if (File.Exists(indexFile))
@@ -235,6 +232,21 @@ internal static class StandardsValidator
             Add(Provisions.IndexPath, 1, "PROVISIONS_STALE", "generated provision index is missing; run litespec-maintain provisions");
         }
 
+        var jsonFile = ValidatorSupport.JoinRoot(resolved, Provisions.JsonPath);
+        if (File.Exists(jsonFile))
+        {
+            var expectedJson = Provisions.BuildJson(resolved) + "\n";
+            var actualJson = ValidatorSupport.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            if (actualJson != expectedJson)
+            {
+                Add(Provisions.JsonPath, 1, "PROVISIONS_STALE", "generated provision data differs from the active standards; run litespec-maintain provisions");
+            }
+        }
+        else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
+        {
+            Add(Provisions.JsonPath, 1, "PROVISIONS_STALE", "generated provision data is missing; run litespec-maintain provisions");
+        }
+
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.json", "litespec.manifest.json");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
@@ -247,6 +259,7 @@ internal static class StandardsValidator
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         context.Repository.CheckTemplateIndex();
         context.Repository.CheckConsumerTemplates();
+        context.Repository.CheckGeneratedCounts(parsedPages);
         context.ValueStyle.CheckValueStyle();
 
         // A reader who cannot tell a tutorial from a reference opens both and trusts
@@ -272,7 +285,7 @@ internal static class StandardsValidator
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the validate command handler; it prints any failure to resolve the repository root and returns exit code 2 instead of crashing.")]
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, ["--warnings"], ["--root", "--format"]);
+        var parsed = CliArgs.Parse(args, [], ["--root", "--format"]);
         if (parsed.Help)
         {
             Console.WriteLine(Usage);
@@ -306,9 +319,7 @@ internal static class StandardsValidator
             return 2;
         }
 
-        var warningCodes = new HashSet<string>(WarningDiagnosticCodes, StringComparer.Ordinal);
-        var errors = result.Diagnostics.Where(diagnostic => !warningCodes.Contains(diagnostic.Code)).ToList();
-        var warnings = result.Diagnostics.Where(diagnostic => warningCodes.Contains(diagnostic.Code)).ToList();
+        var errors = result.Diagnostics;
 
         // A machine reader needs the file, the line, and the stable code as fields. A
         // reader that has to parse the human lines back apart breaks the first time a
@@ -321,7 +332,6 @@ internal static class StandardsValidator
                 root,
                 ok = errors.Count == 0,
                 errors = errors.Select(diagnostic => new { file = diagnostic.Relative, line = diagnostic.Line, code = diagnostic.Code, message = diagnostic.Message }).ToList(),
-                warnings = warnings.Select(diagnostic => new { file = diagnostic.Relative, line = diagnostic.Line, code = diagnostic.Code, message = diagnostic.Message }).ToList(),
             });
             return errors.Count == 0 ? 0 : 1;
         }
@@ -329,31 +339,6 @@ internal static class StandardsValidator
         foreach (var diagnostic in errors)
         {
             Console.Error.WriteLine($"{diagnostic.Relative}:{diagnostic.Line} [{diagnostic.Code}] {diagnostic.Message}");
-        }
-
-        if (warnings.Count > 0)
-        {
-            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-            foreach (var diagnostic in warnings)
-            {
-                counts[diagnostic.Code] = counts.GetValueOrDefault(diagnostic.Code) + 1;
-            }
-
-            Console.Error.WriteLine();
-            Console.Error.WriteLine($"LiteSpec authoring warnings ({warnings.Count}). These do not fail the build:");
-            foreach (var code in counts.Keys.OrderBy(code => code, StringComparer.Ordinal))
-            {
-                Console.Error.WriteLine($"  {counts[code],4}  {code}");
-            }
-
-            Console.Error.WriteLine("  Run with --warnings to list every occurrence.");
-            if (parsed.Has("--warnings"))
-            {
-                foreach (var diagnostic in warnings)
-                {
-                    Console.Error.WriteLine($"  {diagnostic.Relative}:{diagnostic.Line} [{diagnostic.Code}] {diagnostic.Message}");
-                }
-            }
         }
 
         if (errors.Count > 0)

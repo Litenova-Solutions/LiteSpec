@@ -50,7 +50,7 @@ static class ManifestSelectionChecks
             }
             catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
             {
-                run.FailInput($"litespec.manifest.json: not valid JSON ({cause.Message})");
+                ConsumerRun.FailInput($"litespec.manifest.json: not valid JSON ({cause.Message})");
             }
         }
 

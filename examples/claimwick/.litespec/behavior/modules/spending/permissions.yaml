@@ -1,42 +1,42 @@
 type: permission-list
 title: Permissions
 records:
-  - type: permission
-    id: permission/submit-expense
-    title: Submit Expense
-    meaning: The right to submit an expense and attach its receipts.
-    scope: self
-  - type: permission
-    id: permission/approve-expense
-    title: Approve Expense
-    meaning: The right to approve or reject a submitted expense.
-    scope: team
-  - type: permission
-    id: permission/reimburse-expense
-    title: Reimburse Expense
-    meaning: The right to reimburse an approved expense.
-    scope: platform
-    risk:
-      - money
-  - type: permission
-    id: permission/list-expenses
-    title: List Expenses
-    meaning: The right to read own expenses.
-    scope: self
-  - type: permission
-    id: permission/manage-policy
-    title: Manage Policy
-    meaning: The right to set the receipt threshold.
-    scope: team
-  - type: permission
-    id: permission/export-expenses
-    title: Export Expenses
-    meaning: The right to export approved expenses for finance.
-    scope: platform
-  - type: permission
-    id: permission/erase-personal-data
-    title: Erase Personal Data
-    meaning: The right to erase the personal data of a decided expense.
-    scope: platform
-    risk:
-      - personal-data
+- type: permission
+  id: permission/submit-expense
+  title: Submit Expense
+  meaning: The right to submit an expense and attach its receipts.
+  scope: self
+- type: permission
+  id: permission/approve-expense
+  title: Approve Expense
+  meaning: The right to approve or reject a submitted expense.
+  scope: team
+- type: permission
+  id: permission/reimburse-expense
+  title: Reimburse Expense
+  meaning: The right to reimburse an approved expense.
+  scope: platform
+  risk:
+  - money
+- type: permission
+  id: permission/list-expenses
+  title: List Expenses
+  meaning: The right to read own expenses.
+  scope: self
+- type: permission
+  id: permission/manage-policy
+  title: Manage Policy
+  meaning: The right to set the receipt threshold.
+  scope: team
+- type: permission
+  id: permission/export-expenses
+  title: Export Expenses
+  meaning: The right to export approved expenses for finance.
+  scope: platform
+- type: permission
+  id: permission/erase-personal-data
+  title: Erase Personal Data
+  meaning: The right to erase the personal data of a decided expense.
+  scope: platform
+  risk:
+  - personal-data

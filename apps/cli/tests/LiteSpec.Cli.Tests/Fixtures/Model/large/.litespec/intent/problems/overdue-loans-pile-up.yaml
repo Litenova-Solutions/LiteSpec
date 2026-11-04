@@ -1,0 +1,12 @@
+type: problem
+id: problem/overdue-loans-pile-up
+title: Overdue loans pile up
+affects:
+- actor/reader
+summary: When a reader holds several loans, each due date lives on its own slip, and the reader finds the dates only at the desk.
+statement: Readers lose track of due dates.
+evidence:
+- claim: Readers lose track of due dates across several loans.
+  source: https://example.org/library/desk-log
+  readOn: 2026-10-01
+  kind: reported

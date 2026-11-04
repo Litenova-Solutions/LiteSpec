@@ -25,7 +25,7 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
         ImmutableArray.Create(Descriptors.LS5007, Descriptors.LS5008);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -37,31 +37,39 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     {
         var collected = new List<MarkedAct>();
         var collectedLock = new object();
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
 
         context.RegisterSymbolAction(
-            c => Collect(c, state, collected, collectedLock), SymbolKind.Method);
+            c => Collect(c, state, scope, collected, collectedLock), SymbolKind.Method);
         context.RegisterCompilationEndAction(c => Analyze(c, state, collected));
     }
 
     /// <summary>Collects the void.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     /// <param name="state">The traceability context that carries the records and shared lookups for the compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="collected">The marked acts collected so far, in discovery order.</param>
     /// <param name="collectedLock">The object that guards the collected list while symbols are visited.</param>
     private static void Collect(
         SymbolAnalysisContext context,
         TraceabilityContext state,
+        FileScope scope,
         List<MarkedAct> collected,
         object collectedLock)
     {
         var method = (IMethodSymbol)context.Symbol;
+
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
 
         if (method.IsImplicitlyDeclared || method.MethodKind != MethodKind.Ordinary)
         {
             return;
         }
 
-        if (KindReader.KindOf(method.ContainingType, state.Kinds, state.Project) != CodeKind.AggregateRoot)
+        if (KindReader.KindOf(method.ContainingType, state.Kinds, state.ProjectOf(method.ContainingType)) != CodeKind.AggregateRoot)
         {
             return;
         }

@@ -6,29 +6,35 @@ access:
   grant: permission/manage-copies
   tenant: own
 serves:
-  - journey/borrow-and-return#s1
+- journey/borrow-and-return#s1
 fulfills:
-  - requirement/borrowing.copy-shelf-home
+- requirement/borrowing.copy-shelf-home
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/copy.copy-registered
+- event/copy.copy-registered
+idempotency:
+  mode: none
+  reason: Each call registers its own copy, and registering the same barcode twice is refused.
+audit:
+  level: none
+  target: No audit trail; the copy record shows each registration.
 records:
-  - type: result
-    id: result/register-copy.registered
-    title: Registered
-    outcome: success
-    meaning: The copy is registered.
-  - type: result
-    id: result/register-copy.copy-already-registered
-    title: Copy already registered
-    outcome: refusal
-    code: lending.copy-already-registered
-    meaning: The copy is already registered.
-  - type: scenario
-    id: scenario/register-copy.registering-a-new-copy-succeeds
-    title: Registering a new copy succeeds
-    given: A new copy arrives at the desk.
-    when: The librarian registers the copy.
-    then: The copy is registered.
-    result: result/register-copy.registered
+- type: result
+  id: result/register-copy.registered
+  title: Registered
+  outcome: success
+  meaning: The copy is registered.
+- type: result
+  id: result/register-copy.copy-already-registered
+  title: Copy already registered
+  outcome: refusal
+  code: lending.copy-already-registered
+  meaning: The copy is already registered.
+- type: scenario
+  id: scenario/register-copy.registering-a-new-copy-succeeds
+  title: Registering a new copy succeeds
+  given: A new copy arrives at the desk.
+  when: The librarian registers the copy.
+  then: The copy is registered.
+  result: result/register-copy.registered

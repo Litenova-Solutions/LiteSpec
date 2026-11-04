@@ -1,5 +1,9 @@
 # Agent Delegation
 
+**Stack:** any
+
+**Layer:** workspace
+
 ## Intent
 
 Agent delegation lets one software agent start another on the same working tree by giving it a written brief with its own paths. This page states what the brief carries, how a worker stays inside its paths, and how the delegating agent verifies the result before accepting it. A project selects it when one agent starts another on the same tree, so each worker owns its part instead of rewriting another's.
@@ -24,6 +28,8 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/delegation#write-a-brief-before-delegating`
 
+**Strength:** rule
+
 **Statement:** An agent that starts another agent MUST give it a written brief stating goal, context, sources, and output.
 
 **Rationale:** Two agents sharing one tree collide without a written split of goal, context, sources, and output. The brief states what the worker owns and what it builds on. When workers collide, the defect lies in the brief rather than in either worker.
@@ -43,6 +49,8 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delegation#restrict-a-worker-to-its-paths`
 
+**Strength:** rule
+
 **Statement:** A delegated worker MUST stay inside the paths its brief names and commit nothing.
 
 **Rationale:** The brief names the paths the worker may change. A worker that stays inside them cannot rewrite what another worker owns. One that roams the whole tree overwrites parallel work and commits what nobody asked for.
@@ -52,6 +60,8 @@ Output: the files to change and the report to write.
 ### Ask Only Unanswered Questions
 
 **ID:** `litespec/ext/delegation#ask-only-unanswered-questions`
+
+**Strength:** rule
 
 **Statement:** A delegated worker MUST ask no question its brief answers.
 
@@ -63,6 +73,8 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delegation#verify-before-accepting-worker-output`
 
+**Strength:** rule
+
 **Statement:** A delegating agent MUST re-run the verification its brief names before accepting worker output.
 
 **Rationale:** The delegating agent owns the result, so it re-runs the verification the brief named and watches it pass. A done claim without that run is a claim, not evidence. Accepting on trust moves the worker's defect into the delegating agent's change.
@@ -72,6 +84,8 @@ Output: the files to change and the report to write.
 ### Hold Back Example Rows from the Implementing Worker
 
 **ID:** `litespec/ext/delegation#hold-back-example-rows-from-the-implementing-worker`
+
+**Strength:** rule
 
 **Statement:** A delegating agent MUST check a delegated refusal or calculation implementation against example rows held back from the worker that wrote it.
 

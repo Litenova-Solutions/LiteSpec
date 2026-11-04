@@ -63,7 +63,11 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#use-one-normative-vocabulary</proves>
     [Fact(DisplayName = "modal in a convention Default is allowed")]
     public void ModalInConventionDefaultAllowed() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Store the topic in its owning documentation area.", "Consumers MUST store the topic in its owning documentation area.")),
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Store the topic in its owning documentation area.", "Consumers MUST store the topic in its owning documentation area."));
+            StandardsFixture.RebuildIndex(root);
+        },
         []);
 
     /// <summary>Modal in a convention Replacement is allowed.</summary>

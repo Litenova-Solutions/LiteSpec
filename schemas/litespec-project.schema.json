@@ -45,23 +45,23 @@
           "additionalProperties": false,
           "properties": {
             "application": {
-              "description": "The Application project the model builder reads. Defaults to apps/api/src/*.Application.",
+              "description": "The one code root the model builder reads: the application project holding every module at every layer. Defaults to apps/api/src/*. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.",
               "$ref": "#/$defs/projectPath"
             },
             "domain": {
-              "description": "The Domain project the model builder reads. Defaults to apps/api/src/*.Domain.",
+              "description": "The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.",
               "$ref": "#/$defs/projectPath"
             },
             "infrastructure": {
-              "description": "The Infrastructure project the model builder reads. Defaults to apps/api/src/*.Infrastructure.",
+              "description": "The Infrastructure project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Infrastructure with that extension and to none without it.",
               "$ref": "#/$defs/projectPath"
             },
             "webapi": {
-              "description": "The WebApi project the model builder reads. Defaults to apps/api/src/*.WebApi.",
+              "description": "The WebApi host project the model builder reads. Defaults to apps/api/src/*.WebApi.",
               "$ref": "#/$defs/projectPath"
             },
             "worker": {
-              "description": "The Worker project the model builder reads. Defaults to apps/api/src/*.Worker.",
+              "description": "The Worker host project the model builder reads. Defaults to apps/api/src/*.Worker.",
               "$ref": "#/$defs/projectPath"
             },
             "apiSolution": {
@@ -198,15 +198,6 @@
           "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to .litespec/glossary.yaml.",
           "default": ".litespec/glossary.yaml",
           "$ref": "#/$defs/projectPath"
-        },
-        "glossaryScan": {
-          "description": "Glob patterns naming the non-Markdown surfaces the vocabulary is checked over: source, interface copy, the API contract, acceptance tests. Repository-relative. A scope in the glossary record is matched against the repository-relative path for these files. Each pattern must match at least one file.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "uniqueItems": true
         },
         "unstructuredDocs": {
           "description": "Paths whose Markdown is navigation or prose rather than specification.",

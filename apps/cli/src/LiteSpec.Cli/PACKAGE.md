@@ -19,20 +19,17 @@ Run each command from the project root, the folder that holds `.litespec/project
 
 ```bash
 dotnet litespec init --preset dotnet-svelte --size small
-dotnet litespec consumer
-dotnet litespec ui
 dotnet litespec model check
 ```
 
 | Command | What it does |
 |:---|:---|
 | `init` | Writes `.litespec/project.json`, the record scaffold, the tool manifest, and the `## LiteSpec` block of `AGENTS.md`. |
-| `consumer` | Checks the project file and every record page against the record schema. |
-| `ui` | Checks the shared UI package and each controlled web frontend. |
-| `model` | Builds the project model from the records, the code, the screens and the tests; `check` reports where they disagree, `format` rewrites record files into canonical form, `render` writes the generated page regions, `query` prints one record with its links, and `diff` compares against a base. |
+| `model` | Builds the project model from the records, the code, the screens and the tests; `check` reports where they disagree with the project file, the record pages, the glossary, and the controlled UI in the same run, `format` rewrites record files into canonical form, `render` writes the generated page regions and the records file each web frontend imports, and `query` prints one record with its links. |
 | `book` | Generates a static site of the records for reviewers. |
 | `new` | Scaffolds a record page and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning page. |
 | `rename` | Renames a record identifier and rewrites every link. |
+| `rules` | Lists the provisions that govern a path or record identifier, grouped by strength. |
 
 Every command accepts `--help`, and the checks accept `--format json`.
 

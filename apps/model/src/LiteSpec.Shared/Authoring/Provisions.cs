@@ -1,11 +1,13 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The shared builder for <c>docs/reference/provisions.md</c>. The validator and the
-///     generator both call <see cref="BuildIndex"/>, so the checked-in page and its
+///     The shared builder for <c>docs/reference/provisions.md</c> and
+///     <c>docs/reference/provisions.json</c>. The validator and the generator both call
+///     <see cref="BuildIndex"/> and <see cref="BuildJson"/>, so the checked-in pages and their
 ///     freshness gate cannot disagree.
 /// </summary>
 /// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
@@ -13,6 +15,9 @@ public static class Provisions
 {
     /// <summary>The generated provision index, relative to the repository root.</summary>
     public const string IndexPath = "docs/reference/provisions.md";
+
+    /// <summary>The generated provision data, relative to the repository root.</summary>
+    public const string JsonPath = "docs/reference/provisions.json";
 
     /// <summary>Every provision kind (PROVISION_KINDS).</summary>
     public static readonly IReadOnlyList<string> Kinds = ["convention", "pattern", "rule"];
@@ -36,6 +41,34 @@ public static class Provisions
     static readonly Regex WhitespaceRun = new(@"\s+");
     /// <summary>One run of dashes in a slug.</summary>
     static readonly Regex DashRun = new(@"-+");
+
+    // The index groups the top-level docs folders into four without moving any folder, so a
+    // physical move never renames the provision IDs derived from page paths. A folder the map
+    // does not name joins Standard: a new area states new concerns beside the standard ones.
+    /// <summary>The index group each top-level docs folder belongs to.</summary>
+    static readonly Dictionary<string, string> DocGroups = new(StringComparer.Ordinal)
+    {
+        ["backend"] = "Standard",
+        ["core"] = "Standard",
+        ["ext"] = "Standard",
+        ["frontend"] = "Standard",
+        ["quality"] = "Standard",
+        ["workspace"] = "Standard",
+        ["analyzers"] = "Reference",
+        ["assets"] = "Reference",
+        ["maintain"] = "Reference",
+        ["reference"] = "Reference",
+        ["tools"] = "Reference",
+        ["example"] = "Learn",
+        ["guide"] = "Learn",
+        ["learn"] = "Learn",
+        ["tutorial"] = "Learn",
+        ["implementation"] = "LiteSpec's Own Records",
+        ["intent"] = "LiteSpec's Own Records",
+    };
+
+    /// <summary>The index groups in display order.</summary>
+    static readonly IReadOnlyList<string> GroupOrder = ["Standard", "Reference", "Learn", "LiteSpec's Own Records"];
 
     /// <summary>Turns a heading into the anchor slug the index links to.</summary>
     /// <param name="value">The heading text.</param>
@@ -115,10 +148,15 @@ public static class Provisions
             var page = PagePath(relative);
             var reader = PageReader.Parse(File.ReadAllText(file));
             var marks = CollectInlineMarks(reader, page, relative);
+            var scope = Scopes.ReadPageScope(reader);
+            var pageStacks = JoinScope(scope, "stack");
+            var pageLayers = JoinScope(scope, "layer");
             var section = "";
+            var headings = reader.Headings;
 
-            foreach (var heading in reader.Headings)
+            for (var index = 0; index < headings.Count; index++)
             {
+                var heading = headings[index];
                 if (heading.Level == 2)
                 {
                     section = PageReader.StripAnchorSuffix(heading.Text).Trim();
@@ -138,6 +176,13 @@ public static class Provisions
                 var title = heading.Text.Trim();
                 var slug = HeadingSlug(title);
                 var id = IdOf(reader, page, heading);
+                var end = headings
+                    .Skip(index + 1)
+                    .Where(next => next.Level == 2 || next.Level == 3 || (pattern && next.Level == 4))
+                    .Select(next => next.Line)
+                    .Append(reader.Lines.Length + 1)
+                    .First();
+                var body = ReadBody(reader, heading.Line, end, section == "Standards");
                 var verification = marks.TryGetValue(id, out var found) ? found : (Mark: "", Evidence: "");
                 rows.Add(new ProvisionRow(
                     id,
@@ -146,7 +191,14 @@ public static class Provisions
                     slug,
                     pattern ? "pattern" : section == "Standards" ? "rule" : "convention",
                     verification.Mark,
-                    verification.Evidence));
+                    verification.Evidence,
+                    body.Stacks.Length > 0 ? body.Stacks : pageStacks,
+                    body.Layers.Length > 0 ? body.Layers : pageLayers,
+                    body.Artifact,
+                    body.Strength,
+                    body.Statement,
+                    body.Rationale,
+                    body.Example));
             }
         }
 
@@ -179,33 +231,194 @@ public static class Provisions
             "",
             "## Intent",
             "",
-            "Use this generated page to resolve a provision ID to its heading, owning page, and verification mark.",
+            "Use this generated page to resolve a provision ID to its heading, owning page, scope, strength, and verification mark.",
             "",
             "Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.",
             "",
-            $"The active release states {rows.Count} {(rows.Count == 1 ? "provision" : "provisions")} across {areas.Count} {(areas.Count == 1 ? "area" : "areas")}.",
+            $"The active release states {rows.Count} {(rows.Count == 1 ? "provision" : "provisions")} in {GroupOrder.Count} groups across {areas.Count} {(areas.Count == 1 ? "area" : "areas")}.",
             "",
         };
 
-        foreach (var area in areas.Keys.OrderBy(name => name, StringComparer.Ordinal))
+        foreach (var group in GroupOrder)
         {
-            lines.Add($"## {area}");
+            lines.Add($"## {group}");
             lines.Add("");
-            lines.Add("| ID | Provision | Kind | Mark | Evidence |");
-            lines.Add("|:---|:---|:---|:---|:---|");
-
-            foreach (var row in areas[area])
+            var grouped = areas.Keys
+                .Where(area => GroupOf(area) == group)
+                .OrderBy(area => area, StringComparer.Ordinal)
+                .ToList();
+            if (grouped.Count == 0)
             {
-                var page = PagePath(row.Page);
-                var mark = row.Mark.Length > 0 ? row.Mark : "-";
-                var evidence = EscapeCell(row.Evidence);
-                lines.Add($"| {row.Id} | [{EscapeCell(row.Heading)}](../{page}.md#{row.Anchor}) | {row.Kind} | {mark} | {(evidence.Length > 0 ? evidence : "-")} |");
+                lines.Add("None.");
+                lines.Add("");
+                continue;
             }
 
-            lines.Add("");
+            foreach (var area in grouped)
+            {
+                lines.Add($"### {area}");
+                lines.Add("");
+                lines.Add("| ID | Provision | Kind | Stack | Layer | Artifact | Strength | Mark | Evidence |");
+                lines.Add("|:---|:---|:---|:---|:---|:---|:---|:---|:---|");
+
+                foreach (var row in areas[area])
+                {
+                    var page = PagePath(row.Page);
+                    lines.Add($"| {row.Id} | [{EscapeCell(row.Heading)}](../{page}.md#{row.Anchor}) | {row.Kind} | {Cell(row.Stack)} | {Cell(row.Layer)} | {Cell(row.Artifact)} | {Cell(row.Strength)} | {Cell(row.Mark)} | {Cell(row.Evidence)} |");
+                }
+
+                lines.Add("");
+            }
         }
 
         return string.Join("\n", lines);
+    }
+
+    /// <summary>Builds the provision data text with <c>\n</c> line ends, without a trailing newline.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The provision data text.</returns>
+    public static string BuildJson(string root)
+    {
+        var rows = Collect(root);
+        return JsonSerializer.Serialize(new { provisions = rows }, JsonOptions);
+    }
+
+    /// <summary>The provision data layout: indented with <c>\n</c> line ends, camel-case property names.</summary>
+    static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, NewLine = "\n", PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    /// <summary>Names the index group a top-level docs folder belongs to.</summary>
+    /// <param name="area">The top-level docs folder.</param>
+    /// <returns>The index group.</returns>
+    static string GroupOf(string area) => DocGroups.TryGetValue(area, out var group) ? group : "Standard";
+
+    /// <summary>Writes one index cell, or a dash when the row carries no value.</summary>
+    /// <param name="value">The cell text.</param>
+    /// <returns>The cell text, or a dash.</returns>
+    static string Cell(string value) => value.Length > 0 ? EscapeCell(value) : "-";
+
+    /// <summary>Joins the values of one scope field from a page scope.</summary>
+    /// <param name="scope">The page scope fields.</param>
+    /// <param name="field">The field name.</param>
+    /// <returns>The values joined with a comma and a space.</returns>
+    static string JoinScope(IReadOnlyList<Scopes.ScopeField> scope, string field) =>
+        string.Join(", ", scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values));
+
+    /// <summary>One provision body: its scope, strength, and labeled text.</summary>
+    /// <param name="Strength">The named strength, or empty.</param>
+    /// <param name="Stacks">The narrowed stack values, or empty.</param>
+    /// <param name="Layers">The narrowed layer values, or empty.</param>
+    /// <param name="Artifact">The narrowed artifact values, or empty.</param>
+    /// <param name="Statement">The assertive line, or empty.</param>
+    /// <param name="Rationale">The Rationale paragraph, or empty.</param>
+    /// <param name="Example">The Example block, or empty.</param>
+    sealed record ProvisionBody(string Strength, string Stacks, string Layers, string Artifact, string Statement, string Rationale, string Example);
+
+    // One provision body: the lines between its heading and the next heading. The Strength and
+    // Applies to lines read as frame; the Statement, or the Default of a convention or pattern,
+    // reads as the assertive line; the Rationale paragraph joins with spaces and the Example
+    // block keeps its lines, fences included, so generated clients render code as written.
+    /// <summary>Reads one provision body between its heading line and its end line.</summary>
+    /// <param name="reader">The page read.</param>
+    /// <param name="start">The 1-based provision heading line.</param>
+    /// <param name="end">The 1-based first line after the body.</param>
+    /// <param name="standard">Whether the provision sits in a Standards section.</param>
+    /// <returns>The provision body.</returns>
+    static ProvisionBody ReadBody(PageReader reader, int start, int end, bool standard)
+    {
+        var strength = "";
+        var stacks = "";
+        var layers = "";
+        var artifact = "";
+        var statement = "";
+        var rationale = "";
+        var example = "";
+        var assertion = standard ? "**Statement:**" : "**Default:**";
+        var appliesRead = false;
+        for (var number = start + 1; number < end; number++)
+        {
+            var line = reader.Lines[number - 1];
+            if (strength.Length == 0 && PageReader.TryParseStrengthLine(line, out var named))
+            {
+                strength = Scopes.Unquote(named);
+            }
+
+            if (!appliesRead && PageReader.TryParseAppliesToLine(line, out var narrowed))
+            {
+                appliesRead = true;
+                var fields = Scopes.ParseScopeFields(narrowed);
+                stacks = JoinScope(fields, "stack");
+                layers = JoinScope(fields, "layer");
+                artifact = JoinScope(fields, "artifact");
+            }
+
+            if (statement.Length == 0 && line.StartsWith(assertion, StringComparison.Ordinal))
+            {
+                statement = line[assertion.Length..].Trim();
+            }
+
+            if (rationale.Length == 0 && reader.LabelAtLine.TryGetValue(number, out var rationaleLabel) && rationaleLabel == "Rationale")
+            {
+                rationale = ReadField(reader, number, end, "**Rationale:**", false);
+            }
+
+            if (example.Length == 0 && reader.LabelAtLine.TryGetValue(number, out var exampleLabel) && exampleLabel == "Example")
+            {
+                example = ReadField(reader, number, end, "**Example:**", true);
+            }
+        }
+
+        return new ProvisionBody(strength, stacks, layers, artifact, statement, rationale, example);
+    }
+
+    // One labeled field: its label line rest with the lines below it, until the next label, frame
+    // line, or verification line. The Rationale paragraph joins with spaces; the Example block
+    // keeps its lines so fences survive, and drops fenced lines nowhere.
+    /// <summary>Reads one labeled field of a provision body.</summary>
+    /// <param name="reader">The page read.</param>
+    /// <param name="start">The 1-based label line.</param>
+    /// <param name="end">The 1-based first line after the body.</param>
+    /// <param name="label">The label prefix.</param>
+    /// <param name="keepLines">Whether the field keeps its line breaks.</param>
+    /// <returns>The field text.</returns>
+    static string ReadField(PageReader reader, int start, int end, string label, bool keepLines)
+    {
+        var parts = new List<string>();
+        for (var number = start; number < end; number++)
+        {
+            var line = reader.Lines[number - 1];
+            if (number > start
+                && (reader.LabelAtLine.ContainsKey(number)
+                    || PageReader.TryParseIdLine(line, out _)
+                    || PageReader.TryParseVerificationLine(line, out _, out _)
+                    || PageReader.TryParseStrengthLine(line, out _)
+                    || PageReader.TryParseAppliesToLine(line, out _)))
+            {
+                break;
+            }
+
+            if (reader.FencedLines.Contains(number))
+            {
+                if (keepLines)
+                {
+                    parts.Add(line);
+                }
+
+                continue;
+            }
+
+            var text = number == start && line.StartsWith(label, StringComparison.Ordinal) ? line[label.Length..].Trim() : line.Trim();
+            if (text.Length > 0 || keepLines)
+            {
+                parts.Add(text);
+            }
+        }
+
+        while (parts.Count > 0 && parts[^1].Length == 0)
+        {
+            parts.RemoveAt(parts.Count - 1);
+        }
+
+        return keepLines ? string.Join("\n", parts).Trim() : string.Join(" ", parts).Trim();
     }
 
     /// <summary>Writes a path with forward slashes.</summary>

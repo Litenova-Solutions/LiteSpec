@@ -105,6 +105,7 @@ static class BookEnrich
         {
             ["type"] = type,
             ["title"] = BookRender.StrProp(record, "title") ?? "",
+            ["qualifiedId"] = BookRender.StrProp(record, "qualifiedId") ?? BookRender.StrProp(record, "id") ?? "",
             ["fields"] = fields,
             ["src"] = new JsonObject
             {

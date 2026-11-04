@@ -1,5 +1,9 @@
 # Caching
 
+**Stack:** any
+
+**Layer:** infrastructure
+
 ## Intent
 
 A cache answers repeated expensive reads from stored results instead of recomputing them, trading lower latency and source load for stale reads and invalidation work. This page states when that trade is justified, what each cache's staleness contract covers, how keys separate results, and how the system behaves when the cache fails. A team applies it once traces or load tests name a repeated expensive read, so each cache carries a staleness bound the team chose instead of one it discovers during an incident.
@@ -24,15 +28,21 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-measured-cache-need`
 
+**Strength:** rule
+
 **Statement:** A cache proposal MUST record its observed query, representative load, latency, source cost, and target.
 
-**Rationale:** A cache costs invalidation, capacity, and recovery work for as long as it lives. The proposal records the observed query, load, latency, cost, and target so a reviewer weighs that cost against measured gain. A cache approved without measurements stays until someone pays to remove it.
+**Rationale:** A cache costs invalidation, capacity, and recovery work for as long as it lives. The proposal records the observed query, load, latency, cost, and target so a reviewer weighs that cost against measured gain. A cache added without measurements stays until someone pays to remove it.
 
 **Reviewed for:** Which cache proposals lack observed query, load, latency, cost, or target? Look at the proposal behind each cache.
 
 ### Record Accepted Cache Staleness
 
 **ID:** `litespec/ext/cache#record-accepted-cache-staleness`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
 
 **Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `bounded` and its duration in `within`.
 
@@ -44,6 +54,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#remove-unjustified-caches`
 
+**Strength:** rule
+
 **Statement:** A cache owner MUST remove a cache when measurements do not justify its operating cost.
 
 **Rationale:** Traffic shifts and sources get faster, so a cache that paid for itself last year can cost more than it saves today. The owner re-checks the measurements and removes the cache when they no longer justify its operating cost. A cache nobody owns stays forever, and its invalidation bugs stay with it.
@@ -54,9 +66,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#compose-cache-keys-from-result-inputs`
 
+**Strength:** rule
+
 **Statement:** A cache key MUST include its data-shape version, every result-affecting input, and applicable tenant or actor partition.
 
-**Rationale:** A key missing the data-shape version serves old shapes to new readers after a deploy. A key missing a result-affecting input serves one caller's answer to a different question. Tenant or actor partition keeps one party's results away from another's.
+**Rationale:** A key missing the data-shape version serves old shapes to new readers after a deploy. A key missing a result-affecting input serves one caller's answer to a different request. Tenant or actor partition keeps one party's results away from another's.
 
 **Example:** `post-summary:v2:tenant-42:post-17` identifies a versioned, tenant-scoped result.
 
@@ -65,6 +79,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 ### Exclude Unsafe Cache Key Material
 
 **ID:** `litespec/ext/cache#exclude-unsafe-cache-key-material`
+
+**Strength:** rule
 
 **Statement:** A cache key MUST NOT contain a secret, unbounded raw input, or personal data that is not already a hash.
 
@@ -78,6 +94,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#define-cache-invalidation`
 
+**Strength:** rule
+
 **Statement:** A cached value MUST define expiry as a setting record, invalidating write events, an invalidation owner, and behavior after invalidation failure.
 
 **Rationale:** Every cached value goes stale, and the only choice is whether the project decides the behavior up front or discovers it during an incident. Expiry, invalidating write events, an owner, and failure behavior state how long staleness lasts and who fixes it when invalidation fails. A cache without that contract serves stale data on a schedule nobody chose.
@@ -87,6 +105,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 ### Record a Manual Cache Invalidation
 
 **ID:** `litespec/ext/cache#record-a-manual-cache-invalidation`
+
+**Strength:** rule
 
 **Statement:** A manual invalidation MUST produce a record naming actor, invalidation scope, and reason, as an audit record in its category when the audit extension is selected.
 
@@ -100,6 +120,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#prefer-bounded-staleness`
 
+**Strength:** advice
+
 **Statement:** A cache owner SHOULD use a short expiry when precise invalidation costs more than recomputation.
 
 **Deviation:** A measured staleness and operating-cost decision permits a longer expiry.
@@ -112,6 +134,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#keep-source-data-authoritative`
 
+**Strength:** rule
+
 **Statement:** A cache implementation MUST keep required business data authoritative in its source of record.
 
 **Rationale:** The cache holds a derived copy that the system can drop at any time. Required business data stays authoritative in its source of record, so losing the cache loses speed and nothing else. A cache that owns the only copy turns every cache outage into data loss.
@@ -122,6 +146,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#define-cache-outage-behavior`
 
+**Strength:** rule
+
 **Statement:** A cache outage MUST use the source when capacity permits or return a documented degraded response.
 
 **Rationale:** Cache infrastructure fails like any other dependency. The outage behavior states whether callers fall back to the source or receive a documented degraded response, so an outage degrades the product on purpose instead of by accident.
@@ -131,6 +157,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 ### Emit a Signal for Each Degraded Cache Path
 
 **ID:** `litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path`
+
+**Strength:** rule
 
 **Statement:** A cache path MUST emit a metric distinguishing a cache miss, a cache error, and a degraded response.
 
@@ -144,6 +172,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#bound-cache-refresh-work`
 
+**Strength:** rule
+
 **Statement:** A cache implementation MUST bound simultaneous refresh work when concurrent misses could overload its source.
 
 **Rationale:** When a popular entry expires, every concurrent miss can trigger its own refresh and flood the source the cache was protecting. Bounding simultaneous refresh work holds that flood to what the source tolerates. Request coalescing and jittered expiry are two ways to meet the bound.
@@ -156,6 +186,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#avoid-unbounded-key-locks`
 
+**Strength:** rule
+
 **Statement:** A cache implementation MUST NOT create an unbounded per-key lock inventory.
 
 **Rationale:** Per-key locks trade duplicate refresh for memory, and the trade needs a ceiling. Untrusted or high-cardinality keys create one lock entry each, which exhausts memory under attacker-chosen or runaway keys. A bounded lock scheme sheds that state instead of growing it.
@@ -167,6 +199,8 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 ### Place Cache Access at an Outer Boundary
 
 **ID:** `litespec/ext/cache#place-cache-access-at-an-outer-boundary`
+
+**Strength:** default
 
 **Default:** Place cache access in Infrastructure or a frontend data boundary.
 

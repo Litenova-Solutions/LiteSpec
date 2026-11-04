@@ -15,6 +15,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
+            StandardsFixture.RebuildIndex(root);
         },
         []);
 
@@ -27,6 +28,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/implementation/decisions/0001-sample-choice");
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
+            StandardsFixture.RebuildIndex(root);
         },
         []);
 
@@ -105,6 +107,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
+            StandardsFixture.RebuildIndex(root);
         },
         []);
 

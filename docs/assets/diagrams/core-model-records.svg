@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="576" viewBox="0 0 720 576" role="img" aria-labelledby="core-model-records-title core-model-records-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="core-model-records-title">The record tree from product intent to scenario</title>
-  <desc id="core-model-records-desc">Product branches into constraint, goal, problem, research, decision, and requirement. Problem branches into feature. Requirement branches into journey, rule, and use case. Use case branches into result, and result into scenario, the review line. Across the tree: module and aggregate; actor, role, and permission; entry point and external system; the glossary; limit and runbook; deviation and known gap; and the computed implemented, verified, reachable, and effective status.</desc>
+  <desc id="core-model-records-desc">Product branches into constraint, goal, problem, research, decision, and requirement. Problem branches into feature. Requirement branches into journey, rule, and use case. Use case branches into result, and result into scenario, the review line. Across the tree: module and aggregate; actor, role, and permission; entry point and external system; the glossary; limit and runbook; the exception; and the computed implemented, verified, reachable, and effective status.</desc>
 
   <g style="stroke: var(--muted-fg, #77706a); fill: none" stroke-width="1.25">
     <path d="M32 72 V 418" />
@@ -68,7 +68,7 @@
     <text x="360" y="462">Module and aggregate hold where it lives, with states, transitions, and data;</text>
     <text x="360" y="480">actor, role, and permission hold who may do it.</text>
     <text x="360" y="498">Entry point and external system reach it; the glossary holds what words mean.</text>
-    <text x="360" y="516">Limit and runbook run it; deviation and known gap keep project upkeep.</text>
+    <text x="360" y="516">Limit and runbook run it; exceptions keep project upkeep.</text>
     <text x="360" y="534">The builder computes implemented, verified, reachable, and effective status.</text>
   </g>
   <text x="360" y="560" text-anchor="middle" font-size="12" style="fill: var(--muted-fg, #77706a)">A line joins each record to the records it holds, and the highlighted scenario is the review line.</text>

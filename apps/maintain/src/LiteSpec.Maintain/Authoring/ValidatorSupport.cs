@@ -31,7 +31,7 @@ internal static class ValidatorSupport
         ("Accept Activate Add Observe Seed Advance Describe Order Prefetch Reuse Sanitize Share Take Align Anchor Announce Answer Apply Approve Ask Assert Assign Attach Audit " +
         "Authenticate Author Authorize Avoid Await Back Bind Bound Build Call Canonicalize Centralize Check Cite Claim Classify " +
         "Co-locate Collect Commit Compare Complete Compose Compute Configure Confirm Connect Control Copy Cover Create " +
-        "Declare Default Defer Define Delay Deliver Deploy Deprecate Derive Diff Discard Dispatch Distinguish Document " +
+        "Declare Default Defer Define Delay Deliver Depart Deploy Deprecate Derive Diff Discard Dispatch Distinguish Document " +
         "Drive Emit End Enforce Escalate Escape Evolve Exclude Exercise Explain Expose Express Finish Follow Format Gate Generate " +
         "Give Govern Grant Group Handle Hide Hold Identify Illustrate Implement Inject Inspect Isolate Keep Lease Limit List Load " +
         "Localize Locate Make Map Mark Match Measure Meet Minimize Mirror Model Move Name Note Operate Organize Own " +

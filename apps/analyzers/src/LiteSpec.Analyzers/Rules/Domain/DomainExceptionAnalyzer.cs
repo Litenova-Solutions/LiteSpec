@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -17,7 +18,7 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS1005, Descriptors.LS1006);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
-    /// <param name="layer">The application layer the compilation belongs to.</param>
+    /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
     private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
 
@@ -32,20 +33,27 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         var exceptionType = compilation.GetTypeByMetadataName("System.Exception");
         var argumentExceptionType = compilation.GetTypeByMetadataName("System.ArgumentException");
         var unreachableExceptionType = compilation.GetTypeByMetadataName("System.Diagnostics.UnreachableException");
+        var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
 
         context.RegisterSymbolAction(
-            symbolContext => AnalyzeType(symbolContext, exceptionType),
+            symbolContext => AnalyzeType(symbolContext, scope, exceptionType),
             SymbolKind.NamedType);
         context.RegisterOperationAction(
-            operationContext => AnalyzeThrow(operationContext, exceptionType, argumentExceptionType, unreachableExceptionType),
+            operationContext => AnalyzeThrow(operationContext, scope, exceptionType, argumentExceptionType, unreachableExceptionType),
             OperationKind.Throw);
     }
 
     /// <summary>Analyzes the type.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="exceptionType">The exception type supplied for the check, or null when the compilation does not provide it.</param>
-    private static void AnalyzeType(SymbolAnalysisContext context, INamedTypeSymbol? exceptionType)
+    private static void AnalyzeType(SymbolAnalysisContext context, FileScope scope, INamedTypeSymbol? exceptionType)
     {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
         var type = (INamedTypeSymbol)context.Symbol;
         if (type.TypeKind != TypeKind.Class || type.IsAbstract)
         {
@@ -65,15 +73,22 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
 
     /// <summary>Analyzes the throw.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
     /// <param name="exceptionType">The exception type supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="argumentExceptionType">The argument exception type supplied for the check, or null when the compilation does not provide it.</param>
     /// <param name="unreachableExceptionType">The unreachable exception type supplied for the check, or null when the compilation does not provide it.</param>
     private static void AnalyzeThrow(
         OperationAnalysisContext context,
+        FileScope scope,
         INamedTypeSymbol? exceptionType,
         INamedTypeSymbol? argumentExceptionType,
         INamedTypeSymbol? unreachableExceptionType)
     {
+        if (!scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+        {
+            return;
+        }
+
         var thrown = ((IThrowOperation)context.Operation).Exception;
         if (thrown is null)
         {

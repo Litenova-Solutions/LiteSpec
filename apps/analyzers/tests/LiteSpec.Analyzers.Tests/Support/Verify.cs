@@ -27,15 +27,17 @@ internal static partial class Verify
     /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         string source,
         string assemblyName = "Shop.Domain",
         string? layer = null,
         bool documentationFile = true,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
+        string? layout = null)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerAsync<TAnalyzer>([("Source.cs", source)], assemblyName, layer, documentationFile, outputKind);
+        AnalyzerAsync<TAnalyzer>([("Source.cs", source)], assemblyName, layer, documentationFile, outputKind, layout);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans across several files.
@@ -48,15 +50,17 @@ internal static partial class Verify
     /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         string assemblyName = "Shop.Domain",
         string? layer = null,
         bool documentationFile = true,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
+        string? layout = null)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, layer, documentationFile, null, outputKind);
+        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, layer, documentationFile, null, outputKind, layout);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans with the additional files
@@ -71,6 +75,7 @@ internal static partial class Verify
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task AnalyzerWithRecordsAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
@@ -79,7 +84,8 @@ internal static partial class Verify
         string? layer = null,
         bool documentationFile = true,
         string? editorconfig = null,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
+        string? layout = null)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var expected = new List<string>();
@@ -108,7 +114,7 @@ internal static partial class Verify
         var additional = additionalFiles
             .Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source))
             .ToImmutableArray();
-        var options = new AnalyzerOptions(additional, new GlobalOptionsProvider(layer, editorconfig));
+        var options = new AnalyzerOptions(additional, new GlobalOptionsProvider(layer, editorconfig, layout));
         var diagnostics = await compilation
             .WithAnalyzers([new TAnalyzer()], options)
             .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken);
@@ -523,9 +529,9 @@ internal static partial class Verify
         return severities.ToImmutable();
     }
 
-    private sealed class GlobalOptionsProvider(string? layer, string? editorconfig) : AnalyzerConfigOptionsProvider
+    private sealed class GlobalOptionsProvider(string? layer, string? editorconfig, string? layout = null) : AnalyzerConfigOptionsProvider
     {
-        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer, ParseEditorconfig(editorconfig ?? string.Empty));
+        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer, ParseEditorconfig(editorconfig ?? string.Empty), layout);
 
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
 
@@ -562,13 +568,19 @@ internal static partial class Verify
             return severities.ToImmutable();
         }
 
-        private sealed class Options(string? layer, ImmutableDictionary<string, string> severities) : AnalyzerConfigOptions
+        private sealed class Options(string? layer, ImmutableDictionary<string, string> severities, string? layout = null) : AnalyzerConfigOptions
         {
             public override bool TryGetValue(string key, out string value)
             {
                 if (layer is not null && key == "build_property.LiteSpecLayer")
                 {
                     value = layer;
+                    return true;
+                }
+
+                if (layout is not null && key == "build_property.LiteSpecLayout")
+                {
+                    value = layout;
                     return true;
                 }
 

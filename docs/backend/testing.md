@@ -1,5 +1,9 @@
 # Backend Testing
 
+**Stack:** any
+
+**Layer:** tests
+
 ## Intent
 
 Backend tests prove behavior at four separate boundaries: domain logic with no dependencies, use-case coordination with test stand-ins, real persistence and HTTP behavior through the production host, and structural rules with architecture tests. This page states which suites each project size keeps, what each suite runs with, and how tests prove the scenarios and rules the specification records. Separate boundaries keep fast tests fast and point each failure at the layer that broke.
@@ -15,7 +19,7 @@ Each suite proves one boundary and runs with one set of tools. A test belongs to
 | Domain | Factories, lifecycles, invariants, and value behavior | Explicit inputs only, with no database, host, container, clock, or mock |
 | Application | Handler coordination: what was loaded, called, staged, and returned | Substituted repositories, clocks, actor accessors, and ports |
 | Integration | Real persistence and HTTP behavior through the production host | The pinned PostgreSQL and the real application host |
-| Architecture | Project references, visibility, folders, and inheritance | Static checks over the compiled code |
+| Architecture | Layer references, visibility, folders, and inheritance | Static checks over the compiled code |
 | Acceptance | End-to-end behavior for large projects | The executable BDD extension and its host |
 
 ### Scenario Proof
@@ -27,6 +31,8 @@ A scenario states one behavior the product shows, written in `given`, `when`, `t
 ### Keep the Test Suites the Size Requires
 
 **ID:** `litespec/backend/testing#keep-the-test-suites-the-size-requires`
+
+**Strength:** rule
 
 **Statement:** A backend codebase MUST hold exactly the test suites its size requires: architecture and integration for small, adding acceptance for large.
 
@@ -48,6 +54,8 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#test-domain-in-isolation`
 
+**Strength:** rule
+
 **Statement:** A Domain test MUST use explicit inputs with no database, HTTP host, container, clock, or mock.
 
 **Rationale:** Domain behavior is deterministic: explicit inputs in, new state or a refusal out. A database, host, container, clock, or mock in a Domain test hides nondeterminism behind the call, so the same test passes and fails without a code change. The suite covers factories, every lifecycle state, allowed and rejected transitions, invariants, value equality, collections, money rules, exceptions, and raised events.
@@ -57,6 +65,8 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 ### Test Application Coordination
 
 **ID:** `litespec/backend/testing#test-application-coordination`
+
+**Strength:** rule
 
 **Statement:** An Application test MUST substitute repositories, clocks, actor accessors, and external ports, then assert the handler's coordination.
 
@@ -70,6 +80,8 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#test-http-integration-through-the-real-application-host`
 
+**Strength:** rule
+
 **Statement:** An HTTP integration test MUST run through the real application host with the real configuration, covering Problem Details, authentication, and resource authorization.
 
 **Rationale:** Only the real host wires the real routing, serialization, authentication, and authorization. A test that bypasses the host proves the handler again and misses the boundary where status codes, Problem Details shapes, and policy denials are actually produced. Persistence behavior is covered against PostgreSQL under `litespec/backend/persistence#test-persistence-against-postgresql`, and both run on the harness that `litespec/backend/testing#share-one-production-faithful-integration-harness` owns.
@@ -79,6 +91,8 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 ### Isolate Integration State
 
 **ID:** `litespec/backend/testing#isolate-integration-state`
+
+**Strength:** rule
 
 **Statement:** An integration test MUST reset database state between tests through one documented strategy and depend on no test order.
 
@@ -92,15 +106,19 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#assert-architecture-boundaries-with-tests`
 
+**Strength:** rule
+
 **Statement:** An architecture test MUST assert the structural boundaries that `litespec/backend/architecture#test-structural-boundaries` names.
 
-**Rationale:** The compiler does not enforce project references, visibility, or folder placement, so a review miss on any of them lands in the main branch silently. An architecture test turns each structural boundary into a failure the suite reports on the change that broke it.
+**Rationale:** The compiler does not enforce layer references, visibility, or folder placement, so a review miss on any of them lands in the main branch silently. An architecture test turns each structural boundary into a failure the suite reports on the change that broke it.
 
 **Reviewed for:** Which structural boundaries lack an architecture test? Look at the architecture test files beside the compiled code.
 
 ### Mark the Test That Proves Each Scenario
 
 **ID:** `litespec/backend/testing#mark-the-test-that-proves-each-scenario`
+
+**Strength:** rule
 
 **Statement:** Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.
 
@@ -114,6 +132,8 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#prove-each-rule-through-its-scenarios`
 
+**Strength:** rule
+
 **Statement:** A rule claim MUST confirm only through a scenario the same test proves.
 
 **Rationale:** Each rule holds where its kind says: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, a cross-aggregate rule at the store or the reacting use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that `litespec/core/domain-model#tabulate-every-calculation-with-examples` requires.
@@ -125,6 +145,8 @@ The default strategy is one database per test class, cloned from a migrated temp
 ### Match Tests by Fully Qualified Name
 
 **ID:** `litespec/backend/testing#match-tests-by-fully-qualified-name`
+
+**Strength:** rule
 
 **Statement:** A test run MUST match results to tests by fully qualified name.
 
@@ -138,6 +160,8 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#derive-expected-values-from-the-scenario`
 
+**Strength:** rule
+
 **Statement:** A test MUST take its expected values only from the Then of the scenario it proves.
 
 **Rationale:** Expected values read from the code under test restate what the code does, so the test passes with the code whatever the specification says. The scenario's Then holds the expected ending, and the test asserts exactly that ending. The agent obligation behind this rule lives in `litespec/core/agent#take-expected-values-from-the-scenario`, with held-back example rows checked after implementation under `litespec/core/agent#verify-refusals-and-calculations-against-held-back-examples`.
@@ -150,6 +174,8 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#use-evidence-rather-than-one-coverage-target`
 
+**Strength:** rule
+
 **Statement:** A repository MUST NOT treat one coverage percentage as the definition of sufficient testing.
 
 **Rationale:** A single coverage percentage rewards tests that execute lines without asserting behavior: a suite reaches the target while proving no scenario. Coverage stays useful as review input, so the project collects line and branch numbers without treating any value as sufficient. The evidence is scenario proof, domain edge cases, integration boundaries, security behavior, and architecture rules, with mutation results on changed lines under `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`.
@@ -159,6 +185,8 @@ The default strategy is one database per test class, cloned from a migrated temp
 ### Share One Production-Faithful Integration Harness
 
 **ID:** `litespec/backend/testing#share-one-production-faithful-integration-harness`
+
+**Strength:** rule
 
 **Statement:** The integration suite MUST own one database container fixture, one application host factory, and one database isolation helper.
 
@@ -174,6 +202,8 @@ One harness binds the integration suite. An activated BDD extension brings its o
 
 **ID:** `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`
 
+**Strength:** default
+
 **Default:** Gate each change on the project's recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded in an exception of kind `gap` covering the mutation finding.
 
 **Replacement:** A project records its own mutation threshold and gate in its testing documentation.
@@ -187,6 +217,8 @@ One harness binds the integration suite. An activated BDD extension brings its o
 ### Prove Every Calculation with Property Tests
 
 **ID:** `litespec/backend/testing#prove-every-calculation-with-property-tests`
+
+**Strength:** default
 
 **Default:** Prove every calculation rule with property tests seeded from its scenario examples at size large; property tests stay optional at size small.
 
@@ -202,6 +234,8 @@ One harness binds the integration suite. An activated BDD extension brings its o
 
 **ID:** `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test`
 
+**Strength:** default
+
 **Default:** Prove every aggregate with a model-based test generated from its declared transitions at size large; model-based tests stay optional at size small.
 
 **Replacement:** A project records its own lifecycle-proof technique in its testing documentation.
@@ -216,34 +250,37 @@ One harness binds the integration suite. An activated BDD extension brings its o
 
 **ID:** `litespec/backend/testing#mirror-production-module-names`
 
-**Default:** Mirror the production module and aggregate folder names inside each test project.
+**Strength:** default
+
+**Default:** Mirror the production module, aggregate, and use case folder names inside each test suite.
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 
-**Rationale:** Mirrored folders let a reader find the tests for a module without searching. Test projects stay exempt for harness and flat files: a `Support` folder and flat Architecture test files need no production counterpart.
+**Rationale:** Mirrored folders let a reader find the tests for a module without searching. Test suites stay exempt for harness and flat files: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter with no use case folder of their own.
 
 **Example:** The test trees mirror the production module folders.
 
 ```text
-Domain tests/
-  Posts/
-Application tests/
+Unit tests/
   Posts/
     CreateDraft/
     GetPost/
 Integration tests/
   Posts/
+    CreateDraft/
   Support/
 Architecture tests/
 ```
 
-Production modules keep the same folder names in every test tree, apart from the exempt harness files.
+Production modules keep the same folder names in every test tree, apart from the exempt harness files and adapter tests.
 
-**Reviewed for:** Which test trees break the production module folders outside the exempt harness files? Look at each test tree beside production.
+**Reviewed for:** Which test trees break the production module folders outside the exempt harness files and adapter tests? Look at each test tree beside production.
 
 ### Name Tests by Observable Behavior
 
 **ID:** `litespec/backend/testing#name-tests-by-observable-behavior`
+
+**Strength:** advice
 
 **Default:** Name a test `{MethodOrOperation}_{Condition}_{ExpectedResult}` and its class after the production type it covers.
 
@@ -257,6 +294,8 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **ID:** `litespec/backend/testing#use-builders-for-valid-defaults`
 
+**Strength:** advice
+
 **Default:** Create a test data builder that produces valid state by default and exposes business-named customization.
 
 **Replacement:** A project names its test data shape in its testing documentation.
@@ -268,6 +307,8 @@ Production modules keep the same folder names in every test tree, apart from the
 ### Keep Assertions Focused
 
 **ID:** `litespec/backend/testing#keep-assertions-focused`
+
+**Strength:** advice
 
 **Default:** Assert only the state, event, call, response, or error that the test covers.
 

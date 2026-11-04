@@ -90,15 +90,6 @@
         "setting"
       ]
     },
-    "containers": {
-      "path": "docs/ext/containers.md",
-      "activationScope": "project",
-      "replaces": [],
-      "switchesOn": [
-        "setting",
-        "runbook"
-      ]
-    },
     "integrations": {
       "path": "docs/ext/integrations.md",
       "activationScope": "local",
@@ -165,39 +156,30 @@
         "module",
         "use-case"
       ],
-      "replaces": [
-        "litespec/backend/dotnet/persistence#query-through-iquerysession",
-        "litespec/backend/persistence#keep-mappings-and-aliases-explicit",
-        "litespec/backend/dotnet/packages#keep-application-dependencies-narrow",
-        "litespec/backend/architecture#separate-command-and-query-behavior",
-        "litespec/ext/outbox#stage-messages-with-business-work",
-        "litespec/ext/outbox#reject-independent-outbox-commits"
-      ],
+      "replaces": [],
       "switchesOn": []
     },
-    "realtime": {
-      "path": "docs/ext/realtime.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "use-case",
-        "journey"
+    "layer-projects": {
+      "path": "docs/backend/dotnet/ext/layer-projects.md",
+      "activationScope": "project",
+      "replaces": [
+        "litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case",
+        "litespec/backend/dotnet/architecture#use-one-application-project",
+        "litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts",
+        "litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree",
+        "litespec/workspace/dependencies#follow-the-declared-dependency-graph",
+        "litespec/workspace/dependencies#keep-domain-dependency-free",
+        "litespec/workspace/dependencies#keep-application-free-of-provider-packages",
+        "litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer",
+        "litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-application-project-and-hosts",
+        "litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout",
+        "litespec/backend/dotnet/application#use-the-use-case-folder-layout",
+        "litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders",
+        "litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout",
+        "litespec/backend/testing#keep-the-test-suites-the-size-requires",
+        "litespec/workspace/structure#keep-production-and-test-code-separate"
       ],
-      "replaces": [],
-      "switchesOn": [
-        "event",
-        "setting"
-      ]
-    },
-    "report": {
-      "path": "docs/ext/report.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "use-case"
-      ],
-      "replaces": [],
-      "switchesOn": [
-        "setting"
-      ]
+      "switchesOn": []
     },
     "jobs": {
       "path": "docs/ext/jobs.md",
@@ -205,7 +187,8 @@
       "applicableKinds": [
         "job",
         "use-case",
-        "journey"
+        "journey",
+        "aggregate"
       ],
       "replaces": [
         "litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request"
@@ -231,13 +214,10 @@
       "path": "docs/ext/delivery.md",
       "activationScope": "project",
       "replaces": [],
-      "switchesOn": []
-    },
-    "privacy": {
-      "path": "docs/ext/privacy.md",
-      "activationScope": "project",
-      "replaces": [],
-      "switchesOn": []
+      "switchesOn": [
+        "setting",
+        "runbook"
+      ]
     },
     "devices": {
       "path": "docs/ext/devices.md",
@@ -251,33 +231,6 @@
     "automation": {
       "path": "docs/ext/automation.md",
       "activationScope": "project",
-      "replaces": [],
-      "switchesOn": []
-    },
-    "workflow-engine": {
-      "path": "docs/ext/workflow-engine.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "aggregate"
-      ],
-      "replaces": [],
-      "switchesOn": []
-    },
-    "pipeline": {
-      "path": "docs/ext/pipeline.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "job"
-      ],
-      "replaces": [],
-      "switchesOn": []
-    },
-    "queues": {
-      "path": "docs/ext/queues.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "use-case"
-      ],
       "replaces": [],
       "switchesOn": []
     },
@@ -359,6 +312,7 @@
       "Scalar.AspNetCore": "2.18.0",
       "Testcontainers.PostgreSql": "4.16.0",
       "WireMock.Net": "2.19.0",
+      "YamlDotNet": "18.1.0",
       "xunit.runner.visualstudio": "4.0.1",
       "xunit.v3": "4.0.2",
       "xunit.v3.mtp-v2": "3.2.2"

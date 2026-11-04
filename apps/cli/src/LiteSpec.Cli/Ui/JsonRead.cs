@@ -14,7 +14,7 @@ namespace LiteSpec.Ui;
 ///     a reader is a scalar or <c>[object Object]</c>, never its JSON form.
 /// </summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
-/// <follows>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</follows>
+/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
 /// <follows>litespec/frontend/web/ui#track-source-changes</follows>
 static class JsonRead
 {

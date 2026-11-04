@@ -1,5 +1,8 @@
 # {Extension Title}
 
+**Stack:** any
+**Layer:** operations
+
 ## Intent
 
 State the optional capability and its boundary.
@@ -22,6 +25,10 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 **ID:** `{litespec/page#state-one-extension-action}`
 
+**Strength:** rule
+
+**Applies to:** artifact: job
+
 **Statement:** The activated extension MUST perform one testable action.
 
 **Rationale:** Explain the extension-specific constraint.
@@ -35,6 +42,10 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 ### Use One Extension Default
 
 **ID:** `{litespec/page#use-one-extension-default}`
+
+**Strength:** default
+
+**Applies to:** artifact: test
 
 **Default:** State one replaceable extension default.
 

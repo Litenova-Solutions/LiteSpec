@@ -1,5 +1,9 @@
 # Multitenancy
 
+**Stack:** any
+
+**Layer:** application
+
 ## Intent
 
 Multitenancy lets independent customer organizations share one deployment while each keeps isolated data and policy. This page states how the product resolves tenant identity from trusted context, isolates each tenant's data and policy across authorization, storage, caches, reactions, jobs, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects it when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
@@ -24,15 +28,23 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#record-the-tenant-adoption-decision`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:decision
+
 **Statement:** A consumer selecting `tenancy` MUST record a decision naming tenant source, storage model, isolation guarantee, administrative access, evolution path, and enumeration bound.
 
-**Rationale:** Tenant source, storage model, isolation guarantee, administrative access, and evolution path interact across every boundary, so one decision records them together before code assumes any of them. Approval waits while that decision stays a draft, and the enumeration bound caps how many tenant identifiers an all-tenant record lists.
+**Rationale:** Tenant source, storage model, isolation guarantee, administrative access, and evolution path interact across every boundary, so one decision records them together before code assumes any of them. The enumeration bound caps how many tenant identifiers an all-tenant record lists.
 
 **Reviewed for:** The tenant adoption decision under `.litespec/intent/decisions/` names source, storage model, isolation guarantee, administrative access, evolution path, and enumeration bound.
 
 ### Define Tenant Isolation
 
 **ID:** `litespec/ext/tenancy#define-tenant-isolation`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** A multi-tenant decision MUST define shared-table, schema, or database isolation and state its guarantee and operating trade-off.
 
@@ -44,6 +56,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#avoid-unplanned-isolation-models`
 
+**Strength:** rule
+
 **Statement:** A multi-tenant system MUST NOT mix isolation models without a decision and data evolution plan.
 
 **Rationale:** One part of the product on shared tables and another on separate databases answers which rows each tenant sees two ways. Each mixed model needs its own decision with a data evolution plan, or backup, restore, and incident response each guess which guarantee covers which data.
@@ -53,6 +67,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Resolve Tenant Identity from Trusted Context
 
 **ID:** `litespec/ext/tenancy#resolve-tenant-identity-from-trusted-context`
+
+**Strength:** rule
 
 **Statement:** A trusted host boundary MUST resolve tenant identity from verified claims, host mapping, or another authenticated source.
 
@@ -64,6 +80,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#reject-unrestricted-tenant-input`
 
+**Strength:** rule
+
 **Statement:** A tenant resolver MUST NOT accept an unrestricted tenant ID from request data.
 
 **Rationale:** A tenant ID taken straight from request data lets any caller name any tenant. Rejecting unrestricted input keeps the request from choosing a data boundary outside its authenticated context.
@@ -73,6 +91,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Verify Actor and Target Tenancy
 
 **ID:** `litespec/ext/tenancy#verify-actor-and-target-tenancy`
+
+**Strength:** rule
 
 **Statement:** A protected multi-tenant operation MUST confirm actor and target tenancy, with the needed permission held at the resolved scope and the target belonging to it.
 
@@ -84,17 +104,23 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-every-use-case-to-its-tenant-reach`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:use-case
+
 **Statement:** Every use case in a multi-tenant product MUST declare its tenant scope as own, cross, public, or none in `access`.
 
 **Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same. `litespec/core/access#scope-every-grant-to-its-tenant-reach` states the values.
 
 **Example:** An expense report declares `own`, a finance search across companies declares `cross`, a public catalog declares `public`, and a health check declares `none`.
 
-**Reviewed for:** Each use case declares own, cross, public, or none in its access tenant scope, with cross grants in the security queue.
+**Reviewed for:** Each use case declares own, cross, public, or none in its access tenant scope.
 
 ### Isolate Administrative Cross-Tenant Access
 
 **ID:** `litespec/ext/tenancy#isolate-administrative-cross-tenant-access`
+
+**Strength:** rule
 
 **Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role at platform scope, writing an audit record.
 
@@ -106,6 +132,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#use-selected-tenant-storage-support`
 
+**Strength:** rule
+
 **Statement:** A multi-tenant persistence implementation MUST resolve its tenant at session creation through the selected provider's own tenancy support.
 
 **Rationale:** Session creation is the point that matters: a session opened without a tenant serves an unscoped next query. Resolving the tenant then, through the selected provider's own tenancy support, scopes every query the session runs, so no query carries the concern alone. Adding the filter per query instead leaves every new query one omission away from reading across tenants. The baseline provider resolves the tenant from the registered tenancy at session creation; an Entity Framework Core implementation resolves it when the context is created and applies it through a query filter convention.
@@ -115,6 +143,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Scope Tenant-Owned Records
 
 **ID:** `litespec/ext/tenancy#scope-tenant-owned-records`
+
+**Strength:** rule
 
 **Statement:** Every tenant-owned document, query, unique constraint, cache key, outbox record, reaction, job, export, and object-storage path MUST include tenant scope.
 
@@ -126,6 +156,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#apply-cross-tenant-disclosure-policy`
 
+**Strength:** rule
+
 **Statement:** A cross-tenant resource response MUST use the documented not-found or forbidden policy.
 
 **Rationale:** A caller that names another tenant's resource forces an answer: pretend it does not exist, or admit it exists and refuse. The product documents one policy and applies it to every cross-tenant response, so callers cannot probe for resources through inconsistent answers.
@@ -135,6 +167,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Protect Tenant Diagnostics
 
 **ID:** `litespec/ext/tenancy#protect-tenant-diagnostics`
+
+**Strength:** rule
 
 **Statement:** Errors, logs, metrics, and traces MUST NOT reveal another tenant's business identifiers or data.
 
@@ -146,6 +180,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-tenant-operations`
 
+**Strength:** rule
+
 **Statement:** Backup, restore, replay, deletion, export, support access, and incident investigation MUST document one-tenant or all-tenant scope.
 
 **Rationale:** Backup, restore, replay, deletion, export, support access, and incident investigation each touch more data than one normal request. Documenting each as one-tenant or all-tenant tells the operator how much data the run touches before it starts.
@@ -155,6 +191,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Record an All-Tenant Operation
 
 **ID:** `litespec/ext/tenancy#record-an-all-tenant-operation`
+
+**Strength:** rule
 
 **Statement:** An all-tenant operation MUST record actor, operation, reason, tenant count, and reached tenant identifiers up to the adoption decision bound.
 
@@ -168,6 +206,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#declare-delegation-grants-on-both-sides`
 
+**Strength:** rule
+
 **Statement:** A delegation MUST declare the delegator grant naming who may be acted for and the acting grant naming who may act.
 
 **Rationale:** Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role at its scope that may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. `litespec/core/access#grant-across-tenants-only-through-declared-delegation` requires both declarations.
@@ -180,15 +220,19 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-delegated-grants-to-named-permissions`
 
+**Strength:** rule
+
 **Statement:** A delegation MUST name the permissions it delegates, never all permissions.
 
-**Rationale:** A delegation open to every permission hands the whole tenant to the acting party: one pairing meant for reading reports also moves money. Naming each delegated permission bounds the pairing to what the delegator intended, and each new permission needs its own review before the acting party holds it.
+**Rationale:** A delegation open to every permission hands the whole tenant to the acting party: one pairing meant for reading reports also moves money. Naming each delegated permission bounds the pairing to what the delegator intended, and each new permission needs its own review in the pull request before the acting party holds it.
 
 **Reviewed for:** Each delegation names its delegated permissions, with none open to all permissions.
 
 ### Bound Every Delegation in Time
 
 **ID:** `litespec/ext/tenancy#bound-every-delegation-in-time`
+
+**Strength:** rule
 
 **Statement:** A delegation MUST carry an expiry or a revocation path.
 
@@ -200,6 +244,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#audit-actions-taken-under-delegation`
 
+**Strength:** rule
+
 **Statement:** An action that an actor takes under delegation MUST record the delegation grant used.
 
 **Rationale:** An acted-for action without a marker reads exactly like the delegator's own action, so a reviewer cannot tell who actually acted. Recording the delegation grant used puts the acting party on the record beside the delegator. `litespec/ext/audit#record-delegated-administrative-access` states the same marker for administrative grants.
@@ -210,27 +256,21 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#prove-delegated-calls-with-scenarios`
 
+**Strength:** rule
+
 **Statement:** A delegation MUST prove an allowed call and a refused call with scenarios.
 
 **Rationale:** A pairing described only in prose hides where its grant stops: the allowed assistant and the uninvited one read alike. A scenario walking an allowed call and a scenario ending a call without delegation in the derived forbidden result pin the boundary as checked facts. `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios` requires both scenarios.
 
 **Reviewed for:** Each delegation proves an allowed call and a refused call with scenarios.
 
-### Review Delegated Cross-Tenant Grants Through the Security Queue
-
-**ID:** `litespec/ext/tenancy#review-delegated-cross-tenant-grants-through-the-security-queue`
-
-**Statement:** A use case acting under delegation across tenants MUST pass through the security queue at its own tier.
-
-**Rationale:** A delegated call reads or writes data that belongs to another tenant, which is the highest access risk a grant carries. The security queue puts that grant before the security reviewer separately from reviewed status, so no delegated cross-tenant act ships on a developer sample alone. Cross scope raises no tier: the tier follows the risk values the record carries.
-
-**Reviewed for:** Which delegated cross-tenant grants shipped without security review, or gained a tier from cross scope alone? Look at the security queue in the Behavior diff.
-
 ## Conventions
 
 ### Use Typed Tenant Identities
 
 **ID:** `litespec/ext/tenancy#use-typed-tenant-identities`
+
+**Strength:** default
 
 **Default:** Represent tenant identity with a strongly typed `TenantId`.
 
@@ -244,6 +284,8 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#use-one-tenant-accessor`
 
+**Strength:** default
+
 **Default:** Use one current-tenant accessor at the trusted host boundary.
 
 **Replacement:** A consumer records a tenant-access convention naming where its readers find the current tenant.
@@ -255,6 +297,8 @@ It switches on no record type: tenant scope applies to records every project req
 ### Pass Tenant Scope Explicitly
 
 **ID:** `litespec/ext/tenancy#pass-tenant-scope-explicitly`
+
+**Strength:** default
 
 **Default:** Pass tenant scope through Application messages or trusted ports rather than ambient Domain request state.
 
@@ -268,6 +312,10 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#record-delegation-grants-with-roles`
 
+**Strength:** default
+
+**Applies to:** artifact: record:role
+
 **Default:** Record each delegation grant on the role page that holds it.
 
 **Replacement:** A consumer records a delegation-records convention naming where its delegation grants live.
@@ -280,6 +328,6 @@ It switches on no record type: tenant scope applies to records every project req
 
 Packages: Tenancy support for Marten ships in the baseline persistence package. A project that isolates tenants with another provider records a decision and pins that provider in the manifest.
 
-Related extensions: The `audit` extension owns tamper-resistant evidence when an all-tenant run needs an audit record. The `plans` extension owns entitlements when tenants buy different tiers. The `delegation` extension owns grants that let one tenant act for another.
+Related extensions: The `audit` extension owns tamper-resistant evidence when an all-tenant run needs an audit record. The `plans` extension owns entitlements when tenants buy different tiers.
 
 Guides: None.

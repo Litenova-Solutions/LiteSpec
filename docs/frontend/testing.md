@@ -1,5 +1,8 @@
 # Frontend Testing
 
+**Stack:** any
+**Layer:** tests
+
 ## Intent
 
 Frontend tests prove behavior at the cheapest level that represents the risk: unit tests for pure logic, browser suites against a running deployment for navigation and integration, and one route check for every address. This page states which kind proves what, how a test proves a use case by calling it and asserting the result each scenario names, and where mocks may stand. Frontend developers and agents apply it whenever they add or change a test, so each risk is proved once at the right level instead of slowly everywhere or nowhere at all.
@@ -25,6 +28,10 @@ A browser suite needs a deployment, and nothing in the suite starts one, so the 
 
 A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. A test confirms a scenario when, in the same test, an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. Click-through navigation inference is out of scope: a journey test uses one `page.goto` per screen it proves on.
 
+### Element Queries
+
+Element queries follow the Testing Library guiding principles: query by role, label, name, or visible text before reaching for a test identifier. See [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles).
+
 ### Related Rules
 
 Three related rules live on other pages:
@@ -39,6 +46,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#match-test-level-to-risk`
 
+**Strength:** rule
+
 **Statement:** A frontend MUST use a logic test for pure logic, a browser specification for navigation and integration, and the route contract for every address.
 
 **Rationale:** A browser run costs seconds and a deployment; a unit test costs milliseconds and nothing else. Proving pure logic through the browser makes the suite slow without making it stronger, while proving navigation with unit tests proves nothing about the running page. Logic tests take pure logic, browser specifications take navigation and integration, and the route contract covers every address, so each risk is proved at the cheapest boundary that represents it.
@@ -48,6 +57,8 @@ Three related rules live on other pages:
 ### Mark the Scenario a Browser Test Proves
 
 **ID:** `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`
+
+**Strength:** rule
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
@@ -61,6 +72,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`
 
+**Strength:** rule
+
 **Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
 
 **Rationale:** A test proves a scenario when it drives the use case through the page a person uses, so proof follows exercised behavior rather than a claim. Matching the `page.goto` target against the screen `address` templates is the deterministic reach the reader computes; a test that only clicks through navigation names no screen it proved on.
@@ -72,6 +85,8 @@ Three related rules live on other pages:
 ### Assert the Result a Scenario Ends In
 
 **ID:** `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`
+
+**Strength:** rule
 
 **Statement:** A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result's declared text or code.
 
@@ -85,6 +100,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#assert-each-declared-refusal-by-its-code`
 
+**Strength:** rule
+
 **Statement:** An evidence specification for a use case declaring a refusal MUST reach that refusal and assert it by its result's code.
 
 **Rationale:** A refusal the test leaves unreached renders where no reader looks: it appears in a log, or nowhere at all. Reaching it and asserting it by its result's code proves two things at once: the page renders the refusal, and the code the page shows is the code the result declares. The scenario records the situation that reaches it, so the test documents how the refusal is provoked.
@@ -96,6 +113,8 @@ Three related rules live on other pages:
 ### Prove Each Scenario at One Boundary
 
 **ID:** `litespec/frontend/testing#prove-each-scenario-at-one-boundary`
+
+**Strength:** rule
 
 **Statement:** A scenario MUST carry one `proves` mark, on the test at the cheapest boundary that represents its risk.
 
@@ -109,6 +128,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
 
+**Strength:** rule
+
 **Statement:** A browser test that walks several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
 
 **Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which walk the test rehearses without claiming that the walk itself is proven.
@@ -121,6 +142,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#test-observable-states`
 
+**Strength:** advice
+
 **Statement:** A frontend test MUST assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.
 
 **Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success, ties the test to the reader's view. The scenario states which states its situation reaches, so a logic test asserts only states its level reaches. The project records each state as a term with labels per language.
@@ -131,6 +154,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#keep-mocks-at-owned-boundaries`
 
+**Strength:** rule
+
 **Statement:** A frontend test MUST NOT mock the generated contract types or an implementation-private function, nor a library its stack names.
 
 **Rationale:** A mock is a claim about code the test no longer exercises. Mocking the generated contract types, an implementation-private function, or a library the stack names replaces the project's own contract or someone else's internals with the test author's guess of how they behave. The generated client boundary stays replaceable because it is an owned contract: the project wrote it, so the project can stand in for it.
@@ -140,6 +165,8 @@ Three related rules live on other pages:
 ### Use Network Mocks for Component Tests
 
 **ID:** `litespec/frontend/testing#use-network-mocks-for-component-tests`
+
+**Strength:** rule
 
 **Statement:** A component or logic test that needs HTTP MUST serve its answers through network mocks generated from the published contract.
 
@@ -153,6 +180,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#isolate-browser-tests`
 
+**Strength:** rule
+
 **Statement:** A browser test MUST create or identify its own data, its own authentication context, and its own expected state.
 
 **Rationale:** A test that depends on execution order or on leftover data fails for reasons unrelated to the change under review, and passes only when the suite runs in one order. Creating its own data, its own authentication context, and its own expected state makes each test runnable alone and in any order. A test spends no seeded record; it creates the record it needs.
@@ -163,9 +192,11 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`
 
+**Strength:** rule
+
 **Statement:** A frontend calling the API MUST hold a test asserting that its module tree resolves to the backend use-case folders and names no refused folder.
 
-**Rationale:** The module mirror is the claim that makes a specification findable from a folder path: translate three names, land on the code. Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation lands nowhere. A test asserting the mirror on every build, and naming no refused folder, keeps the translation true.
+**Rationale:** The module mirror is the claim that makes a specification findable from a folder path: translate three names, land on the code. Without a check, the backend adds or renames a use case and the frontend tree silently stops matching, so the translation lands nowhere. A test asserting the mirror on every build, and naming no refused folder, keeps the translation true. The same test can also assert no import between use case folders or between modules, which no lint rule checks.
 
 **Example:** The structure check resolves each folder name against the backend's module tree.
 
@@ -175,6 +206,8 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#run-browser-checks-through-the-command-line`
 
+**Strength:** rule
+
 **Statement:** A browser suite MUST run through the command line, addressable per route and per file.
 
 **Rationale:** The command line is the interface every runner shares: the developer, the drill, and the integration job all invoke the same command. A check that runs only inside an editor plugin or a proxy runner leaves the next investigator with no way to repeat it. Addressable per route and per file, the suite also runs just the check under review instead of the whole suite.
@@ -183,21 +216,11 @@ Three related rules live on other pages:
 
 ## Conventions
 
-### Query by Accessible Behavior
-
-**ID:** `litespec/frontend/testing#query-by-accessible-behavior`
-
-**Default:** Query elements by role, label, name, or visible text before reaching for a test identifier.
-
-**Replacement:** A consumer can replace this default with an explicit local convention.
-
-**Rationale:** A query by role, label, name, or visible text fails when the user-facing behavior breaks, which is exactly the behavior worth protecting. A test identifier survives an accessibility regression in silence, so it is the last resort rather than the first. A structural floorplan marker is not an identifier, so a query can use it to scope to one floorplan; slot content is addressed by its accessible role and name.
-
-**Reviewed for:** Which element queries reach for a test identifier before role, label, name, or visible text? Look in the test locators.
-
 ### Keep Test Support Narrow
 
 **ID:** `litespec/frontend/testing#keep-test-support-narrow`
+
+**Strength:** default
 
 **Default:** Limit test support to render helpers for required providers, to one API helper that every specification shares, and to the locator helpers.
 
@@ -210,6 +233,8 @@ Three related rules live on other pages:
 ### Read the Deployment for Its Identifiers
 
 **ID:** `litespec/frontend/testing#read-the-deployment-for-its-identifiers`
+
+**Strength:** default
 
 **Default:** Read a record identifier a browser test needs from the running deployment, and fall back to an absent identifier when the deployment holds none.
 

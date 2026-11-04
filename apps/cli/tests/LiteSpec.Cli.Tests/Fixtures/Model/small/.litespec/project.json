@@ -8,13 +8,6 @@
     "dotnet"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [],
-  "constraints": {
-    "answered": true
-  },
-  "owners": [
-    "lending-team"
-  ],
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
@@ -33,14 +26,5 @@
       "webapi": "apps/api/src/Library.WebApi"
     }
   },
-  "selectedExtensions": [],
-  "vocabulary": {
-    "verbs": [
-      "borrow",
-      "extend",
-      "place",
-      "register",
-      "return"
-    ]
-  }
+  "selectedExtensions": []
 }

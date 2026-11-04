@@ -6,20 +6,26 @@ access:
   grant: permission/borrow-copy
   tenant: own
 fulfills:
-  - requirement/borrowing.loan-period-days
+- requirement/borrowing.loan-period-days
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/loan.loan-returned
+- event/loan.loan-returned
+idempotency:
+  mode: none
+  reason: Each call returns its own copy, and returning an inactive loan is refused.
+audit:
+  level: none
+  target: No audit trail; the loan record shows each return.
 records:
-  - type: result
-    id: result/return-copy.returned
-    title: Returned
-    outcome: success
-    meaning: The copy is returned.
-  - type: result
-    id: result/return-copy.loan-inactive
-    title: Loan inactive
-    outcome: refusal
-    code: lending.loan-not-active
-    meaning: The loan is inactive.
+- type: result
+  id: result/return-copy.returned
+  title: Returned
+  outcome: success
+  meaning: The copy is returned.
+- type: result
+  id: result/return-copy.loan-inactive
+  title: Loan inactive
+  outcome: refusal
+  code: lending.loan-not-active
+  meaning: The loan is inactive.

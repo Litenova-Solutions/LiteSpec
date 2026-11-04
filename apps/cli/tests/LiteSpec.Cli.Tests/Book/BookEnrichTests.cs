@@ -624,6 +624,22 @@ public sealed class BookEnrichTests
         Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));
     }
 
+    /// <summary>Each detail carries the qualified identifier the model states beside the record, or the identifier itself when the model states none.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Details_Carry_The_Qualified_Identifier()
+    {
+        var placed = Record("problem", "problem/slow-desk", "Slow Desk");
+        placed["qualifiedId"] = "lending/problem/slow-desk";
+
+        var details = DetailsOf(NewModel(placed));
+
+        Assert.Equal("lending/problem/slow-desk", Str(details["problem/slow-desk"], "qualifiedId"));
+
+        var fixture = DetailsOf(LoadFixture("Book/review.json"));
+        Assert.Equal("goal/faster-borrowing", Str(fixture["goal/faster-borrowing"], "qualifiedId"));
+    }
+
     /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]

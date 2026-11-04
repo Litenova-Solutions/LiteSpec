@@ -1,5 +1,8 @@
 # Agent Operating Protocol
 
+**Stack:** any
+**Layer:** workspace
+
 ## Intent
 
 An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need the task authorizer before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.
@@ -30,7 +33,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and deviations merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs the query before editing and answers each returned provision's Reviewed for question before reporting done, and the completion report names the provisions the agent judged and how.
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs the query before editing and answers each returned provision's Reviewed for question before reporting done, and the completion report names the provisions the agent judged and how.
 
 ### Git Is the Decision Record
 
@@ -46,12 +49,12 @@ A running project takes new intent through this one sequence. Other pages link t
 
 1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation or place it on the backlog board.
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
-3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
+3. Validate the records. Run `dotnet litespec model check` and fix every finding before code moves.
 4. Load provisions and choose patterns. Run `dotnet litespec rules <path>` for each path the change touches before editing it. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
 5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Authorizer gate: the task authorizer approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
-7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model build`, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Diff and merge complete. Run `dotnet litespec model diff <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries an exception with `expiresOn`.
+7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model check`, then `dotnet litespec model render`.
+8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries an exception with `expiresOn`.
 9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and an exception with `expiresOn` for each check held red.
 
 ## Standards
@@ -59,6 +62,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Select Task Context
 
 **ID:** `litespec/core/agent#select-task-context`
+
+**Strength:** rule
 
 **Statement:** An agent MUST query the project model for the records that cover the request, and read the generated agent context, before editing.
 
@@ -72,6 +77,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 
+**Strength:** rule
+
 **Statement:** A change touching no permission that carries `risk` MAY skip the model query, reading the agent context and neighboring code instead.
 
 **Rationale:** A small edit with no risk behind it does not need the full record set: the agent context plus the neighboring file already show the decided shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a permission that carries `risk` keeps the full query, because the query shows the risk a one-line change would otherwise miss, and it costs seconds.
@@ -83,6 +90,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Load Applicable Extensions
 
 **ID:** `litespec/core/agent#load-applicable-extensions`
+
+**Strength:** rule
 
 **Statement:** An agent MUST load selected project extensions and selected applicable local extensions before editing code or prose inside the extension's boundary.
 
@@ -96,9 +105,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#load-applicable-provisions-before-editing`
 
+**Strength:** rule
+
 **Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each returned provision's Reviewed for question before reporting done.
 
-**Rationale:** 1,800 provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and deviations merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+**Rationale:** 1,800 provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
 
 **Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
 
@@ -107,6 +118,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Apply Guidance Precedence
 
 **ID:** `litespec/core/agent#apply-guidance-precedence`
+
+**Strength:** rule
 
 **Statement:** An agent MUST apply the project exception, the extension, the deeper page, and the shallower page in that order.
 
@@ -118,6 +131,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#replace-only-declared-conventions`
 
+**Strength:** rule
+
 **Statement:** An agent MAY apply a replacement for a convention only when the project documentation records that replacement.
 
 **Rationale:** Conventions exist to be replaced, but only through a recorded decision. An undocumented local preference that silently replaces a baseline default looks identical to a mistake, so the next agent fixes it back. The recorded convention keeps the replacement visible and reviewable.
@@ -127,6 +142,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Stop on Unresolved Conflict
 
 **ID:** `litespec/core/agent#stop-on-unresolved-conflict`
+
+**Strength:** rule
 
 **Statement:** An agent MUST stop when applicable provisions disagree without declared precedence and quote both provision IDs and paths.
 
@@ -138,6 +155,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#inspect-existing-work-before-editing`
 
+**Strength:** rule
+
 **Statement:** An agent MUST read `git status` before editing and preserve user changes, untracked files, and unrelated generated output.
 
 **Rationale:** A working tree can hold the user's own uncommitted edits, untracked files, and generated output from an unrelated task. An agent that edits without looking overwrites or deletes work outside its scope. Reading `git status` first marks that work as untouchable.
@@ -147,6 +166,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Restrict Unapproved Side Effects
 
 **ID:** `litespec/core/agent#restrict-unapproved-side-effects`
+
+**Strength:** rule
 
 **Statement:** An agent MUST NOT act without approval on packages, migrations, authentication, a public API, production data, releases, spending, or outside calls that change state.
 
@@ -158,6 +179,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#make-coherent-scoped-changes`
 
+**Strength:** rule
+
 **Statement:** An agent MUST make the smallest coherent change that satisfies the authorized request.
 
 **Rationale:** A change that stops at code and skips its records, tests, or operating evidence leaves the workspace claiming behavior nothing proves. A change that sprawls past the request drags unrelated files into review. The smallest coherent change keeps the records, code, tests, and evidence that belong together in one reviewable unit.
@@ -167,6 +190,10 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Take Expected Values from the Scenario
 
 **ID:** `litespec/core/agent#take-expected-values-from-the-scenario`
+
+**Strength:** rule
+
+**Applies to:** artifact: test
 
 **Statement:** An agent MUST take a test's expected values only from the scenario's Then, never from running the code.
 
@@ -180,6 +207,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#verify-refusals-and-calculations-against-held-back-examples`
 
+**Strength:** rule
+
 **Statement:** An agent MUST verify a refusal or calculation implementation against example rows held back from the agent that wrote it.
 
 **Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result.
@@ -191,6 +220,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Write Pages Below Decided Intent
 
 **ID:** `litespec/core/agent#write-pages-below-decided-intent`
+
+**Strength:** rule
 
 **Statement:** An agent MUST write every page below decided Intent.
 
@@ -204,6 +235,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#escalate-decisions-that-specify-forbids`
 
+**Strength:** rule
+
 **Statement:** An agent MUST NOT decide a figure the owner sets.
 
 **Rationale:** The Specify rule reserves the figures the owner sets for Intent, because each one binds the product to buyers, markets, or law; the [Intent page](intent.md) states the Specify boundary. An agent that picks a figure silently takes a decision that belongs to the owner. Each undecided figure becomes a question to the owner with a recommendation, or a backlog item.
@@ -215,6 +248,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Raise Open Figures to the Owner
 
 **ID:** `litespec/core/agent#raise-open-figures-to-the-owner`
+
+**Strength:** rule
 
 **Statement:** An agent MUST raise each open figure to the owner with a recommendation, or place it on the backlog board.
 
@@ -228,6 +263,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#name-judged-provisions-in-the-completion-report`
 
+**Strength:** rule
+
 **Statement:** A completion report MUST name each provision the agent judged and how it judged it.
 
 **Rationale:** The report shows which rules, defaults, and advice the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
@@ -239,6 +276,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Advise Without Gating
 
 **ID:** `litespec/core/agent#advise-without-gating`
+
+**Strength:** rule
 
 **Statement:** An agent MUST report its findings as advice with evidence, never as a decision.
 
@@ -252,6 +291,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#read-the-full-record-before-changing-a-boundary`
 
+**Strength:** default
+
 **Default:** Read the full record, the record file with its explanation file, before generating a file, changing a public boundary, or choosing between patterns.
 
 **Replacement:** A consumer records a boundary-reading convention naming which changes need the full record.
@@ -264,6 +305,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#inspect-local-examples-after-standards`
 
+**Strength:** default
+
 **Default:** Inspect neighboring consumer files after loading applicable standards.
 
 **Replacement:** A consumer records an inspection convention naming which neighboring files an agent reads.
@@ -275,6 +318,8 @@ A running project takes new intent through this one sequence. Other pages link t
 ### Keep Agent Working Files Under Agents
 
 **ID:** `litespec/core/agent#keep-agent-working-files-under-agents`
+
+**Strength:** default
 
 **Default:** Keep agent working files under `.agents/`, with tracked `skills/` and `records/` folders and ignored `scratch/` and `delegate/` folders.
 

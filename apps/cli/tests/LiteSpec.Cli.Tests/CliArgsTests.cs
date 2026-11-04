@@ -59,12 +59,12 @@ public sealed class CliArgsTests
         Assert.True(parsed.Help);
     }
 
-    /// <summary>The consumer command reports a bogus option before --help and exits 2.</summary>
+    /// <summary>The model check command reports a bogus option before --help and exits 2.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Consumer_Bogus_Option_With_Help_Exits_2()
+    public void Model_Check_Bogus_Option_With_Help_Exits_2()
     {
-        var result = Cli.Run("consumer", "--bogus", "--help");
+        var result = Cli.Run("model", "check", "--bogus", "--help");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("--bogus", result.Output, StringComparison.Ordinal);
@@ -133,9 +133,9 @@ public sealed class CliArgsTests
     [Fact]
     public void LastResort_Detects_Json_Format()
     {
-        Assert.True(LastResort.WantsJson(["consumer", "--format", "json"]));
-        Assert.True(LastResort.WantsJson(["consumer", "--format=json"]));
-        Assert.False(LastResort.WantsJson(["consumer", "--format", "text"]));
-        Assert.False(LastResort.WantsJson(["consumer"]));
+        Assert.True(LastResort.WantsJson(["model", "--format", "json"]));
+        Assert.True(LastResort.WantsJson(["model", "--format=json"]));
+        Assert.False(LastResort.WantsJson(["model", "--format", "text"]));
+        Assert.False(LastResort.WantsJson(["model"]));
     }
 }

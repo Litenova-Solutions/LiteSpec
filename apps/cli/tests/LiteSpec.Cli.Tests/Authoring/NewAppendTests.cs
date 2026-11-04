@@ -517,7 +517,11 @@ public sealed class NewAppendTests
         // Lines, not characters: a new entry shares its opening lines with its neighbour,
         // and a character scan would cut the insertion mid-line.
         // A CRLF checkout gives the fixture CRLF line ends; the tool writes LF.
-        var old = before.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        // The tool writes canonical form, so a fixture that drifted is normalized first:
+        // the proof is that the canonical file grows by one insertion, not that the
+        // drifted file does.
+        var normalized = RecordFile.Canonical(before) ?? before;
+        var old = normalized.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         var grown = after.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         var prefix = 0;
 

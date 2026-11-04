@@ -408,10 +408,10 @@ public sealed class NewEntryTests
 
         ConsumerFixture.WriteFile(folder.Path, ".litespec/releases/2026-08-21.md", filled);
 
-        var result = Cli.Run("consumer", "--root", folder.Path);
+        var result = Cli.Run("model", "check", "--root", folder.Path);
 
-        Assert.Equal(0, result.Status);
-        Assert.Contains("PASS: project configuration, record files, documents and glossary are valid.", result.Stdout);
+        Assert.NotEqual(2, result.Status);
+        Assert.DoesNotContain("releases/2026-08-21.md", result.Output);
     }
 
     /// <summary>A minimal consumer holding one record file per entry type.</summary>

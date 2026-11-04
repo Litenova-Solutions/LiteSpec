@@ -29,7 +29,9 @@ static partial class ModelBuilder
         model.Records.AddRange(read.Records);
         model.Bodies.AddRange(read.Bodies);
         model.Provisions = read.Provisions;
-        model.AppliedPages = AppliedPagesOf(config, model.Problems);
+        var applied = AppliedSelectionOf(config, model.Problems);
+        model.AppliedPages = applied.Pages;
+        model.AppliedProvisions = applied.Provisions;
         var stacks = StackReaders.For(config);
         model.Problems.AddRange(stacks.Problems);
         var backendRead = Timed("code", () => stacks.Backend.Read(config));
@@ -155,15 +157,15 @@ static partial class ModelBuilder
         Timed(name, () => { run(); return 0; });
 
     /// <summary>
-    ///     The standard pages the project's stacks and extensions apply, through the
+    ///     The standard pages and provisions the project's stacks and extensions apply, through the
     ///     shared stack layout. Empty when the carried release or its manifest cannot
     ///     be read, so a provision check falls back to existence only; that failure
     ///     is reported as a <c>reader-missing</c> problem naming the manifest.
     /// </summary>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="problems">The problems a failure is reported into.</param>
-    /// <returns>The standard pages the project's stacks and extensions apply.</returns>
-    private static HashSet<string> AppliedPagesOf(ConsumerConfig config, List<Finding> problems)
+    /// <returns>The applied pages and the applied provisions.</returns>
+    private static (HashSet<string> Pages, HashSet<string> Provisions) AppliedSelectionOf(ConsumerConfig config, List<Finding> problems)
     {
         var home = LiteSpecHome.Root;
 
@@ -180,7 +182,7 @@ static partial class ModelBuilder
                 ReaderIsQualified = true,
             });
 
-            return new HashSet<string>(StringComparer.Ordinal);
+            return EmptySelection();
         }
 
         var manifestFile = Path.Combine(home, LiteSpecHome.ManifestFile);
@@ -198,7 +200,7 @@ static partial class ModelBuilder
                 ReaderIsQualified = true,
             });
 
-            return new HashSet<string>(StringComparer.Ordinal);
+            return EmptySelection();
         }
 
         try
@@ -216,12 +218,16 @@ static partial class ModelBuilder
                     ReaderIsQualified = true,
                 });
 
-                return new HashSet<string>(StringComparer.Ordinal);
+                return EmptySelection();
             }
 
-            return new HashSet<string>(
-                Authoring.Layout.AppliedPages(home, manifest, config.Shape, config.Stacks, config.Extensions),
-                StringComparer.Ordinal);
+            return (
+                new HashSet<string>(
+                    Authoring.Layout.AppliedPages(home, manifest, config.Shape, config.Stacks, config.Extensions),
+                    StringComparer.Ordinal),
+                new HashSet<string>(
+                    Authoring.Layout.AppliedProvisions(home, manifest, config.Shape, config.Stacks, config.Extensions),
+                    StringComparer.Ordinal));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
         {
@@ -236,9 +242,14 @@ static partial class ModelBuilder
                 ReaderIsQualified = true,
             });
 
-            return new HashSet<string>(StringComparer.Ordinal);
+            return EmptySelection();
         }
     }
+
+    /// <summary>The empty applied selection: no applied pages and no applied provisions.</summary>
+    /// <returns>The empty applied selection.</returns>
+    private static (HashSet<string> Pages, HashSet<string> Provisions) EmptySelection() =>
+        (new HashSet<string>(StringComparer.Ordinal), new HashSet<string>(StringComparer.Ordinal));
 
     /// <summary>
     ///     Reads every frontend's routes through its own reader. Screens keep the

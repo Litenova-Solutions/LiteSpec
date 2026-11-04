@@ -1,6 +1,0 @@
-type: aggregate
-id: aggregate/archive.copy
-title: Archived copy
-states:
-  - name: Archived
-    meaning: The copy rests in the archive.

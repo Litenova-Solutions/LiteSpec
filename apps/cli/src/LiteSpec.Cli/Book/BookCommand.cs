@@ -195,7 +195,7 @@ static class BookCommand
             model = Path.Combine(consumer, ConsumerRoot.FolderName, "model", "model.json");
             if (!File.Exists(model))
             {
-                return new Parsed(false, "No model at .litespec/model/model.json; run 'litespec model build' first or pass --model <model.json>.", null, null, null, null);
+                return new Parsed(false, "No model at .litespec/model/model.json; pass --model <model.json>.", null, null, null, null);
             }
         }
 
@@ -272,7 +272,7 @@ static class BookCommand
         return totals;
     }
 
-    /// <summary>The search rows in identifier order: id, title, type and excerpt each.</summary>
+    /// <summary>The search rows in identifier order: id, title, type and excerpt each, with the qualified identifier appended when it differs.</summary>
     /// <param name="index">The model index that holds the raw record objects.</param>
     /// <param name="details">The enriched record details keyed by record identifier.</param>
     /// <returns>The search rows in identifier order, each holding identifier, title, type and excerpt.</returns>
@@ -283,11 +283,16 @@ static class BookCommand
         {
             var detail = details[id];
             var raw = index.ById.TryGetValue(id, out var found) ? found : detail;
+            var excerpt = BookShards.SearchExcerpt(raw);
+            var qualified = StrProp(detail, "qualifiedId");
+            var text = qualified is { Length: > 0 } && !string.Equals(qualified, id, StringComparison.Ordinal)
+                ? (excerpt.Length > 0 ? excerpt + " " + qualified : qualified)
+                : excerpt;
             rows.Add(new JsonArray(
                 id,
                 StrProp(detail, "title") ?? id,
                 StrProp(detail, "type") ?? "",
-                BookShards.SearchExcerpt(raw)));
+                text));
         }
 
         return rows;

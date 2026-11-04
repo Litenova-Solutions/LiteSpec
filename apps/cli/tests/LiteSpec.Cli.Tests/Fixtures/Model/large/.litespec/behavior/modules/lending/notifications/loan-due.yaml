@@ -3,11 +3,15 @@ id: notification/lending.loan-due
 title: Loan due
 template: loan-due-reader
 addresses:
-  - actor/reader
+- actor/reader
 channel:
-  - email
+- email
 consent: Readers accept notices at signup.
 frequency: once
+dedupKey: loan-due per loan
+params:
+- loanId
+- dueDate
+locale: en
 fulfills:
-  - requirement/borrowing.max-active-loans
-sender: The library desk
+- requirement/borrowing.max-active-loans

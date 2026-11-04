@@ -217,7 +217,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.WriteFile(
             folder.Path,
             ".litespec/behavior/modules/orders/broken.md",
-            "---\n{bad json}\n---\n\n# Broken\n");
+            "---\n{bad json\n---\n\n# Broken\n");
         AssertProblem(RunConsumer(folder.Path), "frontmatter is not YAML");
     }
 }

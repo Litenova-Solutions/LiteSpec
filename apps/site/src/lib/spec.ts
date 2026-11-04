@@ -1,13 +1,13 @@
 // Reads the LiteSpec standard from the repository root at build time: the manifest,
-// every page under docs/, its provisions, and which pages a selection applies.
-// Every page and endpoint of the site reads from here, so the site and the
-// release it is built from cannot disagree.
+// every page under docs/, the generated provision index, and which pages a
+// selection applies. Every page and endpoint of the site reads from here, so the
+// site and the release it is built from cannot disagree.
 import fs from "node:fs";
 import path from "node:path";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfm } from "micromark-extension-gfm";
 import { gfmFromMarkdown } from "mdast-util-gfm";
-import type { Heading, Paragraph, RootContent } from "mdast";
+import type { Heading, RootContent } from "mdast";
 // The repository root is the nearest folder above the working directory that holds
 // litespec.manifest.json. A bundled build moves this file, so its own URL cannot be used.
 function findRoot(): string {
@@ -58,9 +58,11 @@ export interface Provision {
   mark: string;
   /** The inline verification evidence: the text after the verification label. */
   evidence: string;
+  /** How binding the provision is: rule, default or advice. Empty when the index states none. */
+  strength: string;
 }
 
-export type PageStyle = "topic" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
+export type PageStyle = "standard" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
 
 export interface Page {
   /** Repository-relative file path, such as docs/backend/domain.md. */
@@ -68,7 +70,7 @@ export interface Page {
   /** The path under docs/ without .md, such as backend/domain. The ID page segment and the URL path. */
   path: string;
   style: PageStyle;
-  /** The area: learn, core, workspace, quality, backend, frontend, ext, reference, tools, tutorial or guide. */
+  /** The first folder under docs/, such as backend. */
   area: string;
   title: string;
   /** The first paragraph of the Intent or Purpose section, as Markdown. */
@@ -95,7 +97,7 @@ function styleOf(rel: string): PageStyle {
   if (segments[1] === "analyzers") return segments[2] === "rules" && segments.length > 3 ? "reference" : "how-to";
   if (segments[1] === "learn" || segments[1] === "example") return "explanation";
   if (segments.at(-1) === "stack.md") return "stack";
-  return "topic";
+  return "standard";
 }
 
 /** The source text of a heading after its opening hashes, trimmed. */
@@ -112,21 +114,6 @@ function sectionTitle(node: Heading, lines: string[]): string {
   const id = raw.indexOf("{#");
   if (id > 0 && raw.endsWith("}")) return raw.slice(0, id).trim();
   return raw;
-}
-
-/** The verification mark and evidence when a paragraph opens with a verification label. */
-function verificationOf(node: Paragraph, lines: string[]): { mark: string; evidence: string } | null {
-  const first = node.children[0];
-  if (first === undefined || first.type !== "strong") return null;
-  const label = first.children.map((child) => (child.type === "text" ? child.value : "")).join("");
-  const mark = label === "Checked by:" ? "checkable" : label === "Reviewed for:" ? "guidance" : null;
-  if (mark === null || first.position === undefined || node.position === undefined) return null;
-  const start = node.position.start.line;
-  const end = node.position.end.line;
-  const head = (lines[start - 1] ?? "").slice(first.position.end.column - 1).trim();
-  const rest = lines.slice(start, end).map((line) => line.trim());
-  const evidence = (head === "" ? rest : [head, ...rest]).join(" ").trim();
-  return { mark, evidence };
 }
 
 /** The first paragraph under an H2 section, as one line of source text. */
@@ -154,60 +141,78 @@ function blankFrontmatter(text: string): string {
   return block.replace(/[^\n]/g, "") + text.slice(block.length);
 }
 
-/** Parses one page from its Markdown source. Exported for the parser tests. */
+export interface ProvisionIndexEntry {
+  id: string;
+  heading: string;
+  /** The owning page, relative to the repository root, such as docs/backend/api.md. */
+  page: string;
+  /** The heading slug the index links to. */
+  anchor: string;
+  kind: string;
+  mark?: string;
+  evidence?: string;
+  strength?: string;
+}
+
+interface ProvisionIndexFile {
+  version: string;
+  provisions: ProvisionIndexEntry[];
+}
+
+// The generated provision index, by owning page file. litespec-maintain
+// provisions writes it from the standards pages, so the site reads one file
+// instead of parsing every page for its provisions.
+function loadIndex(): Map<string, Provision[]> {
+  const file = path.join(root, "docs/reference/provisions.json");
+  if (!fs.existsSync(file)) throw new Error(`docs/reference/provisions.json is missing. Run: dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions`);
+  const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as ProvisionIndexFile;
+  const out = new Map<string, Provision[]>();
+  for (const entry of parsed.provisions ?? []) {
+    const list = out.get(entry.page) ?? [];
+    list.push({
+      id: entry.id,
+      slug: entry.anchor,
+      heading: entry.heading,
+      kind: entry.kind as ProvisionKind,
+      mark: entry.mark ?? "",
+      evidence: entry.evidence ?? "",
+      strength: entry.strength ?? "",
+    });
+    out.set(entry.page, list);
+  }
+  return out;
+}
+
+const indexByFile = loadIndex();
+
+/** Parses one page from its Markdown source, with its provisions from the generated index. Exported for the parser tests. */
 export function parsePageContent(rel: string, markdown: string): Page {
   const text = markdown.replace(/\r\n/g, "\n");
   const body = blankFrontmatter(text);
   const lines = body.split("\n");
   const children = fromMarkdown(body, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }).children;
   const pagePath = rel.slice("docs/".length, -".md".length);
-  const style = styleOf(rel);
   const sections: string[] = [];
-  const provisions: Provision[] = [];
   let title: string | null = null;
-  let section = "";
-  let current: Provision | null = null;
 
   for (const node of children) {
-    if (node.type === "heading") {
-      if (node.depth === 1) {
-        title ??= headingText(node, lines);
-      } else if (node.depth === 2) {
-        section = sectionTitle(node, lines);
-        sections.push(section);
-        current = null;
-      } else if (node.depth === 3) {
-        const kind: ProvisionKind | null = section === "Standards" ? "rule" : section === "Conventions" ? "convention" : section === "Patterns" && style === "pattern" ? "pattern" : null;
-        if (kind && style !== "index" && !["reference", "command", "tutorial", "how-to"].includes(style)) {
-          const heading = headingText(node, lines);
-          const s = slug(heading);
-          current = { id: `litespec/${pagePath}#${s}`, slug: s, heading, kind, mark: "", evidence: "" };
-          provisions.push(current);
-        } else {
-          current = null;
-        }
-      }
-      continue;
-    }
-    // The verification paragraph closes the provision: its label names the mark.
-    if (node.type === "paragraph" && current !== null) {
-      const verification = verificationOf(node, lines);
-      if (verification) {
-        current.mark = verification.mark;
-        current.evidence = verification.evidence;
-      }
+    if (node.type !== "heading") continue;
+    if (node.depth === 1) {
+      title ??= headingText(node, lines);
+    } else if (node.depth === 2) {
+      sections.push(sectionTitle(node, lines));
     }
   }
 
   return {
     file: rel,
     path: pagePath,
-    style,
+    style: styleOf(rel),
     area: pagePath.split("/")[0],
     title: title ?? pagePath,
     intent: sectionParagraph(children, lines, "Intent") || sectionParagraph(children, lines, "Purpose") || sectionParagraph(children, lines, "Name"),
     sections,
-    provisions,
+    provisions: indexByFile.get(rel) ?? [],
     markdown: text,
   };
 }

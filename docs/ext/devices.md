@@ -1,5 +1,9 @@
 # Connected Devices
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 Devices hold state, apply rules, and sync while offline, so the product owes them a protocol: messages, versions, client rules, and the shape of offline uploads. This page states the `protocol` block an entry point carries when devices reach it. A project selects it for each entry point that serves scanners, kiosks, or offline-capable clients.
@@ -24,6 +28,10 @@ The block names the messages the entry point exchanges, the version rule devices
 
 **ID:** `litespec/ext/devices#describe-device-messages-as-a-channel-fragment`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
 **Rationale:** Devices and servers evolve apart: a scanner runs last year's firmware against this week's server. A channel fragment names each direction, each message, and each payload in one shape both sides read, so a mismatch shows in the record before it shows on the loading dock.
@@ -47,6 +55,10 @@ protocol:
 
 **ID:** `litespec/ext/devices#version-the-device-protocol`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
 **Rationale:** Old firmware cannot be recalled from the field, so several protocol versions stay live at once. Numbering tells a device which version it speaks, overlap tells the server how long to answer old versions, and the upgrade path tells the device how to move forward. Without the three, a server upgrade bricks every device that missed the memo.
@@ -56,6 +68,10 @@ protocol:
 ### State Client Rules with Scenarios
 
 **ID:** `litespec/ext/devices#state-client-rules-with-scenarios`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
@@ -69,6 +85,10 @@ protocol:
 
 **ID:** `litespec/ext/devices#identify-retries-with-a-nonce`
 
+**Strength:** rule
+
+**Applies to:** artifact: record:entry-point
+
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
 **Rationale:** A device that loses signal mid-send retries what the server already applied. The nonce gives the retry a stable identity scoped to the device, so the server answers the repeat from the first attempt instead of lending, paying, or shipping twice.
@@ -81,6 +101,8 @@ protocol:
 
 **ID:** `litespec/ext/devices#simulate-offline-uploads-before-applying`
 
+**Strength:** rule
+
 **Statement:** An offline upload with `simulate` MUST return its outcome without writing.
 
 **Rationale:** A device back online after a week holds uploads the world outgrew: prices changed, holds lapsed, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
@@ -92,6 +114,8 @@ protocol:
 ### Apply Forced Uploads over Newer State
 
 **ID:** `litespec/ext/devices#apply-forced-uploads-over-newer-state`
+
+**Strength:** rule
 
 **Statement:** An offline upload with `force` MUST apply over newer server state and record the overwrite.
 
@@ -107,6 +131,8 @@ protocol:
 
 **ID:** `litespec/ext/devices#version-protocols-by-date`
 
+**Strength:** default
+
 **Default:** Protocol versions use calendar numbering of the form `YYYY.N`.
 
 **Replacement:** A project names its protocol numbering scheme in its device documentation.
@@ -118,6 +144,8 @@ protocol:
 ### Replay Uploads in Queue Order
 
 **ID:** `litespec/ext/devices#replay-uploads-in-queue-order`
+
+**Strength:** default
 
 **Default:** The server applies an offline queue in the order the device queued it.
 

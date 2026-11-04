@@ -1,8 +1,9 @@
 type: role
 id: role/reader
 title: Reader
+summary: Readers act on their own loans and holds.
 scope: self
 allows:
-  - permission/borrow-copy
-  - permission/read-loans
-  - permission/place-hold
+- permission/borrow-copy
+- permission/read-loans
+- permission/place-hold

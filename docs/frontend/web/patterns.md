@@ -1,33 +1,23 @@
 # Web UI Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
-A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. This page states how the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) follow the pattern rules in [UI Patterns](../patterns.md): implementing each chosen pattern once per platform and reviewing options in a visual registry. A team that applies it while building shared UI keeps every route on the same behavior for each pattern.
+A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The pattern rules live in [UI Patterns](../patterns.md); this page holds the web mechanism behind them for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): one implementation per platform at the source paths the catalog names, and the registries that draw each option for review. A team that applies it while building shared UI keeps every route on the same behavior for each pattern.
+
+## Concepts
+
+### Web Mechanism
+
+The catalog names `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every invoice route composes one of them, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed at 390 and 1200 CSS pixels on the pattern's page on the LiteSpec site, and product-added options are drawn in a product registry at 390 and 1280, per `litespec/frontend/patterns#keep-a-visual-registry`. The catalog `registry` field holds the product registry command or path.
 
 ## Standards
 
-### Implement a Chosen Pattern Once
-
-**ID:** `litespec/frontend/web/patterns#implement-a-chosen-pattern-once`
-
-**Statement:** The shared web UI packages MUST implement each chosen pattern once at the source paths the catalog names for `react` and `svelte`.
-
-**Rationale:** Each web platform implements a chosen pattern once, at the source path the catalog names for `react` or `svelte`, so every React and Svelte route composes the same behavior. A route that redraws the pattern instead creates a second decision the catalog cannot track, and the two copies diverge. This realizes litespec/frontend/patterns#implement-a-chosen-pattern-once.
-
-**Example:** The catalog names `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every invoice route composes one of them.
-
-**Checked by:** `litespec ui` reports each named React or Svelte component path that does not exist.
+None.
 
 ## Conventions
 
-### Keep a Visual Registry
-
-**ID:** `litespec/frontend/web/patterns#keep-a-visual-registry`
-
-**Default:** Review LiteSpec options at 390 and 1200 CSS pixels on the pattern's page on the LiteSpec site, and draw only product-specific options in a product registry at 390 and 1280.
-
-**Replacement:** A consumer can replace this default with an explicit local convention.
-
-**Rationale:** An option judged beside its rivals is judged on appearance rather than description, so review happens on the pattern's page on the LiteSpec site at 390 and 1200 CSS pixels. The site page already draws every LiteSpec option, so a product registry draws only the patterns and options the product added, at 390 and 1280. The catalog `registry` field holds the product registry command or path. This realizes litespec/frontend/patterns#keep-a-visual-registry.
-
-**Reviewed for:** Which product-added options miss the product registry at 390 or 1280 pixels? Look at the registry command or path the catalog names.
+None.

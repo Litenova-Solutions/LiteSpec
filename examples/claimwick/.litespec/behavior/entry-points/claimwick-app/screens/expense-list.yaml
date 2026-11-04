@@ -4,7 +4,7 @@ title: Expense List
 summary: An employee sees their own expenses, newest first, with the amount and the latest state of each.
 address: /expenses
 offers:
-  - use-case/spending.list-expenses
+- use-case/spending.list-expenses
 serves:
-  - journey/submit-and-reimburse#s5
+- journey/submit-and-reimburse#s5
 floorplan: list-page

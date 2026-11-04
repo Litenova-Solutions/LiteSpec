@@ -1,8 +1,9 @@
 namespace LiteSpec.Consumer;
 
 /// <summary>
-///     Carries an exit code out of a check that ends the run immediately, such as
-///     a malformed project file. Thrown after the message is already printed.
+///     Carries an exit code and its message out of a check that ends the consumer
+///     pass immediately, such as a malformed project file. Thrown before anything
+///     is printed; the caller prints the message and returns the code.
 /// </summary>
 sealed class FailFast : Exception
 {
@@ -10,7 +11,9 @@ sealed class FailFast : Exception
     ///     Initializes a new instance of the <see cref="FailFast"/> class.
     /// </summary>
     /// <param name="code">The exit code the command returns.</param>
-    public FailFast(int code)
+    /// <param name="message">The message the command prints.</param>
+    public FailFast(int code, string message)
+        : base(message)
     {
         Code = code;
     }

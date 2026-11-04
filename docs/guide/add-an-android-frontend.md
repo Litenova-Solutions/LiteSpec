@@ -30,11 +30,11 @@ Organize screens by module. This satisfies `litespec/frontend/mobile/structure#o
 
 ### Host Screens in One Activity
 
-Host screens in one activity. This satisfies `litespec/frontend/mobile/android/views#host-screens-in-one-activity`.
+Host screens in one activity with one navigation controller. This satisfies `litespec/frontend/mobile/screens#own-navigation-in-one-controller`.
 
 ### Record the Minimum Android Version
 
-Record the minimum Android version. This satisfies `litespec/frontend/mobile/android/stack#record-the-minimum-android-version`.
+Record the minimum Android version from the manifest pin. This satisfies `litespec/core/stacks#use-manifest-version-pins`.
 
 ## Check
 

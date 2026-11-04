@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -937,9 +938,8 @@ internal sealed partial class RepositoryValidator
                 value = highest;
             }
 
-            // The shared schema check reads every number as a double, and an
-            // int-backed value reports "expected integer" for a value that is
-            // one, so the substitute is created in the form the check reads.
+            // The schema check reads every number from its JSON text, where 1
+            // and 1.0 validate the same, so the substitute stays a double.
             return JsonValue.Create((double)value)!;
         }
 
@@ -1241,6 +1241,118 @@ internal sealed partial class RepositoryValidator
         }
     }
 
+    // Counts that tools own live in generated regions, so they cannot drift from their
+    // sources: `<!-- generated:counts:<source> -->` states the count its source computes,
+    // and the gate fails a stale region like a stale index. Pages without such regions
+    // face no check, and fenced regions are examples rather than owned counts.
+    /// <summary>Checks that every generated counts region states its source count.</summary>
+    /// <param name="parsedPages">The parsed pages.</param>
+    internal void CheckGeneratedCounts(List<ParsedPage> parsedPages)
+    {
+        var add = Context.Add;
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["provisions"] = Provisions.Collect(Context.Root).Count,
+            ["analyzer-rules"] = AnalyzerRulePages(Context.Root),
+        };
+        foreach (var page in parsedPages)
+        {
+            var lines = page.Reader.Lines;
+            for (var index = 0; index < lines.Length; index++)
+            {
+                if (page.Reader.FencedLines.Contains(index + 1) || CountsOpener(lines[index]) is not string source)
+                {
+                    continue;
+                }
+
+                var closer = -1;
+                for (var scan = index + 1; scan < lines.Length; scan++)
+                {
+                    if (lines[scan].Contains("/generated:", StringComparison.Ordinal))
+                    {
+                        closer = scan;
+                        break;
+                    }
+                }
+
+                if (closer < 0)
+                {
+                    add(page.Relative, index + 1, "GENERATED_STALE", "generated counts region has no closing marker");
+                    continue;
+                }
+
+                var content = string.Join('\n', lines[(index + 1)..closer]);
+                if (source.Length == 0)
+                {
+                    add(page.Relative, index + 1, "GENERATED_STALE", "generated counts region names no count source; name provisions or analyzer-rules");
+                }
+                else if (!counts.TryGetValue(source, out var expected))
+                {
+                    add(page.Relative, index + 1, "GENERATED_STALE", $"generated counts region names unknown count source '{source}'");
+                }
+                else
+                {
+                    var match = CountNumberPattern().Match(content);
+                    if (!match.Success || !int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var stated) || stated != expected)
+                    {
+                        add(page.Relative, index + 1, "GENERATED_STALE", match.Success
+                            ? $"generated counts region states {match.Value} but the source holds {expected}"
+                            : "generated counts region states no count");
+                    }
+                }
+
+                index = closer;
+            }
+        }
+    }
+
+    /// <summary>Reads the count source a generated counts opener names, or null when the line opens none.</summary>
+    /// <param name="line">The raw source line.</param>
+    /// <returns>The named source, or null.</returns>
+    private static string? CountsOpener(string line)
+    {
+        var open = line.IndexOf("<!--", StringComparison.Ordinal);
+        if (open < 0)
+        {
+            return null;
+        }
+
+        var close = line.IndexOf("-->", open + 4, StringComparison.Ordinal);
+        if (close < 0)
+        {
+            return null;
+        }
+
+        var inner = line.Substring(open + 4, close - open - 4).Trim();
+        const string prefix = "generated:counts";
+        if (!inner.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var rest = inner[prefix.Length..].Trim();
+        if (rest.Length == 0)
+        {
+            return "";
+        }
+
+        return rest.StartsWith(':') ? rest[1..].Trim() : null;
+    }
+
+    /// <summary>Counts the analyzer rule pages under docs/analyzers/rules.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The rule page count.</returns>
+    private static int AnalyzerRulePages(string root)
+    {
+        var rules = Path.Combine(root, "docs", "analyzers", "rules");
+        if (!Directory.Exists(rules))
+        {
+            return 0;
+        }
+
+        return Directory.GetFiles(rules, "*.md", SearchOption.TopDirectoryOnly).Count(file => RulePagePattern().IsMatch(Path.GetFileName(file)));
+    }
+
     /// <summary>Gets the pattern that matches a lowercase kebab path segment.</summary>
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")] private static partial Regex KebabSegmentPattern();
@@ -1252,4 +1364,12 @@ internal sealed partial class RepositoryValidator
     /// <summary>Gets the pattern that matches a template index row.</summary>
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|")] private static partial Regex TemplateRowPattern();
+
+    /// <summary>Gets the pattern that matches the first count in a generated counts region.</summary>
+    /// <returns>The compiled pattern.</returns>
+    [GeneratedRegex(@"\d+")] private static partial Regex CountNumberPattern();
+
+    /// <summary>Gets the pattern that matches one analyzer rule page file name.</summary>
+    /// <returns>The compiled pattern.</returns>
+    [GeneratedRegex(@"^ls[0-9]+\.md$", RegexOptions.IgnoreCase)] private static partial Regex RulePagePattern();
 }

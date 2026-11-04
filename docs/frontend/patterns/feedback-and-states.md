@@ -1,5 +1,9 @@
 # Feedback and State Patterns
 
+**Stack:** any
+
+**Layer:** frontend-ui
+
 ## Intent
 
 This page states what each screen state shows and how results read, as drawn options with a named default to build: empty, loading, forbidden, offline, signed out, conflicted, missing, failed, rate-limited, and under maintenance. The product owner chooses among the options when the team builds a list, a form, or any command that can fail. Decided states keep staff informed instead of guessing: each screen says what happened, what it means, and what to do next.
@@ -20,6 +24,8 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step`
 
+**Strength:** rule
+
 **Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
 
 **Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help, and most readers retry blindly or give up. Naming what failed plus the one next step turns the dead end into a task the reader can complete.
@@ -29,6 +35,8 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 ### Keep the Reader's Input Through a Failure
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure`
+
+**Strength:** rule
 
 **Statement:** A failed save MUST keep the reader's unsaved input on the screen.
 
@@ -41,6 +49,8 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 ### Nothing Has Ever Existed
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#nothing-has-ever-existed`
+
+**Strength:** default
 
 **Question:** No record of this kind exists yet. The page states that plainly, says what the first record is for, and offers the one command that creates it.
 
@@ -252,6 +262,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#nothing-matches-what-was-asked-for`
 
+**Strength:** default
+
 **Question:** A search found nothing, but records exist. The page must say so, name the term that failed, and offer a way back.
 
 **Default:** `different-copy-and-it-names-the-term`
@@ -444,6 +456,8 @@ page
 ### Loading
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#loading`
+
+**Strength:** default
 
 **Question:** The page waits for its first read. The wait needs a shape that holds its place until the rows arrive.
 
@@ -647,6 +661,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#command-the-api-refused`
 
+**Strength:** default
+
 **Question:** The API refused a command. The page must say what went wrong, why, and what the reader can do instead.
 
 **Default:** `the-refusal-sentence-its-code-and-a-way-to-fix-it`
@@ -837,6 +853,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#command-that-worked`
 
+**Strength:** default
+
 **Question:** A command worked. The page must show what changed, so the reader trusts the result without asking.
 
 **Default:** `evidence-on-the-page-not-only-a-toast`
@@ -1021,6 +1039,8 @@ page
 ### Fact Somebody Has to Read Before Acting
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#fact-somebody-has-to-read-before-acting`
+
+**Strength:** default
 
 **Question:** Some pages must state a fact before staff act, such as a low budget or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
 
@@ -1220,6 +1240,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#reader-may-not-do-this`
 
+**Strength:** default
+
 **Question:** Staff meet pages their role cannot use, so each such page must show the reason and the grant that would help. A back office with several roles meets this state on most pages, so it needs one shape.
 
 **Default:** `the-commands-are-refused-each-with-its-grant-named`
@@ -1407,6 +1429,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#connection-is-gone`
 
+**Strength:** default
+
 **Question:** Staff lose the connection while working, so the page on screen goes stale. The decision is what a stale page says: how fresh its data is, what still works, and when to retry.
 
 **Default:** `a-banner-saying-what-is-stale-and-what-still-works`
@@ -1588,6 +1612,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#sign-in-ran-out`
 
+**Strength:** default
+
 **Question:** A session ends while the reader is working. Sign-in runs on the application's own origin, and a refused or ended session lands on `/signed-out`. The reader's unsent work is what this state must not lose.
 
 **Default:** `a-dialog-over-the-work-which-stays-where-it-is`
@@ -1738,6 +1764,8 @@ page
 ### Somebody Else Saved First
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#somebody-else-saved-first`
+
+**Strength:** default
 
 **Question:** Two people edit one record. The API refuses the second save with `concurrency/record.changed-elsewhere`, worded as `Someone else changed this`. The reader's unsent edits are still on the page.
 
@@ -1910,6 +1938,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#work-that-runs-without-you`
 
+**Strength:** default
+
 **Question:** An import or a bulk reversal runs for minutes, longer than the reader waits on one page. The reader starts it and does other work. The job must stay visible while it runs and report its result when it is done.
 
 **Default:** `an-activity-tray-like-an-upload-panel`
@@ -2063,6 +2093,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#this-record-does-not-exist`
 
+**Strength:** default
+
 **Question:** A link names a record that is gone, mistyped, or at another company. A problem state words it as `Not found`. The reader needs a way back, not a code.
 
 **Default:** `not-found-with-the-way-back`
@@ -2197,6 +2229,8 @@ page
 ### Something Went Wrong on Our Side
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#something-went-wrong-on-our-side`
+
+**Strength:** default
 
 **Question:** The server fails a read or a command. A problem state words it as `That did not go through`, with a reference the reader can quote. The reader must know what did not happen.
 
@@ -2344,6 +2378,8 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#back-office-is-down-for-a-short-while`
 
+**Strength:** default
+
 **Question:** A planned window stops the back office. Finance keeps its printed payout lists, but the payout desk checks every receipt against the system, so payouts wait too. The reader needs the window, what still works, and when to come back.
 
 **Default:** `told-ahead-of-time-on-every-page`
@@ -2486,6 +2522,8 @@ page
 ### Too Many Tries
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#too-many-tries`
+
+**Strength:** default
 
 **Question:** The reader hits a limit: too many exports, too many sign-in tries, or too many sends. The API answers `429` with when to try again. The page must state the wait and the reason, briefly.
 

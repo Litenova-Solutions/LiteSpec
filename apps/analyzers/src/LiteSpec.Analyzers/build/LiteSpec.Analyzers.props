@@ -3,10 +3,13 @@
         Lets a project name its LiteSpec layer explicitly:
             <LiteSpecLayer>Domain</LiteSpecLayer>
         Values: Domain, Application.Abstractions, Application, Infrastructure, WebApi, Test, None.
-        Without it, the analyzers read the layer from the assembly name suffix.
+        Without it, the analyzers read the layer from the assembly name suffix under the
+        layer-projects layout, or from each file's folder and role suffix under modules.
+        LiteSpecLayout carries that layout; the block below sets it from the project file.
     -->
     <ItemGroup>
         <CompilerVisibleProperty Include="LiteSpecLayer" />
+        <CompilerVisibleProperty Include="LiteSpecLayout" />
     </ItemGroup>
 
     <!--
@@ -60,6 +63,19 @@
         <LiteSpecProjectFile Condition="'$(LiteSpecRoot)' != ''">$(LiteSpecRoot)/.litespec/project.json</LiteSpecProjectFile>
         <LiteSpecProjectDirectory Condition="'$(LiteSpecProjectFile)' != ''">$(LiteSpecRoot)/.litespec</LiteSpecProjectDirectory>
     </PropertyGroup>
+
+    <!--
+        Names the backend layout the analyzers check from the selected extensions:
+        layer-projects when the consumer selected that extension, modules otherwise.
+        A project states its own layout by setting LiteSpecLayout itself.
+    -->
+    <PropertyGroup Condition="'$(LiteSpecLayout)' == '' and '$(LiteSpecProjectFile)' != '' and $([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)').Contains('layer-projects'))">
+        <LiteSpecLayout>layer-projects</LiteSpecLayout>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(LiteSpecLayout)' == ''">
+        <LiteSpecLayout>modules</LiteSpecLayout>
+    </PropertyGroup>
+
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != ''">
         <AdditionalFiles Include="$(LiteSpecProjectFile)" />
     </ItemGroup>

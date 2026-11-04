@@ -1,5 +1,8 @@
 # Navigation Patterns
 
+**Stack:** any
+**Layer:** frontend-ui
+
 ## Intent
 
 This page holds the patterns for the product frame around every screen, which lets a reader move between areas and know where they are: sidebar, breadcrumb, header bar, tabs, icons, language and theme, command palette, account menu, notifications, help, workspace switching, and phone navigation. A team building the product frame starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared product frame keeps every page reachable by address and marked in place, so a reader never loses where they are.
@@ -20,6 +23,8 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 
 **ID:** `litespec/frontend/patterns/navigation#mark-the-current-section`
 
+**Strength:** rule
+
 **Statement:** The navigation MUST mark the section that holds the current page.
 
 **Rationale:** A marked section tells a reader who arrived from a link, a notification, or a search which area holds the open page. Without it, every page looks like the start, and the reader reopens the sidebar to learn where they already are.
@@ -29,6 +34,8 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 ### Give Every Page Its Own Address
 
 **ID:** `litespec/frontend/patterns/navigation#give-every-page-its-own-address`
+
+**Strength:** rule
 
 **Statement:** Every page MUST have its own URL that opens it directly.
 
@@ -41,6 +48,8 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 ### Sidebar
 
 **ID:** `litespec/frontend/patterns/navigation#sidebar`
+
+**Strength:** default
 
 **Question:** Seven top-level areas organize the console. Settings alone holds thirty routes. Groups expand to two levels. The current item stays marked wherever it sits.
 
@@ -322,6 +331,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#breadcrumb`
 
+**Strength:** default
+
 **Question:** Trails run four levels deep on an expense record. A trail never wraps and may scroll sideways. The last item carries aria-current. Dutch strings sometimes appear in an English frame.
 
 **Default:** `the-trail-as-the-parent-chain`
@@ -513,6 +524,8 @@ page
 ### Header Bar
 
 **ID:** `litespec/frontend/patterns/navigation#header-bar`
+
+**Strength:** default
 
 **Question:** The bar carries the page title, a sidebar toggle, a help control, and the theme. It does not carry the company name. It does not say who is acting. It says nothing about location beyond the page title.
 
@@ -731,6 +744,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#tabs-within-a-page`
 
+**Strength:** default
+
 **Question:** Sibling pages of one area sit in a sub-page navigation. A second tab row uses a subordinate level. Tab sets stay small, at about six. The active tab belongs in the URL.
 
 **Default:** `the-shipped-tab-row-with-the-tab-in-the-url`
@@ -938,6 +953,8 @@ page
 ### Icons in the Frame
 
 **ID:** `litespec/frontend/patterns/navigation#icons-in-the-frame`
+
+**Strength:** default
 
 **Question:** Seven area icons, a sidebar toggle, a help mark, and the theme. Every one of these is a named component with an accessible label, never a raw element.
 
@@ -1165,6 +1182,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#language-and-theme`
 
+**Strength:** default
+
 **Question:** Two switches change nothing about the data. They are the most error-prone controls on the page. An explicit choice is preferred to the account default. A missing translation falls back to the other language.
 
 **Default:** `both-switches-in-the-header-each-showing-its-value`
@@ -1369,6 +1388,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#command-palette`
 
+**Strength:** default
+
 **Question:** An operations manager working a list often needs one record or one command and then the list again. The palette jumps straight to the expense for Rotterdam client visit. It runs the next step from the keyboard, so the reader never loses the page they were working.
 
 **Default:** `cmd-k-dialog-with-grouped-results`
@@ -1563,6 +1584,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#account-menu`
 
+**Strength:** default
+
 **Question:** The frame names who is acting, for which company, with what access. The account sits at the foot of the sidebar with a way to switch identity beside it on a development deployment.
 
 **Default:** `an-avatar-menu-in-the-header`
@@ -1726,6 +1749,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#notification-inbox`
 
+**Strength:** default
+
 **Question:** Reversals, disputes, invitations, and cost centre incidents all need somebody who was looking elsewhere. The console lists them under Needs attention on Home and nowhere else.
 
 **Default:** `a-bell-in-the-header-with-a-dropdown-panel`
@@ -1868,6 +1893,8 @@ page
 ### Help and Support
 
 **ID:** `litespec/frontend/patterns/navigation#help-and-support`
+
+**Strength:** default
 
 **Question:** The navigation names a help topic per page, so help can open the guide for the page on screen. The console links a help page from the sidebar.
 
@@ -2024,6 +2051,8 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#workspace-switcher`
 
+**Strength:** default
+
 **Question:** People who run several cost centres think in cost centres: one cost centre at a time, switched between often. The console carries a cost centre's sections as tabs on the cost centre page.
 
 **Default:** `a-workspace-switcher-at-the-top-of-the-sidebar`
@@ -2173,6 +2202,8 @@ page
 ### Phone Navigation
 
 **ID:** `litespec/frontend/patterns/navigation#phone-navigation`
+
+**Strength:** default
 
 **Question:** Below 768 px the sidebar hides and a menu glyph shows in the bar. The question is what the glyph opens, and whether a phone wants a bottom bar instead.
 

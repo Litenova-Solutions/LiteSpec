@@ -44,6 +44,8 @@ public static class Layout
     ///     Computes the pages a selection applies: the always-applied areas, each selected
     ///     stack's folder chain, the named shape's backend pages, and each selected
     ///     extension's page. Returns <c>docs/...</c> relative paths sorted ordinally.
+    ///     Pages stay applied while their replaced provisions drop out: read the applied
+    ///     provisions through <see cref="AppliedProvisions"/>.
     /// </summary>
     /// <param name="root">The LiteSpec release root.</param>
     /// <param name="manifest">The manifest object.</param>
@@ -99,6 +101,55 @@ public static class Layout
         }
 
         return applied.OrderBy(page => page, StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>Reads the provisions a selection replaces: every provision id the selected extensions name in replaces.</summary>
+    /// <param name="manifest">The manifest object.</param>
+    /// <param name="extensions">The extensions the project selects.</param>
+    /// <returns>The replaced provision ids, sorted ordinally.</returns>
+    public static IReadOnlyList<string> ReplacedProvisions(JsonObject manifest, IReadOnlyList<string> extensions)
+    {
+        var replaced = new HashSet<string>(StringComparer.Ordinal);
+        var shipped = manifest["extensions"] as JsonObject;
+
+        foreach (var id in extensions)
+        {
+            foreach (var provision in Strings((shipped?[id] as JsonObject)?["replaces"]))
+            {
+                replaced.Add(provision);
+            }
+        }
+
+        return replaced.OrderBy(id => id, StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>
+    ///     Computes the provisions a selection applies: every provision on an applied page except the
+    ///     provisions a selected extension replaces. Returns provision ids sorted ordinally.
+    /// </summary>
+    /// <param name="root">The LiteSpec release root.</param>
+    /// <param name="manifest">The manifest object.</param>
+    /// <param name="shape">The shape the project names.</param>
+    /// <param name="stacks">The stacks the project selects.</param>
+    /// <param name="extensions">The extensions the project selects.</param>
+    /// <returns>The applied provision ids, sorted ordinally.</returns>
+    public static IReadOnlyList<string> AppliedProvisions(string root, JsonObject manifest, string shape, IReadOnlyList<string> stacks, IReadOnlyList<string> extensions)
+    {
+        var applied = new HashSet<string>(AppliedPages(root, manifest, shape, stacks, extensions), StringComparer.Ordinal);
+        var replaced = new HashSet<string>(ReplacedProvisions(manifest, extensions), StringComparer.Ordinal);
+        var provisions = new List<string>();
+
+        foreach (var row in Provisions.Collect(root))
+        {
+            if (applied.Contains(row.Page) && !replaced.Contains(row.Id))
+            {
+                provisions.Add(row.Id);
+            }
+        }
+
+        provisions.Sort(StringComparer.Ordinal);
+
+        return provisions;
     }
 
     /// <summary>Derives a stack's kind from its folder's area, or empty when outside both areas.</summary>

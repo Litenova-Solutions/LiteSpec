@@ -4,22 +4,12 @@ namespace LiteSpec.Tests.Examples;
 
 /// <summary>
 ///     The Claimwick example in <c>examples/claimwick/</c> is the product the Example
-///     docs follow and quote, so it must keep passing every consumer check the docs
-///     show: the project and page checks, the controlled UI, and the model.
+///     docs follow and quote, so it must keep passing <c>model check</c>, which runs
+///     the project and page checks, the controlled UI, and the model in one run.
 /// </summary>
 public sealed class ClaimwickExampleTests
 {
     static readonly string Root = Path.Combine(Cli.Repository, "examples", "claimwick");
-
-    /// <summary>The Claimwick example passes the consumer check.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
-    [Fact(DisplayName = "the Claimwick example passes the consumer check")]
-    public void PassesConsumer() => AssertPasses(Cli.Run("consumer", "--root", Root));
-
-    /// <summary>The Claimwick example passes the UI check.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
-    [Fact(DisplayName = "the Claimwick example passes the UI check")]
-    public void PassesUi() => AssertPasses(Cli.Run("ui", "--root", Root));
 
     /// <summary>The Claimwick example passes the model check with only known findings.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>

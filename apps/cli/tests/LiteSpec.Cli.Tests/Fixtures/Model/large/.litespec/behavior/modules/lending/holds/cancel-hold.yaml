@@ -6,29 +6,35 @@ access:
   grant: permission/place-hold
   tenant: own
 serves:
-  - journey/borrow-and-return#s7
+- journey/borrow-and-return#s7
 fulfills:
-  - requirement/borrowing.hold-pickup-window
+- requirement/borrowing.hold-pickup-window
 reachedThrough:
-  - entry-point/library-app
+- entry-point/library-app
 raises:
-  - event/hold.hold-canceled
+- event/hold.hold-canceled
+idempotency:
+  mode: none
+  reason: Each call cancels its own hold, and canceling an ended hold is refused.
+audit:
+  level: none
+  target: No audit trail; the hold record shows each cancellation.
 records:
-  - type: result
-    id: result/cancel-hold.canceled
-    title: Canceled
-    outcome: success
-    meaning: The hold is canceled.
-  - type: result
-    id: result/cancel-hold.hold-ended
-    title: Hold ended
-    outcome: refusal
-    code: lending.hold-not-waiting
-    meaning: The hold already left the queue.
-  - type: scenario
-    id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
-    title: Canceling a waiting hold succeeds
-    given: A reader holds a waiting hold.
-    when: The reader cancels the hold.
-    then: The hold is canceled.
-    result: result/cancel-hold.canceled
+- type: result
+  id: result/cancel-hold.canceled
+  title: Canceled
+  outcome: success
+  meaning: The hold is canceled.
+- type: result
+  id: result/cancel-hold.hold-ended
+  title: Hold ended
+  outcome: refusal
+  code: lending.hold-not-waiting
+  meaning: The hold already left the queue.
+- type: scenario
+  id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
+  title: Canceling a waiting hold succeeds
+  given: A reader holds a waiting hold.
+  when: The reader cancels the hold.
+  then: The hold is canceled.
+  result: result/cancel-hold.canceled

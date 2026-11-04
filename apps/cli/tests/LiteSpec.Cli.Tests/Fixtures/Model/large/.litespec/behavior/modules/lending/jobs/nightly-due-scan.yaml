@@ -6,6 +6,6 @@ schedule:
   every: P1D
   timezone: Europe/Amsterdam
 effects:
-  - sends: notification/lending.loan-due
+- sends: notification/lending.loan-due
 fulfills:
-  - requirement/borrowing.loan-period-days
+- requirement/borrowing.loan-period-days
