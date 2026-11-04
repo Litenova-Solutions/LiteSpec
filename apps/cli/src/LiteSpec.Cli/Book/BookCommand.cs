@@ -159,8 +159,6 @@ static class BookCommand
 
             Directory.CreateDirectory(Path.Combine(outDir, "assets"));
             WriteAsset(outDir, "book.css");
-            WriteAsset(outDir, "book-extra.css");
-            WriteAsset(outDir, "book-fonts.css");
             WriteAsset(outDir, "book.js");
 
             var line = $"{outDir}: {details.Count} records, {shards} shards.";
@@ -714,7 +712,7 @@ static class BookCommand
     static void WriteAsset(string outDir, string name)
     {
         using var stream = typeof(BookCommand).Assembly.GetManifestResourceStream($"LiteSpec.Book.Assets.{name}")
-            ?? throw new InvalidOperationException($"Missing embedded asset '{name}'.");
+            ?? throw new InvalidOperationException($"Missing embedded asset '{name}'; build the book client in apps/cli/book first.");
         using var file = File.Create(Path.Combine(outDir, "assets", name));
         stream.CopyTo(file);
     }

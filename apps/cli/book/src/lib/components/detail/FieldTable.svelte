@@ -1,0 +1,129 @@
+<script lang="ts">
+  import { base, book, cap, HLABEL, plural } from "$lib/book";
+  import type { BookRecord, Fields } from "$lib/book/types";
+  import { esc } from "$lib/book/html";
+  import SourceLink from "$lib/components/book/SourceLink.svelte";
+  import type { Fact } from "./facts";
+  import {
+    batchNameOf, codeCls, inlineRefHtml, statusReasonHtml, teamValue,
+  } from "./helpers";
+
+  // The field table: who, place, status and approval, risk, and the type facts.
+  let { id, r, facts }: { id: string; r: BookRecord; facts: Fact[] } = $props();
+
+  interface Row {
+    label: string;
+    html: string;
+    route?: boolean;
+  }
+
+  const routePath = $derived.by(() => {
+    if (r.type !== "screen") return null;
+    const route = r.route as Fields | undefined;
+    if (!route) return null;
+    const p = route.file ?? route.path;
+    return p ? String(p) : null;
+  });
+
+  const rows = $derived.by(() => {
+    const out: Row[] = [];
+    const add = (label: string, value: unknown) => {
+      if (value !== undefined && value !== null && value !== "") out.push({ label, html: String(value) });
+    };
+    const linkList = (list: unknown[]) => list.map((x) => inlineRefHtml(base(String(x)))).join(", ");
+    const f = r.fields ?? {};
+    const flat = (v: unknown) => (Array.isArray(v) ? v : [v]) as unknown[];
+    if (f.affects) add("Affects", linkList(flat(f.affects)));
+    if (f.affectsSegment) add("Affects segment", esc(f.affectsSegment));
+    if (f.actor) add("Actor", inlineRefHtml(base(String(f.actor))));
+    if (r.type === "actor") {
+      if (f.kind) add("Kind", esc(cap(String(f.kind))));
+      const team = teamValue(f);
+      if (team !== undefined) add("Team", team ? "Yes" : "No");
+    }
+    if (f.solves) add("Solves", linkList(flat(f.solves)));
+    if (f.advances) add("Advances", linkList(flat(f.advances)));
+    if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
+    const parent = book.parent(id);
+    if (parent) add("Parent", inlineRefHtml(parent));
+    if (book.isReal(id)) {
+      const h = book.human(id);
+      add("Status", esc(HLABEL[h === "mineR" ? "mine" : h] || h));
+    }
+    if (book.isReal(id)) add("Status reason", statusReasonHtml(id));
+    if (r.owner) add("Owner", esc(r.owner));
+    if (r.decider) add("Decider", esc(r.decider) + (r.decideBy ? ", decide by " + book.fmtDate(r.decideBy) : ""));
+    const approval = (r.approval ?? null) as Fields | null;
+    if (approval && (approval.by || approval.rule))
+      add("Approval", esc([(approval.by ? "approved by " + approval.by : "") as string, (approval.rule ?? "") as string].filter(Boolean).join("; ")));
+    else {
+      const bo = book.batchOf(id);
+      if (bo) add("Approval batch", esc(batchNameOf(bo.batch)) + " (" + plural(Number(bo.batch.n ?? 0), "record") + ")");
+    }
+    const risk = book.riskClassesOf(id);
+    if (risk.length)
+      add(
+        "Risk",
+        risk
+          .map((x) => {
+            const by = book.approverFor(x, id);
+            return esc(cap(String(x).replace(/-/g, " "))) + (by ? ", approved by " + esc(by) : "");
+          })
+          .join("; "),
+      );
+    if (f.lifecycle) add("Lifecycle", esc(cap(String(f.lifecycle))));
+    if (f.provenance === "transcribed") add("Provenance", "Transcribed from code");
+    if (r.type === "problem") {
+      if (f.costToday) add("Cost today", esc(f.costToday));
+      if (f.workaroundToday) add("Workaround today", esc(f.workaroundToday));
+      if (r.evidenceStrength) add("Evidence strength", esc(cap(String(r.evidenceStrength))));
+    }
+    if (r.type === "journey" && f.finishedWhen) add("Finished when", esc(f.finishedWhen));
+    if (r.type === "screen") {
+      if (f.address || f.host) add("Address", `<span class="${codeCls}">${esc(String(f.address || f.host))}</span>`);
+      if (f.entryPoint) add("Entry point", inlineRefHtml(base(String(f.entryPoint))));
+      if (f.floorplan) add("Floorplan", esc(cap(String(f.floorplan).replace(/-/g, " "))));
+      if (r.route) {
+        if (routePath) out.push({ label: "Route", html: "", route: true });
+        else add("Route", "No page carries this screen");
+      } else if (r.captureState) add("Capture state", esc(String(r.captureState)));
+    }
+    for (const x of facts) if (x.text && !out.some((row) => row.label === x.key)) add(x.key, esc(x.text));
+    const skip: Record<string, number> = {
+      statement: 1, summary: 1, description: 1, offering: 1, meaning: 1, situation: 1, whyItMatters: 1,
+      purpose: 1, whatHappens: 1, affects: 1, affectsSegment: 1, actor: 1, solves: 1, advances: 1,
+      serves: 1, risk: 1, lifecycle: 1, provenance: 1, costToday: 1, workaroundToday: 1, finishedWhen: 1,
+      address: 1, host: 1, entryPoint: 1, floorplan: 1, kind: r.type === "actor" ? 1 : 0,
+      approvedBy: 1, approvedOn: 1, approvedHash: 1, questions: 1, evidence: 1,
+    };
+    for (const key of Object.keys(f)) {
+      if (skip[key]) continue;
+      const v = f[key];
+      if (typeof v === "string" && v) add(book.fieldLabel(key), esc(v));
+      else if (typeof v === "number") add(book.fieldLabel(key), esc(v));
+      else if (typeof v === "boolean") add(book.fieldLabel(key), v ? "Yes" : "No");
+    }
+    return out;
+  });
+</script>
+
+{#if rows.length}
+  <table class="mb-7 w-full border-collapse text-[14.5px]">
+    <tbody class="[&_tr:last-child_th]:border-b-0 [&_tr:last-child_td]:border-b-0">
+      {#each rows as row}
+        <tr>
+          <th class="w-[180px] border-b border-border py-2 pr-4 text-left align-top font-medium text-muted-foreground">
+            {row.label}
+          </th>
+          <td class="border-b border-border py-2 align-top break-words text-foreground">
+            {#if row.route && routePath}
+              <SourceLink src={{ path: routePath, line: 1 }} />
+            {:else}
+              {@html row.html}
+            {/if}
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+{/if}

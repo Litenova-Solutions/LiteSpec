@@ -50,8 +50,8 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
-      # the pack that ships it beside the tool.
+      # The CLI runs the frontend reader as a Node bundle and embeds the book client, so
+      # both exist before the pack that ships them.
       - name: Configure Node.js for the frontend reader
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -61,10 +61,12 @@ jobs:
       - name: Install pnpm for the frontend reader
         run: npm install --global pnpm@11.28.5
 
-      - name: Build the frontend reader bundle
+      - name: Build the frontend reader and the book client
         run: |
           pnpm --dir apps/cli/fe-reader install --frozen-lockfile
           pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
 
       - name: Build
         run: dotnet build LiteSpec.slnx --configuration Release

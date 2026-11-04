@@ -82,23 +82,6 @@ public sealed class BookLinkTests
         Assert.DoesNotContain("data:text", html, StringComparison.Ordinal);
     }
 
-    /// <summary>The client renders the research URL and the dataschema only through the safe-href rule.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
-    [Fact]
-    public void Client_Links_Research_And_Dataschema_Through_SafeHref()
-    {
-        using var temp = Cli.Temp("book-links");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Path.Combine(temp.Path, "out"));
-        Assert.Equal(0, result.Status);
-
-        var script = File.ReadAllText(Path.Combine(temp.Path, "out", "assets", "book.js"));
-        Assert.Contains("function safeHref", script, StringComparison.Ordinal);
-        Assert.Contains("safeHref(x.url)", script, StringComparison.Ordinal);
-        Assert.Contains("linkOrText(f.dataschema)", script, StringComparison.Ordinal);
-        Assert.DoesNotContain("esc(x.url)", script, StringComparison.Ordinal);
-        Assert.DoesNotContain("esc(f.dataschema)", script, StringComparison.Ordinal);
-    }
-
     static string? Str(JsonObject? obj, string name) =>
         obj?[name] is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
 

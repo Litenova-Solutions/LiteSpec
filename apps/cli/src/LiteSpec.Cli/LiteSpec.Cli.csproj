@@ -30,9 +30,10 @@
         <Content Include="../../fe-reader/dist/litespec-fe-reader.mjs" Link="litespec-fe-reader.mjs" Pack="false" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" />
     </ItemGroup>
 
-    <!-- A package without the reader would report every frontend as unreadable, so it is never packed. -->
+    <!-- A package without the reader would report every frontend as unreadable, and one without the book client writes no book, so neither is packed. -->
     <Target Name="RequireFrontendReader" BeforeTargets="GenerateNuspec">
         <Error Condition="!Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" Text="The frontend reader bundle is missing; build it in apps/cli/fe-reader before packing the tool." />
+        <Error Condition="!Exists('../../book/dist/book.js')" Text="The book client is missing; build it in apps/cli/book before packing the tool." />
     </Target>
 
     <ItemGroup>
@@ -50,7 +51,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Book/Assets/**" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" />
+        <EmbeddedResource Include="Book/Assets/book-shell.html" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" />
+        <!-- The book client, built by Vite in apps/cli/book into one classic script and one stylesheet. -->
+        <EmbeddedResource Include="../../book/dist/book.js;../../book/dist/book.css" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" Condition="Exists('../../book/dist/book.js')" />
     </ItemGroup>
 
     <!--

@@ -19,7 +19,7 @@ public sealed class BookCommandTests
         Assert.Equal(0, result.Status);
 
         Assert.True(File.Exists(Path.Combine(temp.Path, "index.html")), "index.html was not written.");
-        foreach (var asset in new[] { "book.css", "book-extra.css", "book-fonts.css", "book.js" })
+        foreach (var asset in new[] { "book.css", "book.js" })
         {
             Assert.True(File.Exists(Path.Combine(temp.Path, "assets", asset)), $"assets/{asset} was not written.");
         }
@@ -43,8 +43,9 @@ public sealed class BookCommandTests
             "Per-record pages still ship.");
 
         var shell = File.ReadAllText(Path.Combine(temp.Path, "index.html"));
-        Assert.Contains("window.BookData", shell, StringComparison.Ordinal);
-        Assert.Contains("data/manifest.js", shell, StringComparison.Ordinal);
+        Assert.Contains("<script src=\"assets/book.js\"></script>", shell, StringComparison.Ordinal);
+        Assert.Contains("<link rel=\"stylesheet\" href=\"assets/book.css\">", shell, StringComparison.Ordinal);
+        Assert.Contains("<div id=\"app\"></div>", shell, StringComparison.Ordinal);
         Assert.Contains("<noscript>", shell, StringComparison.Ordinal);
         Assert.Contains("Library", shell, StringComparison.Ordinal);
         Assert.DoesNotContain("{{title}}", shell, StringComparison.Ordinal);

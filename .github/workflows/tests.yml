@@ -107,7 +107,7 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
 
-      # The CLI runs the frontend reader as a Node bundle, which the CLI tests call.
+      # The CLI runs the frontend reader as a Node bundle and embeds the book client, which the CLI tests call.
       - name: Configure Node.js for the frontend reader
         if: ${{ !matrix.shard.projects }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -115,12 +115,14 @@ jobs:
           node-version: "24.22.0"
           package-manager-cache: false
 
-      - name: Build the frontend reader bundle
+      - name: Build the frontend reader and the book client
         if: ${{ !matrix.shard.projects }}
         run: |
           npm install --global pnpm@11.28.5
           pnpm --dir apps/cli/fe-reader install --frozen-lockfile
           pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
 
       - name: Run the CLI shard
         if: ${{ !matrix.shard.projects }}

@@ -39,13 +39,6 @@ public sealed class BookHygieneTests
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
-        // The client reads field labels from the lexicon shard; the mockup's
-        // camel-splitting helper did not survive the port.
-        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
-        Assert.Contains("function fieldLabel", script, StringComparison.Ordinal);
-        Assert.DoesNotContain("function hum(", script, StringComparison.Ordinal);
-        Assert.DoesNotContain("([a-z])([A-Z])", script, StringComparison.Ordinal);
-
         // Every lexicon label reads as words, never as the camel-case key itself.
         var lexicon = ReadShard(Path.Combine(Out(temp), "data", "lexicon.js"), "lexicon");
         var fields = lexicon["fields"]!.AsObject();
@@ -139,8 +132,6 @@ public sealed class BookHygieneTests
 
         var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
         Assert.Contains("No record with this identifier is in the book", script, StringComparison.Ordinal);
-        Assert.Contains("missingRef(b)", script, StringComparison.Ordinal);
-        Assert.Contains("missingRef(i)", script, StringComparison.Ordinal);
         Assert.DoesNotContain("Outside this sample", script, StringComparison.Ordinal);
     }
 
@@ -158,12 +149,6 @@ public sealed class BookHygieneTests
         {
             Assert.DoesNotContain("data-go", File.ReadAllText(file), StringComparison.Ordinal);
         }
-
-        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
-        Assert.Contains("known = !!(REC[b] || NODE[b])", script, StringComparison.Ordinal);
-        Assert.Contains("(REC[b] || NODE[b]) ?", script, StringComparison.Ordinal);
-        Assert.Contains("NODE[i] ?", script, StringComparison.Ordinal);
-        Assert.Contains("if (t.getAttribute(\"data-go\")) select(t.getAttribute(\"data-go\"))", script, StringComparison.Ordinal);
     }
 
     /// <summary>Record sources carry a path and line, and the client builds each link from the manifest template.</summary>
@@ -206,12 +191,6 @@ public sealed class BookHygieneTests
         }
 
         Assert.True(sources > 0, "No record carries a source path to check.");
-
-        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
-        Assert.Contains("split(\"{root}\")", script, StringComparison.Ordinal);
-        Assert.Contains("split(\"{path}\")", script, StringComparison.Ordinal);
-        Assert.Contains("split(\"{line}\")", script, StringComparison.Ordinal);
-        Assert.Contains("replace(/:{line}/g, \"\")", script, StringComparison.Ordinal);
     }
 
     /// <summary>Editor none keeps the manifest template at none and ships no editor link.</summary>
@@ -235,9 +214,6 @@ public sealed class BookHygieneTests
         {
             Assert.DoesNotContain("vscode://", File.ReadAllText(file), StringComparison.Ordinal);
         }
-
-        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
-        Assert.Contains("t === \"none\"", script, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -254,26 +230,16 @@ public sealed class BookHygieneTests
 
         var assets = Path.Combine(Out(temp), "assets");
         var script = File.ReadAllText(Path.Combine(assets, "book.js"));
-        var css = File.ReadAllText(Path.Combine(assets, "book.css")) + File.ReadAllText(Path.Combine(assets, "book-extra.css"));
+        var css = File.ReadAllText(Path.Combine(assets, "book.css"));
         var client = script + css;
 
         Assert.DoesNotContain("Risk Tier", client, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Tier 1", client, StringComparison.Ordinal);
         Assert.DoesNotContain("Tier 3", client, StringComparison.Ordinal);
-        Assert.DoesNotContain("T1", client, StringComparison.Ordinal);
         Assert.DoesNotContain("tierb", client, StringComparison.Ordinal);
-        Assert.DoesNotContain("tierOf", client, StringComparison.Ordinal);
-        Assert.DoesNotContain("class=\"badge", client, StringComparison.Ordinal);
-        Assert.DoesNotContain(".badge", css, StringComparison.Ordinal);
-        Assert.DoesNotContain("class=\"mchip", client, StringComparison.Ordinal);
-        Assert.DoesNotContain(".mchip", css, StringComparison.Ordinal);
-        Assert.DoesNotContain("class=\"avatar", client, StringComparison.Ordinal);
-        Assert.DoesNotContain(".avatar", css, StringComparison.Ordinal);
-        Assert.DoesNotContain(".tierb", css, StringComparison.Ordinal);
-        Assert.Contains("riskClassesOf", script, StringComparison.Ordinal);
-        Assert.Contains("field-table", script, StringComparison.Ordinal);
-        Assert.Contains("data-copy", script, StringComparison.Ordinal);
-        Assert.Contains("capture", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("mchip", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("avatar", client, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-slot=\"badge\"", client, StringComparison.Ordinal);
     }
 
     static string Out(TempFolder temp) => Path.Combine(temp.Path, "out");

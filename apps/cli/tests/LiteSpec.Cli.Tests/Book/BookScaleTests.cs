@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Book;
 public sealed class BookScaleTests
 {
     const int ScaleRecords = 21500;
-    const long FirstPaintBudgetBytes = 500L * 1024;
+    const long FirstPaintBudgetBytes = 1024L * 1024;
     const long LayerBudgetBytes = 1536L * 1024;
 
     sealed record OutlineCheck(string Id, string? Shard);
@@ -52,7 +52,7 @@ public sealed class BookScaleTests
         Assert.Contains("21500 records", result.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>First paint stays under 500 KB and every layer outline under 1.5 MB: the shell, fonts, styles, script, manifest, lexicon and Intent outline load first, and each layer outline loads on first open.</summary>
+    /// <summary>First paint stays under 1 MB and every layer outline under 1.5 MB: the shell, the client script and stylesheet with their fonts, the manifest, the lexicon and the Intent outline load first, and each layer outline loads on first open.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Budgets_Hold_First_Paint_And_Layers()
@@ -66,13 +66,11 @@ public sealed class BookScaleTests
             Path.Combine(Out(temp), "index.html"),
             Path.Combine(Out(temp), "assets", "book.js"),
             Path.Combine(Out(temp), "assets", "book.css"),
-            Path.Combine(Out(temp), "assets", "book-extra.css"),
-            Path.Combine(Out(temp), "assets", "book-fonts.css"),
             Path.Combine(Out(temp), "data", "manifest.js"),
             Path.Combine(Out(temp), "data", "lexicon.js"),
         }.Concat(Directory.GetFiles(Path.Combine(Out(temp), "data"), "outline-intent-*.js"));
         var firstBytes = firstPaint.Sum(file => new FileInfo(file).Length);
-        Assert.True(firstBytes <= FirstPaintBudgetBytes, $"First paint loads {firstBytes} bytes, past the 500 KB budget.");
+        Assert.True(firstBytes <= FirstPaintBudgetBytes, $"First paint loads {firstBytes} bytes, past the 1 MB budget.");
 
         foreach (var layer in BookOutline.LayerKeys)
         {

@@ -43,19 +43,21 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
 
-      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
-      # the pack that ships it beside the tool.
+      # The CLI runs the frontend reader as a Node bundle and embeds the book client, so
+      # both exist before the pack that ships them.
       - name: Configure Node.js for the frontend reader
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24.22.0"
           package-manager-cache: false
 
-      - name: Build the frontend reader bundle
+      - name: Build the frontend reader and the book client
         run: |
           npm install --global pnpm@11.28.5
           pnpm --dir apps/cli/fe-reader install --frozen-lockfile
           pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
 
       # The analyzers package carries the code fixes, which only a solution build produces.
       - name: Build the CLI and the analyzers
@@ -110,6 +112,38 @@ jobs:
           elif [ "$GITHUB_EVENT_NAME" = "push" ] && git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
             git diff --check HEAD~1 HEAD
           fi
+
+  # The book client: types and Svelte checks, its unit tests, and the build the CLI embeds.
+  book:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/cli/book
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Install pnpm
+        run: npm install --global pnpm@11.28.5
+
+      - name: Install the book client dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the book client
+        run: pnpm check
+
+      - name: Test the book client
+        run: pnpm test
+
+      - name: Build the book client
+        run: pnpm build
 
   site:
     runs-on: ubuntu-24.04

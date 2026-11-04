@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+/* Authored prose is ASCII, so the Latin subsets cover the book; they are inlined so it opens offline. */
+@font-face { font-family: "Geist Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "Geist Mono Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2") format("woff2-variations"); }
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* The LiteSpec palette (apps/site) as shadcn tokens. highlight is LiteSpec's amber;
+   rule, convention, pattern and warn are the four callout tints. */
+:root {
+  --radius: 0.5rem;
+  --background: #ffffff;
+  --foreground: #19151c;
+  --card: #ffffff;
+  --card-foreground: #19151c;
+  --popover: #ffffff;
+  --popover-foreground: #19151c;
+  --primary: #2a2430;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f5f2;
+  --secondary-foreground: #2a2430;
+  --muted: #f7f5f2;
+  --muted-foreground: #77706a;
+  --accent: #f7f5f2;
+  --accent-foreground: #19151c;
+  --destructive: #97492e;
+  --border: #e5e0d9;
+  --input: #e5e0d9;
+  --ring: #f8c258;
+  --strong: #cfc7bd;
+  --subtle-foreground: #58514c;
+  --highlight: #f8c258;
+  --highlight-foreground: #a35f0a;
+  --highlight-soft: #fdf0d3;
+  --highlight-subtle: #fffaf0;
+  --rule: #fffaf0;
+  --rule-border: #fbe0a4;
+  --rule-foreground: #7a4608;
+  --convention: #f1f5ef;
+  --convention-border: #cddcc7;
+  --convention-foreground: #4a6843;
+  --pattern: #eff3f7;
+  --pattern-border: #cad6e4;
+  --pattern-foreground: #435a78;
+  --warn: #fbf0eb;
+  --warn-border: #efcdbf;
+  --warn-foreground: #97492e;
+  --success-foreground: #4a6843;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #19151c;
+  --sidebar-border: #e5e0d9;
+  --sidebar-accent: #f7f5f2;
+  --sidebar-accent-foreground: #19151c;
+  --sidebar-primary: #2a2430;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-ring: #f8c258;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #151217;
+  --foreground: #f4f0ea;
+  --card: #151217;
+  --card-foreground: #f4f0ea;
+  --popover: #1e1a21;
+  --popover-foreground: #f4f0ea;
+  --primary: #f4f0ea;
+  --primary-foreground: #19151c;
+  --secondary: #1e1a21;
+  --secondary-foreground: #f4f0ea;
+  --muted: #1e1a21;
+  --muted-foreground: #a49c94;
+  --accent: #1e1a21;
+  --accent-foreground: #f4f0ea;
+  --destructive: #e2a58f;
+  --border: #2c2630;
+  --input: #2c2630;
+  --ring: #f8c258;
+  --strong: #4a424f;
+  --subtle-foreground: #cfc8c0;
+  --highlight: #f8c258;
+  --highlight-foreground: #f8c258;
+  --highlight-soft: #f8c25829;
+  --highlight-subtle: #f8c25814;
+  --rule: #f8c25814;
+  --rule-border: #f8c25840;
+  --rule-foreground: #f6cf80;
+  --convention: #8fb08414;
+  --convention-border: #8fb08440;
+  --convention-foreground: #adc9a3;
+  --pattern: #8aa3c414;
+  --pattern-border: #8aa3c440;
+  --pattern-foreground: #adc0da;
+  --warn: #d0866814;
+  --warn-border: #d0866840;
+  --warn-foreground: #e2a58f;
+  --success-foreground: #adc9a3;
+  --sidebar: #151217;
+  --sidebar-foreground: #f4f0ea;
+  --sidebar-border: #2c2630;
+  --sidebar-accent: #1e1a21;
+  --sidebar-accent-foreground: #f4f0ea;
+  --sidebar-primary: #f4f0ea;
+  --sidebar-primary-foreground: #19151c;
+  --sidebar-ring: #f8c258;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-strong: var(--strong);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-highlight-subtle: var(--highlight-subtle);
+  --color-rule: var(--rule);
+  --color-rule-border: var(--rule-border);
+  --color-rule-foreground: var(--rule-foreground);
+  --color-convention: var(--convention);
+  --color-convention-border: var(--convention-border);
+  --color-convention-foreground: var(--convention-foreground);
+  --color-pattern: var(--pattern);
+  --color-pattern-border: var(--pattern-border);
+  --color-pattern-foreground: var(--pattern-foreground);
+  --color-warn: var(--warn);
+  --color-warn-border: var(--warn-border);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-success-foreground: var(--success-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground font-sans text-[15px] leading-relaxed antialiased; }
+}
