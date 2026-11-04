@@ -472,31 +472,6 @@ public sealed class MarkLinkTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
-    /// <summary>LS5002 on a draft record reports a warning.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
-    [Fact(DisplayName = "LS5002 on a draft record reports a warning")]
-    public Task DraftSubjectReportsWarning() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
-            [("Source.cs", """
-                using System;
-
-                namespace Claimwick.Spending;
-
-                public interface ICommandHandler<TCommand, TResult>;
-
-                public sealed class SubmitExpenseCommand;
-
-                public sealed class SubmitExpenseCommandResult;
-
-                /// <implements>{|LS5002:Warning:rule/spending.receipt-required|}</implements>
-                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
-                {
-                }
-                """)],
-            [ProjectFile(), UseCase(), Rule(status: "draft")],
-            assemblyName: "Shop.Application");
-
     /// <summary>LS5004 reports an attribute mark when the project declares xml.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
@@ -625,26 +600,6 @@ public sealed class MarkLinkTests
                 }
                 """)],
             [ProjectFile(), Decision()],
-            assemblyName: "Shop.Application");
-
-    /// <summary>LS5002 reports a follows naming a retired decision.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "LS5002 reports a follows naming a retired decision")]
-    public Task ReportsAFollowsNamingARetiredDecision() =>
-        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
-            [("Source.cs", """
-                namespace Shop.Spending;
-
-                /// <follows>{|LS5002:decision/0002-store-expenses-as-documents|}</follows>
-                internal sealed class CommitStep
-                {
-                    public void Commit()
-                    {
-                    }
-                }
-                """)],
-            [ProjectFile(), Decision(status: "retired")],
             assemblyName: "Shop.Application");
 
     /// <summary>LS5002 reports a follows naming an unknown provision.</summary>

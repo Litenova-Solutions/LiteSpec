@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { base, book, plural, type Fields } from "$lib/book";
+  import { base, book, plural } from "$lib/book";
+  import type { BookTest } from "$lib/book/types";
   import Icon from "$lib/components/book/Icon.svelte";
   import InlineRef from "$lib/components/book/InlineRef.svelte";
   import { Separator } from "$lib/components/ui/separator";
@@ -26,7 +27,7 @@
       (hasRun ? "" : " No test run is in the model."),
   );
 
-  function firstTest(x: string): Fields | null {
+  function firstTest(x: string): BookTest | null {
     const list = book.get(base(x))?.tests ?? [];
     return list.length ? list[0] : null;
   }

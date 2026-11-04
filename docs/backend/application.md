@@ -213,7 +213,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** A layer MUST NOT narrow a Domain closed set without a recorded decision and an updated specification.
 
-**Rationale:** Narrowing silently drops cases the Domain can produce, so a caller meeting a dropped case gets a shape the contract left undescribed. A recorded decision with an updated specification makes the dropped cases visible and owned. The decision and the specification follow `litespec/core/model#keep-one-owner-and-status-on-every-record`.
+**Rationale:** Narrowing silently drops cases the Domain can produce, so a caller meeting a dropped case gets a shape the contract left undescribed. A recorded decision with an updated specification makes the dropped cases visible and owned. The decision follows `litespec/core/model#record-each-technical-choice-as-a-decision`.
 
 **Reviewed for:** Which narrowed closed sets lack a recorded decision and updated specification? Look at each narrowed set beside the decision records.
 
@@ -475,7 +475,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
 
-**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (level A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (level A) for a handler or job taking more than ten constructor dependencies.
+**Reviewed for:** Which handlers, jobs, or step classes hide collaborators behind `new` or take more than ten constructor dependencies? Look at each constructor the change adds.
 
 ### Read No Repository Inside a Loop
 

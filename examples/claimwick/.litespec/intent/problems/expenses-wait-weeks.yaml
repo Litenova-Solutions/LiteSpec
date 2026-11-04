@@ -1,20 +1,12 @@
 type: problem
 id: problem/expenses-wait-weeks
 title: Expenses Wait Weeks
-owner: claimwick-team
-status: approved
 affects:
   - actor/employee
-affectsSegment: Employees at small companies who pay work costs from their own account.
-situation: Submitted expenses wait weeks for a decision, so employees chase managers by email. Decisions arrive late without notice.
+summary: Submitted expenses wait weeks for a decision, so employees chase managers by email. Decisions arrive late without notice.
 statement: Submitted expenses wait weeks for a decision, so employees chase managers by email.
-costToday: The employee carries the expense amount from their own account for up to three weeks.
-workaroundToday: The employee emails the approver for a faster decision, and the approver answers from memory with no record of the wait.
 evidence:
   - claim: Employees wait three weeks on average for reimbursement.
     source: research/approval-time-benchmarks
     readOn: 2026-11-01
     kind: reported
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 6d467ddf

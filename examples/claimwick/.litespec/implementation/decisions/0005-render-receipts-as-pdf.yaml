@@ -1,8 +1,7 @@
 type: decision
 id: decision/0005-render-receipts-as-pdf
 title: Render Receipts as PDF
-owner: claimwick-team
-status: approved
+summary: Finance keeps each receipt as a file next to the expense.
 options:
   - name: PDF library
     pros: Receipts download as files finance keeps.
@@ -18,11 +17,6 @@ admits:
     layer: Infrastructure
     license: MIT
     location: in-process
-    accountOwner: none
     failureBehavior: the receipt download fails and the expense stays readable
-    operatingCost: none
 basedOn:
   - constraint/tax-receipt-retention
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 5ac45514

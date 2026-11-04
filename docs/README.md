@@ -194,7 +194,6 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Realtime Updates](ext/realtime.md): live transport where measured polling cannot meet the update target.
 - [Reporting and Exports](ext/report.md): heavy queries and large exports moved off the request path.
 - [Scheduled Jobs](ext/jobs.md): recurring, delayed, and calendar-based work with leases that survive restarts.
-- [Static Marketing Site](ext/site.md): the static build for marketing pages, pricing, and help articles beside the application.
 - [Release Stage](ext/stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
 - [Agent Delegation](ext/delegation.md): briefs and containment for one agent starting another on the same tree.
 - [Privacy](ext/privacy.md): erasure positions, requested reach, export-first guards, restore sweeps, and conflict rules in depth.

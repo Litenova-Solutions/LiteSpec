@@ -186,7 +186,7 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.True(model.Status["use-case/lending.borrow-copy"].Verified);
+        Assert.Equal("proven", model.Completion["use-case/lending.borrow-copy"].Stage);
     }
 
     /// <summary>A quality-requirement proof does not verify a use case.</summary>
@@ -197,34 +197,37 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.False(model.Status["use-case/lending.extend-loan"].Verified);
+        Assert.NotEqual("proven", model.Completion["use-case/lending.extend-loan"].Stage);
     }
 
-    /// <summary>Tested appears for proof targets with a passing proving test.</summary>
+    /// <summary>Passing proving tests confirm the proves links of their proof targets.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "Tested appears for proof targets with a passing proving test")]
+    [Fact(DisplayName = "Passing proving tests confirm the proves links of their proof targets")]
     public void TestedAppearsForProofTargets()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
         using var document = JsonDocument.Parse(model.ToJson());
-        var tested = document.RootElement.GetProperty("tested");
+        var proves = document.RootElement.GetProperty("links").GetProperty("proves");
 
-        Assert.True(tested.GetProperty("requirement/borrowing.borrow-latency").GetBoolean());
-        Assert.True(tested.GetProperty("external-system/text-gateway").GetBoolean());
-        Assert.True(tested.GetProperty("decision/0002-store-loans-as-documents").GetBoolean());
-        Assert.False(tested.GetProperty("integration-event/loan-borrowed").GetBoolean());
-        Assert.False(tested.TryGetProperty("requirement/borrowing.borrow-form", out _));
-        Assert.False(tested.TryGetProperty("decision/0001-loan-threshold", out _));
-        Assert.False(tested.TryGetProperty("aggregate/lending.loan", out _));
-        Assert.False(tested.TryGetProperty("use-case/lending.borrow-copy", out _));
+        AssertProven(proves, "requirement/borrowing.borrow-latency", passing: true);
+        AssertProven(proves, "external-system/text-gateway", passing: true);
+        AssertProven(proves, "decision/0002-store-loans-as-documents", passing: true);
+        AssertProven(proves, "integration-event/loan-borrowed", passing: false);
 
         var query = JsonDocument.Parse(Querier.Query(model, "requirement/borrowing.borrow-latency")!);
         var computed = query.RootElement.GetProperty("computed");
 
-        Assert.True(computed.GetProperty("tested").GetBoolean());
         Assert.Equal(2, computed.GetProperty("proves").GetArrayLength());
+    }
+
+    static void AssertProven(JsonElement proves, string claim, bool passing)
+    {
+        var link = proves.EnumerateArray().First(link => link.GetProperty("claim").GetString() == claim);
+
+        Assert.True(link.GetProperty("confirmed").GetBoolean());
+        Assert.Equal(passing, link.GetProperty("passing").GetBoolean());
     }
 
     static string FileName(Finding finding) =>

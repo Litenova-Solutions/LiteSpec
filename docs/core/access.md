@@ -2,13 +2,13 @@
 
 ## Intent
 
-Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Developers and agents write these records in Behavior, and reviewers read them in the Behavior diff with the security queue. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
+Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Actors and roles live in Intent as product decisions users see; permissions, entry points, and external systems live in Behavior as access design. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
 
 ## Concepts
 
 ### The Permission Chain
 
-Access follows one chain from actor to use case: an actor holds a role at a scope, the role allows permissions, and the use case declares the grant it checks. The chain answers every access question in one place: which actor held which role at which scope, which permission the role allowed, and which use case declared it. The chain is role-based access control: permissions attach to roles, never to actors directly, and scopes bound each hold to one reach.
+Access follows one chain from actor to use case: an actor holds a role at a scope, the role allows permissions, and the use case declares the grant it checks. The chain answers every access question in one place: which actor held which role at which scope, which permission the role allowed, and which use case declared it. The chain is role-based access control: permissions attach to roles, never to actors directly, and scopes bound each hold to one reach. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
 
 ### Actors, Roles, and Scopes
 
@@ -18,9 +18,9 @@ A role is one named set of permissions granted together. Its scope is a kebab-ca
 
 ### Permissions
 
-A permission is one allowed action. The project keeps every permission in one shared list, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from that list, and use cases cite them in their grants, so the list is the one vocabulary both sides share.
+A permission is one allowed action. Each module keeps its permissions in `modules/<m>/permissions.yaml`, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from those lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
-Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [use-cases page](use-cases.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
+Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [use-cases page](use-cases.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
 
 ### The Access Field
 
@@ -32,7 +32,7 @@ Refusals that follow from access and input need no written result. A call withou
 
 ### Tenant Scope and Cross Tenant Access
 
-`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the access risk class, so the Behavior diff lists every `cross` change in the security queue, where reviewers read it separately from reviewed status. The queue carries the review, and the record shows its risk classes by name.
+`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the widest reach, and the pull request that changes it is its review.
 
 ### Entitlements
 
@@ -57,12 +57,12 @@ Each access record lives in one home, and the [model page](model.md) states the 
 | Type | Stored as | Home |
 |:---|:---|:---|
 | `actor` | page | The Intent actors home |
-| `role` | page | The Behavior roles home |
-| `permission` | entry | The Behavior permissions list |
-| `entry-point` | entry | The Behavior entry points list |
-| `external-system` | page | The Behavior systems home |
+| `role` | page | The Intent roles home |
+| `permission` | entry | The module permissions file |
+| `entry-point` | page | The Behavior entry points home |
+| `external-system` | page | The Behavior systems home, at product or module level |
 
-An actor, role, or external system page carries a `summary` field stating what the record is for. The permission and entry point lists are record files holding entries only.
+An actor, role, or external system page carries a `summary` field stating what the record is for. Each module permissions file holds entries only.
 
 ## Standards
 
@@ -122,7 +122,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A role MUST name the permissions it allows in `allows`.
 
-**Rationale:** The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.
+**Rationale:** The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.
 
 **Example:** `role/employee` allows `permission/submit-expense`, which the submit use case cites in its grant.
 
@@ -136,7 +136,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The meaning is the one sentence a reviewer reads to decide whether the grant fits the role: a name alone carries no boundary. Two permissions with the same name pattern and no meanings drift into overlapping grants that no audit can separate.
 
-**Example:** `permission/submit-expense` carries "Submit an expense for approval."
+**Example:** `permission/submit-expense` carries "Submit an expense for reimbursement."
 
 **Checked by:** `litespec model check` reports `record-invalid` for a permission without `meaning`.
 
@@ -150,7 +150,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** `permission/manage-copies` carries `scope: platform`, the same level as the librarian role that grants it.
 
-**Checked by:** `litespec consumer` fails a permission entry without `scope`.
+**Checked by:** `litespec model check` fails a permission entry without `scope`.
 
 ### Declare Access on Every Use Case
 
@@ -176,7 +176,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
 
-**Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a public catalog names `none`.
+**Example:** An expense submission names `session`, a self-checkout kiosk names `device`, and a public catalog names `none`.
 
 **Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, and none.
 
@@ -216,18 +216,6 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Checked by:** `litespec model check` reports `field-invalid` for a tenant scope outside own, cross, public, and none.
 
-### Route Cross Tenant Access Through the Security Queue
-
-**ID:** `litespec/core/access#route-cross-tenant-access-through-the-security-queue`
-
-**Statement:** A use case with cross tenant scope MUST pass through the security queue.
-
-**Rationale:** Work that reaches across tenants can read or write data that belongs to another tenant, which is the access risk a grant carries. The security queue lists that grant for review separately from reviewed status, so no cross grant ships on a developer sample alone. The queue carries the review, and the record shows its risk classes by name.
-
-**Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff, a list to read rather than a gate. It shows its risk classes by name.
-
-**Reviewed for:** Which cross grants shipped without security review? Look at the security queue in the Behavior diff.
-
 ### Cite the Setting or Plan Behind Every Entitlement
 
 **ID:** `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`
@@ -260,7 +248,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant.
 
-**Example:** In Claimwick, a manager delegating approval to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the approver role to the deputy with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The approve use case acting under it still declares `permission/approve-expense`.
+**Example:** In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares `permission/manage-team`.
 
 **Reviewed for:** Which delegated or temporary grants inside one tenant lack a role assignment with `validFrom` and `validUntil` on an aggregate the access model reads, or lack their own granting and revoking use cases? Look at the assignments beside the actor holds and the use cases that act under them.
 
@@ -294,7 +282,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** A served content entry point MUST carry path, contentType, cacheControl, versioning, and fulfills.
 
-**Rationale:** Served content is a file the product hands out, not behavior it runs, so the serving fields are the whole contract: where it lives, what it is, how long it caches, how it versions, and which requirement it carries. Without them, a legal text or a static script ships as an unreviewed file with no stated owner or freshness.
+**Rationale:** Served content is a file the product hands out, not behavior it runs, so the serving fields are the whole contract: where it lives, what it is, how long it caches, how it versions, and which requirement it carries. Without them, a legal text or a static script ships as an unreviewed file with no stated requirement or freshness.
 
 **Example:** A terms text carries its path, `text/html`, its cache window, its version rule, and the requirement it fulfills.
 
@@ -306,7 +294,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An external system MUST declare every operation the product may call in `operations`.
 
-**Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency, and the security queue has no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
+**Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency with no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
 
 **Example:** A payout bank declares a `settle-batch` operation with its timeout, timeout handling, and response shape, which the payout effect cites as `calls`.
 
@@ -332,7 +320,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
 
-**Checked by:** `litespec consumer` fails an actor or role page without `summary`.
+**Checked by:** `litespec model check` fails an actor or role page without `summary`.
 
 ### Write a Summary on Every External System Page
 
@@ -342,17 +330,17 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
 
-**Checked by:** `litespec consumer` fails an external system page without `summary`.
+**Checked by:** `litespec model check` fails an external system page without `summary`.
 
-### Keep Permission and Entry Point Lists to Entries
+### Keep Permission Lists to Entries
 
-**ID:** `litespec/core/access#keep-permission-and-entry-point-lists-to-entries`
+**ID:** `litespec/core/access#keep-permission-lists-to-entries`
 
-**Statement:** A permission list or entry point list page MUST hold entries only.
+**Statement:** A module permissions file MUST hold entries only.
 
-**Rationale:** The lists hold entries only: each permission and entry point is one row with its fields, and prose around them would restate the meanings the entries already carry. A list with entries only stays readable as a list even as entries grow.
+**Rationale:** The file holds entries only: each permission is one row with its fields, and prose around them would restate the meanings the entries already carry. A file with entries only stays readable as a list even as entries grow.
 
-**Reviewed for:** Which permission or entry point lists carry an explanation file? Look beside each permission and entry point list for a `.md` file with its name.
+**Reviewed for:** Which module permissions files carry an explanation file? Look beside each permissions file for a `.md` file with its name.
 
 ## Conventions
 

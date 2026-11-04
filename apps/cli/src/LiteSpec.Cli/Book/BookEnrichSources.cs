@@ -4,10 +4,10 @@ namespace LiteSpec.Book;
 
 /// <summary>
 ///     The lookups the record details read: outline layers, fulfilling counts, journey
-///     servers, tests, findings, decisions, effective statuses, screen routes and
-///     calls, and code entries, each grouped once from the model and the outline.
+///     servers, tests, findings, screen routes and calls, and code entries, each
+///     grouped once from the model and the outline.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookEnrichSources
 {
     /// <summary>Gets the layer keys the outline roots may name.</summary>
@@ -298,71 +298,6 @@ static class BookEnrichSources
                 yield return item;
             }
         }
-    }
-
-    /// <summary>Maps each decided record id to the decisions naming it, in identifier order.</summary>
-    /// <param name="index">The model index.</param>
-    /// <returns>The decision ids per record id.</returns>
-    public static Dictionary<string, List<string>> DecisionsByTarget(BookIndex index)
-    {
-        var byTarget = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach (var record in index.Records.OfType<JsonObject>())
-        {
-            if (BookRender.StrProp(record, "type") != "decision")
-            {
-                continue;
-            }
-
-            var id = BookRender.StrProp(record, "id");
-            if (string.IsNullOrEmpty(id))
-            {
-                continue;
-            }
-
-            foreach (var target in BookDetailValues.StringsOf(BookRender.Fields(record)?["decides"]))
-            {
-                if (!byTarget.TryGetValue(target, out var list))
-                {
-                    list = [];
-                    byTarget[target] = list;
-                }
-
-                list.Add(id);
-            }
-        }
-
-        foreach (var key in byTarget.Keys.ToList())
-        {
-            byTarget[key] = byTarget[key].OrderBy(id => id, StringComparer.Ordinal).ToList();
-        }
-
-        return byTarget;
-    }
-
-    /// <summary>The effective status of every record, defaulting to draft.</summary>
-    /// <param name="index">The model index.</param>
-    /// <returns>The effective status per record id.</returns>
-    public static Dictionary<string, string> EffectiveById(BookIndex index)
-    {
-        var effective = new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach (var record in index.Records.OfType<JsonObject>())
-        {
-            var id = BookRender.StrProp(record, "id");
-            if (string.IsNullOrEmpty(id) || effective.ContainsKey(id))
-            {
-                continue;
-            }
-
-            var state = BookRender.StrProp(record, "effectiveStatus");
-            if (string.IsNullOrEmpty(state))
-            {
-                state = BookRender.StrProp(record, "status");
-            }
-
-            effective[id] = string.IsNullOrEmpty(state) ? "draft" : state;
-        }
-
-        return effective;
     }
 
     /// <summary>Maps each screen id to its screens entry, the last one winning.</summary>

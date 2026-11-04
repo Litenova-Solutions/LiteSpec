@@ -10,32 +10,11 @@
     "react"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [],
-  "constraints": {
-    "answered": true
-  },
-  "owners": [
-    "__OWNER__"
-  ],
-  "approvals": {
-    "money": "__OWNER__",
-    "personal-data": "__OWNER__",
-    "access": "__OWNER__",
-    "physical-access": "__OWNER__",
-    "default": "agent-batch"
-  },
   "screenshots": {
     "galleries": [
       "apps/web/test-results/gallery"
     ],
     "pattern": "{route}--{theme}--{width}.png"
-  },
-  "review": {
-    "vetoWindowDays": 7,
-    "securityReviewer": "__OWNER__"
-  },
-  "adoption": {
-    "transcriptionEndsWith": "decision/0001-promote-to-production"
   },
   "paths": {
     "docs": ".litespec",

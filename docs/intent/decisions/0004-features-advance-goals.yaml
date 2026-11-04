@@ -1,10 +1,6 @@
 type: decision
 id: decision/0004-features-advance-goals
 title: Features Advance Goals
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 options:
   - name: Advances for goals, solves for problems
     pros: One verb per meaning ends the three-target split of serves, every live feature already solves exactly one problem, and the goal link is the thin edge the trace needs.
@@ -15,11 +11,11 @@ options:
   - name: Goals optional for features
     pros: With few goals, forcing one goal per feature risks vague pasted claims that carry less information than the Offering.
     cons: The reader starting at most planned features reaches no goal, and only a handful of live requirements trace to any goal at all.
-  - name: Refused features carry full links
-    pros: Every feature follows one uniform link rule with no exemption to state.
-    cons: Requiring links on a refusal inverts its meaning; a refusal records why in refusedBecause instead.
+  - name: One shared link for goals and problems
+    pros: A feature carries one list instead of two.
+    cons: A goal states an outcome and a problem states a pain, so one list hides which the feature moves.
 choice: Advances for goals, solves for problems
-consequences: "`litespec/core/intent#state-each-feature-with-its-lifecycle` states the renamed fields and the refused exemption. Serves keeps one meaning per carrier: a use case, reaction, job, or screen serves journey steps, and a journey serves one goal."
+consequences: "`litespec/core/intent#state-each-feature-with-its-lifecycle` states the renamed fields. Serves keeps one meaning per carrier: a use case, reaction, job, or screen serves journey steps, and a journey serves one goal."
 reopenedWhen: A feature kind appears that moves no goal and declines no problem.
 basedOn:
   - research/intent-hierarchy-evidence

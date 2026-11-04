@@ -6,7 +6,7 @@ namespace LiteSpec.Book;
 ///     The journey and screen details of one record: the servers, screens and
 ///     exercised steps of a journey, and the route and called use cases of a screen.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookJourneyDetail
 {
     /// <summary>Adds the step servers, step screens and exercised steps of one journey.</summary>

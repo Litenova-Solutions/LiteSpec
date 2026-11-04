@@ -97,7 +97,7 @@ public sealed class ModelFormatTests
                 Path.Combine(temp.Path, ".litespec/project.json"),
                 """
                 {"project": {"name": "Format Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "4.0.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "4.0.0",
                   "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []}}
                 """);
             TestRecords.Write(temp.Path, ".litespec/product/brief.yaml", """
@@ -105,11 +105,7 @@ public sealed class ModelFormatTests
                   "type": "product",
                   "id": "product/library",
                   "title": "Library",
-                  "owner": "lending-team",
-                  "status": "approved",
-                  "summary": "The library lends copies to readers.",
                   "boundary": "The library lends copies and tracks holds.",
-                  "exclusions": ["The product never sells copies."],
                   "addresses": ["actor/reader"]
                 }
                 """);

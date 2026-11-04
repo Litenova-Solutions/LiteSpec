@@ -1,0 +1,12 @@
+type: runbook
+id: runbook/clear-stuck-reimbursements
+title: Clear Stuck Reimbursements
+summary: How an operator finds reimbursements stuck after approval and sends each one again.
+trigger: A reimbursement stays queued past one business day.
+severity: high
+impact: Queued reimbursements pile up, and employees wait for money past the promised days.
+prerequisites: Access to the payout queue and the finance contact list.
+procedure: List the queued reimbursements. Retry each one. Notify finance of the batch that still stands.
+verification: The queue holds no reimbursement older than one business day.
+recovery: A retried payout that doubled is reclaimed through `external-system/payout-bank`.
+escalation: When the queue still stands after one retry round, finance calls the bank and freezes new batches.

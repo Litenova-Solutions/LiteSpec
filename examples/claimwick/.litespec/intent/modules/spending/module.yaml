@@ -1,0 +1,5 @@
+type: module
+id: module/spending
+title: Spending
+summary: Spending submits, decides, reimburses and exports work expenses.
+dependsOn: []

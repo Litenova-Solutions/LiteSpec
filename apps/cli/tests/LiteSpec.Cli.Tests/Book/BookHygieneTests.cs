@@ -12,7 +12,7 @@ public sealed class BookHygieneTests
     static readonly Regex HtmlTag = new("<[^>]+>", RegexOptions.Compiled);
 
     /// <summary>No shard holds an object coercion or the old raw-JSON fallback block.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Shards_Hold_No_Object_String_Or_Raw_Json()
     {

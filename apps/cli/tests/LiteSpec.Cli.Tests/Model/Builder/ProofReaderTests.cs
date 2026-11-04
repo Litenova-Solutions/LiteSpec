@@ -156,11 +156,10 @@ public sealed class ProofReaderTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static void Write(string root, string relative, string text)
@@ -182,10 +181,16 @@ public sealed class ProofReaderTests
     static void WriteRefusals(string root, string statuses)
     {
         var path = Path.Combine(root, ".litespec/project.json");
-        var text = File.ReadAllText(path);
-        var refusals = "\"refusals\": {\"forbidden\": \"authorization.forbidden\", \"invalidInput\": \"request.validation-failed\", \"statuses\": " + statuses + "}";
+        var project = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        project["refusals"] = JsonNode.Parse($$"""
+            {
+              "forbidden": "authorization.forbidden",
+              "invalidInput": "request.validation-failed",
+              "statuses": {{statuses}}
+            }
+            """);
 
-        File.WriteAllText(path, text.Replace(@"""selectedExtensions"": []", $@"""selectedExtensions"": [], {refusals}"));
+        File.WriteAllText(path, project.ToJsonString());
     }
 
     static string ProbeScenarios(string key) => $$"""
@@ -309,8 +314,6 @@ public sealed class ProofReaderTests
           "type": "scenario",
           "id": "{{id}}",
           "title": "{{title}}",
-          "owner": "lending-team",
-          "status": "reviewed",
           "given": "The library holds the copy.",
           "when": "The reader acts on it.",
           "result": "{{result}}",

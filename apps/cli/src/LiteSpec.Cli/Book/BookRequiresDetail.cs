@@ -6,7 +6,7 @@ namespace LiteSpec.Book;
 ///     The computed What It Requires list of one constraint: the requirements
 ///     citing it, in identifier order.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookRequiresDetail
 {
     /// <summary>Adds the citing requirements of one constraint.</summary>

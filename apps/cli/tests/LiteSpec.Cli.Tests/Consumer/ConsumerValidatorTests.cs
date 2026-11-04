@@ -23,7 +23,7 @@ public sealed partial class ConsumerValidatorTests
     static void AssertClean(CliResult result)
     {
         var problems = Problems(result);
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Output);
         Assert.Empty(problems);
     }
 
@@ -79,8 +79,8 @@ public sealed partial class ConsumerValidatorTests
     public void TemplatePlaceholderLeftInTheProjectFile()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["owners"] = new JsonArray("__OWNER__"));
-        AssertProblem(RunConsumer(folder.Path), "template placeholder '__OWNER__' is not filled");
+        ConsumerFixture.MutateProject(folder.Path, project => ((JsonObject)project["project"]!)["name"] = "__PROJECT__");
+        AssertProblem(RunConsumer(folder.Path), "template placeholder '__PROJECT__' is not filled");
     }
 
     /// <summary>Size outside the allowed sizes.</summary>
@@ -152,16 +152,15 @@ public sealed partial class ConsumerValidatorTests
                 {
                     ["id"] = "no-such-extension",
                     ["criterion"] = "Nothing needs it.",
-                    ["reviewBy"] = "2999-01-01",
                 });
         });
         AssertProblem(RunConsumer(folder.Path), "is not an extension in the pinned LiteSpec release");
     }
 
-    /// <summary>Extension whose review date passed.</summary>
+    /// <summary>Known extension with its criterion.</summary>
     /// <proves>litespec/core/scope#record-selected-extensions</proves>
-    [Fact(DisplayName = "extension whose review date passed")]
-    public void ExtensionWhoseReviewDatePassed()
+    [Fact(DisplayName = "known extension with its criterion")]
+    public void KnownExtensionWithItsCriterion()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
@@ -171,26 +170,6 @@ public sealed partial class ConsumerValidatorTests
                 {
                     ["id"] = ConsumerFixture.KnownExtension,
                     ["criterion"] = "The suite needs one.",
-                    ["reviewBy"] = "2020-01-01",
-                });
-        });
-        AssertProblem(RunConsumer(folder.Path), "was due for review on 2020-01-01");
-    }
-
-    /// <summary>Known extension with a live review date.</summary>
-    /// <proves>litespec/core/scope#record-selected-extensions</proves>
-    [Fact(DisplayName = "known extension with a live review date")]
-    public void KnownExtensionWithALiveReviewDate()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project =>
-        {
-            project["selectedExtensions"] = new JsonArray(
-                new JsonObject
-                {
-                    ["id"] = ConsumerFixture.KnownExtension,
-                    ["criterion"] = "The suite needs one.",
-                    ["reviewBy"] = "2999-01-01",
                 });
         });
         AssertClean(RunConsumer(folder.Path));

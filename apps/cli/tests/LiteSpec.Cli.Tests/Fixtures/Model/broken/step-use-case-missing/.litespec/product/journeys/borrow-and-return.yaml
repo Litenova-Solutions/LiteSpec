@@ -1,8 +1,6 @@
 type: journey
 id: journey/borrow-and-return
 title: Borrow and return
-owner: lending-team
-status: approved
 actor: actor/reader
 serves:
   - goal/faster-pickup
@@ -39,6 +37,3 @@ steps:
     statement: The reader donates a book to the desk.
 cites:
   - requirement/borrowing.max-active-loans
-approvedBy: lending-team
-approvedOn: 2026-10-01
-approvedHash: ee1317d7

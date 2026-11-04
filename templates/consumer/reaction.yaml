@@ -1,12 +1,7 @@
 type: reaction
 id: reaction/spending.send-approver-reminder-on-expense-submitted
 title: Send Approver Reminder on Expense Submitted
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-purpose: The approver decides every new expense within five days.
-whatHappens: The reaction sends the approval reminder to the approver.
+summary: The approver decides every new expense within five days.
 triggeredBy:
   - event/expense.submitted
 skippedWhen: The expense is already decided.
@@ -14,7 +9,7 @@ effects:
   - sends: notification/spending.approval-reminder
     timing: async
 fulfills:
-  - requirement/approval.decided-within-five-days
+  - requirement/approval-reminders.decided-within-five-days
 serves:
   - journey/submit-and-reimburse#s2
 onFailure:
@@ -38,16 +33,8 @@ reads:
   - aggregate/spending.expense
 changes:
   - aggregate/spending.expense
-risk:
-  - personal-data
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.
 records:
   - type: scenario
     id: scenario/send-approver-reminder-on-expense-submitted.reminder-sent

@@ -4,7 +4,7 @@
 
 LiteSpec ships 4 tools: a command line that checks a consumer project, a maintainer command line that checks the standard itself, a set of .NET analyzers that flag rule breaks while code is written and built, and a published site that shows which rules apply. This page explains what each tool checks, the order a team runs them in when a consumer project (an application repository built against one pinned LiteSpec release) changes, and which repository each command belongs to. Developers and agents read it when they set up a project or join one, so every check runs in the right place and nothing goes unchecked.
 
-## The Three Tools
+## The Four Tools
 
 LiteSpec ships two command lines, one set of .NET analyzers, and one published site. Each one serves a different reader. The pages call your project a consumer: the application repository that pins one LiteSpec release and builds against it.
 
@@ -25,6 +25,8 @@ The `litespec-maintain` command line serves the LiteSpec repository itself: `val
 
 The CLI carries its release beside its own binary. You point it at another copy with `LITESPEC_HOME`, and you print its release with `dotnet litespec --version`.
 
+Each command exists because the owner accepted it, and each is removed when nothing uses it. The CLI creates, checks, shows, and retrieves the specification: `init`, `new`, `rename`, `model check`, `model format`, `model query`, `book`, and `rules`.
+
 ### The Analyzers
 
 `LiteSpec.Analyzers` checks .NET code while you type and while it builds. You add the package once, and each diagnostic names the provision it enforces and links to it. A provision is one rule with a stable ID, so the error points at exactly the rule the code breaks. The [how-to guide](../analyzers/check-dotnet-code-with-the-analyzers.md) shows the setup, and the [analyzer reference](../analyzers/README.md) documents every rule with its breach and compliant shapes.
@@ -41,25 +43,31 @@ Adding new intent to a running project follows the one sequence under [New Inten
 
 The diagram below shows where each tool runs in that one change.
 
-![One change runs litespec init, Intent records, Behavior records, litespec consumer, code with analyzers, litespec model build and check, CI gates, and litespec book, in that order.](../assets/diagrams/learn-tool-flow.svg)
+![One change runs litespec init, Intent records, Behavior records, litespec model check, code with analyzers, litespec model query and rules, CI gates, and litespec book, in that order.](../assets/diagrams/learn-tool-flow.svg)
 
-A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `.litespec/project.json` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the reviewed release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
+A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `.litespec/project.json` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the pinned release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
 
-`dotnet litespec consumer` reads `.litespec/project.json` and every file under your documentation root, and checks the project record, the stacks and extensions, each record file, the glossary, and the controlled web UI contract. The [consumer page](../tools/consumer.md) lists what it reads, and the [controlled UI page](../tools/ui.md) lists what the UI check covers. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
+New records start with `dotnet litespec new`, which puts a record in its one legal folder with a correct identifier. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
 
-During implementation, a use case runs in one command handler in the Application project, in a folder that mirrors the record, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
+Before editing, the agent asks which provisions govern the files it will touch: `dotnet litespec rules <path>` lists them grouped by strength, with the project's conventions and departures merged in. During implementation, a use case runs in one flat folder in the application project ordered by module, aggregate, and use case, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
 
-The model builder reads your records and follows the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model build` writes `.litespec/model/model.json` with the computed `implements`, `calls`, and `proves` links, `dotnet litespec model check` lists the gaps with a level beside each finding, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model diff <base>` shows the change for review, and `dotnet litespec book` writes one offline shell with the Outline, Review queue, Security, and Ballots views, with no server. The [book page](../tools/book.md) describes the shell and its views.
+The model commands read your records and follow the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model check` lists the gaps with a level beside each finding, `dotnet litespec model format` rewrites record files into canonical form, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model check --since <base>` catches breaking changes against an older commit, and `dotnet litespec book` writes the browsable site of your project, with no server. The [book page](../tools/book.md) describes the shell and its views.
 
-Every pull request then runs the gates the [CI page](../quality/ci.md) selects for the changed areas, such as `dotnet litespec model check` for a record, code, or test change and `dotnet litespec consumer` for a documentation change, under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. It also publishes the intent diff, so reviewers read the change in product words; a project that selects the Delivery extension also publishes a book preview under `litespec/ext/delivery#publish-a-book-preview-for-every-change`. A gap shows up in the change that introduced it.
+Every pull request then runs the gates the [CI page](../quality/ci.md) selects for the changed areas, such as `dotnet litespec model check` for a record, code, or test change, under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. A gap shows up in the change that introduced it.
 
-For example, if the shop team removed the cancel-order handler without retiring the record, `dotnet litespec model check` reports `[S use-case-unimplemented]` for `use-case/orders.cancel-order`, and CI fails the pull request until the handler returns or an approved gap exception covers it.
+For example, if the shop team removed the cancel-order handler without deleting the record, `dotnet litespec model check` reports `[S use-case-unimplemented]` for `use-case/orders.cancel-order`, and CI fails the pull request until the handler returns or a gap exception covers it.
 
 ## Agent and Reader Paths
 
 You and your agent read the same release in different forms.
 
-You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/4.0.0/select/) that shows which pages your shape and stacks apply. An agent starts from the selection index for your project:
+You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/4.0.0/select/) that shows which pages your shape and stacks apply. An agent starts from the provisions that apply to the files it will touch:
+
+```bash
+dotnet litespec rules apps/api/src/Shop/Orders/Order/CancelOrder/CancelOrderCommandHandler.cs
+```
+
+That command lists the provisions grouped by strength, as one-line statements, and `--full` adds rationale and example. For reading pages, the agent starts from the selection index for your project:
 
 ```text
 https://litespec.dev/4.0.0/select/server.dotnet.react/llms.txt
@@ -86,12 +94,16 @@ Two commands belong to the LiteSpec repository, and the rest belong to a consume
 | `litespec-maintain validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
 | `litespec-maintain provisions` | LiteSpec | Active standards | `.litespec/reference/provisions.md` |
 | `litespec init` | Consumer | Release template and preset | `.litespec/project.json` |
-| `litespec consumer` | Consumer | Project file, pages, glossary | Diagnostics only |
-| `litespec ui` | Consumer | Shared UI package, frontends | Diagnostics only |
-| `litespec model` | Consumer | Records, code marks, routes, test runs | `model.json`, findings with levels, diffs, rendered regions |
-| `litespec book` | Consumer | `model.json`, with the findings it records | One offline shell with four views |
+| `litespec new` | Consumer | Templates, folder rules | One record file |
+| `litespec rename` | Consumer | Records, marks, citations | Rewritten citations |
+| `litespec model check` | Consumer | Records, code marks, routes, test runs | Findings with levels |
+| `litespec model format` | Consumer | Record files | Canonical record files |
+| `litespec model query` | Consumer | One record with its links | The record and its links |
+| `litespec model render` | Consumer | The model | Three rendered regions |
+| `litespec book` | Consumer | Records, marks, findings | One offline shell |
+| `litespec rules` | Consumer | One path or record id | The provisions that apply |
 
-`litespec-maintain validate` and `litespec-maintain provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec consumer`, `dotnet litespec model check`, and the analyzers guard your project: your CI runs them on every pull request.
+`litespec-maintain validate` and `litespec-maintain provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec model check` and the analyzers guard your project: your CI runs them on every pull request.
 
 ## Questions Each Tool Answers
 
@@ -100,14 +112,13 @@ Each question below names the tool that answers it and the command you run.
 | Question | Tool | Command |
 |:---|:---|:---|
 | Which pages apply to my project | The site | The selection index |
-| Is my project file and glossary valid | The CLI | `dotnet litespec consumer` |
-| Is my UI package within the contract | The CLI | `dotnet litespec ui` |
+| Which provisions apply to this file | The CLI | `dotnet litespec rules <path>` |
+| Is my project file and glossary valid | The CLI | `dotnet litespec model check` |
+| Is my UI package within the contract | The CLI | `dotnet litespec model check` |
 | Does this code follow the .NET rules | The analyzers | `dotnet build` |
 | Which handler implements this use case | The CLI | `dotnet litespec model query` |
 | What is still missing | The CLI | `dotnet litespec model check` |
-| What changed in product words | The CLI | `dotnet litespec model diff <base> --intent` |
-| What Behavior changed, and what needs security review | The CLI | `dotnet litespec model diff <base> --behavior` |
-| Which questions await a decision | The CLI | `dotnet litespec book` (the Ballots view) |
+| What breaks against an older commit | The CLI | `dotnet litespec model check --since <base>` |
 | Is the standard itself consistent | The maintainer tool | `litespec-maintain validate` |
 | How do I read my project as a site | The CLI | `dotnet litespec book` |
 | What does an interface option look like | The site | The pattern's page |

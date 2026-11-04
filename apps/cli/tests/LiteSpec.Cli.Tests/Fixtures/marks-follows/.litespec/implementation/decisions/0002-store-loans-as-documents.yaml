@@ -1,10 +1,6 @@
 type: decision
 id: decision/0002-store-loans-as-documents
 title: Store loans as documents
-owner: lending-team
-status: draft
-decider: lending-team
-decideBy: 2030-01-31
 options:
   - name: Documents
     pros: Loans read as one document

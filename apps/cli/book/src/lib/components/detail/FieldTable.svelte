@@ -1,14 +1,12 @@
 <script lang="ts">
-  import { base, book, cap, HLABEL, plural } from "$lib/book";
+  import { base, book, cap } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import { esc } from "$lib/book/html";
   import SourceLink from "$lib/components/book/SourceLink.svelte";
   import type { Fact } from "./facts";
-  import {
-    batchNameOf, codeCls, inlineRefHtml, statusReasonHtml, teamValue,
-  } from "./helpers";
+  import { codeCls, inlineRefHtml, teamValue } from "./helpers";
 
-  // The field table: who, place, status and approval, risk, and the type facts.
+  // The field table: the type's relations and facts, then the plain fields.
   let { id, r, facts }: { id: string; r: BookRecord; facts: Fact[] } = $props();
 
   interface Row {
@@ -46,33 +44,8 @@
     if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
     const parent = book.parent(id);
     if (parent) add("Parent", inlineRefHtml(parent));
-    if (book.isReal(id)) {
-      const h = book.human(id);
-      add("Status", esc(HLABEL[h === "mineR" ? "mine" : h] || h));
-    }
-    if (book.isReal(id)) add("Status reason", statusReasonHtml(id));
-    if (r.owner) add("Owner", esc(r.owner));
-    if (r.decider) add("Decider", esc(r.decider) + (r.decideBy ? ", decide by " + book.fmtDate(r.decideBy) : ""));
-    const approval = (r.approval ?? null) as Fields | null;
-    if (approval && (approval.by || approval.rule))
-      add("Approval", esc([(approval.by ? "approved by " + approval.by : "") as string, (approval.rule ?? "") as string].filter(Boolean).join("; ")));
-    else {
-      const bo = book.batchOf(id);
-      if (bo) add("Approval batch", esc(batchNameOf(bo.batch)) + " (" + plural(Number(bo.batch.n ?? 0), "record") + ")");
-    }
-    const risk = book.riskClassesOf(id);
-    if (risk.length)
-      add(
-        "Risk",
-        risk
-          .map((x) => {
-            const by = book.approverFor(x, id);
-            return esc(cap(String(x).replace(/-/g, " "))) + (by ? ", approved by " + esc(by) : "");
-          })
-          .join("; "),
-      );
-    if (f.lifecycle) add("Lifecycle", esc(cap(String(f.lifecycle))));
-    if (f.provenance === "transcribed") add("Provenance", "Transcribed from code");
+    if (r.type === "permission" && Array.isArray(f.risk) && f.risk.length)
+      add("Risk", f.risk.map((x: unknown) => esc(cap(String(x).replace(/-/g, " ")))).join("; "));
     if (r.type === "problem") {
       if (f.costToday) add("Cost today", esc(f.costToday));
       if (f.workaroundToday) add("Workaround today", esc(f.workaroundToday));
@@ -92,9 +65,10 @@
     const skip: Record<string, number> = {
       statement: 1, summary: 1, description: 1, offering: 1, meaning: 1, situation: 1, whyItMatters: 1,
       purpose: 1, whatHappens: 1, affects: 1, affectsSegment: 1, actor: 1, solves: 1, advances: 1,
-      serves: 1, risk: 1, lifecycle: 1, provenance: 1, costToday: 1, workaroundToday: 1, finishedWhen: 1,
+      serves: 1, risk: 1, costToday: 1, workaroundToday: 1, finishedWhen: 1,
       address: 1, host: 1, entryPoint: 1, floorplan: 1, kind: r.type === "actor" ? 1 : 0,
-      approvedBy: 1, approvedOn: 1, approvedHash: 1, questions: 1, evidence: 1,
+      questions: 1, evidence: 1, lifecycle: 1, plannedFor: 1, refusedBecause: 1, provenance: 1,
+      decider: 1, decideBy: 1, owner: 1, approvedBy: 1, approvedOn: 1, approvedHash: 1, reviewBy: 1,
     };
     for (const key of Object.keys(f)) {
       if (skip[key]) continue;

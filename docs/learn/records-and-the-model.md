@@ -2,15 +2,15 @@
 
 ## Intent
 
-Every LiteSpec project writes its intent (what to build, and why) as small records across four layers, and the model builder joins those records to the code and tests that carry them. This page explains the layers, what those records are, where they live, who reviews them, and what the model builder works out from them. Team members and agents read it before they write their first record, so each piece of intent lands in the right type and home from the start.
+Every LiteSpec project writes its intent (what to build, and why) as small records across four layers, and the model builder joins those records to the code and tests that carry them. This page explains the layers, what those records are, where they live, and what the model builder works out from them. Team members and agents read it before they write their first record, so each piece of intent lands in the right type and home from the start.
 
 ## Small Records of Intent
 
-A record is the smallest piece of intent one person can own and approve: one requirement, one rule, one use case, one decision. Each record is a short YAML record file, or an entry in one, holding its facts as fields. An optional Markdown explanation file beside the record file explains it for people and agents. People read the record with its explanation, and tools read the fields.
+A record is the smallest piece of intent the team can state on its own: one requirement, one rule, one use case, one decision. Each record is a short YAML record file, or an entry in one, holding its facts as fields. An optional Markdown explanation file beside the record file explains it for people and agents. People read the record with its explanation, and tools read the fields.
 
 Keeping intent in small records instead of long documents gives three results:
 
-- Each piece has one owner and one status, so the team always knows who decides and whether the piece is settled.
+- Each piece stands alone, so the team always knows what is stated and what is missing.
 - Records point at each other by ID, so a reader follows a use case to the requirement it fulfills and the decision behind it.
 - Tools check records, so a missing result or a broken link fails a build instead of surprising a reader.
 
@@ -18,16 +18,32 @@ Keeping intent in small records instead of long documents gives three results:
 
 Every record answers one layer's question, and each layer is written from the layer above it:
 
-| Layer | Question | Writes | Reviews | Records |
-|:--|:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term |
-| Behavior | How does the system behave to keep the promises? | Agents | Developers; the security queue for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
-| Implementation | How is it built? | Agents | Check level S; developers sample | Code and technical decisions |
-| Proof | How do we know it holds? | The builder | level G and level S checks | Tests, check results, computed statuses, the rendered book |
+| Layer | Question | Records |
+|:--|:--|:--|
+| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, module, journey, actor, role, term |
+| Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, permission, entry point, external system, term |
+| Implementation | How is it built? | Code, technical decisions, runbooks, the API contract, guides |
+| Proof | How do we know it holds? | Tests, check results, computed completion, the rendered book |
 
-Governance records attach to any layer: an exception of kind `departure` replaces one provision for the project, and an exception of kind `gap` records one check staying red until a date. Each carries an owner and an expiry date.
+Governance records attach to any layer: an exception of kind `departure` replaces one provision for the project, and an exception of kind `gap` records one check staying red until a date. Each carries a reason and an expiry date.
 
-Three translation rules join the layers. **Specify** turns Intent into Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it never decides a price, fee, rate, term, market, payer, personal-data retention period, observable freshness, or any default that differs by tenant, market, or date. Each of those undecided values travels up as a draft question with a decider and a date. **Implement** turns Behavior into code: it adds the code shapes the stack pages fix, and it adds no outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
+Three translation rules join the layers. **Specify** turns Intent into Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it never decides a price, fee, rate, term, market, payer, personal-data retention period, observable freshness, or any default that differs by tenant, market, or date. When Behavior needs a value Intent does not state, the agent takes it to the owner or the backlog, and never invents it. **Implement** turns Behavior into code: it adds the code shapes the stack pages fix, and it adds no outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
+
+## What Belongs in Intent
+
+Every record is about the software. It states what the application does, holds, refuses at runtime, or runs on, and it translates into code, results, tests, or infrastructure. Running the company stays out: prices as an offer, markets, sales, hiring, launch dates, and founder risks enter only as a constraint or as dated research.
+
+| Type | Belongs when it is | Out when it is |
+|:---|:---|:---|
+| Goal | A software outcome, such as nights running without oversell | A business outcome, such as retention or revenue |
+| Problem | A user pain the software answers | A sales or market problem |
+| Feature | A capability the software has | A marketing tactic or a launch plan |
+| Requirement | A commitment Behavior fulfills | (always software when it reaches Behavior) |
+| Constraint | A law, a provider, or a limit that binds the software | A company duty with no software effect |
+| Research | Evidence a software record cites | Market sizing or viability |
+| Module | A product area of the bounded context | A company function |
+
+The check is reachability: a goal reaches a journey or a quality requirement, a problem reaches a feature or requirement that addresses it, a feature or requirement reaches a use case, journey, or quality scenario in Behavior, a constraint is answered by a requirement, research is cited by a record that reaches Behavior, and a decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work, which belongs on the backlog, or not software. The check reports it locally and blocks it in the pull-request check.
 
 ## Record Types and Their Homes
 
@@ -35,17 +51,37 @@ The record types follow the questions a team asks, from why down to how:
 
 | Question | Record types |
 |:---|:---|
-| Why does this product exist, and within which outside rules? | Product, goal, constraint, research, decision, topic, requirement |
+| Why does this product exist, and within which outside rules? | Product, goal, constraint, research, decision, module, requirement |
 | What does it offer, and for which pain? | Problem, feature |
 | Who acts, and what may they do? | Actor, role, permission |
 | How is it reached, and what outside systems does it meet? | Journey, entry point, external system |
-| How does the business behave? | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting |
+| How does the business behave? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting |
 | How is it run? | Runbook, retention schedule |
 | How is it built and spoken about? | Exception, term |
 
 A small project keeps the rows the [model page](../core/model.md) marks small. A large project also keeps problems, features, journeys, and scenarios, which tie the product story to proven examples. Constraints and research switch on separately, and runbooks join when the product first goes into production.
 
-Each type has one home in the repository. Intent lives under `.litespec/intent/`, with research beside it under `.litespec/intent/research/`. Behavior lives under `.litespec/behavior/`: a module's aggregates and use cases under `.litespec/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings in a settings record file, cross-aggregate rules under `.litespec/behavior/rules/`, the retention schedule at `.litespec/behavior/retention-schedule.yaml`, and access records under `.litespec/behavior/access/`. Exceptions live under `.litespec/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+Each type has one home in the repository. Intent reads module, then feature, then requirement: features with their requirements live under `.litespec/intent/modules/<module>/features/`, beside the module's own goals, problems, constraints, decisions, and research, while product-level records live directly under `.litespec/intent/`. Behavior reads module, then aggregate, then use case: a module's aggregates and use cases live under `.litespec/behavior/modules/<module>/`, its reactions, jobs, notifications, settings, permissions, and integration events in matching subfolders, cross-aggregate rules under `.litespec/behavior/rules/`, entry points with their screens under `.litespec/behavior/entry-points/<entry-point>/`, and access roles beside actors in Intent. Exceptions live under `.litespec/governance/exceptions/`, or under `.litespec/governance/modules/<module>/exceptions/` when every record they set aside sits in one module. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+
+## How to Write a Feature Under a Module
+
+A feature lives in its module's folder and holds its requirements as entries. The Claimwick feature that carries the receipt rule lives at `.litespec/intent/modules/spending/features/approval.yaml`:
+
+```yaml
+type: feature
+id: feature/spending.approval
+title: Expense Approval
+summary: Employees submit expenses and approvers decide them.
+solves:
+  - problem/waiting-for-reimbursement
+records:
+  - type: requirement
+    id: requirement/approval.receipt-over-threshold
+    title: Receipt over Threshold
+    statement: An expense above the receipt threshold carries a receipt.
+```
+
+Read it as one capability with its promises inside: the feature names the problem it solves, and each requirement entry states one commitment Behavior fulfills. A requirement's identifier names its feature, so every citation changes in the same change when a requirement moves to another feature.
 
 ## Links Between Records
 
@@ -67,48 +103,48 @@ Read it as a chain: `actor/employee` holds `role/employee`, the role allows `per
 
 Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. A reaction names the events it answers in `triggeredBy`, a job names its `kind` and `schedule`, and each names the use cases it runs. A use case names every edge it causes in `effects`: `runs` for a command, `sends` for a notification, `emits` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
 
-## Ownership and Approval
+## The Folder Is the Parent
 
-Every Intent and governance record carries `draft`, `approved`, or `retired`. Every Behavior record carries `draft`, `reviewed`, or `retired`:
+The folder structure is authoritative and fully validated, in every layer. A record's folder is its parent: the product, a module, an aggregate, or an entry point. Product, module, aggregate, and entry point are the only nodes a folder stands for; every other folder name comes from a closed set of type folders per layer, and anything else is a blocking finding.
 
-- **Draft** means the record waits for its decider. A draft names the decider and the date the decision is due.
-- **Approved** (Intent) and **reviewed** (Behavior) mean the record holds. A decision that changes one replaces it.
-- **Retired** means a newer record replaced it.
+```text
+.litespec/intent/
+  product.yaml
+  goals/  problems/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  modules/
+    spending/
+      module.yaml
+      goals/  problems/  constraints/  decisions/  research/
+      features/
+        approval.yaml            the feature with its requirements as entries
+.litespec/behavior/
+  modules/
+    spending/
+      expenses/                  aggregate
+        submit-expense.yaml      use case
+```
 
-Approval is data. An approved or reviewed record carries who approved it, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, steps, and prose fields. The explanation beside a non-article record sits outside the hash, while the explanation of an article type feeds it with the record; a changed semantic hash reopens approval.
+Product level holds the product, actors, roles, and journeys; journeys cross modules through their steps. Module level holds features with their requirements. Goals, problems, constraints, decisions, and research sit at either level, and the folder says which. A record under a module is linked from another module only along a declared module dependency or through an integration event; a link from another layer down to the next may cross modules, because that is how one capability spans modules.
 
-Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `physical-access`, `personal-data`, and `access`, shown by name as its risk class, with the approval the project approval table states for that class. A record with no risk shows no risk. A draft question with no risk that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `.litespec/project.json`, 7 days by default), recorded as `answeredBy: auto (veto window)` on the question. Questions group into ballots, so each ballot is one inbox of related decisions. An unanswered question past its date that cannot auto-approve is reported by the `question-expired` check; it never silently blocks.
+Each record keeps two identifiers. The identifier is short and unique in the product, and every link uses it: `use-case/spending.submit-expense`. The qualified identifier is computed from the identifier plus the placement, never written, and shown in the book and the CLI: `spending/expenses/use-case/submit-expense`. A record that moves to another module changes the module segment of its identifier and every citation in the same change, which `litespec rename` rewrites together.
 
-Intent flows one way, from constraint down to scenario: constraint outranks product, product outranks requirement, requirement outranks rule, rule outranks use case, use case outranks result, and result outranks scenario. When code and an approved record disagree where Intent has spoken, the spec wins. Where Intent is silent, working code is evidence for a question, never a defect to delete and never a source to transcribe silently.
+## Changing a Record When Git Is the Record
 
-An agent builds from approved and reviewed records. Where a record is still a draft, the agent reports the open question to its decider instead of choosing an answer. During adoption, a Behavior record written from existing code carries `provenance: transcribed` and stays in draft until its Intent parent is approved; the `adoption.transcriptionEndsWith` decision ends that mode.
+Git is the decision record. A record present in git is decided, and the pull request that changes it is its review. To change a record, edit it and open a pull request; to remove one, delete it. Who changed what and when is `git log` and `git blame`.
 
-## The Review Flow
+A branch may be incomplete; what merges is complete. The checks report reachability locally and block it in the pull-request check, so unfinished work can sit on a branch but cannot merge. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
 
-Each layer is reviewed where it is written, by the reader it is written for:
+## Completion Is Computed
 
-| Review | Reads | Decides |
-|:--|:--|:--|
-| Intent review | The intent diff in product words, and the Ballots view | The finance lead and product people, weekly; each risk class takes the approval its project table states, and a question with no risk auto-approves after the veto window |
-| Behavior review | The behavior diff | Developers; a record carrying risk needs passing scenarios plus advisory review, and a record with no risk is sampled |
-| Security review | The security queue: access widenings, new outside calls, new personal-data flows | The security reviewer when the project names one, separately from reviewed |
-| Release gate | Drafts past their date, expired exceptions, and the checks | Ships only reviewed and proven behavior |
+You never write whether a use case is implemented or verified. The model builder computes both, and the book leads with them.
 
-Intent is enough to approve because each ballot and journey detail carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is context outside the approval hash. Product people never need to open a Behavior page to decide.
-
-Review of the specification holds when each layer is written from the one above, every question has a decider and a date, every edge is declared, and Proof shows passing tests for every scenario.
-
-## Computed Statuses
-
-You never write whether a use case is implemented or verified. The model builder computes both, with three more: `stale`, `reachable`, and the effective status. They appear in the book and the model output only.
-
-`litespec model build` reads the records and follows the marks by which code and tests point up to them: the mark each code element carries and the proves mark each test carries. For each use case it finds:
+`litespec model check` reads the records and follows the marks by which code and tests point up to them: the mark each code element carries and the proves mark each test carries. For each use case it finds:
 
 - The handler, reaction, or job class that **implements** it, from its mark.
 - The screens that **call** it, from the frontend's generated API client.
 - The tests that **prove** each scenario, from the tests that claim them and the latest test run.
 
-A use case is implemented when its handler exists, and verified when a passing test proves every scenario. A proof goes stale when its scenario's semantic hash changes after its test last passed. The builder recomputes these links on every run, so they cannot go stale the way a hand-kept traceability table does.
+A use case is implemented when its handler exists, and verified when a passing test proves every scenario. The builder recomputes these links on every run, so they cannot go stale the way a hand-kept traceability table does.
 
 The diagram below shows the main record types around one use case, the links the records hold, and the three links the builder computes.
 
@@ -117,10 +153,11 @@ The diagram below shows the main record types around one use case, the links the
 ## Uses of the Model
 
 - **Checks.** `litespec model check` reports each gap as a finding with its level: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a refusal the code never raises, a link to a missing record, or an exception past its expiry date each becomes a finding.
-- **Answers.** `litespec model query <id>` prints one record with every link into and out of it. Agents use it to load exactly the context a task needs.
-- **Generated sections.** `litespec model render` fills the marked regions of your pages from the model, so lists such as a module's use cases always match the records. Generated regions derive from other records only, never from code.
-- **The project book.** `litespec book` turns the model into a browsable site of your own project: one offline shell with the Outline, Review queue, Security, and Ballots views, hash routes per record, and search.
-- **Diffs.** `litespec model diff <base> --intent` shows Intent changes in product words for the finance lead. `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both.
+- **Answers.** `litespec model query <id>` prints one record with every link into and out of it. Agents use it to load exactly the context a task needs. It accepts the identifier or the qualified identifier.
+- **Rules.** `litespec rules <path>` lists the provisions that apply to a file, grouped by strength, with the project's conventions and departures merged in. Agents run it before editing.
+- **Scaffolding.** `litespec new` puts a record in its one legal folder with a correct identifier, and `litespec rename` rewrites every citation when an identifier changes. `litespec model format` rewrites record files into canonical form.
+- **Generated sections.** `litespec model render` fills the marked regions of your pages from the model: the alert inventory, the runbook index, and the operations log.
+- **The project book.** `litespec book` turns the model into a browsable site of your own project: the outline, completion, the folder tree, and the access chains, with hash routes per record and search.
 
 ## Next Steps
 

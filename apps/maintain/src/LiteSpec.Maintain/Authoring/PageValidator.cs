@@ -131,7 +131,7 @@ internal sealed partial class PageValidator
             return "stack";
         }
 
-        return "topic";
+        return "standard";
     }
 
     /// <summary>Returns the section contract for a page class, or null when the class has none.</summary>
@@ -139,9 +139,9 @@ internal sealed partial class PageValidator
     /// <returns>The section contract, or null.</returns>
     private static PageContract? ExpectedSections(string? kind)
     {
-        if (kind == "topic")
+        if (kind == "standard")
         {
-            // A topic page carries no per-stack sections. Shared pages stay neutral
+            // A standard page carries no per-stack sections. Shared pages stay neutral
             // across stacks, and each stack page carries its own bindings.
             // (litespec/core/authoring#place-each-stack-binding-on-its-stack-page)
             return new PageContract(["Intent", "Standards", "Conventions"], ["Concepts", "Reference Example"]);
@@ -190,7 +190,7 @@ internal sealed partial class PageValidator
         }
 
         // The explanation contracts name every section the explanation may hold, so
-        // an invented section fails. A research explanation answers its question; a
+        // an invented section fails. A research explanation states its Answer; a
         // decision explanation keeps its Context beside the record, whose choice and
         // consequences fields state what was chosen and what it costs.
         if (kind == "research")
@@ -238,7 +238,7 @@ internal sealed partial class PageValidator
         }
 
         List<string> canonical;
-        if (kind == "topic")
+        if (kind == "standard")
         {
             canonical = ["Intent", "Concepts", "Standards", "Conventions", "Reference Example"];
         }
@@ -647,7 +647,7 @@ internal sealed partial class PageValidator
             }
         }
 
-        if (kind == "topic" && sections.Any(section => section.Name == "Reference Example"))
+        if (kind == "standard" && sections.Any(section => section.Name == "Reference Example"))
         {
             var example = SectionBody(reader, "Reference Example");
             var exampleHeading = reader.Headings.FirstOrDefault(heading => heading.Level == 2 && PageReader.StripAnchorSuffix(heading.Text).Trim() == "Reference Example");

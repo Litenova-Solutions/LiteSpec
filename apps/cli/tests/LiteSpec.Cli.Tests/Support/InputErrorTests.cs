@@ -50,7 +50,6 @@ public sealed class InputErrorTests
     }
 
     /// <summary>Book Accepts An Option Written With An Equals Sign.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Accepts_An_Option_Written_With_An_Equals_Sign()
     {

@@ -105,7 +105,7 @@ static class ProofConfirmation
 
         if (claimed.Type is RecordTypes.Requirement or RecordTypes.Decision or RecordTypes.ExternalSystem or RecordTypes.IntegrationEvent)
         {
-            return true;
+            return test.Texts.Count > 0 || test.Codes.Count > 0;
         }
 
         if (claimed.Type == RecordTypes.Rule)
@@ -198,9 +198,9 @@ static class ProofConfirmation
     ///     proves, or through an integration fact that resolves a service from the host
     ///     and calls the message type of a governed use case or the governed aggregate.
     ///     A requirement, decision, external-system, or integration-event claim
-    ///     confirms on its own once it resolves: no step, message, or effect analysis
-    ///     applies, and its passing run marks it tested. A provision claim confirms
-    ///     when the carried release holds it.
+    ///     confirms once it resolves and the test asserts something: no step,
+    ///     message, or effect analysis applies, and its passing run marks it
+    ///     tested. A provision claim confirms when the carried release holds it.
     /// </summary>
     /// <param name="model">The project model.</param>
     /// <param name="test">The scenario test.</param>
@@ -226,7 +226,7 @@ static class ProofConfirmation
 
         if (claimed.Type is RecordTypes.Requirement or RecordTypes.Decision or RecordTypes.ExternalSystem or RecordTypes.IntegrationEvent)
         {
-            return true;
+            return test.HasAssertion || test.Steps.Any(step => step.Phase == "then");
         }
 
         if (claimed.Type != RecordTypes.Scenario)

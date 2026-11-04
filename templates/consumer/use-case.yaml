@@ -1,12 +1,7 @@
 type: use-case
 id: use-case/spending.submit-expense
 title: Submit Expense
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-purpose: The employee submits an expense for approval.
-whatHappens: Claimwick validates the expense, stores it, and notifies the approver.
+summary: The employee submits an expense for approval.
 exposure: The claimwick-app entry point reaches it, guarded by permission/submit-expense.
 kind: command
 access:
@@ -15,7 +10,7 @@ access:
 serves:
   - journey/submit-and-reimburse#s2
 fulfills:
-  - requirement/approval.decided-within-five-days
+  - requirement/approval-reminders.decided-within-five-days
 reachedThrough:
   - entry-point/claimwick-app
 raises:
@@ -79,16 +74,8 @@ audit:
   level: required
   target: The expense ledger.
 background: The employee holds an undecided expense.
-risk:
-  - money
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.
 records:
   - type: result
     id: result/submit-expense.submitted

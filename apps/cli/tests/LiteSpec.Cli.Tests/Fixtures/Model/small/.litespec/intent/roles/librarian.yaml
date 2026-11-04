@@ -1,0 +1,9 @@
+type: role
+id: role/librarian
+title: Librarian
+scope: platform
+allows:
+  - permission/borrow-copy
+  - permission/read-loans
+  - permission/manage-copies
+  - permission/place-hold

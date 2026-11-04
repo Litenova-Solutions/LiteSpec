@@ -1,2 +1,0 @@
-.litespec/behavior/modules/lending/loans/list-loans.yaml
-.litespec/behavior/modules/lending/loans/list-loans.md

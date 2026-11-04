@@ -2,7 +2,7 @@
 
 ## Intent
 
-Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. This page states what the team writes down for each lifetime and which behavior the code owns: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case (one command or query the product offers) needs them, and authorized, audited operations throughout. A team selects it for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers without an owner and no deletion breaks a legal or business duty.
+Data lifecycle rules decide how long each piece of stored data lives: how long it stays, when it is deleted, and when it can return. This page states what the team writes down for each lifetime and which behavior the code owns: hard delete wherever nothing needs the data later, explicit archive and restore states where a use case (one command or query the product offers) needs them, and authorized, audited operations throughout. A team selects it for each use case or rule that deletes, retains, archives, restores, holds, exports, or reuses data after deletion, so no data lingers past its retention and no deletion breaks a legal or business duty.
 
 ## Activation
 
@@ -18,7 +18,7 @@ This extension replaces no baseline provision.
 
 Selecting it switches on the setting record type: the retention bounds the lifecycle rules name live in setting records.
 
-A record retires with the `retired` status, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
+A record retires, and a retirement that removes declared behavior is a breaking change under the `compat` extension.
 
 ## Standards
 
@@ -26,11 +26,11 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **ID:** `litespec/ext/lifecycle#record-lifecycle-scope`
 
-**Statement:** A lifecycle record MUST name classification, retention, deletion trigger, purge owner, hold, export, restore, backup, owner, and status.
+**Statement:** A lifecycle record MUST name classification, retention, deletion trigger, hold, export, restore, and backup.
 
-**Rationale:** A lifecycle record names every choice the team makes about a record's lifetime in one place: what kind of data it is, how long it stays, what triggers deletion, who purges it, and how holds, exports, restores, and backups behave. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records, and a draft record names its decider and decide-by date so the choice cannot wait forever.
+**Rationale:** A lifecycle record names every choice the team makes about a record's lifetime in one place: what kind of data it is, how long it stays, what triggers deletion, and how holds, exports, restores, and backups behave. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records.
 
-**Reviewed for:** Each lifecycle record names classification, retention, deletion trigger, purge owner, hold, export, restore, backup, owner, and status.
+**Reviewed for:** Each lifecycle record names classification, retention, deletion trigger, hold, export, restore, and backup.
 
 ### Default to Hard Delete
 
@@ -258,8 +258,8 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 ## Dependencies
 
-Packages: `None.`
+Packages: None.
 
 Related extensions: `audit`, and `compat` for retiring declared behavior.
 
-Guides: `None.`
+Guides: None.

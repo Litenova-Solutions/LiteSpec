@@ -1,10 +1,6 @@
 type: exception
 id: exception/export-review-bypass
 title: Export Review Bypass
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 kind: departure
 covers: litespec/backend/application#keep-command-handlers-to-load-call-and-stage
 subject:
@@ -17,9 +13,3 @@ consequences: Exports ship without the review step until the check is green.
 expiresOn: 2027-03-31
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

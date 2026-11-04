@@ -2,13 +2,13 @@
 
 ## Intent
 
-Automation states the work that runs without a request: the reactions answering events and the jobs running on schedule, once, or by hand. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Automation states the work that runs without a request: the reactions answering events and the jobs running on schedule, once, or by hand. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
 ### Reactions
 
-A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
+A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `summary`, and its steps live under What Happens in the explanation file beside the record file, with Example and Notes.
 
 | Field | Meaning |
 |:---|:---|
@@ -23,7 +23,7 @@ A reaction may hold scenario child records ending in a result of a use case its 
 
 ### Jobs
 
-A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
+A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `summary`, and its steps live under What Happens in the explanation file beside the record file, with Example and Notes.
 
 | Field | Meaning |
 |:---|:---|
@@ -39,7 +39,7 @@ A job may hold scenario child records ending in a result of a use case its effec
 
 ### Runbook
 
-A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `.litespec/behavior/runbooks/<name>.yaml`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. It keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 
@@ -53,7 +53,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** The send-due-notice reaction answers the loan-borrowed domain event and runs the send-due-notice command.
 
-**Checked by:** `litespec model check` reports `reaction-trigger-unknown` (level G) for a trigger naming an unknown event; `litespec consumer` fails a reaction without a `triggeredBy` list.
+**Checked by:** `litespec model check` reports `reaction-trigger-unknown` (level G) for a trigger naming an unknown event, and fails a reaction without a `triggeredBy` list.
 
 ### Run Every Job from Its Declared Kind
 
@@ -65,7 +65,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** The expire-lapsed-holds job runs every six hours over open holds past their window.
 
-**Checked by:** `litespec model check` reports `schedule-invalid` (level G) for a schedule neither an `every` duration, a `cron` expression, nor `at: startup`; `litespec consumer` fails a job without its `kind` or a scheduled job without `schedule`.
+**Checked by:** `litespec model check` reports `schedule-invalid` (level G) for a schedule neither an `every` duration, a `cron` expression, nor `at: startup`, and fails a job without its `kind` or a scheduled job without `schedule`.
 
 ### Declare Every Reaction and Job Edge in Effects
 
@@ -107,7 +107,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** `reaction/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed`.
 
-**Checked by:** `litespec model check` reports `reaction-name-invalid` (level G) for a reaction outside `<verb>-<what>-on-<fact>` with a declared verb.
+**Reviewed for:** Which reaction names hide their act or their trigger? Look at the reaction names beside their triggering events.
 
 ### Name Each Job for the Use Case It Runs
 
@@ -129,7 +129,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, holds never clear. Declaring `onFailure` states the failure shape beside the trigger: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `then` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure and `runbook` the recovery procedure. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeats collapse.
 
-**Checked by:** `litespec consumer` fails a reaction or job with `onFailure` outside the one failure shape; `litespec model check` reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
+**Checked by:** `litespec model check` fails a reaction or job with `onFailure` outside the one failure shape, and reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
 
 ### Point Reaction and Job Scenarios at the Run Result
 
@@ -147,11 +147,11 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** A reaction MUST NOT carry `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
-**Rationale:** Run fields describe work over time: the kind, the schedule, what each run selects, how many items per batch, the lock, where resume state lives, where it runs, the guard it runs under, the promised service level, and the evidence the run leaves. A reaction answers one event and carries none of that, so a run field on it claims a schedule the trigger never states.
+**Rationale:** Run fields describe work over time: the kind, the schedule, what each run selects, how many items per batch, the lock, where resume state lives, where it runs, the guard it runs under, the promised service level, and the evidence the run leaves. A reaction answers one event and carries none of that, so a run field on it claims a schedule the trigger never states. Settled by [decision/0015-automations-and-sagas](decision/0015-automations-and-sagas) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** The send-due-notice reaction answers its event with no `selection` and no `guard`.
 
-**Checked by:** `litespec consumer` fails a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
+**Checked by:** `litespec model check` fails a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
 ### Guard Every Manual Job
 
@@ -173,9 +173,9 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Rationale:** A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
 
-**Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending owner.
+**Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending team.
 
-**Checked by:** `litespec consumer` fails a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
+**Checked by:** `litespec model check` fails a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
 
 ## Conventions
 

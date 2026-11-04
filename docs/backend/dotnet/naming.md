@@ -33,7 +33,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** A file named for its type lets a reader and a tool find the type by the path. Two top-level types in one file break that lookup and merge their histories in review. Only a small private or file-scoped nested type stays with its owner.
 
-**Checked by:** `dotnet build` reports `LS3003` for a C# file whose name differs from its primary type.
+**Checked by:** `dotnet build` reports `SA1649` for a C# file whose name differs from its primary type.
 
 ### Name Asynchronous Methods Completely
 
@@ -43,7 +43,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Rationale:** The `Async` suffix tells the caller the method is asynchronous, and the trailing `CancellationToken` tells the caller it can cancel. A cancelable method that hides either invites blocking calls and uncancellable waits. A method is cancelable when it performs I/O or awaits. This provision states the .NET form of `litespec/workspace/naming#name-asynchronous-operations-completely`.
 
-**Checked by:** `dotnet build` reports `LS3001` for an async method name without `Async` and `LS3002` for a cancellation token that is misplaced or misnamed.
+**Checked by:** `dotnet build` reports `LS3001` for an async method name without `Async` and `CA1068` for a cancellation token that is not last.
 
 ### Keep Implementation Style Consistent
 

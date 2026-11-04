@@ -69,7 +69,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] .litespec/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
@@ -107,7 +107,7 @@ public sealed partial class UiValidatorTests
             UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"));
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] .litespec/departures/moved.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
@@ -121,7 +121,7 @@ public sealed partial class UiValidatorTests
         fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPackage"));
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] .litespec/project.json: 1 controlled frontend(s) and no paths.uiPackage");
+            "[litespec/frontend/ui#select-one-visual-authority] 1 controlled frontend(s) and no paths.uiPackage");
     }
 
     /// <summary>A Controlled Frontend With No Ui Block.</summary>
@@ -234,7 +234,7 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/components.json: an additional registry requires an exception");
+            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] an additional registry requires an exception");
     }
 
     /// <summary>The Source Lock Gate Refuses Without The Exception.</summary>
@@ -246,7 +246,7 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/ui-source-lock.json: registry 'fixture' is not the built-in shadcn registry");
+            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] registry 'fixture' is not the built-in shadcn registry");
     }
 
     // Source lock (litespec/frontend/web/ui#track-source-changes).
@@ -289,5 +289,21 @@ public sealed partial class UiValidatorTests
                 new JsonArray("../../../outside/button.tsx");
         });
         UiFixture.AssertProblem(fixture.Run(), "path escapes the shared package root");
+    }
+
+    /// <summary>Findings Carry Their Code And Level.</summary>
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    [Fact]
+    public void Findings_Carry_Their_Code_And_Level()
+    {
+        using var fixture = UiFixture.Create();
+        fixture.WriteManifest("dependencies", new JsonObject { ["@mui/material"] = "7.0.0" });
+        var problems = UiFixture.Problems(fixture.Run());
+        Assert.NotEmpty(problems);
+        Assert.All(problems, problem =>
+        {
+            Assert.Contains("[G]", problem);
+            Assert.Contains("[ui-dependency-invalid]", problem);
+        });
     }
 }

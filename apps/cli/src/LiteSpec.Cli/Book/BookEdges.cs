@@ -7,7 +7,7 @@ namespace LiteSpec.Book;
 ///     calls, and incoming edges inverting them with the computed proves,
 ///     implements and follows edges added.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#point-every-book-entry-to-its-source</follows>
 static class BookEdges
 {
     /// <summary>The outgoing edges of every record from its fields and computed calls.</summary>

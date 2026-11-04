@@ -1,3 +1,4 @@
+using LiteSpec.Model;
 using LiteSpec.Ui;
 
 namespace LiteSpec.Consumer;
@@ -29,12 +30,17 @@ static class ControlledUiChecks
 
         foreach (var problem in report.Problems)
         {
-            run.Err($"controlled UI: {problem}");
+            run.Err(problem with { Message = $"controlled UI: {problem.Message}" });
         }
 
         if (report.ExitCode != 0 && report.Problems.Count == 0)
         {
-            run.Err($"controlled UI validation failed with exit code {report.ExitCode}");
+            run.Err(new Finding(
+                "frontend-invalid",
+                $"controlled UI validation failed with exit code {report.ExitCode}",
+                ConsumerRoot.ProjectFile(run.Root),
+                1,
+                null));
         }
     }
 }

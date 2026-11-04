@@ -42,6 +42,18 @@ static class FrontendRecords
     }
 
     /// <summary>
+    ///     The entry point one screen belongs to, derived from its identifier home:
+    ///     <c>screen/&lt;entry-point&gt;.&lt;name&gt;</c>, so <c>screen/admin.home</c>
+    ///     belongs to <c>entry-point/admin</c>. Null when the identifier names no home.
+    /// </summary>
+    /// <param name="screen">The screen record whose entry point is wanted.</param>
+    /// <returns>The entry point identifier, or null when the screen identifier names no home.</returns>
+    public static string? EntryPointOf(Record screen) =>
+        Identifiers.TrySplit(screen.Id, out _, out var home, out _) && home is { Length: > 0 }
+            ? $"{RecordTypes.EntryPoint}/{home}"
+            : null;
+
+    /// <summary>
     ///     The entry points one frontend serves: the entry points of the screens
     ///     it holds a route for, or every browser entry point when it holds none.
     /// </summary>
@@ -59,7 +71,8 @@ static class FrontendRecords
             .Where(screen => screen.Frontend == frontend.Name && screen.ScreenId is not null)
             .Select(screen => screen.ScreenId!)
             .Where(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.Screen)
-            .SelectMany(id => model.ById[id].Ids(RecordFields.EntryPoint))
+            .Select(id => EntryPointOf(model.ById[id]))
+            .OfType<string>()
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
@@ -118,7 +131,7 @@ static class FrontendRecords
         [
             .. model.Records
                 .Where(record => record.Type == RecordTypes.Screen
-                    && record.Ids(RecordFields.EntryPoint).Any(entryPoints.Contains))
+                    && EntryPointOf(record) is { } point && entryPoints.Contains(point))
                 .Select(record => record.Id)
                 .OrderBy(id => id, StringComparer.Ordinal),
         ];

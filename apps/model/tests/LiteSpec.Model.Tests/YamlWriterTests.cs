@@ -11,9 +11,9 @@ public sealed class YamlWriterTests
     [Fact]
     public void Writes_Plain_Scalars_Without_Quotes()
     {
-        var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"title\":\"Borrow copy\",\"owner\":\"lending-team\"}"));
+        var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\"}"));
 
-        Assert.Equal("type: use-case\ntitle: Borrow copy\nowner: lending-team\n", text);
+        Assert.Equal("type: use-case\ntitle: Borrow copy\nsummary: Lend copies\n", text);
     }
 
     /// <summary>Strings that would resolve as non-strings write double-quoted.</summary>
@@ -64,9 +64,9 @@ public sealed class YamlWriterTests
     [Fact]
     public void Writes_Nested_Blocks_With_Two_Space_Indentation()
     {
-        var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"id\":\"use-case/lending.borrow-copy\",\"title\":\"Borrow copy\",\"owner\":\"lending-team\",\"status\":\"reviewed\",\"records\":[{\"type\":\"result\",\"id\":\"result/borrow-copy.borrowed\",\"title\":\"Borrowed\",\"outcome\":\"success\"},{\"type\":\"result\",\"id\":\"result/borrow-copy.copy-unavailable\",\"title\":\"Copy unavailable\",\"status\":\"draft\"}]}"));
+        var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"id\":\"use-case/lending.borrow-copy\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\",\"records\":[{\"type\":\"result\",\"id\":\"result/borrow-copy.borrowed\",\"title\":\"Borrowed\",\"outcome\":\"success\"},{\"type\":\"result\",\"id\":\"result/borrow-copy.copy-unavailable\",\"title\":\"Copy unavailable\",\"outcome\":\"refusal\"}]}"));
 
-        Assert.Equal("type: use-case\nid: use-case/lending.borrow-copy\ntitle: Borrow copy\nowner: lending-team\nstatus: reviewed\nrecords:\n  - type: result\n    id: result/borrow-copy.borrowed\n    title: Borrowed\n    outcome: success\n  - type: result\n    id: result/borrow-copy.copy-unavailable\n    title: Copy unavailable\n    status: draft\n", text);
+        Assert.Equal("type: use-case\nid: use-case/lending.borrow-copy\ntitle: Borrow copy\nsummary: Lend copies\nrecords:\n  - type: result\n    id: result/borrow-copy.borrowed\n    title: Borrowed\n    outcome: success\n  - type: result\n    id: result/borrow-copy.copy-unavailable\n    title: Copy unavailable\n    outcome: refusal\n", text);
     }
 
     /// <summary>Given keys write first in order; the rest follow in file order.</summary>

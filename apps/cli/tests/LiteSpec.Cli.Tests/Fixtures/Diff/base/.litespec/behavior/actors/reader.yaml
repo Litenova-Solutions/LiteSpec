@@ -1,8 +1,6 @@
 type: actor
 id: actor/reader
 title: Reader
-owner: lending-team
-status: approved
 kind: person
 holds:
   - role: role/reader

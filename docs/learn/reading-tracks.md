@@ -2,13 +2,13 @@
 
 ## Intent
 
-A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Reviewers and builders read it after [Records and the Project Model](records-and-the-model.md), before they open their first record.
+A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [Records and the Project Model](records-and-the-model.md), before they open their first record.
 
 ## Why Before How
 
-Read Intent before Behavior. Start at the product: the brief, the goals, the problems, the features, the constraints, the decisions, and the requirements. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the reactions, jobs, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
+Read Intent before Behavior. Start at the product record: the goals, the problems, the modules with their features and requirements, the constraints, the decisions, and the research. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the reactions, jobs, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
 
-A reviewer who reads Behavior first meets behavior with no reason. A reviewer who reads Intent first meets each use case as the answer to a requirement, and each requirement as the answer to a problem or goal.
+A reader who reads Behavior first meets behavior with no reason. A reader who reads Intent first meets each use case as the answer to a requirement, and each requirement as the answer to a problem or goal.
 
 ## One Journey End to End
 
@@ -17,15 +17,13 @@ Follow one journey from its goal to its proof. Product readers take this track t
 1. The goal the journey serves, and the requirements that fulfill it, with their statements and each `except` with its fallback inline.
 2. The journey page: its goal, its `finishedWhen`, its steps as product sentences, and what each step's `failure` says the person experiences.
 3. Each step's serving use cases: one line of goal each, with the Then clauses of their scenarios as context.
-4. The consequences box as context: new refusals in product words, data kept and for how long, and money effects.
-5. The open questions on the journey and its requirements, grouped in their ballots.
-6. The proof: the tests the model links to each scenario, and whether each use case reads verified.
+4. The proof: the tests the model links to each scenario, and whether each use case reads verified.
 
 For example, follow the journey that carries an expense from submission to reimbursement: its steps run through use cases such as Submit expense, each result names how its step ends, and each scenario is proven by a passing test. When every scenario on the journey is proven, the journey holds.
 
 ## One Module End to End
 
-Follow one module from its aggregates to its proof. Developers take this track through the Behavior records and the behavior diff. Read in this order:
+Follow one module from its aggregates to its proof. Developers take this track through the Behavior records and the book outline. Read in this order:
 
 1. The module page and its known limits.
 2. Each aggregate: its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data.
@@ -38,7 +36,7 @@ For example, the spending module holds the expense aggregate with its states and
 
 ## Structural Words
 
-Every record uses the same structural words: the record types, the links between them, and the statuses with the fixed sets. The [model page](../core/model.md) states each one; this table states what each word tells a reader.
+Every record uses the same structural words: the record types, the links between them, and the computed states with the fixed sets. The [model page](../core/model.md) states each one; this table states what each word tells a reader.
 
 ### Records
 
@@ -47,15 +45,14 @@ Every record uses the same structural words: the record types, the links between
 | product | What is built, for whom, and what it never does. |
 | goal | A measurable outcome the product serves. |
 | problem | A pain people meet today. |
-| feature | What is offered, or refused, against a problem. |
+| feature | What is offered against a problem. |
 | constraint | An outside rule that binds everything below it. |
 | research | Evidence that informs, never decides. |
-| decision | A settled choice, replaced never edited. |
-| topic | The requirements that share one story. |
+| decision | One settled choice with options weighed and evidence cited. |
+| module | One product area of the bounded context. |
 | requirement | One functional, quality, or policy obligation, with its exceptions and fallback. |
 | journey | Ordered product sentences toward one goal, each with an id. |
 | term | One glossary word with its meaning, layer, and aliases. |
-| module | One part of the domain. |
 | aggregate | One business object with its kind, states, transitions, data classes, and data. |
 | rule | One invariant, precondition, calculation, cross-aggregate, atomicity, reservation, commercial-data, or default sentence. |
 | event | One statement that something completed. |
@@ -67,14 +64,14 @@ Every record uses the same structural words: the record types, the links between
 | job | Scheduled, one-off, or manual work that runs use cases. |
 | notification | One person-facing message with its addresses, channel, and consent. |
 | setting | One tunable with its default, range, setter, and bound behavior. |
-| actor | One person, organization, or system that acts. |
+| actor | One person or organization that acts. |
 | role | One set of permissions held at a scope. |
 | permission | One allowed action. |
 | entry point | One way readers reach the product. |
 | external system | One outside system the product talks to, with its operations and erasure. |
 | retention schedule | When each data class is erased and what enforces it. |
 | runbook | What to do when a trigger fires. |
-| exception | One departure from a provision, or one check staying red, with an owner and an expiry date. |
+| exception | One departure from a provision, or one check staying red, with a reason and an expiry date. |
 
 ### Links
 
@@ -86,7 +83,6 @@ Every record uses the same structural words: the record types, the links between
 | fulfills | This record answers the requirement it names. |
 | cites | The records behind this requirement, journey, or widened read. |
 | decides | The decision settles this record. |
-| replaces | The decision overturns this earlier decision. |
 | governs | The rule binds this use case or aggregate. |
 | access | The grant and tenant scope this use case declares. |
 | reachedThrough | Readers reach the use case through this entry point. |
@@ -99,17 +95,12 @@ Every record uses the same structural words: the record types, the links between
 | holds | The actor carries this role at a scope. |
 | allows | The role grants this permission. |
 
-### Statuses and Sets
+### Computed States and Sets
 
 | Word | What It Tells the Reader |
 |:---|:---|
-| draft | The record waits for its decider. |
-| approved | The Intent or governance record holds. |
-| reviewed | The Behavior record holds. |
-| retired | A newer record replaced it. |
 | implemented | The builder found code for it. |
 | verified | A use case whose every scenario has a passing proof. |
-| stale | Its proof predates its latest semantic change. |
 | reachable | A transition leads into the state. |
 | command, query | The two use case kinds: change, ask. |
 | invariant, precondition, calculation, cross-aggregate, atomicity, reservation, commercial-data, default | The eight rule kinds. |
@@ -118,11 +109,10 @@ Every record uses the same structural words: the record types, the links between
 | scheduled, one-off, manual | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |
 | atomic, per-record, compensated | The three consistency modes. |
-| planned, shipped, later, refused | The four feature states. |
 
 ## Which Track to Take
 
-A product owner or reviewer takes the journey track: one goal at a time, from promises to proof, reading journey detail and the Ballots view. A developer or agent takes the module track: one module at a time, from aggregates to proof, reading Behavior records and the behavior diff. Both tracks read why before how, and both end at Proof, where passing tests show the promises hold.
+A product person takes the journey track: one goal at a time, from promises to proof, reading journey detail and the book. A developer or agent takes the module track: one module at a time, from aggregates to proof, reading Behavior records and the book outline. Both tracks read why before how, and both end at Proof, where passing tests show the promises hold.
 
 ## Next
 

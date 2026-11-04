@@ -9,7 +9,7 @@ namespace LiteSpec.Book;
 ///     paragraphs, lists, tables, code blocks, quotes and inline spans. It escapes
 ///     everything it does not generate, so prose can never inject markup.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookMarkdown
 {
     /// <summary>The pattern of one inline code span delimited by backticks.</summary>
@@ -26,7 +26,7 @@ static class BookMarkdown
     static readonly Regex Italic = new(@"\*([^*\n]+)\*", RegexOptions.Compiled);
     /// <summary>The pattern of one record identifier with an optional fragment, covering every record type prefix.</summary>
     static readonly Regex RecordId = new(
-        @"\b((?:product|goal|problem|feature|constraint|research|decision|topic|requirement|journey|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|use-case|result|scenario|actor|role|permission|entry-point|external-system|runbook|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)",
+        @"\b((?:product|goal|problem|feature|constraint|research|decision|requirement|journey|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|use-case|result|scenario|actor|role|permission|entry-point|external-system|runbook|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)",
         RegexOptions.Compiled);
     /// <summary>The pattern of one heading line with its level marks and text.</summary>
     static readonly Regex Heading = new(@"^(#{1,6})\s+(.*)$", RegexOptions.Compiled);

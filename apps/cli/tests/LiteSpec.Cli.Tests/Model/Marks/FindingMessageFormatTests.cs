@@ -217,8 +217,6 @@ public sealed class FindingMessageFormatTests
             Type = type,
             Id = id,
             Title = id,
-            Owner = "lending-team",
-            Status = "reviewed",
             File = file,
             Line = 1,
             Raw = raw,

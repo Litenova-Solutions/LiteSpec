@@ -3,7 +3,7 @@
   import { cn } from "$lib/utils";
   import Icon from "./Icon.svelte";
 
-  // A proof state with its icon; hovering explains it from LiteSpec's Statuses section.
+  // A proof state with its icon; hovering explains it from LiteSpec's Completion Stages section.
   let { state, text }: { state: ProofState | null; text?: string } = $props();
   const TONE: Record<string, string> = {
     passing: "text-convention-foreground border-convention-border bg-convention",

@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Book;
 /// <summary>Proves the book enrich step emits computed record details from the model only.</summary>
 public sealed class BookEnrichTests
 {
-    /// <summary>Each detail keeps the mockup shape: identity, status, stripped fields and source.</summary>
+    /// <summary>Each detail keeps the mockup shape: identity, stripped fields and source, with no status, owner or decider.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void Build_Keeps_The_Mockup_Record_Shape()
@@ -16,15 +16,19 @@ public sealed class BookEnrichTests
         var loan = details["aggregate/lending.loan"];
         Assert.Equal("aggregate", Str(loan, "type"));
         Assert.Equal("Loan", Str(loan, "title"));
-        Assert.Equal("lending-team", Str(loan, "owner"));
-        Assert.Equal("reviewed", Str(loan, "status"));
-        Assert.Equal("approved", Str(loan, "effective"));
+        Assert.Null(loan["owner"]);
+        Assert.Null(loan["status"]);
+        Assert.Null(loan["effective"]);
+        Assert.Null(loan["decider"]);
+        Assert.Null(loan["decideBy"]);
         var fields = Obj(loan, "fields");
         Assert.Null(fields["type"]);
         Assert.Null(fields["id"]);
         Assert.Null(fields["title"]);
         Assert.Null(fields["owner"]);
         Assert.Null(fields["status"]);
+        Assert.Null(fields["decider"]);
+        Assert.Null(fields["decideBy"]);
         Assert.NotNull(fields["summary"]);
         var src = Obj(loan, "src");
         Assert.Equal(".litespec/behavior/modules/lending/loans/aggregate.yaml", Str(src, "path"));
@@ -114,11 +118,11 @@ public sealed class BookEnrichTests
         Assert.False(BoolOf(borrow["verified"]));
         var returned = Obj(details["use-case/lending.return-copy"], "machine");
         Assert.False(BoolOf(returned["implemented"]));
-        var shelf = Obj(details["requirement/borrowing.copy-shelf-home"], "machine");
+        var shelf = Obj(details["requirement/self-checkout.copy-shelf-home"], "machine");
         Assert.True(BoolOf(shelf["met"]));
         Assert.Null(shelf["verified"]);
         Assert.Null(shelf["measurePassed"]);
-        var wait = Obj(details["requirement/borrowing.max-wait"], "machine");
+        var wait = Obj(details["requirement/self-checkout.max-wait"], "machine");
         Assert.False(BoolOf(wait["met"]));
         Assert.Null(wait["verified"]);
         Assert.Equal(false, wait["measurePassed"]?.GetValue<bool>());
@@ -228,7 +232,7 @@ public sealed class BookEnrichTests
     public void KeptBy_Counts_Fulfilling_Types()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
-        var kept = Obj(details["requirement/borrowing.max-wait"], "keptBy");
+        var kept = Obj(details["requirement/self-checkout.max-wait"], "keptBy");
         Assert.Equal(1, kept["use-case"]?.GetValue<int>());
         Assert.Equal(1, kept["reaction"]?.GetValue<int>());
         Assert.Equal(1, kept["notification"]?.GetValue<int>());
@@ -395,40 +399,6 @@ public sealed class BookEnrichTests
         Assert.True(BoolOf(browser["browser"]));
     }
 
-    /// <summary>Settled records with no draft above hold an empty held-by list.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
-    [Fact]
-    public void HeldBy_Is_Empty_Without_Draft_Uplinks()
-    {
-        var details = DetailsOf(LoadFixture("Book/review.json"));
-        Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "heldBy"));
-        Assert.Empty(Arr(details["result/borrow-copy.borrowed"], "heldBy"));
-        Assert.Empty(Arr(details["feature/self-checkout"], "heldBy"));
-    }
-
-    /// <summary>Held-by names the draft parent, decisions and requirements above a record.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
-    [Fact]
-    public void HeldBy_Lists_Draft_Parent_Decisions_And_Requirements()
-    {
-        var problem = Record("problem", "problem/wait", "Wait");
-        var feature = Record("feature", "feature/self-checkout", "Self Checkout", "approved", "draft", """{"solves": ["problem/wait"]}""");
-        var requirement = Record("requirement", "requirement/wait.max", "Max");
-        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow", "approved", "draft", """{"fulfills": ["requirement/wait.max"]}""");
-        var decision = Record("decision", "decision/kiosk", "Kiosk", "draft", "draft", """{"decides": ["feature/self-checkout"]}""");
-        var model = NewModel(problem, feature, requirement, useCase, decision);
-        var outline = BookOutline.Build(model);
-        var details = BookEnrich.Build(model, outline);
-        var held = Arr(details["feature/self-checkout"], "heldBy");
-        Assert.True(HasString(held, "problem/wait"));
-        Assert.True(HasString(held, "decision/kiosk"));
-        Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "heldBy"), "requirement/wait.max"));
-        foreach (var pair in details)
-        {
-            Assert.True(Arr(pair.Value, "heldBy").Count <= 6);
-        }
-    }
-
     /// <summary>Findings group by subject base id, open and known apart, unknown dropped.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
@@ -502,7 +472,7 @@ public sealed class BookEnrichTests
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var useOut = Arr(details["use-case/lending.borrow-copy"], "out");
         Assert.True(HasEdge(useOut, "journey/borrowing", "use-case.serves"));
-        Assert.True(HasEdge(useOut, "requirement/borrowing.max-wait", "use-case.fulfills"));
+        Assert.True(HasEdge(useOut, "requirement/self-checkout.max-wait", "use-case.fulfills"));
         Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.True(HasEdge(
@@ -629,10 +599,10 @@ public sealed class BookEnrichTests
         Assert.Equal("https://example.com/schemas/loan-borrowed.json", Str(Obj(details["integration-event/loan-borrowed"], "fields"), "dataschema"));
     }
 
-    /// <summary>A record detail carries the completion, approval, captures and evidence strength the model states beside the record.</summary>
+    /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_Completion_Approval_Captures_And_Evidence_Strength()
+    public void Details_Carry_Captures_And_Evidence_Strength_With_Computed_Completion()
     {
         var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
         screen["completion"] = JsonNode.Parse("""{"stage":"implemented","proof":"unknown","heldBy":[],"counts":{}}""");
@@ -645,12 +615,37 @@ public sealed class BookEnrichTests
         var details = DetailsOf(NewModel(screen, problem));
 
         var screenDetail = details["screen/home"];
-        Assert.Equal("implemented", Str(Obj(screenDetail, "completion"), "stage"));
-        Assert.Equal("unknown", Str(Obj(screenDetail, "completion"), "proof"));
-        Assert.Equal("Ada", Str(Obj(screenDetail, "approval"), "by"));
+        Assert.Null(screenDetail["approval"]);
+        var completion = Obj(screenDetail, "completion");
+        Assert.False(BoolOf(completion["hasCode"]));
+        Assert.Null(completion["stage"]);
         Assert.Single(Arr(screenDetail, "captures"));
         Assert.Equal("captured", Str(screenDetail, "captureState"));
         Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));
+    }
+
+    /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Completion_Is_Computed_From_Proof()
+    {
+        var details = DetailsOf(LoadFixture("Book/review.json"));
+        var borrow = Obj(details["use-case/lending.borrow-copy"], "completion");
+        Assert.True(BoolOf(borrow["hasCode"]));
+        Assert.False(BoolOf(borrow["hasTests"]));
+        var scenarios = Obj(borrow, "scenarios");
+        Assert.Equal(2, scenarios["of"]?.GetValue<int>());
+        Assert.Equal(1, scenarios["pass"]?.GetValue<int>());
+
+        var proved = Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "completion");
+        Assert.True(BoolOf(proved["hasTests"]));
+        Assert.Null(proved["hasCode"]);
+        Assert.Null(proved["scenarios"]);
+
+        var goal = Obj(details["goal/faster-borrowing"], "completion");
+        Assert.Null(goal["hasCode"]);
+        Assert.Null(goal["hasTests"]);
+        Assert.Null(goal["scenarios"]);
     }
 
     static JsonObject LoadFixture(string relative) =>

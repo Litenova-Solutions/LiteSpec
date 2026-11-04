@@ -175,9 +175,6 @@ public sealed class RenameMarksTests
                 "name": "Rename Fixture"
               },
               "size": "small",
-              "owners": [
-                "lending-team"
-              ],
               "paths": {
                 "docs": ".litespec",
                 "behaviorDocs": ".litespec/behavior",
@@ -207,8 +204,6 @@ public sealed class RenameMarksTests
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy",
-              "owner": "lending-team",
-              "status": "reviewed",
               "kind": "command"
             }
             """);
@@ -217,9 +212,6 @@ public sealed class RenameMarksTests
               "type": "decision",
               "id": "decision/0002-store-loans-as-documents",
               "title": "Store loans as documents",
-              "owner": "lending-team",
-              "status": "approved",
-              "approvedOn": "2026-10-01",
               "choice": "Documents",
               "options": [
                 {
@@ -266,14 +258,11 @@ public sealed class RenameMarksTests
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
             """);
-        TestRecords.Write(root, ".litespec/intent/borrowing/performance.yaml", """
+        TestRecords.Write(root, ".litespec/intent/features/performance.yaml", """
             {
-              "type": "topic",
-              "id": "topic/performance",
+              "type": "feature",
+              "id": "feature/performance",
               "title": "Borrowing performance",
-              "owner": "lending-team",
-              "status": "approved",
-              "reviewBy": "2027-04-01",
               "records": [
                 {
                   "type": "requirement",
@@ -290,18 +279,14 @@ public sealed class RenameMarksTests
             {
               "type": "external-system",
               "id": "external-system/text-gateway",
-              "title": "Text gateway",
-              "owner": "lending-team",
-              "status": "reviewed"
+              "title": "Text gateway"
             }
             """);
         TestRecords.Write(root, ".litespec/behavior/integration-events/loan-borrowed.yaml", """
             {
               "type": "integration-event",
               "id": "integration-event/loan-borrowed",
-              "title": "Loan borrowed",
-              "owner": "lending-team",
-              "status": "reviewed"
+              "title": "Loan borrowed"
             }
             """);
         Write(ProvesTag(root), """

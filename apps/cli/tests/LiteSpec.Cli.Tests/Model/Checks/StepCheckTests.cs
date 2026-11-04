@@ -56,18 +56,6 @@ public sealed class StepCheckTests
         Assert.Equal("journey/borrow-and-return#s1", finding.Subject);
     }
 
-    [Fact]
-    public void Retired_Server_Does_Not_Cover_A_Step()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            Journey(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "retired", "serves": ["journey/borrow-and-return#s1"]}"""));
-
-        Assert.Contains("step-use-case-missing", TestModel.Codes(model));
-    }
-
     /// <summary>A journey walking one step the servers serve.</summary>
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <returns>The journey record holding the step.</returns>

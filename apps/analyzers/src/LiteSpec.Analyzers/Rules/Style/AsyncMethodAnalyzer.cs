@@ -9,14 +9,14 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace LiteSpec.Analyzers.Rules.Style;
 
-/// <summary>LS3001 and LS3002: an asynchronous method ends in Async and takes the token last.</summary>
+/// <summary>LS3001: an asynchronous method ends in Async.</summary>
 /// <follows>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AsyncMethodAnalyzer : LayerAnalyzer
 {
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Descriptors.LS3001, Descriptors.LS3002);
+        ImmutableArray.Create(Descriptors.LS3001);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The application layer the compilation belongs to.</param>
@@ -43,8 +43,6 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
         private readonly INamedTypeSymbol? _valueTask;
         /// <summary>Stores the generic value task used by the well known types code.</summary>
         private readonly INamedTypeSymbol? _genericValueTask;
-        /// <summary>Stores the cancellation token used by the well known types code.</summary>
-        private readonly INamedTypeSymbol? _cancellationToken;
 
         /// <summary>Initializes a new instance of the <see cref="WellKnownTypes"/> class.</summary>
         /// <param name="compilation">The compilation whose types and references the check reads.</param>
@@ -54,7 +52,6 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
             _genericTask = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
             _valueTask = compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask");
             _genericValueTask = compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1");
-            _cancellationToken = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
         }
 
         /// <summary>Analyzes the method.</summary>
@@ -96,8 +93,6 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
                 report(Diagnostic.Create(
                     Descriptors.LS3001, method.Locations[0], method.Name, ReturnTypeText(method, cancellationToken)));
             }
-
-            CheckToken(method, report);
         }
 
         /// <summary>Returns true when the returns-task-without-suffix condition holds; otherwise false.</summary>
@@ -118,63 +113,6 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
             return !HasFixedSignature(method);
         }
 
-        /// <summary>Checks the token.</summary>
-        /// <param name="method">The method under inspection.</param>
-        /// <param name="report">The action that reports the diagnostic to the host.</param>
-        private void CheckToken(IMethodSymbol method, Action<Diagnostic> report)
-        {
-            if (_cancellationToken is null || !TakesToken(method))
-            {
-                return;
-            }
-
-            if (method.IsOverride
-                || method.ExplicitInterfaceImplementations.Length != 0
-                || ImplementsOutsideInterfaceMember(method))
-            {
-                return;
-            }
-
-            // A route-handler delegate in an endpoint is bound by the framework by type,
-            // not by position, so only its token name is checked. A host-lifetime token
-            // threaded from ExecuteAsync keeps the base name stoppingToken.
-            var endpoint = ImplementsEndpoint(method.ContainingType);
-            var hosted = IsHostedServiceContext(method.ContainingType);
-            var parameters = method.Parameters;
-            var last = parameters.Length - 1;
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                if (!SymbolEqualityComparer.Default.Equals(parameters[i].Type, _cancellationToken))
-                {
-                    continue;
-                }
-
-                var positioned = endpoint || i == last || (i == last - 1 && parameters[last].IsParams);
-                var named = parameters[i].Name == "cancellationToken"
-                    || (hosted && parameters[i].Name == "stoppingToken");
-                if (!positioned || !named)
-                {
-                    report(Diagnostic.Create(Descriptors.LS3002, parameters[i].Locations[0], method.Name));
-                }
-            }
-        }
-
-        /// <summary>Returns true when the takes-token condition holds; otherwise false.</summary>
-        /// <param name="method">The method under inspection.</param>
-        /// <returns>True when the takes-token condition holds; otherwise false.</returns>
-        private bool TakesToken(IMethodSymbol method)
-        {
-            for (var i = 0; i < method.Parameters.Length; i++)
-            {
-                if (SymbolEqualityComparer.Default.Equals(method.Parameters[i].Type, _cancellationToken))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         /// <summary>Returns true when the method has fixed signature; otherwise false.</summary>
         /// <param name="method">The method under inspection.</param>
         /// <returns>True when the method has fixed signature; otherwise false.</returns>
@@ -192,56 +130,6 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
             }
 
             return ImplementsOutsideInterfaceMember(method);
-        }
-
-        /// <summary>Returns true when the implements-endpoint condition holds; otherwise false.</summary>
-        /// <param name="containing">The containing supplied for the check, or null when the compilation does not provide it.</param>
-        /// <returns>True when the implements-endpoint condition holds; otherwise false.</returns>
-        private static bool ImplementsEndpoint(INamedTypeSymbol? containing)
-        {
-            if (containing is null)
-            {
-                return false;
-            }
-
-            foreach (var contract in containing.AllInterfaces)
-            {
-                if (contract.Name == "IEndpoint")
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>Returns true when the containing is hosted service context; otherwise false.</summary>
-        /// <param name="containing">The containing supplied for the check, or null when the compilation does not provide it.</param>
-        /// <returns>True when the containing is hosted service context; otherwise false.</returns>
-        private static bool IsHostedServiceContext(INamedTypeSymbol? containing)
-        {
-            if (containing is null)
-            {
-                return false;
-            }
-
-            for (var current = containing.BaseType; current != null; current = current.BaseType)
-            {
-                if (current.Name == "BackgroundService")
-                {
-                    return true;
-                }
-            }
-
-            foreach (var contract in containing.AllInterfaces)
-            {
-                if (contract.Name == "IHostedService")
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         /// <summary>Returns true when the implements-outside-interface-member condition holds; otherwise false.</summary>

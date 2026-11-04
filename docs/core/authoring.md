@@ -48,35 +48,34 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Index | A `README.md` | None | Intent, then navigation groups |
 | Glossary | `docs/reference/glossary.md` | None | H2 groups in alphabetical order, each with one intro sentence, then one H3 heading and definition per term |
 
-A consumer holds three kinds of files under its documentation root: a record file, an explanation file, and a document. A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder: plain Markdown with no frontmatter that explains the record. A document is a `.md` file with no `.yaml` of the same name beside it. Anything a check reads or a reviewer approves is a field in the record file; anything that only helps someone understand goes in the explanation file. The [model page](model.md) states the file rules, the split rule, and the homes; the tables below state the per-type fields and sections.
+A consumer holds three kinds of files under its documentation root: a record file, an explanation file, and a document. A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder: plain Markdown with no frontmatter that explains the record. A document is a `.md` file with no `.yaml` of the same name beside it. Anything a check reads is a field in the record file; anything that only helps someone understand goes in the explanation file. The [model page](model.md) states the file rules, the split rule, and the homes; the tables below state the per-type fields and sections.
 
-Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research, decision, and topic carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections after the fixed sections its type takes in the [writing standard](writing.md).
+Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research and decision carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections after the fixed sections its type takes in the [writing standard](writing.md).
 
 | Type | Template | New Fields | Explanation File |
 |:---|:---|:---|:---|
 | product | `templates/consumer/product.yaml` | `summary` | Free sections only |
-| goal | `templates/consumer/goal.yaml` | `whyItMatters` | Why It Matters, What Counts as Done, What It Connects To, Open Questions |
+| goal | `templates/consumer/goal.yaml` | `summary` | Why It Matters, What Counts as Done, What It Connects To |
 | problem | `templates/consumer/problem.yaml` | `affectsSegment`, `costToday`, `workaroundToday`, `evidence` | Who Has It, What They Do Today, Evidence, What Would Retire It |
-| feature | `templates/consumer/feature.yaml` | `offering` | Who It Serves and Why, What It Offers, What Good Looks Like, Open Questions |
+| feature | `templates/consumer/feature.yaml` | `offering` | Who It Serves and Why, What It Offers, What Good Looks Like |
 | constraint | `templates/consumer/constraint.yaml` | `summary` | Free sections only |
 | research | `templates/consumer/research.yaml`, `templates/consumer/research.md` | `key` on each source | Answer, Notes on Sources |
 | decision | `templates/consumer/decision.yaml`, `templates/consumer/decision.md` | `consequences` | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
-| topic | `templates/consumer/topic.yaml`, `templates/consumer/topic.md` | `summary`, `position`, `refusals` | The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are |
-| journey | `templates/consumer/journey.yaml` | `description`, `betweenSteps` | Who Walks and Why, Before It Starts (optional), Example, What It Connects To, Open Questions |
+| journey | `templates/consumer/journey.yaml` | `summary`, `betweenSteps` | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
 | module | `templates/consumer/module.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
 | aggregate | `templates/consumer/aggregate.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
-| use-case | `templates/consumer/use-case.yaml` | `purpose`, `whatHappens`, `exposure` | optional Example, optional Notes |
+| use-case | `templates/consumer/use-case.yaml` | `summary`, `exposure` | optional What Happens, optional Example, optional Notes |
 | rule-set | `templates/consumer/rule-set.yaml` | `summary` | optional Notes |
-| actor | `templates/consumer/actor.yaml` | `summary`, `belongsToTeam` | Who They Are, What They Do, What They Can Reach, Open Questions |
+| actor | `templates/consumer/actor.yaml` | `summary`, `belongsToTeam` | Who They Are, What They Do, What They Can Reach |
 | role | `templates/consumer/role.yaml` | `summary` | Free sections only |
 | external-system | `templates/consumer/external-system.yaml` | `summary` | Free sections only |
 | permission-list | `templates/consumer/permission-list.yaml` | Entries only | Free sections only |
-| entry-point-list | `templates/consumer/entry-point-list.yaml` | Entries only | Free sections only |
+| entry-point | `templates/consumer/entry-point.yaml` | `summary` | Free sections only |
 | screen | `templates/consumer/screen.yaml` | `summary` | Free sections only |
-| setting-set | `templates/consumer/setting-set.yaml` | `purpose`, `whatHappens` | optional Notes |
-| reaction | `templates/consumer/reaction.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
-| job | `templates/consumer/job.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
-| notification | `templates/consumer/notification.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
+| setting-set | `templates/consumer/setting-set.yaml` | `summary` | optional Notes |
+| reaction | `templates/consumer/reaction.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
+| job | `templates/consumer/job.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
+| notification | `templates/consumer/notification.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
 | integration-event | `templates/consumer/integration-event.yaml` | `summary`, `delivery` | optional Notes |
 | retention-schedule | `templates/consumer/retention-schedule.yaml` | Entries only | Free sections only |
 | runbook | `templates/consumer/runbook.yaml` | `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, `escalation` | What This Runbook Cannot Do Yet |
@@ -91,12 +90,11 @@ Each document style scaffolds from its template and keeps its sections in the bo
 | tutorial | `templates/consumer/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
 | how-to | `templates/consumer/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
 | reference | `templates/consumer/reference.md` | Intent, Reference, optional Notes |
-| review-report | `templates/consumer/review-report.md` | Verdicts, How the Review Ran, optional Changes Made, optional Held |
 | command | `templates/consumer/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
 | index | `templates/consumer/index.md` | Intent, then navigation groups |
 
-A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type` and its common fields. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `.litespec/behavior/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
+A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type`. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `.litespec/intent/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; `behavior/modules/<module>/` holds the same module name. Any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
 
 These rules apply to every Markdown page style:
 
@@ -115,15 +113,15 @@ These rules apply to every Markdown page style:
 
 ### Strict YAML Subset
 
-A record file holds one YAML mapping written in the strict subset the reader accepts: block mappings and sequences, plain, double-quoted, and single-quoted scalars, literal blocks (`|`, `|-`, `|+`), and `[]` and `{}` only as empty collections. The subset refuses comments, anchors, aliases, tags, `---` and `...` markers, folded `>` blocks, other flow collections, multi-line plain scalars, tabs in indentation, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `approvedHash: "12345678"` and `"0001"`.
+A record file holds one YAML mapping written in the strict subset the reader accepts: block mappings and sequences, plain, double-quoted, and single-quoted scalars, literal blocks (`|`, `|-`, `|+`), and `[]` and `{}` only as empty collections. The subset refuses comments, anchors, aliases, tags, `---` and `...` markers, folded `>` blocks, other flow collections, multi-line plain scalars, tabs in indentation, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
 
 ### Canonical Record Form
 
-`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `replaces`, and `provenance`, continue with the type's own fields in schema order, then `risk`, `terms`, and `questions`, and close with `records`, `approvedBy`, `approvedOn`, and `approvedHash`; any other key keeps its written order after these. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. The [model page](model.md) owns the canonical obligation (`litespec/core/model#write-every-record-file-in-canonical-form`).
+`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, and `title`, continue with the type's own fields in schema order, then `terms` where the type carries it, and close with `records`; any other key keeps its written order after these. Only a permission carries `risk`. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. The [model page](model.md) owns the canonical obligation (`litespec/core/model#write-every-record-file-in-canonical-form`).
 
 ### Record Citations in Prose
 
-A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a journey step, as Citations in Prose on the [model page](model.md) states (`litespec/core/model#resolve-every-page-link`). Prose cites a record by its identifier, never by its file path: `[the receipt rule](rule/expense.approver-is-not-submitter)` shows the form.
+A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a journey step, as Citations in Prose on the [model page](model.md) states (`litespec/core/model#resolve-every-page-link`). Prose cites a record by its identifier, never by its file path: `[the receipt rule](rule/expense.reimbursed-once)` shows the form.
 
 ### Provisions
 
@@ -168,7 +166,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records an exception of kind `departure` that covers the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not an exception. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the exception record.
+A project that departs from a Standard records an exception of kind `departure` whose `covers` names the provision; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not an exception. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the exception record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -188,7 +186,7 @@ The heading carries no identifier text. No two provisions share an ID. Consumer 
 
 ### Record Identifiers
 
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
+A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The qualified identifier is computed from the identifier segments plus placement, never written, shown in the book and the CLI, and accepted by `model query`. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
 
 ### Provision Layout
 
@@ -208,11 +206,14 @@ Every provision has the same parts in the same order:
 **Reviewed for:** Which shared primitives or composites live outside the shared package? Look in the workspace packages.
 ```
 
+A provision adds `**Applies to:**` only when it is narrower than its page, for example `artifact: aggregate`.
+
 1. The heading names the provision.
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
-3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
-4. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
-5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
+3. `Applies to` follows the ID line only when the provision is narrower than its page; otherwise the page scope applies.
+4. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
+5. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
+6. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
 A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
 
@@ -272,9 +273,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#use-one-normative-vocabulary`
 
-**Statement:** A Standards provision MUST use exactly one approved capitalized modal and no other capitalized normative term.
+**Statement:** A Standards provision MUST use exactly one listed capitalized modal and no other capitalized normative term.
 
-**Rationale:** Strength words work only when each one means exactly one thing. The provision contract defines the approved modals with their RFC meaning, so a reader knows whether a word obliges or suggests, and no second capitalized term sneaks in a different shade of obligation.
+**Rationale:** Strength words work only when each one means exactly one thing. The provision contract defines the listed modals with their RFC meaning, so a reader knows whether a word obliges or suggests, and no second capitalized term sneaks in a different shade of obligation.
 
 **Checked by:** `litespec-maintain validate` emits no `STANDARD_MODAL_COUNT` or `STANDARD_MODAL_VOCABULARY` diagnostic.
 
@@ -294,7 +295,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Authored prose MUST name each concept with its one glossary term.
 
-**Rationale:** A second name for one concept reads as a second concept: the reader hunts for a distinction the writer did not mean. One term per concept means each term is defined once and checked once.
+**Rationale:** A second name for one concept reads as a second concept: the reader hunts for a distinction the writer did not mean. One term per concept means each term is defined once and checked once. Settled by [decision/0018-one-record-language](decision/0018-one-record-language) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
 **Reviewed for:** Which concepts appear under more than one name? Look at the terms the change adds, beside the glossary.
 
@@ -310,12 +311,11 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 ```json
 { "id": "term/customer", "term": "customer", "meaning": "A person or company that buys.",
-  "owner": "__OWNER__", "status": "approved",
   "rejected": [{ "word": "client", "scope": "^domain/modules/orders/",
     "reason": "client names the API consumer" }] }
 ```
 
-**Checked by:** `litespec consumer` validates the project glossary against the glossary schema.
+**Checked by:** `litespec model check` validates the project glossary against the glossary schema.
 
 ### Reject a Recorded Synonym Inside Its Scope
 
@@ -325,7 +325,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
 
-**Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding.
+**Checked by:** `litespec model check` reports no `GLOSSARY_REJECTED_SYNONYM` finding.
 
 ### State Mannered Terms Literally
 
@@ -337,7 +337,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
 
-**Checked by:** `litespec consumer` reports no `GLOSSARY_MANNERED_TERM` finding.
+**Checked by:** `litespec model check` reports no `GLOSSARY_MANNERED_TERM` finding.
 
 ### Check the Vocabulary on Every Surface a Reader Meets
 
@@ -353,7 +353,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 { "paths": { "glossaryScan": ["apps/*/lib/i18n/dictionaries/*.json", "apps/api/tests/**/*.feature"] } }
 ```
 
-**Checked by:** `litespec consumer` scans every `glossaryScan` pattern and fails a pattern that matches no file.
+**Checked by:** `litespec model check` scans every `glossaryScan` pattern and fails a pattern that matches no file.
 
 ### Exclude the Compound That Names Another Concept
 
@@ -370,7 +370,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
   "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
 ```
 
-**Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding inside an exempt compound.
+**Checked by:** `litespec model check` reports no `GLOSSARY_REJECTED_SYNONYM` finding inside an exempt compound.
 
 ### Exclude Generated Regions from Prose Checks
 
@@ -624,9 +624,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.
 
-**Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
+**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 
-**Checked by:** `litespec consumer` fails a record identifier outside the declared grammar.
+**Checked by:** `litespec model check` fails a record identifier outside the declared grammar.
 
 ### Place the ID Under Every Provision Heading
 
@@ -704,11 +704,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 type: use-case
 id: use-case/spending.submit-expense
 title: Submit Expense
-owner: __OWNER__
-status: draft
 ```
 
-**Checked by:** `litespec consumer` validates each record file and each document frontmatter block against the record schema.
+**Checked by:** `litespec model check` validates each record file and each document frontmatter block against the record schema.
 
 ### Use One Metadata Carrier
 
@@ -716,7 +714,7 @@ status: draft
 
 **Statement:** A consumer page MUST use its record file as its only metadata carrier.
 
-**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads or a reviewer approves in one place, while the explanation file beside it explains without stating a field value.
+**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.
 
 **Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
 
@@ -728,7 +726,7 @@ status: draft
 
 **Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to be a record file, an explanation, or a document, or to sit under a declared unstructured path, leaves no page unchecked. A directory index that owns no record uses the index style, and a `README.md` with no frontmatter is a document.
 
-**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and `litespec consumer` fails a `.yaml` file with no record type outside a declared unstructured path.
+**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and fails a `.yaml` file with no record type outside a declared unstructured path.
 
 ### Start Each Explanation File with Its Title
 
@@ -746,7 +744,7 @@ status: draft
 
 **Statement:** A specification MUST name the source or the command that produces any count, census, or membership list derived between records.
 
-**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access` and `input`, and computed statuses appear in the book and the model output only.
+**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access` and `input`, and computed completion appears in the book and the model output only.
 
 **Example:** A chapter states where its numbers come from rather than copying them.
 
@@ -762,9 +760,9 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** No field on an Intent or Behavior record MUST be filled from code.
 
-**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state travels up as a draft question. Derivation between records stays allowed.
+**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state becomes a backlog item outside the repository. Derivation between records stays allowed.
 
-**Example:** A positivity guard found in a handler becomes a draft rule with its question, while the code stays untouched until the rule is reviewed.
+**Example:** A positivity guard found in a handler becomes a backlog item for a rule, while the code stays untouched until the rule lands.
 
 **Reviewed for:** Which Intent or Behavior fields copy values from code? Look at the fields the change fills, beside the implementation.
 
@@ -776,7 +774,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name. For an article type the command also writes the explanation file, and for a document style it writes the document.
 
-**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
+**Example:** `litespec new reaction spending.send-receipt-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
 
 **Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
 
@@ -872,7 +870,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 
-**Checked by:** `litespec consumer` fails when `reviewedLiteSpecVersion` differs from the pinned release.
+**Checked by:** `litespec model check` fails when `reviewedLiteSpecVersion` differs from the pinned release.
 
 ### Review Each Term for Its Lookalikes
 
@@ -882,9 +880,9 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
 
-**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
+**Example:** The notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
-**Checked by:** `litespec model check` reports `term-clash` (level A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
+**Reviewed for:** Which terms differ from another term only in hyphenation, spelling, plurality, or a compound split? Look at the terms the change adds, beside the glossary.
 
 ### State What Happens in Every Behavior Statement
 
@@ -898,7 +896,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
-**Checked by:** `litespec model check` reports `statement-word-invalid` (level A) for a listed vague word in a rule statement, scenario step, or result meaning.
+**Reviewed for:** Which rule statements, scenario steps, or result meanings hide their behavior behind a vague word? Look at the statements the change adds.
 
 ## Conventions
 

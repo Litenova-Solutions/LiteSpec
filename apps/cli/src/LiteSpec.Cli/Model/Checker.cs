@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
 using LiteSpec.Model.Checks;
@@ -17,8 +16,8 @@ static class Checker
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-invalid", "field-invalid", "identifier-invalid", "identifier-duplicate",
-        "use-case-name-clash", "use-case-verb-unknown", "term-clash", "statement-word-invalid", "value-invalid", "use-case-noun-unknown", "refusal-code-invalid", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "use-case-verb-invalid", "reaction-name-invalid", "job-name-invalid", "reference-unknown", "approval-invalid",
-        "owner-unknown", "decider-missing", "exception-expired", "exception-finding-unknown",
+        "use-case-name-clash", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "job-name-invalid", "reference-unknown",
+        "exception-expired", "exception-finding-unknown",
         "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
         "refusal-unimplemented", "use-case-unimplemented", "proves-unreached", "use-case-unverified", "proof-invalid",
         "size-type-missing", "product-count-invalid",
@@ -33,71 +32,41 @@ static class Checker
         "state-unreached", "transition-unknown",
         "erasure-undeclared", "calculation-table-missing",
         "reaction-trigger-unknown", "requirement-measure-missing",
-        "record-link-missing", "record-parent-missing", "feature-goal-missing", "feature-shipped-drift", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
+        "record-link-missing", "record-parent-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
         "query-output-missing", "paging-undeclared", "widening-cites-missing",
-        "retention-enforcement-missing", "risk-acceptance-missing", "exemption-expired",
+        "retention-enforcement-missing",
         "setting-requirement-missing", "reservation-release-missing",
-        "notification-sender-missing", "except-fallback-missing", "approval-reopened",
-        "parent-reopened",
-        "transcription-status-invalid", "transcription-expired",
+        "notification-sender-missing", "except-fallback-missing",
         "job-guard-missing", "schedule-invalid", "atomic-group-drift", "atomic-group-invalid",
         "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
-        "use-case-method-drift", "event-tense-invalid", "name-drift", "operation-id-duplicate", "route-invalid",
+        "operation-id-duplicate",
         "name-reason-missing", "collaborator-repository-invalid", "repository-read-invalid",
-        "query-filter-invalid", "dependency-count-invalid", "effect-timing-invalid",
-        "prose-missing", "atomic-group-duplicate", "question-expired",
+        "query-filter-invalid", "effect-timing-invalid",
+        "prose-missing", "atomic-group-duplicate",
         "explanation-orphaned", "explanation-missing", "format-drift",
         "source-link-bare", "source-key-unknown", "source-unused",
-        "problem-sufferer-invalid", "problem-cost-missing", "problem-workaround-missing", "problem-evidence-missing", "problem-statement-invalid", "problem-duplicate", "actor-unused", "goal-mover-missing", "term-missing",
-        "intent-area-invalid", "runbook-unused",
+        "problem-sufferer-invalid", "problem-evidence-missing", "actor-unused", "goal-mover-missing", "term-missing",
+        "runbook-unused",
     };
 
-    /// <summary>Fields the semantic hash skips: identity, workflow and approval data.</summary>
-    internal static readonly HashSet<string> ApprovalExcluded = new(StringComparer.Ordinal)
+    /// <summary>Fields the semantic hash skips: identity and nested entries, which carry their own hash.</summary>
+    internal static readonly HashSet<string> HashExcluded = new(StringComparer.Ordinal)
     {
-        "type", "id", "title", "owner", "status", "decider", "decideBy",
-        "approvedBy", "approvedOn", "approvedHash", "provenance",
-
-        // A nested entry carries its own hash, so its workflow and approval data never reopen its page.
-        "records",
-
-        // A term's labels translate its name; adding a language leaves the approved meaning alone.
-        "labels",
+        "type", "id", "title", "records",
     };
 
     /// <summary>
-    ///     The semantic hash over the record: every written field except identity,
-    ///     workflow and approval data, canonicalized and hashed to eight hex characters.
-    ///     A page of an article type also hashes its explanation file, so rewording the
-    ///     article reopens its approval; every other explanation stays outside the hash.
+    ///     The semantic hash over the record: every written field except identity
+    ///     and nested entries, canonicalized and hashed to eight hex characters.
+    ///     The stale-proof ledger compares it across runs.
     /// </summary>
-    /// <param name="record">The record whose written fields and article explanation are hashed.</param>
+    /// <param name="record">The record whose written fields are hashed.</param>
     /// <returns>The eight-hex-character semantic hash of the record.</returns>
     public static string SemanticHash(Record record)
     {
         var built = new StringBuilder();
 
-        CanonicalJson.WriteTopLevel(record.Raw, built, ApprovalExcluded);
-
-        if (!record.IsEntry && RecordFile.ArticleTypes.Contains(record.Type) && record.Explanation is not null)
-        {
-            built.Append("\n\0explanation\n");
-            built.Append(RecordFile.NormalizeExplanation(record.Explanation));
-        }
-
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
-
-        return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
-    }
-
-    /// <summary>The semantic hash over written record fields, as <see cref="SemanticHash(Record)" /> computes it.</summary>
-    /// <param name="raw">The written record fields as JSON, before exclusions are applied.</param>
-    /// <returns>The eight-hex-character semantic hash of the fields.</returns>
-    public static string SemanticHash(JsonElement raw)
-    {
-        var built = new StringBuilder();
-
-        CanonicalJson.WriteTopLevel(raw, built, ApprovalExcluded);
+        CanonicalJson.WriteTopLevel(record.Raw, built, HashExcluded);
 
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
 
@@ -110,16 +79,10 @@ static class Checker
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Check(ProjectModel model)
     {
         var findings = new List<Finding>(model.Problems);
-        var owners = Codeowners.Load(model.Config.Root);
 
-        Time("schema", () => SchemaChecks.Run(model, findings, owners));
+        Time("schema", () => SchemaChecks.Run(model, findings));
         Time("identifiers", () => IdentifierChecks.Run(model, findings));
-        Time("verbs", () => RecordNameChecks.RunVerbs(model, findings));
         Time("names", () => RecordNameChecks.RunNames(model, findings));
-        Time("lookalikes", () => TermLookalikeChecks.Run(model, findings));
-        Time("wording", () => WordingChecks.Run(model, findings));
-        Time("language", () => LanguageChecks.Run(model, findings));
-        Time("writing", () => WritingChecks.Run(model, findings));
         Time("record-names", () => RecordNameChecks.Run(model, findings));
         Time("citations", () => CitationChecks.Run(model, findings));
         Time("gates", () => GateChecks.Run(model, findings));
@@ -130,7 +93,6 @@ static class Checker
         Time("fulfillment", () => FulfilmentChecks.Run(model, findings));
         Time("requirement-cited", () => FulfilmentChecks.RunRequirementCited(model, findings));
         Time("constraint-cited", () => FulfilmentChecks.RunConstraintCited(model, findings));
-        Time("parent-reopened", () => ParentChecks.RunParentChanged(model, findings));
         Time("links", () => LinkChecks.Run(model, findings));
         Time("explanations", () => ExplanationChecks.Run(model, findings));
         Time("sources", () => ResearchSourceChecks.Run(model, findings));
@@ -148,16 +110,11 @@ static class Checker
         Time("lifecycle", () => LifecycleChecks.Run(model, findings));
         Time("erasure", () => GraphChecks.RunErasure(model, findings));
         Time("retention", () => GraphChecks.RunRetention(model, findings));
-        Time("acceptance", () => GraphChecks.RunRiskAcceptance(model, findings));
-        Time("exemption", () => GraphChecks.RunExemption(model, findings));
         Time("calculations", () => CalculationChecks.Run(model, findings));
         Time("reactions", () => GraphChecks.RunReactionTrigger(model, findings));
         Time("measured", () => MeasuredChecks.Run(model, findings));
-        Time("questions", () => QuestionChecks.Run(model, findings));
-        Time("aged", () => GraphChecks.RunQuestionAged(model, findings));
         Time("orphaned", () => GraphChecks.RunOrphaned(model, findings));
         Time("parents", () => ParentChecks.Run(model, findings));
-        Time("feature-goal", () => FeatureChecks.Run(model, findings));
         Time("intent", () => IntentChecks.Run(model, findings));
         Time("steps", () => GraphChecks.RunStepUnserved(model, findings));
         Time("loops", () => GraphChecks.RunEffectLoop(model, findings));
@@ -169,15 +126,12 @@ static class Checker
         Time("reservations", () => GraphChecks.RunReservation(model, findings));
         Time("senders", () => GraphChecks.RunNotificationSender(model, findings));
         Time("except", () => GraphChecks.RunExceptFallback(model, findings));
-        Time("approval", () => GraphChecks.RunApproval(model, findings));
-        Time("transcribed", () => GraphChecks.RunTranscribed(model, findings));
         Time("job-guard", () => GraphChecks.RunJobGuard(model, findings));
         Time("schedule", () => GraphChecks.RunSchedule(model, findings));
         Time("prose", () => GraphChecks.RunProse(model, findings));
         Time("groups", () => GraphChecks.RunManyAggregates(model, findings));
         Time("atomic-drift", () => GraphChecks.RunAtomicGroupDrift(model, findings));
         Time("atomic-invalid", () => GraphChecks.RunAtomicGroupInvalid(model, findings));
-        Time("saga", () => GraphChecks.RunSaga(model, findings));
         Time("typed-inputs", () => GraphChecks.RunTypedInputs(model, findings));
         Time("exercises", () => GraphChecks.RunExercises(model, findings));
         Time("doors", () => GraphChecks.RunDoors(model, findings));

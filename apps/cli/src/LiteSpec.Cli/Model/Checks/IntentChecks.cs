@@ -4,36 +4,23 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The Intent checks: a problem is an outside pain with cost, workaround and graded evidence, an actor is a person or organization named from a journey, a problem or an access position, and a goal is moved by a journey or a quality requirement.</summary>
+/// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person or organization named from a journey, a problem or an access position, and a goal is moved by a journey or a quality requirement.</summary>
 /// <follows>litespec/core/intent#admit-only-outside-pains-as-problems</follows>
-/// <follows>litespec/core/intent#state-the-cost-and-workaround-of-every-problem</follows>
 /// <follows>litespec/core/intent#grade-problem-evidence-by-kind</follows>
-/// <follows>litespec/core/intent#name-no-solution-in-a-problem-statement</follows>
-/// <follows>litespec/core/intent#name-each-sibling-problem-or-merge-it</follows>
 /// <follows>litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position</follows>
 /// <follows>litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement</follows>
 /// <follows>litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system</follows>
+/// <follows>litespec/core/intent#define-each-recurring-capitalized-phrase</follows>
 internal static class IntentChecks
 {
     /// <summary>The field recording whether an actor belongs to the team building and running the product.</summary>
     private const string BelongsToTeam = "belongsToTeam";
-
-    /// <summary>The field stating what a problem costs its sufferer today.</summary>
-    private const string CostToday = "costToday";
-
-    /// <summary>The field stating what a problem sufferer does instead today.</summary>
-    private const string WorkaroundToday = "workaroundToday";
 
     /// <summary>The field listing the evidence entries of a problem.</summary>
     private const string Evidence = "evidence";
 
     /// <summary>The journey step field naming the system record performing the step when no person acts.</summary>
     private const string System = "system";
-
-    /// <summary>Solution words a problem statement never names.</summary>
-    private static readonly Regex SolutionWord = new(
-        @"\b(build|add|provide|platform|feature|tool|app|dashboard)\b",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>Runs every Intent check.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
@@ -67,24 +54,20 @@ internal static class IntentChecks
         return kinds.Contains("assumed") ? "assumed" : "none";
     }
 
-    /// <summary>Reports each problem breaking the admission, cost, evidence, statement or sibling rule.</summary>
+    /// <summary>Reports each problem breaking the admission or evidence rule.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckProblems(ProjectModel model, List<Finding> findings)
     {
         var problems = model.Records
-            .Where(record => record.Type == RecordTypes.Problem && !record.Derived && record.Status != RecordStatuses.Retired)
+            .Where(record => record.Type == RecordTypes.Problem && !record.Derived)
             .ToList();
 
         foreach (var problem in problems)
         {
             CheckPrimarySufferer(model, problem, findings);
-            CheckCostAndWorkaround(problem, findings);
-            CheckApprovalEvidence(problem, findings);
-            CheckStatement(problem, findings);
+            CheckEvidence(problem, findings);
         }
-
-        CheckSiblingProblems(model, problems, findings);
     }
 
     /// <summary>Reports a problem whose primary sufferer is no person or organization outside the team.</summary>
@@ -119,172 +102,20 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Reports a problem with no cost or no workaround, or one stating unknown with no open question.</summary>
+    /// <summary>Reports a problem whose evidence is only assumed, or absent.</summary>
     /// <param name="problem">The problem record under inspection.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckCostAndWorkaround(Record problem, List<Finding> findings)
+    private static void CheckEvidence(Record problem, List<Finding> findings)
     {
-        var hasOpenQuestion = QuestionEntries(problem).Any(entry => !Answered(entry));
-
-        if (MissingOrUnpriced(problem.Field(CostToday), hasOpenQuestion))
-        {
-            findings.Add(new Finding(
-                "problem-cost-missing",
-                $"Problem '{problem.Id}' states no cost today, or states unknown with no open question.",
-                problem.File, problem.Line, SubjectOf(problem)));
-        }
-
-        if (MissingOrUnpriced(problem.Field(WorkaroundToday), hasOpenQuestion))
-        {
-            findings.Add(new Finding(
-                "problem-workaround-missing",
-                $"Problem '{problem.Id}' states no workaround today, or states unknown with no open question.",
-                problem.File, problem.Line, SubjectOf(problem)));
-        }
-    }
-
-    /// <summary>Whether a cost or workaround value is absent, or states unknown while no open question prices it.</summary>
-    /// <param name="value">The cost or workaround text, or null when the field is missing.</param>
-    /// <param name="hasOpenQuestion">Whether the record carries an open question.</param>
-    /// <returns>True when the value is missing, or states unknown with no open question.</returns>
-    private static bool MissingOrUnpriced(string? value, bool hasOpenQuestion)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return true;
-        }
-
-        return value.Trim().StartsWith("unknown", StringComparison.OrdinalIgnoreCase) && !hasOpenQuestion;
-    }
-
-    /// <summary>Reports an approved problem whose evidence is only assumed, or absent.</summary>
-    /// <param name="problem">The problem record under inspection.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckApprovalEvidence(Record problem, List<Finding> findings)
-    {
-        if (problem.Status != RecordStatuses.Approved)
-        {
-            return;
-        }
-
         var strength = EvidenceStrengthOf(problem);
 
         if (strength is "assumed" or "none")
         {
             findings.Add(new Finding(
                 "problem-evidence-missing",
-                $"Problem '{problem.Id}' is approved with {strength} evidence and no observed or reported entry.",
+                $"Problem '{problem.Id}' holds {strength} evidence and no observed or reported entry.",
                 problem.File, problem.Line, SubjectOf(problem)));
         }
-    }
-
-    /// <summary>Reports a problem statement naming a solution word.</summary>
-    /// <param name="problem">The problem record under inspection.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckStatement(Record problem, List<Finding> findings)
-    {
-        var statement = problem.Field(RecordFields.Statement);
-
-        if (statement is { Length: > 0 } && SolutionWord.Match(statement) is { Success: true } match)
-        {
-            findings.Add(new Finding(
-                "problem-statement-invalid",
-                $"Problem '{problem.Id}' names the solution word '{match.Value}' in its statement.",
-                problem.File, problem.Line, SubjectOf(problem))
-            {
-                TierOverride = "A",
-            });
-        }
-    }
-
-    /// <summary>Reports two problems with the same primary sufferer cited from the same topic that name neither each other.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="problems">The problem records under inspection.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSiblingProblems(ProjectModel model, List<Record> problems, List<Finding> findings)
-    {
-        var topics = ProblemTopics(model);
-        var bySufferer = problems
-            .Where(problem => problem.Ids(RecordFields.Affects).Count > 0)
-            .GroupBy(problem => problem.Ids(RecordFields.Affects)[0], StringComparer.Ordinal);
-
-        foreach (var group in bySufferer)
-        {
-            var siblings = group.OrderBy(problem => problem.Id, StringComparer.Ordinal).ToList();
-
-            for (var left = 0; left < siblings.Count; left++)
-            {
-                for (var right = left + 1; right < siblings.Count; right++)
-                {
-                    var first = siblings[left];
-                    var second = siblings[right];
-                    var shared = topics.GetValueOrDefault(first.Id, [])
-                        .Intersect(topics.GetValueOrDefault(second.Id, []), StringComparer.Ordinal)
-                        .ToList();
-
-                    if (shared.Count == 0 || Names(first, second) || Names(second, first))
-                    {
-                        continue;
-                    }
-
-                    findings.Add(new Finding(
-                        "problem-duplicate",
-                        $"Problem '{second.Id}' shares primary sufferer '{group.Key}' and topic '{shared[0]}' with problem '{first.Id}' and names it nowhere.",
-                        second.File, second.Line, SubjectOf(second))
-                    {
-                        TierOverride = "A",
-                    });
-                }
-            }
-        }
-    }
-
-    /// <summary>The topics citing each problem, from the requirements naming it in cites.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The topic names citing each problem id.</returns>
-    private static Dictionary<string, HashSet<string>> ProblemTopics(ProjectModel model)
-    {
-        var topics = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-
-        foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
-        {
-            var parts = requirement.Id.Split('/', '.');
-
-            if (parts.Length < 3)
-            {
-                continue;
-            }
-
-            foreach (var cited in requirement.Ids(RecordFields.Cites))
-            {
-                if (!cited.StartsWith("problem/", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (!topics.TryGetValue(cited, out var names))
-                {
-                    names = new HashSet<string>(StringComparer.Ordinal);
-                    topics[cited] = names;
-                }
-
-                names.Add(parts[1]);
-            }
-        }
-
-        return topics;
-    }
-
-    /// <summary>Whether one problem names the other in its fields or its explanation.</summary>
-    /// <param name="problem">The problem whose text is searched.</param>
-    /// <param name="other">The problem whose id or title is searched for.</param>
-    /// <returns>True when the problem names the other by id or by title.</returns>
-    private static bool Names(Record problem, Record other)
-    {
-        var text = problem.Raw.GetRawText() + "\n" + (problem.Explanation ?? "");
-
-        return text.Contains(other.Id, StringComparison.Ordinal)
-            || (other.Title.Length > 0 && text.Contains(other.Title, StringComparison.Ordinal));
     }
 
     /// <summary>Reports each journey step naming both an actor and a system, or a system of the wrong type.</summary>
@@ -387,7 +218,7 @@ internal static class IntentChecks
         }
 
         foreach (var actor in model.Records.Where(record => record.Type == RecordTypes.Actor
-                     && !record.Derived && record.Status != RecordStatuses.Retired))
+                     && !record.Derived))
         {
             if (!named.Contains(actor.Id))
             {
@@ -427,7 +258,7 @@ internal static class IntentChecks
         }
 
         foreach (var goal in model.Records.Where(record => record.Type == RecordTypes.Goal
-                     && !record.Derived && record.Status != RecordStatuses.Retired))
+                     && !record.Derived))
         {
             if (!moved.Contains(goal.Id))
             {
@@ -436,7 +267,7 @@ internal static class IntentChecks
                     $"Goal '{goal.Id}' is moved by no journey and no quality requirement.",
                     goal.File, goal.Line, SubjectOf(goal))
                 {
-                    TierOverride = "A",
+                    TierOverride = "G",
                 });
             }
         }

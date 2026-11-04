@@ -29,7 +29,7 @@
     "term": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "term", "meaning", "owner", "status", "layer"],
+      "required": ["id", "term", "meaning", "layer"],
       "properties": {
         "id": {
           "description": "The Term identifier.",
@@ -98,39 +98,6 @@
           "type": "array",
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/termValue" }
-        },
-        "owner": {
-          "type": "string",
-          "minLength": 1
-        },
-        "status": {
-          "type": "string",
-          "enum": ["draft", "approved", "retired"]
-        },
-        "decider": {
-          "description": "The person who decides a draft term.",
-          "type": "string",
-          "minLength": 1
-        },
-        "decideBy": {
-          "description": "The date a draft term is decided by.",
-          "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-        },
-        "approvedBy": {
-          "description": "The approver of an approved term.",
-          "type": "string",
-          "minLength": 1
-        },
-        "approvedOn": {
-          "description": "The approval date of an approved term.",
-          "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-        },
-        "approvedHash": {
-          "description": "The builder's semantic hash over the term when it was approved.",
-          "type": "string",
-          "minLength": 1
         }
       }
     },

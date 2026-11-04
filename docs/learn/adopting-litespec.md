@@ -32,7 +32,7 @@ Run `dotnet litespec init` with the preset closest to the stack and the size:
 dotnet litespec init --preset dotnet-react --size small
 ```
 
-It writes `.litespec/project.json` with the size, shape, and stacks, records the release the team reviewed in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the owners and paths, point `paths.behaviorDocs` at the Behavior root, name the veto window in `review` and the security reviewer when the project wants one, name the decision that ends transcription in `adoption`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.0.0/select/) shows which pages the choices apply.
+It writes `.litespec/project.json` with the size, shape, and stacks, records the release the team pinned in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the paths, name the refusal codes in `refusals`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.0.0/select/) shows which pages the choices apply.
 
 ### 3. Tell the Agents
 
@@ -40,11 +40,11 @@ It writes `.litespec/project.json` with the size, shape, and stacks, records the
 
 ### 4. Write the First Records
 
-Start with the product: one `.litespec/intent/brief.yaml` that says what the product is, who it is for, and what it never does. Then work one slice at a time, one feature from problem to scenario, then the next, as the [model page](../core/model.md) describes: Intent first, then Behavior specified from it, then code, then Proof. A first module, its aggregates, and the use cases about to be built are enough to start. Each record has a template in the release.
+Start with the product: one `.litespec/intent/product.yaml` that says what the product is, who it is for, and what it never does. Then work one slice at a time, one feature from problem to scenario, then the next, as the [model page](../core/model.md) describes: Intent first, then Behavior specified from it, then code, then Proof. A first module with its features, its aggregates, and the use cases about to be built is enough to start. Each record has a template in the release, and `litespec new` puts each one in its legal folder.
 
 ### 5. Build to the Standard
 
-Build the first use case the way the standard describes: the backend projects, the handler in its folder, the refusal codes, the tests. Reference `LiteSpec.Analyzers` from the five application projects, or once in `Directory.Build.props`, so a breach of a .NET provision fails the build at the line that breaks it:
+Build the first use case the way the standard describes: the application project ordered by module, aggregate, and use case, the handler in its folder, the refusal codes, the tests. Reference `LiteSpec.Analyzers` from the application project and the hosts, or once in `Directory.Build.props`, so a breach of a .NET provision fails the build at the line that breaks it:
 
 ```xml
 <ItemGroup>
@@ -52,26 +52,27 @@ Build the first use case the way the standard describes: the backend projects, t
 </ItemGroup>
 ```
 
-Then build the model to see what the builder finds:
+Then check what the builder finds:
 
 ```bash
-dotnet litespec model build
 dotnet litespec model check
+dotnet litespec rules apps/api/src/Shop/Orders/Order/CancelOrder/CancelOrderCommandHandler.cs
 ```
+
+The first command lists the gaps with a level beside each finding. The second lists the provisions that apply to the file just written, grouped by strength.
 
 ### 6. Add the Checks to CI
 
-Run `dotnet litespec consumer`, `dotnet litespec model check`, and the gates the [CI page](../quality/ci.md) lists for each area on every pull request, and publish the intent diff with a book preview so reviewers read each change in product words. A gap then shows up in the change that caused it, not months later.
+Run `dotnet litespec model check` and the gates the [CI page](../quality/ci.md) lists for each area on every pull request. A gap then shows up in the change that caused it, not months later.
 
 ## Departures During Adoption
 
 Existing code rarely meets every rule at the start. Record each departure instead of ignoring it:
 
-- An **exception record** of kind `departure` for a provision the project will not follow, with its reason, owner, and expiry date.
-- An **exception record** of kind `gap` for a check that stays red until the project fixes it, with its reason, owner, and expiry date.
-- A **transcribed record** for Behavior written from existing code during adoption, marked with `provenance: transcribed`. It stays in draft until its Intent parent is approved, and the mode ends at the decision `adoption.transcriptionEndsWith` names.
+- An **exception record** of kind `departure` for a provision the project will not follow, with its reason and expiry date.
+- An **exception record** of kind `gap` for a check that stays red until the project fixes it, with its reason and expiry date.
 
-All three keep the checks honest. An exception applies once approved and holds until its expiry date; past that date `exception-expired` reports it. A transcribed record can never reach reviewed on its own.
+Both keep the checks honest. An exception applies while it is present and unexpired; past its expiry date `exception-expired` reports it.
 
 ## Next Steps
 

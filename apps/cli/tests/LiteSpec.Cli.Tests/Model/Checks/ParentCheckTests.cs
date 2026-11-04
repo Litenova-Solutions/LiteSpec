@@ -6,138 +6,28 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
 {
-    /// <summary>Requirement With Topic Passes.</summary>
+    /// <summary>Feature With Solves Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_With_Topic_Passes()
+    public void Feature_With_Solves_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Requirement Without Topic Reports At Tier G.</summary>
+    /// <summary>Feature Without Solves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_Without_Topic_Reports_At_Tier_G()
+    public void Feature_Without_Solves_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' has no parent and its home 'borrowing' names no topic.", finding.Message);
-        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
-    }
-
-    /// <summary>Draft Requirement Without Topic Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Draft_Requirement_Without_Topic_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' has no parent and its home 'borrowing' names no topic.", finding.Message);
-        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
-    }
-
-    /// <summary>Requirement With Another Topic Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Requirement_With_Another_Topic_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/checkout", Path.Combine(temp.Path, "checkout.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' has no parent and its home 'borrowing' names no topic.", finding.Message);
-        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
-    }
-
-    /// <summary>Requirement With Dangling Cites Reports Unresolved.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Requirement_With_Dangling_Cites_Reports_Unresolved()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/no-such-feature"]}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
-
-        Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
-        Assert.Contains("reference-unknown", TestModel.Codes(model));
-    }
-
-    /// <summary>Requirement Topic Segment Differs From Page Reports.</summary>
-    /// <proves>litespec/core/intent#identify-every-requirement</proves>
-    [Fact]
-    public void Requirement_Topic_Segment_Differs_From_Page_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-invalid");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names topic 'borrowing', which differs from its page 'checkout'.", finding.Message);
-        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
-    }
-
-    /// <summary>Requirement Topic Segment Matching Page Passes.</summary>
-    /// <proves>litespec/core/intent#identify-every-requirement</proves>
-    [Fact]
-    public void Requirement_Topic_Segment_Matching_Page_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
-
-        Assert.DoesNotContain("identifier-invalid", TestModel.Codes(model));
-    }
-
-    /// <summary>Refused Feature With Solves Passes.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Refused_Feature_With_Solves_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/overdue-loans-pile-up"], "refusedBecause": "The desk handles holds by hand."}"""));
-
-        Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Refused Feature Without Solves Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Refused_Feature_Without_Solves_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"status": "approved", "lifecycle": "refused", "refusedBecause": "The desk handles holds by hand."}"""));
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
@@ -288,24 +178,24 @@ public sealed class ParentCheckTests
         Assert.Equal("result/no-such-case.filed", finding.Subject);
     }
 
-    /// <summary>Screen With Agreeing EntryPoint Passes.</summary>
+    /// <summary>Screen With Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_With_Agreeing_EntryPoint_Passes()
+    public void Screen_With_Home_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"entryPoint": "entry-point/library-app", "address": "/loans"}"""),
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"address": "/loans"}"""),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser"}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Screen Without EntryPoint Reports.</summary>
+    /// <summary>Screen With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_Without_EntryPoint_Reports()
+    public void Screen_With_Missing_Home_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -314,24 +204,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Screen 'screen/library-app.loans' has no parent and 'entryPoint' names no entry point.", finding.Message);
-        Assert.Equal("screen/library-app.loans", finding.Subject);
-    }
-
-    /// <summary>Screen With Disagreeing EntryPoint Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Screen_With_Disagreeing_EntryPoint_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"entryPoint": ["entry-point/kiosk"], "address": "/loans"}"""),
-            TestModel.Record("entry-point", "entry-point/kiosk", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "device"}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Screen 'screen/library-app.loans' has no parent and 'entryPoint' 'entry-point/kiosk' disagrees with its home 'library-app'.", finding.Message);
+        Assert.Equal("Screen 'screen/library-app.loans' has no parent and its home 'library-app' names no entry point.", finding.Message);
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
@@ -505,19 +378,6 @@ public sealed class ParentCheckTests
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Setting 'setting/nope.max-renewals' has no parent and its home 'nope' names no module.", finding.Message);
         Assert.Equal("setting/nope.max-renewals", finding.Subject);
-    }
-
-    /// <summary>Retired Record Without Parent Passes.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Retired_Record_Without_Parent_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
-
-        Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
     /// <summary>Root Type Without Parent Passes.</summary>

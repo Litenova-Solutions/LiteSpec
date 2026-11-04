@@ -114,6 +114,20 @@ public sealed class BookLexiconTests
             terms.Carriers.ToList());
     }
 
+    /// <summary>A Written on cell naming a nested carrier keeps only the record types.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void BasedOn_Row_Skips_Non_Record_Carriers()
+    {
+        using var temp = Cli.Temp("book-lexicon");
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+        var basedOn = lexicon.Links.Single(link => link.Field == "basedOn");
+        Assert.Equal(new List<string> { "decision" }, basedOn.Carriers.ToList());
+        Assert.True(lexicon.TryPhrase("basedOn", "decision", out var forward, out var inverse));
+        Assert.Equal("is based on", forward);
+        Assert.Equal("is a basis for", inverse);
+    }
+
     /// <summary>Each type carries its label, plural, layer and question; research stays whole in the plural.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
@@ -134,10 +148,10 @@ public sealed class BookLexiconTests
         Assert.Equal("External systems", types["external-system"]!.AsObject()["plural"]!.GetValue<string>());
     }
 
-    /// <summary>Each layer carries its writers and reviewers; governance and glossary read beside the four rows with none.</summary>
+    /// <summary>Each layer carries its writers; governance and glossary read beside the four rows with none.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Layers_Carry_Writes_And_Reviews()
+    public void Layers_Carry_Writers()
     {
         using var temp = Cli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
@@ -146,12 +160,12 @@ public sealed class BookLexiconTests
         var intent = layers["intent"]!.AsObject();
         Assert.Equal("Intent", intent["label"]!.GetValue<string>());
         Assert.Equal("agents draft", intent["writes"]!.GetValue<string>());
-        Assert.Equal("the founder", intent["reviews"]!.GetValue<string>());
+        Assert.False(intent.ContainsKey("reviews"));
 
         var governance = layers["governance"]!.AsObject();
         Assert.Equal("Governance", governance["label"]!.GetValue<string>());
         Assert.Equal("", governance["writes"]!.GetValue<string>());
-        Assert.Equal("", governance["reviews"]!.GetValue<string>());
+        Assert.False(governance.ContainsKey("reviews"));
         Assert.Equal("Glossary", layers["glossary"]!.AsObject()["label"]!.GetValue<string>());
     }
 
@@ -164,22 +178,18 @@ public sealed class BookLexiconTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.Equal("Finished when", lexicon.Fields["finishedWhen"]);
-        Assert.Equal("Lifecycle", lexicon.Fields["lifecycle"]);
         Assert.Equal("Due by", lexicon.Fields["dueBy"]);
-        Assert.Equal("Planned for", lexicon.Fields["plannedFor"]);
         Assert.Equal("Choice", lexicon.Fields["choice"]);
         Assert.Equal("Reopened when", lexicon.Fields["reopenedWhen"]);
         Assert.Equal("Pros", lexicon.Fields["pros"]);
         Assert.Equal("Cons", lexicon.Fields["cons"]);
         Assert.Equal("Exclusions", lexicon.Fields["exclusions"]);
         Assert.Equal("Addresses", lexicon.Fields["addresses"]);
-        Assert.Equal("Recommendation", lexicon.Fields["recommendation"]);
         Assert.Equal("Condition", lexicon.Fields["condition"]);
         Assert.Equal("Read on", lexicon.Fields["readOn"]);
         Assert.Equal("Authority", lexicon.Fields["authority"]);
         Assert.Equal("Conclusion", lexicon.Fields["conclusion"]);
         Assert.Equal("Options", lexicon.Fields["options"]);
-        Assert.Equal("Provenance", lexicon.Fields["provenance"]);
         Assert.Equal("Origin", lexicon.Fields["origin"]);
         Assert.Equal("Selection", lexicon.Fields["selection"]);
         Assert.Equal("History", lexicon.Fields["history"]);
@@ -233,8 +243,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Expires on", lexicon.Fields["expiresOn"]);
         Assert.Equal("Paths", lexicon.Fields["paths"]);
         Assert.Equal("Applies because", lexicon.Fields["appliesBecause"]);
-        Assert.Equal("Refused because", lexicon.Fields["refusedBecause"]);
-        Assert.Equal("Questions", lexicon.Fields["questions"]);
         Assert.Equal("On exhausted", lexicon.Fields["onExhausted"]);
         Assert.Equal("Term", lexicon.Fields["term"]);
         Assert.Equal("Aliases", lexicon.Fields["aliases"]);
@@ -275,6 +283,19 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("automation"));
         Assert.False(lexicon.Fields.ContainsKey("removeWhen"));
         Assert.False(lexicon.Fields.ContainsKey("endsBy"));
+        Assert.False(lexicon.Fields.ContainsKey("lifecycle"));
+        Assert.False(lexicon.Fields.ContainsKey("plannedFor"));
+        Assert.False(lexicon.Fields.ContainsKey("refusedBecause"));
+        Assert.False(lexicon.Fields.ContainsKey("questions"));
+        Assert.False(lexicon.Fields.ContainsKey("recommendation"));
+        Assert.False(lexicon.Fields.ContainsKey("provenance"));
+        Assert.False(lexicon.Fields.ContainsKey("decider"));
+        Assert.False(lexicon.Fields.ContainsKey("decideBy"));
+        Assert.False(lexicon.Fields.ContainsKey("owner"));
+        Assert.False(lexicon.Fields.ContainsKey("approvedBy"));
+        Assert.False(lexicon.Fields.ContainsKey("approvedOn"));
+        Assert.False(lexicon.Fields.ContainsKey("approvedHash"));
+        Assert.False(lexicon.Fields.ContainsKey("reviewBy"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>
@@ -311,15 +332,15 @@ public sealed class BookLexiconTests
         using var temp = Cli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var sections = lexicon.ToJson()["sections"]!.AsObject();
-        Assert.Equal(6, sections.Count);
+        Assert.Equal(2, sections.Count);
 
-        var statuses = sections["Statuses"]!.AsObject();
-        Assert.Equal("Draft means the record awaits its decider.", statuses["text"]!.GetValue<string>());
-        Assert.Equal("model.md, Statuses", statuses["source"]!.GetValue<string>());
+        var statuses = sections["Completion Stages"]!.AsObject();
+        Assert.Equal("Completion is computed from code, tests and passing scenarios.", statuses["text"]!.GetValue<string>());
+        Assert.Equal("model.md, Completion Stages", statuses["source"]!.GetValue<string>());
 
-        var ballots = sections["Questions and Ballots"]!.AsObject();
-        Assert.Equal("Open questions block approval.", ballots["text"]!.GetValue<string>());
-        Assert.Equal("model.md, Questions and Ballots", ballots["source"]!.GetValue<string>());
+        var levels = sections["Check Levels"]!.AsObject();
+        Assert.Equal("Every check has a tier.", levels["text"]!.GetValue<string>());
+        Assert.Equal("model.md, Check Levels", levels["source"]!.GetValue<string>());
     }
 
     /// <summary>Each finding code carries its tier and meaning; the reason-code table is not a finding table.</summary>
@@ -443,12 +464,12 @@ public sealed class BookLexiconTests
 
         Each record layer answers one question.
 
-        | Record layer | Question | Writes | Reviews | Records |
-        |:--|:--|:--|:--|:--|
-        | Intent | Why build it? | agents draft | the founder | product, goal |
-        | Behavior | How does it behave? | agents | developers | module, use-case |
-        | Implementation | How is it built? | agents | checks | code only |
-        | Proof | How do we know? | the builder | checks | tests |
+        | Record layer | Question | Writes | Records |
+        |:--|:--|:--|:--|
+        | Intent | Why build it? | agents draft | product, goal |
+        | Behavior | How does it behave? | agents | module, use-case |
+        | Implementation | How is it built? | agents | code only |
+        | Proof | How do we know? | the builder | tests |
 
         Governance records attach to any record layer.
 
@@ -484,32 +505,15 @@ public sealed class BookLexiconTests
         | `access.grant` | use case | A permission | is granted through | grants |
         | `actor` | journey, external system | The actor walking; the actor acted as | is walked by / acts as | walks / is acted as by |
         | `terms` | any record | Terms | uses | is used by |
+        | `basedOn` | decision, data class | Constraints | is based on | is a basis for |
 
-        ### Statuses
+        ### Completion Stages
 
-        Draft means the record awaits its decider.
-
-        Approved means it holds.
-
-        ### Approval as Data
-
-        An approved record carries its approval as data.
-
-        ### Risk Classes and the Approval Table
-
-        A record carrying a risk class waits for its named approver.
+        Completion is computed from code, tests and passing scenarios.
 
         ### Check Levels
 
         Every check has a tier.
-
-        ### Transcription Mode
-
-        A Behavior record written from code carries transcribed source.
-
-        ### Questions and Ballots
-
-        Open questions block approval.
         """;
 
     static string ToolsPage() =>
@@ -518,11 +522,11 @@ public sealed class BookLexiconTests
 
         ## Description
 
-        A change breaks approved intent in these ways:
+        A change breaks intent in these ways:
 
         | Code | Meaning |
         |:---|:---|
-        | `requirement-removed` | An approved requirement no longer exists. |
+        | `requirement-removed` | A requirement no longer exists. |
 
         The finding codes are:
 

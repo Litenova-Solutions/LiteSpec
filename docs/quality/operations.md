@@ -2,30 +2,29 @@
 
 ## Intent
 
-Operating a product means starting it, watching it, and answering failures with procedures the records name, and this page states how a LiteSpec product does each: local startup, diagnostics, and alerts that each name their runbook. It applies to everyone who operates a release and to any behavior change that touches schema, external dependencies, background work, or failure recovery. A product that follows it stays observable with one maintainer on call; deployment, rollback, backup, restore and the alerting regime live in the [Delivery extension](../ext/delivery.md) for projects that select it.
+Operating a product means starting it, watching it, and answering failures with procedures the records name, and this page states how a LiteSpec product does each: local startup, diagnostics, and alerts that each name their runbook. It applies to everyone who operates a release and to any change that touches schema, external dependencies, background work, or failure recovery. A product that follows it stays observable with one maintainer on call; deployment, rollback, backup, restore and the alerting regime live in the [Delivery extension](../ext/delivery.md) for projects that select it.
 
 ## Concepts
 
 ### Operating Records
 
-Everything this page asks an operator to know lives in one of four records, each with a fixed home and one writer. A person writes the operations log and the secret inventory; the model builder writes the alert inventory and the sub-processor list from the project records. Only the operations log keeps the past: the other three describe the present. Each record names its owner from the project's owner list.
+Everything this page asks an operator to know lives in one of four records, each with a fixed home and one writer. A person writes the operations log and the secret inventory; the model builder writes the alert inventory and the sub-processor list from the project records. Only the operations log keeps the past: the other three describe the present.
 
 ### Operations Log
 
-The operations log is append-only: one file per month under `.litespec/behavior/operations/log/`, named `YYYY-MM.md`, with entries appended and never edited. It records branch-protection bypasses, runbook rehearsals, restores, production deployments, and incidents, so the dated rehearsal each runbook needs has one home.
+The operations log is append-only: one file per month under `.litespec/implementation/operations/log/`, named `YYYY-MM.md`, with entries appended and never edited. It records branch-protection bypasses, runbook rehearsals, restores, production deployments, and incidents, so the dated rehearsal each runbook needs has one home.
 
 ### Alert Inventory
 
-The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the alert rules the project lists in `paths.alerts`, each with the quality requirement it measures, the runbook that answers it, and its severity, beside the severity routing on the limits page at `.litespec/behavior/operations/limits.yaml` where the project records one. The files hold alert rules in the YAML shape Prometheus rule files and Grafana alert provisioning share: `groups[].rules[]`, each rule named by `alert` or `title` and carrying `labels`. Nobody edits the inventory by hand.
+The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the alert rules the project lists in `paths.alerts`, each with the quality requirement it measures, the runbook that answers it, and its severity, beside the severity routing on the limits page at `.litespec/implementation/operations/limits.yaml` where the project records one. The files hold alert rules in the YAML shape Prometheus rule files and Grafana alert provisioning share: `groups[].rules[]`, each rule named by `alert` or `title` and carrying `labels`. Nobody edits the inventory by hand.
 
 ### Secret Inventory
 
-The secret inventory is hand-written at `.litespec/behavior/operations/secrets.json`. Each entry names the secret, its owner, where it lives, and its next rotation date, and never the value itself. The owner reviews each rotation date before it passes. An entry has this shape:
+The secret inventory is hand-written at `.litespec/implementation/operations/secrets.json`. Each entry names the secret, where it lives, and its next rotation date, and never the value itself. Each rotation date is reviewed before it passes. An entry has this shape:
 
 ```json
 {
   "name": "database-password",
-  "owner": "operations",
   "location": "production vault",
   "rotationDate": "2027-02-01"
 }
@@ -33,7 +32,7 @@ The secret inventory is hand-written at `.litespec/behavior/operations/secrets.j
 
 ### Sub-Processor List
 
-The sub-processor list names every provider that processes personal data for the product. The model builder renders it from the project's provider actors, the actor records that name its providers, on `.litespec/behavior/operations/sub-processors.md`. Nobody edits it by hand.
+The sub-processor list names every provider that processes personal data for the product. The model builder renders it from the project's provider actors, the actor records that name its providers, on `.litespec/implementation/operations/sub-processors.md`. Nobody edits it by hand.
 
 ## Standards
 
@@ -75,7 +74,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
 
-**Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its owner, window, and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states for projects that select the Delivery extension.
+**Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states for projects that select the Delivery extension.
 
 **Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/spending.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
 
@@ -85,13 +84,13 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
 
-**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by an approved gap exception.
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a gap exception.
 
-**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with an owner and an expiry date, instead of passing silently.
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with a reason, an exit and an expiry date, instead of passing silently.
 
 **Example:** `requirement/spending.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no approved gap exception covering `quality-alert-missing` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no gap exception covering `quality-alert-missing` lists in its `subject`.
 
 ### Point Each Operations File at Its Decision
 
@@ -197,13 +196,13 @@ One propagator, the component that reads and writes the headers, is the part tha
 
 **ID:** `litespec/quality/operations#keep-runbooks-near-project-documentation`
 
-**Default:** Place runbooks under `.litespec/behavior/runbooks/` stating trigger, impact, prerequisites, procedure, verification, recovery, and escalation, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
+**Default:** Place a runbook under `.litespec/implementation/runbooks/` when it answers product-wide failures, or under `.litespec/implementation/modules/<module>/runbooks/` when every record naming it sits in one module, stating trigger, impact, prerequisites, procedure, verification, recovery, and escalation, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
 
 **Replacement:** A consumer records a runbook-layout convention naming where its runbooks live and what each holds.
 
-**Rationale:** An alert names its runbook, and the reader follows the pointer under pressure. One folder for every runbook keeps each pointer resolving to a procedure with the same fields: trigger, impact, prerequisites, procedure, verification, recovery, and escalation. A runbook kept anywhere else breaks the pointer the alert gave.
+**Rationale:** An alert names its runbook, and the reader follows the pointer under pressure. A runbook sits at product level when it answers product-wide failures and under its module when every caller sits in one module, so each pointer resolves to a procedure with the same fields: trigger, impact, prerequisites, procedure, verification, recovery, and escalation. A runbook kept anywhere else breaks the pointer the alert gave.
 
-**Reviewed for:** Each runbook sits under `.litespec/behavior/runbooks/` with its fields, or the runbook-layout convention names another arrangement.
+**Reviewed for:** Each runbook sits under `.litespec/implementation/runbooks/` or its module's runbooks folder with its fields, or the runbook-layout convention names another arrangement.
 
 ## Reference Example
 

@@ -69,11 +69,6 @@ internal static class IdentifierChecks
                 findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' holds a home and the {record.Type} type holds no home.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (record.Type == RecordTypes.Requirement && home is not null)
-            {
-                CheckRequirementTopic(record, home, findings);
-            }
-
             if (!Identifiers.ValidName(name, record.Type == RecordTypes.Decision) || Identifiers.AllDigitsName(name))
             {
                 findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
@@ -105,17 +100,4 @@ internal static class IdentifierChecks
         }
     }
 
-    /// <summary>Reports a requirement whose topic segment differs from its page's name.</summary>
-    /// <param name="record">The requirement record whose topic segment is compared with its page name.</param>
-    /// <param name="home">The home segment split from the requirement identifier.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRequirementTopic(Record record, string home, List<Finding> findings)
-    {
-        var page = Path.GetFileNameWithoutExtension(record.File);
-
-        if (!home.Equals(page, StringComparison.Ordinal))
-        {
-            findings.Add(new Finding("identifier-invalid", $"Requirement '{record.Id}' names topic '{home}', which differs from its page '{page}'.", record.File, record.Line, SubjectOf(record)));
-        }
-    }
 }

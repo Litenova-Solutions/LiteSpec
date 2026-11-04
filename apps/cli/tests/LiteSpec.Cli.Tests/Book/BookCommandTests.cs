@@ -6,8 +6,8 @@ namespace LiteSpec.Tests.Book;
 /// <summary>Proves <c>litespec book</c> writes one offline shell with sharded data from a fixture model.</summary>
 public sealed class BookCommandTests
 {
-    /// <summary>The book writes <c>index.html</c>, the four assets, and the manifest, lexicon, outline, record, search and queue shards.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>The book writes <c>index.html</c>, the four assets, and the manifest, lexicon, outline, record, search and security shards.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Book_Writes_The_Sharded_Book()
     {
@@ -25,10 +25,12 @@ public sealed class BookCommandTests
         }
 
         var data = Path.Combine(temp.Path, "data");
-        foreach (var shard in new[] { "manifest.js", "lexicon.js", "queue.js" })
+        foreach (var shard in new[] { "manifest.js", "lexicon.js", "security.js" })
         {
             Assert.True(File.Exists(Path.Combine(data, shard)), $"data/{shard} was not written.");
         }
+
+        Assert.False(File.Exists(Path.Combine(data, "queue.js")), "The review queue shard still ships.");
 
         Assert.True(File.Exists(Path.Combine(data, "outline-intent-0.js")), "No intent outline shard was written.");
         Assert.NotEmpty(Directory.GetFiles(data, "records-*.js"));
@@ -52,8 +54,8 @@ public sealed class BookCommandTests
         Assert.DoesNotContain("{{noscript}}", shell, StringComparison.Ordinal);
     }
 
-    /// <summary>The manifest carries the project, roots, editor template, totals, layers, shard map, search shards, unplaced ids and generation date.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>The manifest carries the project, roots, editor template, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Manifest_Carries_The_Book_Contract()
     {
@@ -77,7 +79,7 @@ public sealed class BookCommandTests
 
         var totals = manifest["totals"]!.AsObject();
         var total = totals.Sum(pair => pair.Value!.GetValue<int>());
-        Assert.Equal(83, total);
+        Assert.Equal(82, total);
 
         var layers = manifest["layers"]!.AsArray();
         Assert.Equal(
@@ -115,29 +117,39 @@ public sealed class BookCommandTests
         }
 
         Assert.True(manifest["generatedOn"]!.GetValue<string>().Length > 0);
-        Assert.Contains("83 records", result.Output, StringComparison.Ordinal);
+        Assert.Contains("82 records", result.Output, StringComparison.Ordinal);
+
+        Assert.Null(manifest["approvals"]);
     }
 
     /// <summary>The console line names each unplaced identifier with the failed record-parent-missing rule.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Unplaced_Console_Line_Names_The_Failed_Rule()
     {
         using var temp = Cli.Temp("book");
-        var result = Cli.Run(
-            "book",
-            "--model", Cli.Fixture("Book/review.json"),
-            "--out", temp.Path);
+        var modelPath = Path.Combine(temp.Path, "model.json");
+        File.WriteAllText(
+            modelPath,
+            """
+            {
+              "records": [
+                {"type": "product", "id": "product/library", "title": "Library"},
+                {"type": "requirement", "id": "requirement/nowhere.lost", "title": "Lost", "links": {}, "fields": {}}
+              ]
+            }
+            """);
+        var result = Cli.Run("book", "--model", modelPath, "--out", Path.Combine(temp.Path, "out"));
         Assert.Equal(0, result.Status);
 
         Assert.Contains("record-parent-missing", result.Output, StringComparison.Ordinal);
-        Assert.Contains("journey/borrowing", result.Output, StringComparison.Ordinal);
+        Assert.Contains("requirement/nowhere.lost", result.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>The queue shard carries the review batches with their order, the ballots, the security items and the review settings.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>The security shard carries the security items: cross-tenant access, outside calls and personal or sensitive data.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Queue_Carries_Batches_Ballots_And_Security()
+    public void Security_Shard_Carries_Security_Items()
     {
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
@@ -146,31 +158,18 @@ public sealed class BookCommandTests
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
-        var queue = ReadShard(Path.Combine(temp.Path, "data", "queue.js"), "queue");
-        Assert.NotNull(queue["batches"]);
-        Assert.NotNull(queue["order"]);
-        Assert.True(queue["ballots"] is JsonArray);
-        Assert.True(queue["security"] is JsonArray);
-        var review = queue["review"]!.AsObject();
-        Assert.True(review["vetoWindowDays"]!.GetValue<int>() > 0);
+        var security = ReadShardArray(Path.Combine(temp.Path, "data", "security.js"), "security");
 
-        foreach (var batch in queue["batches"]!.AsObject())
+        foreach (var item in security.OfType<JsonObject>())
         {
-            var value = batch.Value!.AsObject();
-            Assert.Equal(batch.Key, value["selector"]!.GetValue<string>());
-            Assert.True(value["records"] is JsonArray);
-            Assert.Equal(value["records"]!.AsArray().Count, value["n"]!.GetValue<int>());
-        }
-
-        foreach (var ballot in queue["ballots"]!.AsArray().OfType<JsonObject>())
-        {
-            Assert.True(ballot["id"]!.GetValue<string>().Length > 0);
-            Assert.NotNull(ballot["q"]);
+            Assert.Contains(item["kind"]!.GetValue<string>(), new[] { "cross", "calls", "data" });
+            Assert.True(item["id"]!.GetValue<string>().Length > 0);
+            Assert.True(item["text"]!.GetValue<string>().Length > 0);
         }
     }
 
     /// <summary>The lexicon shard carries LiteSpec's own words: type labels, layer writers, link phrases and finding meanings.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void Lexicon_Shard_Carries_Types_And_Links()
     {
@@ -189,7 +188,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>The --root and --editor values reach the manifest; --editor none suppresses source links.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void Root_And_Editor_Options_Reach_The_Manifest()
     {
@@ -244,7 +243,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>The consumer root defaults to the model's folder, or the repository root when the model sits in a .litespec/model folder.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
     public void Root_Defaults_To_The_Model_Folder_Or_Its_Parent()
     {
@@ -273,7 +272,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>A missing --model exits 2 and names the missing option, the usage error for bad arguments.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Book_Without_Model_Exits_2()
     {
@@ -284,7 +283,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>An unreadable model exits 1 and names the model file.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Missing_Model_File_Exits_1()
     {
@@ -295,7 +294,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>A carried LiteSpec page that lost its shape exits 2 and names the file.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
     public void Broken_Carried_Page_Exits_2_Naming_The_File()
     {
@@ -310,7 +309,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>A missing carried LiteSpec release exits 2, like every other command.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
     public void Missing_Carried_Release_Exits_2()
     {
@@ -330,5 +329,14 @@ public sealed class BookCommandTests
         Assert.StartsWith(prefix, text, StringComparison.Ordinal);
         Assert.EndsWith(");\n", text, StringComparison.Ordinal);
         return JsonNode.Parse(text[prefix.Length..^3])!.AsObject();
+    }
+
+    static JsonArray ReadShardArray(string path, string key)
+    {
+        var text = File.ReadAllText(path);
+        var prefix = $"BookData.put(\"{key}\", ";
+        Assert.StartsWith(prefix, text, StringComparison.Ordinal);
+        Assert.EndsWith(");\n", text, StringComparison.Ordinal);
+        return JsonNode.Parse(text[prefix.Length..^3])!.AsArray();
     }
 }

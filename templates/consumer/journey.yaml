@@ -1,14 +1,10 @@
 type: journey
 id: journey/submit-and-reimburse
 title: Submit and Reimburse
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 actor: actor/employee
 serves:
   - goal/faster-reimbursement
-description: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
+summary: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
 finishedWhen: The employee receives the reimbursement.
 steps:
   - id: s1
@@ -17,12 +13,6 @@ steps:
     failure: The submission is refused for a missing receipt.
 betweenSteps: A refused expense returns to the employee for correction, and an approved one waits for payout.
 cites:
-  - requirement/approval.decided-within-five-days
+  - requirement/approval-reminders.decided-within-five-days
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

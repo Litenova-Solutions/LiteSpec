@@ -1,10 +1,7 @@
 type: use-case
 id: use-case/spending.attach-receipt
 title: Attach Receipt
-owner: claimwick-team
-status: reviewed
-purpose: An employee adds a receipt to a submitted expense so it can be decided.
-whatHappens: The employee sends the receipt for a submitted expense. Spending refuses the receipt when the expense is already decided. Otherwise the receipt sits on the expense and `event/receipt.attached` is raised.
+summary: An employee adds a receipt to a submitted expense so it can be decided.
 kind: command
 access:
   grant: permission/submit-expense
@@ -29,46 +26,25 @@ records:
   - type: result
     id: result/attach-receipt.attached
     title: Attached
-    owner: claimwick-team
     outcome: success
     meaning: The receipt is attached.
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 8755a625
   - type: result
     id: result/attach-receipt.expense-decided
     title: Expense Decided
-    owner: claimwick-team
     outcome: refusal
     code: spending.expense-decided
     meaning: The expense is already decided.
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: c438c043
   - type: scenario
     id: scenario/attach-receipt.attaching-a-receipt-succeeds
     title: Attaching a Receipt Succeeds
-    owner: claimwick-team
-    status: reviewed
     given: An employee submitted an expense below the threshold with no receipt.
     when: The employee attaches the receipt.
     then: The receipt is attached.
     result: result/attach-receipt.attached
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 70d59461
   - type: scenario
     id: scenario/attach-receipt.attaching-to-decided-expense-refused
     title: Attaching to a Decided Expense Is Refused
-    owner: claimwick-team
-    status: reviewed
     given: A manager approved an expense.
     when: The employee attaches the receipt.
     then: The receipt is refused because the expense is already decided.
     result: result/attach-receipt.expense-decided
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 2a2c7cf5
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 85908aa1

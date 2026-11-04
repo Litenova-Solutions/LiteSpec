@@ -1,12 +1,7 @@
 type: notification
 id: notification/spending.approval-reminder
 title: Approval Reminder
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-purpose: The approver opens the reminder and decides the expense.
-whatHappens: Claimwick sends one reminder per undecided expense after five days.
+summary: The approver opens the reminder and decides the expense.
 template: approval-reminder
 addresses:
   - actor/employee
@@ -22,16 +17,8 @@ locale: The approver profile language.
 suppressedWhen: The expense is decided before the run.
 claims:
   - claim: The reminder names the true amount due.
-    requirement: requirement/approval.decided-within-five-days
+    requirement: requirement/approval-reminders.decided-within-five-days
 fulfills:
-  - requirement/approval.decided-within-five-days
-risk:
-  - personal-data
+  - requirement/approval-reminders.decided-within-five-days
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

@@ -167,7 +167,7 @@ Domain's shared kernel is the one folder of that name a solution keeps. Its memb
 
 **Rationale:** The declared host is either the WebApi process or a Worker project. A rule that only restricts when a Worker exists leaves unsaid where the work runs without one, so a project can host background services inside WebApi while deviating from no named rule and recording no decision. Naming the host makes the choice visible whichever way it goes.
 
-The declaration lives in a Decision record following `litespec/core/model#keep-one-owner-and-status-on-every-record`. Durable dispatch and queue consumption follow the outbox extension, and scheduled work follows the jobs extension.
+The declaration lives in a Decision record following `litespec/core/model#record-each-technical-choice-as-a-decision`. Durable dispatch and queue consumption follow the outbox extension, and scheduled work follows the jobs extension.
 
 The host is a composition decision, not a code-placement decision. The hosted operation classes live in Worker or Infrastructure, because they hold provider and scheduling concerns: in Worker when the project exists, otherwise in Infrastructure. The host registers them.
 

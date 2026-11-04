@@ -35,7 +35,6 @@ sealed class SourceScanChecks
         _ = platform;
         foreach (var source in FileWalk.Walk(target, file => SourceFiles.SourceFile.IsMatch(file)))
         {
-            var relative = session.RelativeToRoot(source);
             var text = File.ReadAllText(source);
             var inPrimitives = primitives is not null && FileWalk.Within(primitives, source);
             var inTests = SourceFiles.TestDir.IsMatch(source) || SourceFiles.TestFile.IsMatch(source);
@@ -54,7 +53,7 @@ sealed class SourceScanChecks
                         return;
                     }
 
-                    session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {relative}: {ClassStringChecks.UtilityMessages[kind]} '{token}'");
+                    session.Add("ui-class-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                 }, variants: false);
             }
 

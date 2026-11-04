@@ -17,7 +17,7 @@ sealed class DesignContractChecks
     /// <summary>The sections a design contract carries.</summary>
     static readonly string[] DesignSections =
     [
-        "Brand", "Tokens", "Vocabulary", "Patterns", "Do", "Do Not", "Motion", "Voice",
+        "Brand", "Tokens", "Patterns", "Do", "Do Not", "Motion", "Voice",
     ];
 
     /// <summary>An H2 heading of a Markdown page.</summary>
@@ -48,13 +48,14 @@ sealed class DesignContractChecks
     /// </summary>
     /// <param name="package">The declared shared package.</param>
     /// <param name="platform">The package platform.</param>
-    public void ValidateDesignContract(JsonNode? package, string platform)
+    /// <param name="projectFile">The consumer project file as a full path.</param>
+    public void ValidateDesignContract(JsonNode? package, string platform, string projectFile)
     {
         _ = platform;
         var contract = JsonRead.Child(package, "designContract");
         if (contract.Node is not JsonValue contractValue || !contractValue.TryGetValue<string>(out var relative))
         {
-            session.Errors.Add($"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{JsonRead.Show(contract)}'");
+            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{JsonRead.Show(contract)}'", projectFile);
             return;
         }
 
@@ -62,22 +63,22 @@ sealed class DesignContractChecks
         var label = session.RelativeToRoot(file);
         if (!FileWalk.Exists(file))
         {
-            session.Errors.Add($"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'");
+            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'", file);
             return;
         }
 
         var metadata = session.ParseMetadata(file);
         if (metadata is null)
         {
-            session.Errors.Add($"[litespec/frontend/ui#publish-a-design-contract] {label}: design contract has no metadata block");
+            session.Add("ui-design-contract-invalid", "[litespec/frontend/ui#publish-a-design-contract] design contract has no metadata block", file);
             return;
         }
 
-        session.SchemaCheck("design-contract.schema.json", metadata, label, "litespec/frontend/ui#publish-a-design-contract");
+        session.SchemaCheck("design-contract.schema.json", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
         var name = JsonRead.Child(package, "name");
         if (JsonRead.Truthy(name) && !JsonRead.StrictEqual(JsonRead.Child(metadata, "package"), name))
         {
-            session.Errors.Add($"[litespec/frontend/ui#publish-a-design-contract] {label}: package must be '{JsonRead.Show(name)}'");
+            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] package must be '{JsonRead.Show(name)}'", file);
         }
 
         var present = SectionNames(File.ReadAllText(file)).ToHashSet(StringComparer.Ordinal);
@@ -85,7 +86,7 @@ sealed class DesignContractChecks
         {
             if (!present.Contains(section))
             {
-                session.Errors.Add($"[litespec/frontend/ui#publish-a-design-contract] {label}: missing required section '{section}'");
+                session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] missing required section '{section}'", file);
             }
         }
     }

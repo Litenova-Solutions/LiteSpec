@@ -17,9 +17,6 @@ public interface IRecordFacts
     /// <summary>Gets the display title.</summary>
     string Title { get; }
 
-    /// <summary>Gets the resolved status: the entry's own, else its page's.</summary>
-    string? Status { get; }
-
     /// <summary>Gets the absolute file path.</summary>
     string File { get; }
 

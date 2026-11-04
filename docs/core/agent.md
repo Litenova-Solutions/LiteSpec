@@ -2,7 +2,7 @@
 
 ## Intent
 
-An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of approved intent to read before editing, which guidance wins when pages overlap, and which changes need approval before it acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report a reviewer can check.
+An agent is software that reads task context, edits files, and runs checks. This page states the operating rules for an agent working in a LiteSpec project: which records of decided intent to read before editing, which provisions govern each change, which guidance wins when pages overlap, and which changes need the task authorizer before the agent acts. Following them keeps each run inside its authorized scope, preserves unrelated work, and ends it with a report the owner can check.
 
 ## Concepts
 
@@ -18,37 +18,41 @@ An extension is a conditional standards bundle a project selects when its criter
 
 ### Guidance Precedence
 
-Guidance overlaps by design: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project exception first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local approved decision wins, and the broader baseline fills only the gaps it leaves.
+Guidance overlaps by design: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project exception first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
 
-### Decider Decisions and Agent Drafts
+### Agents Write Below Decided Intent
 
-Agents write every page below the decider's decisions: the decider decides Intent, and agents draft the records that carry those decisions down through Behavior. The Specify translation rule forbids agents from deciding the figures the decider sets on their own; the [model page](model.md) holds the one list of those figures. Each of those stays a draft question with a decider and a date. The [Intent page](intent.md) states the Specify boundary.
+The specification is closed: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
 
-### Ballots and Questions
-
-A ballot groups open questions for one decision, by decision identifier or short topic slug, each with a recommendation. The [model page](model.md) states the one question lifecycle: which questions auto-approve and how an aged question is reported (`litespec/core/model#answer-each-question-on-its-record`).
-
-### Transcription Mode
-
-During adoption, agents write Behavior records from working code and mark each one `provenance: transcribed`. A transcribed record stays in draft until the records it fulfills or serves are approved, and transcription mode ends when the decision named in `adoption.transcriptionEndsWith` is approved. The [scope page](scope.md) states the adoption record.
-
-### Side Effects That Need Approval
+### Side Effects That Need the Task Authorizer
 
 Some changes reach beyond an ordinary implementation edit: they alter project boundaries, move money or data, or change state outside the repository. Each such change needs the task authorizer's approval before the agent acts, because the task text alone never justifies it. The side-effect provision below lists the changes it covers.
+
+### Ask the Tool Which Provisions Apply
+
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and deviations merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs the query before editing and answers each returned provision's Reviewed for question before reporting done, and the completion report names the provisions the agent judged and how.
+
+### Git Is the Decision Record
+
+A record in the repository is decided, and the pull request that changes it is its review. A record nobody wants is deleted; git keeps its history. An agent reads who changed what and when from git, never from record fields.
+
+### Work in Progress
+
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
 
 ### New Intent in a Running Project
 
 A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a record carrying a risk class waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and raise every undecided figure, such as a price, a term, a retention period, or a date-dependent default, to the owner with a recommendation or place it on the backlog board.
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
 3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
-4. Choose patterns and scaffold screens. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
-5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Approval gate: approval lands before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
+4. Load provisions and choose patterns. Run `dotnet litespec rules <path>` for each path the change touches before editing it. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
+5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Authorizer gate: the task authorizer approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model build`, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Diff, clear, and batch-approve. Run `dotnet litespec model diff <base> --intent` for the decider review and `dotnet litespec model diff <base> --behavior` for the developer review and the security queue, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. Clear the security queue, answer the ballots, then approve with `dotnet litespec model review` and `dotnet litespec model approve --batch <selector>`. Batch approval before a final test run is draft review only: the release gate re-reads `verified` after that final run.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green check level G checks, every draft question on a record carrying a risk class answered, every scenario verified, and green check level S checks where the reader is qualified.
+8. Diff and merge complete. Run `dotnet litespec model diff <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries an exception with `expiresOn`.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and an exception with `expiresOn` for each check held red.
 
 ## Standards
 
@@ -68,13 +72,13 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 
-**Statement:** A change touching no record that carries `risk` or an approval MAY skip the model query, reading the agent context and neighboring code instead.
+**Statement:** A change touching no permission that carries `risk` MAY skip the model query, reading the agent context and neighboring code instead.
 
-**Rationale:** A small edit with no risk and no approval behind it does not need the full record set: the agent context plus the neighboring file already show the approved shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a record with `risk` or an approval keeps the full query, because the query shows the risk class and the open questions a one-line change would otherwise miss, and it costs seconds.
+**Rationale:** A small edit with no risk behind it does not need the full record set: the agent context plus the neighboring file already show the decided shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a permission that carries `risk` keeps the full query, because the query shows the risk a one-line change would otherwise miss, and it costs seconds.
 
-**Example:** A spelling fix in a draft setting that carries no risk reads the agent context and the sibling setting, then edits without querying the model.
+**Example:** A spelling fix in a setting page reads the agent context and the sibling setting, then edits without querying the model.
 
-**Reviewed for:** The change touches no record carrying `risk` or an approval and names the local pattern it followed.
+**Reviewed for:** The change touches no permission carrying `risk` and names the local pattern it followed.
 
 ### Load Applicable Extensions
 
@@ -88,13 +92,25 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Reviewed for:** The change names each extension loaded before editing inside its boundary.
 
+### Load Applicable Provisions Before Editing
+
+**ID:** `litespec/core/agent#load-applicable-provisions-before-editing`
+
+**Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each returned provision's Reviewed for question before reporting done.
+
+**Rationale:** 1,800 provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and deviations merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+
+**Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
+
+**Reviewed for:** Which provisions the rules query returned lack a judged answer in the completion report? Compare the rules output with the report.
+
 ### Apply Guidance Precedence
 
 **ID:** `litespec/core/agent#apply-guidance-precedence`
 
 **Statement:** An agent MUST apply the project exception, the extension, the deeper page, and the shallower page in that order.
 
-**Rationale:** Overlapping guidance is normal: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local approved decision first, so the broader baseline fills only the gaps it leaves.
+**Rationale:** Overlapping guidance is normal: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
 
 **Reviewed for:** The design applies the project exception, the extension, the deeper page, and the shallower page in that order.
 
@@ -114,7 +130,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST stop when applicable provisions disagree without declared precedence and quote both provision IDs and paths.
 
-**Rationale:** When two provisions disagree and no precedence decides, any continuation invents a compromise neither provision approved. Stopping with both provision identifiers and paths hands the decision to a person with exactly the evidence the decision needs.
+**Rationale:** When two provisions disagree and no precedence decides, any continuation invents a compromise neither provision states. Stopping with both provision identifiers and paths hands the decision to a person with exactly the evidence the decision needs.
 
 **Reviewed for:** The stopped work quotes the conflict with both provision IDs and paths.
 
@@ -154,7 +170,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST take a test's expected values only from the scenario's Then, never from running the code.
 
-**Rationale:** Expected values read from a passing run restate what the code already does, so the test stays green while behavior drifts. The scenario's Then states the reviewed intent, which makes the test check the behavior rather than copy it.
+**Rationale:** Expected values read from a passing run restate what the code already does, so the test stays green while behavior drifts. The scenario's Then states the decided intent, which makes the test check the behavior rather than copy it.
 
 **Example:** A scenario whose Then names a total of `42.50` keeps `42.50` as the asserted value even when the code returns `42.51`: the mismatch fails the test instead of updating the expectation.
 
@@ -176,59 +192,59 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#write-pages-below-decided-intent`
 
-**Statement:** An agent MUST write every page below the decider's decisions.
+**Statement:** An agent MUST write every page below decided Intent.
 
-**Rationale:** The decider decides Intent, and everything below those decisions is drafting: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody approved, while an agent that waits for dictation wastes the review the decider gives to drafts. Writing below decided Intent keeps authorship with the agent and decisions with the decider.
+**Rationale:** Intent holds the decided promises, and everything below those decisions is written by agents: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody decided, while an agent that waits for dictation wastes the reading the owner gives to finished work. Writing below decided Intent keeps authorship with the agent and decisions with the owner.
 
-**Example:** Given an approved requirement for expense reimbursement, an agent drafts the use case, its scenarios, and the handler without asking what the promise means.
+**Example:** Given a requirement for expense reimbursement, an agent writes the use case, its scenarios, and the handler without asking what the promise means.
 
-**Reviewed for:** Each drafted page traces to a decided Intent record, with no invented promise.
+**Reviewed for:** Each written page traces to a decided Intent record, with no invented promise.
 
 ### Escalate Decisions That Specify Forbids
 
 **ID:** `litespec/core/agent#escalate-decisions-that-specify-forbids`
 
-**Statement:** An agent MUST NOT decide a figure the decider sets.
+**Statement:** An agent MUST NOT decide a figure the owner sets.
 
-**Rationale:** The Specify translation rule reserves the figures the decider sets for Intent, because each one binds the product to buyers, markets, or law; the [model page](model.md) holds the one list of those figures. An agent that picks a figure silently decides what only the decider approves. Each undecided figure becomes a draft question with a decider, a date, and a recommendation.
+**Rationale:** The Specify rule reserves the figures the owner sets for Intent, because each one binds the product to buyers, markets, or law; the [Intent page](intent.md) states the Specify boundary. An agent that picks a figure silently takes a decision that belongs to the owner. Each undecided figure becomes a question to the owner with a recommendation, or a backlog item.
 
-**Example:** A setting needs a default queue cap; the agent drafts the question with a recommendation instead of writing the default into the record.
+**Example:** A setting needs a default queue cap; the agent raises a question to the owner with a recommendation instead of writing the default into the record.
 
-**Reviewed for:** Each figure the decider sets that the change needs sits in a draft question, not in an agent-written decision.
+**Reviewed for:** Each figure the owner sets that the change needs sits in an owner question or a backlog item, not in an agent-written decision.
 
-### Raise Questions in Ballots with Recommendations
+### Raise Open Figures to the Owner
 
-**ID:** `litespec/core/agent#raise-questions-in-ballots-with-recommendations`
+**ID:** `litespec/core/agent#raise-open-figures-to-the-owner`
 
-**Statement:** An agent MUST raise each open question in a ballot with a recommendation.
+**Statement:** An agent MUST raise each open figure to the owner with a recommendation, or place it on the backlog board.
 
-**Rationale:** A question without a recommendation asks the decider to research from nothing, while a recommendation gives a default to accept or correct. Grouping questions in ballots by decision or topic lets each decider answer one set at a time. The [model page](model.md) states which questions wait for explicit approval and which auto-approve (`litespec/core/model#answer-each-question-on-its-record`).
+**Rationale:** A figure without a recommendation asks the owner to research from nothing, while a recommendation gives a default to accept or correct. Grouping figures by subject lets the owner answer one set at a time. A figure never becomes a silent agent decision or code written on a guess.
 
-**Example:** Two approval questions land in the "Approval terms" ballot, each with a recommendation and a due date.
+**Example:** Two open figures land in one owner question set, each with a recommendation.
 
-**Reviewed for:** Each open question sits in a ballot with a recommendation.
+**Reviewed for:** Which open figures lack an owner question with a recommendation or a backlog item? Look at the owner questions and the backlog board beside the change.
 
-### Mark Transcribed Records During Adoption
+### Name Judged Provisions in the Completion Report
 
-**ID:** `litespec/core/agent#mark-transcribed-records-during-adoption`
+**ID:** `litespec/core/agent#name-judged-provisions-in-the-completion-report`
 
-**Statement:** An agent writing Behavior from code during adoption MUST mark the record `provenance: transcribed`.
+**Statement:** A completion report MUST name each provision the agent judged and how it judged it.
 
-**Rationale:** Transcription reverses the normal direction: the record follows working code instead of leading it. The mark tells every reviewer that the record is evidence, not a promise, so it stays in draft until the records it fulfills or serves are approved. When the ending decision is approved, any record still carrying the mark fails, which proves the mode ended cleanly.
+**Rationale:** The report shows which rules, defaults, and advice the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
 
-**Example:** A handler with no use-case page gains a transcribed draft that waits for its requirement's ballot.
+**Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by an exception.
 
-**Reviewed for:** Each record transcribed from code carries `provenance: transcribed` and stays in draft until the records it fulfills or serves are approved.
+**Reviewed for:** Which judged provisions lack a how in the completion report? Look at the provisions beside the report.
 
 ### Advise Without Gating
 
 **ID:** `litespec/core/agent#advise-without-gating`
 
-**Statement:** An agent MUST report its findings as advice instead of recording approval or review.
+**Statement:** An agent MUST report its findings as advice with evidence, never as a decision.
 
-**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer reads access and data carrying a risk class where the project names one. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent. A recorded agent reading counts as the second reading for a record carrying a risk class in a one-person project; the person still approves.
+**Rationale:** Decisions belong to the owner: the pull request that changes a record is its review. An agent that records a decision spends authority it was never given. Advice with evidence lets the owner decide faster without moving the decision to the agent.
 
-**Reviewed for:** The agent output records findings as advice, with approval and review left to people.
+**Reviewed for:** The agent output records findings as advice with evidence, with decisions left to the owner.
 
 ## Conventions
 
@@ -280,6 +296,6 @@ A running project takes new intent through this one sequence. Other pages link t
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-questions-in-ballots-with-recommendations`, and `litespec/core/agent#inspect-local-examples-after-standards`.
+This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-provisions-before-editing`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-open-figures-to-the-owner`, and `litespec/core/agent#inspect-local-examples-after-standards`.
 
-A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to a ballot with recommendations. It leaves unrelated frontend and container guidance unread.
+A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, runs `litespec rules` for the handler path, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to the owner with recommendations, and the completion report names each judged provision with its judgment. It leaves unrelated frontend and container guidance unread.

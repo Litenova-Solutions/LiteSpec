@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -32,7 +33,7 @@ public sealed class StaleProofTests
         using var second = Build(temp.Path);
 
         Assert.True(Verified(second.RootElement));
-        Assert.Empty(second.RootElement.GetProperty("stale").EnumerateArray());
+        Assert.Empty(HeldBy(second.RootElement));
     }
 
     /// <summary>The ledger records the scenario hash and the test hash at the last passing run.</summary>
@@ -77,7 +78,7 @@ public sealed class StaleProofTests
         using var changed = Build(temp.Path);
 
         Assert.False(Verified(changed.RootElement));
-        Assert.Contains(Scenario, changed.RootElement.GetProperty("stale").EnumerateArray().Select(entry => entry.GetString()));
+        Assert.Contains(Scenario, HeldBy(changed.RootElement));
     }
 
     /// <summary>A test changed after its proof passed reads stale and unverifies its use case.</summary>
@@ -100,7 +101,7 @@ public sealed class StaleProofTests
         using var changed = Build(temp.Path);
 
         Assert.False(Verified(changed.RootElement));
-        Assert.Contains(Scenario, changed.RootElement.GetProperty("stale").EnumerateArray().Select(entry => entry.GetString()));
+        Assert.Contains(Scenario, HeldBy(changed.RootElement));
     }
 
     /// <summary>A newer passing run proves the changed scenario again and clears the stale proof.</summary>
@@ -121,14 +122,22 @@ public sealed class StaleProofTests
         using var rerun = Build(temp.Path);
 
         Assert.True(Verified(rerun.RootElement));
-        Assert.Empty(rerun.RootElement.GetProperty("stale").EnumerateArray());
+        Assert.Empty(HeldBy(rerun.RootElement));
     }
 
     const string ScenarioPath = ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     static bool Verified(JsonElement root) =>
-        root.GetProperty("status").GetProperty(UseCase).GetProperty("verified").GetBoolean();
+        CompletionOf(root, UseCase).GetProperty("stage").GetString() == "proven";
+
+    static List<string?> HeldBy(JsonElement root) =>
+        CompletionOf(root, UseCase).GetProperty("heldBy").EnumerateArray().Select(entry => entry.GetString()).ToList();
+
+    static JsonElement CompletionOf(JsonElement root, string id) =>
+        root.GetProperty("records").EnumerateArray()
+            .Single(record => record.GetProperty("id").GetString() == id)
+            .GetProperty("completion");
 
     static void WriteTrx(string root, string runName)
     {
@@ -146,11 +155,11 @@ public sealed class StaleProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
+        model.Ledger.Save(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static void Write(string root, string relative, string text)
@@ -165,8 +174,6 @@ public sealed class StaleProofTests
           "type": "scenario",
           "id": "{{Scenario}}",
           "title": "Borrowing an available copy succeeds",
-          "owner": "lending-team",
-          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",

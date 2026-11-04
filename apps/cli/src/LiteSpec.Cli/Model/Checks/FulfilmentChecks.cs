@@ -7,7 +7,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The fulfilment checks: every live requirement is fulfilled or decided and cites a reason, and every applying constraint is cited.</summary>
+/// <summary>The fulfilment checks: every requirement is fulfilled or decided and cites a reason, and every applying constraint is cited.</summary>
 /// <follows>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</follows>
 /// <follows>litespec/core/intent#cite-the-reasons-of-every-requirement</follows>
 /// <follows>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</follows>
@@ -17,12 +17,6 @@ internal static class FulfilmentChecks
     private static readonly HashSet<string> FulfilledKinds = new(StringComparer.Ordinal)
     {
         "functional", "quality", "policy",
-    };
-
-    /// <summary>Feature lifecycles under which a requirement is not yet, or never, made true by code.</summary>
-    private static readonly HashSet<string> UndeliveredStates = new(StringComparer.Ordinal)
-    {
-        "planned", "later", "refused",
     };
 
     /// <summary>Reports a requirement fulfilled by no rule, use case, reaction, job, notification or setting.</summary>
@@ -40,39 +34,40 @@ internal static class FulfilmentChecks
             .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement && record.Status != RecordStatuses.Retired))
+        foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
             if (!FulfilledKinds.Contains(requirement.Field(RecordFields.Kind) ?? ""))
             {
                 continue;
             }
 
-            var undelivered = requirement.Ids(RecordFields.Cites).Any(id =>
-                model.ById.TryGetValue(id, out var cited)
-                && cited.Type == RecordTypes.Feature
-                && UndeliveredStates.Contains(cited.Field(RecordFields.Lifecycle) ?? ""));
-
             // A quality requirement is also fulfilled when a technical decision serves
             // it: the decision names it in basedOn instead of a rule or use case.
             var decided = requirement.Field(RecordFields.Kind) == "quality" && served.Contains(requirement.Id);
 
-            if (!fulfilled.Contains(requirement.Id) && !undelivered && !decided)
+            if (!fulfilled.Contains(requirement.Id) && !decided)
             {
                 findings.Add(new Finding("requirement-fulfillment-missing", $"Requirement '{requirement.Id}' is fulfilled by no {OrList(RecordTypes.FulfillingTypes)}.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
     }
 
-    /// <summary>Reports a requirement naming no reason in cites: level A, level G when it carries a risk class.</summary>
+    /// <summary>Reports a requirement naming no reason in cites.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRequirementCited(ProjectModel model, List<Finding> findings)
     {
-        foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement && record.Status != RecordStatuses.Retired))
+        foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
             if (requirement.Ids(RecordFields.Cites).Count == 0)
             {
-                findings.Add(RiskGraded("requirement-cites-missing", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
+                findings.Add(new Finding(
+                    "requirement-cites-missing",
+                    $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.",
+                    requirement.File, requirement.Line, SubjectOf(requirement))
+                {
+                    TierOverride = "A",
+                });
             }
         }
     }
@@ -83,11 +78,11 @@ internal static class FulfilmentChecks
     internal static void RunConstraintCited(ProjectModel model, List<Finding> findings)
     {
         var cited = model.Records
-            .Where(record => record.Type == RecordTypes.Requirement && record.Status != RecordStatuses.Retired)
+            .Where(record => record.Type == RecordTypes.Requirement)
             .SelectMany(record => record.Ids(RecordFields.Cites))
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var constraint in model.Records.Where(record => record.Type == RecordTypes.Constraint && record.Status != RecordStatuses.Retired))
+        foreach (var constraint in model.Records.Where(record => record.Type == RecordTypes.Constraint))
         {
             if (constraint.Raw.ValueKind == JsonValueKind.Object
                 && constraint.Raw.TryGetProperty(RecordFields.Applies, out var applies)

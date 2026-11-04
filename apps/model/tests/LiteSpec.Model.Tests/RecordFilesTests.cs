@@ -18,8 +18,6 @@ public sealed class RecordFilesTests
         Assert.Equal("use-case", page.Type);
         Assert.Equal("use-case/lending.borrow-copy", page.Id);
         Assert.Equal("Borrow copy", page.Title);
-        Assert.Equal("lending-team", page.Owner);
-        Assert.Equal("reviewed", page.Status);
         Assert.Equal("docs/borrow-copy.yaml", page.File);
         Assert.Equal(1, page.Line);
         Assert.False(page.IsEntry);
@@ -30,29 +28,15 @@ public sealed class RecordFilesTests
         Assert.Equal("result", borrowed.Type);
         Assert.Equal("result/borrow-copy.borrowed", borrowed.Id);
         Assert.Equal("success", borrowed.Field("outcome"));
-        Assert.Equal(7, borrowed.Line);
+        Assert.Equal(5, borrowed.Line);
         Assert.True(borrowed.IsEntry);
         Assert.Equal("use-case/lending.borrow-copy", borrowed.PageId);
 
         var unavailable = records[2];
         Assert.Equal("result/borrow-copy.copy-unavailable", unavailable.Id);
-        Assert.Equal("draft", unavailable.Status);
-        Assert.Equal(11, unavailable.Line);
+        Assert.Equal(9, unavailable.Line);
         Assert.True(unavailable.IsEntry);
         Assert.Equal("use-case/lending.borrow-copy", unavailable.PageId);
-    }
-
-    /// <summary>An entry without its own owner or status takes the page's.</summary>
-    /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
-    [Fact]
-    public void Inherits_Status_From_Page()
-    {
-        var records = RecordFiles.Read("docs/borrow-copy.yaml", Page);
-
-        var borrowed = records[1];
-        Assert.Equal("reviewed", borrowed.Status);
-        Assert.Equal("lending-team", borrowed.Owner);
-        Assert.Null(borrowed.Field("status"));
     }
 
     /// <summary>Prose that is no YAML mapping yields nothing.</summary>
@@ -77,8 +61,6 @@ public sealed class RecordFilesTests
         type: use-case
         id: use-case/lending.borrow-copy
         title: Borrow copy
-        owner: lending-team
-        status: reviewed
         records:
           - type: result
             id: result/borrow-copy.borrowed
@@ -87,6 +69,5 @@ public sealed class RecordFilesTests
           - type: result
             id: result/borrow-copy.copy-unavailable
             title: Copy unavailable
-            status: draft
         """;
 }

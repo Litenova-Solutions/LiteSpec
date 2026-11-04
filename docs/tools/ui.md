@@ -12,7 +12,7 @@ litespec ui [--root <path>] [--format json] [--help]
 
 ## Description
 
-This command reads the shared UI package that the consumer declares in `paths.uiPackage`. It checks the registry configuration against the baseline that the manifest pins, the source lock and its digests, the design contract, and the token stylesheet. It then checks each controlled frontend: its density profile, its stylesheet entry, the imports its source reaches, and its inline styles.
+This command reads the shared UI package that the consumer declares in `paths.uiPackage`. It checks the registry configuration against the baseline that the manifest pins, the source lock and its digests, the design contract, and the token stylesheet. It then checks each controlled frontend: its density profile, its stylesheet entry, the imports its source reaches, and its inline styles. Every finding carries a code, a message, a path, and a line.
 
 A controlled frontend is one that declares `platform: react` or `platform: svelte`. A frontend that declares `platform: blazor` stays outside the UI contract. The package travels with the workspace rather than with one application, so the tool reads one package once no matter how many frontends compose it. A frontend that declares another platform is reported as skipped, so a skipped scope stays visible instead of passing as conformance. The source lock records which CLI installed the package. A `shadcn-svelte` generator selects the Svelte baseline and the `svelte-ui` citations, so a workspace migrates one frontend at a time.
 

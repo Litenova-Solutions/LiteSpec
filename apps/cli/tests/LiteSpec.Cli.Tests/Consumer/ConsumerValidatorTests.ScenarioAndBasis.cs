@@ -24,7 +24,6 @@ public sealed partial class ConsumerValidatorTests
     [InlineData("environment")]
     [InlineData("response")]
     [InlineData("measure")]
-    [InlineData("dueBy")]
     // The InlineData values name each scenario field case.
     public void QualityRequirementMissingScenarioField(string field)
     {
@@ -57,7 +56,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/implementation/decisions/0002-order-claim-store.yaml",
-            """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"]}""");
         TestRecords.Explain(
             folder.Path,
             ".litespec/implementation/decisions/0002-order-claim-store.md",
@@ -95,7 +94,6 @@ public sealed partial class ConsumerValidatorTests
             ["environment"] = "Normal operation, one application instance down.",
             ["response"] = "Each order is stored and acknowledged.",
             ["measure"] = "Share of orders acknowledged within two seconds: at least 99 percent.",
-            ["dueBy"] = "Holiday sale",
         };
 
         foreach (var (name, value) in fields)

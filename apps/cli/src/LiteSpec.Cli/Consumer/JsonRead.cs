@@ -12,7 +12,6 @@ namespace LiteSpec.Consumer;
 /// </summary>
 /// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
-/// <follows>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</follows>
 static class JsonRead
 {
     /// <summary>

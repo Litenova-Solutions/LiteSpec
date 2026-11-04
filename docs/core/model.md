@@ -2,24 +2,24 @@
 
 ## Intent
 
-A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the record files, the explanation files, the documents, the common fields, the links, the marks, the authority order, the authoring order, the statuses, the approval data, the risk classes and the approval table, the completion stages, the screen captures, the questions, the transcription mode, the model builder, the check levels, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records. The [record language page](language.md) states the grammar of the names and values the records hold.
+A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their placement and identifiers, the record files, the explanation files, the documents, the common fields, the links, the marks, the authority order, the authoring order, the completion stages, the screen captures, the model builder, the check levels, and the book and the diffs. People write Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
 
 ## Concepts
 
 ### The Four Record Layers
 
-Each record layer answers one question, is written from the record layer above it, and owns its records. Nothing above Implementation is computed from code, except transcription during adoption: a transcribed record stays draft until the records it fulfills or serves are approved, and the mode ends when the decision `adoption.transcriptionEndsWith` names is approved.
+Each record layer answers one question, is written from the record layer above it, and owns its records.
 
-| Record layer | Question | Writes | Reviews | Records |
-|:--|:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | agents draft, the decider decides | the decider and product people | product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | developers; the security reviewer for access, outside calls and personal-data flows | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, role, permission, entry-point, external-system, runbook, term (`layer: behavior`) |
-| Implementation | How is it built? | agents | level S checks; developers sample | code and technical decisions |
-| Proof | How do we know it holds? | the builder | level G and level S checks | tests, check results, computed statuses, the rendered book |
+| Record layer | Question | Writes | Records |
+|:--|:--|:--|:--|
+| Intent | Why build it, and what do we promise? | people and agents | product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role, module, term (`layer: intent`) |
+| Behavior | How does the system behave to keep the promises? | agents | aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
+| Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
+| Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
 Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
 
-Three translation rules join the record layers. Specify moves Intent to Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it leaves open any price, fee, rate, term, market, payer, retention period for personal data, observable freshness, or default or figure that differs by tenant, market, or date, each as a question the decider decides. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and adds no observable outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, and a proof goes stale when its scenario hash or its test-body hash changes.
+Three translation rules join the record layers. Specify moves Intent to Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it states every price, fee, rate, term, market, payer, retention period for personal data, observable freshness, and default or figure that differs by tenant, market, or date. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and adds no observable outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, and a proof goes stale when its scenario hash or its test-body hash changes.
 
 ### Record Types and Page Styles
 
@@ -27,18 +27,18 @@ Each type answers one question.
 
 | Type | Record layer | Question |
 |:--|:--|:--|
-| `product` | intent | What is built, for whom, and what is excluded? |
+| `product` | intent | What is built, and for whom? |
 | `goal` | intent | Which measurable outcome does the product serve? |
 | `problem` | intent | Which pain does someone have today? |
 | `feature` | intent | What is offered against a problem? |
 | `constraint` | intent | Which outside rules hold? |
 | `research` | intent | Which outside facts inform a choice? |
 | `decision` | intent, implementation | Which choice holds, and what changes it? |
-| `topic` | intent | Which requirements share one story? |
 | `requirement` | intent | What does the product do or guarantee? |
 | `journey` | intent | Which ordered steps reach one goal? |
 | `actor` | intent | Who or what touches the product? |
-| `module` | behavior | Which business areas exist? |
+| `role` | intent | Which permission sets exist? |
+| `module` | intent | Which product areas exist? |
 | `aggregate` | behavior | Which things stay consistent? |
 | `rule` | behavior | What holds? |
 | `use-case` | behavior | Which use cases does the product offer? |
@@ -50,76 +50,122 @@ Each type answers one question.
 | `job` | behavior | Which work runs on a schedule, once, or by hand? |
 | `notification` | behavior | Which person-facing messages go out? |
 | `setting` | behavior | Which adjustable values hold, and who sets them? |
-| `role` | behavior | Which permission sets exist? |
 | `permission` | behavior | Which single actions are allowed? |
 | `entry-point` | behavior | How do people reach the product? |
 | `screen` | behavior | Which page does a person see through an entry point, and what does it offer? |
 | `external-system` | behavior | Which outside system exchanges what? |
-| `runbook` | behavior | How is it run or recovered? |
-| `exception` | any | Which rule is set aside or which check stays red, and until when? |
+| `runbook` | implementation | How is it run or recovered? |
+| `exception` | governance | Which rule is set aside or which check stays red, and until when? |
 | `term` | intent, behavior | Which word means what? |
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
-Each record file holds the fields the [Authoring Standard](authoring.md) names for its type. A setting-set page holds many settings, and the retention-schedule page holds the retention rows at `.litespec/behavior/retention-schedule.yaml`. The retention schedule is a container page style, not a record type.
+Each record file holds the fields the [Authoring Standard](authoring.md) names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, and the permission list per module holds permissions. The retention-schedule page holds the retention rows at `.litespec/behavior/retention-schedule.yaml`. The retention schedule is a container page style, not a record type.
+
+Every record states something the software does, holds, refuses at runtime or runs on, and translates into code, results, tests or infrastructure. The [intent page](intent.md) states the test each Intent type meets.
+
+### Placement Principles
+
+The placement of every record follows nine principles, from the product root down to a test.
+
+1. **One tree from the product.** Every record has exactly one parent, and only the product has none. Every other link is a connection, and every inverse link is computed.
+2. **The container is the parent.** An entry's parent is the record file that holds it, except a scenario, whose parent is its result. A record file's parent is its folder node: the product, a module, an aggregate or an entry point. No record writes an up-link that its location already states.
+3. **Four kinds of node, and only four.** Product, module, aggregate and entry point are the nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
+4. **The lowest node that holds every user.** A record sits under the lowest node that holds every record linking to it within its layer. The author places it, and the tool validates it.
+5. **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
+6. **Two identifiers.** The identifier is short, unique in the product, and what every link and citation uses. The qualified identifier is computed from the identifier segments plus placement, never written, shown in the book and the CLI, and accepted by `model query`.
+7. **One name per module in every layer and in code.** `intent/modules/finance/`, `behavior/modules/finance/`, the backend source trees, the test projects and the frontend modules all use the declared module name.
+8. **Code and tests follow the qualified identifier.** The folder and namespace of code and tests that mark a record match that record's qualified identifier.
+9. **Computed stays computed.** Proof and the generated folders hold no authored records.
+
+### The Placement Table
+
+The table is frozen: it gives each type its layer, levels, folder, parent, identifier and qualified form, and a record type gains a home only by changing this table. Folders are relative to `.litespec/`.
+
+| Type | Layer | Levels | Folder | Parent | Identifier | Qualified Form |
+|:--|:--|:--|:--|:--|:--|:--|
+| `product` | Intent | product | `intent/product.yaml` | none | `product/<name>` | `product/<name>` |
+| `goal` | Intent | product, module | `intent/goals/`, `intent/modules/<m>/goals/` | product or module | `goal/<name>` | `goal/<name>`, `<module>/goal/<name>` |
+| `problem` | Intent | product, module | `intent/problems/`, `intent/modules/<m>/problems/` | product or module | `problem/<name>` | `problem/<name>`, `<module>/problem/<name>` |
+| `feature` | Intent | module | `intent/modules/<m>/features/<feature>.yaml` | module | `feature/<name>` | `<module>/feature/<name>` |
+| `requirement` | Intent | entry | in its feature file | feature | `requirement/<feature>.<name>` | `<module>/feature/<feature>/requirement/<name>` |
+| `constraint` | Intent | product, module | `intent/constraints/`, `intent/modules/<m>/constraints/` | product or module | `constraint/<name>` | `constraint/<name>`, `<module>/constraint/<name>` |
+| `decision` | Intent, Implementation | product, module | `intent/decisions/`, `intent/modules/<m>/decisions/`, `implementation/decisions/`, `implementation/modules/<m>/decisions/` | product or module | `decision/<number>-<name>` | `decision/<number>-<name>`, `<module>/decision/<number>-<name>` |
+| `research` | Intent | product, module | `intent/research/`, `intent/modules/<m>/research/` | product or module | `research/<name>` | `research/<name>`, `<module>/research/<name>` |
+| `journey` | Intent | product | `intent/journeys/` | product | `journey/<name>` | `journey/<name>` |
+| `actor` | Intent | product | `intent/actors/` | product | `actor/<name>` | `actor/<name>` |
+| `role` | Intent | product | `intent/roles/` | product | `role/<name>` | `role/<name>` |
+| `module` | Intent | module | `intent/modules/<m>/module.yaml` | product | `module/<name>` | `<module>` |
+| `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` | `term/<name>` |
+| `aggregate` | Behavior | module | `behavior/modules/<m>/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` | `<module>/<aggregate>` |
+| `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/<aggregate>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` | `<module>/<aggregate>/use-case/<name>`, `<module>/use-case/<name>` |
+| `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` | `<use-case-qualified>/result/<name>` |
+| `scenario` | Behavior | entry | in its use case file | result | `scenario/<use-case>.<name>` | `<use-case-qualified>/scenario/<name>` |
+| `event` | Behavior | aggregate | in `aggregate.yaml` or in `<aggregate>/events/` | aggregate | `event/<aggregate>.<name>` | `<module>/<aggregate>/event/<name>` |
+| `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/<aggregate>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its folder node | `rule/<home>.<name>` | `<module>/<aggregate>/rule/<name>`, `<module>/rule/<name>`, `rule/<name>` |
+| `reaction` | Behavior | module | `behavior/modules/<m>/reactions/` | module | `reaction/<module>.<name>` | `<module>/reaction/<name>` |
+| `job` | Behavior | module | `behavior/modules/<m>/jobs/` | module | `job/<module>.<name>` | `<module>/job/<name>` |
+| `notification` | Behavior | module | `behavior/modules/<m>/notifications/` | module | `notification/<module>.<name>` | `<module>/notification/<name>` |
+| `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` | `<module>/setting/<name>` |
+| `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/` | module | `integration-event/<name>` | `<module>/integration-event/<name>` |
+| `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` | `<module>/permission/<name>` |
+| `entry-point` | Behavior | product | `behavior/entry-points/<entry-point>/entry-point.yaml` | product | `entry-point/<name>` | `<entry-point>` |
+| `screen` | Behavior | entry point | `behavior/entry-points/<entry-point>/screens/` | entry point | `screen/<entry-point>.<name>` | `<entry-point>/screen/<name>` |
+| `external-system` | Behavior | product, module | `behavior/external-systems/`, `behavior/modules/<m>/external-systems/` | its folder node | `external-system/<name>` | `external-system/<name>`, `<module>/external-system/<name>` |
+| `runbook` | Implementation | product, module | `implementation/runbooks/`, `implementation/modules/<m>/runbooks/` | product or module | `runbook/<name>` | `runbook/<name>`, `<module>/runbook/<name>` |
+| `exception` | Governance | product, module | `governance/exceptions/`, `governance/modules/<m>/exceptions/` | product or module | `exception/<name>` | `exception/<name>`, `<module>/exception/<name>` |
+
+Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. Anything else is a blocking finding. A module with one aggregate of the module's own name may stay flat.
+
+`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules. A folder under either that names no declared module gets a blocking finding. A record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
+
+A module, an aggregate, and an entry point are their own qualified form: the qualified form of `module/finance` is `finance`, and the qualified form of any record under them builds from that node name. The qualified form builds from the identifier segments plus placement, never from raw folder names.
+
+A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move. Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules.
+
+An integration event has exactly one publishing module. List records (rule sets, setting sets, the permission list per module) are files whose entries take the file's folder node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
+
+`fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. `role.allows` is a declared down-link, like `decides`. Module `dependsOn` may not form a cycle.
+
+Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number.
+
+Implementation content that is not a record, and Proof content left by a run, sit in fixed folders:
+
+| Content | Folder |
+|:--|:--|
+| UI catalog, captures and patterns per entry point | `implementation/entry-points/<entry-point>/` |
+| Shared pattern catalog | `implementation/patterns/` |
+| Product copy rules | `implementation/writing/` |
+| API contract | `implementation/api/` |
+| Guides | `implementation/guides/` |
+| Operating documents | `implementation/operations/` |
+| Generated registers, gate files, operating logs | `proof/` |
 
 ### The Docs Layout
 
-A consumer keeps its documentation in one folder per record layer, so the folder a page sits in says who writes it, who reviews it, and what it may contain.
+A consumer keeps its documentation in one folder per record layer, so the folder a page sits in says who writes it and what it may contain.
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | The brief, goals, problems, features, topics with their requirements by area, constraints, decisions, journeys, actors, research, and the product documents the business publishes, such as legal texts and the writing voice |
-| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); screens, one page per screen under `screens/`; external systems; integration events; the retention schedule; runbooks and operating procedures |
-| `.litespec/implementation/` | Implementation | The technical decisions under `decisions/`, and guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. The guides describe code and hold no records |
+| `.litespec/intent/` | Intent | The product, goals, problems, features with their requirements under modules, constraints, decisions, roles, journeys, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, events, reactions, jobs, notifications, settings, integration events and permissions; entry points with their screens; external systems; the retention schedule |
+| `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
-| `.litespec/governance/` | Governance | Exceptions, which can attach to any record layer |
+| `.litespec/governance/` | Governance | Exceptions at product level or under modules |
 
 A record lives in its record file, an explanation file may sit beside it, and a document holds no record. The file name joins a record file to its explanation file: `<name>.yaml` with `<name>.md` in the same folder.
 
 The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/`, because every record layer uses them.
 
+Proof holds no authored records. Tests are code, placed by the rule the Code and Tests section states, and the model computes completion from their marks and results.
+
 ### Pages and Entries
 
-A page record is one record file `<name>.yaml` holding one YAML mapping: the page record with its entries in `records`. An entry record is an object in the `records` sequence of that mapping. Terms are the exception: each term is an entry in the glossary. Each type has one home. The area in `.litespec/intent/<area>/<topic>.yaml` is a folder only, never a record.
+A page record is one record file `<name>.yaml` holding one YAML mapping: the page record with its entries in `records`. An entry record is an object in the `records` sequence of that mapping. Terms are the exception: each term is an entry in the glossary. The Placement Table above names each type's home.
 
-| Type | Stored as | Home |
-|:---|:---|:---|
-| `product` | record file, exactly one | `.litespec/intent/brief.yaml` |
-| `goal` | record file | `.litespec/intent/goals/<name>.yaml` |
-| `problem` | record file | `.litespec/intent/problems/<name>.yaml` |
-| `feature` | record file | `.litespec/intent/features/<name>.yaml` |
-| `constraint` | record file | `.litespec/intent/constraints/<name>.yaml` |
-| `research` | record file | `.litespec/intent/research/<name>.yaml` |
-| `decision` | record file | `.litespec/intent/decisions/<number>-<name>.yaml`; a technical decision `.litespec/implementation/decisions/<number>-<name>.yaml` |
-| `topic` | record file | `.litespec/intent/<area>/<topic>.yaml` |
-| `requirement` | entry | On its topic page |
-| `journey` | record file | `.litespec/intent/journeys/<name>.yaml` |
-| `actor` | record file | `.litespec/intent/actors/<name>.yaml` |
-| `module` | record file | `.litespec/behavior/modules/<module>/module.yaml` |
-| `aggregate` | record file | `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml` |
-| `rule` | entry | On its aggregate page; a cross-aggregate rule on a rule page under `.litespec/behavior/rules/` |
-| `use-case` | record file | Beside its aggregate: `.litespec/behavior/modules/<module>/<aggregate>/<use-case>.yaml`; a query describing no one aggregate under `reads/` beside its module |
-| `result` | entry | In its use case page |
-| `scenario` | entry | In its use case page, or in its reaction or job page |
-| `event` | entry | On its aggregate page |
-| `integration-event` | record file | `.litespec/behavior/integration-events/<name>.yaml` |
-| `reaction` | record file | `.litespec/behavior/modules/<module>/reactions/<name>.yaml` |
-| `job` | record file | `.litespec/behavior/modules/<module>/jobs/<name>.yaml` |
-| `notification` | record file | `.litespec/behavior/modules/<module>/notifications/<name>.yaml` |
-| `setting` | entry | On a setting-set page: `.litespec/behavior/modules/<module>/settings.yaml`, or `.litespec/behavior/settings/<name>.yaml` for platform-wide settings |
-| `role` | record file | `.litespec/behavior/access/roles/<name>.yaml` |
-| `permission` | entry | `.litespec/behavior/access/permissions.yaml` |
-| `entry-point` | entry | `.litespec/behavior/access/entry-points.yaml` |
-| `screen` | record file | `.litespec/behavior/screens/<entry-point>.<name>.yaml` |
-| `external-system` | record file | `.litespec/behavior/external-systems/<name>.yaml` |
-| `runbook` | record file | `.litespec/behavior/runbooks/<name>.yaml` |
-| `exception` | record file | `.litespec/governance/exceptions/<name>.yaml` |
-| `term` | entry in the glossary | `.litespec/glossary.yaml` |
+Container pages (`permission-list`, `setting-set`, `rule-set`, `retention-schedule`) are record files: they hold entries.
 
-Container pages (`permission-list`, `entry-point-list`, `setting-set`, `rule-set`, `retention-schedule`) are record files: they hold entries.
-
-The decision type has two homes: a product decision lives under `.litespec/intent/decisions/`, and a technical decision lives under `.litespec/implementation/decisions/`.
+The decision type has two layers: a product decision lives under Intent, and a technical decision lives under Implementation. Both share one number sequence.
 
 ### Record Files
 
@@ -131,15 +177,15 @@ An explanation file is the optional `<name>.md` beside its record file, with the
 
 ### Documents
 
-A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `review-report`, `command`, `configuration`, `glossary`, and `example-cast`. A document holds no record type and no entries. A `.md` file with no frontmatter and no record file beside it is an orphaned explanation, except a file named `README.md`, which is a document.
+A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `command`, `configuration`, `glossary`, and `example-cast`. A document holds no record type and no entries. A `.md` file with no frontmatter and no record file beside it is an orphaned explanation, except a file named `README.md`, which is a document. Document pages may sit at a layer root.
 
 ### The Split Rule
 
-Anything a check reads or a reviewer approves is a field in the record file. Anything that only helps someone understand goes in the explanation file. Example, Notes, Known Limits, Evidence, Context, Decision, Answer, Notes on Sources, the topic argument sections, and any project-specific section live in the explanation file under the same H2 heading.
+Anything a check reads is a field in the record file. Anything that only helps someone understand goes in the explanation file. Every record carries one `summary`, and a record that makes a testable claim also carries one `statement`. Example, Notes, Known Limits, Evidence, Context, Decision, Answer, Notes on Sources, and any project-specific section live in the explanation file under the same H2 heading.
 
 ### Article Types
 
-The article types are `research`, `decision`, and `topic`. Their explanation file is required, and the approval hash covers the record file plus the explanation file. For every other type the hash covers the record file alone.
+The article types are `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Answer for research, and Context, Options Considered, Decision, and What Would Reopen It for decision.
 
 ### Canonical Form
 
@@ -151,7 +197,7 @@ A Markdown link whose target is a record identifier cites that record, with an o
 
 ### Identifiers
 
-An identifier names its record type first, then the record name, with the owning home in between when the type has one. The name carries one to six lowercase hyphenated words, chosen by a person; a decision counts its number as a word.
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The name carries one to six lowercase hyphenated words, chosen by a person; a decision counts its number as a word. Names follow the grammar the [record language page](language.md) states.
 
 | Type | Form | Example |
 |:---|:---|:---|
@@ -162,8 +208,7 @@ An identifier names its record type first, then the record name, with the owning
 | `constraint` | `constraint/<name>` | `constraint/tax-receipt-retention` |
 | `research` | `research/<name>` | `research/approval-time-benchmarks` |
 | `decision` | `decision/<number>-<name>` | `decision/0001-receipt-threshold` |
-| `topic` | `topic/<name>` | `topic/approval` |
-| `requirement` | `requirement/<topic>.<name>` | `requirement/approval.receipt-over-threshold` |
+| `requirement` | `requirement/<feature>.<name>` | `requirement/approval-reminders.receipt-over-threshold` |
 | `journey` | `journey/<name>` | `journey/submit-and-reimburse` |
 | `module` | `module/<name>` | `module/spending` |
 | `aggregate` | `aggregate/<module>.<name>` | `aggregate/spending.expense` |
@@ -187,31 +232,39 @@ An identifier names its record type first, then the record name, with the owning
 | `exception` | `exception/<name>` | `exception/payment-retries-later` |
 | `term` | `term/<name>` | `term/expense` |
 
-A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A requirement's topic segment names its topic, and the topic is its parent by identifier containment, as an aggregate holds its rules. A requirement whose topic segment differs from its page's name is an `identifier-invalid` finding. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project. A requirement's feature segment names its feature, and the feature file holds it. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+
+The folder wins. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `identifier-invalid` finding. Each name segment stays unique in the product, and a check reports a duplicate. Folders do not narrow uniqueness.
 
 A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
+### Qualified Identifiers
+
+The qualified identifier is computed from the identifier segments plus placement, and never written, like a fully qualified type name. Links never use it. The book and the CLI show both identifiers, and `litespec model query` accepts either. One grammar per node kind:
+
+| Placement | Qualified identifier |
+|:---|:---|
+| Product level | `<type>/<name>`, the identifier itself |
+| Module level | `<module>/<type>/<name>` |
+| Under an aggregate | `<module>/<aggregate>/<type>/<name>` |
+| An entry | the qualified identifier of its file, then `/<type>/<name>` |
+| Under an entry point | `<entry-point>/<type>/<name>` |
+
 ### Common Fields
 
-Every written record carries the shared fields in this table, in its record file. Entries inherit `owner` and `status` from their page unless they set their own. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
+Every written record carries the shared fields in this table, in its record file. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
 
 | Field | Written | Meaning |
 |:---|:---|:---|
 | `type` | always | The record type in kebab case |
 | `id` | always | The identifier |
 | `title` | always | The display title, free to change |
-| `owner` | pages; entries inherit | One name from the closed owner list |
-| `status` | pages; entries inherit | Draft, approved or reviewed, or retired, in the record-layer vocabulary |
-| `decider` | on drafts | The owner deciding by the date |
-| `decideBy` | on drafts | The decision date in ISO form |
-| `replaces` | decision, when replacing | The decision this decision replaces |
 | `terms` | when used | The term identifiers the record uses |
-| `questions` | when open | Open questions, each with `question`, `decider`, `decideBy`, `ballot`, `recommendation`, and once answered `answer`, `answeredBy`, `answeredOn`; an open question blocks approval |
-| `approvedBy` | on approved and reviewed | The approver: a person owner name |
-| `approvedOn` | on approved and reviewed | The approval date in ISO form |
-| `approvedHash` | on approved and reviewed | The approval hash over the record file and, for an article type, its explanation file |
-| `risk` | on requirements and Behavior records, when present | Any of `money`, `physical-access`, `personal-data`, `access` |
-| `provenance` | during adoption, when transcribed | `transcribed` for a Behavior record written from code |
+| `records` | on a page with entries | The entries the page holds |
+
+`risk` lives on `permission` entries only: the analyzers generate the permission table with its risks into code, so it is a product fact there.
+
+A field that records the history of the record is gone, because git holds it. A field that states a fact about the product or the world, including a future date, stays: `expiresOn` on an exception and `readOn` beside an outside source.
 
 ### Links
 
@@ -220,11 +273,10 @@ Each written link lives as a field on the record it starts from: a decision carr
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, exceptions, entry points, settings, or decisions an engineering choice settles | decides | is decided by |
-| `basedOn` | decision, rule | Constraints, research, and on a technical decision the requirements it serves | is based on | is a basis for |
-| `replaces` | decision | The replaced decision | replaces | is replaced by |
+| `basedOn` | decision, rule, data class, retention processor, external system | Constraints, research, and on a technical decision the requirements it serves | is based on | is a basis for |
 | `addresses` | product | Actors | addresses | is addressed by |
 | `affects` | problem | Actors | affects | is affected by |
-| `solves` | feature | Problems; a refused feature names the problem it declines, read as declines and is declined by | solves | is solved by |
+| `solves` | feature | Problems | solves | is solved by |
 | `advances` | feature | Goals | advances | is advanced by |
 | `serves` | use case, reaction, job | Journey steps | serves | is served by |
 | `serves` | journey | The goal it walks toward | serves | is served by |
@@ -238,7 +290,6 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `raises` | use case | Events | raises | is raised by |
 | `access.grant` | use case | A permission, a self scope, anonymous, or system | is granted through | grants |
 | `reachedThrough` | use case | Entry points | is reached through | reaches |
-| `entryPoint` | screen | The one browser or device entry point it belongs to | belongs to | is entered through |
 | `address` | screen | The route template it serves; a screen carries `address` or `host`, never both | is addressed at | is the address of |
 | `host` | screen | The screen an overlay with no address of its own opens on; a screen carries `address` or `host`, never both | opens on | hosts |
 | `offers` | screen | The use cases a person can start from it | offers | is offered by |
@@ -250,8 +301,6 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `triggeredBy` | reaction | Domain events or integration events | answers | is answered by |
 | `binds` | rule | Aggregates | binds | is bound by |
 | `exercises` | scenario | Rules | exercises | is exercised by |
-| `drivenBy` | aggregate | Reactions, jobs, actors, or roles | is driven by | drives |
-| `compensation.useCase` | aggregate | The use case reversing the saga step | is compensated by | compensates |
 | `freshness.authority` | use case | The record holding the authoritative value | is advised by | advises |
 | `erasure.operation` | aggregate | The external system operation erasing the data class | is erased through | erases |
 | `erasure.event` | aggregate | The integration event carrying the erasure | is erased through | carries the erasure of |
@@ -265,53 +314,19 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `subject` | exception | The records the exception covers; a gap may also name journey steps (`journey/<name>#s<n>`) for the step findings | applies to | is applied to |
 | `terms` | any record | Terms | uses | is used by |
 
-Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
+Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
 
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a requirement belongs to the topic its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or exception that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Parents table below names each record parent.
+Placement needs no link field: it follows the folder. The folder node is the parent, and `solves` on a feature and `serves` on a journey remain connections that carry meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or exception that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
 
 ### Parents
 
 Every record except the product has exactly one parent. The book places each record once, under its parent. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. Every inverse link is computed, never written.
 
-Where the identifier home segment, or the page home for a page or entry record, names one record, that record is the parent and no parent field is written. A use case page beside its aggregate is page containment. Where no containment names a parent, the child carries one required up-link naming it, except the sixteen root types below, whose parent is the product with no field written: a project has exactly one product, so the field would repeat one value on every record.
+The container is the parent. An entry's parent is the record file that holds it, except a scenario, whose parent is its result. A record file's parent is its folder node: the product, a module, an aggregate or an entry point. List records are files whose entries take the file's folder node as parent. Types at product level take the product as parent with no field written: a project has exactly one product, so the field would repeat one value on every record.
 
-One parent needs a stated precedence. A feature names its parent in `solves`, and the parent is its first entry; a refused feature names the problem it declines in the same field. Additional entries are connections. List order decides placement, so reordering a list moves the record.
+The product has no record parent; its parent is the project that declares it. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule.
 
-The product has no record parent; its parent is the project that declares it. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule. A draft parent is a present parent, so an author may write top down or bottom up. A retired record is exempt and stands beside its replacement under the same parent, and a retired parent still counts as present for a live child.
-
-| Record type | Parent | Found through |
-|:---|:---|:---|
-| `product` | none | the project that declares it |
-| `goal` | the product | the product |
-| `problem` | the product | the product |
-| `feature` | `problem` | `solves`, first entry |
-| `constraint` | the product | the product |
-| `research` | the product | the product |
-| `decision` | the product | the product |
-| `topic` | the product | the product |
-| `requirement` | `topic` | identifier home |
-| `journey` | `goal` | `serves` |
-| `actor` | the product | the product |
-| `module` | the product | the product |
-| `aggregate` | `module` | identifier home |
-| `rule` | `aggregate` or `module` | identifier home, an aggregate before a module |
-| `use-case` | `aggregate` or `module` | the aggregate holding its page; else identifier home |
-| `result` | `use-case` | identifier home |
-| `scenario` | `result` | `result` |
-| `event` | `aggregate` | identifier home |
-| `integration-event` | the product | the product |
-| `reaction` | `module` | identifier home |
-| `job` | `module` | identifier home |
-| `notification` | `module` | identifier home |
-| `setting` | `module` | identifier home |
-| `role` | the product | the product |
-| `permission` | the product | the product |
-| `entry-point` | the product | the product |
-| `screen` | `entry-point` | `entryPoint`, agreeing with the identifier home |
-| `external-system` | the product | the product |
-| `runbook` | the product | the product |
-| `exception` | the product | the product |
-| `term` | the product | the product |
+The Placement Table above names each type's parent.
 
 ### Marks
 
@@ -337,7 +352,7 @@ A mark is a written link from a code element to the record it serves, in one of 
 | Frontend | Route entry: a web route file, a Blazor `@page` component, or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
 | Operations | Deployment, proxy, host, or CI workflow file listed in `paths.operations` | One or more `follows` marks in the file's `#` comments, such as `# <follows>decision/<number>-<name></follows>` |
 | Operations | Alert rule in a file listed in `paths.alerts` | A `requirement` label naming a quality requirement and a `runbook` label naming a runbook |
-| Tests | Test | The lowest record it verifies: `scenario/<use-case>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<topic>.<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep |
+| Tests | Test | The lowest record it verifies: `scenario/<use-case>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<feature>.<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep |
 | Application, Infrastructure or API | Technical class: a top-level class that declares a method, or an options class that binds a setting, and takes no other mark. Nested types, records, interfaces, generated code, migrations, and model snapshots are never technical classes | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `exception/<name>` in a `follows` mark |
 
 A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the exception that allows it. Any other code element may carry a `follows` mark as well.
@@ -348,25 +363,49 @@ Seven provisions divide the marks between them: `litespec/core/system#point-code
 
 Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `.litespec/project.json`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
+### Code and Tests
+
+Backend code follows the module layout (module, then aggregate, then use case, in one tree), or the five project trees under the `layer-projects` extension. The namespace and folder of a type that marks a record match the record's qualified identifier. A handler marking `finance/payout/use-case/request-payout` sits in `{Product}/Finance/Payout/RequestPayout/`, or in `{Product}.Application/Finance/Payout/RequestPayout/` under `layer-projects`.
+
+Tests mirror the code they prove, with the same check: a test marking a scenario sits under the qualified path of the scenario's use case.
+
+Frontend code follows "Organize a Frontend into Frame, Routes, and Modules", with module folders named after declared modules and routes grouped by entry point.
+
+The check lives in one place and is reported once.
+
 ### Authority
 
-Intent outranks Behavior. When two records disagree, the higher one wins: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. Inside one record, a must beats a should. Between peers, the later approved decision wins, and its `replaces` link shows what it overturned. Every other link is trace: it explains why a record exists and never decides a conflict.
+Git is the decision record. A record in the repository is decided, and a record no longer wanted is deleted.
 
-A decision explains a choice and is replaced, never edited. Goals, problems, features, journeys, actors, research, and prose carry no authority, so they never override an approved record. An exception of kind `departure` outranks the LiteSpec provision its `covers` names for the project that records it, until its `expiresOn` date.
+Intent outranks Behavior. When two records disagree, the higher one wins: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. Inside one record, a must beats a should. Two decisions deciding the same record are a blocking finding, not a tie to resolve. Every other link is trace: it explains why a record exists and never decides a conflict.
 
-When code and the specification disagree, the specification wins where Intent has spoken. Where Intent is silent, working code is evidence for a question, never a defect to delete and never a source to transcribe silently.
+A decision explains a choice. Goals, problems, features, journeys, actors, research, and prose carry no authority, so they never override another record. An exception of kind `departure` outranks the LiteSpec provision its `covers` names for the project that records it, until its `expiresOn` date. A deviation is an exception of kind `departure` whose `covers` names the provision it sets aside; there is no separate type or folder.
 
-A record stays unapproved while a decision behind it stays draft. An accepted gap becomes an exception of kind `gap`, and the findings its `covers` names report without failing until the `expiresOn` date. Module order states dependencies and grants no authority.
+When code and the specification disagree, the specification wins where Intent has spoken. Where the specification is silent, an agent builds nothing: something that seems missing becomes a question to the owner or a backlog item, never code.
+
+An accepted gap becomes an exception of kind `gap`, and the findings its `covers` names report without failing until the `expiresOn` date. Module order states dependencies and grants no authority.
 
 ### Authoring Order
 
-Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A question found while modeling goes up as an open question with a decider and a date, as `litespec/core/layers#raise-open-needs-as-draft-questions` states; the Behavior record stays draft until it is answered. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
+Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A branch may be incomplete; what merges is complete. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
 
-### Statuses
+### Reachability
 
-Intent and governance records use draft, approved, and retired. Behavior records use draft, reviewed, and retired. Draft means the record awaits its decider, approved or reviewed means it holds, and retired means a replacement holds. A draft names its `decider` and its `decideBy` date. A decision is replaced, never edited: the retired decision stands beside its replacement so the reasoning stays readable.
+The folder fixes where a record sits. Reachability fixes that it leads to software.
 
-Implemented, verified, met, tested, exercised, stale, flaky, and reachable are computed, never handwritten. The builder derives them from code, screens, tests, and test runs on every run. The four proof words are verified, met, tested, and exercised, each with the one meaning the table states:
+A goal reaches a journey or a quality requirement. A problem reaches a feature or requirement that addresses it. A feature or requirement reaches a use case, journey or quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior.
+
+A record that reaches no Behavior gets a blocking finding: it is either unfinished work, which belongs on the backlog, or not software.
+
+### Completion Stages
+
+The builder computes one completion stage for every requirement, use case, journey, feature and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `implemented` and `proven`. A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labelled done and of pairs behind the stage. `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, an implemented record stays `implemented` with proof `unknown`, and proof unknown never reads as a failure. The book leads with completion.
+
+A requirement is `unfulfilled` when no Behavior record fulfills it, `specified` when a fulfiller has no code, `implemented` when every fulfiller has code and not every fulfiller is proven, and `proven` when every fulfiller is verified and its measure passes. A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `implemented` when code implements it and not every scenario is proven, and `proven` when every scenario has a passing proof that is not stale. A journey takes the stage of its weakest step: an unserved step is `unfulfilled`, a served step with no code is `specified`, a step with code and no passing proof exercising it is `implemented`, and an exercised step is `proven`. A feature takes the stage of its weakest in-scope requirement and journey. Its in-scope requirements are the requirements on the feature page, and its in-scope journeys are the journeys citing those requirements. A goal takes the stage of its weakest in-scope feature, journey and requirement.
+
+A requirement an exception parks stays out of a feature's stage and counts and names itself in the feature's `heldBy`, so deferred work stays visible without holding the stage back.
+
+The builder derives the proof words from code, screens, tests, and test runs on every run:
 
 | State | Of | When |
 |:--|:--|:--|
@@ -379,41 +418,13 @@ Implemented, verified, met, tested, exercised, stale, flaky, and reachable are c
 | reachable | aggregate state | a transition leads into it |
 | exercised | journey step | a passing proof of a use case serving the step |
 
-The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status. A screen is draft when its entry point, a use case it offers, or a journey it serves is draft. A finding about a record follows the record's own status; an inherited draft shows as a label beside the finding.
-
-Completion is computed beside these states, never written on a record: every requirement, use case, journey, feature and goal carries one completion stage, as the Completion Stages section on this page states.
-
-### Approval as Data
-
-An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash, written by `litespec model approve`. The hash is the first 8 lowercase hex characters of SHA-256 over the canonical JSON of the record fields minus the exclusion set; for a page of an article type with an explanation file, it also covers a separator plus the explanation text normalized to LF line ends with trailing whitespace dropped per line and blank lines trimmed at both ends. Every prose field in the record file joins the hash, so a moved promise reopens approval, while an explanation file joins the hash for an article type only, so fixing a typo in any other explanation reopens no approval. `approval-reopened` fires when the computed hash differs from the recorded `approvedHash`. The exclusion set in the builder is the one definition of which fields stay outside the hash: every written record field feeds the hash except the fields the set names. [The approval hash guide](../guide/approval-hash.md) lists those fields.
-
-### Risk Classes and the Approval Table
-
-`risk` is optional on requirements and Behavior records, and holds any of `money`, `physical-access`, `personal-data`, and `access`. The class names what is at stake, and a record with no risk shows nothing for risk. The project file names an approval table in `approvals`: each risk class with the owner from `owners` who approves records carrying it, and `default` with the rule for records carrying no risk class, such as an owner name or `agent-batch`. A record carrying a risk class waits for the approver the table names for that class. The model writes `approval` with `by` and `rule` on every record that carries risk, and writes the table as `approvals` at the top of the model. A result or a scenario takes the risk classes of the use case that holds it. A question carries no risk of its own; it follows the record that carries it, and a question on a record with no risk class auto-approves after the veto window while a question on a record carrying risk never auto-approves. Approval stays loose: an agent reading counts as the second reading for a record carrying risk, a project whose owners list holds one name needs no second reviewer, and `review.securityReviewer` is optional with the security queue a list to read.
-
-### Questions and Ballots
-
-`questions` carries `question`, `decider`, `decideBy`, `ballot`, and `recommendation`, and once answered `answer`, `answeredBy`, and `answeredOn`. `ballot` is required and groups questions in the inbox, by a decision id or a short topic slug. `recommendation` is required when the record carries no `risk`. A question carries no `risk`; its approval follows the record that carries it. An unanswered question is open, and an open question blocks approval. `decider-missing` checks question entries as well as drafts. Only a question auto-approves, after its `decideBy` plus the project veto window, recorded as `answeredBy: auto (veto window)` on the question; no record carries `approvedBy: auto (veto window)`. `review.vetoWindowDays` in `.litespec/project.json` is optional and defaults to 7. `question-expired` reports every unanswered question past its `decideBy` that cannot auto-approve, a question on a record carrying risk included. Each ballot carries a consequences summary rendered from Behavior, marked as context and outside the approval hash, so Intent stays enough to approve. `litespec book` shows the Ballots view, grouping questions by `ballot`, ordered with questions on records carrying risk first, with each question recommendation and auto-approval date. The [release page](release.md) states the review flow.
-
-### Completion Stages
-
-The builder computes one completion stage for every requirement, use case, journey, feature and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `implemented` and `proven`. A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labelled done and of pairs behind the stage. `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, an implemented record stays `implemented` with proof `unknown`, and proof unknown never reads as a failure.
-
-A requirement is `unfulfilled` when no Behavior record fulfills it, `specified` when a fulfiller has no code, `implemented` when every fulfiller has code and not every fulfiller is proven, and `proven` when every fulfiller is verified and its measure passes. A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `implemented` when code implements it and not every scenario is proven, and `proven` when every scenario has a passing proof that is not stale. A journey takes the stage of its weakest step: an unserved step is `unfulfilled`, a served step with no code is `specified`, a step with code and no passing proof exercising it is `implemented`, and an exercised step is `proven`. A feature takes the stage of its weakest in-scope requirement and journey. Its in-scope requirements are the requirements citing it, and its in-scope journeys are the journeys citing those requirements. A goal takes the stage of its weakest in-scope feature, journey and requirement.
-
-A requirement an approved gap exception parks stays out of a feature's stage and counts and names itself in the feature's `heldBy`, so deferred work stays visible without holding the stage back. Every requirement of a feature whose lifecycle is `later` or `refused` is parked the same way, and a `later` feature is parked for its goal. A retired record is out of scope everywhere.
-
 ### Screen Captures
 
 The project file names the screenshot galleries in `screenshots`: `galleries` holds one or more repository-relative folders, and `pattern` holds the file-name pattern with `{route}`, `{theme}` and `{width}`. The builder records each screen's captures as `captures` with `path`, `theme`, `width` and `capturedOn`, and its `captureState` as `captured`, `route-not-captured` or `no-route`. The route slug drops the leading slash of the screen address, joins its segments with a hyphen, reduces a bracketed, braced, colon or dollar parameter to its name, and names the root route `home`, so `/events/[id]` becomes `events-id` and the default pattern names its desktop light capture `events-id--light--1440.png`. `capturedOn` is the capture file's last-write date in UTC. A screen with an address and no matching capture is `route-not-captured`; a screen with no address and no route carrying it is `no-route`. A missing gallery folder captures nothing and fails nothing. A gallery inside a declared frontend folder serves only the screens of that frontend's entry point, so two frontends that both serve the root route never share a capture.
 
-### Transcription Mode
-
-During adoption, a Behavior record written from code carries `provenance: transcribed`. Such a record can stand as draft, but never as reviewed, until the records it fulfills or serves are approved. `.litespec/project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
-
 ### Size and Stacks
 
-Each project declares its size, its stacks, and its optional types in `.litespec/project.json`. Each frontend declares one stack, and the backend declares its own. Every project answers whether constraints apply, possibly with none. Owners form a closed list, and extensions name their replacements and switched-on types. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
+Each project declares its size, its shape, and its stacks in `.litespec/project.json`. Each frontend declares one stack, and the backend declares its own. Extensions name their replacements. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
 
 ### The Model Builder
 
@@ -421,9 +432,9 @@ The model builder reads record files, explanation files, documents, code, routes
 
 Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing.
 
-A finding that an approved exception covers is reported as excepted and exits zero. A gap covers a finding when its `covers` lists the finding code; a departure covers the finding codes its provision's Checked by line names. The exception covers a finding only on its `subject` records or its `paths` files, and only while the exception is approved and its `expiresOn` date has not passed. An exception on a use case also covers the findings about the scenarios and results it holds. An exception past its `expiresOn` date is reported as `exception-expired`. Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the hash of the scenario and of its test body at the last passing run; a proof is stale when either hash changes.
+A finding that a live exception covers is reported as excepted and exits zero. An exception is live when it is present and unexpired. A gap covers a finding when its `covers` lists the finding code; a departure covers the finding codes its provision's Checked by line names. The exception covers a finding only on its `subject` records or its `paths` files, and only while it is live. An exception on a use case also covers the findings about the scenarios and results it holds. An exception past its `expiresOn` date is reported as `exception-expired`. Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the hash of the scenario and of its test body at the last passing run; a proof is stale when either hash changes.
 
-`litespec model diff <base>` prints the records a change adds, changes and removes, in the book words, for review.
+`litespec model diff <base>` prints the records a change adds, changes and removes, in the book words.
 
 ### Check Levels
 
@@ -431,29 +442,27 @@ Every check has a level.
 
 | Level | Meaning |
 |:--|:--|
-| G | Reads records only. Always blocks. |
-| S | Reads code through a stack reader. Blocks where the reader that produced the finding is qualified, and reports otherwise. |
-| A | Advisory. Reports and never blocks. |
-
-A structural parent is any link or containment the Parents table and the Identifiers table name as a record parent: topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment. A missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a record with no risk class and level G for a record carrying a risk class.
+| G | Reads records only. Always blocks. Every missing required link is G. |
+| S | Reads code through a stack reader. Blocks where the reader is qualified, reports otherwise. |
+| A | Advisory. Reports, never blocks. |
 
 Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking. A .NET reader that cannot read or parse a backend, test or screen file, a declared stack root with no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read or parsed, is not SPDX or CycloneDX, or yields no packages each report `reader-missing` (level S) naming the file or path, and the model is built from what could be read.
 
 `litespec model check` prints the level beside each finding.
 
-A level S finding about a record follows the record's own status: it blocks when the record itself is approved or reviewed, and reports without blocking while the record itself is a draft, so code written ahead of a draft never fails the build and never goes unreported. An inherited draft shows as a label beside the finding. An analyzer reports a blocking finding as an error and a reported one as a warning, and a finding that an approved exception covers stays silent.
+`litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks reachability for that record until it expires.
 
-Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block: `use-case-unverified` and unanswered questions on records carrying a risk class. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
+Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block: `use-case-unverified`. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 The [model command page](../tools/model.md) lists every finding code with its level and meaning.
 
 ### The Book and the Diffs
 
-The book and the diffs live in the Proof record layer. The book shows each journey as record detail: its `finishedWhen`, the steps with their `statement` and `failure`; the requirements it cites, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
+The book and the diffs live in the Proof record layer. The book shows each journey as record detail: its `finishedWhen`, the steps with their `statement` and `failure`; the requirements it cites, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; and the Then clauses of its scenarios, as context.
 
-Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail. The book renders each record's explanation file under its fields, anchored at the record.
+Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail. The book renders each record's explanation file under its fields, anchored at the record. The book leads with completion.
 
-`litespec model diff <base> --intent` shows Intent changes in product words. `--behavior` shows Behavior changes and the security queue. Without a flag, it shows both. The security queue lists tenant scope `cross` access, new `calls` effects, and new personal or sensitive data classes for the security reviewer where the project names one in `review.securityReviewer`. The book renders `model.json` only and judges nothing itself.
+`litespec model diff <base> --intent` shows Intent changes in product words. `--behavior` shows Behavior changes. Without a flag, it shows both. The book renders `model.json` only and judges nothing itself.
 
 ## Standards
 
@@ -473,9 +482,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#state-the-common-fields-on-every-record`
 
-**Statement:** Every written record MUST carry its type, identifier, title, owner, and status.
+**Statement:** Every written record MUST carry its type, identifier, and title.
 
-**Rationale:** Type, identifier, title, owner, and status are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to owners, and the model falls apart into loose pages.
+**Rationale:** Type, identifier, and title are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to terms, and the model falls apart into loose pages. A record adds `terms` when it uses glossary terms and `records` when it holds entries.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a record missing a common field.
 
@@ -485,7 +494,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** Every record page MUST live in one record file holding one YAML mapping with its entries in `records`.
 
-**Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else is invisible to the checks that scan its home.
+**Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else is invisible to the checks that scan its home. Settled by [decision/0020-records-in-yaml](decision/0020-records-in-yaml) on the evidence in [research/record-format-evidence](research/record-format-evidence).
 
 **Example:** Claimwick keeps `use-case/spending.submit-expense` in `.litespec/behavior/modules/spending/expense/submit-expense.yaml`, with its results and scenarios in `records`.
 
@@ -507,23 +516,23 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#split-record-fields-from-explanation`
 
-**Statement:** A fact a check reads or a reviewer approves MUST live as a field in the record file rather than in the explanation file.
+**Statement:** A fact a check reads MUST live as a field in the record file rather than in the explanation file.
 
-**Rationale:** Fields are checked and hashed; explanation prose is neither, except for article types. A fact a check reads that sits in prose is invisible to the check, and a fact a reviewer approves that sits in prose can move without reopening approval. The page explanation cites entries by identifier, so entries need no file of their own.
+**Rationale:** Fields are checked; explanation prose is not. A fact a check reads that sits in prose is invisible to the check. The page explanation cites entries by identifier, so entries need no file of their own.
 
-**Example:** The submit-expense purpose lives in the `purpose` field of `submit-expense.yaml`, while why the flow reads well lives under Notes in `submit-expense.md`.
+**Example:** The submit-expense summary lives in the `summary` field of `submit-expense.yaml`, while why the flow reads well lives under Notes in `submit-expense.md`.
 
-**Reviewed for:** Which explanation files state a fact a check reads or a reviewer approves? Look at each explanation file beside its record file.
+**Reviewed for:** Which explanation files state a fact a check reads? Look at each explanation file beside its record file.
 
 ### Require an Explanation File for Article Types
 
 **ID:** `litespec/core/model#require-an-explanation-file-for-article-types`
 
-**Statement:** A research, decision, or topic page MUST carry its explanation file with the required H2 sections.
+**Statement:** A research or decision page MUST carry its explanation file with the required H2 sections.
 
-**Rationale:** An article is read as prose: the Answer of a research, the Context of a decision, and the argument of a topic are what the reviewer approves, so the approval hash covers the record file plus the explanation file for these types only. The required sections keep each article complete: Answer for research, Context for decision, and The Situation, What We Do, Why It Is Better, Example, Costs and Risks, and How Sure We Are for topic.
+**Rationale:** An article is read as prose: the Answer of a research and the Context of a decision are what the reader comes for. The required sections keep each article complete: Answer for research, and Context, Options Considered, Decision, and What Would Reopen It for decision.
 
-**Example:** `research/approval-time-benchmarks` carries its Answer in `approval-time-benchmarks.md`, and the approval hash covers both files.
+**Example:** `research/approval-time-benchmarks` carries its Answer in `approval-time-benchmarks.md`.
 
 **Checked by:** `litespec model check` reports `explanation-missing` for an article type with no explanation file or with a required H2 section missing.
 
@@ -533,9 +542,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** Every record file MUST match the canonical text the record writer produces for it.
 
-**Rationale:** One layout for every record keeps diffs small and reviews on content: a change shows the moved fact, never reflowed prose or reordered keys. The tool owns the layout, so `litespec model format` rewrites every record file into canonical form and the check reports any file that differs.
+**Rationale:** One layout for every record keeps diffs small and readers on content: a change shows the moved fact, never reflowed prose or reordered keys. The tool owns the layout, so `litespec model format` rewrites every record file into canonical form and the check reports any file that differs.
 
-**Example:** A use-case file opens with `type`, `id`, `title`, `owner`, and `status`, holds its own fields in schema order, and closes with `records` and the approval fields.
+**Example:** A use-case file opens with `type`, `id`, and `title`, holds its own fields in schema order, and closes with `records`.
 
 **Checked by:** `litespec model check` reports `format-drift` for a record file whose text differs from its canonical form.
 
@@ -543,88 +552,49 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#give-every-record-one-parent`
 
-**Statement:** Every record except the product MUST have exactly one parent from the Parents table on this page.
+**Statement:** Every record except the product MUST have exactly one parent from the Placement Table on this page.
 
-**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: by identifier or page containment where one names it, by one required up-link otherwise, and under the product for the sixteen root types with no record above them. A requirement sits under the topic its identifier names, and a feature takes the first entry of `solves`. A draft parent is a present parent, so an author may write top down or bottom up. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
-**Example:** In the Claimwick product, `feature/approval-reminders` names `problem/expenses-wait-weeks` in `solves` as its parent; `requirement/approval.receipt-over-threshold` sits under `topic/approval` through its identifier home; `journey/submit-and-reimburse` names `goal/faster-reimbursement` in `serves`; and `result/submit-expense.submitted` sits under `use-case/spending.submit-expense` through its identifier home.
+**Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits on the `feature/approval-reminders` page under `intent/modules/spending/features/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits under `result/submit-expense.submitted`.
 
 **Checked by:** `litespec model check` reports `record-parent-missing` (level G) for a record whose required parent is missing.
 
-### Flag Every Record Whose Parent Changed
+### Move Each Identifier with Its Module
 
-**ID:** `litespec/core/model#flag-every-record-whose-parent-changed`
+**ID:** `litespec/core/model#move-each-identifier-with-its-module`
 
-**Statement:** Every record that cites, fulfills, or serves a record whose approval hash changed MUST be flagged until it is updated.
+**Statement:** A record that moves to another module MUST change the module segment of its identifier and every citation in the same change.
 
-**Rationale:** A promise that moves without marking its readers leaves Behavior resting on Intent nobody holds anymore. The flag follows the trace: when a record approval hash changes, every record that cites, fulfills, or serves it is flagged until it is updated. The top-down story depends on the flag, so demoting the rule and recording a gap instead would hide the change the next author must make.
+**Rationale:** The folder wins: an identifier whose home segment disagrees with its folder names a home the record left. Only identifiers whose first segment names a module change with a module move. A rule identifier keeps its home segment, because the segment names the aggregate or module the rule is about rather than the folder that holds it.
 
-**Example:** The decider raises the receipt threshold from EUR 25 to EUR 50, so the requirement statement changes and the builder flags the policy setting and the receipt rule that cite it until an agent updates them.
+**Example:** Claimwick moves `use-case/spending.submit-expense` from the spending module to the finance module, so the use case becomes `use-case/finance.submit-expense` and every citation changes in the same change.
 
-**Checked by:** `litespec model check` reports `parent-reopened` (level A while draft, level G once approved) for a record that cites, fulfills, or serves a changed record and is not yet updated.
+**Checked by:** `litespec model check` reports `identifier-invalid` for an identifier whose home segment disagrees with its folder.
 
-### Use the Layer Status Vocabulary
+### Keep Each Name Unique in the Product
 
-**ID:** `litespec/core/model#use-the-layer-status-vocabulary`
+**ID:** `litespec/core/model#keep-each-name-unique-in-the-product`
 
-**Statement:** Every written record MUST carry the status vocabulary of its record layer.
+**Statement:** Each name segment MUST stay unique in the product.
 
-**Rationale:** Intent and governance records use draft, approved, and retired, while Behavior records use draft, reviewed, and retired. One vocabulary per record layer tells a reader whether a person approved the promise or reviewed the behavior. A Behavior record marked approved claims a decider approval nobody gave.
+**Rationale:** Short identifiers resolve with no lookup table only when each name means one record. Folders do not narrow uniqueness: two features with one name in two modules still collide everywhere the identifier is read.
 
-**Checked by:** `litespec model check` reports `field-invalid` for a status outside the record layer vocabulary.
+**Example:** Claimwick names one feature `approval-reminders`; a second feature with that name in another module is reported even though the folders differ.
 
-### Hold Approval Behind Open Questions
+**Checked by:** `litespec model check` reports a blocking finding for a name segment that occurs twice in the product.
 
-**ID:** `litespec/core/model#hold-approval-behind-open-questions`
+### Take Decision Numbers from One Sequence
 
-**Statement:** A record MUST NOT stand approved or reviewed while it carries an open question.
+**ID:** `litespec/core/model#take-decision-numbers-from-one-sequence`
 
-**Rationale:** An open question names a fact the record still needs, with the decider and the date that will settle it. Approving the record first would claim settled intent while the missing fact can still move it. Answering the question or retiring the record clears the gate. A question that auto-approves after the veto window is answered, not open, so the gate still holds.
+**Statement:** A decision number MUST come from one sequence across every home.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an approved or reviewed record carrying an open question.
+**Rationale:** Product and technical decisions share one identifier space, so a number identifies one decision wherever it sits. `litespec new decision` takes the next free number, and no two decisions share it.
 
-### Answer Each Question on Its Record
+**Example:** `decision/0005-render-receipts-as-pdf` is the fifth decision, whether it sits under Intent or under Implementation.
 
-**ID:** `litespec/core/model#answer-each-question-on-its-record`
-
-**Statement:** Each question MUST record its answer on the record that carries it.
-
-**Rationale:** A question answered anywhere but on its record leaves the record open while the answer sits elsewhere. The question carries `question`, `decider`, `decideBy`, `ballot`, and `recommendation`, and once answered `answer`, `answeredBy`, and `answeredOn`. `ballot` is required, and `recommendation` is required when the record carries no `risk`. Only a question auto-approves, after its `decideBy` plus the veto window, recorded as `answeredBy: auto (veto window)`; no record carries `approvedBy: auto (veto window)`.
-
-**Example:** Claimwick asks which receipt threshold holds, with the decider, the date, the ballot, and a recommendation of EUR 50; the decider answers EUR 50 on the same record with the answerer and the date.
-
-**Checked by:** `litespec model check` reports `decider-missing` for a question missing its decider or date and `question-expired` for every unanswered question past its `decideBy` that cannot auto-approve.
-
-### Record Approval as Data
-
-**ID:** `litespec/core/model#record-approval-as-data`
-
-**Statement:** An approved or reviewed record MUST carry approvedBy, approvedOn, and approvedHash over its semantic fields and, for an article type, its explanation file.
-
-**Rationale:** Approval as data tells every reader who decided, when, and over which content. The hash is the first 8 lowercase hex characters of SHA-256 over the canonical JSON of the record fields minus the exclusion set; for a page of an article type with an explanation file, it also covers a separator plus the normalized explanation text. Every prose field in the record file joins the hash, so a moved promise reopens approval, while an explanation file joins the hash for an article type only, so a typo fix elsewhere reopens no approval. `approval-reopened` fires when the computed hash differs from the stored hash.
-
-**Example:** An approved requirement carries its approver, its date, and its hash.
-
-```yaml
-status: approved
-approvedBy: ava-reyes
-approvedOn: 2026-10-01
-approvedHash: 9f2c41ab
-```
-
-**Checked by:** `litespec model check` reports `approval-reopened` for a record whose covered fields or article explanation changed after approval.
-
-### Approve Each Risk Class by the Named Approver
-
-**ID:** `litespec/core/model#approve-each-risk-class-by-the-named-approver`
-
-**Statement:** A record carrying a risk class MUST wait for the approver the project approval table names for that class, while a record carrying no risk class follows the table's default rule.
-
-**Rationale:** A record carrying money, physical-access, personal-data, or access risk decides what money moves, who passes, whose data is kept, or who may act. The class names what is at stake, and the table names who weighs it, so a reader sees both on the record as `approval` with `by` and `rule`. Only a named person weighs those consequences; the veto window auto-approval never decides them. Records carry no risk number, so no reader has to decode what a number stood for.
-
-**Example:** Claimwick names the finance lead for `money` and the product lead for `personal-data` in `approvals`, so a requirement carrying `money` reads `approval` by the finance lead under the rule that money risk is approved by the finance lead.
-
-**Reviewed for:** Which records carrying a risk class lack the approver their class names in `approvals`? Look at `approval` beside `risk` in the model, and at the review queue groups by risk class.
+**Reviewed for:** Which decision numbers repeat across homes? Look at the decision identifiers beside each other.
 
 ### Write Links on the Record That Points
 
@@ -638,13 +608,25 @@ approvedHash: 9f2c41ab
 
 ### Connect Every Behavior Record to Intent
 
-**ID:** `litespec/core/model#connect-every-use-case-to-intent`
+**ID:** `litespec/core/model#connect-every-behavior-record-to-intent`
 
 **Statement:** A use case, reaction, job, notification, or setting MUST carry serves, fulfills, or both.
 
 **Rationale:** A use case, reaction, job, notification, or setting with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case, reaction, job, notification, or setting carrying neither. A use case is background-only when a reaction or job runs it, so `use-case-journey-missing` skips it.
 
 **Checked by:** `litespec model check` reports `record-link-missing` for a use case, reaction, job, notification, or setting with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that is not background-only and serves no journey step.
+
+### Reach Behavior from Every Intent Record
+
+**ID:** `litespec/core/model#reach-behavior-from-every-intent-record`
+
+**Statement:** Every goal, problem, feature, requirement, constraint, research, and decision MUST reach Behavior through the links the Reachability section states.
+
+**Rationale:** The folder fixes where a record sits, and reachability fixes that it leads to software. A record that reaches no Behavior is either unfinished work, which belongs on the backlog, or not software. A branch may be incomplete, so a local run reports unreached records while the pull-request check blocks on them. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+
+**Example:** In Claimwick, `problem/expenses-wait-weeks` reaches Behavior through `feature/approval-reminders` and its requirements; a problem no feature or requirement addresses is reported.
+
+**Checked by:** `litespec model check` reports a blocking finding for a record that reaches no Behavior; a local run reports it and the pull-request check blocks on it.
 
 ### Serve Every Journey Step
 
@@ -656,52 +638,78 @@ approvedHash: 9f2c41ab
 
 **Checked by:** `litespec model check` reports `step-use-case-missing` for a journey step with no serving use case, reaction, or job, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
 
+### Connect Across Modules Only Through Declared Dependencies
+
+**ID:** `litespec/core/model#connect-across-modules-only-through-declared-dependencies`
+
+**Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency or through an integration event.
+
+**Rationale:** A record linked from another module with no declared tie is not local: it belongs at product level. The declared dependency or the integration event names the tie, so the seam where a monolith would split stays visible. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
+
+**Example:** A spending rule cited from the finance module with no `dependsOn` tie and no integration event between them is reported; the rule moves to product level or the modules declare the tie.
+
+**Checked by:** `litespec model check` reports a blocking finding for a record under a module that is linked from another module with no declared dependency.
+
+### Keep Module Dependencies Free of Cycles
+
+**ID:** `litespec/core/model#keep-module-dependencies-free-of-cycles`
+
+**Statement:** Module `dependsOn` links MUST NOT form a cycle.
+
+**Rationale:** A dependency cycle says each module builds on the other, so neither has a seam to split along. The module order stays a directed graph with no cycle, like the effect edges.
+
+**Example:** Spending depends on finance and finance depends on spending, so the cycle is reported.
+
+**Checked by:** `litespec model check` reports a blocking finding for a module dependency cycle.
+
+### Publish Each Integration Event from One Module
+
+**ID:** `litespec/core/model#publish-each-integration-event-from-one-module`
+
+**Statement:** An integration event MUST have exactly one publishing module.
+
+**Rationale:** An event with two publishers has two writers of one fact: readers cannot tell which module states it. One publishing module gives the fact one home, and every other module reads it through the event.
+
+**Example:** `integration-event/expense-submitted` is published from the spending module; a second publisher in the finance module is reported.
+
+**Checked by:** `litespec model check` reports a blocking finding for an integration event with a second publishing module.
+
+### Hold Module Rules in Rule Sets
+
+**ID:** `litespec/core/model#hold-module-rules-in-rule-sets`
+
+**Statement:** A module-level rule MUST live in a rule-set file under `behavior/modules/<m>/rules/`, never in `module.yaml`.
+
+**Rationale:** The module record declares the module; rules are behavior and live with Behavior. A rule written into `module.yaml` hides behavior in a declaration no rule check scans.
+
+**Example:** A spending rule lives in a rule-set file under `behavior/modules/spending/rules/`; the same rule written into `module.yaml` is reported.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a rule in `module.yaml`.
+
 ### Follow the Authority Order
 
 **ID:** `litespec/core/model#follow-the-authority-order`
 
 **Statement:** A conflict MUST resolve toward the higher authority.
 
-**Rationale:** Intent records outrank Behavior records: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. The order settles a conflict without a meeting: a use case asking for behavior its rule forbids loses to the rule. Where Intent has spoken, the specification wins over code; where Intent is silent, working code is evidence for a question. Goals, problems, features, journeys, actors, research, and prose carry no authority, so none outranks the ladder.
+**Rationale:** Intent records outrank Behavior records: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. The order settles a conflict without a meeting: a use case asking for behavior its rule forbids loses to the rule. Where Intent has spoken, the specification wins over code; where the specification is silent, an agent builds nothing, as the Authority section states. Goals, problems, features, journeys, actors, research, and prose carry no authority, so none outranks the ladder.
 
 **Reviewed for:** Conflict decisions under `.litespec/intent/decisions/` name the higher record that won, in the order this page states.
-
-### Resolve Ties by the Later Decision
-
-**ID:** `litespec/core/model#resolve-ties-by-the-later-decision`
-
-**Statement:** A tie MUST resolve toward the later approved decision.
-
-**Rationale:** Two records at one level can disagree with no higher record to settle them. The later approved decision wins because it decided with knowledge of the earlier one. When no later decision separates them, their shared owner decides, so every tie still has exactly one judge.
-
-**Reviewed for:** Each tie-breaking decision carries a later approval date than the peer records it settles.
-
-### Hold Approval Behind Draft Decisions
-
-**ID:** `litespec/core/model#hold-approval-behind-draft-decisions`
-
-**Statement:** A record MUST NOT stand approved or reviewed behind a draft decision.
-
-**Rationale:** Approval means the reasoning behind the record already holds. A record approved behind a draft decision claims settled intent while its foundation can still move. The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status. A screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
-
-**Checked by:** `litespec model check` reports `approval-invalid` for an approved or reviewed record behind a draft decision.
 
 ### Record Accepted Gaps as Exceptions
 
 **ID:** `litespec/core/model#record-accepted-gaps-as-exceptions`
 
-**Statement:** An accepted gap MUST live as an exception of kind `gap` with owner and expiry date.
+**Statement:** An accepted gap MUST live as an exception of kind `gap` with an expiry date.
 
-**Rationale:** Missing work with no owner and no date is invisible: nobody answers for it and nothing reports it. An exception of kind `gap` with an owner and an `expiresOn` date turns the same missing work into a visible promise: the findings its `covers` names report until the date, and `exception-expired` reports the exception after it. One person may approve it.
+**Rationale:** Missing work with no date is invisible: nothing reports it. An exception of kind `gap` with an `expiresOn` date turns the same missing work into a visible promise: the findings its `covers` names report until the date, and `exception-expired` reports the exception after it. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
-**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as an exception with an owner and an expiry date in `.litespec/governance/exceptions/export-expenses-unimplemented.yaml`.
+**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as an exception with an expiry date in `.litespec/governance/exceptions/export-expenses-unimplemented.yaml`.
 
 ```yaml
 type: exception
 id: exception/export-expenses-unimplemented
 title: Export expenses unimplemented
-owner: claimwick-team
-status: approved
 kind: gap
 covers:
   - use-case-unimplemented
@@ -709,14 +717,11 @@ subject:
   - use-case/spending.export-expenses
 reason: Export waits for the finance file format.
 expiresOn: 2027-06-01
-approvedBy: ava-reyes
-approvedOn: 2026-10-01
-approvedHash: 9f2c41ab
 ```
 
-The `use-case-unimplemented` finding reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
+The `use-case-unimplemented` finding reports without failing until 2027-06-01, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an exception missing its owner or date, `exception-expired` (level G) past its `expiresOn` date, and `exception-finding-unknown` (level G) for an exception naming a finding code no check uses.
+**Checked by:** `litespec model check` reports `record-invalid` for an exception missing its date, `exception-expired` (level G) past its `expiresOn` date, and `exception-finding-unknown` (level G) for an exception naming a finding code no check uses.
 
 ### Apply Guidance Precedence
 
@@ -724,62 +729,35 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, a
 
 **Statement:** A conflict MUST resolve toward the project exception, the extension, the deeper page, or the shallower page, in that order.
 
-**Rationale:** A project requirement can never quietly override a shared standard; without this order it would, one page at a time. The conflict becomes an exception record instead: dated, reasoned, and reviewable. The order puts the project exception first, then the extension, then the deeper page, then the shallower page, so the most local approved decision wins.
+**Rationale:** A project requirement can never quietly override a shared standard; without this order it would, one page at a time. The conflict becomes an exception record instead: dated, reasoned, and visible. The order puts the project exception first, then the extension, then the deeper page, then the shallower page, so the most local decision wins. A deviation is an exception of kind `departure` whose `covers` names the provision it sets aside; there is no separate type or folder.
 
-**Example:** The running Claimwick example runs its weekend export with no reviewer on shift, so it records a project exception that outranks the shared standard in `.litespec/governance/exceptions/export-review-bypass.yaml`.
+**Example:** The running Claimwick example runs its weekend export alone on weekends, so it records a project exception that outranks the shared standard in `.litespec/governance/exceptions/export-authorization-departure.yaml`.
 
 ```yaml
 type: exception
-id: exception/export-review-bypass
-title: Export Review Bypass
-owner: claimwick-team
-status: approved
+id: exception/export-authorization-departure
+title: Export Authorization Departure
 kind: departure
 covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
   - use-case/spending.export-expenses
-reason: The weekend export runs with no reviewer on shift.
+reason: The weekend export runs alone on weekends.
 expiresOn: 2027-01-01
-approvedBy: ava-reyes
-approvedOn: 2026-10-01
-approvedHash: 9f2c41ab
 ```
 
 The record names the provision it sets aside, the reason, and the expiry date, so the departure stays visible and dated, which satisfies this provision.
 
-An exception that covers code no record describes names those files in `paths`, as globs from the repository root. An exception that covers records names them in `subject`. One of the two is required. The Model Builder section on this page states the one rule for which findings an approved exception covers and when.
+An exception that covers code no record describes names those files in `paths`, as globs from the repository root. An exception that covers records names them in `subject`. One of the two is required. The Model Builder section on this page states the one rule for which findings a live exception covers and when.
 
 **Reviewed for:** Every departure from a shared provision resolves to an exception record under `.litespec/governance/exceptions/` with reason and expiry date.
-
-### Keep One Owner and Status on Every Record
-
-**ID:** `litespec/core/model#keep-one-owner-and-status-on-every-record`
-
-**Statement:** Every page MUST name one owner and one status.
-
-**Rationale:** One owner means one person answers for the page. One status means the page either awaits decision, holds, or stands replaced. Entries inherit both from their page, so a page of entries stays consistent without repeating the fields on every object. The owner is the readable name the project owners list holds, and the project file maps that name to its CODEOWNERS handles.
-
-**Example:** A draft names its `decider` and `decideBy` date. The three statuses and what each allows: a draft awaits its decider, approved or reviewed holds, and retired means a replacement holds.
-
-**Checked by:** `litespec model check` reports `owner-unknown` and `decider-missing` for a page missing its owner or draft decider.
-
-### Retire Records with Replaces
-
-**ID:** `litespec/core/model#retire-records-with-replaces`
-
-**Statement:** A replacing decision MUST name the decision it replaces, and no other record type carries `replaces`.
-
-**Rationale:** Only decisions keep the past: the retired decision stands beside its replacement so the reasoning stays readable. Every other record changes in place, because retired copies of rules or use cases would fork the intent readers must follow. A rename rewrites every citation in the same change, so no dangling reference survives.
-
-**Checked by:** `litespec model check` reports `field-invalid` for `replaces` outside a decision and `reference-unknown` for an unknown target.
 
 ### Name What Every Decision Decides
 
 **ID:** `litespec/core/model#name-what-every-decision-decides`
 
-**Statement:** Every product decision that is not retired MUST name at least one record it settles in `decides`.
+**Statement:** Every product decision MUST name at least one record it settles in `decides`.
 
-**Rationale:** The draft gate and the computed effective status both follow `decides`. A decision that names nothing holds back nothing, so its approval state constrains no record and its draft gate checks nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
+**Rationale:** A decision that names nothing governs nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
 
 **Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field.
 
@@ -789,7 +767,7 @@ An exception that covers code no record describes names those files in `paths`, 
 
 **Statement:** A technical choice that code follows and no LiteSpec provision makes MUST be a decision under `.litespec/implementation/decisions/` that at least one code element follows.
 
-**Rationale:** Why a pattern, a library, or a configuration value was chosen is the first question a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a `follows` mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space.
+**Rationale:** Why a pattern, a library, or a configuration value was chosen is the first thing a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a `follows` mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space.
 
 **Example:** Claimwick renders each receipt as a PDF file. `decision/0005-render-receipts-as-pdf` weighs a PDF library against an HTML-to-PDF browser, chooses the PDF library, and names what reopens the choice: receipts no longer needing a downloadable file. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`.
 
@@ -801,9 +779,9 @@ An exception that covers code no record describes names those files in `paths`, 
 
 **Statement:** A technical decision MUST leave each rule the product obeys whatever its design to a constraint and each measurable target to a quality requirement, and name the ones it serves in `basedOn`.
 
-**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody approves it as the business promise it is. Kept in Intent, the rule and the target are approved by the person who owns them, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advice, level A, while a product decision that decides nothing blocks at level G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
+**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advice, level A, while a product decision that decides nothing blocks at level G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
-**Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
+**Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/submit-expense.month-end-load` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
 **Checked by:** `litespec model check` reports `decision-basis-missing` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
@@ -819,13 +797,13 @@ An exception that covers code no record describes names those files in `paths`, 
 
 **Checked by:** `litespec model check` reports `link-unknown` for a link that resolves to no file and no written record identifier.
 
-### Declare Size Stacks and Optional Types
+### Declare Size and Stacks
 
-**ID:** `litespec/core/model#declare-size-stacks-and-optional-types`
+**ID:** `litespec/core/model#declare-size-and-stacks`
 
-**Statement:** A project MUST declare its size, stacks, and optional types.
+**Statement:** A project MUST declare its size and stacks.
 
-**Rationale:** Size decides which record types and test projects the checks require, while stacks decide which technology pages and checks apply. Without the declaration, the builder cannot tell a missing record from one the project never needed. Optional types switch on per project, so the declaration also names which ones this project carries.
+**Rationale:** Size decides which record types and test projects the checks require, while stacks decide which technology pages and checks apply. Without the declaration, the builder cannot tell a missing record from one the project never needed.
 
 **Example:** The running Claimwick example declares large with a server shape and two stacks.
 
@@ -848,21 +826,17 @@ records:
   - type: result
     id: result/submit-expense.submitted
     title: Submitted
-    owner: claimwick-team
     outcome: success
     meaning: The expense is submitted.
   - type: result
     id: result/submit-expense.receipt-missing
     title: Receipt missing
-    owner: claimwick-team
     outcome: refusal
     code: spending.receipt-missing
     meaning: The expense is above the receipt threshold and carries no receipt.
   - type: scenario
     id: scenario/submit-expense.submitting-with-a-receipt-succeeds
     title: Submitting with a receipt succeeds
-    owner: claimwick-team
-    status: approved
     given: An employee paid for a train ticket and kept the receipt.
     when: The employee submits the expense with the receipt.
     then: The expense is submitted.
@@ -891,37 +865,17 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Authoring MUST complete one feature from problem to scenario before starting the next.
 
-**Rationale:** A feature worked from problem to scenario stays reviewable at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet, and reviewers cannot tell a settled choice from a guess.
+**Rationale:** A feature worked from problem to scenario stays complete at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet.
 
-**Reviewed for:** Approved Behavior records show approved Intent above them through their `fulfills` and `decides` links.
-
-### Hold Transcribed Records in Draft
-
-**ID:** `litespec/core/model#hold-transcribed-records-in-draft`
-
-**Statement:** A record with provenance transcribed MUST NOT stand reviewed while a record it fulfills or serves is unapproved.
-
-**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until the records it fulfills or serves are approved. `transcription-status-invalid` fails a transcribed record standing reviewed while a record it fulfills or serves is unapproved.
-
-**Checked by:** `litespec model check` reports `transcription-status-invalid` for a transcribed record standing reviewed while a record it fulfills or serves is unapproved.
-
-### End Transcription at the Named Decision
-
-**ID:** `litespec/core/model#end-transcription-at-the-named-decision`
-
-**Statement:** Every transcribed record MUST clear before the adoption decision is approved.
-
-**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying provenance transcribed. Clearing means the records it fulfills or serves are approved and the record drops the transcribed mark, or the record retires with the code it copied.
-
-**Checked by:** `litespec model check` reports `transcription-expired` for a transcribed record after the adoption decision is approved.
+**Reviewed for:** Behavior records show Intent above them through their `fulfills` and `decides` links.
 
 ### Compute Proof Statuses in the Builder
 
 **ID:** `litespec/core/model#compute-proof-statuses-in-the-builder`
 
-**Statement:** Implemented, verified, met, tested, exercised, stale, flaky, reachable, and effective status MUST come from the builder, never from handwriting.
+**Statement:** Implemented, verified, met, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.
 
-**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from `.litespec/proof/proofs.json`. A requirement reads met when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code, except a transcribed draft written from code during adoption: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. `litespec/core/model#hold-transcribed-records-in-draft` and `litespec/core/model#end-transcription-at-the-named-decision` state the draft-only exception and the decision that ends it.
+**Rationale:** Handwritten state drifts: a record marked implemented stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from `.litespec/proof/proofs.json`. A requirement reads met when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** A use case reads implemented when its handler exists.
 
@@ -945,23 +899,11 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** The builder MUST compute one completion stage for every requirement, use case, journey, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy` and `counts`, with a parent only as far as its weakest in-scope child and `heldBy` naming at most ten children at that stage.
 
-**Rationale:** Completion is a fact the builder can count from fulfilment, code and proof, so no record carries a shorthand status saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `implemented` when code is found for every in-scope child, and `proven` when every in-scope child is verified or met with fresh proof. When the model holds no test run, an implemented record stays `implemented` with proof `unknown`, so proof unknown never reads as a failure. A requirement an approved gap exception parks stays out of the stage and the counts and names itself in `heldBy`, so deferred work stays visible.
+**Rationale:** Completion is a fact the builder can count from fulfilment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: `unfulfilled` when no Behavior record fulfills a record, `specified` when it is fulfilled and no code is found, `implemented` when code is found for every in-scope child, and `proven` when every in-scope child is verified or met with fresh proof. When the model holds no test run, an implemented record stays `implemented` with proof `unknown`, so proof unknown never reads as a failure. A requirement an exception parks stays out of the stage and the counts and names itself in `heldBy`, so deferred work stays visible.
 
-**Example:** In Claimwick, `feature/spending.submit-expense` shows `implemented` with proof `unknown` before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows `proven` with no held-by entries.
+**Example:** In Claimwick, `feature/expense-submission` shows `implemented` with proof `unknown` before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows `proven` with no held-by entries.
 
 **Reviewed for:** Which features read below `proven`, and which children hold each one back? Look at `completion` on each feature in the model.
-
-### Flag a Shipped Feature Below Proven
-
-**ID:** `litespec/core/model#flag-a-shipped-feature-below-proven`
-
-**Statement:** A feature whose lifecycle is `shipped` while its completion stage is below `proven` MUST be reported as advice.
-
-**Rationale:** A shipped feature tells a user the work is done. When a requirement in scope is still unfulfilled, specified or only implemented, the lifecycle says more than the proof does, and a reader should see that gap without it blocking work in progress.
-
-**Example:** Claimwick marks `feature/spending.submit-expense` shipped in the same change that leaves one requirement with no fulfiller, so `feature-shipped-drift` reports the feature as shipped while its completion is `specified`.
-
-**Checked by:** `litespec model check` reports `feature-shipped-drift` (level A) for a feature whose lifecycle is `shipped` and whose completion stage is below `proven`.
 
 ### Record Each Screen's Captures from the Gallery
 
@@ -981,7 +923,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every check MUST carry its level and block or report as that level states.
 
-**Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the level beside each finding, so a review tells a blocking defect from advice at a glance. A missing structural parent is level G for every record, drafts included; every other required link is coverage, level A for a record with no risk class and level G for a record carrying a risk class.
+**Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.
 
 **Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, and prints the level beside each finding.
 
@@ -991,7 +933,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** A project MUST write each C# mark in the one style that `marks` in `.litespec/project.json` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
 
-**Rationale:** Two styles in one language are two ways to do one job: a reader learns both, a review checks both, and a search for a record finds half its code. The C# style is a project choice made once, so every tool reads it from the project file and refuses the other style within C#. TypeScript and operations files have one form each, so a typed constant beside a C# documentation tag is two languages, not two styles. A code fix converts a mark to the form its language takes.
+**Rationale:** Two styles in one language are two ways to do one job: a reader learns both, a check covers both, and a search for a record finds half its code. The C# style is a project choice made once, so every tool reads it from the project file and refuses the other style within C#. TypeScript and operations files have one form each, so a typed constant beside a C# documentation tag is two languages, not two styles. A code fix converts a mark to the form its language takes.
 
 **Example:** The Claimwick product declares `"marks": "xml"`, so its submit-expense handler carries a documentation tag naming `use-case/spending.submit-expense`, and an attribute naming the same use case is reported. Its use-case module carries the same identifier as a typed constant, and its deployment file carries its `follows` mark as a comment.
 
@@ -1009,18 +951,6 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Checked by:** `litespec model check` reports `mark-folder-drift` (level S) for a handler, endpoint, event handler, job host or aggregate root whose mark names a record outside its module and folder.
 
-### Hold Each Finding to Its Own Status
-
-**ID:** `litespec/core/model#hold-each-finding-to-its-own-status`
-
-**Statement:** A level S finding about a record MUST block when the record itself is approved or reviewed, report without blocking when the record itself is draft, and stay silent when it is retired, with an inherited draft shown as a label.
-
-**Rationale:** A draft record states work in progress, and code written ahead of it is the normal order of a slice: failing the build on it trains people to suppress findings, while hiding it loses the signal. Reporting without blocking keeps the finding visible until the record itself is approved or reviewed, and then it blocks. An inherited draft never silences the finding: it shows as a label beside it, so a new draft requirement marks the use cases that fulfil it without quieting their findings. A retired record states the past, so code still marked with it is reported through the mark, not through the record. A finding about no record, such as an unmarked type or a mark naming no record, follows its level.
-
-**Example:** `use-case/spending.export-expenses` is a draft with no handler marked for it, so `use-case-unimplemented` prints with the draft marker and the check exits zero; once the use case is reviewed, the same finding blocks. An approved use case fulfilling a new draft requirement blocks on its findings, with the draft requirement shown as a label.
-
-**Checked by:** `litespec model check` prints `draft` beside a non-blocking level S finding whose subject is itself a draft, shows an inherited draft as a label beside a finding about an approved or reviewed record, and exits zero when only non-blocking findings remain.
-
 ### Name the Lowest Record Each Test Proves
 
 **ID:** `litespec/core/model#name-the-lowest-record-each-test-proves`
@@ -1029,7 +959,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, and a provision for a structural rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so "the adapter is right" never reads as "the promise is kept". A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.
 
-**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/spending.month-end-submissions`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
+**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/submit-expense.month-end-load`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
 
 **Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (level S) for a test that names no record or a record of a kind a test does not take.
 
@@ -1037,13 +967,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`
 
-**Statement:** Every entity and saga aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
+**Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
-**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity or saga aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
 
-**Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` is reviewed and no event handler carries its mark, so the check reports `reaction-unimplemented` and blocks.
+**Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` has no event handler carrying its mark, so the check reports `reaction-unimplemented` and blocks.
 
-**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity or saga aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
 
 ### Record a Project-Wide Lowering as an Exception
 
@@ -1051,7 +981,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** A project MUST record an exception for every analyzer rule it lowers or switches off in an `.editorconfig` that applies beyond one file.
 
-**Rationale:** Severity follows record status on its own, so a project-wide lowering in `.editorconfig` is a departure from the standard rather than a setting. An exception of kind `departure` names the provision, the reason and the expiry date, so the lowering is reviewed and ends instead of staying silent. One person may approve it.
+**Rationale:** A project-wide lowering in `.editorconfig` is a departure from the standard rather than a setting. An exception of kind `departure` names the provision, the reason and the expiry date, so the lowering is dated and ends instead of staying silent.
 
 **Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records an exception of kind `departure` citing `litespec/core/system#point-code-and-tests-up-to-records`.
 
@@ -1061,7 +991,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#organize-the-book-by-the-record-layers`
 
-**Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its identifier and links name.
+**Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name.
 
 **Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
@@ -1073,13 +1003,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#name-book-labels-with-litespec-terms`
 
-**Statement:** Every label in the book MUST be a record type, a field name, a status, a glossary term, or the reads-as phrase the Links table states for a connection.
+**Statement:** Every label in the book MUST be a record type, a field name, a computed state, a glossary term, or the reads-as phrase the Links table states for a connection.
 
 **Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records, the checks and the diffs, and has to translate. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** A use case page heads its results "Results" and its scenarios "Scenarios", never "Endings" and "Examples".
 
-**Reviewed for:** Which book labels are neither a record type, a field name, a status, a glossary term, nor the reads-as phrase the Links table states for a connection? Look at the book beside the glossary and the Links table.
+**Reviewed for:** Which book labels are neither a record type, a field name, a computed state, a glossary term, nor the reads-as phrase the Links table states for a connection? Look at the book beside the glossary and the Links table.
 
 ### Explain the Book from LiteSpec Definitions
 
@@ -1097,13 +1027,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#show-only-computed-judgements-in-the-book`
 
-**Statement:** Every status, count, order and finding the book shows MUST be one the builder, a check, or the review queue computes.
+**Statement:** Every status, count, order and finding the book shows MUST be one the builder or a check computes.
 
 **Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
-**Example:** The book lists approval batches in the order `litespec model review` gives them.
+**Example:** The book orders features by the completion the builder computes.
 
-**Reviewed for:** Which statuses, counts, orders or findings in the book does no builder output, check or review queue produce? Look at the book beside the model output.
+**Reviewed for:** Which statuses, counts, orders or findings in the book does no builder output or check produce? Look at the book beside the model output.
 
 ### Add a Missing Fact to LiteSpec Before the Book Shows It
 
@@ -1125,7 +1055,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
-**Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/expenses/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
+**Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/expense/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
 
 **Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
 

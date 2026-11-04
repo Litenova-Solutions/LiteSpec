@@ -1,10 +1,7 @@
 type: use-case
 id: use-case/spending.refuse-expense
 title: Refuse Expense
-owner: claimwick-team
-status: reviewed
-purpose: A manager turns down a submitted expense that falls outside the policy.
-whatHappens: The manager opens a submitted expense and gives a reason. Spending refuses the decision when the expense is already decided. Otherwise the expense moves to Refused and `event/expense.refused` is raised.
+summary: A manager turns down a submitted expense that falls outside the policy.
 kind: command
 access:
   grant: permission/approve-expense
@@ -29,46 +26,25 @@ records:
   - type: result
     id: result/refuse-expense.rejected
     title: Rejected
-    owner: claimwick-team
     outcome: success
     meaning: The expense is rejected.
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 8a09db39
   - type: result
     id: result/refuse-expense.not-submitted
     title: Not Submitted
-    owner: claimwick-team
     outcome: refusal
     code: spending.not-submitted
     meaning: The expense is already decided.
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: b2983ba6
   - type: scenario
     id: scenario/refuse-expense.rejecting-a-submitted-expense-succeeds
     title: Rejecting a Submitted Expense Succeeds
-    owner: claimwick-team
-    status: reviewed
     given: An employee submitted an expense outside the policy.
     when: The manager rejects the expense with a reason.
     then: The expense is rejected.
     result: result/refuse-expense.rejected
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 3cec10d6
   - type: scenario
     id: scenario/refuse-expense.rejecting-a-decided-expense-is-refused
     title: Rejecting a Decided Expense Is Refused
-    owner: claimwick-team
-    status: reviewed
     given: A manager rejected an expense.
     when: The manager rejects the expense again.
     then: The rejection is refused because the expense is already decided.
     result: result/refuse-expense.not-submitted
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: a127b14b
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 4a0425fe

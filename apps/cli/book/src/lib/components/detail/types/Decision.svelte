@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { book } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import Icon from "$lib/components/book/Icon.svelte";
   import Prose from "$lib/components/book/Prose.svelte";
@@ -19,14 +18,7 @@
 {#if choice}
   <Callout kind="info" icon="passing">
     <b>Choice:</b>{" "}
-    {choice}{f.approvedOn ? " on " + book.fmtDate(String(f.approvedOn)) : ""}
-  </Callout>
-{:else}
-  <Callout kind="warn" icon="clock">
-    <b>Not decided yet.</b>{" "}
-    {r.decider || "The decider"}{r.decideBy
-      ? " decides by " + book.fmtDate(String(r.decideBy)) + " (" + book.dateHint(String(r.decideBy)) + ")."
-      : "."}
+    {choice}
   </Callout>
 {/if}
 {#if consequences}

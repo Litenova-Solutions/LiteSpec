@@ -1,10 +1,6 @@
 type: decision
 id: decision/0018-one-record-language
 title: One Record Language
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 options:
   - name: One language page; authoring keeps page prose
     pros: Each language rule lives once, every layer cites one page, and LiteSpec's own prose rules stay with the pages they govern.

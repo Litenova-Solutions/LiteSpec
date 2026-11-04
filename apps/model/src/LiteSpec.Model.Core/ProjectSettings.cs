@@ -1,24 +1,11 @@
-using System;
-using System.Collections.Generic;
-
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The check settings a host reads from .litespec/project.json: the mark style
-///     and the domain verbs the project adds to the baseline use-case vocabulary.
+///     The check settings a host reads from .litespec/project.json: the mark style.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
 public sealed record ProjectSettings(MarkStyle Marks)
 {
-    /// <summary>Gets the domain verbs the project adds to the baseline vocabulary.</summary>
-    public IReadOnlyList<string> Verbs { get; init; } = Array.Empty<string>();
-
-    /// <summary>Gets the project verbs that name a query, beside the baseline reading verbs.</summary>
-    public IReadOnlyList<string> QueryVerbs { get; init; } = Array.Empty<string>();
-
-    /// <summary>Gets multi-word verbs counted as one use-case opening.</summary>
-    public IReadOnlyList<string> PhrasalVerbs { get; init; } = Array.Empty<string>();
-
     /// <summary>
     ///     Reads the settings from the project file text. A missing value reads as its
     ///     default: xml marks. An unknown value is an error the host prints,
@@ -56,40 +43,8 @@ public sealed record ProjectSettings(MarkStyle Marks)
             return false;
         }
 
-        settings = new ProjectSettings(marks)
-        {
-            Verbs = VocabularyNames(root, "verbs"),
-            QueryVerbs = VocabularyNames(root, "queryVerbs"),
-            PhrasalVerbs = VocabularyNames(root, "phrasal"),
-        };
+        settings = new ProjectSettings(marks);
         return true;
-    }
-
-    /// <summary>Reads one vocabulary name list from the project file.</summary>
-    /// <param name="root">The project file object.</param>
-    /// <param name="name">The vocabulary field name.</param>
-    /// <returns>The names in file order; empty when the field holds no string array.</returns>
-    private static IReadOnlyList<string> VocabularyNames(JsonText root, string name)
-    {
-        if (root.TryGetProperty("vocabulary", out var vocabulary)
-            && vocabulary.Kind == JsonKind.Object
-            && vocabulary.TryGetProperty(name, out var value)
-            && value.Kind == JsonKind.Array)
-        {
-            var names = new List<string>();
-
-            foreach (var entry in value.Items)
-            {
-                if (entry.GetString() is string text)
-                {
-                    names.Add(text);
-                }
-            }
-
-            return names;
-        }
-
-        return Array.Empty<string>();
     }
 
     /// <summary>Tries to read the declared mark style from the project file.</summary>

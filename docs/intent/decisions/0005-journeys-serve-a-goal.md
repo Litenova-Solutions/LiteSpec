@@ -6,7 +6,7 @@ Every other Intent record that means goal links to a goal record, while the jour
 
 ## Decision
 
-The journey sentence field `goal` is renamed `aim`. Every journey names its goal record in a new required single link `serves: goal/<name>`, which is its parent. `finishedWhen` and the steps are unchanged.
+The journey sentence field `goal` is renamed `aim`. Every journey names its goal record in a required single link `serves: goal/<name>`, which is its parent. `finishedWhen` and the steps are unchanged.
 
 ## Evidence with Confidence
 

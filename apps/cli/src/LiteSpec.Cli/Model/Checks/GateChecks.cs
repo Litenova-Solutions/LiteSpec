@@ -7,8 +7,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The gate checks: no record stands approved behind a draft decision, every decision names what it decides or what it rests on, exceptions expire, and a negating rule keeps its restriction in its name.</summary>
-/// <follows>litespec/core/model#hold-approval-behind-draft-decisions</follows>
+/// <summary>The gate checks: every decision names what it decides or what it rests on, exceptions expire, and a negating rule keeps its restriction in its name.</summary>
 /// <follows>litespec/core/model#name-what-every-decision-decides</follows>
 /// <follows>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</follows>
 /// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
@@ -22,30 +21,15 @@ internal static class GateChecks
         "refused", "refuses", "refusal", "forbidden", "blocked", "rejected", "non",
     };
 
-    /// <summary>Reports approval-invalid, decision-decides-missing, decision-basis-missing, exception-expired and rule-name-invalid.</summary>
+    /// <summary>Reports decision-decides-missing, decision-basis-missing, exception-expired and rule-name-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        // No record auto-approves: only a question does, after its decide-by date
-        // plus the veto window. Every draft decision holds what it decides.
-        var drafts = model.Records
-            .Where(record => record.Type == RecordTypes.Decision && record.Status == RecordStatuses.Draft)
-            .SelectMany(decision => decision.Ids(RecordFields.Decides))
-            .ToHashSet(StringComparer.Ordinal);
-
-        foreach (var record in model.Records)
-        {
-            if ((record.Status == RecordStatuses.Approved || record.Status == RecordStatuses.Reviewed) && drafts.Contains(record.Id))
-            {
-                findings.Add(new Finding("approval-invalid", $"Record '{record.Id}' is {record.Status} while its decision is a draft.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-
         foreach (var decision in model.Records.Where(candidate =>
-            candidate.Type == RecordTypes.Decision && candidate.Status != RecordStatuses.Retired && !MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
+            candidate.Type == RecordTypes.Decision && !MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
         {
             if (!decision.Ids(RecordFields.Decides).Any())
             {
@@ -54,7 +38,7 @@ internal static class GateChecks
         }
 
         foreach (var decision in model.Records.Where(candidate =>
-            candidate.Type == RecordTypes.Decision && candidate.Status != RecordStatuses.Retired && MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
+            candidate.Type == RecordTypes.Decision && MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
         {
             if (!decision.Ids(RecordFields.BasedOn).Any())
             {

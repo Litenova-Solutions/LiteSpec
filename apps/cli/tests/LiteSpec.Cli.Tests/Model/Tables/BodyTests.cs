@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class BodyTests
 {
     /// <summary>Pages write their explanation; entries write none.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
     public void Pages_Write_Bodies_And_Entries_Write_None()
     {

@@ -14,7 +14,7 @@ static class RecordPages
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "problem", "feature", "topic", "constraint", "research",
+        "product", "goal", "problem", "feature", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "exception",
@@ -23,7 +23,7 @@ static class RecordPages
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
     public static readonly HashSet<string> DocumentStyles = new(StringComparer.Ordinal)
     {
-        "index", "tutorial", "how-to", "reference", "review-report", "command",
+        "index", "tutorial", "how-to", "reference", "command",
         "configuration", "glossary", "example-cast",
     };
 
@@ -36,7 +36,7 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a topic file under .litespec/intent/",
+        ["requirement"] = "a feature file under .litespec/intent/features/",
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
@@ -70,8 +70,7 @@ static class RecordPages
     /// <summary>
     ///     The absolute path of the file a record owns. A use-case file starts
     ///     under <c>reads/</c> beside its module; the author moves the file beside
-    ///     its aggregate once the use case names one. A topic file starts
-    ///     directly under <c>intent/</c>; the author moves it into its area folder.
+    ///     its aggregate once the use case names one.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
     /// <param name="type">The record type that owns the file.</param>
@@ -89,7 +88,6 @@ static class RecordPages
             "goal" => Path.Combine(docs, "intent", "goals", $"{name}.yaml"),
             "problem" => Path.Combine(docs, "intent", "problems", $"{name}.yaml"),
             "feature" => Path.Combine(docs, "intent", "features", $"{name}.yaml"),
-            "topic" => Path.Combine(docs, "intent", $"{name}.yaml"),
             "constraint" => Path.Combine(docs, "intent", "constraints", $"{name}.yaml"),
             "research" => Path.Combine(docs, "intent", "research", $"{name}.yaml"),
             "decision" => Path.Combine(docs, "intent", "decisions", $"{name}.yaml"),
@@ -132,7 +130,6 @@ static class RecordPages
             "tutorial" => Path.Combine(docs, "guide", $"{name}.md"),
             "how-to" => Path.Combine(docs, "guide", $"{name}.md"),
             "reference" => Path.Combine(docs, "reference", $"{name}.md"),
-            "review-report" => Path.Combine(docs, "proof", "reviews", $"{name}.md"),
             "command" => Path.Combine(docs, "tools", $"{name}.md"),
             "configuration" => Path.Combine(docs, "tools", $"{name}.md"),
             "glossary" => Path.Combine(behavior, $"{name}.md"),

@@ -25,7 +25,6 @@ Selected once for the whole project:
 - [Plans and Entitlements](plans.md): plans, entitlements, and feature gating for a product that sells tiers.
 - [Privacy and Erasure](privacy.md): erasure positions, conflict rules, export-first guards, and restore sweeps for personal data past the core positions.
 - [Release Stage](stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
-- [Static Marketing Site](site.md): the static build for marketing pages, pricing, and help articles beside the application.
 
 ## Local Extensions
 

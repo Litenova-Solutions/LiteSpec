@@ -43,36 +43,40 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
-    /// <summary>Consumer findings carry their level.</summary>
+    /// <summary>Consumer findings carry their level and code.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact(DisplayName = "consumer findings carry their level")]
-    public void ConsumerFindingsCarryTheirLevel()
+    [Fact(DisplayName = "consumer findings carry their level and code")]
+    public void ConsumerFindingsCarryTheirLevelAndCode()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(folder.Path, BriefPage, meta => meta.Remove("summary"));
         var problems = Problems(RunConsumer(folder.Path));
         Assert.NotEmpty(problems);
-        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
+        Assert.All(problems, problem =>
+        {
+            Assert.Contains("[G]", problem);
+            Assert.Contains("[record-invalid]", problem);
+        });
     }
 
-    /// <summary>Requirement page that omits its example.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
-    [Fact(DisplayName = "requirement page that omits its example")]
-    public void RequirementPageThatOmitsItsExample()
+    /// <summary>Feature explanation without an example stays clean.</summary>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-offering</proves>
+    [Fact(DisplayName = "feature explanation without an example stays clean")]
+    public void FeatureExplanationWithoutAnExampleStaysClean()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, RequirementExplanation, raw => WithoutSection(raw, "Example"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
+        AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Requirement page that omits its position.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
-    [Fact(DisplayName = "requirement page that omits its position")]
-    public void RequirementPageThatOmitsItsPosition()
+    /// <summary>Pricing feature that omits its offering.</summary>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-offering</proves>
+    [Fact(DisplayName = "pricing feature that omits its offering")]
+    public void PricingFeatureThatOmitsItsOffering()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, RequirementPage, meta => meta.Remove("position"));
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'position'");
+        ConsumerFixture.MutateMeta(folder.Path, RequirementPage, meta => meta.Remove("offering"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 
     /// <summary>Decision that omits its context.</summary>
@@ -127,59 +131,6 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>Significant query without what happens.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
-    [Fact(DisplayName = "significant query without what happens")]
-    public void SignificantQueryWithoutWhatHappens()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            UseCasePage,
-            meta =>
-            {
-                AsQuery(meta);
-                meta.Remove("whatHappens");
-            });
-        AssertClean(RunConsumer(folder.Path));
-    }
-
-    /// <summary>Plain use case without goal and what happens.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
-    [Fact(DisplayName = "plain use case without goal and what happens")]
-    public void PlainUseCaseWithoutGoalAndWhatHappens()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            UseCasePage,
-            meta =>
-            {
-                DropRefusals(meta);
-                meta.Remove("purpose");
-                meta.Remove("whatHappens");
-            });
-        AssertClean(RunConsumer(folder.Path));
-    }
-
-    /// <summary>Retired use case without purpose and whatHappens.</summary>
-    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
-    [Fact(DisplayName = "retired use case without purpose and whatHappens")]
-    public void RetiredUseCaseWithoutPurposeAndWhatHappens()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            UseCasePage,
-            meta =>
-            {
-                meta["status"] = "retired";
-                meta.Remove("purpose");
-                meta.Remove("whatHappens");
-            });
-        AssertClean(RunConsumer(folder.Path));
-    }
-
     /// <summary>Makes the page a query with an immediate output group.</summary>
     /// <param name="meta">The page record fields to mutate.</param>
     static void AsQuery(JsonObject meta)
@@ -208,34 +159,21 @@ public sealed partial class ConsumerValidatorTests
         }
     }
 
-    /// <summary>Goal that omits why it matters.</summary>
-    /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
-    [Fact(DisplayName = "goal that omits why it matters")]
-    public void GoalThatOmitsWhyItMatters()
-    {
-        using var folder = ConsumerFixture.Create();
-        TestRecords.Write(
-            folder.Path,
-            ".litespec/product/goals/faster-delivery.yaml",
-            """{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","dueBy":"2026-12-31","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'whyItMatters'");
-    }
-
-    /// <summary>Problem that omits its situation.</summary>
+    /// <summary>Problem that omits its summary.</summary>
     /// <proves>litespec/core/intent#state-each-problem-with-its-evidence</proves>
-    [Fact(DisplayName = "problem that omits its situation")]
-    public void ProblemThatOmitsItsSituation()
+    [Fact(DisplayName = "problem that omits its summary")]
+    public void ProblemThatOmitsItsSummary()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
             ".litespec/product/problems/slow-delivery.yaml",
-            """{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","owner":"fixture","status":"approved","statement":"Orders take weeks to arrive.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'situation'");
+            """{"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","statement":"Orders take weeks to arrive."}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
     /// <summary>Feature that omits its offering.</summary>
-    /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-offering</proves>
     [Fact(DisplayName = "feature that omits its offering")]
     public void FeatureThatOmitsItsOffering()
     {
@@ -243,7 +181,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 
@@ -256,7 +194,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/constraints/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -269,7 +207,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/research/delivery-benchmarks.yaml",
-            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}]}""");
         TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
@@ -283,7 +221,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"description":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'betweenSteps'");
     }
 
@@ -296,7 +234,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/behavior/rules/spending-standards.yaml",
-            """{"type":"rule-set","id":"spending-standards","title":"Spending Standards","owner":"fixture","status":"approved"}""");
+            """{"type":"rule-set","id":"spending-standards","title":"Spending Standards"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -309,7 +247,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/behavior/systems/payout-bank.yaml",
-            """{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank","owner":"fixture","status":"reviewed","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"external-system","id":"external-system/payout-bank","title":"Payout Bank"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
@@ -322,7 +260,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/runbooks/clear-stuck-reimbursements.yaml",
-            """{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","owner":"fixture","status":"reviewed","trigger":"A reimbursement sits past its date.","impact":"Stuck claims block payment.","prerequisites":"The reader holds the payments role.","procedure":"Clear the stuck claim and rerun payment.","verification":"The claim leaves the stuck list.","recovery":"Restore the claim from its snapshot.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","trigger":"A reimbursement sits past its date.","impact":"Stuck claims block payment.","prerequisites":"The reader holds the payments role.","procedure":"Clear the stuck claim and rerun payment.","verification":"The claim leaves the stuck list.","recovery":"Restore the claim from its snapshot."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'escalation'");
     }
 
@@ -335,7 +273,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/exceptions/export-review-bypass.yaml",
-            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","expiresOn":"2027-01-01"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'consequences'");
     }
 
@@ -348,7 +286,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/exceptions/export-unimplemented.yaml",
-            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'exit'");
     }
 
@@ -361,11 +299,11 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/exceptions/export-review-bypass.yaml",
-            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","owner":"fixture","status":"approved","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"exception","id":"exception/export-review-bypass","title":"Export Review Bypass","kind":"departure","covers":"litespec/core/scope#select-a-size-a-shape-and-stacks","subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01"}""");
         TestRecords.Write(
             folder.Path,
             ".litespec/governance/exceptions/export-unimplemented.yaml",
-            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","owner":"fixture","status":"approved","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"exception","id":"exception/export-unimplemented","title":"Export Unimplemented","kind":"gap","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
         AssertAbsent(RunConsumer(folder.Path), "requires an H2");
     }
 
@@ -379,7 +317,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             ".litespec/example-cast.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"example-cast","id":"example-cast","title":"Example Cast","owner":"fixture","status":"approved"}"""),
+                ConsumerFixture.Meta("""{"type":"example-cast","id":"example-cast","title":"Example Cast"}"""),
                 "# Example Cast\n\n## The Organization\n\nThe shop sells printed books.\n\n## The Occasion\n\nAlex orders on Monday morning.\n\n## The Amounts\n\nEvery order carries one fee.\n\n## Recurring Situations\n\nShipments leave each weekday.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'The People'");
     }
@@ -477,8 +415,20 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "must use Title Case");
     }
 
+    /// <summary>Page headings carry their line.</summary>
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
+    [Fact(DisplayName = "page headings carry their line")]
+    public void PageHeadingsCarryTheirLine()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateBody(folder.Path, ModuleExplanation, raw => $"{raw}\n## known limits\n\nThe module stops at the shop edge.\n");
+        var problems = Problems(RunConsumer(folder.Path));
+        Assert.Contains(problems, problem => problem.Contains(".litespec/behavior/modules/orders/module.md:", StringComparison.Ordinal)
+            && problem.Contains("[page-heading-invalid]", StringComparison.Ordinal));
+    }
+
     /// <summary>Example longer than the bound.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "example longer than the bound")]
     public void ExampleLongerThanTheBound()
     {
@@ -489,30 +439,5 @@ public sealed partial class ConsumerValidatorTests
             RequirementExplanation,
             raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
         AssertProblem(RunConsumer(folder.Path), "over the 120 word bound");
-    }
-
-    /// <summary>Example bound below forty.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
-    [Fact(DisplayName = "example bound below forty")]
-    public void ExampleBoundBelowForty()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["exampleWordLimit"] = 20);
-        AssertProblem(RunConsumer(folder.Path), "exampleWordLimit '20' is below 40");
-    }
-
-    /// <summary>Example bound the project raises.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
-    [Fact(DisplayName = "example bound the project raises")]
-    public void ExampleBoundTheProjectRaises()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => project["exampleWordLimit"] = 50);
-        var longExample = string.Join(" ", Enumerable.Repeat("word", 60));
-        ConsumerFixture.MutateBody(
-            folder.Path,
-            RequirementExplanation,
-            raw => ReplaceFirst(raw, "Alex orders two books on Monday and pays one fee at checkout.", longExample));
-        AssertProblem(RunConsumer(folder.Path), "over the 50 word bound");
     }
 }

@@ -22,22 +22,6 @@ public sealed class CitationCheckTests
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
-    /// <summary>Requirement Without Cites And Risk Reports At Tier G.</summary>
-    /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
-    [Fact]
-    public void Requirement_Without_Cites_And_Risk_Reports_At_Tier_G()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "risk": ["money"]}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-cites-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' cites no goal, problem, feature, constraint, research or decision.", finding.Message);
-        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
-    }
-
     /// <summary>Requirement With Cites Passes.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
@@ -48,19 +32,6 @@ public sealed class CitationCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
             TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
-
-        Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Retired Requirement Without Cites Passes.</summary>
-    /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
-    [Fact]
-    public void Retired_Requirement_Without_Cites_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.DoesNotContain("requirement-cites-missing", TestModel.Codes(model));
     }
@@ -112,16 +83,20 @@ public sealed class CitationCheckTests
         Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>Retired Applying Constraint Passes.</summary>
-    /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
+    /// <summary>A page citing a removed record reports it.</summary>
+    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
     [Fact]
-    public void Retired_Applying_Constraint_Passes()
+    public void Page_Citing_A_Removed_Record_Reports_It()
     {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.yaml"), """{"status": "retired", "authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
+        using var fixture = ModelFixture.Prepare("large");
+        var guides = Path.Combine(fixture.Path, ".litespec", "guides");
+        Directory.CreateDirectory(guides);
+        File.WriteAllText(
+            Path.Combine(guides, "lending.md"),
+            "# Lending\n\nSee scenario/borrow-copy.gone-since-the-review for the refusal.\n");
 
-        Assert.DoesNotContain("constraint-unreached", TestModel.Codes(model));
+        var result = Cli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.Contains("Citation 'scenario/borrow-copy.gone-since-the-review' resolves to no record.", result.Output);
     }
 }

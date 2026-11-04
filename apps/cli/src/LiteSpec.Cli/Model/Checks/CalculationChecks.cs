@@ -20,7 +20,7 @@ internal static class CalculationChecks
         {
             var covered = GovernedUseCases(model, rule)
                 .SelectMany(useCase => ScenariosOf(model, useCase))
-                .Any(scenario => scenario.Status != RecordStatuses.Retired && HasExamples(scenario));
+                .Any(HasExamples);
 
             if (!covered)
             {

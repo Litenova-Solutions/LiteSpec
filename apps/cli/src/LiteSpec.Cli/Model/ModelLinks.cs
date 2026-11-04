@@ -27,7 +27,7 @@ static class ModelLinks
         {
             if (RecordTypes.LinkTargets.TryGetValue(property.Name, out _)
                 || RecordTypes.NestedLinkFields.Contains(property.Name)
-                || property.Name is RecordFields.Replaces or RecordFields.Refusal or "provision")
+                || property.Name is RecordFields.Refusal or "provision")
             {
                 var targets = ModelBuilder.TargetsOf(property.Value);
 

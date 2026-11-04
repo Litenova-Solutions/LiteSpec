@@ -172,8 +172,6 @@ public sealed class ResultScenarioCheckTests
             Type = type,
             Id = id,
             Title = id,
-            Owner = "lending-team",
-            Status = "approved",
             File = file,
             Line = 1,
             IsEntry = true,

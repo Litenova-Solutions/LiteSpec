@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the erasure, retention, acceptance and exemption checks against hand-built models.</summary>
+/// <summary>Proves the erasure and retention checks against hand-built models.</summary>
 public sealed class ErasureCheckTests
 {
     /// <summary>Personal Class Without Erasure Reports.</summary>
@@ -123,109 +123,6 @@ public sealed class ErasureCheckTests
         Assert.Contains("retention-enforcement-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Retain Without Acceptance Reports.</summary>
-    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
-    [Fact]
-    public void Retain_Without_Acceptance_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(TestModel.Config(temp.Path), Kept(temp.Path, null));
-
-        Assert.Contains("risk-acceptance-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Retain With An Intent Decision Passes.</summary>
-    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
-    [Fact]
-    public void Retain_With_An_Intent_Decision_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(TestModel.Config(temp.Path), Kept(temp.Path, "decision/0001-loan-period"));
-
-        Assert.DoesNotContain("risk-acceptance-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Pseudonymize Without Acceptance Reports.</summary>
-    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
-    [Fact]
-    public void Pseudonymize_Without_Acceptance_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record(
-                "aggregate",
-                "aggregate/lending.loan",
-                Path.Combine(temp.Path, "loan.md"),
-                """
-                {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
-                 "dataClasses": [{"name": "Borrower identity", "classification": "personal",
-                   "onErasure": "pseudonymize", "basis": "business", "enforcedBy": "record-expiry"}]}
-                """));
-
-        Assert.Contains("risk-acceptance-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Pseudonymize With An Intent Decision Passes.</summary>
-    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
-    [Fact]
-    public void Pseudonymize_With_An_Intent_Decision_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record(
-                "aggregate",
-                "aggregate/lending.loan",
-                Path.Combine(temp.Path, "loan.md"),
-                """
-                {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
-                 "dataClasses": [{"name": "Borrower identity", "classification": "personal",
-                   "onErasure": "pseudonymize", "basis": "business", "enforcedBy": "record-expiry",
-                   "acceptedBy": ["decision/0001-loan-period"]}]}
-                """),
-            TestModel.Record(
-                "decision",
-                "decision/0001-loan-period",
-                Path.Combine(temp.Path, "loan-period.md"),
-                """{"status": "approved", "options": [{"name": "Keep", "pros": ["Tax."], "cons": ["None."]}], "choice": "Keep", "reopenedWhen": "The law changes.", "decides": ["aggregate/lending.loan"]}"""));
-
-        Assert.DoesNotContain("risk-acceptance-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>Exempt Without Review Date Reports.</summary>
-    /// <proves>litespec/core/privacy#review-every-erasure-exemption-before-its-date</proves>
-    [Fact]
-    public void Exempt_Without_Review_Date_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(TestModel.Config(temp.Path), Exempt(temp.Path, null));
-
-        Assert.Contains("exemption-expired", TestModel.Codes(model));
-    }
-
-    /// <summary>Exempt Past Review Reports.</summary>
-    /// <proves>litespec/core/privacy#review-every-erasure-exemption-before-its-date</proves>
-    [Fact]
-    public void Exempt_Past_Review_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(TestModel.Config(temp.Path), Exempt(temp.Path, "2020-01-01"));
-
-        Assert.Contains("exemption-expired", TestModel.Codes(model));
-    }
-
-    /// <summary>Exempt Before Review Passes.</summary>
-    /// <proves>litespec/core/privacy#review-every-erasure-exemption-before-its-date</proves>
-    [Fact]
-    public void Exempt_Before_Review_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(TestModel.Config(temp.Path), Exempt(temp.Path, "2035-01-01"));
-
-        Assert.DoesNotContain("exemption-expired", TestModel.Codes(model));
-    }
-
     static Record Loan(string root, string classification) =>
         TestModel.Record(
             "aggregate",
@@ -236,27 +133,4 @@ public sealed class ErasureCheckTests
               {"name": "borrower-email", "meaning": "The address notices go to.", "classification": "{{classification}}"}
             ]}
             """);
-
-    static Record Kept(string root, string? acceptedBy) =>
-        TestModel.Record(
-            "aggregate",
-            "aggregate/lending.loan",
-            Path.Combine(root, "loan.md"),
-            "{\"status\": \"reviewed\", \"states\": [{\"name\": \"Active\", \"meaning\": \"The loan is open.\"}],"
-            + "\"dataClasses\": [{\"name\": \"Borrower identity\", \"classification\": \"personal\","
-            + "\"onErasure\": \"retain\", \"basis\": \"statute\", \"enforcedBy\": \"record-expiry\""
-            + (acceptedBy is null ? "" : ", \"acceptedBy\": [\"" + acceptedBy + "\"]")
-            + "}]}");
-
-    static Record Exempt(string root, string? reviewBy) =>
-        TestModel.Record(
-            "aggregate",
-            "aggregate/lending.loan",
-            Path.Combine(root, "loan.md"),
-            "{\"status\": \"reviewed\", \"states\": [{\"name\": \"Active\", \"meaning\": \"The loan is open.\"}],"
-            + "\"dataClasses\": [{\"name\": \"Borrower identity\", \"classification\": \"personal\","
-            + "\"onErasure\": \"exempt\", \"basis\": \"statute\", \"enforcedBy\": \"record-expiry\","
-            + "\"acceptedBy\": [\"decision/0001-loan-period\"]"
-            + (reviewBy is null ? "" : ", \"reviewBy\": \"" + reviewBy + "\"")
-            + "}]}");
 }

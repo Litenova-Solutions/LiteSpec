@@ -21,7 +21,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nSee [the report](https://example.com/benchmark-report) for numbers.\n"));
 
@@ -48,7 +48,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nSee https://example.com/benchmark-report for numbers.\n"));
 
@@ -75,7 +75,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nSee <https://example.com/benchmark-report> for numbers.\n"));
 
@@ -102,7 +102,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nSee `https://example.com/benchmark-report` for numbers [per the report][benchmark-report].\n"));
 
@@ -124,7 +124,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [https://example.com/benchmark-report][benchmark-report].\n"));
 
@@ -148,7 +148,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [per the report][no-such-key].\n"));
 
@@ -175,7 +175,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [per the report][benchmark-report].\n"));
 
@@ -199,7 +199,7 @@ public sealed class ResearchSourceCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 7,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "used-key", "url": "https://example.com/used", "readOn": "2026-10-12"}, {"key": "unused-key", "url": "https://example.com/unused", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "used-key", "url": "https://example.com/used", "readOn": "2026-10-12"}, {"key": "unused-key", "url": "https://example.com/unused", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 explanationFile,
                 "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [per the report][used-key].\n"));
 
@@ -223,7 +223,7 @@ public sealed class ResearchSourceCheckTests
                 "research",
                 "research/loan-period-benchmarks",
                 Path.Combine(temp.Path, "benchmarks.yaml"),
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+                """{"sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         Assert.DoesNotContain("source-link-bare", TestModel.Codes(model));
         Assert.DoesNotContain("source-key-unknown", TestModel.Codes(model));

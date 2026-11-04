@@ -117,7 +117,7 @@ sealed class RouteCoverageChecks
         var expected = session.RelativeToRoot(suite);
         foreach (var file in files)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#check-every-route-in-a-browser] {label}: route '{session.RelativeToRoot(file)}' has no route suite at '{expected}'");
+            session.Add("ui-route-suite-missing", $"[litespec/frontend/web/ui#check-every-route-in-a-browser] {label}: route '{session.RelativeToRoot(file)}' has no route suite at '{expected}'", file);
         }
     }
 }

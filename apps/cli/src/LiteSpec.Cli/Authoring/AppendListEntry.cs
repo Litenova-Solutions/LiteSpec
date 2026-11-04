@@ -116,9 +116,12 @@ static class AppendListEntry
 
         if (home is null && entryType != "permission")
         {
-            Console.Error.WriteLine(entryType == "setting"
-                ? $"The file '{config.Relative(pageFile)}' sits outside a modules folder and holds no setting to take the module from."
-                : $"The file '{config.Relative(pageFile)}' names no topic to take the home from.");
+            Console.Error.WriteLine(entryType switch
+            {
+                "setting" => $"The file '{config.Relative(pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
+                "requirement" => $"The file '{config.Relative(pageFile)}' names no feature to take the home from.",
+                _ => $"The file '{config.Relative(pageFile)}' holds no rule to take the home from.",
+            });
             return 2;
         }
 
@@ -166,7 +169,7 @@ static class AppendListEntry
     /// <returns>The page style that owns the entry type, or null when the type is unknown.</returns>
     static string? PageOf(string entryType) => entryType switch
     {
-        "requirement" => "topic",
+        "requirement" => "feature",
         "rule" => "rule-set",
         "permission" => "permission-list",
         "setting" => "setting-set",
@@ -178,7 +181,7 @@ static class AppendListEntry
     /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
     static string? OwnerOf(string entryType) => entryType switch
     {
-        "requirement" => "a topic file",
+        "requirement" => "a feature file",
         "rule" => "a rule-set file",
         "permission" => "the permission list",
         "setting" => "a setting set",
@@ -187,8 +190,8 @@ static class AppendListEntry
 
     /// <summary>
     ///     The new entry's home: the uniform home of the file's existing entries
-    ///     of the same type, else the topic from the file name for a requirement
-    ///     or rule, else the parent modules folder for a setting.
+    ///     of the same type, else the file stem for a requirement or rule,
+    ///     else the parent modules folder for a setting.
     /// </summary>
     /// <param name="root">The parsed record object of the list file.</param>
     /// <param name="entryType">The entry type name whose home is sought.</param>
@@ -316,7 +319,7 @@ static class AppendListEntry
             ["id"] = id,
             ["title"] = title,
             ["valueType"] = "integer",
-            ["setBy"] = "decider",
+            ["setBy"] = "product",
         },
     };
 }

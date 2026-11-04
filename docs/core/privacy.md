@@ -2,7 +2,7 @@
 
 ## Intent
 
-Privacy and Retention states how the product handles personal data: the data classes with their erasure positions and the retention schedule. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Privacy and Retention states how the product handles personal data: the data classes with their erasure positions and the retention schedule. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -16,7 +16,7 @@ The retention schedule is one page holding one row per data class with its purpo
 | `purpose` | Why the data is kept. |
 | `basis`, `period`, `enforcedBy` | The statute, business, or engineering basis, the ISO 8601 duration period or `{ "mode": "none", "reason": "..." }`, and the enforcement. |
 | `cites` | The requirement behind personal or sensitive keeping. |
-| `processors` | `{ system, forwarding, acceptedBy }` entries. |
+| `processors` | `{ system, forwarding, basedOn }` entries. |
 | `conflicts` | Which demand wins on a keeping-versus-erasing collision and who records it. |
 
 ## Standards
@@ -39,7 +39,7 @@ The retention schedule is one page holding one row per data class with its purpo
 
 **Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }`; the enforcement is `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
-**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
+**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its accepting requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
 
 **Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-enforcement-missing` for a class nothing enforces.
 
@@ -47,11 +47,11 @@ The retention schedule is one page holding one row per data class with its purpo
 
 **ID:** `litespec/core/privacy#accept-every-retained-personal-data-class-in-intent`
 
-**Statement:** Each personal or sensitive data class kept with `pseudonymize`, `retain`, or `exempt` MUST name the Intent requirement or decision accepting it in `acceptedBy`.
+**Statement:** Each personal or sensitive data class kept with `pseudonymize`, `retain`, or `exempt` MUST name the Intent requirements or decisions accepting it in `basedOn`.
 
-**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming that requirement or decision in `acceptedBy` keeps the keeping reviewable where the promise lives. The `risk-acceptance-missing` check reports a pseudonymized, retained, or exempt personal or sensitive class with no Intent acceptance.
+**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming those requirements or decisions in `basedOn` keeps the keeping reviewable where the promise lives. The `risk-acceptance-missing` check reports a pseudonymized, retained, or exempt personal or sensitive class with no Intent acceptance.
 
-**Checked by:** `litespec model check` reports `risk-acceptance-missing` for a pseudonymized, retained, or exempt personal or sensitive class with no Intent acceptance.
+**Reviewed for:** Which pseudonymized, retained, or exempt personal or sensitive classes name no accepting requirement or decision? Look at `basedOn` on each data class.
 
 ### Review Every Erasure Exemption Before Its Date
 
@@ -59,9 +59,9 @@ The retention schedule is one page holding one row per data class with its purpo
 
 **Statement:** Each exempt data class MUST carry its reason and a future `reviewBy` date.
 
-**Rationale:** An exemption without a date is a permanent exception wearing temporary clothes: nobody reopens it, so it holds forever. A reason with a future review date makes the exemption a dated choice the owner rejudges on time. The `exemption-expired` check reports an exemption past its date.
+**Rationale:** An exemption without a date is a permanent exception wearing temporary clothes: nobody reopens it, so it holds forever. A reason with a future review date makes the exemption a dated choice the project rejudges on time. The `exemption-expired` check reports an exemption past its date.
 
-**Checked by:** `litespec model check` reports `exemption-expired` for an exemption past its `reviewBy` date.
+**Reviewed for:** Which exempt data classes lack a reason or carry a past `reviewBy` date? Look at the reason and date on each exemption.
 
 ### Route Every External Erasure Through an Operation or Event
 

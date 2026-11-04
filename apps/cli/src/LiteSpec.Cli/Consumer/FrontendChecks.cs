@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Consumer;
 
@@ -20,6 +21,8 @@ static class FrontendChecks
     /// <param name="run">The state of the run.</param>
     public static void CheckFrontends(ConsumerRun run)
     {
+        var projectFile = ConsumerRoot.ProjectFile(run.Root);
+
         // Every frontend declares its stack. Without the field a frontend silently
         // skips every stack-scoped check, and the omission is indistinguishable from a
         // considered position.
@@ -39,7 +42,12 @@ static class FrontendChecks
             {
                 if (!File.Exists(Path.Join(run.Root, frontendDir)) && !Directory.Exists(Path.Join(run.Root, frontendDir)))
                 {
-                    run.Err($".litespec/project.json: frontend '{name}' path '{frontendDir}' does not exist; the checks for that frontend read nothing");
+                    run.Err(new Finding(
+                        "frontend-invalid",
+                        $"frontend '{name}' path '{frontendDir}' does not exist; the checks for that frontend read nothing",
+                        projectFile,
+                        1,
+                        null));
                 }
             }
 
@@ -52,15 +60,30 @@ static class FrontendChecks
             // stack declared as a platform would select the wrong pages.
             if (!JsonValues.IsTruthy(platform))
             {
-                run.Err($".litespec/project.json: frontend '{name}' declares no 'platform'; one of {string.Join(", ", run.KnownStacks)} is required [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err(new Finding(
+                    "frontend-invalid",
+                    $"frontend '{name}' declares no 'platform'; one of {string.Join(", ", run.KnownStacks)} is required [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                    projectFile,
+                    1,
+                    null));
             }
             else if (JsonRead.AsString(platform) is not string stack || !run.KnownStacks.Contains(stack))
             {
-                run.Err($".litespec/project.json: frontend '{name}' has unknown platform '{JsonValues.Text(platform)}'; expected one of {string.Join(", ", run.KnownStacks)} [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err(new Finding(
+                    "frontend-invalid",
+                    $"frontend '{name}' has unknown platform '{JsonValues.Text(platform)}'; expected one of {string.Join(", ", run.KnownStacks)} [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                    projectFile,
+                    1,
+                    null));
             }
             else if (!namedStacks.Contains(stack))
             {
-                run.Err($".litespec/project.json: frontend '{name}' platform '{stack}' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err(new Finding(
+                    "frontend-invalid",
+                    $"frontend '{name}' platform '{stack}' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                    projectFile,
+                    1,
+                    null));
             }
             else if (ControlledPlatforms.Contains(stack))
             {
@@ -77,13 +100,18 @@ static class FrontendChecks
 
         if (run.ControlledFrontends.Count > 0 && !JsonValues.IsTruthy(uiPackage))
         {
-            run.Err($".litespec/project.json: {run.ControlledFrontends.Count} controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared");
+            run.Err(new Finding(
+                "frontend-invalid",
+                $"{run.ControlledFrontends.Count} controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared",
+                projectFile,
+                1,
+                null));
         }
         else if (JsonValues.IsTruthy(uiPackage))
         {
             var package = uiPackage as JsonObject;
             var packageName = JsonRead.PropString(package, "name") ?? "(unnamed)";
-            var label = $".litespec/project.json: paths.uiPackage '{packageName}'";
+            var label = $"paths.uiPackage '{packageName}'";
 
             foreach (var key in new[] { "path", "componentsJson", "primitives", "tokens", "sourceLock", "designContract" })
             {
@@ -91,7 +119,7 @@ static class FrontendChecks
                 {
                     if (!File.Exists(Path.Join(run.Root, configuredPath)) && !Directory.Exists(Path.Join(run.Root, configuredPath)))
                     {
-                        run.Err($"{label}: {key} path does not exist '{configuredPath}'");
+                        run.Err(new Finding("frontend-invalid", $"{label}: {key} path does not exist '{configuredPath}'", projectFile, 1, null));
                     }
                 }
             }
@@ -105,7 +133,12 @@ static class FrontendChecks
                 {
                     if (!File.Exists(Path.Join(run.Root, stylesheet)) && !Directory.Exists(Path.Join(run.Root, stylesheet)))
                     {
-                        run.Err($".litespec/project.json: frontend '{JsonRead.PropText(declared, "name")}' ui.globalCss path does not exist '{stylesheet}'");
+                        run.Err(new Finding(
+                            "frontend-invalid",
+                            $"frontend '{JsonRead.PropText(declared, "name")}' ui.globalCss path does not exist '{stylesheet}'",
+                            projectFile,
+                            1,
+                            null));
                     }
                 }
             }

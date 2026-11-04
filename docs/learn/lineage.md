@@ -10,7 +10,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** aggregate, module, glossary, event.
 
-**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, which the builder checks. A multi-step aggregate is a saga with steps, compensations, exits, and `drivenBy`; state no invariant guards is a store with a named owner.
+**Differs:** LiteSpec fixes one bounded context per product, so there is no context map to maintain. Child entities and value objects live in code and the glossary, never as records: the specification names only what carries business meaning. Each aggregate declares its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data, which the builder checks. State no invariant guards is a store.
 
 ## Event Storming
 
@@ -50,15 +50,15 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** goal, problem, feature, journey.
 
-**Differs:** LiteSpec fixes the map as typed records and links: a feature solves problems and serves goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
+**Differs:** LiteSpec fixes the map as typed records and links: a feature solves problems and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
 
 ## Decision Records
 
-**Takes:** one record per significant decision, with its context, the options considered, the choice, and its consequences; a decision is replaced, never edited.
+**Takes:** one record per significant decision, with its context, the options considered, the choice, and its consequences; a decision is removed, never edited, and git keeps its history.
 
 **Words:** decision, with options, choice, and consequences.
 
-**Differs:** Options are entries with `pros` and `cons`, so the review content is structured, not prose. A decision links what it decides and what it replaces, and names what would change it, with the shared draft, approved, and retired statuses of every Intent record. Open questions travel up as drafts with a decider, a date, a recommendation, and a ballot, and each ballot carries a consequences summary rendered from Behavior.
+**Differs:** Options are entries with `pros` and `cons`, so the choice is structured, not prose. A decision links what it decides and names what would change it.
 
 ## Role-Based Access Control
 

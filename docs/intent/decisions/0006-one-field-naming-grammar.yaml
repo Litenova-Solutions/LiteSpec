@@ -1,10 +1,6 @@
 type: decision
 id: decision/0006-one-field-naming-grammar
 title: One Field Naming Grammar
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 options:
   - name: Rename and state the grammar
     pros: The five collisions already produce invalid or misleading data, and a stated grammar lets the validator check the mechanical half on every run.

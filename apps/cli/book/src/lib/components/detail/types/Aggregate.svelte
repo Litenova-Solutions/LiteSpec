@@ -37,8 +37,7 @@
       tdHtml(esc(c.purpose ?? "")),
       tdHtml(
         `<div class="text-xs"><b>${esc(cap(String(c.onErasure ?? "")))}</b>${periodSuffixHtml(c.period)}</div>` +
-          (c.basis || c.reason ? `<div class="mt-0.5 text-[11px] text-muted-foreground">${esc((c.basis ?? c.reason) as string)}</div>` : "") +
-          (c.reviewBy ? `<div class="text-[11px] text-muted-foreground">review by ${book.fmtDate(String(c.reviewBy))}</div>` : ""),
+          (c.basis || c.reason ? `<div class="mt-0.5 text-[11px] text-muted-foreground">${esc((c.basis ?? c.reason) as string)}</div>` : ""),
       ),
     ]),
   );

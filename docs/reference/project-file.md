@@ -2,7 +2,7 @@
 
 ## Intent
 
-`.litespec/project.json` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, owners, paths, and pinned release. The owner edits it when the selection changes and validates it with the `litespec consumer` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
+`.litespec/project.json` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the `litespec consumer` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
 
 ## Reference
 
@@ -17,7 +17,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | Template | `templates/consumer/project.json` in the release the tool carries |
 | Presets | `templates/presets/android-client.json`, `templates/presets/blazor-client.json`, `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json` |
 
-`litespec init` merges the template with one preset and stamps the size, name, and reviewed release. `litespec consumer` validates the written file against the schema and then runs the selection checks below. The model builder reads the paths, stack config, size, shape, stacks, and owners from the same file.
+`litespec init` merges the template with one preset and stamps the size, name, and reviewed release. `litespec consumer` validates the written file against the schema and then runs the selection checks below. The model builder reads the paths, stack config, size, shape, and stacks from the same file.
 
 ### Top-Level Fields
 
@@ -28,17 +28,13 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `size` | string | yes | none |
 | `shape` | string | no | `"server"` |
 | `stacks` | array of string | yes | none |
-| `optionalTypes` | array of string | no | none |
 | `proof` | object | no | none |
-| `constraints` | object | no | none |
-| `owners` | array of string or object | no | none |
-| `review` | object | no | none |
 | `marks` | string | no | `"xml"` |
-| `adoption` | object | no | none |
+| `dependencies` | object | no | none |
+| `screenshots` | object | no | none |
 | `refusals` | object | no | the default codes |
 | `reviewedLiteSpecVersion` | string | yes | none |
 | `paths` | object | yes | none |
-| `exampleWordLimit` | integer | no | `120` |
 | `selectedExtensions` | array of object | yes | none |
 | `stackConfig` | object | no | none |
 
@@ -49,19 +45,14 @@ What each field means and what reads it:
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec consumer` checks the value, and the model builder sizes the record set it expects.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec consumer` checks the backend count, and the model builder applies the shape.
 - `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. `litespec consumer` refuses an id the pinned release does not ship.
-- `optionalTypes` lists the extra record types written beside what the size requires: `goal`, `constraint`, `research`, `external-system`, `setting`, and `runbook`. The model builder reads the list when it collects records.
 - `proof` tunes how the model builder confirms proof claims for the project. See the `proof` object below.
-- `constraints` records whether any outside constraint applies to the project. See the `constraints` object below.
-- `owners` is the closed list of names a record owner comes from. Each entry is a plain name, such as `"shop-team"`, or an object mapping a readable name to its CODEOWNERS handles, such as `{"name": "Shop engineering", "codeowners": ["@shop/team"]}`. The model builder reads the list and reports whether one is declared. See the `owners` entry below.
-- `review` names the review settings: the veto window and the security reviewer. See the `review` object below.
 - `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
-- `adoption` names the decision that ends transcription mode. See the `adoption` object below.
+- `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision. See the `dependencies` object below.
+- `screenshots` names the screenshot galleries the model builder reads for screen captures. See the `screenshots` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
-- `vocabulary` adds the project domain verbs to the baseline use-case vocabulary. See the `vocabulary` object below.
 - `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"4.0.0"`. `litespec consumer` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
-- `exampleWordLimit` bounds the words in an Example section. When omitted, the recorded default of `120` applies, and the validator refuses a value below `40`.
-- `selectedExtensions` lists the extensions the project selected, each with its criterion and review date. See the extension entry below.
+- `selectedExtensions` lists the extensions the project selected, each with its criterion. See the extension entry below.
 - `stackConfig` holds per-stack configuration keyed by stack id. See the `stackConfig.dotnet` object below.
 
 ### The `project` Object
@@ -87,28 +78,6 @@ What each field means and what reads it:
 - `outcomeOnlySteps` names the steps classes whose `then` steps state only that a request succeeded or was refused. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
 - The model builder reads both lists when it confirms proof claims for the project.
 
-### The `constraints` Object
-
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `answered` | boolean constant `true` | yes | none |
-
-This object is included once the project states which outside constraints apply to it, possibly none. `litespec/core/scope#answer-the-constraints-question` requires the statement, and an empty answer records that no outside rule binds the project.
-
-### The `review` Object
-
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `vetoWindowDays` | integer | no | `7` |
-| `securityReviewer` | string | no | none |
-| `sampleShare` | number greater than 0 and at most 1 | no | `0.1` |
-
-What each field means and what reads it:
-
-- `vetoWindowDays` is the days after `decideBy` in which a question on a record with no risk class carrying `recommendation` auto-approves, recorded as `answeredBy: auto (veto window)` on the question, as `litespec/core/model#answer-each-question-on-its-record` states. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
-- `securityReviewer` is the owner name holding the security reviewer role, where the project names one. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. The queue is a list to read, not a gate.
-- `sampleShare` is the share of a batch of records with no risk class that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
-
 ### The `dependencies` Object
 
 | Field | Type | Required | Default |
@@ -117,13 +86,17 @@ What each field means and what reads it:
 
 - `licenses` lists the SPDX license identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other license needs an admitting decision that names it.
 
-### The `adoption` Object
+### The `screenshots` Object
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `transcriptionEndsWith` | string | yes | none |
+| `galleries` | array of string | no | none |
+| `pattern` | string | no | `"{route}--{theme}--{width}.png"` |
 
-`transcriptionEndsWith` names the decision that ends transcription mode, such as `"decision/0084-promote-to-production"`. Before that decision is approved, a Behavior record marked `provenance: transcribed` may be `draft` but never `reviewed`. After it is approved, any remaining transcribed record fails `transcription-expired`.
+What each field means and what reads it:
+
+- `galleries` lists the gallery folders holding screenshot captures, one per frontend that photographs its routes, such as `"apps/web/test-results/gallery"`. The model builder reads the captures from these folders.
+- `pattern` is the capture file-name pattern, with `{route}` for the route slug, `{theme}` for the theme, and `{width}` for the width in pixels. When omitted, the default pattern applies.
 
 ### The `refusals` Object
 
@@ -141,36 +114,6 @@ What each field means and what reads it:
 - `prefixes` lists the refusal-code prefixes the project shares across modules, such as `shared` for a shared kernel. The `refusal-code-invalid` check accepts them beside every declared module and the generic `request`, `authorization` and `client` prefixes.
 - `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-code-invalid` check accepts the template prefix. The `refusal-unimplemented` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
 - The model builder reads `forbidden` and `invalidInput` when it derives the generic results. When the object is omitted, the defaults apply.
-
-### The `vocabulary` Object
-
-Every use-case name starts with a verb from the baseline vocabulary LiteSpec ships, described in [use-case verbs](../core/use-cases.md#use-case-verbs), or from the verbs this object adds. Each field is optional.
-
-- `verbs` lists the single-word domain verbs the project adds, such as `borrow`. A domain verb opens either kind of use case.
-- `queryVerbs` lists project verbs that open only a query, such as `trace`.
-- `phrasal` lists multi-word verbs counted as one opening, such as `check-in`.
-- `retired` maps more synonyms to their replacement verb, beside the synonyms the baseline retires.
-- `lookalikeIgnore` lists the lookalike pairs the `term-clash` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
-- `pastTense` maps project domain verbs to their past tense, such as `{"reimburse": "reimbursed"}`. A verb with no entry tenses regularly. `litespec model check` reports `event-tense-invalid` against the baseline table and this map.
-
-A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-invalid`, `reaction-name-invalid` and `job-name-invalid` against the baseline and these additions.
-
-### An `owners` Entry
-
-A plain entry is one name, such as `"shop-team"`. An object entry maps a readable name to its CODEOWNERS handles:
-
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `name` | string | yes | none |
-| `codeowners` | array of string | yes | none |
-
-What each field means and what reads it:
-
-- `name` is the owner name records carry, such as `"Shop engineering"`. Names are unique across plain and object entries.
-- `codeowners` lists the CODEOWNERS handles the name maps to, such as `["@shop/team"]`. Each entry is one handle from the CODEOWNERS file.
-- A record's owner covers a path when the owner itself, or any handle its `owners` entry lists, is an owner of the last CODEOWNERS rule matching that path. `litespec model check` reports `owner-unknown` otherwise.
-
-A project whose owners list holds one name needs no second reviewer.
 
 ### The `paths` Object
 
@@ -199,12 +142,12 @@ A project whose owners list holds one name needs no second reviewer.
 
 What each field means and what reads it:
 
-- `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document, unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `docs`.
+- `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document, unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `.litespec`.
 - `glossary` names the project glossary. `litespec consumer` validates it and scans the pages and every `glossaryScan` surface against its rejected words and mannered terms.
 - `glossaryScan` holds glob patterns that name the non-Markdown surfaces the vocabulary reaches: source, interface copy, the API contract, and acceptance tests. Each pattern matches repository-relative paths and matches at least one file, or `litespec consumer` reports that the check over that surface did not run.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
 - `behaviorDocs` and `uiDocs` name the behavior and UI documentation roots. Both are required.
-- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `exception`, and `term`.
+- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `exception`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -291,7 +234,7 @@ What each field means and what reads it:
 | `path` | string | yes | none |
 | `generator` | string | yes | none |
 
-The generator is `astro`. The [site extension](../ext/site.md) states when a public static website ships beside the application.
+The generator is `astro`.
 
 ### A `selectedExtensions` Entry
 
@@ -299,35 +242,25 @@ The generator is `astro`. The [site extension](../ext/site.md) states when a pub
 |:---|:---|:---|:---|
 | `id` | string | yes | none |
 | `criterion` | string | yes | none |
-| `reviewBy` | string | yes | none |
-| `releaseStage` | string | no | none |
 
 What each field means and what reads it:
 
 - `id` is the extension id in the pinned manifest, such as `"locale"`. `litespec consumer` refuses an id the pinned release does not ship and lists the known ids.
 - `criterion` states the criterion that was met, such as `"The product ships in English and Dutch."`. `litespec/core/scope#record-selected-extensions` requires the entry, and `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting an extension only when its criteria apply.
-- `reviewBy` is the date the selection is next reviewed, in `YYYY-MM-DD` form. `litespec consumer` reports a selection whose date has passed, because a selection that costs nothing to keep still expires.
-- `releaseStage` belongs to the `stage` extension only. It is `pre-production` or `production`.
 
 ### Placeholders and the Init Fill
 
-The template names the project as `__PROJECT__` in paths and package names, and the first owner as `__OWNER__`. `litespec init` fills every `__PROJECT__` value with the `--name` value, or with the root folder name when `--name` is omitted; in an npm package scope such as `@__PROJECT__/ui` it writes that name in lowercase kebab case, because npm names are lowercase. It leaves every other placeholder to fill. After it writes the file it prints the unfilled placeholders:
+The template names the project as `__PROJECT__` in paths and package names. `litespec init` fills every `__PROJECT__` value with the `--name` value, or with the root folder name when `--name` is omitted; in an npm package scope such as `@__PROJECT__/ui` it writes that name in lowercase kebab case, because npm names are lowercase. After it writes the file it prints `Next step: dotnet litespec consumer`. `litespec consumer` treats a leftover placeholder as an error and names each one:
 
 ```text
-Fill these placeholders before validating: __OWNER__.
-```
-
-It also prints `Next step: dotnet litespec consumer`. `litespec consumer` treats a leftover placeholder as an error and names each one:
-
-```text
-.litespec/project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
+.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
 A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `paths.uiPackage` and `paths.uiPatterns` from the written file.
 
 ### A Complete Example
 
-This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset, after replacing `__OWNER__` with the owner name. It ran against release `4.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
+This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `4.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
 
 ```json
 {
@@ -342,20 +275,6 @@ This example shows the file `litespec init --preset dotnet-react --size small --
     "react"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [],
-  "constraints": {
-    "answered": true
-  },
-  "owners": [
-    "shop-team"
-  ],
-  "review": {
-    "vetoWindowDays": 7,
-    "securityReviewer": "shop-team"
-  },
-  "adoption": {
-    "transcriptionEndsWith": "decision/0084-promote-to-production"
-  },
   "paths": {
     "docs": "docs",
     "behaviorDocs": ".litespec/behavior",
@@ -404,14 +323,13 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 
 | Mistake | Message |
 |:---|:---|
-| A placeholder is left in the file | `.litespec/project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A placeholder is left in the file | `.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '4.0.0' does not match the installed LiteSpec tool release 4.0.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 4.0.0' and run 'dotnet tool restore', or re-review the contract and record 4.0.0` |
 | The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.0.0` |
 | A stack id is unknown | `.litespec/project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A client-only project names a backend stack | `.litespec/project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A server names zero or two backend stacks | `.litespec/project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | An extension id is unknown | `.litespec/project.json: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, automation, bdd, cache, compat, concurrency, containers, delegation, devices, efcore, integrations, jobs, lifecycle, locale, mcp, outbox, pipeline, privacy, queues, realtime, report, site, stage, tenancy, workflow-engine` |
-| An extension review date has passed | `.litespec/project.json: extensions 'locale' was due for review on 2026-01-01; confirm the criterion still applies or remove the selection` |
 | A frontend declares no platform | `.litespec/project.json: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A frontend names a stack the project does not select | `.litespec/project.json: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A controlled frontend has no shared package | `.litespec/project.json: 1 controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared` |
@@ -421,4 +339,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/project.json`.
+The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/project.json`. Example sections stay within 120 words; the project file carries no setting for the bound.

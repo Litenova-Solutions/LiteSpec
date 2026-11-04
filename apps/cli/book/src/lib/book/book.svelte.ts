@@ -1,6 +1,6 @@
-// The book's data and state: shards, the lexicon, relations, review state, filters
-// and navigation. Every word the book prints about a record, a link or a status
-// comes from the lexicon shard or the record itself; nothing here invents one.
+// The book's data and state: shards, the lexicon, relations, completion, filters
+// and navigation. Every word the book prints about a record or a link comes
+// from the lexicon shard or the record itself; nothing here invents one.
 //
 // Records and the outline are large, so they live in plain objects and `rev`
 // counts their changes: every accessor reads `rev`, so a component that calls one
@@ -9,29 +9,19 @@
 import { createSearch, type BookSearch } from "./search";
 import type { ShardLoader } from "$lib/data/shards";
 import type {
-  Ballot, Batch, BookRecord, Edge, Fields, Lexicon, Manifest, OutlineNode, Queue, SearchRow, SecurityItem,
+  BookRecord, Edge, Fields, Lexicon, LexiconLayer, Manifest, OutlineNode, ProofState, SearchRow, SecurityItem,
 } from "./types";
 
-export type View = "outline" | "list" | "queue" | "security" | "ballots";
-export type Human = "approved" | "reviewed" | "mine" | "mineR" | "draft" | "inherited" | "question" | "changes" | "retired";
-export type Verdict = "mine" | "mineR" | "changes" | "question";
-export type NoteKind = Verdict | "answer";
-export type ProofState = "passing" | "failing" | "awaiting" | "unconfirmed" | "unproved" | "stale" | "indirect" | "norun";
+export type View = "outline" | "list" | "security";
 export interface Explanation { title: string; text: string; source: string }
 export interface Connection { label: string; id: string; via: string }
 
-export const HLABEL: Record<Human, string> = {
-  approved: "approved", reviewed: "reviewed", mine: "approved", mineR: "reviewed", draft: "draft",
-  inherited: "effective status: draft", question: "question", changes: "draft", retired: "retired",
-};
 export const PLABEL: Record<ProofState, string> = {
   passing: "passing", failing: "failing", awaiting: "awaiting", unconfirmed: "unconfirmed",
-  unproved: "unproved", stale: "stale", indirect: "indirect", norun: "norun",
+  unproved: "unproved", indirect: "indirect", norun: "norun",
 };
-export const STATUS_KEYS: Human[] = ["draft", "inherited", "approved", "reviewed", "retired", "mine", "changes", "question"];
 export const GROUPS = {
   none: "No grouping", field: "Record field", type: "Type", layer: "Record layer",
-  status: "Review status", decider: "Decider", risk: "Risk class",
 } as const;
 export type GroupKey = keyof typeof GROUPS;
 
@@ -41,8 +31,8 @@ export const plural = (n: number, one: string, many?: string) => n + " " + (n ==
 export const uniq = <T>(a: T[]) => a.filter((x, i) => a.indexOf(x) === i);
 export const n0 = (x: unknown) => Number(x ?? 0).toLocaleString("en-GB");
 
-interface LayerInfo { key: string; label: string; outline: string[]; writes: string; reviews: string; question: string }
-interface NodeInfo { label: string; type: string; status: string | null }
+interface LayerInfo { key: string; label: string; outline: string[]; writes: string; question: string }
+interface NodeInfo { label: string; type: string }
 
 export class Book {
   // ---------- data ----------
@@ -51,7 +41,7 @@ export class Book {
   error = $state<string | null>(null);
   man: Manifest | null = null;
   lex: Lexicon = { types: {}, layers: {}, links: [], fields: {}, glossary: {}, sections: {}, findings: {} };
-  queue: Queue | null = null;
+  security: SecurityItem[] | null = null;
   rec: Record<string, BookRecord> = {};
   node: Record<string, NodeInfo> = {};
   layerOf: Record<string, string> = {};
@@ -63,12 +53,11 @@ export class Book {
   orderIdx: Record<string, number> = {};
   layerByKey: Record<string, LayerInfo> = {};
   today = new Date();
-  vetoDays = 7;
   search: BookSearch | null = null;
   private outlineLoaded: Record<string, boolean> = {};
   private shardLoaded: Record<string, boolean> = {};
   private searchPromise: Promise<void> | null = null;
-  private queuePromise: Promise<void> | null = null;
+  private securityPromise: Promise<void> | null = null;
 
   // ---------- state ----------
   view = $state<View>("outline");
@@ -81,19 +70,13 @@ export class Book {
   closedGroups = $state<Record<string, boolean>>({});
   openLayers = $state<Record<string, boolean>>({ intent: true });
   active = $state<Record<string, string[]>>({});
-  verdict = $state<Record<string, Verdict>>({});
-  notes = $state<Record<string, string>>({});
-  answered = $state<Record<string, string>>({});
   recent = $state<string[]>([]);
-  focusQ = $state<number | null>(null);
-  noteFor = $state<string | null>(null);
-  noteKind = $state<NoteKind | null>(null);
   facetsOpen = $state(false);
   listShowAll = $state(false);
   wide = $state(false);
   /** Per-key "show all" switches for long lists on the page and in the rail. */
   more = $state<Record<string, boolean>>({});
-  /** The navigation's rows in display order: record ids, or "id|questionIndex" in the ballots view. */
+  /** The navigation's rows in display order: record ids. */
   navIds = $state.raw<string[]>([]);
   /** Bumped to ask the navigation to scroll the selected row into view and focus it. */
   focusNavTick = $state(0);
@@ -114,10 +97,10 @@ export class Book {
       this.today = isNaN(+today) ? new Date() : today;
       this.lex = await this.shards.load<Lexicon>("lexicon");
       for (const l of this.man.layers ?? []) {
-        const meta = this.lex.layers?.[l.key] ?? {};
+        const meta = this.lex.layers?.[l.key] ?? ({} as LexiconLayer);
         this.layerByKey[l.key] = {
           key: l.key, label: l.label || meta.label || l.key, outline: l.outline ?? [],
-          writes: meta.writes ?? "", reviews: meta.reviews ?? "", question: meta.question ?? "",
+          writes: meta.writes ?? "", question: meta.question ?? "",
         };
       }
       const keys = ["intent"];
@@ -135,8 +118,8 @@ export class Book {
         history.replaceState({ id: first }, "", "#" + encodeURIComponent(first));
         await this.select(first, { fromHistory: true });
       }
-      // The queue counts the Security and Ballots tabs; it loads after the first page.
-      setTimeout(() => void this.ensureQueue(), 0);
+      // The security items count the Security tab; they load after the first page.
+      setTimeout(() => void this.ensureSecurity(), 0);
     } catch (err) {
       this.error = err instanceof Error ? err.message : "missing data";
     }
@@ -150,7 +133,7 @@ export class Book {
     this.parentOf[id] = parent;
     this.depthOf[id] = depth;
     this.order.push(id);
-    this.node[id] = { label: n.label || id, type: n.type || id.split("/")[0], status: n.status ?? null };
+    this.node[id] = { label: n.label || id, type: n.type || id.split("/")[0] };
     this.kidsOf[id] = (n.children ?? []).flatMap((c) => this.walkOutline(layer, c, id, depth + 1));
     return [id];
   }
@@ -161,11 +144,11 @@ export class Book {
     this.orderIdx = {};
     this.order.forEach((id, i) => (this.orderIdx[id] = i));
     this.kidsOf["layer/" + layer] = this.rootsOf[layer];
-    const meta = this.lex.layers?.[layer] ?? {};
+    const meta = this.lex.layers?.[layer] ?? ({} as LexiconLayer);
     const info = this.layerByKey[layer];
     this.rec["layer/" + layer] = {
       type: "layer", title: info?.label || meta.label || layer,
-      fields: { question: meta.question ?? "", writes: meta.writes ?? "", reviews: meta.reviews ?? "" },
+      fields: { question: meta.question ?? "", writes: meta.writes ?? "" },
       bodyHtml: "", sections: null, src: null,
     };
   }
@@ -222,17 +205,16 @@ export class Book {
     return this.searchPromise;
   }
 
-  ensureQueue() {
-    this.queuePromise ??= (async () => {
+  ensureSecurity() {
+    this.securityPromise ??= (async () => {
       try {
-        this.queue = (await this.shards.load<Queue>("queue")) ?? { batches: {}, ballots: [], security: [] };
+        this.security = (await this.shards.load<SecurityItem[]>("security")) ?? [];
       } catch {
-        this.queue = { batches: {}, ballots: [], security: [] };
+        this.security = [];
       }
-      if (this.queue.review?.vetoWindowDays) this.vetoDays = this.queue.review.vetoWindowDays;
       this.touch();
     })();
-    return this.queuePromise;
+    return this.securityPromise;
   }
 
   async preloadAll() {
@@ -307,24 +289,17 @@ export class Book {
     return uniq(rows.map((l) => l.inverse ?? "")).length > 1;
   }
 
-  /** The LiteSpec text that explains a key: a status, a glossary term ("g:term") or a record type ("type:feature"). */
+  /** The LiteSpec text that explains a key: a proof state, a check level, a glossary term ("g:term") or a record type ("type:feature"). */
   explain(key: string): Explanation | null {
-    const statuses = (): Explanation => ({ title: "Statuses", text: this.section("Statuses"), source: this.sectionSource("Statuses", "model.md, Statuses") });
-    const status = (title: string): Explanation => ({ ...statuses(), title });
+    const stages = (): Explanation => ({ title: "Completion Stages", text: this.section("Completion Stages"), source: this.sectionSource("Completion Stages", "model.md, Completion Stages") });
     const glossary = (title: string, term: string): Explanation => ({ title, text: this.gloss(term), source: "Glossary" });
-    const risk = this.section("Risk Classes and the Approval Table") || this.section("Risk Classes and Approval") || this.section("Risk and Approval") || this.section("Risk Classes");
     const levels = (): Explanation => ({ title: "Check level", text: this.section("Check Levels"), source: this.sectionSource("Check Levels", "model.md, Check Levels") });
     const table: Record<string, () => Explanation> = {
-      draft: () => status("Draft"), approved: () => status("Approved"), reviewed: () => status("Reviewed"), retired: () => status("Retired"),
-      inherited: () => glossary("Effective status", "effective status"),
-      risk: () => ({ title: "Risk", text: risk, source: this.sectionSource("Risk Classes and Approval", "model.md, Risk Classes and Approval") }),
-      transcribed: () => glossary("Transcription", "transcription"),
-      awaiting: statuses, unconfirmed: statuses, unproved: statuses, passing: statuses, failing: statuses, indirect: statuses, norun: statuses, settled: statuses,
-      stale: () => glossary("Stale", "stale"), implemented: () => glossary("Implemented", "implemented"), reachable: () => glossary("Reachable", "reachable"),
+      awaiting: stages, unconfirmed: stages, unproved: stages, passing: stages, failing: stages, indirect: stages, norun: stages,
+      implemented: () => glossary("Implemented", "implemented"), reachable: () => glossary("Reachable", "reachable"),
       G: levels, S: levels, A: levels,
       known: () => glossary("Exception", "exception"),
-      batch: () => ({ title: "Batch review", text: this.section("Approval as Data") || this.section("Questions and Ballots"), source: "release.md, Batch Review" }),
-      finding: () => glossary("Finding", "finding"), ballot: () => glossary("Ballot", "ballot"),
+      finding: () => glossary("Finding", "finding"),
     };
     let e: Explanation | null = table[key]?.() ?? null;
     if (!e && key.startsWith("type:")) {
@@ -332,10 +307,10 @@ export class Book {
       const q = this.lex.types?.[t];
       const g = this.gloss(this.typeName(t));
       if (q) {
-        const lr = this.lex.layers?.[String(q.layer ?? "").split(",")[0].trim()] ?? {};
+        const lr = this.lex.layers?.[String(q.layer ?? "").split(",")[0].trim()] ?? ({} as LexiconLayer);
         e = {
           title: this.typeName(t),
-          text: (q.question ?? "") + (g ? " " + g : "") + (lr.writes ? " Written by " + lr.writes + "; reviewed by " + lr.reviews + "." : ""),
+          text: (q.question ?? "") + (g ? " " + g : "") + (lr.writes ? " Written by " + lr.writes + "." : ""),
           source: "model.md, Record Types",
         };
       } else if (g) e = { title: this.typeName(t), text: g, source: "Glossary" };
@@ -374,15 +349,12 @@ export class Book {
   }
 
   // ---------- relations ----------
-  private edges(r: BookRecord | undefined, key: "out" | "in", target: string): Edge[] {
+  private edges(r: BookRecord | undefined, key: "out" | "in", target: "to" | "from"): Edge[] {
     const raw = r?.[key];
     if (!raw) return [];
-    if (Array.isArray(raw)) {
-      return raw
-        .map((e) => ({ field: String(e.key || e.field || ""), id: base(e[target] || e.id || e.to || e.from || "") }))
-        .filter((e) => e.field && e.id);
-    }
-    return Object.entries(raw).flatMap(([field, ids]) => (ids ?? []).map((t) => ({ field, id: base(t) })));
+    return raw
+      .map((e) => ({ field: String(e.key || e.field || ""), id: base(e[target] || e.id || e.to || e.from || "") }))
+      .filter((e) => e.field && e.id);
   }
   outEdges(id: string) { return this.edges(this.get(id), "out", "to"); }
   inEdges(id: string) { return this.edges(this.get(id), "in", "from"); }
@@ -488,49 +460,7 @@ export class Book {
   screensOf(id: string) { return this.listField(id, "screens") ?? this.ins(base(id), "offers"); }
   shownByOf(id: string) { return this.listField(id, "shownBy") ?? this.kidsByType(id, "scenario"); }
 
-  // ---------- review state ----------
-  layerWord(id: string) { return this.isBeh(id) ? "reviewed" : "approved"; }
-  human(id: string): Human {
-    const v = this.verdict[id];
-    if (v) return v;
-    const r = this.get(id);
-    if (r) {
-      if (r.status === "retired") return "retired";
-      if (r.status === "draft") return "draft";
-      if (r.effective === "draft") return "inherited";
-      return r.status === "reviewed" ? "reviewed" : "approved";
-    }
-    const n = this.node[base(id)];
-    if (n?.status) return n.status === "draft" ? "draft" : n.status === "retired" ? "retired" : n.status === "reviewed" ? "reviewed" : "approved";
-    return "approved";
-  }
-  needs(id: string) {
-    if (!this.isReal(id)) return false;
-    const h = this.human(id);
-    return !(h === "approved" || h === "reviewed" || h === "mine" || h === "mineR" || h === "retired");
-  }
-  riskClassesOf(id: string): string[] {
-    const r = this.get(id);
-    if (!r) return [];
-    const risk = r.fields?.risk ?? r.risk ?? [];
-    return Array.isArray(risk) ? risk.filter(Boolean).map(String) : [];
-  }
-  riskWords(id: string) { return this.riskClassesOf(id).map((x) => cap(x.replace(/-/g, " "))); }
-  hasRisk(id: string) { return this.riskClassesOf(id).length > 0; }
-  approverFor(riskClass: string | undefined, id: string) {
-    const own = this.get(id)?.approval;
-    if (own?.by) return own.by;
-    const table = this.man?.approvals;
-    const read = (v: string | { by?: string; approver?: string; rule?: string }) => (typeof v === "string" ? v : v.by || v.approver || v.rule || "");
-    if (table && riskClass && table[riskClass]) return read(table[riskClass]);
-    if (table?.default) return read(table.default);
-    return "";
-  }
-  openQs(id: string): Fields[] {
-    const r = this.get(id);
-    if (!r) return [];
-    return ((r.fields?.questions as Fields[]) ?? []).filter((_, i) => !this.answered[base(id) + "#" + i]);
-  }
+  // ---------- completion and proof ----------
   proofState(id: string): ProofState | null {
     const r = this.get(id);
     if (!r) return null;
@@ -549,6 +479,7 @@ export class Book {
   lacks(id: string) {
     const r = this.get(id);
     if (!r) return "";
+    if (Array.isArray(r.lacks)) return r.lacks.join(", ");
     if (typeof r.lacks === "string") return r.lacks;
     if (!r.expect) return "";
     const miss: string[] = [];
@@ -561,15 +492,22 @@ export class Book {
     }
     return miss.join(", ");
   }
-  completionStageOf(id: string) { return String(this.get(id)?.completion?.stage ?? ""); }
-  completionCounts(ids: string[]) {
-    const done = ids.filter((x) => ["implemented", "proven"].includes(this.completionStageOf(x))).length;
-    return ids.length && ids.some((x) => this.completionStageOf(x)) ? done + " of " + ids.length + " implemented" : "";
+  /** Whether a record is complete: it has the code and tests it expects, and its scenarios pass. A record expecting nothing is complete. */
+  completeOf(id: string) {
+    const c = this.get(id)?.completion;
+    if (!c) return true;
+    if (c.hasCode === false || c.hasTests === false) return false;
+    if (c.scenarios && (c.scenarios.pass ?? 0) < (c.scenarios.of ?? 0)) return false;
+    return true;
+  }
+  completeCounts(ids: string[]) {
+    if (!ids.length) return "";
+    const done = ids.filter((x) => this.completeOf(x)).length;
+    return done + " of " + ids.length + " complete";
   }
 
   // ---------- dates ----------
   days(d: string) { const x = new Date(d + "T00:00:00Z"); return isNaN(+x) ? null : Math.round((+x - +this.today) / 86400000); }
-  addDays(d: string, n: number) { const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
   fmtDate(s: string | null | undefined) {
     if (!s) return "";
     const d = new Date(s + "T00:00:00Z");
@@ -581,49 +519,19 @@ export class Book {
     if (n === 0) return "today";
     return n > 0 ? "in " + plural(n, "day") : plural(-n, "day") + " ago";
   }
-  dueOf(id: string) {
-    const r = this.get(id);
-    if (!r) return null;
-    const ds: string[] = [];
-    if (r.status === "draft" && r.decideBy) ds.push(r.decideBy);
-    for (const q of this.openQs(id)) if (q.decideBy) ds.push(q.decideBy);
-    return ds.sort()[0] ?? null;
-  }
 
-  // ---------- queue ----------
-  batchOf(id: string): { key: string; batch: Batch } | null {
-    this.rev;
-    const batches = this.queue?.batches ?? {};
-    const r = this.get(id);
-    if (r?.batch && batches[r.batch]) return { key: r.batch, batch: batches[r.batch] };
-    for (const [key, b] of Object.entries(batches)) if ((b.records ?? b.ids ?? []).includes(base(id))) return { key, batch: b };
-    return null;
-  }
-  ballots(): Ballot[] { this.rev; return (this.queue?.ballots ?? []).filter((x) => x.id && x.q?.question); }
-  security(): SecurityItem[] { this.rev; return this.queue?.security ?? []; }
-  securityReviewer() { this.rev; return this.queue?.review?.securityReviewer || "named in the project file"; }
+  // ---------- security ----------
+  securityItems(): SecurityItem[] { this.rev; return this.security ?? []; }
 
   // ---------- facets and search ----------
   readonly facets: { key: string; label: string; get: (id: string) => string[]; name: (v: string) => string }[] = [
     { key: "layer", label: "Record layer", get: (id) => (this.layerOf[id] ? [this.layerOf[id]] : []), name: (v) => this.layerByKey[v]?.label || v },
     { key: "type", label: "Type", get: (id) => [this.typeOf(id)], name: (v) => this.typeName(v) },
-    { key: "status", label: "Status", get: (id) => { const h = this.human(id); return [h === "mineR" ? "mine" : h]; }, name: (v) => HLABEL[v as Human] },
-    {
-      key: "risk", label: "Risk", get: (id) => { const r = this.riskClassesOf(id); return r.length ? r.map((x) => "risk:" + x) : ["risk:none"]; },
-      name: (v) => (v === "risk:none" ? "No risk" : cap(v.slice(5).replace(/-/g, " "))),
-    },
-    { key: "questions", label: "Questions", get: (id) => (this.openQs(id).length ? ["open"] : []), name: () => "Question" },
     {
       key: "findings", label: "Findings", get: (id) => { const f = this.get(id)?.findings ?? []; return f.length ? (f.some((x) => !x.known) ? ["finding"] : ["known"]) : []; },
       name: (v) => (v === "finding" ? "Finding" : "Excepted"),
     },
     { key: "proof", label: "Proof", get: (id) => { const p = this.proofState(id); return p ? [p] : []; }, name: (v) => PLABEL[v as ProofState] },
-    {
-      key: "due", label: "Decide by", get: (id) => { const d = this.dueOf(id); if (!d) return []; const n = this.days(d) ?? 0; return [n < 0 ? "over" : n <= 7 ? "week" : n <= 31 ? "month" : "later"]; },
-      name: (v) => ({ over: "Overdue", week: "Within 7 days", month: "Within a month", later: "Later" })[v] ?? v,
-    },
-    { key: "decider", label: "Decider", get: (id) => { const d = this.get(id)?.decider; return d ? [d] : []; }, name: (v) => v },
-    { key: "provenance", label: "Provenance", get: (id) => (this.fields(id).provenance === "transcribed" ? ["transcribed"] : []), name: () => "Transcription" },
   ];
 
   anyFilter() { return !!this.query || Object.values(this.active).some((v) => v?.length); }
@@ -683,9 +591,6 @@ export class Book {
   readonly sorts: Record<string, { label: string; cmp: (a: string, b: string) => number }> = {
     outline: { label: "Outline order", cmp: (a, b) => this.idx(a) - this.idx(b) },
     title: { label: "Title", cmp: (a, b) => this.title(a).localeCompare(this.title(b)) },
-    due: { label: "Decide by, soonest", cmp: (a, b) => { const x = this.dueOf(a) || "9999", y = this.dueOf(b) || "9999"; return x < y ? -1 : x > y ? 1 : this.idx(a) - this.idx(b); } },
-    risk: { label: "Risk first", cmp: (a, b) => +this.hasRisk(b) - +this.hasRisk(a) || this.idx(a) - this.idx(b) },
-    questions: { label: "Most open questions", cmp: (a, b) => this.openQs(b).length - this.openQs(a).length || this.idx(a) - this.idx(b) },
     proof: {
       label: "Proof, failing first",
       cmp: (a, b) => {
@@ -693,7 +598,6 @@ export class Book {
         return (o[this.proofState(a) ?? ""] ?? 5) - (o[this.proofState(b) ?? ""] ?? 5) || this.idx(a) - this.idx(b);
       },
     },
-    status: { label: "Review status", cmp: (a, b) => STATUS_KEYS.indexOf(this.human(a)) - STATUS_KEYS.indexOf(this.human(b)) || this.idx(a) - this.idx(b) },
   };
   private idx(id: string) { return this.orderIdx[id] ?? 0; }
 
@@ -704,18 +608,18 @@ export class Book {
     for (const f of this.ins(base(id), "solves")) { const g = this.goalTitleForFeature(f); if (g) return g; }
     return "";
   }
-  /** The record field a list groups by, per record type: a topic, an aggregate, an actor. */
+  /** The record field a list groups by, per record type: a feature, an aggregate, an actor. */
   fieldGroup(id: string): [string, string] | null {
     const f = this.fields(id), t = this.typeOf(id);
-    if (t === "requirement") { const topic = this.parentTitle(id); return topic ? [topic, ""] : null; }
+    if (t === "requirement") { const feature = this.parentTitle(id); return feature ? [feature, ""] : null; }
     if (["use-case", "rule", "reaction", "job", "notification", "setting"].includes(t)) {
       const agg = this.parentTitle(id), mod = this.homeOf(id);
       return [agg || mod, agg && mod ? mod : ""];
     }
-    if (t === "screen") return [f.entryPoint ? this.title(base(f.entryPoint)) : "No entry point", f.floorplan ? cap(String(f.floorplan).replace(/-/g, " ")) : ""];
+    if (t === "screen") return [this.parentTitle(id) || "No entry point", f.floorplan ? cap(String(f.floorplan).replace(/-/g, " ")) : ""];
     if (t === "journey") return [f.actor ? this.title(base(f.actor)) : "No actor", this.outs(base(id), "serves").map((x) => this.title(x))[0] ?? ""];
     if (t === "problem") { const a = f.affects ?? []; return [a.length ? this.title(base(a[0])) : "No affected actor", this.goalTitleForProblem(id)]; }
-    if (t === "feature") return [f.lifecycle ? cap(f.lifecycle) : "No lifecycle", this.completionStageOf(id) ? cap(this.completionStageOf(id)) : ""];
+    if (t === "feature") return [this.parentTitle(id) || "No module", this.goalTitleForFeature(id)];
     if (t === "actor") return [f.kind ? cap(f.kind) : "No kind", ""];
     return null;
   }
@@ -725,9 +629,6 @@ export class Book {
       case "field": { const g = this.fieldGroup(id); return g?.[0] ? [g.join(" / "), g.filter(Boolean).join(": ")] : [t, this.pluralName(t)]; }
       case "type": return [t, this.pluralName(t)];
       case "layer": return [this.layerOf[id], this.layerByKey[this.layerOf[id]]?.label || this.layerOf[id]];
-      case "status": return [this.human(id), HLABEL[this.human(id)]];
-      case "decider": { const d = this.get(id)?.decider; return [d || "~", d || "No decider"]; }
-      case "risk": { const r = this.riskWords(id); return r.length ? [r.join(","), r.join(", ")] : ["none", "No risk"]; }
       default: return ["", ""];
     }
   }
@@ -790,15 +691,13 @@ export class Book {
     await this.ensureRecords(ids.slice(0, 500));
   }
 
-  async select(raw: string, opts: { q?: number; fromHistory?: boolean } = {}) {
+  async select(raw: string, opts: { fromHistory?: boolean } = {}) {
     const id = base(raw);
     this.loading = true;
     await this.preloadFor(id);
     this.selected = id;
-    this.noteFor = null;
-    this.focusQ = opts.q ?? null;
     this.expandTo(id);
-    if (!["outline", "queue", "security", "ballots", "list"].includes(this.view)) this.view = "outline";
+    if (!["outline", "security", "list"].includes(this.view)) this.view = "outline";
     this.recent = [id, ...this.recent.filter((x) => x !== id)].slice(0, 12);
     if (!opts.fromHistory) history.pushState({ id }, "", "#" + encodeURIComponent(id));
     this.loading = false;
@@ -806,75 +705,12 @@ export class Book {
 
   async setView(v: View) {
     this.view = v;
-    if (v === "queue" || v === "security" || v === "ballots") await this.ensureQueue();
+    if (v === "security") await this.ensureSecurity();
   }
 
-  /** The navigation's records in reading order, for j, k and Next draft. */
+  /** The navigation's records in reading order, for j and k. */
   navOrder(): string[] {
     if (this.view === "list") return this.order.filter((x) => this.passes(x)).sort(this.sorts[this.sortKey].cmp);
     return this.order.filter((x) => !this.anyFilter() || this.passes(x));
-  }
-
-  nextNeeding(from: string | null) {
-    const list = this.navOrder();
-    const i = from ? list.indexOf(from) : -1;
-    for (let k = 1; k <= list.length; k++) {
-      const id = list[(i + k) % list.length];
-      if (this.needs(id) && this.typeOf(id) !== "scenario") return id;
-    }
-    return null;
-  }
-
-  setVerdict(v: Verdict) {
-    const id = this.selected;
-    if (!id || !this.get(id)) return;
-    this.verdict[id] = v;
-    if (v === "mine" || v === "mineR") {
-      this.noteFor = null;
-      const n = this.nextNeeding(id);
-      if (n) void this.select(n);
-      return;
-    }
-    this.noteFor = id;
-    this.noteKind = v;
-  }
-
-  answer(i: number, text: string | "accept") {
-    if (!this.selected) return;
-    this.answered[this.selected + "#" + i] = text;
-  }
-
-  startAnswer(i: number) {
-    this.noteFor = this.selected;
-    this.noteKind = "answer";
-    this.focusQ = i;
-  }
-
-  saveNote(text: string) {
-    const id = this.selected;
-    if (!id) return;
-    if (this.noteKind === "answer" && this.focusQ !== null) this.answered[id + "#" + this.focusQ] = text || "answered";
-    else this.notes[id] = text;
-    this.noteFor = null;
-  }
-
-  cancelNote() {
-    if (this.selected && this.noteKind !== "answer") delete this.verdict[this.selected];
-    this.noteFor = null;
-  }
-
-  /** The verdicts and answers given in this book, as the review file `litespec model review` reads. */
-  reviewFile() {
-    const verdicts = Object.entries(this.verdict).map(([record, v]) => ({
-      record,
-      verdict: v === "mine" ? "approve" : v === "mineR" ? "review" : v === "changes" ? "request-changes" : "question",
-      note: this.notes[record] ?? null,
-    }));
-    const answers = Object.entries(this.answered).map(([k, a]) => {
-      const [record, i] = k.split("#");
-      const q = ((this.rec[record]?.fields?.questions as Fields[]) ?? [])[+i] ?? {};
-      return { record, question: q.question ?? "", ballot: q.ballot ?? null, answer: a === "accept" ? "accept recommendation" : a };
-    });
-    return { project: this.man?.project, generatedOn: this.man?.generatedOn, verdicts, answers };
   }
 }

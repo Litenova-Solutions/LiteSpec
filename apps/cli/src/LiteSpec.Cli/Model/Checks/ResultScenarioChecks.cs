@@ -29,11 +29,6 @@ internal static class ResultScenarioChecks
                 continue;
             }
 
-            if (result.Status == RecordStatuses.Retired)
-            {
-                continue;
-            }
-
             if (shown.Contains(result.Id))
             {
                 continue;

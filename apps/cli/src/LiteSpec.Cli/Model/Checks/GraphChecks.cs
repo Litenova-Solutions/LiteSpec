@@ -5,7 +5,7 @@ namespace LiteSpec.Model.Checks;
 
 /// <summary>
 ///     The record-graph and advisory checks: orphans, steps, loops, queries,
-///     erasure, approval, transcription, reactions, jobs, prose and aged questions.
+///     erasure, reactions, jobs and prose.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class GraphChecks
@@ -18,11 +18,6 @@ internal static class GraphChecks
         foreach (var record in model.Records.Where(record =>
             RecordTypes.UpLinkedTypes.Contains(record.Type, StringComparer.Ordinal)))
         {
-            if (record.Status == RecordStatuses.Retired)
-            {
-                continue;
-            }
-
             if (record.Ids(RecordFields.Serves).Count == 0 && record.Ids(RecordFields.Fulfills).Count == 0)
             {
                 findings.Add(new Finding("record-link-missing", $"{Label(record.Type)} '{record.Id}' names neither serves nor fulfills.", record.File, record.Line, SubjectOf(record)));
@@ -36,11 +31,11 @@ internal static class GraphChecks
     internal static void RunStepUnserved(ProjectModel model, List<Finding> findings)
     {
         var served = model.Records
-            .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal) && record.Status != RecordStatuses.Retired)
+            .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids(RecordFields.Serves))
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey && record.Status != RecordStatuses.Retired))
+        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey))
         {
             foreach (var step in journey.StepIds().Order(StringComparer.Ordinal))
             {
@@ -305,7 +300,7 @@ internal static class GraphChecks
         }
     }
 
-    /// <summary>Reports an atomic group binding more than four aggregates, a saga candidate.</summary>
+    /// <summary>Reports an atomic group binding more than four aggregates.</summary>
     /// <param name="model">The loaded project model that holds every use case and rule record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunAtomicGroupInvalid(ProjectModel model, List<Finding> findings)
@@ -455,7 +450,7 @@ internal static class GraphChecks
         }
     }
 
-    /// <summary>Reports a query widening a group through a cited record that is no approved requirement.</summary>
+    /// <summary>Reports a query widening a group through a cited record that is no requirement.</summary>
     /// <param name="model">The loaded project model that holds every use case record and each cited target.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunWidening(ProjectModel model, List<Finding> findings)
@@ -481,23 +476,14 @@ internal static class GraphChecks
                         continue;
                     }
 
-                    if (target.Type != RecordTypes.Requirement || !LiveApproved(model, target))
+                    if (target.Type != RecordTypes.Requirement)
                     {
-                        findings.Add(new Finding("widening-cites-missing", $"Use case '{query.Id}' widens '{group.Name}' through '{cited}', which is no approved requirement.", query.File, query.Line, SubjectOf(query)));
+                        findings.Add(new Finding("widening-cites-missing", $"Use case '{query.Id}' widens '{group.Name}' through '{cited}', which is no requirement.", query.File, query.Line, SubjectOf(query)));
                     }
                 }
             }
         }
     }
-
-    /// <summary>Whether the record stands approved: by effective status, else by status.</summary>
-    /// <param name="model">The loaded project model that holds the effective status of each record.</param>
-    /// <param name="record">The record whose approval is tested.</param>
-    /// <returns>True when the effective status, else the written status, stands approved; otherwise false.</returns>
-    private static bool LiveApproved(ProjectModel model, Record record) =>
-        model.EffectiveStatus.TryGetValue(record.Id, out var effective)
-            ? effective == RecordStatuses.Approved
-            : record.Status == RecordStatuses.Approved;
 
     /// <summary>The aggregate data classes, in array or map form.</summary>
     /// <param name="aggregate">The aggregate record whose data classes field is read.</param>
@@ -546,8 +532,6 @@ internal static class GraphChecks
         Str(element, RecordFields.Classification) ?? "",
         Str(element, RecordFields.OnErasure),
         Str(element, RecordFields.EnforcedBy),
-        Str(element, RecordFields.ReviewBy),
-        LinkStrings(element, RecordFields.AcceptedBy),
         LinkStrings(element, RecordFields.Fields),
         ExceptionsOf(element));
 
@@ -573,9 +557,7 @@ internal static class GraphChecks
                 found.Add(new DataClassException(
                     field,
                     Str(entry, RecordFields.OnErasure),
-                    Str(entry, RecordFields.EnforcedBy),
-                    Str(entry, RecordFields.ReviewBy),
-                    LinkStrings(entry, RecordFields.AcceptedBy)));
+                    Str(entry, RecordFields.EnforcedBy)));
             }
         }
 
@@ -661,128 +643,6 @@ internal static class GraphChecks
         }
     }
 
-    /// <summary>Reports an aggregate whose risk stands accepted by no Intent record.</summary>
-    /// <param name="model">The loaded project model that holds every aggregate record and each acceptance target.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunRiskAcceptance(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
-        {
-            foreach (var position in DataClassesOf(aggregate).OrderBy(entry => entry.Name, StringComparer.Ordinal))
-            {
-                if (Personal(position.Classification) && Kept(position.OnErasure))
-                {
-                    CheckAcceptedBy(model, aggregate, position.AcceptedBy, $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' keeping {position.Classification} data with '{position.OnErasure}'", findings);
-                }
-
-                foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
-                {
-                    if (Personal(position.Classification) && Kept(exception.OnErasure))
-                    {
-                        var accepted = exception.AcceptedBy.Count > 0 ? exception.AcceptedBy : position.AcceptedBy;
-
-                        CheckAcceptedBy(model, aggregate, accepted, $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' keeping {position.Classification} data with '{exception.OnErasure}'", findings);
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>Decides whether an erasure position keeps the data in a form that needs acceptance.</summary>
-    /// <param name="onErasure">The erasure position text, or null when none is declared.</param>
-    /// <returns>True for retain, exempt and pseudonymize, ignoring case; otherwise false.</returns>
-    private static bool Kept(string? onErasure) =>
-        onErasure is not null
-        && (onErasure.Equals("retain", StringComparison.OrdinalIgnoreCase)
-            || onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase)
-            || onErasure.Equals("pseudonymize", StringComparison.OrdinalIgnoreCase));
-
-    /// <summary>Reports kept personal data whose acceptance names no Intent record.</summary>
-    /// <param name="model">The loaded project model that resolves each acceptedBy target.</param>
-    /// <param name="aggregate">The aggregate record the finding is placed on.</param>
-    /// <param name="acceptedBy">The acceptance identifiers the position declares.</param>
-    /// <param name="stem">The finding message opening that names the kept data.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckAcceptedBy(
-        ProjectModel model,
-        Record aggregate,
-        IReadOnlyList<string> acceptedBy,
-        string stem,
-        List<Finding> findings)
-    {
-        if (acceptedBy.Count == 0)
-        {
-            findings.Add(new Finding("risk-acceptance-missing", $"{stem} and no acceptedBy in Intent.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            return;
-        }
-
-        foreach (var cited in acceptedBy.Order(StringComparer.Ordinal))
-        {
-            // An unknown target is left to reference-unknown.
-            if (!model.ById.TryGetValue(cited, out var target))
-            {
-                continue;
-            }
-
-            if (target.Type is not (RecordTypes.Decision or RecordTypes.Requirement))
-            {
-                findings.Add(new Finding("risk-acceptance-missing", $"{stem} and acceptedBy '{cited}', which is no Intent record.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-        }
-    }
-
-    /// <summary>Reports an exempt aggregate with no reviewBy date or past it.</summary>
-    /// <param name="model">The loaded project model that holds every aggregate record.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunExemption(ProjectModel model, List<Finding> findings)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
-        {
-            foreach (var position in DataClassesOf(aggregate).OrderBy(entry => entry.Name, StringComparer.Ordinal))
-            {
-                if (Exempt(position.OnErasure))
-                {
-                    CheckReviewBy(aggregate, position.ReviewBy, $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' that is exempt", today, findings);
-                }
-
-                foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
-                {
-                    if (Exempt(exception.OnErasure))
-                    {
-                        CheckReviewBy(aggregate, exception.ReviewBy ?? position.ReviewBy, $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' that is exempt", today, findings);
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>Decides whether an erasure position exempts the data from erasure.</summary>
-    /// <param name="onErasure">The erasure position text, or null when none is declared.</param>
-    /// <returns>True for the exempt position, ignoring case; otherwise false.</returns>
-    private static bool Exempt(string? onErasure) =>
-        onErasure is not null && onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>Reports exempt data whose review date is missing or stands in the past.</summary>
-    /// <param name="aggregate">The aggregate record the finding is placed on.</param>
-    /// <param name="reviewBy">The review date text as declared, or null when none is declared.</param>
-    /// <param name="stem">The finding message opening that names the exempt data.</param>
-    /// <param name="today">The current date the review date is aged against.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckReviewBy(
-        Record aggregate, string? reviewBy, string stem, DateOnly today, List<Finding> findings)
-    {
-        if (reviewBy is not { Length: > 0 })
-        {
-            findings.Add(new Finding("exemption-expired", $"{stem} with no reviewBy date.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-        else if (ParseDay(reviewBy, out var day) && today > day)
-        {
-            findings.Add(new Finding("exemption-expired", $"{stem} past its reviewBy date {reviewBy}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-    }
-
     /// <summary>Reports a setting that sets a default with no requirement behind it.</summary>
     /// <param name="model">The loaded project model that holds every setting record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -851,7 +711,7 @@ internal static class GraphChecks
         var sent = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var holder in model.Records.Where(record =>
-            record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job && record.Status != RecordStatuses.Retired))
+            record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
         {
             foreach (var entry in EffectEntries(holder))
             {
@@ -862,7 +722,7 @@ internal static class GraphChecks
             }
         }
 
-        foreach (var notification in model.Records.Where(record => record.Type == RecordTypes.Notification && record.Status != RecordStatuses.Retired))
+        foreach (var notification in model.Records.Where(record => record.Type == RecordTypes.Notification))
         {
             if (!sent.Contains(notification.Id))
             {
@@ -903,89 +763,6 @@ internal static class GraphChecks
                 }
             }
         }
-    }
-
-    /// <summary>Reports an approved record whose fields differ from its approvedHash.</summary>
-    /// <param name="model">The loaded project model that holds every record and its approval hash.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunApproval(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var record in model.Records.Where(record =>
-            (record.Status == RecordStatuses.Approved || record.Status == RecordStatuses.Reviewed) && !record.Derived))
-        {
-            if (record.ApprovedHash is not { Length: > 0 })
-            {
-                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' is {record.Status} with no approvedHash.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (Checker.SemanticHash(record) != record.ApprovedHash)
-            {
-                findings.Add(new Finding("approval-reopened", $"Record '{record.Id}' holds semantic fields that differ from its approvedHash.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-    }
-
-    /// <summary>Reports transcription-status-invalid and transcription-expired.</summary>
-    /// <param name="model">The loaded project model that holds every record and the adoption end state.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunTranscribed(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var record in model.Records.Where(record =>
-            record.Field(RecordFields.Provenance) == "transcribed" && record.Status == RecordStatuses.Reviewed))
-        {
-            // Only an Intent parent that exists can hold the record back; a missing or
-            // dangling parent is record-link-missing or reference-unknown, never this code.
-            var parents = record.Ids(RecordFields.Fulfills).Concat(record.Ids(RecordFields.Serves))
-                .Where(parent => model.ById.ContainsKey(Identifiers.BaseId(parent)))
-                .ToList();
-
-            if (parents.Count == 0)
-            {
-                continue;
-            }
-
-            var open = parents
-                .Order(StringComparer.Ordinal)
-                .FirstOrDefault(parent => !ParentApproved(model, parent));
-
-            if (open is not null)
-            {
-                findings.Add(new Finding("transcription-status-invalid", $"Record '{record.Id}' is reviewed from transcription while '{open}' is not approved.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-
-        var endsWith = model.Config.TranscriptionEndsWith;
-
-        if (endsWith is { Length: > 0 }
-            && model.ById.TryGetValue(endsWith, out var decision)
-            && decision.Type == RecordTypes.Decision
-            && model.EffectiveStatus.TryGetValue(endsWith, out var effective)
-            && effective == RecordStatuses.Approved)
-        {
-            foreach (var record in model.Records
-                .Where(record => record.Field(RecordFields.Provenance) == "transcribed" && record.Status != RecordStatuses.Retired)
-                .OrderBy(record => record.Id, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("transcription-expired", $"Record '{record.Id}' stays transcribed after '{endsWith}' ends adoption.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-    }
-
-    /// <summary>Whether the fulfills or serves parent stands approved or reviewed.</summary>
-    /// <param name="model">The loaded project model that holds the effective status of each record.</param>
-    /// <param name="parent">The parent identifier, with any step fragment kept.</param>
-    /// <returns>True when the parent stands approved or reviewed by effective or written status; otherwise false.</returns>
-    private static bool ParentApproved(ProjectModel model, string parent)
-    {
-        var baseId = Identifiers.BaseId(parent);
-
-        if (!model.ById.ContainsKey(baseId))
-        {
-            return false;
-        }
-
-        return model.EffectiveStatus.TryGetValue(baseId, out var effective)
-            ? effective is RecordStatuses.Approved or RecordStatuses.Reviewed
-            : model.ById[baseId].Status is RecordStatuses.Approved or RecordStatuses.Reviewed;
     }
 
     /// <summary>Reports a manual job with no guard.</summary>
@@ -1057,64 +834,43 @@ internal static class GraphChecks
         && (Str(schedule, RecordFields.Every) is { Length: > 0 } || Str(schedule, RecordFields.Cron) is { Length: > 0 } || Str(schedule, RecordFields.At) == "startup");
 
     /// <summary>Reports prose-missing.</summary>
-    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunProse(ProjectModel model, List<Finding> findings)
     {
-        foreach (var useCase in model.Records
-            .Where(record => record.Type == RecordTypes.UseCase && record.Status != RecordStatuses.Retired)
+        foreach (var record in model.Records
+            .Where(record => !record.Derived)
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            if (!Significant(model, useCase))
+            if (!record.IsEntry && record.Field(RecordFields.Summary) is not { Length: > 0 })
             {
-                continue;
+                findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no summary field.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (useCase.Field(RecordFields.Purpose) is not { Length: > 0 })
+            if (record.Type is RecordTypes.Goal or RecordTypes.Problem or RecordTypes.Requirement or RecordTypes.Rule
+                && record.Field(RecordFields.Statement) is not { Length: > 0 })
             {
-                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' holds no purpose field.", useCase.File, useCase.Line, SubjectOf(useCase)));
-            }
-
-            // Queries carry no whatHappens field, so only commands need one.
-            if (useCase.Field(RecordFields.Kind) != "query" && useCase.Field(RecordFields.WhatHappens) is not { Length: > 0 })
-            {
-                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' holds no whatHappens field.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no statement field.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
 
     /// <summary>
-    ///     Whether the use case needs goal and whatHappens fields: it changes more
-    ///     than one aggregate, refuses beyond the generic refusals, carries risk,
-    ///     or runs inline effects.
+    ///     The prose label a prose finding shows for a record type: the type in
+    ///     words with its first letter turned, such as Use case.
     /// </summary>
-    /// <param name="model">The loaded project model that holds every result record.</param>
-    /// <param name="useCase">The use case record whose weight is judged.</param>
-    /// <returns>True when the use case changes several aggregates, carries risk, runs inline effects, or refuses in writing; otherwise false.</returns>
-    private static bool Significant(ProjectModel model, Record useCase)
+    /// <param name="type">The record type identifier.</param>
+    /// <returns>The capitalized prose label, or the generic record label when the type holds none.</returns>
+    private static string ProseLabel(string type)
     {
-        if (useCase.Ids(RecordFields.Changes).Count > 1 || HasRisk(useCase))
+        if (type.Length == 0)
         {
-            return true;
+            return "Record";
         }
 
-        if (EffectEntries(useCase).Any(entry =>
-            Str(entry, RecordFields.Timing) is { } timing
-            && timing.Equals("inline", StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
+        var words = type.Replace('-', ' ');
 
-        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
-        {
-            return false;
-        }
-
-        return model.Records.Any(record => record.Type == RecordTypes.Result
-            && !record.Derived
-            && record.Field(RecordFields.Outcome) == "refusal"
-            && Identifiers.TrySplit(record.Id, out _, out var home, out _)
-            && home == name);
+        return char.ToUpper(words[0], System.Globalization.CultureInfo.InvariantCulture) + words[1..];
     }
 
     /// <summary>Runs the many-aggregates check.</summary>
@@ -1123,47 +879,11 @@ internal static class GraphChecks
     internal static void RunManyAggregates(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record =>
-            record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "command" && record.Status != RecordStatuses.Retired))
+            record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "command"))
         {
             if (ConsistencyMode(useCase) == "atomic" && CitesCount(useCase) > 1)
             {
                 findings.Add(new Finding("atomic-group-duplicate", $"Use case '{useCase.Id}' saves more than one atomic write group.", useCase.File, useCase.Line, SubjectOf(useCase)));
-            }
-        }
-    }
-
-    /// <summary>Reports question-expired.</summary>
-    /// <param name="model">The loaded project model that holds every record and its questions.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunQuestionAged(ProjectModel model, List<Finding> findings)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        foreach (var record in model.Records.Where(record => record.Status != RecordStatuses.Retired))
-        {
-            if (record.Raw.ValueKind != JsonValueKind.Object
-                || !record.Raw.TryGetProperty(RecordFields.Questions, out var questions)
-                || questions.ValueKind != JsonValueKind.Array)
-            {
-                continue;
-            }
-
-            foreach (var entry in questions.EnumerateArray())
-            {
-                // An answered question is closed. A question on a record with
-                // no risk class and with a recommendation auto-approves past the
-                // veto window, so it never ages; every other unanswered question
-                // past its decide-by date reports, a record carrying a risk
-                // class included.
-                if (Answered(entry)
-                    || (!HasRisk(record) && HasRecommendation(entry))
-                    || !AgedPast(entry, today))
-                {
-                    continue;
-                }
-
-                findings.Add(new Finding("question-expired", $"Record '{record.Id}' holds a question past its decide-by date.", record.File, record.Line, SubjectOf(record)));
-                break;
             }
         }
     }
@@ -1196,201 +916,6 @@ internal static class GraphChecks
                     findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
             }
-        }
-    }
-
-    /// <summary>Reports a saga step, compensation, exit or driver that names no written record.</summary>
-    /// <param name="model">The loaded project model that holds every saga aggregate and its targets.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunSaga(ProjectModel model, List<Finding> findings)
-    {
-        foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate && record.Field(RecordFields.Kind) == "saga"))
-        {
-            foreach (var step in SagaSteps(aggregate))
-            {
-                var id = Str(step, RecordFields.Id) ?? "(no id)";
-
-                if (Str(step, RecordFields.Runs) is { Length: > 0 } runs)
-                {
-                    if (!model.ById.TryGetValue(runs, out var target))
-                    {
-                        findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' runs '{runs}' from step '{id}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                    }
-                    else if (target.Type != RecordTypes.UseCase)
-                    {
-                        findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' runs '{runs}' from step '{id}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                    }
-                }
-                else
-                {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with no runs use case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                }
-
-                if (step.TryGetProperty(RecordFields.Compensation, out var compensation))
-                {
-                    CheckSagaCompensation(model, aggregate, id, compensation, findings);
-                }
-                else
-                {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with no compensation.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                }
-            }
-
-            foreach (var exit in SagaExits(aggregate))
-            {
-                if (Str(exit, RecordFields.Name) is not { Length: > 0 })
-                {
-                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds an exit with no name.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                }
-            }
-
-            CheckSagaDriver(model, aggregate, findings);
-        }
-    }
-
-    /// <summary>The saga steps: objects in its steps array.</summary>
-    /// <param name="aggregate">The saga aggregate record whose steps array is read.</param>
-    /// <returns>The step objects in written order, or an empty list when the saga holds no steps array.</returns>
-    private static List<JsonElement> SagaSteps(Record aggregate)
-    {
-        if (aggregate.Raw.ValueKind == JsonValueKind.Object
-            && aggregate.Raw.TryGetProperty(RecordFields.Steps, out var steps)
-            && steps.ValueKind == JsonValueKind.Array)
-        {
-            return steps.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
-        }
-
-        return [];
-    }
-
-    /// <summary>The saga exits: objects in its exits array.</summary>
-    /// <param name="aggregate">The saga aggregate record whose exits array is read.</param>
-    /// <returns>The exit objects in written order, or an empty list when the saga holds no exits array.</returns>
-    private static List<JsonElement> SagaExits(Record aggregate)
-    {
-        if (aggregate.Raw.ValueKind == JsonValueKind.Object
-            && aggregate.Raw.TryGetProperty(RecordFields.Exits, out var exits)
-            && exits.ValueKind == JsonValueKind.Array)
-        {
-            return exits.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
-        }
-
-        return [];
-    }
-
-    /// <summary>Reports a step compensation outside its none or use-case shape.</summary>
-    /// <param name="model">The loaded project model that resolves the compensating use case.</param>
-    /// <param name="aggregate">The saga aggregate record the finding is placed on.</param>
-    /// <param name="id">The step identifier quoted in each finding.</param>
-    /// <param name="compensation">The step compensation value under test.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSagaCompensation(ProjectModel model, Record aggregate, string id, JsonElement compensation, List<Finding> findings)
-    {
-        if (compensation.ValueKind != JsonValueKind.Object
-            || Str(compensation, RecordFields.Mode) is not { } mode)
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a compensation naming no mode.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            return;
-        }
-
-        if (mode == "none")
-        {
-            if (Str(compensation, RecordFields.Reason) is not { Length: > 0 })
-            {
-                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a none compensation naming no reason.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-
-            return;
-        }
-
-        if (mode == "use-case")
-        {
-            if (Str(compensation, RecordFields.UseCase) is not { Length: > 0 } useCase)
-            {
-                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a use-case compensation naming no use case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-            else if (!model.ById.TryGetValue(useCase, out var target))
-            {
-                findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' compensates step '{id}' with '{useCase}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-            else if (target.Type != RecordTypes.UseCase)
-            {
-                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' compensates step '{id}' with '{useCase}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-
-            return;
-        }
-
-        findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with compensation mode '{mode}' outside none, use-case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-    }
-
-    /// <summary>Reports a saga driver naming no job, reaction or person runbook.</summary>
-    /// <param name="model">The loaded project model that resolves the driver and runbook targets.</param>
-    /// <param name="aggregate">The saga aggregate record whose drivenBy field is judged.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSagaDriver(ProjectModel model, Record aggregate, List<Finding> findings)
-    {
-        if (aggregate.Raw.ValueKind != JsonValueKind.Object
-            || !aggregate.Raw.TryGetProperty(RecordFields.DrivenBy, out var driven)
-            || driven.ValueKind != JsonValueKind.Object)
-        {
-            return;
-        }
-
-        var kinds = new List<string>();
-
-        foreach (var kind in new[] { RecordFields.Job, RecordFields.Reaction, RecordFields.Person })
-        {
-            if (driven.TryGetProperty(kind, out var value)
-                && value.ValueKind == JsonValueKind.String
-                && value.GetString() is { Length: > 0 })
-            {
-                kinds.Add(kind);
-            }
-        }
-
-        if (kinds.Count != 1)
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds a drivenBy naming no single job, reaction or person.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            return;
-        }
-
-        if (kinds[0] is "job" or "reaction")
-        {
-            var id = driven.GetProperty(kinds[0]).GetString()!;
-
-            if (!model.ById.TryGetValue(id, out var target))
-            {
-                findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' is driven by '{id}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-            else if (target.Type != kinds[0])
-            {
-                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by '{id}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-            }
-
-            return;
-        }
-
-        if (Str(driven, RecordFields.Runbook) is not { Length: > 0 } runbook)
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with no runbook.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-        else if (!model.ById.TryGetValue(runbook, out var target))
-        {
-            findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' is driven through '{runbook}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-        else if (target.Type != RecordTypes.Runbook)
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven through '{runbook}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-
-        if (Str(driven, RecordFields.DueWithin) is not { Length: > 0 } within)
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with no dueWithin.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-        }
-        else if (!IsoDuration.IsMatch(within))
-        {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with dueWithin '{within}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
         }
     }
 

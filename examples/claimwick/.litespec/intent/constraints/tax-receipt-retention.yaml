@@ -1,13 +1,9 @@
 type: constraint
 id: constraint/tax-receipt-retention
 title: Tax Receipt Retention
-owner: claimwick-team
-status: approved
 summary: The national tax law requires a company to keep its business receipts for seven years.
 authority: National tax law keeps business receipts for 7 years.
+readOn: 2026-02-10
 kind: organizational
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursed expenses.
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: "36873955"

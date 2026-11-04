@@ -34,9 +34,9 @@ static class BookOutline
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
     /// <summary>The record types that top the intent layer, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "topic", "constraint", "research", "decision", "actor"];
+    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "constraint", "research", "decision", "actor"];
     /// <summary>The record types under a module, in display order.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting"];
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event"];
     /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
     /// <summary>The list record types in the behavior layer, in display order.</summary>
@@ -72,14 +72,13 @@ static class BookOutline
                 "record",
                 title is { Length: > 0 } ? title : pair.Key,
                 StrProp(pair.Value, "type") ?? "",
-                StrProp(pair.Value, "status"),
                 []);
         }
 
         var layers = new Dictionary<string, BookOutlineNode>(StringComparer.Ordinal);
         foreach (var key in LayerKeys)
         {
-            layers[key] = new BookOutlineNode(key, "group", LayerLabel(key), null, null, []);
+            layers[key] = new BookOutlineNode(key, "group", LayerLabel(key), null, []);
         }
 
         var groups = new Dictionary<string, BookOutlineNode>(StringComparer.Ordinal);
@@ -88,7 +87,7 @@ static class BookOutline
             var id = layer + "/" + type;
             if (!groups.TryGetValue(id, out var group))
             {
-                group = new BookOutlineNode(id, "group", PluralOf(type), type, null, []);
+                group = new BookOutlineNode(id, "group", PluralOf(type), type, []);
                 groups[id] = group;
                 layers[layer].Children.Add(group);
             }
@@ -257,7 +256,6 @@ static class BookOutline
                     "code",
                     FileName(path),
                     "code",
-                    null,
                     []));
             }
         }
@@ -318,7 +316,7 @@ static class BookOutline
                 .FirstOrDefault();
             if (parent is { Length: > 0 } && attached.TryGetValue(parent, out var placed) && placed)
             {
-                nodes[parent].Children.Add(new BookOutlineNode(id, "test", label, "test", null, []));
+                nodes[parent].Children.Add(new BookOutlineNode(id, "test", label, "test", []));
             }
         }
     }
@@ -357,7 +355,6 @@ static class BookOutline
                     "finding",
                     message.Length > 110 ? message[..108] + "..." : message,
                     "finding",
-                    null,
                     []));
             }
         }
@@ -510,7 +507,7 @@ static class BookOutline
             "term" => "glossary",
             "exception" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "product" or "goal" or "problem" or "feature" or "topic" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
+            "product" or "goal" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };

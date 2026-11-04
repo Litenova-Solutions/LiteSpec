@@ -2,7 +2,7 @@
 
 ## Who Has It
 
-An employee who submitted an expense and waits for a decision while carrying the amount from their own account.
+An employee who submitted an expense and waits for a decision while carrying the amount from their own account, for up to three weeks.
 
 ## What They Do Today
 

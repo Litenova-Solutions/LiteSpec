@@ -7,7 +7,7 @@ namespace LiteSpec.Book;
 ///     The implementation detail of one record: the code implementing it, the tests
 ///     proving it, what it expects, and what it lacks.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookImplementationDetail
 {
     /// <summary>Gets the record types that expect code.</summary>
@@ -159,6 +159,74 @@ static class BookImplementationDetail
         {
             ["impl"] = impl,
             ["proof"] = ProofExpected.Contains(type),
+        };
+    }
+
+    /// <summary>
+    ///     The computed completion of one record from its proof: whether it has code,
+    ///     whether it has tests, and how many of its scenarios pass. Each value is
+    ///     null when the record expects nothing there, so the client shows only
+    ///     what applies.
+    /// </summary>
+    /// <param name="index">The model index.</param>
+    /// <param name="tests">The tests per record id.</param>
+    /// <param name="impl">The implementing code entries.</param>
+    /// <param name="expect">The expectation.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="type">The record type.</param>
+    /// <returns>The completion object with its code, tests and scenario proof.</returns>
+    public static JsonObject CompletionFor(BookIndex index, Dictionary<string, List<JsonObject>> tests, JsonArray impl, JsonObject expect, string id, string type)
+    {
+        bool? hasCode = BookRender.IsTrue(expect["impl"]) ? impl.Count > 0 : null;
+        bool? hasTests = null;
+        JsonObject? scenarios = null;
+
+        if (type is "use-case" or "reaction" or "job")
+        {
+            var children = BookModelQueries.UseCaseChildren(index, id);
+            if (children.Scenarios.Count > 0)
+            {
+                var tested = true;
+                var pass = 0;
+                foreach (var scenario in children.Scenarios)
+                {
+                    var scenarioId = BookRender.StrProp(scenario, "id");
+                    if (string.IsNullOrEmpty(scenarioId)
+                        || !tests.TryGetValue(scenarioId, out var proved)
+                        || proved.Count == 0)
+                    {
+                        tested = false;
+                        continue;
+                    }
+
+                    if (BookProofDetail.State(index, scenarioId) == "passing")
+                    {
+                        pass++;
+                    }
+                }
+
+                hasTests = tested;
+                scenarios = new JsonObject
+                {
+                    ["pass"] = pass,
+                    ["of"] = children.Scenarios.Count,
+                };
+            }
+            else if (BookRender.IsTrue(expect["proof"]))
+            {
+                hasTests = false;
+            }
+        }
+        else if (BookRender.IsTrue(expect["proof"]))
+        {
+            hasTests = tests.TryGetValue(id, out var own) && own.Count > 0;
+        }
+
+        return new JsonObject
+        {
+            ["hasCode"] = hasCode.HasValue ? JsonValue.Create(hasCode.Value) : null,
+            ["hasTests"] = hasTests.HasValue ? JsonValue.Create(hasTests.Value) : null,
+            ["scenarios"] = scenarios,
         };
     }
 

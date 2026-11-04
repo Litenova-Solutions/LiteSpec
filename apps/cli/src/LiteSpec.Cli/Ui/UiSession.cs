@@ -28,8 +28,8 @@ sealed class UiSession
     /// <summary>Gets the consumer root the run checks.</summary>
     public string Root { get; }
 
-    /// <summary>Gets the problems the checks reported.</summary>
-    public List<string> Errors { get; } = [];
+    /// <summary>Gets the findings the checks reported.</summary>
+    public List<Finding> Errors { get; } = [];
 
     /// <summary>Gets the source digests computed so far, by file.</summary>
     public Dictionary<string, string> Digests { get; } = new(StringComparer.Ordinal);
@@ -45,7 +45,7 @@ sealed class UiSession
     };
 
     /// <summary>An ISO calendar date.</summary>
-    static readonly Regex ReviewDate = new("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", RegexOptions.Compiled);
+    static readonly Regex ExpiryDate = new("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", RegexOptions.Compiled);
 
     /// <summary>A line ending.</summary>
     static readonly Regex Newline = new("\\r\\n?", RegexOptions.Compiled);
@@ -64,6 +64,17 @@ sealed class UiSession
             : null;
 
     /// <summary>
+    ///     Records one finding.
+    /// </summary>
+    /// <param name="code">The finding code.</param>
+    /// <param name="message">What is wrong, in one sentence.</param>
+    /// <param name="file">The file as a full path.</param>
+    /// <param name="line">The 1-based line.</param>
+    /// <param name="subject">The record id the finding is about, when there is one.</param>
+    public void Add(string code, string message, string file, int line = 1, string? subject = null) =>
+        Errors.Add(new Finding(code, message, file, line, subject));
+
+    /// <summary>
     ///     Runs every check and collects the report.
     /// </summary>
     /// <returns>The collected report.</returns>
@@ -72,13 +83,13 @@ sealed class UiSession
         var projectFile = ConsumerRoot.ProjectFile(Root);
         if (!File.Exists(projectFile))
         {
-            return new UiReport(2, [$"No .litespec/project.json at {Root}"], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
+            return new UiReport(2, [new Finding("project-invalid", $"No .litespec/project.json at {Root}", projectFile, 1, null)], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
         }
 
-        var project = ReadJson(projectFile, ".litespec/project.json");
+        var project = ReadJson(projectFile, "project-invalid");
         // The manifest comes from the release the tool carries, the way every other command finds it.
         var manifestFile = LiteSpecHome.Root is { } home ? Path.Combine(home, LiteSpecHome.ManifestFile) : null;
-        Manifest = manifestFile is not null && File.Exists(manifestFile) ? ReadJson(manifestFile, RelativeToRoot(manifestFile)) : null;
+        Manifest = manifestFile is not null && File.Exists(manifestFile) ? ReadJson(manifestFile, "ui-baseline-missing") : null;
 
         var frontends = JsonRead.Chain(project, "paths", "frontends").Node is JsonArray array
             ? array.ToList()
@@ -111,14 +122,14 @@ sealed class UiSession
                 continue;
             }
 
-            if (exception.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ReviewDate.IsMatch(expiresOn))
+            if (exception.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ExpiryDate.IsMatch(expiresOn))
             {
                 continue;
             }
 
             if (string.CompareOrdinal(expiresOn, today) < 0)
             {
-                Errors.Add($"[{exception.Provision}] {exception.File}: expiresOn {expiresOn} has passed; renew the exception");
+                Add("exception-expired", $"[{exception.Provision}] expiresOn {expiresOn} has passed; renew the exception", FilePath(exception.File));
             }
         }
 
@@ -134,12 +145,12 @@ sealed class UiSession
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
         if (controlled.Count == 0 && hasPkg)
         {
-            Errors.Add(".litespec/project.json: paths.uiPackage is declared but no frontend declares a controlled platform (react, svelte)");
+            Add("ui-package-invalid", "paths.uiPackage is declared but no frontend declares a controlled platform (react, svelte)", projectFile);
         }
 
         if (controlled.Count > 0 && !hasPkg)
         {
-            Errors.Add($"[litespec/frontend/ui#select-one-visual-authority] .litespec/project.json: {controlled.Count} controlled frontend(s) and no paths.uiPackage");
+            Add("ui-package-invalid", $"[litespec/frontend/ui#select-one-visual-authority] {controlled.Count} controlled frontend(s) and no paths.uiPackage", projectFile);
         }
 
         UiSharedPackage? packageSummary = null;
@@ -149,21 +160,21 @@ sealed class UiSession
             var label = $"shared package '{JsonRead.ShowOr(JsonRead.Child(package, "name"), "(unnamed)")}'";
             if (!hasBaseline)
             {
-                Errors.Add($"{label}: the LiteSpec manifest has no {baselineKey}");
+                Add("ui-baseline-missing", $"{label}: the LiteSpec manifest has no {baselineKey}", projectFile);
             }
 
             foreach (var key in new[] { "name", "path", "componentsJson", "primitives", "tokens", "sourceLock", "designContract" })
             {
-                Required(package, key, label);
+                Required(package, key, label, "ui-package-invalid", projectFile);
             }
 
-            var exports = ReadArray(package, "publicExports", label);
+            var exports = ReadArray(package, "publicExports", label, "ui-package-invalid", projectFile);
             if (exports.Count == 0)
             {
-                Errors.Add($"{label}: publicExports must contain at least one entry point");
+                Add("ui-package-invalid", $"{label}: publicExports must contain at least one entry point", projectFile);
             }
 
-            Unique(exports.Select(entry => new JsValue(true, entry)), $"{label}.publicExports");
+            Unique(exports.Select(entry => new JsValue(true, entry)), $"{label}.publicExports", "ui-package-invalid", projectFile);
 
             var pathValue = JsonRead.Child(package, "path");
             var packageRoot = pathValue is { Node: JsonValue pathText } && pathText.TryGetValue<string>(out var pathRaw) && pathRaw.Length > 0
@@ -171,7 +182,7 @@ sealed class UiSession
                 : null;
             if (packageRoot is not null && !FileWalk.Exists(packageRoot))
             {
-                Errors.Add($"{label}: path does not exist '{JsonRead.Show(pathValue)}'");
+                Add("ui-package-invalid", $"{label}: path does not exist '{JsonRead.Show(pathValue)}'", projectFile);
             }
 
             foreach (var key in new[] { "componentsJson", "sourceLock", "designContract" })
@@ -190,11 +201,11 @@ sealed class UiSession
                 var candidate = FilePath(relative);
                 if (packageRoot is not null && !FileWalk.Within(packageRoot, candidate))
                 {
-                    Errors.Add($"{label}: {key} must live inside the shared package root '{JsonRead.Show(pathValue)}'");
+                    Add("ui-package-invalid", $"{label}: {key} must live inside the shared package root '{JsonRead.Show(pathValue)}'", projectFile);
                 }
                 else if (!FileWalk.Exists(candidate))
                 {
-                    Errors.Add($"{label}: {key} path does not exist '{JsonRead.Show(value)}'");
+                    Add("ui-package-invalid", $"{label}: {key} path does not exist '{JsonRead.Show(value)}'", projectFile);
                 }
             }
 
@@ -216,11 +227,11 @@ sealed class UiSession
                     var candidate = FilePath(relative);
                     if (!FileWalk.Within(packageRoot, candidate))
                     {
-                        Errors.Add($"{label}: {key} must live inside the shared package root '{JsonRead.Show(pathValue)}'");
+                        Add("ui-package-invalid", $"{label}: {key} must live inside the shared package root '{JsonRead.Show(pathValue)}'", projectFile);
                     }
                     else if (!FileWalk.Exists(candidate))
                     {
-                        Errors.Add($"{label}: {key} path does not exist '{JsonRead.Show(value)}'");
+                        Add("ui-package-invalid", $"{label}: {key} path does not exist '{JsonRead.Show(value)}'", projectFile);
                     }
                 }
 
@@ -240,7 +251,7 @@ sealed class UiSession
 
                     if (JsonRead.Truthy(JsonRead.Child(package, "designContract")))
                     {
-                        new DesignContractChecks(this).ValidateDesignContract(package, packagePlatform);
+                        new DesignContractChecks(this).ValidateDesignContract(package, packagePlatform, projectFile);
                     }
 
                     var tokens = JsonRead.Child(package, "tokens");
@@ -272,15 +283,15 @@ sealed class UiSession
             var uiBlock = JsonRead.Child(frontend, "ui");
             if (!JsonRead.Truthy(uiBlock))
             {
-                Errors.Add($"[litespec/frontend/ui#use-the-product-profiles] {label}: a controlled frontend requires a 'ui' block declaring its density profile");
+                Add("ui-frontend-invalid", $"[litespec/frontend/ui#use-the-product-profiles] {label}: a controlled frontend requires a 'ui' block declaring its density profile", projectFile);
                 continue;
             }
 
-            Required(uiBlock.Node, "profile", label);
+            Required(uiBlock.Node, "profile", label, "ui-frontend-invalid", projectFile);
             var profile = uiBlock.Node is JsonObject ? JsonRead.Child(uiBlock.Node, "profile") : new JsValue(false, null);
             if (profile.Node is not JsonValue profileValue || !profileValue.TryGetValue<string>(out var profileText) || (profileText != "public-light" && profileText != "application-balanced" && profileText != "admin-dense"))
             {
-                Errors.Add($"[litespec/frontend/ui#use-the-product-profiles] {label}: profile must be one of public-light, application-balanced, admin-dense");
+                Add("ui-frontend-invalid", $"[litespec/frontend/ui#use-the-product-profiles] {label}: profile must be one of public-light, application-balanced, admin-dense", projectFile);
             }
 
             var frontendPath = JsonRead.Child(frontend, "path");
@@ -289,7 +300,7 @@ sealed class UiSession
                 : null;
             if (frontendRoot is not null && !FileWalk.Exists(frontendRoot))
             {
-                Errors.Add($"{label}: frontend path does not exist '{JsonRead.Show(frontendPath)}'");
+                Add("ui-frontend-invalid", $"{label}: frontend path does not exist '{JsonRead.Show(frontendPath)}'", projectFile);
                 continue;
             }
 
@@ -300,7 +311,7 @@ sealed class UiSession
                 var stylesheet = FilePath(cssRelative);
                 if (!FileWalk.Exists(stylesheet))
                 {
-                    Errors.Add($"{label}: globalCss path does not exist '{JsonRead.Show(globalCss)}'");
+                    Add("ui-frontend-invalid", $"{label}: globalCss path does not exist '{JsonRead.Show(globalCss)}'", projectFile);
                 }
                 else if (hasPkg)
                 {
@@ -316,7 +327,6 @@ sealed class UiSession
                 var sources = FileWalk.Walk(frontendRoot, file => SourceFiles.SourceFile.IsMatch(file));
                 foreach (var source in sources)
                 {
-                    var relative = RelativeToRoot(source);
                     if (SourceFiles.TestFile.IsMatch(source))
                     {
                         continue;
@@ -346,14 +356,13 @@ sealed class UiSession
                                 return;
                             }
 
-                            Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {relative}: {ClassStringChecks.UtilityMessages[kind]} '{token}'");
+                            Add("ui-class-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] {ClassStringChecks.UtilityMessages[kind]} '{token}'", source);
                         });
                     }
                 }
 
                 foreach (var source in sources)
                 {
-                    var relative = RelativeToRoot(source);
                     if (SourceFiles.TestFile.IsMatch(source))
                     {
                         continue;
@@ -376,7 +385,7 @@ sealed class UiSession
                     var inline = source.EndsWith(".svelte", StringComparison.Ordinal) ? SourceFiles.SvelteInlineStyle : SourceFiles.ReactInlineStyle;
                     if (inline.IsMatch(File.ReadAllText(source)))
                     {
-                        Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {relative}: an inline style belongs in a shared component");
+                        Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] an inline style belongs in a shared component", source);
                     }
                 }
 
@@ -515,13 +524,13 @@ sealed class UiSession
     }
 
     /// <summary>
-    ///     Reads and parses a JSON file, recording a problem when it cannot be parsed.
+    ///     Reads and parses a JSON file, recording a finding when it cannot be parsed.
     /// </summary>
     /// <param name="file">The file to read.</param>
-    /// <param name="label">The label the problem names.</param>
+    /// <param name="code">The finding code.</param>
     /// <returns>The parsed JSON value, or null.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadJson records any read or parse failure of the file as a problem and returns null, so malformed consumer input reports instead of crashing validation.")]
-    public JsonNode? ReadJson(string file, string label)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadJson records any read or parse failure of the file as a finding and returns null, so malformed consumer input reports instead of crashing validation.")]
+    public JsonNode? ReadJson(string file, string code)
     {
         try
         {
@@ -529,30 +538,43 @@ sealed class UiSession
         }
         catch (Exception cause)
         {
-            Errors.Add($"{label}: cannot parse JSON ({cause.Message})");
+            Add(code, $"cannot parse JSON ({cause.Message})", file);
             return null;
         }
     }
 
     /// <summary>
-    ///     Requires one property of a value, recording a problem when it is absent.
+    ///     How a label reads inside a message: a label naming the finding's own file
+    ///     is dropped, because the finding carries its path already.
+    /// </summary>
+    /// <param name="label">The label the message would name.</param>
+    /// <param name="file">The finding file as a full path.</param>
+    /// <param name="message">The message without its label.</param>
+    /// <returns>The message with its label, unless the label is the file.</returns>
+    string Labelled(string label, string file, string message) =>
+        label == RelativeToRoot(file) ? message : $"{label}: {message}";
+
+    /// <summary>
+    ///     Requires one property of a value, recording a finding when it is absent.
     /// </summary>
     /// <param name="node">The JSON value holding the property.</param>
     /// <param name="key">The property name.</param>
-    /// <param name="label">The label the problem names.</param>
+    /// <param name="label">The label the finding names.</param>
+    /// <param name="code">The finding code.</param>
+    /// <param name="file">The finding file as a full path.</param>
     /// <returns>True when the property is present.</returns>
-    public bool Required(JsonNode? node, string key, string label)
+    public bool Required(JsonNode? node, string key, string label, string code, string file)
     {
         if (node is null || !JsonValues.IsTruthy(node))
         {
-            Errors.Add($"{label}: missing '{key}'");
+            Add(code, Labelled(label, file, $"missing '{key}'"), file);
             return false;
         }
 
         var value = JsonRead.Child(node, key);
         if (!value.Found || value.Node is null || (value.Node is JsonValue text && text.TryGetValue<string>(out var raw) && raw.Length == 0))
         {
-            Errors.Add($"{label}: missing '{key}'");
+            Add(code, Labelled(label, file, $"missing '{key}'"), file);
             return false;
         }
 
@@ -560,36 +582,40 @@ sealed class UiSession
     }
 
     /// <summary>
-    ///     Reads one array property, recording a problem when it is no array.
+    ///     Reads one array property, recording a finding when it is no array.
     /// </summary>
     /// <param name="node">The JSON value holding the property.</param>
     /// <param name="key">The property name.</param>
-    /// <param name="label">The label the problem names.</param>
+    /// <param name="label">The label the finding names.</param>
+    /// <param name="code">The finding code.</param>
+    /// <param name="file">The finding file as a full path.</param>
     /// <returns>The array entries.</returns>
-    public List<JsonNode?> ReadArray(JsonNode? node, string key, string label)
+    public List<JsonNode?> ReadArray(JsonNode? node, string key, string label, string code, string file)
     {
         if (node is JsonObject found && found.TryGetPropertyValue(key, out var value) && value is JsonArray array)
         {
             return array.ToList();
         }
 
-        Errors.Add($"{label}: '{key}' must be an array");
+        Add(code, Labelled(label, file, $"'{key}' must be an array"), file);
         return [];
     }
 
     /// <summary>
-    ///     Records a problem for every repeated value.
+    ///     Records a finding for every repeated value.
     /// </summary>
     /// <param name="values">The values to check.</param>
-    /// <param name="label">The label the problem names.</param>
-    public void Unique(IEnumerable<JsValue> values, string label)
+    /// <param name="label">The label the finding names.</param>
+    /// <param name="code">The finding code.</param>
+    /// <param name="file">The finding file as a full path.</param>
+    public void Unique(IEnumerable<JsValue> values, string label, string code, string file)
     {
         var seen = new List<JsValue>();
         foreach (var value in values)
         {
             if (seen.Any(candidate => JsonRead.StrictEqual(candidate, value)))
             {
-                Errors.Add($"{label}: duplicate '{JsonRead.Show(value)}'");
+                Add(code, Labelled(label, file, $"duplicate '{JsonRead.Show(value)}'"), file);
             }
 
             seen.Add(value);
@@ -657,20 +683,21 @@ sealed class UiSession
     /// </summary>
     /// <param name="schemaName">The schema file name.</param>
     /// <param name="value">The value to validate.</param>
-    /// <param name="label">The label the problems name.</param>
-    /// <param name="provisionId">The provision the problems cite.</param>
+    /// <param name="label">The validated file, relative to the consumer root.</param>
+    /// <param name="provisionId">The provision the findings cite.</param>
+    /// <param name="code">The finding code.</param>
     /// <returns>True when the value is valid.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SchemaCheck records any failure of the local schema evaluator as a problem for the value, so an unsupported schema or malformed value reports instead of crashing validation.")]
-    public bool SchemaCheck(string schemaName, JsonNode? value, string label, string provisionId)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SchemaCheck records any failure of the local schema evaluator as a finding for the value, so an unsupported schema or malformed value reports instead of crashing validation.")]
+    public bool SchemaCheck(string schemaName, JsonNode? value, string label, string provisionId, string code)
     {
         var file = LiteSpecHome.PathTo($"schemas/{schemaName}");
         if (!File.Exists(file))
         {
-            Errors.Add($"{label}: schema '{schemaName}' is missing from the LiteSpec release");
+            Add(code, $"schema '{schemaName}' is missing from the LiteSpec release", FilePath(label));
             return false;
         }
 
-        var schema = ReadJson(file, schemaName);
+        var schema = ReadJson(file, code);
         if (schema is null)
         {
             return false;
@@ -689,7 +716,9 @@ sealed class UiSession
 
         foreach (var problem in problems)
         {
-            Errors.Add($"[{provisionId}] {problem}");
+            var prefix = label + ": ";
+            var message = problem.StartsWith(prefix, StringComparison.Ordinal) ? problem[prefix.Length..] : problem;
+            Add(code, $"[{provisionId}] {message}", FilePath(label));
         }
 
         return problems.Count == 0;
@@ -711,7 +740,7 @@ sealed class UiSession
         var end = raw.IndexOf("\n---", 3, StringComparison.Ordinal);
         if (end < 0)
         {
-            Errors.Add($"{RelativeToRoot(file)}: unterminated metadata block");
+            Add("ui-design-contract-invalid", "unterminated metadata block", file);
             return null;
         }
 
@@ -721,7 +750,7 @@ sealed class UiSession
         }
         catch (JsonTextException cause)
         {
-            Errors.Add($"{RelativeToRoot(file)}: metadata is not in the YAML subset ({cause.Message})");
+            Add("ui-design-contract-invalid", $"metadata is not in the YAML subset ({cause.Message})", file);
             return null;
         }
     }

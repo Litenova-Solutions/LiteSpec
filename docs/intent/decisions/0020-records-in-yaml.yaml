@@ -1,17 +1,13 @@
 type: decision
 id: decision/0020-records-in-yaml
 title: Records in YAML
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 options:
   - name: Strict YAML record files with explanation files beside them
-    pros: Each fact lives once, approved prose joins the approval hash, and the tool owns the canonical layout.
+    pros: Each fact lives once, and the tool owns the canonical layout.
     cons: Every record page is rewritten once, and the reader is hand-written against the strict subset.
   - name: Keep Markdown pages with JSON frontmatter
     pros: No page is rewritten and no reader is written.
-    cons: One fact lives in three places, and approved prose stays outside the approval hash.
+    cons: One fact lives in three places.
   - name: JSON record files with explanation files beside them
     pros: Records stay in the notation the schema already validates, with no new reader.
     cons: Records stay verbose, and prose fields stay quoted strings instead of readable blocks.
@@ -19,7 +15,7 @@ options:
     pros: A closer match by design would remove edge cases YAML keeps.
     cons: The closest match is in beta with no .NET implementation.
 choice: Strict YAML record files with explanation files beside them
-consequences: Record pages become one YAML mapping per file with entries in records, explanation files carry understanding-only prose under the same name, article types require their explanation file inside the approval hash, prose cites records by identifier, research sources carry keys, and the tool writes every record file in canonical form.
+consequences: Record pages become one YAML mapping per file with entries in records, explanation files carry understanding-only prose under the same name, article types require their explanation file, prose cites records by identifier, research sources carry keys, and the tool writes every record file in canonical form.
 reopenedWhen: A record format appears that the strict subset cannot carry, or a surveyed format ships a stable .NET implementation.
 basedOn:
   - research/record-format-evidence

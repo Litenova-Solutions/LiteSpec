@@ -49,7 +49,7 @@ static class RecordReader
                 // casing still reads as one.
                 if (file.EndsWith(RecordFile.Extension, StringComparison.OrdinalIgnoreCase))
                 {
-                    ReadRecordFile(file, local.Records, local.Bodies, local.Problems);
+                    ReadRecordFile(config, file, local.Records, local.Bodies, local.Problems);
                 }
                 else
                 {
@@ -83,7 +83,7 @@ static class RecordReader
         });
 
         ReadTerms(config, records, problems);
-        DeriveResults(records, config.ForbiddenCode, config.InvalidInputCode);
+        DeriveResults(config, records, config.ForbiddenCode, config.InvalidInputCode);
 
         return new RecordRead(records, bodies, ReadProvisions(), problems);
     }
@@ -121,11 +121,13 @@ static class RecordReader
     }
 
     /// <summary>Reads one record file into records, an explanation body and problems, all appended in place.</summary>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="file">The absolute path of the record file to read.</param>
     /// <param name="records">The records read so far, appended in place.</param>
     /// <param name="bodies">The explanation and document bodies read so far, appended in place.</param>
     /// <param name="problems">The problems found so far, appended in place.</param>
     private static void ReadRecordFile(
+        ConsumerConfig config,
         string file,
         List<Record> records,
         List<PageBody> bodies,
@@ -145,10 +147,6 @@ static class RecordReader
         }
 
         string? pageId = null;
-        string? pageOwner = null;
-        string? pageStatus = null;
-        string? pageDecider = null;
-        string? pageDecideBy = null;
 
         var type = root.ValueKind == JsonValueKind.Object ? StringField(root, RecordFields.Type) : null;
 
@@ -168,14 +166,10 @@ static class RecordReader
             var explanationFile = RecordFile.ExplanationPathOf(file);
             var explanation = File.Exists(explanationFile) ? SourceTree.Read(explanationFile) : null;
             var record = BuildRecord(
-                root, file, 1, false, null, null, null, null, null,
+                config, root, file, 1, false, null,
                 explanation is null ? null : explanationFile, explanation);
 
             pageId = record.Id;
-            pageOwner = record.Owner;
-            pageStatus = record.Status;
-            pageDecider = record.Decider;
-            pageDecideBy = record.DecideBy;
             records.Add(record);
 
             if (explanation is not null)
@@ -185,11 +179,6 @@ static class RecordReader
         }
         else
         {
-            pageOwner = StringField(root, RecordFields.Owner);
-            pageStatus = StringField(root, RecordFields.Status);
-            pageDecider = StringField(root, RecordFields.Decider);
-            pageDecideBy = StringField(root, RecordFields.DecideBy);
-
             var explanationFile = RecordFile.ExplanationPathOf(file);
 
             if (File.Exists(explanationFile))
@@ -232,8 +221,7 @@ static class RecordReader
                 }
 
                 records.Add(BuildRecord(
-                    entry, file, line, true, pageId,
-                    pageOwner, pageStatus, pageDecider, pageDecideBy, null, null));
+                    config, entry, file, line, true, pageId, null, null));
             }
         }
     }
@@ -283,43 +271,35 @@ static class RecordReader
     /// <summary>The From of a transition that creates the instance.</summary>
     public const string Creation = "-";
 
-    /// <summary>Builds one record from its element, inheriting page owner, status, decider and decide-by.</summary>
+    /// <summary>Builds one record from its element.</summary>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="element">The written element carrying the record fields.</param>
     /// <param name="file">The absolute path of the record file.</param>
     /// <param name="line">The 1-based line of the record in its file.</param>
     /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
     /// <param name="pageId">The id of the carrying page, or null for a page record.</param>
-    /// <param name="pageOwner">The page owner inherited when the record names none.</param>
-    /// <param name="pageStatus">The page status inherited when the record names none.</param>
-    /// <param name="pageDecider">The page decider inherited when the record names none.</param>
-    /// <param name="pageDecideBy">The page decide-by date inherited when the record names none.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
     /// <returns>The built record.</returns>
     private static Record BuildRecord(
+        ConsumerConfig config,
         JsonElement element,
         string file,
         int line,
         bool isEntry,
         string? pageId,
-        string? pageOwner,
-        string? pageStatus,
-        string? pageDecider,
-        string? pageDecideBy,
         string? explanationFile,
-        string? explanation) =>
-        new()
+        string? explanation)
+    {
+        var type = StringField(element, RecordFields.Type) ?? "";
+        var id = StringField(element, RecordFields.Id) ?? "";
+
+        return new()
         {
-            Type = StringField(element, RecordFields.Type) ?? "",
-            Id = StringField(element, RecordFields.Id) ?? "",
+            Type = type,
+            Id = id,
+            QualifiedId = QualifiedIdentifier.Of(type, id, file, config),
             Title = StringField(element, RecordFields.Title) ?? "",
-            Owner = StringField(element, RecordFields.Owner) ?? pageOwner,
-            Status = StringField(element, RecordFields.Status) ?? pageStatus,
-            Decider = StringField(element, RecordFields.Decider) ?? pageDecider,
-            DecideBy = StringField(element, RecordFields.DecideBy) ?? pageDecideBy,
-            ApprovedBy = StringField(element, RecordFields.ApprovedBy),
-            ApprovedOn = StringField(element, RecordFields.ApprovedOn),
-            ApprovedHash = StringField(element, RecordFields.ApprovedHash),
             File = file,
             Line = line,
             ExplanationFile = explanationFile,
@@ -328,16 +308,18 @@ static class RecordReader
             PageId = pageId,
             Raw = element.Clone(),
         };
+    }
 
     /// <summary>
     ///     Derives the generic refusal results: forbidden for every use case with a permission
     ///     grant, and invalid-input for every use case with a validated input. Scenarios and
     ///     tests point at them; they are never written as records.
     /// </summary>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="records">The written records, appended in place with the derived results.</param>
     /// <param name="forbiddenCode">The refusal code the derived forbidden results carry.</param>
     /// <param name="invalidInputCode">The refusal code the derived invalid-input results carry.</param>
-    private static void DeriveResults(List<Record> records, string forbiddenCode, string invalidInputCode)
+    private static void DeriveResults(ConsumerConfig config, List<Record> records, string forbiddenCode, string invalidInputCode)
     {
         var taken = records
             .Where(record => record.Id.Length > 0)
@@ -356,6 +338,7 @@ static class RecordReader
                 && taken.Add($"result/{name}.forbidden"))
             {
                 derived.Add(DerivedResult(
+                    config,
                     useCase,
                     $"result/{name}.forbidden",
                     "Forbidden",
@@ -367,6 +350,7 @@ static class RecordReader
                 && taken.Add($"result/{name}.invalid-input"))
             {
                 derived.Add(DerivedResult(
+                    config,
                     useCase,
                     $"result/{name}.invalid-input",
                     "Invalid input",
@@ -379,13 +363,14 @@ static class RecordReader
     }
 
     /// <summary>One derived generic result, carried by its use case's page.</summary>
+    /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="useCase">The use case the derived result belongs to.</param>
     /// <param name="id">The derived result id.</param>
     /// <param name="title">The derived result title.</param>
     /// <param name="meaning">The derived result meaning sentence.</param>
     /// <param name="code">The refusal code the derived result carries.</param>
     /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
-    private static Record DerivedResult(Record useCase, string id, string title, string meaning, string code)
+    private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code)
     {
         var json = JsonSerializer.Serialize(new Dictionary<string, string?>(StringComparer.Ordinal)
         {
@@ -403,11 +388,8 @@ static class RecordReader
         {
             Type = RecordTypes.Result,
             Id = id,
+            QualifiedId = QualifiedIdentifier.Of(RecordTypes.Result, id, useCase.File, config),
             Title = title,
-            Owner = useCase.Owner,
-            Status = useCase.Status,
-            Decider = useCase.Decider,
-            DecideBy = useCase.DecideBy,
             File = useCase.File,
             Line = useCase.Line,
             IsEntry = true,
@@ -461,18 +443,14 @@ static class RecordReader
                 continue;
             }
 
+            var termId = StringField(term, RecordFields.Id) ?? "";
+
             records.Add(new Record
             {
                 Type = RecordTypes.Term,
-                Id = StringField(term, RecordFields.Id) ?? "",
+                Id = termId,
+                QualifiedId = QualifiedIdentifier.Of(RecordTypes.Term, termId, config.GlossaryPath, config),
                 Title = StringField(term, RecordFields.Term) ?? "",
-                Owner = StringField(term, RecordFields.Owner),
-                Status = StringField(term, RecordFields.Status),
-                Decider = StringField(term, RecordFields.Decider),
-                DecideBy = StringField(term, RecordFields.DecideBy),
-                ApprovedBy = StringField(term, RecordFields.ApprovedBy),
-                ApprovedOn = StringField(term, RecordFields.ApprovedOn),
-                ApprovedHash = StringField(term, RecordFields.ApprovedHash),
                 File = config.GlossaryPath,
                 Line = line,
                 IsEntry = true,

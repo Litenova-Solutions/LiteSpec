@@ -1,8 +1,6 @@
 type: decision
 id: decision/0001-loan-period
 title: Loan period
-owner: lending-team
-status: approved
 options:
   - name: 14 days
     pros: Copies turn over fast for holds.
@@ -22,6 +20,3 @@ decides:
   - requirement/borrowing.hold-pickup-window
   - requirement/borrowing.copy-shelf-home
 basedOn: []
-approvedBy: lending-team
-approvedOn: 2026-10-01
-approvedHash: bf39b33d

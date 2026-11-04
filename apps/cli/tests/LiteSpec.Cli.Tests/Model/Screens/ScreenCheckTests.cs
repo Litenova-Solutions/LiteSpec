@@ -357,8 +357,8 @@ public sealed class ScreenCheckTests
             ReaderIsQualified = true,
         };
 
-        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, null, unqualified.ReaderIsQualified).Outcome);
-        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, null, qualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, unqualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, qualified.ReaderIsQualified).Outcome);
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>
@@ -451,8 +451,6 @@ public sealed class ScreenCheckTests
             Type = "screen",
             Id = id,
             Title = "Loans",
-            Owner = "lending-team",
-            Status = "reviewed",
             File = "screen.md",
             Line = 1,
             Raw = JsonDocument.Parse(
@@ -470,8 +468,6 @@ public sealed class ScreenCheckTests
             Type = type,
             Id = id,
             Title = id,
-            Owner = "lending-team",
-            Status = type is "entry-point" or "use-case" or "journey" or "scenario" ? "reviewed" : "approved",
             File = Path.Combine(root, $"{type}.md"),
             Line = 1,
             Raw = document.RootElement.Clone(),

@@ -1,287 +1,198 @@
-// The navigation's row models. The outline and list views flatten their trees
-// into one descriptor array each, which the sidebar virtualizes; the queue,
-// security and ballot views render from small group models. Every builder
-// mirrors its book.js function, and every word comes from the book or the lexicon.
-import { base, cap, plural, type Ballot, type Batch, type Book, type Question, type SecurityItem } from "$lib/book";
+// The navigation's rows: the outline with its field groups, the record list
+// with its groups, and the security groups. Rows carry everything a row
+// renders, so the components never walk the store twice.
 
-export interface LayerRow { kind: "layer"; key: string; layer: string }
-export interface DescRow { kind: "desc"; key: string; layer: string }
-export interface NoteRow { kind: "note"; key: string; text: string }
-export interface GroupRow { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number }
-export interface RecordRow { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean }
-export interface ListGroupRow { kind: "listgroup"; key: string; label: string; icon: string | null; count: number; completion: string }
-export interface ListRecordRow { kind: "listrecord"; key: string; id: string }
-export interface ShowAllRow { kind: "showall"; key: string; total: number }
-export type Row = LayerRow | DescRow | NoteRow | GroupRow | RecordRow | ListGroupRow | ListRecordRow | ShowAllRow;
+import { base, cap, type Book } from "$lib/book";
+import type { SecurityItem } from "$lib/book/types";
 
-/** The fixed height of each row kind; descriptions measure themselves. */
+/** One virtual row in the outline or list view. */
+export type Row =
+  | { kind: "layer"; key: string; layer: string }
+  | { kind: "desc"; key: string; layer: string }
+  | { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number }
+  | { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean }
+  | { kind: "listgroup"; key: string; label: string; icon: string | null; count: number; completion: string }
+  | { kind: "listrecord"; key: string; id: string }
+  | { kind: "note"; key: string; text: string }
+  | { kind: "showall"; key: string; total: number };
+
+/** The estimated pixel height per row kind for the virtualizer. */
 export const ROW_HEIGHT: Record<Row["kind"], number> = {
   layer: 34, desc: 56, note: 28, group: 26, record: 28, listgroup: 30, listrecord: 46, showall: 50,
 };
 
-// One entry per depth, as literal classes so Tailwind emits them.
-const INDENT = [
-  "pl-0", "pl-[22px]", "pl-[44px]", "pl-[66px]", "pl-[88px]", "pl-[110px]", "pl-[132px]",
-  "pl-[154px]", "pl-[176px]", "pl-[198px]", "pl-[220px]", "pl-[242px]", "pl-[264px]",
+const INDENTS = [
+  "pl-0", "pl-[22px]", "pl-[44px]", "pl-[66px]", "pl-[88px]", "pl-[110px]",
+  "pl-[132px]", "pl-[154px]", "pl-[176px]", "pl-[198px]", "pl-[220px]", "pl-[242px]", "pl-[264px]",
 ];
-export function indentClass(depth: number) { return INDENT[Math.min(Math.max(depth, 0), INDENT.length - 1)]; }
 
-/** The open questions as ballots: the queue shard, else the loaded records. */
-export function ballotItems(b: Book): Ballot[] {
-  if (b.queue) return b.ballots();
-  const items: Ballot[] = [];
-  for (const id of b.order) {
-    if (!b.isReal(id)) continue;
-    ((b.fields(id).questions ?? []) as Question[]).forEach((q, i) => {
-      if (q?.question) items.push({ id, i, q });
-    });
-  }
-  return items;
+/** The indentation class for an outline depth, clamped to the deepest step. */
+export function indentClass(depth: number) {
+  return INDENTS[Math.min(Math.max(depth, 0), INDENTS.length - 1)];
 }
 
-/** The security items: the queue shard, else the loaded records. */
-export function securityItems(b: Book): SecurityItem[] {
-  if (b.queue) return b.security();
-  const items: SecurityItem[] = [];
-  for (const id of b.order) {
-    if (!b.isReal(id)) continue;
-    const f = b.fields(id);
-    if (f.access && f.access.tenant === "cross")
-      items.push({ kind: "cross", id, text: "Acts across tenants" + (f.access.grant ? ", through " + b.title(f.access.grant) : "") });
-    for (const e of f.effects ?? [])
-      if (e.calls) items.push({ kind: "calls", id, text: "Calls " + b.title(base(String(e.calls))) + (String(e.calls).indexOf("#") > 0 ? ", " + String(e.calls).split("#")[1].replace(/-/g, " ") : "") });
-    for (const c of f.dataClasses ?? [])
-      if (c.classification === "personal" || c.classification === "sensitive")
-        items.push({ kind: "data", id, text: cap(String(c.classification)) + " data: " + String(c.name).replace(/-/g, " ") + (c.onErasure ? ", on erasure " + c.onErasure : "") });
-  }
-  return items;
+/** One record row and, when open, its children grouped by record field. */
+function walkRecord(book: Book, id: string, depth: number, rows: Row[]) {
+  if (!book.isVisible(id)) return;
+  const kids = book.kids(id).filter((k) => book.isVisible(k));
+  const open = kids.length > 0 && (book.anyFilter() ? true : !!book.expanded[id]);
+  rows.push({
+    kind: "record", key: "row/" + id, id, depth,
+    level: book.depthOf[id] ?? depth, kids: kids.length, open, dim: book.anyFilter() && !book.matches(id),
+  });
+  if (open) walkGroups(book, kids, id, depth + 1, rows);
 }
 
-export function ballotRisk(b: Book, x: Ballot): string[] {
-  return x.q?.riskClasses?.length ? x.q.riskClasses.map(String) : b.riskClassesOf(x.id);
-}
-
-export function ballotName(b: Book, key: string) {
-  if (b.has(key)) return b.title(key);
-  return key.replace(/^decision\//, "").replace(/-/g, " ");
-}
-
-// A batch named by what it holds, as release.md describes the four kinds.
-export function batchName(b: Book, batch: Batch) {
-  const p = String(batch.selector || "").split("/");
-  if (batch.kind === "use-case") return "This use case with its results and scenarios";
-  if (batch.kind === "decision") {
-    const dn = base(String(batch.selector || "").replace(/^decision\//, ""));
-    return "Decision " + (b.has(dn) ? '"' + b.title(dn) + '"' : batch.selector) + " with what it decides";
-  }
-  if (batch.kind === "record") return "This record on its own";
-  return "All draft " + (p[1] ? b.pluralName(p[1]) : "").toLowerCase() + (p[0] === "intent" || p[0] === "governance" ? "" : " in " + p[0].replace(/-/g, " "));
-}
-
-function treeInto(b: Book, id: string, depth: number, out: Row[]) {
-  if (!b.isVisible(id)) return;
-  const kids = b.kids(id).filter((k) => b.isVisible(k));
-  const open = kids.length > 0 && (b.anyFilter() ? true : !!b.expanded[id]);
-  out.push({ kind: "record", key: "row/" + id, id, depth, level: b.depthOf[id] ?? depth, kids: kids.length, open, dim: b.anyFilter() && !b.matches(id) });
-  if (open) groupedInto(b, kids, id, depth + 1, out);
-}
-
-function groupedInto(b: Book, ids: string[], pkey: string, depth: number, out: Row[]) {
+/** Children grouped by record field, else by type, each with its completion. */
+function walkGroups(book: Book, kids: string[], parent: string, depth: number, rows: Row[]) {
   const groups: { key: string; label: string; list: string[] }[] = [];
-  const seen: Record<string, { key: string; label: string; list: string[] }> = {};
-  for (const id of ids) {
-    const fg = b.fieldGroup(id);
+  const byKey: Record<string, { key: string; label: string; list: string[] }> = {};
+  for (const id of kids) {
+    const g = book.fieldGroup(id);
     let key: string, label: string;
-    if (fg && fg[0]) {
-      key = "field:" + fg.join("/");
-      label = fg.filter(Boolean).join(": ");
+    if (g && g[0]) {
+      key = "field:" + g.join("/");
+      label = g.filter(Boolean).join(": ");
     } else {
-      const t = b.typeOf(id);
+      const t = book.typeOf(id);
       key = "type:" + t;
-      const q = b.lex.types?.[t];
+      const q = book.lex.types?.[t];
       label = q ? q.plural || q.label || t : cap(t) + "s";
     }
-    if (!seen[key]) {
-      seen[key] = { key, label, list: [] };
-      groups.push(seen[key]);
-    }
-    seen[key].list.push(id);
+    byKey[key] ??= { key, label, list: [] };
+    if (!groups.includes(byKey[key])) groups.push(byKey[key]);
+    byKey[key].list.push(id);
   }
-  const anyFilter = b.anyFilter();
+  const filtering = book.anyFilter();
   for (const g of groups) {
     const list = g.list.slice();
-    if (b.sortKey !== "outline") list.sort(b.sorts[b.sortKey]?.cmp ?? b.sorts.outline.cmp);
-    const rendered = list.filter((id) => b.isVisible(id));
-    if (!rendered.length) continue;
-    const gk = pkey + "|" + g.key;
-    const refused = /^refused\b/i.test(g.label);
-    const shut = !anyFilter && (b.closedGroups[gk] !== undefined ? b.closedGroups[gk] : refused);
-    out.push({ kind: "group", key: "group/" + gk, gk, label: g.label, count: rendered.length, completion: b.completionCounts(rendered), open: !shut, depth });
-    if (!shut) for (const id of list) treeInto(b, id, depth, out);
+    if (book.sortKey !== "outline") list.sort(book.sorts[book.sortKey]?.cmp ?? book.sorts.outline.cmp);
+    const visible = list.filter((id) => book.isVisible(id));
+    if (!visible.length) continue;
+    const gk = parent + "|" + g.key;
+    const closed = !filtering && !!book.closedGroups[gk];
+    rows.push({
+      kind: "group", key: "group/" + gk, gk, label: g.label,
+      count: visible.length, completion: book.completeCounts(visible), open: !closed, depth,
+    });
+    if (!closed) for (const id of list) walkRecord(book, id, depth, rows);
   }
 }
 
-export function buildOutlineRows(b: Book): Row[] {
-  const out: Row[] = [];
-  const anyFilter = b.anyFilter();
-  for (const l of b.man?.layers ?? []) {
-    if (!b.isLayerLoaded(l.key)) {
-      out.push({ kind: "layer", key: "layer/" + l.key, layer: l.key });
-      if (b.openLayers[l.key]) out.push({ kind: "note", key: "layer/" + l.key + "/loading", text: "Loading." });
+/** The outline rows: layer headers with their descriptions, records and field groups. */
+export function buildOutlineRows(book: Book): Row[] {
+  const rows: Row[] = [];
+  const filtering = book.anyFilter();
+  for (const layer of book.man?.layers ?? []) {
+    if (!book.isLayerLoaded(layer.key)) {
+      rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key });
+      if (book.openLayers[layer.key]) rows.push({ kind: "note", key: "layer/" + layer.key + "/loading", text: "Loading." });
       continue;
     }
-    const ids = b.order.filter((id) => b.layerOf[id] === l.key && b.isReal(id));
-    const shown = anyFilter ? ids.filter((id) => b.matches(id)).length : 0;
-    if (anyFilter && !shown) continue;
-    out.push({ kind: "layer", key: "layer/" + l.key, layer: l.key });
-    if (!(anyFilter || b.openLayers[l.key])) continue;
-    if (!anyFilter) out.push({ kind: "desc", key: "layer/" + l.key + "/desc", layer: l.key });
-    const roots = b.rootsOf[l.key] ?? [];
-    if (roots.length > 1) groupedInto(b, roots, l.key, 1, out);
-    else for (const id of roots) treeInto(b, id, 1, out);
+    const inLayer = book.order.filter((id) => book.layerOf[id] === layer.key && book.isReal(id));
+    const matched = filtering ? inLayer.filter((id) => book.matches(id)).length : 0;
+    if (filtering && !matched) continue;
+    rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key });
+    if (!(filtering || book.openLayers[layer.key])) continue;
+    if (!filtering) rows.push({ kind: "desc", key: "layer/" + layer.key + "/desc", layer: layer.key });
+    const roots = book.rootsOf[layer.key] ?? [];
+    if (roots.length > 1) walkGroups(book, roots, layer.key, 1, rows);
+    else for (const id of roots) walkRecord(book, id, 1, rows);
   }
-  return out;
+  return rows;
 }
 
-export function buildListRows(b: Book): Row[] {
-  const out: Row[] = [];
-  const cmp = b.sorts[b.sortKey]?.cmp ?? b.sorts.outline.cmp;
-  const ids = b.order.filter((id) => b.passes(id)).sort(cmp);
-  const count: Record<string, number> = {};
+/** The list rows: group headers with their completion, then records, capped at 400. */
+export function buildListRows(book: Book): Row[] {
+  const rows: Row[] = [];
+  const cmp = book.sorts[book.sortKey]?.cmp ?? book.sorts.outline.cmp;
+  const ids = book.order.filter((id) => book.passes(id)).sort(cmp);
+  const counts: Record<string, number> = {};
   const members: Record<string, string[]> = {};
-  if (b.groupKey !== "none") {
+  if (book.groupKey !== "none") {
     for (const id of ids) {
-      const g = b.groupVal(id)[0];
-      count[g] = (count[g] ?? 0) + 1;
-      (members[g] ??= []).push(id);
+      const v = book.groupVal(id)[0];
+      counts[v] = (counts[v] ?? 0) + 1;
+      (members[v] ??= []).push(id);
     }
-    ids.sort((a, c) => {
-      const x = b.groupVal(a)[0], y = b.groupVal(c)[0];
-      return x < y ? -1 : x > y ? 1 : 0;
+    ids.sort((a, b) => {
+      const x = book.groupVal(a)[0], y = book.groupVal(b)[0];
+      return x < y ? -1 : +(x > y);
     });
-    if (b.groupKey === "type") {
-      const order = Object.keys(b.lex.types ?? {});
-      ids.sort((a, c) => order.indexOf(b.typeOf(a)) - order.indexOf(b.typeOf(c)));
+    if (book.groupKey === "type") {
+      const order = Object.keys(book.lex.types ?? {});
+      ids.sort((a, b) => order.indexOf(book.typeOf(a)) - order.indexOf(book.typeOf(b)));
     }
   }
-  const limit = b.listShowAll ? ids.length : 400;
-  const shownIds = ids.slice(0, limit);
-  const closed: Record<string, boolean> = {};
-  let lastG: string | null = null;
-  for (const id of shownIds) {
-    const g = b.groupVal(id);
-    if (b.groupKey !== "none" && g[0] !== lastG) {
-      const groupIds = members[g[0]] ?? [];
-      const refused = b.groupKey === "field" && /^refused\b/i.test(g[1]);
-      closed[g[0]] = refused && !b.listShowAll;
-      out.push({ kind: "listgroup", key: "listgroup/" + g[0], label: g[1], icon: b.groupKey === "type" ? g[0] : null, count: count[g[0]] ?? 0, completion: b.completionCounts(groupIds) });
-      if (refused && !b.listShowAll) out.push({ kind: "note", key: "listgroup/" + g[0] + "/note", text: "Refused records are collapsed. Use Show all to see them." });
-      lastG = g[0];
+  const shown = book.listShowAll ? ids.length : 400;
+  const slice = ids.slice(0, shown);
+  let last: string | null = null;
+  for (const id of slice) {
+    const g = book.groupVal(id);
+    if (book.groupKey !== "none" && g[0] !== last) {
+      rows.push({
+        kind: "listgroup", key: "listgroup/" + g[0], label: g[1],
+        icon: book.groupKey === "type" ? g[0] : null,
+        count: counts[g[0]] ?? 0, completion: book.completeCounts(members[g[0]] ?? []),
+      });
+      last = g[0];
     }
-    if (closed[g[0]]) continue;
-    out.push({ kind: "listrecord", key: "list/" + id, id });
+    rows.push({ kind: "listrecord", key: "list/" + id, id });
   }
-  if (ids.length > limit) out.push({ kind: "showall", key: "list/showall", total: ids.length });
-  else if (b.listShowAll && ids.length > 400) out.push({ kind: "note", key: "list/shown", text: "Showing all " + ids.length + " records." });
-  if (!ids.length) out.push({ kind: "note", key: "list/empty", text: "No record matches these filters." });
-  return out;
+  if (ids.length > shown) rows.push({ kind: "showall", key: "list/showall", total: ids.length });
+  else if (book.listShowAll && ids.length > 400) rows.push({ kind: "note", key: "list/shown", text: "Showing all " + ids.length + " records." });
+  if (!ids.length) rows.push({ kind: "note", key: "list/empty", text: "No record matches these filters." });
+  return rows;
 }
 
-export interface QueueBatchRow { key: string; id: string; title: string; sub: string; icon: string }
-export interface QueueRiskGroup { key: string; approver: string; batches: QueueBatchRow[] }
-
-export function queueGroups(b: Book): QueueRiskGroup[] {
-  const batches = b.queue?.batches ?? {};
-  const first: Record<string, string> = {};
-  for (const id of b.order) {
-    const bat = b.get(id)?.batch;
-    if (bat && batches[bat] && !first[bat]) first[bat] = id;
-  }
-  for (const k of Object.keys(batches)) {
-    if (first[k]) continue;
-    const recs = batches[k].records ?? batches[k].ids ?? [];
-    if (recs.length) first[k] = base(recs[0]);
-  }
-  const list = (b.queue?.order ?? Object.keys(batches)).filter((k) => batches[k] && first[k]);
-  const groups: Record<string, string[]> = {};
-  for (const k of list) {
-    const batch = batches[k];
-    const risk = batch.riskClasses?.length ? batch.riskClasses : first[k] ? b.riskClassesOf(first[k]) : [];
-    const key = risk.length ? risk.map((v) => cap(String(v).replace(/-/g, " "))).join(", ") : "No risk";
-    (groups[key] ??= []).push(k);
-  }
-  const riskFirst = (a: string, c: string) => (a === "No risk" ? 1 : 0) - (c === "No risk" ? 1 : 0) || a.localeCompare(c);
-  return Object.keys(groups).sort(riskFirst).map((riskKey) => {
-    const ks = groups[riskKey];
-    let approver = "";
-    for (const k of ks) {
-      const ap = batches[k].approvers;
-      if (!approver && ap?.length) approver = ap[0];
+/** The security items: the shard once loaded, else read from the loaded records. */
+export function securityItems(book: Book): SecurityItem[] {
+  if (book.security !== null) return book.securityItems();
+  const items: SecurityItem[] = [];
+  for (const id of book.order) {
+    if (!book.isReal(id)) continue;
+    const f = book.fields(id);
+    if (f.access && f.access.tenant === "cross") {
+      items.push({ kind: "cross", id, text: "Acts across tenants" + (f.access.grant ? ", through " + book.title(f.access.grant) : "") });
     }
-    if (!approver && first[ks[0]]) {
-      const rc = b.riskClassesOf(first[ks[0]]);
-      if (rc.length) approver = b.approverFor(rc[0], first[ks[0]]);
+    for (const e of f.effects ?? []) {
+      if (e.calls) {
+        items.push({
+          kind: "calls", id,
+          text: "Calls " + book.title(base(String(e.calls)))
+            + (String(e.calls).indexOf("#") > 0 ? ", " + String(e.calls).split("#")[1].replace(/-/g, " ") : ""),
+        });
+      }
     }
-    return {
-      key: riskKey,
-      approver,
-      batches: ks.slice(0, 200).map((k) => {
-        const batch = batches[k];
-        const id = first[k];
-        const nm = batchName(b, batch);
-        const riskText = batch.riskClasses?.length ? ", risk: " + batch.riskClasses.map((v) => cap(String(v).replace(/-/g, " "))).join(", ") : "";
-        const approverText = batch.approvers?.length ? ", approved by " + batch.approvers.join(", ") : "";
-        return {
-          key: k,
-          id,
-          title: nm === "This use case with its results and scenarios" || nm === "This record on its own" ? b.title(id) : nm,
-          sub: plural(batch.n ?? 0, "record") + riskText + approverText + (batch.decideBy ? ", decide by " + b.fmtDate(batch.decideBy) : ""),
-          icon: batch.kind === "decision" ? "decision" : batch.kind === "use-case" ? "use-case" : "ballot",
-        };
-      }),
-    };
-  });
+    for (const d of f.dataClasses ?? []) {
+      if (d.classification === "personal" || d.classification === "sensitive") {
+        items.push({
+          kind: "data", id,
+          text: cap(String(d.classification)) + " data: " + String(d.name).replace(/-/g, " ")
+            + (d.onErasure ? ", on erasure " + d.onErasure : ""),
+        });
+      }
+    }
+  }
+  return items;
 }
 
-export interface SecurityGroup { kind: string; label: string; text: string; icon: string; items: SecurityItem[] }
-
-export function securityGroups(b: Book): SecurityGroup[] {
-  const all = securityItems(b).filter((x) => b.passes(x.id));
-  return [
-    { kind: "cross", label: "Access", text: "Use cases that act outside the caller's own tenant.", icon: "shield", items: all.filter((x) => x.kind === "cross") },
-    { kind: "calls", label: "Calls", text: "Every call that leaves the system for an external system.", icon: "ext", items: all.filter((x) => x.kind === "calls") },
-    { kind: "data", label: "Data classes", text: "Data classes that hold personal or sensitive fields, with their erasure position.", icon: "lock", items: all.filter((x) => x.kind === "data") },
-  ].filter((g) => g.items.length);
+/** One group of security items by kind, with its heading words. */
+export interface SecurityGroup {
+  kind: "cross" | "calls" | "data";
+  label: string;
+  text: string;
+  icon: string;
+  items: SecurityItem[];
 }
 
-export interface BallotGroup { key: string; approver: string; total: number; ballots: { key: string; label: string; items: Ballot[] }[] }
-
-export function ballotGroups(b: Book): BallotGroup[] {
-  const items = ballotItems(b).filter((x) => b.passes(x.id, "questions"));
-  const byRisk: Record<string, Ballot[]> = {};
-  for (const x of items) {
-    const risk = ballotRisk(b, x);
-    const key = risk.length ? risk.join(", ") : "No risk";
-    (byRisk[key] ??= []).push(x);
-  }
-  const byDate = (a: Ballot, c: Ballot) => String(a.q.decideBy ?? "").localeCompare(String(c.q.decideBy ?? ""));
-  const riskFirst = (a: string, c: string) => (a === "No risk" ? 1 : 0) - (c === "No risk" ? 1 : 0) || a.localeCompare(c);
-  return Object.keys(byRisk).sort(riskFirst).map((riskKey) => {
-    const list = byRisk[riskKey].slice().sort(byDate);
-    const firstRisk = riskKey === "No risk" ? "" : riskKey.split(", ")[0].toLowerCase().replace(/ /g, "-");
-    const approver = firstRisk ? b.approverFor(firstRisk, list[0].id) : "";
-    const by: Record<string, Ballot[]> = {};
-    for (const x of list) {
-      const k = x.q.ballot || "unsorted";
-      (by[k] ??= []).push(x);
-    }
-    return {
-      key: riskKey,
-      approver,
-      total: list.length,
-      ballots: Object.keys(by)
-        .sort((a, c) => by[c].length - by[a].length || a.localeCompare(c))
-        .map((k) => ({ key: k, label: cap(ballotName(b, k)), items: by[k].slice().sort(byDate) })),
-    };
-  });
+/** The security items passing the filters, grouped by kind. */
+export function securityGroups(book: Book): SecurityGroup[] {
+  const items = securityItems(book).filter((x) => book.passes(x.id));
+  const groups: SecurityGroup[] = [
+    { kind: "cross", label: "Access", text: "Use cases that act outside the caller's own tenant.", icon: "shield", items: items.filter((x) => x.kind === "cross") },
+    { kind: "calls", label: "Calls", text: "Every call that leaves the system for an external system.", icon: "ext", items: items.filter((x) => x.kind === "calls") },
+    { kind: "data", label: "Data classes", text: "Data classes that hold personal or sensitive fields, with their erasure position.", icon: "lock", items: items.filter((x) => x.kind === "data") },
+  ];
+  return groups.filter((g) => g.items.length);
 }

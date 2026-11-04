@@ -1,8 +1,7 @@
 type: decision
 id: decision/0001-receipt-threshold
 title: Receipt Threshold
-owner: claimwick-team
-status: approved
+summary: Small expenses need no proof, large ones do.
 options:
   - name: 0 EUR
     pros: Every expense carries proof.
@@ -19,6 +18,3 @@ reopenedWhen: Finance sees abuse or friction.
 decides:
   - requirement/approval.receipt-over-threshold
 basedOn: []
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 07cb4ece

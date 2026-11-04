@@ -50,7 +50,7 @@ internal sealed partial class RepositoryValidator
     internal readonly HashSet<string> ReservedTemplateStems;
 
     // The container page styles live in record files beside the record types: they
-    // hold entries, not documents. Topic is a record type, so it needs no entry here.
+    // hold entries, not documents.
     /// <summary>Gets the container page styles held in record files.</summary>
     private static readonly HashSet<string> ContainerPageStyles = new(
         ["permission-list", "entry-point-list", "setting-set", "rule-set", "retention-schedule"],
@@ -575,7 +575,6 @@ internal sealed partial class RepositoryValidator
         ["isoDate"] = "2026-11-30",
         ["isoDuration"] = "P30D",
         ["nonEmptyString"] = "sample",
-        ["ownerName"] = "sample",
         ["productId"] = "product/sample",
         ["goalId"] = "goal/sample",
         ["constraintId"] = "constraint/sample",
@@ -583,7 +582,6 @@ internal sealed partial class RepositoryValidator
         ["decisionId"] = "decision/0001-sample",
         ["problemId"] = "problem/sample",
         ["featureId"] = "feature/sample",
-        ["topicId"] = "topic/sample",
         ["requirementId"] = "requirement/sample.entry",
         ["actorId"] = "actor/sample",
         ["roleId"] = "role/sample",
@@ -611,7 +609,7 @@ internal sealed partial class RepositoryValidator
         ["exceptionId"] = "exception/sample",
         ["termId"] = "term/sample",
         ["refusalCode"] = "sample.entry",
-        ["standardsProvisionId"] = "litespec/core/topic#keep-the-topic-bounded",
+        ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",
         ["genericRecordId"] = "sample/entry",
         ["grantValue"] = "permission/sample",
         ["configurationKey"] = "Sample:Key",

@@ -1,11 +1,10 @@
 <script lang="ts">
   import { base, book, uniq } from "$lib/book";
-  import StatusIcon from "$lib/components/book/StatusIcon.svelte";
   import TypeTag from "$lib/components/book/TypeTag.svelte";
   import { Button } from "$lib/components/ui/button";
 
-  // Records as a numbered list: the title link, the type tag, the status, and
-  // the expandable statement. Long lists keep a limit with a Show all button.
+  // Records as a numbered list: the title link, the type tag and the
+  // expandable statement. Long lists keep a limit with a Show all button.
   let {
     ids,
     limit = null,
@@ -42,7 +41,6 @@
         {/if}
         <span class="float-right inline-flex items-center gap-2 text-xs text-muted-foreground">
           <TypeTag type={t} />
-          {#if book.get(id)}<StatusIcon id={id} />{/if}
         </span>
         {#if stmt}
           <div class="mt-0.5 text-[13px] leading-snug text-muted-foreground">

@@ -1,11 +1,6 @@
 type: setting-set
 title: Spending Settings
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-purpose: Each spending run reads its limits from one place.
-whatHappens: Operators change limits without a deploy.
+summary: Each spending run reads its limits from one place.
 records:
   - type: setting
     id: setting/spending.receipt-threshold
@@ -14,8 +9,8 @@ records:
     default: 25.00 EUR
     range: 0.00 EUR..1000.00 EUR
     unit: EUR
-    setBy: decider
+    setBy: product
     atBound: refuse
     secret: false
     fulfills:
-      - requirement/approval.decided-within-five-days
+      - requirement/approval-reminders.decided-within-five-days

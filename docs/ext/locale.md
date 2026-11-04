@@ -24,11 +24,11 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#record-supported-locale-behavior`
 
-**Statement:** A localization decision MUST list supported locales, default locale, fallback chain, user selection, browser detection, owner, and status.
+**Statement:** A localization decision MUST list supported locales, default locale, fallback chain, user selection, and browser detection.
 
-**Rationale:** Locales, default, fallback, selection, and browser detection interact: each catalog, route, and formatter reads the same contract, so the team writes it once before building any of them. Without the contract, each part guesses a different fallback and the product answers each missing translation differently. A draft names its decider and decide-by date so the contract lands before the first catalog does.
+**Rationale:** Locales, default, fallback, selection, and browser detection interact: each catalog, route, and formatter reads the same contract, so the team writes it once before building any of them. Without the contract, each part guesses a different fallback and the product answers each missing translation differently.
 
-**Reviewed for:** The locale decision lists supported locales, default locale, fallback chain, user selection, browser detection, owner, and status.
+**Reviewed for:** The locale decision lists supported locales, default locale, fallback chain, user selection, and browser detection.
 
 ### Avoid Catalog-Only Locale Claims
 
@@ -228,8 +228,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 ## Dependencies
 
-Packages: `None.`
+Packages: None.
 
-Related extensions: `None.`
+Related extensions: None.
 
-Guides: `None.`
+Guides: None.

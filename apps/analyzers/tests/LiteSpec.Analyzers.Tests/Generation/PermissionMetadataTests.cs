@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Reflection;
 using System.Text;
 using LiteSpec.Analyzers.Tests.Support;
@@ -8,12 +7,12 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Analyzers.Tests.Generation;
 
-/// <summary>Tests for the generated permission entries with their scope, group, reads and risks.</summary>
+/// <summary>Tests for the generated permission entries with their scope, group and risks.</summary>
 public sealed class PermissionMetadataTests
 {
-    /// <summary>The entry carries scope, group, reads and risks from the record.</summary>
+    /// <summary>The entry carries scope, group and risks from the record.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "The entry carries scope, group, reads and risks from the record")]
+    [Fact(DisplayName = "The entry carries scope, group and risks from the record")]
     public void EntryCarriesFactsFromTheRecord()
     {
         var run = GeneratorVerify.Run(
@@ -23,8 +22,8 @@ public sealed class PermissionMetadataTests
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("internal sealed record LiteSpecPermission(string Id, string Scope, string? Group, bool Reads, System.Collections.Generic.IReadOnlyList<string> Risks);", permissions, StringComparison.Ordinal);
-        Assert.Contains("new LiteSpecPermission(\"permission/read-loans\", \"tenant\", \"loans\", true, new string[] { \"money\", \"access\" })", permissions, StringComparison.Ordinal);
+        Assert.Contains("internal sealed record LiteSpecPermission(string Id, string Scope, string? Group, System.Collections.Generic.IReadOnlyList<string> Risks);", permissions, StringComparison.Ordinal);
+        Assert.Contains("new LiteSpecPermission(\"permission/read-loans\", \"tenant\", \"loans\", new string[] { \"money\", \"access\" })", permissions, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
@@ -41,100 +40,29 @@ public sealed class PermissionMetadataTests
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/export-report\", \"\", null, true, new string[] { })", permissions, StringComparison.Ordinal);
+        Assert.Contains("new LiteSpecPermission(\"permission/export-report\", \"\", null, new string[] { })", permissions, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <summary>A changing verb reads false and stays silent.</summary>
+    /// <summary>A permission opening with any verb is emitted and stays silent.</summary>
     /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "A changing verb reads false and stays silent")]
-    public void ChangingVerbReadsFalse()
+    [Fact(DisplayName = "A permission opening with any verb is emitted and stays silent")]
+    public void AnyOpeningVerbIsEmittedAndStaysSilent()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/approve-order", "platform")))),
-            assemblyName: "Shop.Application");
-
-        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/approve-order\", \"platform\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
-        Assert.Empty(run.ReportedDiagnostics);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>An unknown first word reads false and reports LS5010.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "An unknown first word reads false and reports LS5010")]
-    public void UnknownFirstWordReportsLS5010()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/frobnicate-widgets", "tenant")))),
-            assemblyName: "Shop.Application");
-
-        var diagnostic = Assert.Single(run.ReportedDiagnostics);
-        Assert.Equal("LS5010", diagnostic.Id);
-        Assert.Contains("permission/frobnicate-widgets", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
-        Assert.Contains("frobnicate", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
-        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/frobnicate-widgets\", \"tenant\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>A manage permission changes and stays silent.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "A manage permission changes and stays silent")]
-    public void ManagePermissionChangesAndStaysSilent()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
+                RecordPages.PermissionEntry("permission/frobnicate-widgets", "tenant"),
+                RecordPages.PermissionEntry("permission/approve-order", "platform"),
                 RecordPages.PermissionEntry("permission/manage-copies", "tenant")))),
             assemblyName: "Shop.Application");
 
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/manage-copies\", \"tenant\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>A declared project verb reads false and stays silent.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "A declared project verb reads false and stays silent")]
-    public void DeclaredProjectVerbStaysSilent()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.FilesWithVocabulary(
-                "{\"verbs\": [\"borrow\"]}",
-                ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/borrow-book", "tenant")))),
-            assemblyName: "Shop.Application");
-
-        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/borrow-book\", \"tenant\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
-        Assert.Empty(run.ReportedDiagnostics);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>A project query verb reads true and stays silent.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "A project query verb reads true and stays silent")]
-    public void ProjectQueryVerbReadsTrue()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.FilesWithVocabulary(
-                "{\"queryVerbs\": [\"inspect\"]}",
-                ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/inspect-vault", "platform")))),
-            assemblyName: "Shop.Application");
-
-        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
-        Assert.Contains("new LiteSpecPermission(\"permission/inspect-vault\", \"platform\", null, true, new string[] { })", permissions, StringComparison.Ordinal);
-        Assert.Empty(run.ReportedDiagnostics);
+        Assert.Contains("new LiteSpecPermission(\"permission/frobnicate-widgets\", \"tenant\", null, new string[] { })", permissions, StringComparison.Ordinal);
+        Assert.Contains("new LiteSpecPermission(\"permission/approve-order\", \"platform\", null, new string[] { })", permissions, StringComparison.Ordinal);
+        Assert.Contains("new LiteSpecPermission(\"permission/manage-copies\", \"tenant\", null, new string[] { })", permissions, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
@@ -176,7 +104,6 @@ public sealed class PermissionMetadataTests
         Assert.Equal("permission/read-loans", Property(entry, "Id"));
         Assert.Equal("tenant", Property(entry, "Scope"));
         Assert.Equal("loans", Property(entry, "Group"));
-        Assert.Equal(true, Property(entry, "Reads"));
         Assert.Equal(new[] { "money" }, ((System.Collections.IEnumerable)Property(entry, "Risks")!).Cast<string>().ToArray());
 
         var all = permissions.GetProperty("All", BindingFlags.Public | BindingFlags.Static);

@@ -1,87 +1,86 @@
 import { describe, expect, it } from "vitest";
 import { fixtureBook } from "./fixture";
 
-describe("the book store", () => {
-  it("opens the product when the address names no record", async () => {
+describe("book", () => {
+  it("boots with the product page selected", async () => {
     const book = await fixtureBook();
-    expect(book.selected).toBe("product/shop");
-    expect(book.title("feature/checkout")).toBe("Checkout");
-    expect(book.parent("goal/sell")).toBe("product/shop");
+    expect(book.ready).toBe(true);
+    expect(book.error).toBe(null);
+    expect(book.selected).toBe("product/library");
+    expect(book.title("goal/faster-borrowing")).toBe("Faster Borrowing");
   });
 
-  it("opens the record the address names, loading its layer", async () => {
-    const book = await fixtureBook("use-case/orders.pay");
-    expect(book.selected).toBe("use-case/orders.pay");
-    expect(book.layerOf["use-case/orders.pay"]).toBe("behavior");
-    expect(book.isBeh("use-case/orders.pay")).toBe(true);
+  it("levels, labels and forms read from the lexicon", async () => {
+    const book = await fixtureBook();
+    expect(book.kindOf("goal/faster-borrowing")).toBe("intent");
+    expect(book.kindOf("use-case/library.borrowing.borrow")).toBe("behavior");
+    expect(book.typeName("use-case")).toBe("Use case");
+    expect(book.pluralName("use-case")).toBe("Use cases");
+    expect(book.tag("use-case")).toBe("use case");
+    expect(book.fieldLabel("boundary")).toBe("Boundary");
+    expect(book.fieldLabel("whatever")).toBe("whatever");
   });
 
-  it("reads every link in the Links table phrases", async () => {
+  it("walks a record's relations in reading order", async () => {
     const book = await fixtureBook();
-    expect(book.outs("feature/checkout", "advances")).toEqual(["goal/sell"]);
-    expect(book.ins("goal/sell", "advances")).toEqual(["feature/checkout"]);
-    const conns = book.connectionsOf("goal/sell");
-    expect(conns[0].label).toBe("Points at this: advances");
-    expect(book.linkSentence("goal/sell", conns[0].label, conns)).toBe("This goal is advanced by");
+    expect(book.outs("feature/borrow-book", "advances")).toEqual(["goal/faster-borrowing"]);
+    expect(book.ins("goal/faster-borrowing", "advances")).toEqual(["feature/borrow-book"]);
+    expect(book.traceOf("use-case/library.borrowing.borrow")).toEqual([
+      "goal/faster-borrowing",
+      "feature/borrow-book",
+      "use-case/library.borrowing.borrow",
+    ]);
   });
 
-  it("traces a record up to its goal", async () => {
+  it("computes completion from code, tests and scenario proof", async () => {
     const book = await fixtureBook();
-    await book.ensureRecords(["use-case/orders.pay"]);
-    expect(book.traceOf("use-case/orders.pay")).toEqual(["goal/sell", "feature/checkout", "requirement/pay.card", "use-case/orders.pay"]);
+    expect(book.completeOf("use-case/library.borrowing.borrow")).toBe(false);
+    expect(book.completeOf("scenario/library.borrowing.borrow.main")).toBe(false);
+    expect(book.completeOf("feature/borrow-book")).toBe(true);
+    expect(
+      book.completeCounts([
+        "feature/borrow-book",
+        "goal/faster-borrowing",
+        "use-case/library.borrowing.borrow",
+        "scenario/library.borrowing.borrow.main",
+      ]),
+    ).toBe("2 of 4 complete");
+    expect(book.completeCounts([])).toBe("");
+    expect(book.lacks("use-case/library.borrowing.borrow")).toBe("scenarios not tested");
+    expect(book.lacks("scenario/library.borrowing.borrow.main")).toBe("not tested");
+    expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe("unproved");
   });
 
-  it("names review state in LiteSpec words and approvers from the approval table", async () => {
+  it("explains proof states, levels and types, and nothing about review", async () => {
     const book = await fixtureBook();
-    expect(book.human("requirement/pay.card")).toBe("draft");
-    expect(book.needs("requirement/pay.card")).toBe(true);
-    expect(book.human("use-case/orders.pay")).toBe("reviewed");
-    expect(book.riskWords("feature/checkout")).toEqual(["Money"]);
-    expect(book.approverFor("money", "feature/checkout")).toBe("Founder");
-    expect(book.approverFor(undefined, "goal/sell")).toBe("agent-batch");
+    expect(book.explain("passing")?.title).toBe("Completion Stages");
+    expect(book.explain("passing")?.text).toBe("Completion is computed from code, tests and passing scenarios.");
+    expect(book.explain("G")?.title).toBe("Check level");
+    expect(book.explain("known")?.title).toBe("Exception");
+    expect(book.explain("type:feature")?.text).toBe(
+      "What change delivers the goal? Written by product people.",
+    );
+    expect(book.explain("draft")).toBe(null);
+    expect(book.explain("approved")).toBe(null);
+    expect(book.explain("risk")).toBe(null);
+    expect(book.explain("ballot")).toBe(null);
   });
 
-  it("explains a status and a record type from the lexicon, and nothing it does not hold", async () => {
+  it("filters by layer, type, findings and proof only", async () => {
     const book = await fixtureBook();
-    expect(book.explain("draft")).toEqual({ title: "Draft", text: "A record is draft until its decider approves it.", source: "model.md, Statuses" });
-    expect(book.explain("type:feature")?.text).toContain("What is offered against a problem?");
-    expect(book.explain("type:feature")?.text).toContain("Written by agents draft, the decider decides");
-    expect(book.explain("stale")).toBeNull();
+    expect(book.facets.map((f) => f.key)).toEqual(["layer", "type", "findings", "proof"]);
+    expect(Object.keys(book.sorts)).toEqual(["outline", "title", "proof"]);
+    book.toggleFacet("type", "goal");
+    expect(book.passes("goal/faster-borrowing")).toBe(true);
+    expect(book.passes("feature/borrow-book")).toBe(false);
+    book.clearFilters();
+    expect(book.passes("feature/borrow-book")).toBe(true);
   });
 
-  it("filters by facet and keeps the ancestors of a match visible", async () => {
+  it("loads the security items for the Security view", async () => {
     const book = await fixtureBook();
-    book.toggleFacet("status", "draft");
-    expect(book.matches("requirement/pay.card")).toBe(true);
-    expect(book.isVisible("product/shop")).toBe(true);
-    expect(book.matches("product/shop")).toBe(false);
-    expect(book.isVisible("goal/sell")).toBe(false);
-  });
-
-  it("searches titles and text with prefixes and small typos", async () => {
-    const book = await fixtureBook();
-    await book.ensureSearch();
-    book.setQuery("chekout");
-    expect(book.passes("feature/checkout")).toBe(true);
-    expect(book.passes("goal/sell")).toBe(false);
-    book.setQuery("pay car");
-    expect(book.bestHit()).toBe("requirement/pay.card");
-  });
-
-  it("moves to the next record that needs a decision after an approval", async () => {
-    const book = await fixtureBook();
-    expect(book.nextNeeding("product/shop")).toBe("requirement/pay.card");
-    await book.select("requirement/pay.card");
-    book.setVerdict("mine");
-    expect(book.human("requirement/pay.card")).toBe("mine");
-    expect(book.nextNeeding("product/shop")).toBeNull();
-  });
-
-  it("writes the review file the model review command reads", async () => {
-    const book = await fixtureBook();
-    await book.select("requirement/pay.card");
-    book.setVerdict("changes");
-    book.saveNote("Name the card networks.");
-    expect(book.reviewFile().verdicts).toEqual([{ record: "requirement/pay.card", verdict: "request-changes", note: "Name the card networks." }]);
+    await book.setView("security");
+    expect(book.view).toBe("security");
+    expect(book.securityItems()).toEqual([]);
   });
 });

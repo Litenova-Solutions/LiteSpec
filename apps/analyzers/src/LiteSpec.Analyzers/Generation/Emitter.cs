@@ -450,7 +450,7 @@ internal static class Emitter
 
             if (name is not null)
             {
-                named.Add(new NamedPermission(name, permission, Reads(permission.Id, records)));
+                named.Add(new NamedPermission(name, permission));
             }
         }
 
@@ -491,70 +491,19 @@ internal static class Emitter
             return;
         }
 
-        foreach (var permission in named)
-        {
-            if (VerbOf(permission.Facts.Id, records) is string verb
-                && !UseCaseVerbs.IsPermissionDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Descriptors.LS5010,
-                    Location.None,
-                    permission.Facts.Id,
-                    verb));
-            }
-        }
-
         context.AddSource("LiteSpecPermissions.g.cs", PermissionsText(named));
     }
 
-    /// <summary>
-    /// Whether the permission only reads: its name opens with a reading verb from the use-case
-    /// vocabulary. A permission whose first word is no known verb reads false, and the caller
-    /// reports it.
-    /// </summary>
-    /// <param name="id">The permission identifier.</param>
-    /// <param name="records">The record facts with the project's vocabulary additions.</param>
-    /// <returns>Whether the permission only reads.</returns>
-    private static bool Reads(string id, RecordModel records)
-    {
-        if (VerbOf(id, records) is not string verb
-            || !UseCaseVerbs.IsPermissionDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
-        {
-            return false;
-        }
-
-        return UseCaseVerbs.PermissionKindOf(verb, records.QueryVerbs) == UseCaseVerbs.VerbKind.Query;
-    }
-
-    /// <summary>The opening verb of the permission name, or null when the identifier carries none.</summary>
-    /// <param name="id">The permission identifier.</param>
-    /// <param name="records">The record facts with the project's vocabulary additions.</param>
-    /// <returns>The opening verb, or null.</returns>
-    private static string? VerbOf(string id, RecordModel records)
-    {
-        if (!Identifiers.TrySplit(id, out var prefix, out var home, out var name)
-            || prefix != "permission"
-            || home is not null
-            || name.Length == 0)
-        {
-            return null;
-        }
-
-        return UseCaseVerbs.VerbOf(name, records.PhrasalVerbs);
-    }
-
-    /// <summary>One permission with its constant name and whether it only reads.</summary>
+    /// <summary>One permission with its constant name.</summary>
     private sealed class NamedPermission
     {
         /// <summary>Initializes a new instance of the <see cref="NamedPermission"/> class.Creates a named permission.</summary>
         /// <param name="name">The constant name.</param>
         /// <param name="facts">The facts the generated entry carries.</param>
-        /// <param name="reads">Whether the permission only reads.</param>
-        public NamedPermission(string name, PermissionFacts facts, bool reads)
+        public NamedPermission(string name, PermissionFacts facts)
         {
             Name = name;
             Facts = facts;
-            Reads = reads;
         }
 
         /// <summary>Gets the constant name.</summary>
@@ -562,9 +511,6 @@ internal static class Emitter
 
         /// <summary>Gets the facts the generated entry carries.</summary>
         public PermissionFacts Facts { get; }
-
-        /// <summary>Gets a value indicating whether whether the permission only reads.</summary>
-        public bool Reads { get; }
     }
 
     /// <summary>Emits the roles.</summary>
@@ -1014,7 +960,7 @@ internal static class Emitter
             text.AppendLine();
         }
 
-        text.AppendLine("        internal sealed record LiteSpecPermission(string Id, string Scope, string? Group, bool Reads, System.Collections.Generic.IReadOnlyList<string> Risks);");
+        text.AppendLine("        internal sealed record LiteSpecPermission(string Id, string Scope, string? Group, System.Collections.Generic.IReadOnlyList<string> Risks);");
         text.AppendLine();
         text.AppendLine("        public static System.Collections.Generic.IReadOnlyList<LiteSpecPermission> All { get; } = new LiteSpecPermission[]");
         text.AppendLine("        {");
@@ -1064,8 +1010,7 @@ internal static class Emitter
         return "new LiteSpecPermission(\""
             + Escape(permission.Facts.Id) + "\", \""
             + Escape(permission.Facts.Scope) + "\", "
-            + (permission.Facts.Group is string group ? "\"" + Escape(group) + "\"" : "null") + ", "
-            + (permission.Reads ? "true" : "false") + ", new string[] { "
+            + (permission.Facts.Group is string group ? "\"" + Escape(group) + "\"" : "null") + ", new string[] { "
             + (risks.Length > 0 ? risks.ToString() + " " : string.Empty) + "})";
     }
 

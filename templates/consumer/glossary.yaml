@@ -22,10 +22,6 @@ terms:
     values:
       - code: <code>
         label: <label>
-    owner: <owner>
-    status: draft
-    decider: <owner>
-    decideBy: <YYYY-MM-DD>
 mannered:
   - term: load-bearing
     instead: required

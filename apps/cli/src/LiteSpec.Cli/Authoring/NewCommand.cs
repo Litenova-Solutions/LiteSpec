@@ -7,7 +7,8 @@ namespace LiteSpec.Authoring;
 /// <summary>
 ///     The <c>litespec new</c> command: scaffolds one record file from the
 ///     template for its type, with the identifier filled in and reserved, and
-///     one document from the template for a document style.
+///     one document from the template for a document style. A decision takes
+///     the next free number from the one decision sequence.
 /// </summary>
 /// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 static class NewCommand
@@ -16,6 +17,7 @@ static class NewCommand
     public const string Usage = """
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
+               litespec new decision <name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
                litespec new entry <page-id> <type> <name> [--root <path>]
@@ -23,25 +25,30 @@ static class NewCommand
         Creates one record file from the template for its type, with every
         required field already filled. It reserves the identifier before any
         prose exists, so two authors working in parallel never mint the same
-        identifier twice. <type> is the record type, such as topic, use-case,
+        identifier twice. <type> is the record type, such as use-case, reaction,
         or decision. <id> is the home.name part of the identifier, such as
         lending.notify-reader; the full identifier is <type>/<id>. The file is
-        written at the home its type owns: a topic under .litespec/intent/, a reaction
-        under modules/<module>/reactions/, a job under modules/<module>/jobs/,
+        written at the home its type owns: a reaction under
+        modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
         the decisions folder with its explanation file beside it. A module file
         is modules/<module>/module.yaml; an aggregate file is
         modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
         under reads/ beside its module; move the file beside its aggregate once
-        the use case names one. A topic file starts directly under .litespec/intent/;
-        move it into its area folder. For an article type (research, decision, or
-        topic) the command also writes the explanation file from its explanation
+        the use case names one. For an article type (research or decision)
+        the command also writes the explanation file from its explanation
         template. The command refuses an identifier a record already carries.
+
+        new decision writes a decision file with the next free number from the
+        one decision sequence across the product and technical decisions.
+        <name> is the kebab-case name without the number, such as
+        receipt-threshold; the full identifier is decision/<number>-<name>.
+        The command refuses a name that already carries a number.
 
         new <document-style> writes the .md document from its template: a tutorial
         or how-to under guide/, a command or configuration under tools/, a reference
-        under reference/, a review report under proof/reviews/, an index as the
-        README.md of its section folder, a glossary or example cast under behavior/.
+        under reference/, an index as the README.md of its section folder,
+        a glossary or example cast under behavior/.
         The title follows <name>. The command refuses a name whose file already exists.
 
         new result and new scenario append one entry to a use-case file's
@@ -57,7 +64,7 @@ static class NewCommand
         new entry appends one requirement, rule, permission, or setting entry
         to its owning list file's records instead of scaffolding a file. <page-id>
         is the file's consumer-relative path, because list files carry no record
-        identifier. The type must belong on the file: a requirement on a topic file,
+        identifier. The type must belong on the file: a requirement on a feature file,
         a rule on a rule-set file, a permission on the permission list, a setting
         on a setting set. The entry id is <type>/<home>.<name> from the file's home,
         or permission/<name>; the home is the file's existing entries' home, else
@@ -146,18 +153,50 @@ static class NewCommand
             return 2;
         }
 
-        var full = $"{type}/{id}";
+        var isDecision = type == "decision";
+        string full;
+        string? homeName;
+        string name;
 
-        if (!Identifiers.TrySplit(full, out var prefix, out var homeName, out var name) || prefix != type)
+        if (!isDecision)
         {
-            Console.Error.WriteLine($"Identifier '{full}' is not a valid {type} identifier.");
-            return 2;
+            full = $"{type}/{id}";
+
+            if (!Identifiers.TrySplit(full, out var prefix, out homeName, out name) || prefix != type)
+            {
+                Console.Error.WriteLine($"Identifier '{full}' is not a valid {type} identifier.");
+                return 2;
+            }
+
+            if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
+            {
+                Console.Error.WriteLine(grammar);
+                return 2;
+            }
         }
-
-        if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
+        else
         {
-            Console.Error.WriteLine(grammar);
-            return 2;
+            if (HasDecisionNumber(id))
+            {
+                Console.Error.WriteLine("New decision takes a name without a number; the tool allocates the next number.");
+                return 2;
+            }
+
+            if (!Identifiers.ValidName(id, false) || Identifiers.AllDigitsName(id))
+            {
+                Console.Error.WriteLine($"'{id}' is not a valid decision name: use kebab-case without the number.");
+                return 2;
+            }
+
+            if (id.Split('-', StringSplitOptions.RemoveEmptyEntries).Length > 5)
+            {
+                Console.Error.WriteLine($"Decision name '{id}' is too long: use at most five words; the number is allocated.");
+                return 2;
+            }
+
+            full = "";
+            homeName = null;
+            name = "";
         }
 
         string root;
@@ -190,6 +229,19 @@ static class NewCommand
         {
             Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
             return 1;
+        }
+
+        if (isDecision)
+        {
+            name = $"{NextDecisionNumber(records):D4}-{id}";
+            full = $"decision/{name}";
+            homeName = null;
+
+            if (RecordPages.GrammarError(type, homeName, name, full) is { } composed)
+            {
+                Console.Error.WriteLine(composed);
+                return 2;
+            }
         }
 
         var holder = records.FirstOrDefault(record => record.Id == full);
@@ -379,6 +431,44 @@ static class NewCommand
             Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}: {exception.Message}");
             return null;
         }
+    }
+
+    /// <summary>Whether the decision name already carries a number: four digits and a hyphen first.</summary>
+    /// <param name="name">The name from the command line.</param>
+    /// <returns>True when the name opens with four digits and a hyphen; otherwise false.</returns>
+    static bool HasDecisionNumber(string name) =>
+        name.Length > 5
+        && char.IsAsciiDigit(name[0]) && char.IsAsciiDigit(name[1])
+        && char.IsAsciiDigit(name[2]) && char.IsAsciiDigit(name[3])
+        && name[4] == '-';
+
+    /// <summary>The next free decision number: one past the highest number any decision carries.</summary>
+    /// <param name="records">Every record the model read, holding the product and technical decisions.</param>
+    /// <returns>One past the highest decision number in use, or 1 when no decision exists.</returns>
+    static int NextDecisionNumber(IReadOnlyList<Record> records)
+    {
+        var max = 0;
+
+        foreach (var record in records)
+        {
+            if (record.Type != "decision"
+                || !Identifiers.TrySplit(record.Id, out var prefix, out _, out var recordName)
+                || prefix != "decision")
+            {
+                continue;
+            }
+
+            var dash = recordName.IndexOf('-');
+
+            if (dash > 0
+                && int.TryParse(recordName.AsSpan(0, dash), out var number)
+                && number > max)
+            {
+                max = number;
+            }
+        }
+
+        return max + 1;
     }
 
     /// <summary>Fills the document template's frontmatter title and opening heading with the new title.</summary>

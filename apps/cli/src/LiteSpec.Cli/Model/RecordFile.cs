@@ -19,11 +19,11 @@ static class RecordFile
     public const string ExplanationExtension = ".md";
 
     /// <summary>
-    ///     The record types whose explanation is an article: required, and covered by
-    ///     the approval hash, because the article is what a reviewer approves.
+    ///     The record types whose explanation is an article: required beside the
+    ///     record file, because the article carries the record's reasoning.
     /// </summary>
     public static readonly IReadOnlySet<string> ArticleTypes =
-        new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Research, RecordTypes.Decision, RecordTypes.Topic };
+        new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Research, RecordTypes.Decision };
 
     /// <summary>Whether the path names a record file.</summary>
     /// <param name="path">The file path.</param>
@@ -106,13 +106,4 @@ static class RecordFile
         canonical = Canonical(text);
         return canonical is not null && canonical == text.Replace("\r\n", "\n", StringComparison.Ordinal);
     }
-
-    /// <summary>
-    ///     The explanation text as the approval hash reads it: line ends as LF, trailing
-    ///     whitespace dropped from every line, and no blank lines at either end.
-    /// </summary>
-    /// <param name="text">The explanation file text.</param>
-    /// <returns>The normalized text.</returns>
-    public static string NormalizeExplanation(string text) =>
-        string.Join('\n', text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').Select(line => line.TrimEnd())).Trim('\n');
 }

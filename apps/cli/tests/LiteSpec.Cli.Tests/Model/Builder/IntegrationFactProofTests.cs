@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -102,11 +103,10 @@ public sealed class IntegrationFactProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static void Write(string root, string relative, string text)
@@ -121,8 +121,6 @@ public sealed class IntegrationFactProofTests
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
           "title": "Borrowing an available copy succeeds",
-          "owner": "lending-team",
-          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",

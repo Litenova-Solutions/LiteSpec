@@ -1,7 +1,7 @@
 ; Shipped analyzer releases
 ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
-## Release 3.0.0
+## Release 4.0.0
 
 ### New Rules
 
@@ -37,8 +37,6 @@ LS2015 | LiteSpec.Layers | Error | Descriptors
 LS2016 | LiteSpec.Layers | Error | Descriptors
 LS2017 | LiteSpec.Layers | Error | Descriptors
 LS3001 | LiteSpec.Style | Error | Descriptors
-LS3002 | LiteSpec.Style | Error | Descriptors
-LS3003 | LiteSpec.Style | Error | Descriptors
 LS3004 | LiteSpec.Style | Error | Descriptors
 LS4001 | LiteSpec.Tests | Error | Descriptors
 LS5001 | LiteSpec.Traceability | Error | Descriptors
@@ -50,6 +48,5 @@ LS5006 | LiteSpec.Traceability | Error | Descriptors
 LS5007 | LiteSpec.Traceability | Error | Descriptors
 LS5008 | LiteSpec.Traceability | Error | Descriptors
 LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
-LS5010 | LiteSpec.Traceability | Error | Descriptors
 LS5011 | LiteSpec.Traceability | Error | Descriptors
 LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics

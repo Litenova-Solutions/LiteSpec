@@ -1,13 +1,8 @@
 type: actor
 id: actor/reader
 title: Reader
-owner: lending-team
-status: approved
 kind: person
 belongsToTeam: false
 holds:
   - role: role/reader
     scope: self
-approvedBy: lending-team
-approvedOn: 2026-10-01
-approvedHash: a0c3a72d

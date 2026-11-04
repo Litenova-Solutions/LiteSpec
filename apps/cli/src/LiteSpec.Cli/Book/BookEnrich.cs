@@ -7,7 +7,7 @@ namespace LiteSpec.Book;
 ///     computed field the client renders, built from the model only. Each computed
 ///     field is built by its own detail type; this type assembles them per record.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookEnrich
 {
     /// <summary>Gets the identity fields the mockup record shape strips from the fields it carries.</summary>
@@ -28,8 +28,6 @@ static class BookEnrich
         var served = BookEnrichSources.ServedBy(index);
         var tests = BookEnrichSources.TestsByRecord(model, index);
         var findings = BookEnrichSources.FindingsBySubject(model, index);
-        var decisions = BookEnrichSources.DecisionsByTarget(index);
-        var effective = BookEnrichSources.EffectiveById(index);
         var routes = BookEnrichSources.RoutesByScreen(model);
         var calls = BookEnrichSources.CallsByScreen(model);
         var handlers = BookEnrichSources.CodeByKey(model, "handlers", "useCase");
@@ -52,9 +50,9 @@ static class BookEnrich
             detail["parent"] = BookDetailValues.StrNode(BookEnrichSources.ParentOf(outline, id));
             detail["layer"] = BookDetailValues.StrNode(layers.GetValueOrDefault(id));
             BookProofDetail.Add(detail, index, id, type);
-            BookStatusDetail.AddMachine(detail, index, id, type);
-            BookStatusDetail.AddReachable(detail, index, id, type);
-            BookStatusDetail.AddKept(detail, kept, id, type);
+            BookProofDetail.AddMachine(detail, index, id, type);
+            BookProofDetail.AddReachable(detail, index, id, type);
+            BookProofDetail.AddKept(detail, kept, id, type);
             BookJourneyDetail.AddSteps(detail, served, index, record, id, type);
             JsonObject? routeEntry = null;
             if (type == "screen")
@@ -69,7 +67,7 @@ static class BookEnrich
             var expect = BookImplementationDetail.ExpectFor(record, type);
             detail["expect"] = expect;
             detail["lacks"] = BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type);
-            detail["heldBy"] = BookHeldByDetail.HeldBy(outline, decisions, effective, record, id);
+            detail["completion"] = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
             detail["findings"] = FindingList(findings.TryGetValue(id, out var own) ? own : []);
             var body = BookBodyDetail.Render(index, record);
             detail["bodyHtml"] = body.Html;
@@ -91,24 +89,12 @@ static class BookEnrich
         return details;
     }
 
-    /// <summary>The mockup record shape: identity, status, stripped fields and the source.</summary>
+    /// <summary>The mockup record shape: identity, stripped fields and the source.</summary>
     /// <param name="record">The record.</param>
     /// <param name="type">The record type.</param>
     /// <returns>The mockup record shape.</returns>
     static JsonObject BaseRecord(JsonObject record, string type)
     {
-        var status = BookRender.StrProp(record, "status");
-        if (string.IsNullOrEmpty(status))
-        {
-            status = "draft";
-        }
-
-        var effective = BookRender.StrProp(record, "effectiveStatus");
-        if (string.IsNullOrEmpty(effective))
-        {
-            effective = status;
-        }
-
         var fields = (BookRender.Fields(record)?.DeepClone() as JsonObject) ?? new JsonObject();
         foreach (var key in StrippedKeys)
         {
@@ -119,11 +105,6 @@ static class BookEnrich
         {
             ["type"] = type,
             ["title"] = BookRender.StrProp(record, "title") ?? "",
-            ["owner"] = BookDetailValues.StrNode(BookRender.StrProp(record, "owner")),
-            ["status"] = status,
-            ["effective"] = effective,
-            ["decider"] = BookDetailValues.StrNode(BookRender.StrProp(record, "decider")),
-            ["decideBy"] = BookDetailValues.StrNode(BookRender.StrProp(record, "decideBy")),
             ["fields"] = fields,
             ["src"] = new JsonObject
             {
@@ -133,10 +114,9 @@ static class BookEnrich
         };
 
         // The computed facts the model builder states beside the record: the
-        // completion stage, the approval from the project table, the screen
-        // captures and the problem evidence strength. The book reads only
+        // screen captures and the problem evidence strength. The book reads only
         // these names; it computes none of them itself.
-        foreach (var key in new[] { "completion", "approval", "captures", "captureState", "evidenceStrength", "risk" })
+        foreach (var key in new[] { "captures", "captureState", "evidenceStrength" })
         {
             if (record[key] is { } node)
             {

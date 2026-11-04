@@ -20,12 +20,8 @@
       <dd>Up to the parent record</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>[</Kbd><Kbd>]</Kbd></dt>
       <dd>Previous and next sibling</dd>
-      <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>n</Kbd></dt>
-      <dd>Next record that needs review</dd>
-      <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>a</Kbd></dt>
-      <dd>Approve or mark reviewed</dd>
-      <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>1</Kbd> to <Kbd>4</Kbd></dt>
-      <dd>Outline, Review queue, Security, Ballots</dd>
+      <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>1</Kbd> to <Kbd>2</Kbd></dt>
+      <dd>Outline, Security</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>e</Kbd><Kbd>c</Kbd></dt>
       <dd>Expand or collapse the outline</dd>
       <dt class="flex flex-wrap items-center justify-end gap-1"><Kbd>Alt</Kbd><Kbd>&larr;</Kbd></dt>

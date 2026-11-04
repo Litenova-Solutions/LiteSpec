@@ -8,8 +8,8 @@
   import KeysDialog from "./KeysDialog.svelte";
   import SearchBox from "./SearchBox.svelte";
 
-  // The top bar: the brand, the search box, the run and settled widgets and the
-  // actions. App mounts it above the columns; it reads the store directly.
+  // The top bar: the brand, the search box, the run and completion widgets and
+  // the actions. App mounts it above the columns; it reads the store directly.
   let keysOpen = $state(false);
   let searchInput = $state<HTMLInputElement | null>(null);
   let dark = $state(document.documentElement.getAttribute("data-theme") === "dark");
@@ -22,19 +22,6 @@
   function toggleTheme() {
     dark = !dark;
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-  }
-
-  function downloadReview() {
-    const blob = new Blob([JSON.stringify(book.reviewFile(), null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "review.json";
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(a.href);
-      a.remove();
-    }, 0);
   }
 </script>
 
@@ -74,7 +61,6 @@
       {/if}
     </DropdownMenu.Content>
   </DropdownMenu.Root>
-  <Button variant="outline" onclick={downloadReview}><Icon name="download" class="size-3.5" />Download review</Button>
   <Button variant="ghost" size="icon" aria-label="Keyboard shortcuts" onclick={() => (keysOpen = true)}>?</Button>
   <Button
     variant="ghost"

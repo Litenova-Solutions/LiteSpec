@@ -105,7 +105,8 @@ static class UiValidator
                 Console.WriteLine($"\nFAIL ({report.Problems.Count} problem(s)):");
                 foreach (var item in report.Problems)
                 {
-                    Console.WriteLine($"  - {item}");
+                    var relative = Path.GetRelativePath(report.Consumer, item.Path).Replace(Path.DirectorySeparatorChar, '/');
+                    Console.WriteLine($"  - {relative}:{item.Line} [{item.Tier}] [{item.Code}] {item.Message}");
                 }
 
                 return report.ExitCode;
@@ -114,8 +115,8 @@ static class UiValidator
             if (!report.HasPackage)
             {
                 // A silent skip reads as conformance. Naming the frontends and the platform
-                // each one declared makes the skipped scope visible in the output that a
-                // reviewer reads. (litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract)
+                // each one declared makes the skipped scope visible in the output.
+                // (litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract)
                 Console.WriteLine("PASS: no controlled web frontend is present.");
                 if (report.Frontends.Count > 0)
                 {

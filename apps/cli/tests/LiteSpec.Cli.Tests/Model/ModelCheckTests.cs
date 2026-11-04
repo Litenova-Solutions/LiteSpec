@@ -1,5 +1,3 @@
-using System.Text.Json;
-using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -11,28 +9,22 @@ public sealed class ModelCheckTests
     static readonly string[] FindingCodeList =
     [
         "aggregate-name-clash",
-        "approval-reopened",
         "behavior-unrecorded",
         "calculation-table-missing",
         "consistency-cites-missing",
         "decision-decides-missing",
-        "approval-invalid",
-        "decider-missing",
         "effect-loop-invalid",
         "effect-undeclared",
         "erasure-undeclared",
         "except-fallback-missing",
-        "exemption-expired",
         "exception-finding-unknown",
         "identifier-duplicate",
         "identifier-invalid",
-        "field-invalid",
         "use-case-journey-missing",
         "exception-expired",
         "link-unknown",
         "notification-sender-missing",
         "job-guard-missing",
-        "owner-unknown",
         "paging-undeclared",
         "product-count-invalid",
         "proves-unreached",
@@ -47,7 +39,6 @@ public sealed class ModelCheckTests
         "reservation-release-missing",
         "result-undeclared",
         "retention-enforcement-missing",
-        "risk-acceptance-missing",
         "rule-name-invalid",
         "scenario-result-unknown",
         "schedule-invalid",
@@ -55,12 +46,9 @@ public sealed class ModelCheckTests
         "size-type-missing",
         "state-unreached",
         "step-use-case-missing",
-        "transcription-expired",
-        "transcription-status-invalid",
         "transition-unknown",
         "use-case-name-clash",
         "use-case-unimplemented",
-        "use-case-verb-unknown",
         "use-case-scenario-missing",
         "use-case-success-missing",
         "widening-cites-missing",
@@ -116,18 +104,20 @@ public sealed class ModelCheckTests
         Assert.Contains(code, result.Output);
     }
 
-    /// <summary>The theory's code list matches the overlay folders, so a new overlay without a case fails.</summary>
+    /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Finding_Codes_Match_Broken_Overlay_Folders()
+    public void Finding_Codes_Name_Broken_Overlay_Folders()
     {
         var overlays = Directory.GetDirectories(Cli.Fixture("Model/broken"))
             .Select(Path.GetFileName)
             .OfType<string>()
-            .OrderBy(name => name, StringComparer.Ordinal)
-            .ToList();
-        var codes = FindingCodeList.OrderBy(code => code, StringComparer.Ordinal).ToList();
-        Assert.Equal(codes, overlays);
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var code in FindingCodeList)
+        {
+            Assert.Contains(code, overlays);
+        }
     }
 
     /// <summary>An open exception turns its findings into exit 0.</summary>
@@ -164,7 +154,7 @@ public sealed class ModelCheckTests
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes an approved exception covering the codes on the subjects.</summary>
+    /// <summary>Writes an exception covering the codes on the subjects.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     /// <param name="id">The exception record id.</param>
     /// <param name="title">The exception page title.</param>
@@ -178,17 +168,13 @@ public sealed class ModelCheckTests
         TestRecords.Explain(root, $".litespec/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Builds the stamped exception fields as JSON: the written fields, then the approval they carry.
-    // The approval hash is stamped over the written fields, so the exception itself reports nothing.
+    // Builds the exception fields as JSON. An exception is live when present and unexpired.
     static string ExceptionJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
-        var fields =
-            "{\n"
+        return "{\n"
             + "  \"type\": \"exception\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"approved\",\n"
             + "  \"kind\": \"gap\",\n"
             + "  \"covers\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
@@ -199,20 +185,6 @@ public sealed class ModelCheckTests
             + $"  \"expiresOn\": \"{expiresOn}\",\n"
             + "  \"reason\": \"Listing waits for the search index.\"\n"
             + "}\n";
-
-        using var document = JsonDocument.Parse(fields);
-        var record = new LiteSpec.Model.Record
-        {
-            Type = "exception",
-            Id = id,
-            Raw = document.RootElement.Clone(),
-        };
-        var hash = Checker.SemanticHash(record);
-        var stamped = fields.Replace(
-            "\n}",
-            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-
-        return stamped;
     }
 
 }

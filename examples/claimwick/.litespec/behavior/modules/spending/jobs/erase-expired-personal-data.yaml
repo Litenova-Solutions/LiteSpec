@@ -1,8 +1,7 @@
 type: job
 id: job/spending.erase-expired-personal-data
 title: Erase Expired Personal Data
-owner: claimwick-team
-status: reviewed
+summary: Each night the job erases the personal data of decided expenses past their retention. The bare business facts stay for the tax file.
 kind: scheduled
 schedule:
   every: P1D
@@ -16,6 +15,3 @@ fulfills:
   - requirement/approval.erase-after-retention
 reads:
   - aggregate/spending.expense
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: b41c15df

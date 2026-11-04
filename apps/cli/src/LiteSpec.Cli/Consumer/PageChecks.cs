@@ -15,16 +15,18 @@ namespace LiteSpec.Consumer;
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class PageChecks
 {
+    /// <summary>The Example word bound.</summary>
+    const int ExampleLimit = 120;
+
     // An explanation file carries the sections its record type requires: research answers
-    // its question, a decision states its context, and a topic argues its position. Every
-    // other type keeps free prose. Each field the schema requires left the body for the
-    // record file, so no other record type names a required section.
+    // its question and a decision states its context. Every other type keeps free prose.
+    // Each field the schema requires left the body for the record file, so no other
+    // record type names a required section.
     /// <summary>The H2 sections each article type's explanation file requires.</summary>
     static readonly Dictionary<string, string[]> ExplanationSections = new(StringComparer.Ordinal)
     {
         ["research"] = ["Answer"],
         ["decision"] = ["Context"],
-        ["topic"] = ["The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are"],
     };
 
     // A document keeps the sections its page style always required: a document never held
@@ -36,14 +38,13 @@ static class PageChecks
         ["tutorial"] = ["Purpose", "Prerequisites", "Lesson", "What You Built"],
         ["how-to"] = ["Purpose", "Procedure", "Check"],
         ["reference"] = ["Intent", "Reference"],
-        ["review-report"] = ["Verdicts", "How the Review Ran"],
         ["command"] = ["Name", "Synopsis", "Description", "Arguments", "Options", "Exit Codes", "Examples", "Underneath"],
         ["configuration"] = ["Intent", "Settings", "Precedence"],
     };
 
     /// <summary>The page styles a document carries. Every other named type lives in a record file.</summary>
     static readonly HashSet<string> DocumentStyles = new(
-        ["index", "tutorial", "how-to", "reference", "review-report", "command", "configuration", "glossary", "example-cast"],
+        ["index", "tutorial", "how-to", "reference", "command", "configuration", "glossary", "example-cast"],
         StringComparer.Ordinal);
 
     /// <summary>An H2 heading line.</summary>
@@ -109,9 +110,8 @@ static class PageChecks
     /// <param name="run">The state of the run.</param>
     public static void CheckPages(ConsumerRun run)
     {
-        var exampleLimit = ExampleWordLimit(run);
         var count = run.Files.Count;
-        var errors = new List<string>[count];
+        var errors = new List<Finding>[count];
         var isPage = new bool[count];
 
         for (var slot = 0; slot < count; slot++)
@@ -134,7 +134,7 @@ static class PageChecks
             }
             else
             {
-                isPage[index] = CheckMarkdownFile(run, file, relative, raw, exampleLimit, add);
+                isPage[index] = CheckMarkdownFile(run, file, relative, raw, add);
             }
         });
 
@@ -143,9 +143,9 @@ static class PageChecks
 
         for (var index = 0; index < count; index++)
         {
-            foreach (var problem in errors[index])
+            foreach (var finding in errors[index])
             {
-                run.Err(problem);
+                run.Err(finding);
             }
 
             if (isPage[index])
@@ -161,33 +161,34 @@ static class PageChecks
     ///     explanation file beside it.
     /// </summary>
     /// <param name="run">The state of the run.</param>
-    /// <param name="file">The record file.</param>
-    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="file">The record file as a full path.</param>
+    /// <param name="relative">The file path the schema check names.</param>
     /// <param name="raw">The file text.</param>
     /// <param name="add">Collects one finding.</param>
     /// <returns>True when the file parsed as a record.</returns>
-    static bool CheckRecordFile(ConsumerRun run, string file, string relative, string raw, Action<string> add)
+    static bool CheckRecordFile(ConsumerRun run, string file, string relative, string raw, Action<Finding> add)
     {
         if (!RecordFile.TryParse(raw, out _, out var tree, out var error))
         {
-            add($"{relative}: {error}");
+            add(new Finding("record-invalid", error, file, 1, null));
             return false;
         }
 
         var meta = JsonNode.Parse(tree.ToJson());
+        var subject = JsonRead.PropString(meta as JsonObject, "id");
 
         // The record is validated through the shared schema module against the
         // record schema, so the schema is the one statement of every record shape.
         foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
         {
-            add(problem);
+            add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
         var type = JsonRead.PropString(meta as JsonObject, "type");
 
         if (type is not null && DocumentStyles.Contains(type))
         {
-            add($"{relative}: type '{type}' names a document; documents live in '.md' files");
+            add(new Finding("page-invalid", $"type '{type}' names a document; documents live in '.md' files", file, 1, subject));
         }
 
         if (type is not null && RecordFile.ArticleTypes.Contains(type))
@@ -196,7 +197,12 @@ static class PageChecks
 
             if (!File.Exists(explanation))
             {
-                add($"{relative}: type '{type}' requires an explanation file '{Path.GetFileName(explanation)}' beside the record file");
+                add(new Finding(
+                    "page-invalid",
+                    $"type '{type}' requires an explanation file '{Path.GetFileName(explanation)}' beside the record file",
+                    file,
+                    1,
+                    subject));
             }
         }
 
@@ -209,13 +215,12 @@ static class PageChecks
     ///     orphaned explanation. A README without either stays a document.
     /// </summary>
     /// <param name="run">The state of the run.</param>
-    /// <param name="file">The Markdown file.</param>
-    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="file">The Markdown file as a full path.</param>
+    /// <param name="relative">The file path the schema check names.</param>
     /// <param name="raw">The file text.</param>
-    /// <param name="exampleLimit">The Example word bound.</param>
     /// <param name="add">Collects one finding.</param>
     /// <returns>True when the file is a document.</returns>
-    static bool CheckMarkdownFile(ConsumerRun run, string file, string relative, string raw, int exampleLimit, Action<string> add)
+    static bool CheckMarkdownFile(ConsumerRun run, string file, string relative, string raw, Action<Finding> add)
     {
         var recordPath = RecordFile.RecordPathOf(file);
 
@@ -226,14 +231,19 @@ static class PageChecks
 
         if (hasRecord && !startsFence)
         {
-            CheckExplanation(run, file, relative, raw, exampleLimit, add);
+            CheckExplanation(run, file, raw, add);
             return false;
         }
 
         if (hasRecord)
         {
-            add($"{relative}: explanation files carry no frontmatter block; the record lives in '{Path.GetFileName(recordPath)}'");
-            CheckExplanation(run, file, relative, raw, exampleLimit, add);
+            add(new Finding(
+                "page-invalid",
+                $"explanation files carry no frontmatter block; the record lives in '{Path.GetFileName(recordPath)}'",
+                file,
+                1,
+                RecordId(run, recordPath)));
+            CheckExplanation(run, file, raw, add);
             return false;
         }
 
@@ -241,36 +251,63 @@ static class PageChecks
         {
             if (Path.GetFileName(file) == "README.md")
             {
-                CheckDocumentBody(relative, raw, null, exampleLimit, add);
+                CheckDocumentBody(file, raw, null, null, add);
                 return true;
             }
 
-            add($"{relative}: no frontmatter block and no '{Path.GetFileName(recordPath)}' beside it; every document opens with a '---' frontmatter block carrying its page style");
+            add(new Finding(
+                "page-invalid",
+                $"no frontmatter block and no '{Path.GetFileName(recordPath)}' beside it; every document opens with a '---' frontmatter block carrying its page style",
+                file,
+                1,
+                null));
             return false;
         }
 
         if (!Frontmatter.TryParse(raw, out var parsed, out var error))
         {
-            add($"{relative}: {error}");
+            add(new Finding("record-invalid", error, file, 1, null));
             return false;
         }
 
         var meta = JsonNode.Parse(parsed.Root.GetRawText());
+        var subject = JsonRead.PropString(meta as JsonObject, "id");
 
         foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
         {
-            add(problem);
+            add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
         var type = JsonRead.PropString(meta as JsonObject, "type");
 
         if (type is not null && !DocumentStyles.Contains(type) && (RecordTypes.All.Contains(type) || RecordTypes.PageStyles.Contains(type)))
         {
-            add($"{relative}: type '{type}' names a record; records live in '{Path.GetFileName(recordPath)}' record files");
+            add(new Finding(
+                "page-invalid",
+                $"type '{type}' names a record; records live in '{Path.GetFileName(recordPath)}' record files",
+                file,
+                1,
+                subject));
         }
 
-        CheckDocumentBody(relative, parsed.Body, type, exampleLimit, add);
+        CheckDocumentBody(file, parsed.Body, type, subject, add);
         return true;
+    }
+
+    /// <summary>
+    ///     The id of a record file, or null when the file cannot be read as a record.
+    /// </summary>
+    /// <param name="run">The state of the run.</param>
+    /// <param name="recordPath">The record file.</param>
+    /// <returns>The record id, or null.</returns>
+    static string? RecordId(ConsumerRun run, string recordPath)
+    {
+        if (RecordFile.TryParse(run.ReadText(recordPath), out var root, out _, out _))
+        {
+            return JsonRead.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -278,58 +315,59 @@ static class PageChecks
     ///     and the Example word bound.
     /// </summary>
     /// <param name="run">The state of the run.</param>
-    /// <param name="file">The explanation file.</param>
-    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="file">The explanation file as a full path.</param>
     /// <param name="raw">The file text.</param>
-    /// <param name="exampleLimit">The Example word bound.</param>
     /// <param name="add">Collects one finding.</param>
-    static void CheckExplanation(ConsumerRun run, string file, string relative, string raw, int exampleLimit, Action<string> add)
+    static void CheckExplanation(ConsumerRun run, string file, string raw, Action<Finding> add)
     {
         // The paired record file names the explanation's required sections. The scan
         // already reported a record file it cannot read, so this read stays quiet and
         // checks the headings and the Example bound only.
         string? type = null;
+        string? subject = null;
 
         if (RecordFile.TryParse(run.ReadText(RecordFile.RecordPathOf(file)), out var root, out _, out _))
         {
-            type = JsonRead.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "type");
+            var meta = JsonNode.Parse(root.GetRawText()) as JsonObject;
+            type = JsonRead.PropString(meta, "type");
+            subject = JsonRead.PropString(meta, "id");
         }
 
         var lines = SplitLines(raw);
-        HeadingChecks.CheckHeadings(relative, lines, add);
+        HeadingChecks.CheckHeadings(file, lines, subject, add);
 
         string[] required = type is not null && ExplanationSections.TryGetValue(type, out var names) ? names : [];
-        CheckSections(relative, lines, type, required, exampleLimit, add);
+        CheckSections(file, lines, type, subject, required, add);
     }
 
     /// <summary>
     ///     Checks one document's body: its headings, the sections its page style requires,
     ///     and the Example word bound.
     /// </summary>
-    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="file">The document file as a full path.</param>
     /// <param name="body">The document text after its frontmatter.</param>
     /// <param name="type">The document page style, or null when it names none.</param>
-    /// <param name="exampleLimit">The Example word bound.</param>
+    /// <param name="subject">The document id, or null when it names none.</param>
     /// <param name="add">Collects one finding.</param>
-    static void CheckDocumentBody(string relative, string body, string? type, int exampleLimit, Action<string> add)
+    static void CheckDocumentBody(string file, string body, string? type, string? subject, Action<Finding> add)
     {
         var lines = SplitLines(body);
-        HeadingChecks.CheckHeadings(relative, lines, add);
+        HeadingChecks.CheckHeadings(file, lines, subject, add);
 
         string[] required = type is not null && DocumentSections.TryGetValue(type, out var names) ? names : [];
-        CheckSections(relative, lines, type, required, exampleLimit, add);
+        CheckSections(file, lines, type, subject, required, add);
     }
 
     /// <summary>
     ///     Checks the required H2 sections and the Example word bound of one Markdown text.
     /// </summary>
-    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="file">The page file as a full path.</param>
     /// <param name="lines">The text lines.</param>
     /// <param name="type">The record type or page style, naming the required sections.</param>
+    /// <param name="subject">The record id the findings are about, when there is one.</param>
     /// <param name="required">The required H2 section names.</param>
-    /// <param name="exampleLimit">The Example word bound.</param>
     /// <param name="add">Collects one finding.</param>
-    static void CheckSections(string relative, string[] lines, string? type, string[] required, int exampleLimit, Action<string> add)
+    static void CheckSections(string file, string[] lines, string? type, string? subject, string[] required, Action<Finding> add)
     {
         var bodies = SectionBodies(lines, required.Append("Example"));
 
@@ -337,7 +375,7 @@ static class PageChecks
         {
             if (bodies[name] is null)
             {
-                add($"{relative}: type '{type}' requires an H2 '{name}'");
+                add(new Finding("page-section-missing", $"type '{type}' requires an H2 '{name}'", file, 1, subject));
             }
         }
 
@@ -347,11 +385,34 @@ static class PageChecks
         {
             var words = Prose.Words(example).Count;
 
-            if (words > exampleLimit)
+            if (words > ExampleLimit)
             {
-                add($"{relative}: Example section has {words} words, over the {exampleLimit} word bound");
+                add(new Finding(
+                    "page-example-too-long",
+                    $"Example section has {words} words, over the {ExampleLimit} word bound",
+                    file,
+                    ExampleLine(lines),
+                    subject));
             }
         }
+    }
+
+    /// <summary>
+    ///     The 1-based line of the Example H2, or 1 when the page carries none.
+    /// </summary>
+    /// <param name="lines">The page lines.</param>
+    /// <returns>The Example heading line.</returns>
+    static int ExampleLine(string[] lines)
+    {
+        for (var index = 0; index < lines.Length; index++)
+        {
+            if (lines[index].Trim() == "## Example")
+            {
+                return index + 1;
+            }
+        }
+
+        return 1;
     }
 
     /// <summary>
@@ -363,30 +424,6 @@ static class PageChecks
         raw.StartsWith("---\n", StringComparison.Ordinal)
         || raw.StartsWith("---\r\n", StringComparison.Ordinal)
         || raw == "---";
-
-    /// <summary>
-    ///     Reads the Example word bound from the project record. Omitted, the recorded
-    ///     default of 120 applies, and a bound below 40 is refused.
-    /// </summary>
-    /// <param name="run">The state of the run.</param>
-    /// <returns>The Example word bound.</returns>
-    static int ExampleWordLimit(ConsumerRun run)
-    {
-        var value = (run.Project as JsonObject)?["exampleWordLimit"];
-
-        if (value is JsonValue number && number.TryGetValue<long>(out var limit))
-        {
-            if (limit < 40)
-            {
-                run.Err($".litespec/project.json: exampleWordLimit '{limit}' is below 40; the Example bound cannot be that short");
-                return 120;
-            }
-
-            return limit > int.MaxValue ? int.MaxValue : (int)limit;
-        }
-
-        return 120;
-    }
 
     /// <summary>
     ///     Splits a page into lines the way the section and heading checks always

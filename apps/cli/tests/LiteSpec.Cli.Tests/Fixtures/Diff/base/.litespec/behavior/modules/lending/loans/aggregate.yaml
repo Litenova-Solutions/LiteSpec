@@ -1,8 +1,6 @@
 type: aggregate
 id: aggregate/lending.loan
 title: Loan
-owner: lending-team
-status: reviewed
 states:
   - name: Active
     meaning: The loan is open.
@@ -24,8 +22,6 @@ records:
   - type: rule
     id: rule/loan.has-one-borrower
     title: Has one borrower
-    owner: lending-team
-    status: reviewed
     kind: invariant
     statement: A loan has one borrower.
     governs:
@@ -36,8 +32,6 @@ records:
   - type: rule
     id: rule/loan.scan-before-leaving
     title: Scan before leaving
-    owner: lending-team
-    status: reviewed
     kind: precondition
     statement: A borrowed copy never leaves unscanned.
     governs:
@@ -48,8 +42,6 @@ records:
   - type: event
     id: event/loan.loan-borrowed
     title: Loan borrowed
-    owner: lending-team
-    status: reviewed
     meaning: A copy was lent.
     carries:
       - loanId

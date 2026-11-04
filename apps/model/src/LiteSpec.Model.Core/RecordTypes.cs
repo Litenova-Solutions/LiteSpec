@@ -104,9 +104,6 @@ public static class RecordTypes
     /// <summary>Gets the `retention-schedule` record type name.</summary>
     public const string RetentionSchedule = "retention-schedule";
 
-    /// <summary>Gets the `review-report` record type name.</summary>
-    public const string ReviewReport = "review-report";
-
     /// <summary>Gets the `role` record type name.</summary>
     public const string Role = "role";
 
@@ -134,9 +131,6 @@ public static class RecordTypes
     /// <summary>Gets the `term` record type name.</summary>
     public const string Term = "term";
 
-    /// <summary>Gets the `topic` record type name.</summary>
-    public const string Topic = "topic";
-
     /// <summary>Gets the `tutorial` record type name.</summary>
     public const string Tutorial = "tutorial";
 
@@ -147,7 +141,7 @@ public static class RecordTypes
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         "product", "goal", "constraint", "research", "decision", "requirement", "problem",
-        "feature", "topic", "actor", "role", "permission", "journey", "module",
+        "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
         "entry-point", "screen", "external-system", "runbook", "exception", "term",
@@ -162,7 +156,7 @@ public static class RecordTypes
         {
             ["product"] = "intent", ["goal"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
-            ["problem"] = "intent", ["feature"] = "intent", ["topic"] = "intent",
+            ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["journey"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
@@ -178,7 +172,7 @@ public static class RecordTypes
     {
         "permission-list", "entry-point-list", "setting-set", "retention-schedule",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
-        "configuration", "glossary", "example-cast", "review-report",
+        "configuration", "glossary", "example-cast",
     };
 
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
@@ -213,7 +207,7 @@ public static class RecordTypes
         {
             ["decides"] = new HashSet<string>(),
             ["cites"] = new HashSet<string> { "goal", "problem", "feature", "constraint", "research", "decision", "requirement" },
-            ["basedOn"] = new HashSet<string> { "constraint", "research" },
+            ["basedOn"] = new HashSet<string> { "constraint", "research", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
             ["addresses"] = new HashSet<string> { "actor", "permission" },
             ["solves"] = new HashSet<string> { "problem" },
@@ -230,7 +224,6 @@ public static class RecordTypes
             ["changes"] = new HashSet<string> { "aggregate" },
             ["reads"] = new HashSet<string> { "aggregate", "setting" },
             ["translates"] = new HashSet<string> { "event" },
-            ["acceptedBy"] = new HashSet<string> { "decision", "requirement" },
             ["fallback"] = new HashSet<string> { "requirement" },
             ["releasedBy"] = new HashSet<string> { "use-case" },
             ["computedBy"] = new HashSet<string> { "rule" },
@@ -248,7 +241,6 @@ public static class RecordTypes
             ["terms"] = new HashSet<string> { "term" },
             ["result"] = new HashSet<string> { "result" },
             ["actor"] = new HashSet<string> { "actor" },
-            ["entryPoint"] = new HashSet<string> { "entry-point" },
             ["offers"] = new HashSet<string> { "use-case" },
             ["host"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
@@ -292,7 +284,6 @@ public static class RecordTypes
     /// <summary>Fields that hold identifiers but are not links.</summary>
     public static readonly HashSet<string> IdentityFields = new HashSet<string>(StringComparer.Ordinal)
     {
-        "type", "id", "title", "owner", "status", "decider", "decideBy",
-        "replaces", "code",
+        "type", "id", "title", "code",
     };
 }

@@ -135,7 +135,7 @@ static class BookShards
 
     /// <summary>
     ///     One outline node as the client walks it: identity, kind, label, type,
-    ///     status, nested children, and the records shard id on a sharded node.
+    ///     nested children, and the records shard id on a sharded node.
     /// </summary>
     /// <param name="node">The outline node to convert, with its children converted recursively.</param>
     /// <param name="shardOf">The shard identifier for each record identifier.</param>
@@ -148,7 +148,6 @@ static class BookShards
             ["kind"] = node.Kind,
             ["label"] = node.Label,
             ["type"] = StringOrNull(node.Type),
-            ["status"] = StringOrNull(node.Status),
         };
 
         if (!string.Equals(node.Kind, "group", StringComparison.Ordinal)
@@ -232,7 +231,7 @@ static class BookShards
 
     /// <summary>The fields the search excerpt prefers, in order.</summary>
     static readonly IReadOnlyList<string> ExcerptFields =
-        ["statement", "summary", "purpose", "question", "conclusion"];
+        ["statement", "summary", "question", "conclusion"];
 
     /// <summary>
     ///     One record's search excerpt: its first preferred field, else its

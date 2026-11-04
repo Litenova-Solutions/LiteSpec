@@ -50,7 +50,6 @@ sealed class ApplicationImportChecks
         var boundaries = platform == "svelte" ? SvelteImportBoundaries : ReactImportBoundaries;
         foreach (var source in FileWalk.Walk(frontendRoot, file => SourceFiles.SourceFile.IsMatch(file)))
         {
-            var relative = session.RelativeToRoot(source);
             if (SourceFiles.TestFile.IsMatch(source))
             {
                 continue;
@@ -78,7 +77,7 @@ sealed class ApplicationImportChecks
                     continue;
                 }
 
-                session.Errors.Add($"[litespec/frontend/components#compose-composites-in-page-code] {relative}: {boundary.Message} from shared package '{packageName}'");
+                session.Add("ui-import-invalid", $"[litespec/frontend/components#compose-composites-in-page-code] {boundary.Message} from shared package '{packageName}'", source);
             }
         }
     }

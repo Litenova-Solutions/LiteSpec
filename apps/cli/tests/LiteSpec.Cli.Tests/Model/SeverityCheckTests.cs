@@ -5,54 +5,9 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
 
-/// <summary>Proves check findings follow the record's own status.</summary>
+/// <summary>Proves check findings block or report by their tier.</summary>
 public sealed class SeverityCheckTests
 {
-    /// <summary>An S finding on a draft use case reports with draft and exits 0.</summary>
-    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
-    [Fact]
-    public void Draft_Use_Case_Reports_Without_Blocking()
-    {
-        using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
-        DraftListLoans(fixture.Path);
-
-        var text = Cli.Run("model", "check", "--root", fixture.Path);
-        var line = text.Output.Split('\n').Single(candidate => candidate.Contains("[use-case-unimplemented]"));
-
-        Assert.Equal(0, text.Status);
-        Assert.Contains("[S draft]", line);
-
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
-
-        Assert.Equal(0, json.Status);
-        Assert.Equal("reported", outcome);
-        Assert.Equal("draft", reason);
-    }
-
-    /// <summary>The same S finding on a reviewed use case blocks and exits 1.</summary>
-    /// <proves>litespec/core/model#hold-each-finding-to-its-own-status</proves>
-    [Fact]
-    public void Reviewed_Use_Case_Blocks()
-    {
-        using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
-        EnsureReviewedListLoans(fixture.Path);
-
-        var text = Cli.Run("model", "check", "--root", fixture.Path);
-        var line = text.Output.Split('\n').Single(candidate => candidate.Contains("[use-case-unimplemented]"));
-
-        Assert.Equal(1, text.Status);
-        Assert.Contains("[S]", line);
-        Assert.DoesNotContain("draft", line);
-
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
-
-        Assert.Equal(1, json.Status);
-        Assert.Equal("blocking", outcome);
-        Assert.Null(reason);
-    }
-
     /// <summary>An S finding no reader produced blocks under a project with only web stacks.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
@@ -93,42 +48,6 @@ public sealed class SeverityCheckTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("unknown marks \"yaml\"", result.Output);
-    }
-
-    /// <summary>Flips the list-loans page to a draft with its decider and decide-by date.</summary>
-    /// <param name="root">The fixture consumer root folder.</param>
-    static void DraftListLoans(string root)
-    {
-        var file = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "list-loans.yaml");
-        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
-
-        Assert.True(
-            record["status"]?.GetValue<string>() == "reviewed",
-            "The list-loans page carries no reviewed status to draft.");
-
-        record["status"] = "draft";
-        record["decider"] = "lending-team";
-        record["decideBy"] = "2027-06-01";
-
-        File.WriteAllText(file, RecordFile.Write(record));
-    }
-
-    /// <summary>Leaves the list-loans page reviewed, restoring it when a draft is found.</summary>
-    /// <param name="root">The fixture consumer root folder.</param>
-    static void EnsureReviewedListLoans(string root)
-    {
-        var file = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "list-loans.yaml");
-        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
-
-        if (record["status"]?.GetValue<string>() == "draft")
-        {
-            record["status"] = "reviewed";
-            record.Remove("decider");
-            record.Remove("decideBy");
-            File.WriteAllText(file, RecordFile.Write(record));
-        }
-
-        Assert.Contains("status: reviewed", File.ReadAllText(file));
     }
 
     /// <summary>Leaves the fixture with only a web stack, so no .NET reader runs.</summary>

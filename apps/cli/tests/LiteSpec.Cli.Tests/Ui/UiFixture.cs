@@ -270,8 +270,6 @@ sealed class UiFixture : IDisposable
         ["type"] = "exception",
         ["id"] = id,
         ["title"] = title,
-        ["owner"] = "fixture",
-        ["status"] = "approved",
         ["kind"] = "departure",
         ["covers"] = provision,
         ["paths"] = new JsonArray("packages/ui/**"),

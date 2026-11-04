@@ -1,10 +1,8 @@
 type: journey
 id: journey/submit-and-reimburse
 title: Submit and Reimburse
-owner: claimwick-team
-status: approved
 actor: actor/employee
-description: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
+summary: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
 serves:
   - goal/decided-in-days
 finishedWhen: The employee holds the reimbursement, and the personal data of old expenses is erased past retention.
@@ -37,6 +35,3 @@ steps:
 betweenSteps: Ben may reject instead of approve; then the journey ends with the rejection and no payout. Cara reimburses only approved expenses, and anything else waits. Finance exports approved expenses in one batch and erases personal data past its retention.
 cites:
   - requirement/approval.decided-within-five-days
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: c9415ce5

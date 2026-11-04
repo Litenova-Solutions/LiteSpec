@@ -1,10 +1,6 @@
 type: research
 id: research/intent-hierarchy-practice
 title: Intent Hierarchy Practice
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 sources:
   - url: https://www.mintlify.com/github/spec-kit/advanced/templates
     readOn: 2026-10-30
@@ -48,5 +44,5 @@ sources:
   - path: schemas/record.schema.json
     readOn: 2026-10-31
     key: record-schema
-question: How should Intent group its requirements, name their reasons, and say no, and what do outside tools and the largest consumer show?
-conclusion: Outside tools group each promise with the unit its author writes, while the largest consumer shows authors follow the page rather than the parent, with 719 of 928 requirements naming no reason, so the topic becomes the parent record, reasons become one cites list, and saying no keeps two homes.
+question: How should Intent group its requirements and name their reasons, and what do outside tools and the largest consumer show?
+conclusion: Outside tools group each promise with the unit its author writes, while the largest consumer shows authors follow the page rather than the parent, with 719 of 928 requirements naming no reason, so each feature holds its requirements as entries and reasons become one cites list.

@@ -2,13 +2,13 @@
 
 ## Intent
 
-Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
 ### Bounded Context and Module
 
-The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page under the behavior docs carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Example, Known Limits, and Notes live in the explanation file beside the record file.
+The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page at `intent/modules/<m>/module.yaml` carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. `behavior/modules/<m>/` holds the same module name, so Behavior folders follow Intent. Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. A module with one aggregate of the module's own name may stay flat. Example, Known Limits, and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -17,7 +17,7 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term carries the status vocabulary of its record layer, as the [model page](model.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
 
 | Field | Meaning |
 |:---|:---|
@@ -27,7 +27,6 @@ The glossary is the project ubiquitous language: the one word or phrase the proj
 | `rejected` | Synonyms barred in their scope. |
 | `broader`, `narrower`, `values` | The wider and narrower terms, and the closed values. |
 | `labels` | The term in each interface language beside English, keyed by its two-letter language code. |
-| `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash` | The common fields every record carries. |
 
 ### Aggregates
 
@@ -53,7 +52,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `enforcedBy` | `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class. |
-| `reason`, `reviewBy`, `acceptedBy` | The reason and review date of an exemption, and the Intent record accepting retained or exempt personal data. |
+| `reason`, `reviewBy`, `basedOn` | The reason and review date of an exemption, and the Intent records accepting retained or exempt personal data. |
 
 ### Sagas
 
@@ -69,7 +68,7 @@ A saga is an aggregate that coordinates work across aggregates: a refund, a resa
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A cross-aggregate rule spans aggregates and lives on a rule page; each other rule lives as an entry on its aggregate page. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes.
+A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule. An invariant an aggregate enforces lives under its aggregate or its module. A cross-aggregate rule spans aggregates and lives as an entry on a rule page; a module rule lives in `behavior/modules/<m>/rules/`; `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
 
 | Kind | Meaning |
 |:---|:---|
@@ -79,7 +78,7 @@ A rule states what holds, with its `kind` and its `statement`. A rule names what
 | `cross-aggregate` | Spans aggregates and lives on a rule page. |
 | `atomicity` | Names one atomic write group in `binds`. |
 | `reservation` | Holds a claim until a use case releases it, named in `releasedBy` as a use-case id, or `{ "mode": "never", "reason": "..." }` with its cost. |
-| `commercial-data` | Freezes a commercial value, with `frozenWhen` and `history`. |
+| `commercial-data` | Freezes a commercial value, with `frozenWhen` and `retainedIn`. |
 | `default` | States a model default. |
 
 A query and a command showing and recording one value both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule, and never the reverse.
@@ -117,7 +116,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The term `saga` carries `layer: behavior` with `aliases: ["process manager"]`.
 
-**Checked by:** `litespec consumer` fails a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
+**Checked by:** `litespec model check` fails a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
 
 ### State Every Module Dependency
 
@@ -139,7 +138,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The refund saga declares `kind: saga`, and the suppression list declares `kind: store`.
 
-**Checked by:** `litespec consumer` fails an aggregate page without `kind` or with an unknown kind.
+**Checked by:** `litespec model check` fails an aggregate page without `kind` or with an unknown kind.
 
 ### Name the Owner of Every Store
 
@@ -149,7 +148,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A store holds state no aggregate invariant guards, so nothing in the model explains who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner puts one party behind it, and keeps staff actions on it as ordinary use cases instead of unwritten operations.
 
-**Checked by:** `litespec consumer` fails a store aggregate page without `owner`.
+**Checked by:** `litespec model check` fails a store aggregate page without `owner`.
 
 ### Model Each Aggregate Lifecycle with States
 
@@ -161,7 +160,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
-**Checked by:** `litespec consumer` fails an entity or saga page without `states` entries carrying a name and a meaning.
+**Checked by:** `litespec model check` fails an entity or saga page without `states` entries carrying a name and a meaning.
 
 ### Leave States off Every Store
 
@@ -173,7 +172,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The suppression list declares `kind: store` with its owner and no states.
 
-**Checked by:** `litespec consumer` fails a store aggregate carrying `states`.
+**Checked by:** `litespec model check` fails a store aggregate carrying `states`.
 
 ### Connect Every State Through Transitions
 
@@ -195,7 +194,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The hold-place step runs the place-hold use case and compensates with the release-hold use case, while the settle step carries `{ "mode": "none", "reason": "money has moved" }`.
 
-**Checked by:** `litespec consumer` fails a saga step without `id`, `runs`, or `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
+**Checked by:** `litespec model check` fails a saga step without `id`, `runs`, or `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
 
 ### Close Every Saga with Named Exits and a Driver
 
@@ -207,7 +206,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The return saga exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by the completion job and the librarian.
 
-**Checked by:** `litespec consumer` fails a saga page without exits carrying names and triggers, `finishedWhen`, and `drivenBy`.
+**Checked by:** `litespec model check` fails a saga page without exits carrying names and triggers, `finishedWhen`, and `drivenBy`.
 
 ### Prove Every Saga Guard and Exit with a Scenario
 
@@ -229,7 +228,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** `rule/expense.reimbursed-once` is an invariant stating "an expense is reimbursed at most once", checked on every reimbursement.
 
-**Checked by:** `litespec consumer` fails a rule entry without `kind` or `statement`.
+**Checked by:** `litespec model check` fails a rule entry without `kind` or `statement`.
 
 ### Bind Every Atomic Write Group in Its Rule
 
@@ -249,7 +248,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** A rule whose statement says `not`, `no`, `never`, or `cannot` MUST keep a restricting word in its name: `no`, `never`, `not`, `cannot`, `none`, `nothing`, `without`, `unless`, `non`, `refused`, `refuses`, `refusal`, `forbidden`, `blocked`, or `rejected`, a limit `only`, or a uniqueness `one-...-per-...`.
 
-**Rationale:** A name that drops the negation reads as its own opposite: a rule named `cancel-after-shipment` whose statement says "never" approves what it forbids. A restricting word keeps the name a true sentence a reviewer trusts without opening the statement, and `one-grant-per-account` already says what "an account never holds two grants" says. The `rule-name-invalid` check reports a rule whose statement negates while its name keeps no restricting word or uniqueness.
+**Rationale:** A name that drops the negation reads as its own opposite: a rule named `cancel-after-shipment` whose statement says "never" allows what it forbids. A restricting word keeps the name a true sentence a reviewer trusts without opening the statement, and `one-grant-per-account` already says what "an account never holds two grants" says. The `rule-name-invalid` check reports a rule whose statement negates while its name keeps no restricting word or uniqueness.
 
 **Example:** The rule reads `rule/order.cancel-never-after-shipment`.
 
@@ -289,11 +288,11 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#freeze-every-commercial-data-value`
 
-**Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its history lives in `history`.
+**Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its retained facts live in `retainedIn`.
 
-**Rationale:** A price, fee, or rate read live changes under settled business: a refund follows today price instead of the price at sale. Naming when the value freezes pins each reading to its moment, and the history link keeps the earlier values reachable for audit and dispute.
+**Rationale:** A price, fee, or rate read live changes under settled business: a refund follows today price instead of the price at sale. Naming when the value freezes pins each reading to its moment, and the retained link keeps the earlier values reachable for audit and dispute.
 
-**Checked by:** `litespec consumer` fails a commercial-data rule without `frozenWhen` or `history`.
+**Checked by:** `litespec model check` fails a commercial-data rule without `frozenWhen` or `retainedIn`.
 
 ### Compute Shared Values from One Calculation Rule
 
@@ -323,7 +322,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
 
-**Checked by:** `litespec consumer` fails an event entry without `meaning` or `carries`.
+**Checked by:** `litespec model check` fails an event entry without `meaning` or `carries`.
 
 ### Name Every Event in the Past Tense
 
@@ -335,7 +334,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The expense aggregate raises `event/expense.submitted` for a completed submission.
 
-**Checked by:** `litespec model check` reports `event-tense-invalid` (level A) for an event not ending with the past tense of its verb.
+**Reviewed for:** Which event names read as an order rather than a completed fact? Look at the event entries beside their raising acts.
 
 ### Raise Every Event Through Its Aggregate Root
 
@@ -359,4 +358,16 @@ A domain event is an immutable statement that a business fact completed, named i
 
 ## Conventions
 
-None.
+### Name Each Module After Its Capability
+
+**ID:** `litespec/core/domain-model#name-each-module-after-its-capability`
+
+**Default:** Name each module after one capability the software offers, not after a company function or a catch-all, and split a module whose aggregates serve more than one capability into sibling modules.
+
+**Replacement:** A consumer can replace this default with an explicit local convention.
+
+**Rationale:** Modules mark the areas of the bounded context, where a monolith would later split and how a reader finds a use case by module, then aggregate, then use case. A capability name keeps one module cohesive; a company function or a catch-all such as `platform`, `sales`, `operations`, or `misc` gathers unrelated aggregates that change for unrelated reasons. Splitting such a module into siblings keeps each module one capability with aggregates that serve it.
+
+**Example:** The finance module holds payout and ledger aggregates serving finance, while a misc module holding lending and catalog aggregates splits into lending and catalog siblings.
+
+**Reviewed for:** Does every aggregate in this module serve the capability the module name states? Look at the aggregates beside the module name.

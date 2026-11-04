@@ -65,7 +65,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("svelte");
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting", ["reviewBy"] = "2999-01-01" });
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" });
         });
         AssertProblem(RunConsumer(folder.Path), "extensions 'efcore' supports only the dotnet stack, which the project does not name in stacks");
     }
@@ -77,7 +77,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting", ["reviewBy"] = "2999-01-01" }));
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" }));
         AssertAbsent(RunConsumer(folder.Path), "supports only the dotnet stack");
     }
 
@@ -125,7 +125,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             ".litespec/behavior/modules/orders/unscanned.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"workflow","id":"unscanned","title":"Unscanned","owner":"fixture","status":"approved"}"""),
+                ConsumerFixture.Meta("""{"type":"workflow","id":"unscanned","title":"Unscanned"}"""),
                 "# Unscanned\n"));
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
@@ -144,7 +144,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Removed hand-written status field.</summary>
-    /// <proves>litespec/core/principles#separate-authority-from-implementation</proves>
+    /// <proves>litespec/core/principles#compute-completion-from-code-and-tests</proves>
     [Fact(DisplayName = "removed hand-written status field")]
     public void RemovedHandWrittenStatusField()
     {
@@ -154,19 +154,6 @@ public sealed partial class ConsumerValidatorTests
             ".litespec/behavior/modules/orders/cancel-order.yaml",
             meta => meta["implementationStatus"] = "planned");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'implementationStatus'");
-    }
-
-    /// <summary>Status outside the lifecycle.</summary>
-    /// <proves>litespec/core/principles#classify-record-authority</proves>
-    [Fact(DisplayName = "status outside the lifecycle")]
-    public void StatusOutsideTheLifecycle()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            ".litespec/product/brief.yaml",
-            meta => meta["status"] = "final");
-        AssertProblem(RunConsumer(folder.Path), "/status");
     }
 
     /// <summary>Use-case kind outside command and query.</summary>

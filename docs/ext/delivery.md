@@ -14,7 +14,7 @@ The consumer enables `delivery` when it operates the product for other people in
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. The baseline keeps the review flow, the boundary-selected checks, contract regeneration and the release record; this extension adds the production regime around them.
+This extension replaces no baseline provision. The baseline keeps the boundary-selected checks, contract regeneration and the release record; this extension adds the production regime around them.
 
 This extension switches on no optional record type.
 
@@ -24,13 +24,13 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/delivery#meet-release-readiness-gates`
 
-**Statement:** A release MUST show green G checks, answered questions on records carrying a risk class, verified scenarios, and green S checks where the reader is qualified.
+**Statement:** A release MUST show green G checks, verified scenarios, and green S checks where the reader is qualified.
 
-**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered questions on records carrying a risk class prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
+**Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
 
-**Example:** A reimbursement release shows green G checks, no open questions on records carrying a risk class, every scenario verified, and green S checks on the .NET reader.
+**Example:** A reimbursement release shows green G checks, every scenario verified, and green S checks on the .NET reader.
 
-**Checked by:** `litespec model check --release` blocks on `use-case-unverified` and on unanswered questions on records carrying a risk class.
+**Checked by:** `litespec model check --release` blocks on `use-case-unverified`.
 
 ### Provide Release Data Recovery
 
@@ -68,7 +68,7 @@ This extension switches on no optional record type.
 
 **Statement:** A release record MUST list build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
 
-**Rationale:** Build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is a question nobody answered.
+**Rationale:** Build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results together show the artifact works and can be operated. A missing kind is evidence nobody produced.
 
 **Reviewed for:** Which records lack a result for a listed evidence kind? Look at the evidence list on each release record.
 
@@ -96,11 +96,11 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/delivery#review-schema-artifacts`
 
-**Statement:** A persistence change MUST publish a schema artifact that names its reviewer and lists every destructive operation with its reason.
+**Statement:** A persistence change MUST publish a schema artifact that lists every destructive operation with its reason.
 
-**Rationale:** A persistence change reaches production data, so its reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its reviewed SQL. Listing every destructive operation with its reason forces the author to name data loss before the reviewer approves it.
+**Rationale:** A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.
 
-**Reviewed for:** Each persistence change carries a schema artifact naming its reviewer with every destructive operation and its reason.
+**Reviewed for:** Each persistence change carries a schema artifact with every destructive operation and its reason.
 
 ### Require Zero Surviving Mutants on Changed Lines
 
@@ -130,7 +130,7 @@ This extension switches on no optional record type.
 
 **Statement:** CI MUST publish a preview of the book for every change.
 
-**Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The approver clicks from the comment into the preview for full context.
+**Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The reader clicks from the comment into the preview for full context.
 
 **Reviewed for:** The pull request links a book preview built from the change.
 
@@ -182,7 +182,7 @@ This extension switches on no optional record type.
 
 **Statement:** An alert rule MUST state every number its requirement's `measure` names in its own expression or threshold.
 
-**Rationale:** The requirement's measure is the approved target, and the alert is the one place it is enforced at runtime. A measure that says two seconds and an alert that fires at five drift apart silently, because nobody re-reads the alert when the requirement changes. Comparing the numbers is a coarse check, since a measure is prose, so it advises rather than blocks.
+**Rationale:** The requirement's measure is the agreed target, and the alert is the one place it is enforced at runtime. A measure that says two seconds and an alert that fires at five drift apart silently, because nobody re-reads the alert when the requirement changes. Comparing the numbers is a coarse check, since a measure is prose, so it advises rather than blocks.
 
 **Example:** `requirement/spending.month-end-submissions` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
 

@@ -92,15 +92,15 @@ This extension switches on no optional record type.
 
 **Reviewed for:** Which unclear changes shipped as compatible without consumer review? Look at the change reviews.
 
-### Raise Breaking Behavior Changes as Intent Questions
+### Record Breaking Behavior Changes as Decisions
 
-**ID:** `litespec/ext/compat#raise-breaking-behavior-changes-as-intent-questions`
+**ID:** `litespec/ext/compat#record-breaking-behavior-changes-as-decisions`
 
-**Statement:** After production, a breaking Behavior change MUST travel as an Intent question naming its consumer impact.
+**Statement:** After production, a breaking Behavior change MUST travel as a decision naming its consumer impact.
 
-**Rationale:** A breaking change past production breaks promises consumers release against, so the decision belongs to the product owner with the impact stated: which consumers break, what they must change, and when the old shape leaves. The question carries its decider, decide-by date, and ballot, as `litespec/core/intent#group-questions-into-ballots` states. A developer review alone cannot accept breaking what the product promised.
+**Rationale:** A breaking change past production breaks promises consumers release against, so the decision states the impact: which consumers break, what they must change, and when the old shape leaves. A developer review alone cannot accept breaking what the product promised.
 
-**Reviewed for:** Which breaking Behavior changes past production lack an Intent question naming their consumer impact? Look at the ballots.
+**Reviewed for:** Which breaking Behavior changes past production lack a decision naming their consumer impact? Look at the decisions.
 
 ### Retain Release Baselines
 
@@ -122,15 +122,15 @@ This extension switches on no optional record type.
 
 **Reviewed for:** Which changes skipped the local or continuous integration diff against the baseline? Look at the local runs and the CI runs.
 
-### Reject Unapproved Breaking Diffs
+### Reject Breaking Diffs Without Authorization
 
-**ID:** `litespec/ext/compat#reject-unapproved-breaking-diffs`
+**ID:** `litespec/ext/compat#reject-breaking-diffs-without-authorization`
 
-**Statement:** Continuous integration MUST fail a breaking diff unless a new API version or approved consumer decision authorizes it.
+**Statement:** Continuous integration MUST fail a breaking diff unless a new API version or a recorded consumer decision authorizes it.
 
-**Rationale:** A breaking diff that fails CI stops until a new API version or an approved consumer decision authorizes it. The failure forces the compatibility decision before release, while versioning is still possible. A warning nobody has to answer authorizes nothing.
+**Rationale:** A breaking diff that fails CI stops until a new API version or a recorded consumer decision authorizes it. The failure forces the compatibility decision before release, while versioning is still possible. A warning nobody has to answer authorizes nothing.
 
-**Reviewed for:** Which breaking diffs passed without a new version or an approved decision? Look at the CI runs.
+**Reviewed for:** Which breaking diffs passed without a new version or a recorded decision? Look at the CI runs.
 
 ### Assign Operation IDs
 
@@ -188,11 +188,11 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-version-retirement`
 
-**Statement:** A versioning decision MUST name the owner of each affected consumer, the deadline, and the removal condition, with the decision approved before any removal.
+**Statement:** A versioning decision MUST name each affected consumer, the deadline, and the removal condition, with the decision recorded before any removal.
 
-**Rationale:** A removal touches consumers the project does not control, so the decision names each affected consumer's owner, the deadline, and the removal condition. Approval happens before any removal, while the plan can still change. An unrecorded retirement removes first and notifies whoever complains.
+**Rationale:** A removal touches consumers the project does not control, so the decision names each affected consumer, the deadline, and the removal condition. Recording happens before any removal, while the plan can still change. An unrecorded retirement removes first and notifies whoever complains.
 
-**Reviewed for:** Which retirements lack consumer owners, a deadline, a removal condition, or approval before removal? Look at the versioning decisions.
+**Reviewed for:** Which retirements lack affected consumers, a deadline, a removal condition, or recording before removal? Look at the versioning decisions.
 
 ### Signal Planned Public Removal
 
@@ -218,11 +218,11 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-deprecation-conditions`
 
-**Statement:** A deprecation decision MUST record the sunset date and replacement operation, with nothing removed while the decision is draft.
+**Statement:** A deprecation decision MUST record the sunset date and replacement operation, with nothing removed before the decision is recorded.
 
-**Rationale:** A deprecation decision records the sunset date and the replacement operation, so each consumer knows when to move and where to go. Nothing is removed while the decision is still draft. A removal without a recorded replacement strands the consumer that depended on the old operation.
+**Rationale:** A deprecation decision records the sunset date and the replacement operation, so each consumer knows when to move and where to go. Nothing is removed before the decision is recorded. A removal without a recorded replacement strands the consumer that depended on the old operation.
 
-**Reviewed for:** Which deprecations lack a sunset date, a replacement, or approval before removal? Look at the deprecation decisions.
+**Reviewed for:** Which deprecations lack a sunset date, a replacement, or recording before removal? Look at the deprecation decisions.
 
 ### Treat Errors as Contracts
 

@@ -6,7 +6,7 @@ Above the requirements the hierarchy is rationale prose rather than required lin
 
 ## Decision
 
-Every record of every type has exactly one parent: by identifier containment, by one required written up-link, or, for a type with no record above it, its layer list under the product. A missing required parent is an error at tier G, reported even on a draft. Every inverse link is computed, never written.
+Every record of every type has exactly one parent: by identifier containment, by one required written up-link, or, for a type with no record above it, its layer list under the product. A missing required parent is an error at tier G. Every inverse link is computed, never written.
 
 ## Evidence with Confidence
 

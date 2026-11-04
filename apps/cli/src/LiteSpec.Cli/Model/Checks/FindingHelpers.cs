@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>Helpers the check domains share: record subjects, JSON field reads, question state, risk grading, and aggregate transition and data reads.</summary>
+/// <summary>Helpers the check domains share: record subjects, JSON field reads, and aggregate transition and data reads.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class FindingHelpers
 {
@@ -59,117 +59,6 @@ internal static class FindingHelpers
             _ => string.Join(", ", names[..^1]) + " or " + names[^1],
         };
     }
-
-    /// <summary>
-    ///     A coverage finding graded by risk: level G when the record carries a
-    ///     risk class, else the code's own level.
-    /// </summary>
-    /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
-    /// <param name="code">The finding code that sets the default level.</param>
-    /// <param name="message">The finding message shown to the reader.</param>
-    /// <param name="record">The record the finding belongs to, which carries the risk that lifts the level.</param>
-    /// <param name="model">The loaded project model used to grade the record risk.</param>
-    /// <returns>The finding, graded level G when the record carries a risk class.</returns>
-    internal static Finding RiskGraded(string code, string message, Record record, ProjectModel model) =>
-        new(code, message, record.File, record.Line, SubjectOf(record))
-        {
-            TierOverride = ReviewQueue.HasRisk(model, record) ? "G" : null,
-        };
-
-    /// <summary>Whether the record carries any risk class.</summary>
-    /// <param name="record">The record whose risk field is inspected.</param>
-    /// <returns>True when the record carries a risk class; otherwise false.</returns>
-    internal static bool HasRisk(Record record) =>
-        ApprovalTable.HasRisk(record);
-
-    /// <summary>Whether the question entry carries a recommended answer.</summary>
-    /// <param name="element">The question entry under inspection.</param>
-    /// <returns>True when the entry holds a non-empty recommendation value; otherwise false.</returns>
-    internal static bool HasRecommendation(JsonElement element) =>
-        element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty(RecordFields.Recommendation, out var value)
-        && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
-        && (value.ValueKind != JsonValueKind.String || value.GetString() is { Length: > 0 })
-        && (value.ValueKind != JsonValueKind.Array || value.GetArrayLength() > 0);
-
-    /// <summary>The decide-by day of a question entry or a draft, when it parses.</summary>
-    /// <param name="element">The question entry or draft whose decide-by text is read.</param>
-    /// <param name="day">The parsed decide-by day, or the default date when no day parses.</param>
-    /// <returns>True when a decide-by day parses from the entry; otherwise false.</returns>
-    internal static bool DecideDay(JsonElement element, out DateOnly day)
-    {
-        day = default;
-
-        return element.ValueKind == JsonValueKind.Object
-            && element.TryGetProperty(RecordFields.DecideBy, out var value)
-            && value.ValueKind == JsonValueKind.String
-            && value.GetString() is { } text
-            && ParseDay(text, out day);
-    }
-
-    /// <summary>Parses a day from ISO date text or a timestamp, reading timestamps as their UTC day.</summary>
-    /// <param name="text">The date or timestamp text to parse.</param>
-    /// <param name="day">The parsed day, or the default date when the text parses as neither form.</param>
-    /// <returns>True when the text parses as a date or a timestamp; otherwise false.</returns>
-    internal static bool ParseDay(string text, out DateOnly day)
-    {
-        if (IsoDate(text, out day))
-        {
-            return true;
-        }
-
-        if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var moment))
-        {
-            day = DateOnly.FromDateTime(moment.UtcDateTime);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    ///     Whether the question entry counts as auto-approved: on a record with no
-    ///     risk class, with a recommended answer, past its decide-by date plus the
-    ///     veto window. Only a question auto-approves; no record does.
-    /// </summary>
-    /// <param name="element">The question entry under inspection.</param>
-    /// <param name="parent">The record carrying the question, or null when it stands alone.</param>
-    /// <param name="config">The project configuration that supplies the veto window length in days.</param>
-    /// <param name="today">The current date the decide-by day is aged against.</param>
-    /// <returns>True when the question is on a record with no risk class, carries a recommendation, and stands past its decide-by date plus the veto window; otherwise false.</returns>
-    internal static bool AutoApproved(JsonElement element, Record? parent, ConsumerConfig config, DateOnly today) =>
-        !(parent is not null && HasRisk(parent))
-        && HasRecommendation(element)
-        && DecideDay(element, out var decideBy)
-        && today > decideBy.AddDays(config.VetoWindowDays);
-
-    /// <summary>Whether the question entry or draft stands past its decide-by date.</summary>
-    /// <param name="element">The question entry or draft whose decide-by day is read.</param>
-    /// <param name="today">The current date the decide-by day is aged against.</param>
-    /// <returns>True when a decide-by day parses and stands before today; otherwise false.</returns>
-    internal static bool AgedPast(JsonElement element, DateOnly today) =>
-        DecideDay(element, out var decideBy) && today > decideBy;
-
-    /// <summary>The record's question entries: objects in its questions array.</summary>
-    /// <param name="record">The record whose questions array is read.</param>
-    /// <returns>The question objects in array order, or an empty list when the record holds no questions array.</returns>
-    internal static IReadOnlyList<JsonElement> QuestionEntries(Record record)
-    {
-        if (record.Raw.ValueKind == JsonValueKind.Object
-            && record.Raw.TryGetProperty(RecordFields.Questions, out var questions)
-            && questions.ValueKind == JsonValueKind.Array)
-        {
-            return questions.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
-        }
-
-        return [];
-    }
-
-    /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
-    /// <param name="entry">The question entry under inspection.</param>
-    /// <returns>True when the entry names an answer or an answerer; otherwise false.</returns>
-    internal static bool Answered(JsonElement entry) =>
-        Str(entry, RecordFields.Answer) is { Length: > 0 } || Str(entry, RecordFields.AnsweredBy) is { Length: > 0 };
 
     /// <summary>The record's exception entries: its single exception object or the objects in its exception array.</summary>
     /// <param name="record">The record whose exception field is read.</param>

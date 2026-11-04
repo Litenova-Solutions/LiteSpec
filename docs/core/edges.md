@@ -2,13 +2,13 @@
 
 ## Intent
 
-Edges and Screens states how the product meets the outside: the integration events, notifications, entry points, screens, and external systems. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Edges and Screens states how the product meets the outside: the integration events, notifications, entry points, screens, and external systems. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
 ### Integration Events
 
-An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. Notes live in the explanation file beside the record file.
+An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. An outbound event has exactly one publishing module. Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -23,7 +23,7 @@ An integration event is a published fact crossing the bounded context in CloudEv
 
 ### Notifications
 
-A notification is one person-facing message with its template, addresses, and channel. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios saying the message sends nothing are first class. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
+A notification is one person-facing message with its template, addresses, and channel. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios saying the message sends nothing are first class. It carries `summary`, and What Happens, Example and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -48,9 +48,9 @@ The optional `protocol` block belongs to the `devices` extension. The [access pa
 
 ### Screens
 
-A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `.litespec/behavior/screens/<entry-point>.<name>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. It names its `entryPoint`, its `address` (the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination), the use cases it `offers`, the journey steps it `serves`, and optionally the `floorplan` it is composed from. A floorplan is a named arrangement of regions the screen fills. An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen is one that offers no use case and says so in its `summary`.
+A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `behavior/entry-points/<entry-point>/screens/<screen>.yaml` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. Its folder states its entry point, so it writes no up-link. It names its `address` (the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination), the use cases it `offers`, the journey steps it `serves`, and optionally the `floorplan` it is composed from. A floorplan is a named arrangement of regions the screen fills. An overlay with no address of its own names the screen it opens on in `host` instead. A screen carries exactly one of `address` and `host`, as [Give Every Screen an Address or a Host](#give-every-screen-an-address-or-a-host) states. Its `summary` states what a person can do on the page. A navigation screen is one that offers no use case and says so in its `summary`.
 
-A screen states what a person can do there; what they see follows from it. The results a screen shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`, so none of those are written on the screen. Intent never names a screen: a journey step says what a person achieves, and the book adds the screen that carries the step as context outside the approval hash.
+A screen states what a person can do there; what they see follows from it. The results a screen shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`, so none of those are written on the screen. Intent never names a screen: a journey step says what a person achieves, and the book adds the screen that carries the step as context.
 
 The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`. The builder computes `calls` from the route entry: it follows imports within the route's own folder and the modules folder, so a module the route imports and every module that module composes count, collecting generated-client operation calls (a query helper the client generator emits for an operation, such as its options, query key or mutation, counts as a call to that operation), and maps each operation through the endpoint's mark to its use case. It follows neither the frame nor shared packages, so a call a shared component makes is not the screen's offer, while a call a composed use-case module makes is. An operation that resolves to two use cases is a reader diagnostic rather than a silent pick. The builder compares the computed `calls` with `offers`. A journey step is exercised when a passing test proved a scenario of a use case that serves the step.
 
@@ -61,7 +61,7 @@ An external system is one system outside the bounded context the product exchang
 | Field | Meaning |
 |:---|:---|
 | `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache }` entries; direction is `out` or `in`, `retries` is optional prose. |
-| `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with `acceptedBy`. |
+| `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "impossible", "reason": "..." }` with `basedOn`. |
 
 ## Standards
 
@@ -73,7 +73,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A published fact without a direction is read both ways: an outbound notice is answered as an order, an inbound claim is trusted as law. The direction, the CloudEvents type, source, and subject, the payload with classifications and types, and the trust of `trigger-only` or `payload` state what the fact is and how far readers follow it. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation`; an outbound event declares its `translates` domain event and its optional `addresses`.
 
-**Checked by:** `litespec consumer` fails an integration event without direction, CloudEvents identity, typed payload, or trust.
+**Checked by:** `litespec model check` fails an integration event without direction, CloudEvents identity, typed payload, or trust.
 
 ### Publish Every Outbound Integration Event from Effects
 
@@ -117,7 +117,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. The `notification-sender-missing` check reports a notification no use case, reaction, or job sends.
 
-**Checked by:** `litespec model check` reports `notification-sender-missing` for a notification no use case, reaction, or job sends; `litespec consumer` fails a notification without its declared fields.
+**Checked by:** `litespec model check` reports `notification-sender-missing` for a notification no use case, reaction, or job sends, and fails a notification without its declared fields.
 
 ### Keep Notification Templates and the Template Store One Set
 
@@ -127,7 +127,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** The template key is the one join between a notification's promise and the text a person receives. A declared key the store lacks fails at send time, and a stored template no notification declares is text nobody reviewed. The store is the stack's own file, so the check reads it where it is instead of copying the keys into a record. A notification whose body the sender composes at send time declares `template: none` and is left out.
 
-**Example:** Claimwick's `notification/spending.approval-reminder` declares `template: approval-reminder-manager`, and the template store holds `approval-reminder-manager`.
+**Example:** Claimwick's `notification/spending.receipt-reminder` declares `template: receipt-reminder-manager`, and the template store holds `receipt-reminder-manager`.
 
 **Checked by:** `litespec model check` reports `template-unimplemented` (level S) for a declared key the store the stack page names lacks, and `template-unrecorded` (level S) for a stored key no notification declares, in a project whose stack configuration names a template store.
 
@@ -139,7 +139,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A declared parameter is part of the message's promise: the order number in a confirmation, the name in a reminder. A parameter the template never uses is a promise the message does not keep, and it usually means the template was rewritten without the record.
 
-**Example:** `notification/spending.approval-reminder` declares the parameter `submitterName`, and the `approval-reminder-manager` template uses `{{SubmitterName}}`.
+**Example:** `notification/spending.receipt-reminder` declares the parameter `submitterName`, and the `receipt-reminder-manager` template uses `{{SubmitterName}}`.
 
 **Checked by:** `litespec model check` reports `template-param-drift` (level S) for a declared parameter whose placeholder, in the case the stack page states, appears in none of its template's texts.
 
@@ -151,7 +151,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A key naming its subject, its event and its audience tells each reader what the message is about and who receives it; a key naming none of the three hides both.
 
-**Example:** `approval-reminder-manager` names the approval, the reminder and the manager audience; `email-change-confirmation` names no audience and is reported.
+**Example:** `receipt-reminder-manager` names the receipt, the reminder and the manager audience; `email-change-confirmation` names no audience and is reported.
 
 **Checked by:** `litespec model check` reports `template-key-invalid` (level A) for a template key ending in no name the notification declares in `addresses`.
 
@@ -161,7 +161,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Each claim a notification makes MUST cite its requirement.
 
-**Rationale:** A message promising what no requirement holds is a promise nobody approved: the text assures a refund the policy never states. Citing the requirement behind each claim keeps every assured sentence a carried promise.
+**Rationale:** A message promising what no requirement holds is a promise no requirement states: the text assures a refund the policy never states. Citing the requirement behind each claim keeps every assured sentence a carried promise.
 
 **Reviewed for:** Which notification claims lack a cited requirement? Look at the claims beside each notification.
 
@@ -173,7 +173,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A door with no kind is entered any way: a webhook is called as a page, a device as a browser. Declaring the kind of `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, or `served-content` with its auth states how callers arrive and prove themselves.
 
-**Checked by:** `litespec consumer` fails an entry point without `kind` or `auth`.
+**Checked by:** `litespec model check` fails an entry point without `kind` or `auth`.
 
 ### Give Every Page Its Screen Record
 
@@ -183,7 +183,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A page is where a person meets the product, and an unrecorded page offers use cases nobody reviewed as a page: what it lets someone start, which journey step it carries, which refusal it shows. One record per page, with one mark on the route, makes the page a reviewable promise and lets every other link (calls, results, journey coverage) be computed from it.
 
-**Example:** Claimwick's web route `/expenses` carries `implements: "screen/claimwick-app.expense-list"`, and `.litespec/behavior/screens/claimwick-app.expense-list.yaml` offers `use-case/spending.list-expenses`.
+**Example:** Claimwick's web route `/expenses` carries `implements: "screen/claimwick-app.expense-list"`, and `behavior/entry-points/claimwick-app/screens/expense-list.yaml` offers `use-case/spending.list-expenses`.
 
 **Checked by:** `litespec model check` reports `screen-unimplemented` (level S) for a screen no route marks, and `behavior-unrecorded` (level S) for a route with no mark or a mark naming no screen.
 
@@ -197,7 +197,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Example:** The expense list carries the address `/expenses`; its confirm overlay names the expense list in `host` instead.
 
-**Checked by:** `litespec consumer` fails a screen without exactly one of `address` and `host`.
+**Checked by:** `litespec model check` fails a screen without exactly one of `address` and `host`.
 
 ### Match a Screen's Offers to Its Calls
 
@@ -205,7 +205,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** A screen's `offers` MUST equal the use cases its route reaches through the generated client.
 
-**Rationale:** `offers` is the reviewed promise of what a person can start on the page, and the calls are what the page really does. When the two differ, either the page grew a capability nobody approved or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
+**Rationale:** `offers` is the recorded promise of what a person can start on the page, and the calls are what the page really does. When the two differ, either the page grew a capability nobody recorded or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
 
 **Example:** The expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client.
 
@@ -265,7 +265,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system stands alone and names no actor.
 
-**Checked by:** `litespec consumer` fails an external system operation without direction, timeout, timeout handling, response, or cache.
+**Checked by:** `litespec model check` fails an external system operation without direction, timeout, timeout handling, response, or cache.
 
 ## Conventions
 

@@ -1,21 +1,21 @@
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The canonical key order of a record: identity, workflow, the type's own fields in
-///     schema order, the shared links, the entries, then approval. A key the order does
+///     The canonical key order of a record: identity, the type's own fields in
+///     schema order, the shared links, then the entries. A key the order does
 ///     not name keeps its written place after the named keys.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordKeyOrder
 {
     /// <summary>The keys that open every record.</summary>
-    static readonly string[] Head = ["type", "id", "title", "owner", "status", "decider", "decideBy", "replaces", "provenance"];
+    static readonly string[] Head = ["type", "id", "title"];
 
     /// <summary>The keys that follow the type's own fields.</summary>
-    static readonly string[] Links = ["risk", "terms", "questions"];
+    static readonly string[] Links = ["risk", "terms"];
 
     /// <summary>The keys that close every record.</summary>
-    static readonly string[] Tail = ["records", "approvedBy", "approvedOn", "approvedHash"];
+    static readonly string[] Tail = ["records"];
 
     /// <summary>Each type's own fields in schema order, read once.</summary>
     static readonly Lazy<Dictionary<string, IReadOnlyList<string>>> Orders = new(Load);

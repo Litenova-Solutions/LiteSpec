@@ -4,7 +4,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves an approved exception holds its covered findings on its subjects and paths while open.</summary>
+/// <summary>Proves an exception holds its covered findings on its subjects and paths while it is live.</summary>
 public sealed class SuppressionTests
 {
     /// <summary>An open exception moves its covered finding to known.</summary>
@@ -64,43 +64,6 @@ public sealed class SuppressionTests
                 {
                     ["kind"] = "gap",
                     ["expiresOn"] = "2020-01-01",
-                },
-                lists: new Dictionary<string, IReadOnlyList<string>>
-                {
-                    ["covers"] = ["use-case-unimplemented"],
-                    ["subject"] = ["use-case/lending.list-loans"],
-                }),
-        ];
-
-        var partition = Suppression.Partition(
-            [finding], records, root, new DateTime(2026, 10, 28), _ => null);
-
-        Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
-    }
-
-    /// <summary>A draft exception keeps its finding reported.</summary>
-    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
-    [Fact]
-    public void Draft_Exception_Keeps_Its_Finding()
-    {
-        var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
-        var finding = new Finding(
-            "use-case-unimplemented",
-            "Use case 'use-case/lending.list-loans' has no handler.",
-            Path.Combine(root, "docs", "list-loans.md"),
-            3,
-            "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
-        [
-            new FakeRecord(
-                "exception",
-                "exception/list-loans-unimplemented",
-                "draft",
-                fields: new Dictionary<string, string>
-                {
-                    ["kind"] = "gap",
-                    ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {

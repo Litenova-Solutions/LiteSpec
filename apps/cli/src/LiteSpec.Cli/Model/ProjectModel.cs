@@ -4,7 +4,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The project model: written records, read code, screens, tests, the test run,
-///     computed links and per use case status.
+///     computed links and completion.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class ProjectModel
@@ -14,10 +14,10 @@ sealed class ProjectModel
     /// <summary>Gets the problems found while building the model, such as files that do not parse.</summary>
     public List<Finding> Problems { get; } = [];
 
-    /// <summary>Gets or sets the check findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    /// <summary>Gets or sets the check findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
     public IReadOnlyList<object>? FindingsJson { get; set; }
 
-    /// <summary>Gets or sets the known findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    /// <summary>Gets or sets the known findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
     public IReadOnlyList<object>? KnownJson { get; set; }
     /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
@@ -72,16 +72,9 @@ sealed class ProjectModel
     public List<CallsLink> Calls { get; } = [];
     /// <summary>Gets the computed proves links from tests to the records they claim.</summary>
     public List<ProvesLink> Proves { get; } = [];
-    /// <summary>Gets the computed implemented and verified status of each use case, by use-case id.</summary>
-    public Dictionary<string, UseCaseStatus> Status { get; } = new(StringComparer.Ordinal);
-    /// <summary>Gets the effective status of each record, by id, after holder and page inheritance.</summary>
-    public Dictionary<string, string> EffectiveStatus { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets refusal codes by the class whose literal carries them.</summary>
     public Dictionary<string, HashSet<string>> RefusalCodes { get; } = new(StringComparer.Ordinal);
-
-    /// <summary>Gets per requirement, by id: verified from what fulfills it and from its measure.</summary>
-    public Dictionary<string, RequirementStatus> RequirementStatus { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets per requirement, use case, journey, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
     public Dictionary<string, Completion> Completion { get; } = new(StringComparer.Ordinal);
@@ -91,11 +84,6 @@ sealed class ProjectModel
 
     /// <summary>Gets per screen record, by id: captured, route-not-captured, or no-route.</summary>
     public Dictionary<string, string> CaptureState { get; } = new(StringComparer.Ordinal);
-    /// <summary>Gets per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
-    public Dictionary<string, bool> Tested { get; } = new(StringComparer.Ordinal);
-
-    /// <summary>Gets the scenarios whose passing proof is stale: the scenario changed after the run first passed it.</summary>
-    public SortedSet<string> Stale { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets or sets the semantic hash each scenario had when a run first passed its proof.</summary>
     public ProofLedger Ledger { get; set; } = ProofLedger.Empty();
@@ -127,6 +115,16 @@ sealed class ProjectModel
 
     /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
+
+    /// <summary>Gets records by qualified identifier.</summary>
+    public IReadOnlyDictionary<string, Record> ByQualified =>
+        _byQualified ??= Records
+            .Where(record => record.QualifiedId.Length > 0)
+            .GroupBy(record => record.QualifiedId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+    /// <summary>The cached records-by-qualified-identifier index, built on first use.</summary>
+    private IReadOnlyDictionary<string, Record>? _byQualified;
 
     /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>
     public IReadOnlyDictionary<string, Record> UseCasesByName
@@ -168,15 +166,6 @@ sealed class ProjectModel
             writer.WriteNumber("version", 1);
             writer.WriteString("root", ".");
 
-            writer.WriteStartObject("approvals");
-
-            foreach (var entry in Config.Approvals.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                writer.WriteString(entry.Key, entry.Value);
-            }
-
-            writer.WriteEndObject();
-
             writer.WriteStartArray("records");
 
             var bodies = new Dictionary<(string File, string? PageId), string>(Records.Count);
@@ -192,12 +181,8 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("type", record.Type);
                 writer.WriteString("id", record.Id);
+                writer.WriteString("qualifiedId", record.QualifiedId);
                 writer.WriteString("title", record.Title);
-                WriteNullable(writer, "owner", record.Owner);
-                WriteNullable(writer, "status", record.Status);
-                WriteNullable(writer, "effectiveStatus", EffectiveStatus.GetValueOrDefault(record.Id));
-                WriteNullable(writer, "decider", record.Decider);
-                WriteNullable(writer, "decideBy", record.DecideBy);
 
                 if (record.Derived)
                 {
@@ -250,14 +235,6 @@ sealed class ProjectModel
                     }
 
                     writer.WriteEndObject();
-                    writer.WriteEndObject();
-                }
-
-                if (ApprovalTable.ApprovalOf(this, record) is { } approval)
-                {
-                    writer.WriteStartObject("approval");
-                    writer.WriteString("by", approval.By);
-                    writer.WriteString("rule", approval.Rule);
                     writer.WriteEndObject();
                 }
 
@@ -718,57 +695,6 @@ sealed class ProjectModel
             }
 
             writer.WriteEndArray();
-            writer.WriteEndObject();
-
-            writer.WriteStartObject("status");
-
-            foreach (var entry in Status.OrderBy(left => left.Key, StringComparer.Ordinal))
-            {
-                writer.WriteStartObject(entry.Key);
-                writer.WriteBoolean("implemented", entry.Value.Implemented);
-                writer.WriteBoolean("verified", entry.Value.Verified);
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-
-            writer.WriteStartObject("requirementStatus");
-
-            foreach (var entry in RequirementStatus.OrderBy(left => left.Key, StringComparer.Ordinal))
-            {
-                writer.WriteStartObject(entry.Key);
-                writer.WriteBoolean("verified", entry.Value.Verified);
-
-                if (entry.Value.MeasurePassed is null)
-                {
-                    writer.WriteNull("measurePassed");
-                }
-                else
-                {
-                    writer.WriteBoolean("measurePassed", entry.Value.MeasurePassed.Value);
-                }
-
-                writer.WriteEndObject();
-            }
-
-            writer.WriteEndObject();
-
-            writer.WriteStartArray("stale");
-
-            foreach (var scenario in Stale)
-            {
-                writer.WriteStringValue(scenario);
-            }
-
-            writer.WriteEndArray();
-
-            writer.WriteStartObject("tested");
-
-            foreach (var entry in Tested.OrderBy(left => left.Key, StringComparer.Ordinal))
-            {
-                writer.WriteBoolean(entry.Key, entry.Value);
-            }
-
             writer.WriteEndObject();
 
             writer.WriteStartObject("reachableStates");

@@ -62,7 +62,7 @@ internal static class ScreenChecks
                 var inScope = record.Type switch
                 {
                     RecordTypes.UseCase => record.Ids(RecordFields.ReachedThrough).Any(entryPoints.Contains),
-                    RecordTypes.Screen => record.Ids(RecordFields.EntryPoint).Any(entryPoints.Contains),
+                    RecordTypes.Screen => FrontendRecords.EntryPointOf(record) is { } point && entryPoints.Contains(point),
                     _ => true,
                 };
 

@@ -30,7 +30,7 @@ The Claimwick example in `examples/claimwick/` declares its own selection in `.l
 
 Read it as four answers: size large, shape server, the dotnet and svelte stacks, and no extensions. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
 
-The project file holds more than the selection: `paths.behaviorDocs` points at the Behavior root, `review` names the veto window in days and, when the project wants one, the security reviewer, `adoption` names the decision that ends transcription mode, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team reviewed, `4.0.0`. The [project file page](../reference/project-file.md) lists every field.
+The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team pinned, `4.0.0`. The [project file page](../reference/project-file.md) lists every field.
 
 ## The Page Arrangement
 
@@ -75,6 +75,8 @@ Each rule is a heading followed by its ID line. Here is one from the [domain pag
 
 **ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
 
+**Strength:** rule
+
 **Statement:** The Domain code MUST reference only the language standard library and project-owned Domain types.
 
 **Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all.
@@ -82,20 +84,20 @@ Each rule is a heading followed by its ID line. Here is one from the [domain pag
 **Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
 ```
 
-Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
+Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `rule` binds every project it applies to, `default` binds unless the project records its own choice, and `advice` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
 
-The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
+Each page also states the scope its provisions apply to: the technology, the part of the system, and the kind of thing made. A provision narrower than its page names its scope, so an agent editing one file can ask which provisions govern it. The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
 
 ## Departures from the Rules
 
 The standard expects departures and gives each one a home:
 
-- **An exception record** of kind `departure` replaces one Standard for your project, with its reason, an owner, and an expiry date. An agent follows your exception over the standard.
-- **A replaced Convention** is a default you change by stating your own in your project's documentation.
-- **An exception record** of kind `gap` records a check that stays red until you fix it, with its reason, an owner, and an expiry date, so the check does not fail on it forever.
+- **An exception record** of kind `departure` replaces one provision for your project, naming the records it sets aside with its reason and an expiry date. An agent follows your exception over the standard.
+- **A project convention** is a default you replace by stating your own in the provision shape, under `.litespec/governance/conventions/`.
+- **An exception record** of kind `gap` records a check that stays red until you fix it, with its reason and an expiry date, so the check does not fail on it forever.
 - **An extension** can replace a baseline rule when you select it. The EF Core extension, for example, replaces the default persistence rules with its own.
 
-When guidance overlaps, the most specific source wins: your exception, then a selected extension, then the deeper page, then the shallower one.
+When guidance overlaps, the most specific source wins: your exception or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the replacement in place of the original.
 
 The Claimwick example carries one exception, at `examples/claimwick/.litespec/governance/exceptions/export-review-bypass.yaml`:
 
@@ -103,8 +105,6 @@ The Claimwick example carries one exception, at `examples/claimwick/.litespec/go
 type: exception
 id: exception/export-review-bypass
 title: Export Review Bypass
-owner: claimwick-team
-status: approved
 kind: departure
 covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
@@ -114,7 +114,7 @@ consequences: Weekend exports run without a second pair of eyes until a reviewer
 expiresOn: 2027-01-01
 ```
 
-Read it as one departure: it names the provision it replaces in `covers`, the reason, the consequences, and the expiry date. An agent follows the exception over the standard until that date.
+Read it as one departure: it names the provision it replaces in `covers`, the records it sets aside, the reason, the consequences, and the expiry date. An agent follows the exception over the standard until that date.
 
 ## UI Patterns
 

@@ -1,8 +1,6 @@
 type: use-case
 id: use-case/lending.retire-copy
 title: Retire copy
-owner: lending-team
-status: reviewed
 kind: command
 access:
   grant: permission/manage-copies
@@ -17,22 +15,11 @@ records:
   - type: result
     id: result/retire-copy.retired
     title: Retired
-    owner: lending-team
     outcome: success
     meaning: The copy is retired.
-    approvedBy: lending-team
-    approvedOn: 2026-10-01
-    approvedHash: a2b8df6a
   - type: result
     id: result/retire-copy.copy-on-loan
     title: Copy on loan
-    owner: lending-team
     outcome: refusal
     code: lending.copy-on-loan
     meaning: The copy is on loan.
-    approvedBy: lending-team
-    approvedOn: 2026-10-01
-    approvedHash: a8f80bec
-approvedBy: lending-team
-approvedOn: 2026-10-31
-approvedHash: e04cebd7

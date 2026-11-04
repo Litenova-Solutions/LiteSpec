@@ -6,7 +6,7 @@ A feature contributes to a goal and carries a walker through nothing, while ever
 
 ## Decision
 
-A feature's link to a goal is renamed from `serves` to `advances`. Every feature names at least one problem in `solves`, and its parent is the first. Every non-refused feature names at least one goal in `advances`. A refused feature names `refusedBecause` and the problem it declines in `solves`, and carries no `advances`.
+A feature's link to a goal is renamed from `serves` to `advances`. Every feature names at least one problem in `solves`, and its parent is the first. Every feature names at least one goal in `advances`.
 
 ## Evidence with Confidence
 

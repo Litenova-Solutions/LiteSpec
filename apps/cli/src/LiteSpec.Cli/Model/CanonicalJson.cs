@@ -6,10 +6,10 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The one canonical JSON writer: object keys sorted, strings re-encoded and
-///     numbers written by value, so the approval hash and the model diff read
+///     numbers written by value, so the semantic hash and the model diff read
 ///     the same bytes for the same meaning.
 /// </summary>
-/// <follows>litespec/core/model#record-approval-as-data</follows>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class CanonicalJson
 {
     /// <summary>The canonical text of one JSON value, with no field left out.</summary>

@@ -1,0 +1,12 @@
+type: product
+id: product/claimwick
+title: Claimwick
+summary: |-
+  The company submits work expenses with receipts.
+
+  Employees submit and attach. Managers approve and reject. Finance reimburses.
+boundary: Claimwick submits, approves, and reimburses work expenses with receipts.
+addresses:
+  - actor/employee
+  - actor/manager
+  - actor/finance

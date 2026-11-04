@@ -1,12 +1,11 @@
-using System.Text.Json;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
 
-/// <summary>Proves <c>litespec model check</c> prints blocking findings first, counts each code, and filters by level.</summary>
+/// <summary>Proves <c>litespec model check</c> prints blocking findings first, counts each code, and rejects dead options.</summary>
 public sealed partial class ModelCheckSummaryTests
 {
-    /// <summary>One count line under "Findings by code:", such as <c>     12  value-invalid (level A)</c>.</summary>
+    /// <summary>One count line under "Findings by code:", such as <c>     12  paging-undeclared (level G)</c>.</summary>
     [System.Text.RegularExpressions.GeneratedRegex(@"^\s+(?<count>\d+)\s+(?<code>[a-z-]+) \(level (?<level>[GSA])\)$")]
     private static partial System.Text.RegularExpressions.Regex CountLine();
 
@@ -53,13 +52,14 @@ public sealed partial class ModelCheckSummaryTests
     public void Check_Prints_Blocking_First_Then_Counts_Then_Totals()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
+        WriteScenario(fixture.Path);
         var result = Cli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(1, result.Status);
 
         var lines = Lines(result.Output);
         var blocking = Array.FindIndex(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));
-        var advisory = Array.FindIndex(lines, line => line.Contains("[value-invalid]", StringComparison.Ordinal));
+        var advisory = Array.FindIndex(lines, line => line.Contains("[use-case-unverified]", StringComparison.Ordinal));
         var heading = Array.IndexOf(lines, "Findings by code:");
         var totals = Array.FindIndex(lines, line => line.Contains(" findings, ", StringComparison.Ordinal) && line.EndsWith(" known.", StringComparison.Ordinal));
         var counts = CountLines(result.Output);
@@ -73,7 +73,7 @@ public sealed partial class ModelCheckSummaryTests
         Assert.NotEmpty(counts);
         Assert.Equal("G", counts[0].Level);
         Assert.Contains(counts, count => count.Code == "paging-undeclared" && count.Level == "G");
-        Assert.Contains(counts, count => count.Code == "value-invalid" && count.Level == "A");
+        Assert.Contains(counts, count => count.Code == "use-case-unverified" && count.Level == "A");
 
         for (var index = 1; index < counts.Count; index++)
         {
@@ -86,57 +86,40 @@ public sealed partial class ModelCheckSummaryTests
         }
     }
 
-    /// <summary>The level option G,S keeps the blocking findings and omits the advisory findings.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void Check_Level_GS_Omits_Advisory_Findings()
-    {
-        using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
-
-        var full = Cli.Run("model", "check", "--root", fixture.Path);
-
-        Assert.Equal(1, full.Status);
-        Assert.Contains("value-invalid", full.Output);
-
-        var filtered = Cli.Run("model", "check", "--root", fixture.Path, "--level", "G,S");
-
-        Assert.Equal(1, filtered.Status);
-        Assert.Contains("paging-undeclared", filtered.Output);
-        Assert.DoesNotContain("value-invalid", filtered.Output);
-        Assert.All(CountLines(filtered.Output), count => Assert.True(count.Level is "G" or "S"));
-    }
-
-    /// <summary>The level option filters the JSON findings to the named levels and keeps the shape.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void Check_Level_Filters_Json_Findings()
-    {
-        using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json", "--level", "G");
-
-        Assert.Equal(1, result.Status);
-
-        using var document = JsonDocument.Parse(result.Stdout);
-        var findings = document.RootElement.GetProperty("findings");
-
-        Assert.True(findings.GetArrayLength() > 0);
-        Assert.Contains(findings.EnumerateArray(), finding => finding.GetProperty("code").GetString() == "paging-undeclared");
-
-        foreach (var finding in findings.EnumerateArray())
-        {
-            Assert.Equal("G", finding.GetProperty("level").GetString());
-        }
-    }
-
-    /// <summary>An unknown level is a usage error.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void Check_Unknown_Level_Exits_2()
+    /// <summary>A dead check option is rejected as an unknown option.</summary>
+    /// <param name="option">The dead option to pass.</param>
+    /// <param name="value">The value to pass with the option.</param>
+    [Theory]
+    [InlineData("--level", "G")]
+    [InlineData("--out", "model.json")]
+    public void Check_Dead_Option_Is_Rejected(string option, string value)
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--level", "X");
+        var result = Cli.Run("model", "check", "--root", fixture.Path, option, value);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("Unknown level 'X'", result.Output);
+        Assert.Contains($"Unknown option '{option}'.", result.Output);
+    }
+
+    /// <summary>Writes a scenario for borrow-copy with no proving test, so an advisory finding prints.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    static void WriteScenario(string root)
+    {
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-refused-scenario.yaml", """
+            {
+              "type": "scenario",
+              "id": "scenario/borrow-copy.borrowing-an-unavailable-copy-is-refused",
+              "title": "Borrowing an unavailable copy is refused",
+              "given": "A copy sits on loan to another reader.",
+              "when": "The reader borrows the copy.",
+              "result": "result/borrow-copy.copy-unavailable",
+              "then": "The loan is refused."
+            }
+            """);
+        TestRecords.Explain(root, ".litespec/behavior/modules/lending/loans/borrow-copy-refused-scenario.md", """
+            # Borrowing an unavailable copy is refused
+
+            A reader borrows a copy that is on loan.
+            """);
     }
 }

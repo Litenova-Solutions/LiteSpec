@@ -132,7 +132,7 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "apps/web/src/routes/bits.svelte",
                 "<script>\nimport { Dialog } from \"bits-ui\";\n</script>\n<Dialog />\n"),
-            "[litespec/frontend/components#compose-composites-in-page-code] apps/web/src/routes/bits.svelte: imports the primitive library directly");
+            "[litespec/frontend/components#compose-composites-in-page-code] imports the primitive library directly");
     }
 
     /// <summary>A Svelte Application Importing The React Primitive Library Is Outside Its Boundary.</summary>
@@ -172,7 +172,7 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "packages/ui/src/floorplans/card.svelte",
                 "<div class=\"text-red-500\">Overdue</div>\n"),
-            "[litespec/frontend/web/ui#restrict-css-decisions] packages/ui/src/floorplans/card.svelte: raw Tailwind palette value requires a semantic token 'text-red-500'");
+            "[litespec/frontend/web/ui#restrict-css-decisions] raw Tailwind palette value requires a semantic token 'text-red-500'");
     }
 
     /// <summary>A Svelte Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
@@ -185,7 +185,7 @@ public sealed partial class UiValidatorTests
         fixture.MutateLock(sourceLock => ((JsonObject)sourceLock["preset"]!)["baseColor"] = "slate");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/ui-source-lock.json: preset.baseColor does not match the manifest baseline");
+            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] preset.baseColor does not match the manifest baseline");
     }
 
     /// <summary>A Svelte Source Lock Naming The React CLI Pin.</summary>
@@ -229,7 +229,7 @@ public sealed partial class UiValidatorTests
         UiFixture.WriteJson(fixture.ComponentsFile, components);
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/components.json: tailwind.baseColor must be 'neutral'");
+            "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be 'neutral'");
     }
 
     /// <summary>Svelte Components Json Naming Another Registry.</summary>
@@ -271,7 +271,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] .litespec/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <summary>The Fixture Is React Again After The Svelte Block.</summary>

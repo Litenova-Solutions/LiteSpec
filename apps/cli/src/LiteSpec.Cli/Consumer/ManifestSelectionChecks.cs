@@ -7,8 +7,8 @@ namespace LiteSpec.Consumer;
 
 /// <summary>
 ///     The manifest and selection checks of the consumer validator: the recorded
-///     review version, the stack names and the extension selections against the
-///     pinned manifest, review dates, and stage deferrals.
+///     release, the stack names and the extension selections against the
+///     pinned manifest, and stage deferrals.
 /// </summary>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
@@ -32,12 +32,13 @@ static class ManifestSelectionChecks
     static readonly Regex ProvisionRow = new(@"^\| (litespec/[^\s|]*#[^\s|]*) \|", RegexOptions.Multiline);
 
     /// <summary>
-    ///     Holds the recorded review version, the stack names and the extension selections
-    ///     against the pinned manifest, and expires review dates and stage deferrals.
+    ///     Holds the recorded release, the stack names and the extension selections
+    ///     against the pinned manifest.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckManifest(ConsumerRun run)
     {
+        var projectFile = ConsumerRoot.ProjectFile(run.Root);
         JsonNode? manifest = null;
         var manifestFile = Path.Join(run.StandardsRoot, "litespec.manifest.json");
 
@@ -63,11 +64,21 @@ static class ManifestSelectionChecks
 
             if (!JsonValues.IsTruthy(reviewed))
             {
-                run.Err($".litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}");
+                run.Err(new Finding(
+                    "release-mismatch",
+                    $"missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}",
+                    projectFile,
+                    1,
+                    null));
             }
             else if (!JsonValues.StrictEqual(reviewed, version))
             {
-                run.Err($".litespec/project.json: reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}");
+                run.Err(new Finding(
+                    "release-mismatch",
+                    $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}",
+                    projectFile,
+                    1,
+                    null));
             }
         }
 
@@ -91,7 +102,12 @@ static class ManifestSelectionChecks
 
             foreach (var stack in named.Where(stack => !byId.ContainsKey(stack)))
             {
-                run.Err($".litespec/project.json: stack '{stack}' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err(new Finding(
+                    "stack-invalid",
+                    $"stack '{stack}' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                    projectFile,
+                    1,
+                    null));
             }
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
@@ -102,12 +118,22 @@ static class ManifestSelectionChecks
             {
                 foreach (var backend in backends)
                 {
-                    run.Err($".litespec/project.json: shape 'client-only' names backend stack '{backend}'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                    run.Err(new Finding(
+                        "stack-invalid",
+                        $"shape 'client-only' names backend stack '{backend}'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                        projectFile,
+                        1,
+                        null));
                 }
             }
             else if (backends.Count != 1)
             {
-                run.Err($".litespec/project.json: stacks name {backends.Count} backend stacks; name exactly one of {string.Join(", ", backendIds)} [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                run.Err(new Finding(
+                    "stack-invalid",
+                    $"stacks name {backends.Count} backend stacks; name exactly one of {string.Join(", ", backendIds)} [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                    projectFile,
+                    1,
+                    null));
             }
 
             // A stack whose requires is not also named misses the pages its own
@@ -118,7 +144,12 @@ static class ManifestSelectionChecks
                 {
                     if (!named.Contains(required))
                     {
-                        run.Err($".litespec/project.json: stack '{stack}' requires '{required}', which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                        run.Err(new Finding(
+                            "stack-invalid",
+                            $"stack '{stack}' requires '{required}', which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                            projectFile,
+                            1,
+                            null));
                     }
                 }
             }
@@ -136,7 +167,12 @@ static class ManifestSelectionChecks
 
                 foreach (var backend in backends.Where(backend => !pairs.Contains(backend)))
                 {
-                    run.Err($".litespec/project.json: frontend stack '{stack}' pairs only with {string.Join(", ", pairs)}, not with backend stack '{backend}' [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                    run.Err(new Finding(
+                        "stack-invalid",
+                        $"frontend stack '{stack}' pairs only with {string.Join(", ", pairs)}, not with backend stack '{backend}' [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                        projectFile,
+                        1,
+                        null));
                 }
             }
 
@@ -157,7 +193,12 @@ static class ManifestSelectionChecks
 
                     if (selection.Id is null || !extensions.TryGetPropertyValue(selection.Id, out var shipped) || !JsonValues.IsTruthy(shipped))
                     {
-                        run.Err($".litespec/project.json: extensions '{selection.IdText}' is not an extension in the pinned LiteSpec release; known ids are {string.Join(", ", known)}");
+                        run.Err(new Finding(
+                            "extension-invalid",
+                            $"extensions '{selection.IdText}' is not an extension in the pinned LiteSpec release; known ids are {string.Join(", ", known)}",
+                            projectFile,
+                            1,
+                            null));
                     }
                     else
                     {
@@ -172,7 +213,12 @@ static class ManifestSelectionChecks
 
                             if (supported.Count > 0 && !named.Any(supported.Contains))
                             {
-                                run.Err($".litespec/project.json: extensions '{selection.IdText}' supports only the {string.Join(", ", supported)} stack, which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]");
+                                run.Err(new Finding(
+                                    "extension-invalid",
+                                    $"extensions '{selection.IdText}' supports only the {string.Join(", ", supported)} stack, which the project does not name in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]",
+                                    projectFile,
+                                    1,
+                                    null));
                             }
                         }
                     }
@@ -183,32 +229,13 @@ static class ManifestSelectionChecks
         {
             run.KnownStacks.AddRange(DefaultStacks);
         }
-
-        // An extension selected without a surface costs nothing to keep, so nobody
-        // removes it. A recorded review date makes the selection expire rather than
-        // accumulate.
-        foreach (var selection in run.Selections)
-        {
-            if (selection.ReviewBy is null)
-            {
-                continue;
-            }
-
-            if (string.CompareOrdinal(selection.ReviewBy, run.Today) < 0)
-            {
-                run.Err($".litespec/project.json: extensions '{selection.IdText}' was due for review on {selection.ReviewBy}; confirm the criterion still applies or remove the selection");
-            }
-        }
-
-        // The schema refuses a stage selection without a release stage. Deferrals
-        // live in departure exception records, checked after the page scan.
     }
 
     /// <summary>
     ///     Holds stage deferrals to their exception records: each departure names its
-    ///     deferred provision in covers, so a deferral of an unknown provision and any
-    ///     deferral under production are refused here. A deferral past its date belongs
-    ///     to the model check, which reports exception-expired.
+    ///     deferred provision in covers, so a deferral of an unknown provision is
+    ///     refused here. A deferral past its date belongs to the model check, which
+    ///     reports exception-expired.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckStageDeferrals(ConsumerRun run)
@@ -222,7 +249,7 @@ static class ManifestSelectionChecks
 
         // The page scan already reported every malformed record file, so this pass reads
         // quietly and keeps the departure exceptions only.
-        var deferrals = new List<(string Relative, string Id, string? Provision)>();
+        var deferrals = new List<(string File, string Id, string? Provision)>();
 
         foreach (var file in run.Files)
         {
@@ -231,7 +258,6 @@ static class ManifestSelectionChecks
                 continue;
             }
 
-            var relative = run.Relative(file);
             if (!RecordFile.TryParse(run.ReadText(file), out var root, out _, out _))
             {
                 continue;
@@ -243,13 +269,8 @@ static class ManifestSelectionChecks
                 && JsonRead.PropString(page, "type") == "exception"
                 && JsonRead.PropString(page, "kind") == "departure")
             {
-                deferrals.Add((relative, JsonRead.PropText(page, "id"), JsonRead.AsString(page["covers"])));
+                deferrals.Add((file, JsonRead.PropText(page, "id"), JsonRead.AsString(page["covers"])));
             }
-        }
-
-        if (stage.ReleaseStage == "production" && deferrals.Count > 0)
-        {
-            run.Err($".litespec/project.json: extensions 'stage' declares production and still defers {deferrals.Count} provision(s); the promotion decision ends every deferral");
         }
 
         if (deferrals.Count == 0)
@@ -268,7 +289,7 @@ static class ManifestSelectionChecks
             }
         }
 
-        foreach (var (relative, id, provision) in deferrals)
+        foreach (var (file, id, provision) in deferrals)
         {
             // A covers that is no string already failed the record schema beside this page.
             if (provision is null || knownProvisions.Contains(provision))
@@ -276,7 +297,12 @@ static class ManifestSelectionChecks
                 continue;
             }
 
-            run.Err($"{relative}: exception '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release");
+            run.Err(new Finding(
+                "stage-deferral-invalid",
+                $"exception '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
+                file,
+                1,
+                id));
         }
     }
 }

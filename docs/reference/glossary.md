@@ -18,7 +18,7 @@ Source: .NET Aspire.
 
 ### Architecture Layer
 
-One project boundary in the backend: Domain, Application.Abstractions, Application, Infrastructure, or WebApi.
+One role in the backend layer structure, played by one layer project.
 
 Source: LiteSpec.
 
@@ -78,11 +78,23 @@ Checks on the shape of a command or query, run before business behavior runs.
 
 Source: LiteSpec.
 
+### Layer Projects
+
+The application projects, each playing one architecture layer: Domain, Application.Abstractions, Application, Infrastructure, and WebApi.
+
+Source: LiteSpec.
+
 ### Lockfile
 
 The committed file recording the exact resolved dependency versions.
 
 Source: the package managers.
+
+### Module Layout
+
+The fixed folder layout of one module, holding its aggregates, use cases, and records.
+
+Source: LiteSpec.
 
 ### Operation
 
@@ -138,7 +150,7 @@ These terms name the records and domain concepts a specification is written in.
 
 ### Access
 
-One risk value marking records that decide who may act.
+One risk value marking permissions that decide who may act.
 
 Source: LiteSpec.
 
@@ -176,25 +188,9 @@ Layer: Behavior.
 
 Source: the GDPR.
 
-### Approval
-
-The recorded decision that a record holds, naming who approved it, when, and over which content.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
-
 ### Automation
 
 The work that runs without a request, stated as reactions and jobs.
-
-Source: LiteSpec.
-
-### Ballot
-
-The questions a decider answers together.
-
-Layer: Intent or Behavior.
 
 Source: LiteSpec.
 
@@ -264,7 +260,7 @@ Source: LiteSpec.
 
 ### Constraint
 
-One outside rule the product obeys, such as a law or provider terms, with its authority and its kind.
+One outside rule the product obeys, such as a law or provider terms, with its authority, its kind, and the date it was read.
 
 Layer: Intent.
 
@@ -286,19 +282,9 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
-### Decider
-
-The owner a question names to answer it.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
-
-Rejected: founder as a role word, which names one decider a project may name instead of the role that answers.
-
 ### Decision
 
-One dated choice with options weighed, evidence cited, and a decider named.
+One dated choice with options weighed and evidence cited.
 
 Layer: Intent.
 
@@ -336,7 +322,7 @@ Source: DDD.
 
 ### Evidence
 
-One dated claim behind a problem, with its source and its kind: observed, reported or assumed. The strongest kind present is the strength of the problem, computed and never written.
+One dated claim behind a problem, with its source and its kind: observed, reported or assumed. The strongest kind present is computed and never written.
 
 Layer: Intent.
 
@@ -362,7 +348,7 @@ Source: BDD.
 
 ### Exception
 
-One recorded departure from a provision or one check held red, with its reason, owner, and expiry date.
+One recorded departure from a provision or one check held red, with its reason and expiry date.
 
 Layer: Intent or Behavior.
 
@@ -388,7 +374,7 @@ Source: LiteSpec.
 
 ### Feature
 
-One planned answer to a problem, tracked by its lifecycle as planned, shipped, later, or refused; unless refused it advances a goal and solves a problem.
+One answer to a problem under a module, advancing a goal and solving a problem.
 
 Layer: Intent.
 
@@ -484,14 +470,6 @@ Layer: Intent.
 
 Source: plain English.
 
-### Lifecycle
-
-The planned, shipped, later, or refused span of one feature.
-
-Layer: Intent.
-
-Source: plain English.
-
 ### Measured Requirement
 
 One quality requirement carrying a measure, a target, and a check that confirms them.
@@ -502,7 +480,7 @@ Source: Volere.
 
 ### Module
 
-One business area organizing language, records, use cases, and ownership.
+One business area organizing language, records, and use cases.
 
 Layer: Behavior.
 
@@ -510,7 +488,7 @@ Source: DDD.
 
 ### Money
 
-One risk value marking records that move, hold, or decide money.
+One risk value marking permissions that move, hold, or decide money.
 
 Source: LiteSpec.
 
@@ -540,13 +518,13 @@ Source: RBAC.
 
 ### Personal Data
 
-One risk value marking records that keep personal or sensitive data.
+One risk value marking permissions that keep personal or sensitive data.
 
 Source: LiteSpec.
 
 ### Physical Access
 
-One risk value marking records that control who passes a physical boundary.
+One risk value marking permissions that control who passes a physical boundary.
 
 Source: LiteSpec.
 
@@ -576,7 +554,7 @@ Source: plain English.
 
 ### Product
 
-The software capability offered to users, with its boundary and exclusions.
+The software capability offered to users, with its boundary.
 
 Layer: Intent.
 
@@ -600,6 +578,12 @@ Layer: Behavior.
 
 Source: the GDPR.
 
+### Qualified Identifier
+
+The display form of a record identifier with its placement, built from the identifier's segments plus placement. Links never use it.
+
+Source: LiteSpec.
+
 ### Quality Requirement
 
 One requirement stating how well the product performs, with a measure and a target.
@@ -615,14 +599,6 @@ One use case kind that reads a read model without changing business state.
 Layer: Behavior.
 
 Source: CQRS.
-
-### Question
-
-One need traveling up from a lower layer, with a decider, a date, and a recommendation.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
 
 ### Reaction
 
@@ -696,7 +672,7 @@ Source: the GDPR.
 
 One named set of permissions granted to an actor at a scope.
 
-Layer: Behavior.
+Layer: Intent.
 
 Source: RBAC.
 
@@ -712,7 +688,7 @@ Source: the Business Rules Group.
 
 The steps to run or recover the product.
 
-Layer: Behavior.
+Layer: Implementation.
 
 Source: the SRE book.
 
@@ -760,7 +736,7 @@ Source: LiteSpec.
 
 ### State
 
-One named stage in an aggregate lifecycle, with its meaning. A feature's span is a lifecycle, not a state.
+One named stage in an aggregate lifecycle, with its meaning.
 
 Layer: Behavior.
 
@@ -768,7 +744,7 @@ Source: LiteSpec.
 
 ### Store
 
-One aggregate kind holding state no invariant guards, with its owner named.
+One aggregate kind holding state no invariant guards.
 
 Layer: Behavior.
 
@@ -797,22 +773,6 @@ One word with one meaning, labels in each language, and rejected synonyms. Each 
 Layer: Intent or Behavior.
 
 Source: arc42; DDD's ubiquitous language.
-
-### Topic
-
-One requirement container holding the requirements that share one story.
-
-Layer: Intent.
-
-Source: LiteSpec.
-
-### Transcription
-
-One Behavior record written from code during adoption, marked provenance transcribed until the records it fulfills or serves are approved.
-
-Layer: Behavior.
-
-Source: LiteSpec.
 
 ### Transition
 
@@ -866,12 +826,6 @@ The list of alerts a product can fire, with the runbook each alert names.
 
 Source: the SRE book.
 
-### Approval Hash
-
-The hash over a record's semantic fields and, for a research, decision, or topic page, its explanation file, recorded as `approvedHash`, that reopens approval when it changes.
-
-Source: LiteSpec.
-
 ### Audit Record
 
 One entry stating actor, action, target, outcome, time, origin, and reason.
@@ -908,6 +862,12 @@ One provision a tool checks, carrying a Checked by verification line.
 
 Source: LiteSpec.
 
+### Closed Specification
+
+The specification with every record decided and every required link holding.
+
+Source: LiteSpec.
+
 ### Command Page
 
 One page that documents one shipped command: its arguments, options, exit codes, and what it runs underneath.
@@ -933,12 +893,6 @@ Source: LiteSpec.
 The claim that a project meets the LiteSpec contract it pins.
 
 Source: the W3C QA Framework.
-
-### Consequences Summary
-
-The generated box on each ballot and book chapter stating new refusals, kept data, and money effects as context.
-
-Source: LiteSpec.
 
 ### Consumer
 
@@ -1000,12 +954,6 @@ One depth of documentation, from a first working result down to the mechanism a 
 
 Source: Diataxis.
 
-### Effective Status
-
-The status of a record after draft intent above it is taken into account: draft when it, a decision deciding it, or a requirement it fulfills is draft. A result or a scenario takes its use case effective status, and a screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
-
-Source: LiteSpec.
-
 ### Engineering System
 
 One connected set of decisions, specifications, standards, verification, and release practices.
@@ -1050,7 +998,7 @@ Source: LiteSpec.
 
 ### Frontmatter
 
-The opening block of a document stating its page style, owner, and status.
+The opening block of a document stating its page style.
 
 Source: LiteSpec.
 
@@ -1170,7 +1118,7 @@ Source: LiteSpec.
 
 ### Provision
 
-One testable obligation or replaceable default on a standards page, carrying an identifier and a verification line.
+One rule, default, or piece of advice on a standards page, carrying an identifier, a strength, and a verification line.
 
 Source: LiteSpec.
 
@@ -1208,7 +1156,7 @@ Source: LiteSpec.
 
 ### Record-Driven Delivery
 
-Delivery where approved records select work and define completion.
+Delivery where records select work and define completion.
 
 Source: LiteSpec.
 
@@ -1230,35 +1178,17 @@ Recovery by deploying a newer version rather than restoring the old one.
 
 Source: release practice.
 
-### Sample Hash
+### Scope
 
-The hash each record is ordered by to draw the batch sample.
+The part of a project a provision applies to, stated in Applies to when narrower than the page.
 
 Source: LiteSpec.
 
 ### Secret Inventory
 
-The list of production secrets, each with its owner, location, and rotation date.
+The list of production secrets, each with its location and rotation date.
 
 Source: security practice.
-
-### Security Queue
-
-The list in the behavior diff of access widenings, new outside calls, and new personal-data flows; a list the security reviewer reads, not a gate.
-
-Source: LiteSpec.
-
-### Security Reviewer
-
-The optional role reading access and data changes that carry risk, named in review.securityReviewer where the project names one.
-
-Source: LiteSpec.
-
-### Semantic Hash
-
-One hash over record content: the approval hash, the proof hash, or the sample hash.
-
-Source: LiteSpec.
 
 ### Shape
 
@@ -1302,6 +1232,12 @@ The one sentence in a provision carrying its obligation.
 
 Source: LiteSpec.
 
+### Strength
+
+One of the three provision strengths: rule, default, or advice.
+
+Source: LiteSpec.
+
 ### Sub-Processor
 
 One provider processing personal data for the product.
@@ -1310,7 +1246,7 @@ Source: the GDPR.
 
 ### Task Authorizer
 
-The person who gave the agent its task; in a one-person team, the owner.
+The person who gave the agent its task.
 
 Source: LiteSpec.
 
@@ -1335,18 +1271,6 @@ Source: LiteSpec.
 ### Verified
 
 The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale.
-
-Source: LiteSpec.
-
-### Veto Window
-
-The days after decideBy in which a recommendation with no risk auto-approves.
-
-Source: LiteSpec.
-
-### Vocabulary
-
-The project-file `vocabulary` object that adds a project's domain verbs, query verbs, phrasal verbs, retired synonyms, lookalike exceptions, and past-tense forms to the baseline use-case verbs.
 
 Source: LiteSpec.
 

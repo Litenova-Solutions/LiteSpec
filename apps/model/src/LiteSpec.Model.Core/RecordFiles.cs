@@ -9,9 +9,9 @@ namespace LiteSpec.Model;
 public static class RecordFiles
 {
     /// <summary>
-    ///     Reads the page record and the entries of the record file: the YAML mapping,
-    ///     with each entry's owner and status inherited from the page. A file that does
-    ///     not parse, or whose top level is no object with a type, yields nothing.
+    ///     Reads the page record and the entries of the record file: the YAML mapping.
+    ///     A file that does not parse, or whose top level is no object with a type,
+    ///     yields nothing.
     /// </summary>
     /// <param name="path">The absolute file path.</param>
     /// <param name="text">The file's text.</param>
@@ -39,22 +39,13 @@ public static class RecordFiles
         }
 
         string? pageId = null;
-        string? pageOwner = null;
-        string? pageStatus = null;
 
         if (RecordTypes.All.Contains(type))
         {
-            var record = new IndexRecord(root, path, root.Line, false, null, null, null);
+            var record = new IndexRecord(root, path, root.Line, false, null);
 
             pageId = record.Id;
-            pageOwner = record.Owner;
-            pageStatus = record.Status;
             records.Add(record);
-        }
-        else if (RecordTypes.PageStyles.Contains(type))
-        {
-            pageOwner = StringOf(root, "owner");
-            pageStatus = StringOf(root, "status");
         }
 
         if (root.TryGetProperty("records", out var entries) && entries.Kind == JsonKind.Array)
@@ -73,7 +64,7 @@ public static class RecordFiles
                     continue;
                 }
 
-                records.Add(new IndexRecord(entry, path, entry.Line, true, pageId, pageOwner, pageStatus));
+                records.Add(new IndexRecord(entry, path, entry.Line, true, pageId));
             }
         }
 

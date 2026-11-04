@@ -109,7 +109,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": ".litespec/product/features/self-checkout.yaml",
+      "file": ".litespec/intent/modules/lending/features/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -245,29 +245,8 @@
       }
     },
     {
-      "type": "topic",
-      "id": "topic/borrowing",
-      "title": "Borrowing",
-      "owner": "lending-team",
-      "status": "approved",
-      "effectiveStatus": "approved",
-      "decider": null,
-      "decideBy": null,
-      "file": ".litespec/product/borrowing.yaml",
-      "line": 3,
-      "fields": {
-        "type": "topic",
-        "id": "topic/borrowing",
-        "title": "Borrowing",
-        "owner": "lending-team",
-        "status": "approved",
-        "reviewBy": "2027-04-01"
-      },
-      "links": {}
-    },
-    {
       "type": "requirement",
-      "id": "requirement/borrowing.max-wait",
+      "id": "requirement/self-checkout.max-wait",
       "title": "Max Wait",
       "owner": "lending-team",
       "status": "approved",
@@ -278,7 +257,7 @@
       "line": 12,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.max-wait",
+        "id": "requirement/self-checkout.max-wait",
         "title": "Max Wait",
         "owner": "lending-team",
         "status": "approved",
@@ -313,7 +292,7 @@
     },
     {
       "type": "requirement",
-      "id": "requirement/borrowing.copy-shelf-home",
+      "id": "requirement/self-checkout.copy-shelf-home",
       "title": "Copy Shelf Home",
       "owner": "lending-team",
       "status": "approved",
@@ -324,7 +303,7 @@
       "line": 30,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.copy-shelf-home",
+        "id": "requirement/self-checkout.copy-shelf-home",
         "title": "Copy Shelf Home",
         "owner": "lending-team",
         "status": "approved",
@@ -342,7 +321,7 @@
     },
     {
       "type": "requirement",
-      "id": "requirement/borrowing.late-fee",
+      "id": "requirement/self-checkout.late-fee",
       "title": "Late Fee",
       "owner": "lending-team",
       "status": "approved",
@@ -353,7 +332,7 @@
       "line": 44,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.late-fee",
+        "id": "requirement/self-checkout.late-fee",
         "title": "Late Fee",
         "owner": "lending-team",
         "status": "approved",
@@ -407,7 +386,7 @@
           }
         ],
         "cites": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ],
         "finishedWhen": "The member leaves the desk with the copy before closing."
       },
@@ -416,7 +395,7 @@
           "actor/member"
         ],
         "cites": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ]
       }
     },
@@ -530,7 +509,7 @@
           "use-case/lending.borrow-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/self-checkout.copy-shelf-home"
         ],
         "refusal": [
           "result/borrow-copy.copy-unavailable"
@@ -541,7 +520,7 @@
           "use-case/lending.borrow-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/self-checkout.copy-shelf-home"
         ],
         "refusal": [
           "result/borrow-copy.copy-unavailable"
@@ -571,7 +550,7 @@
           "use-case/lending.borrow-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.late-fee"
+          "requirement/self-checkout.late-fee"
         ]
       },
       "links": {
@@ -579,7 +558,7 @@
           "use-case/lending.borrow-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.late-fee"
+          "requirement/self-checkout.late-fee"
         ]
       }
     },
@@ -610,7 +589,7 @@
           "event/loan.loan-borrowed"
         ],
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ],
         "input": [
           {
@@ -645,7 +624,7 @@
           "event/loan.loan-borrowed"
         ],
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ],
         "serves": [
           "journey/borrowing#s1"
@@ -672,7 +651,7 @@
         "status": "reviewed",
         "kind": "command",
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/self-checkout.copy-shelf-home"
         ],
         "access": {
           "grant": "permission/borrow-copy",
@@ -681,7 +660,7 @@
       },
       "links": {
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/self-checkout.copy-shelf-home"
         ]
       }
     },
@@ -712,7 +691,7 @@
           }
         ],
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ]
       },
       "links": {
@@ -723,7 +702,7 @@
           "notification/lending.due-reminder"
         ],
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ]
       }
     },
@@ -750,7 +729,7 @@
         "channel": "email",
         "template": "due-reminder",
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ]
       },
       "links": {
@@ -758,7 +737,7 @@
           "actor/member"
         ],
         "fulfills": [
-          "requirement/borrowing.max-wait"
+          "requirement/self-checkout.max-wait"
         ]
       }
     },
@@ -990,7 +969,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/permissions.yaml",
+      "file": ".litespec/behavior/modules/lending/permissions.yaml",
       "line": 8,
       "fields": {
         "type": "permission",
@@ -1290,7 +1269,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/integration/loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/integration-events/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",
@@ -1370,15 +1349,15 @@
     }
   },
   "requirementStatus": {
-    "requirement/borrowing.max-wait": {
+    "requirement/self-checkout.max-wait": {
       "verified": false,
       "measurePassed": false
     },
-    "requirement/borrowing.copy-shelf-home": {
+    "requirement/self-checkout.copy-shelf-home": {
       "verified": true,
       "measurePassed": null
     },
-    "requirement/borrowing.late-fee": {
+    "requirement/self-checkout.late-fee": {
       "verified": false,
       "measurePassed": null
     }

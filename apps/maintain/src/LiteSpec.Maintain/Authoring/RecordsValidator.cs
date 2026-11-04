@@ -366,12 +366,6 @@ internal sealed partial class RecordsValidator
                     add(record.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'{field}' names unknown record '{target}'");
                 }
             }
-
-            var replaces = JsonString(obj["replaces"]);
-            if (replaces is not null && !known.Contains(replaces))
-            {
-                add(record.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'replaces' names unknown record '{replaces}'");
-            }
         }
 
         var cited = new HashSet<string>(known, StringComparer.Ordinal);
@@ -428,28 +422,27 @@ internal sealed partial class RecordsValidator
         return ids;
     }
 
-    // An approved decision settles at least one provision, so its Rationale cites
-    // it. Research may stand uncited as a basis pool, and a draft decision settles
-    // nothing yet.
-    /// <summary>Checks that each approved decision is cited by a provision Rationale.</summary>
+    // A decision settles at least one provision, so its Rationale cites it.
+    // Research may stand uncited as a basis pool. A record present in git is
+    // decided; there is no draft state.
+    /// <summary>Checks that each decision is cited by a provision Rationale.</summary>
     /// <param name="records">The collected records.</param>
     /// <param name="parsedPages">The parsed pages.</param>
     private void CheckRecordDecisionCitations(List<ParsedRecord> records, List<ParsedPage> parsedPages)
     {
         var add = Context.Add;
-        var approved = new List<(string Relative, string Id)>();
+        var decided = new List<(string Relative, string Id)>();
         foreach (var record in records.Where(record => record.Kind == "decision"))
         {
             var obj = record.Node as JsonObject;
             var id = JsonString(obj?["id"]);
-            var status = JsonString(obj?["status"]);
-            if (id is not null && status == "approved")
+            if (id is not null)
             {
-                approved.Add((record.Relative, id));
+                decided.Add((record.Relative, id));
             }
         }
 
-        if (approved.Count == 0)
+        if (decided.Count == 0)
         {
             return;
         }
@@ -486,11 +479,11 @@ internal sealed partial class RecordsValidator
             }
         }
 
-        foreach (var (relative, id) in approved)
+        foreach (var (relative, id) in decided)
         {
             if (!rationales.Any(text => text.Contains(id, StringComparison.Ordinal)))
             {
-                add(relative, 1, "RECORD_DECISION_UNCITED", $"approved decision '{id}' is cited by no provision Rationale");
+                add(relative, 1, "RECORD_DECISION_UNCITED", $"decision '{id}' is cited by no provision Rationale");
             }
         }
     }

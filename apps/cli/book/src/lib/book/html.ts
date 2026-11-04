@@ -44,8 +44,8 @@ export function editorHref(book: Book, root: string, path: string, line?: number
 
 export function srcHref(book: Book, src: SourceRef | null | undefined) {
   if (!src?.path) return null;
-  const roots = book.man?.roots ?? {};
-  return editorHref(book, (src.litespec ? roots.litespec : roots.consumer) ?? "", src.path, src.line ?? null);
+  const roots = book.man?.roots;
+  return editorHref(book, (src.litespec ? roots?.litespec : roots?.consumer) ?? "", src.path, src.line ?? null);
 }
 
 /** A LiteSpec provision ID opens its standards page in the LiteSpec checkout. */

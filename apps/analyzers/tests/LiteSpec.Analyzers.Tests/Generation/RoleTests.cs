@@ -117,8 +117,8 @@ public sealed class RoleTests
     {
         var run = GeneratorVerify.Run(
             RoleSources(),
-            RecordPages.FilesWithVocabulary(
-                "{\"verbs\": [\"submit\"]}",
+            RecordPages.Files(
+                "xml",
                 ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/mint-money"])),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/submit-expense", "self")))),
@@ -201,8 +201,8 @@ public sealed class RoleTests
         RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;");
 
     private static IReadOnlyList<(string Path, string Text)> ClaimwickFiles() =>
-        RecordPages.FilesWithVocabulary(
-            "{\"verbs\": [\"submit\", \"reimburse\", \"erase\"]}",
+        RecordPages.Files(
+            "xml",
             ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/list-expenses"])),
             ("approver.yaml", RecordPages.RolePage("role/approver", "team", ["permission/approve-expense", "permission/list-expenses", "permission/manage-policy"])),
             ("finance.yaml", RecordPages.RolePage("role/finance", "platform", ["permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data"])),

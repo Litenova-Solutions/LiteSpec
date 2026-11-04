@@ -1,7 +1,6 @@
 <script lang="ts">
   import { book } from "$lib/book";
   import Icon from "$lib/components/book/Icon.svelte";
-  import StatusIcon from "$lib/components/book/StatusIcon.svelte";
   import TypeTag from "$lib/components/book/TypeTag.svelte";
   import { Separator } from "$lib/components/ui/separator";
   import { buildTrace } from "./rail";
@@ -48,9 +47,6 @@
                     <span class="min-w-0 flex-1 break-words">{book.title(row.id)}</span>
                   </button>
                   <TypeTag type={book.typeOf(row.id)} />
-                  {#if book.get(row.id)}
-                    <StatusIcon id={row.id} />
-                  {/if}
                 </span>
               </div>
             {:else if row.kind === "note"}

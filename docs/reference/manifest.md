@@ -106,7 +106,6 @@ What the field drives:
 | `jobs` | `docs/ext/jobs.md` | `local` | `setting`, `runbook` |
 | `stage` | `docs/ext/stage.md` | `project` | none |
 | `delegation` | `docs/ext/delegation.md` | `project` | none |
-| `site` | `docs/ext/site.md` | `project` | none |
 | `privacy` | `docs/ext/privacy.md` | `project` | none |
 | `devices` | `docs/ext/devices.md` | `local` | none |
 | `automation` | `docs/ext/automation.md` | `project` | none |
@@ -117,16 +116,17 @@ What the field drives:
 
 Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `efcore` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `setting`, and `runbook` for `outbox`. The [extensions index](../ext/README.md) states each extension with its activation criterion.
 
-Three extensions replace baseline provisions, and the manifest repeats the list where checks read it:
+Four extensions replace baseline provisions, and the manifest repeats the list where checks read it:
 
 - `audit` replaces `litespec/quality/security#record-security-audit-events`.
 - `outbox` replaces `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`.
 - `efcore` replaces the persistence and dependency provisions its Baseline relationship section names.
+- `jobs` replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
 What the field drives:
 
 - Selection: naming an extension id in `selectedExtensions` applies its page. `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting every extension whose criteria apply and none whose do not.
-- Validation: `litespec consumer` refuses an id the manifest does not ship, rejects a selection whose stack does not support the extension, and expires review dates and stage deferrals. The authoring validator checks each path, scope, kind list, and replacement id.
+- Validation: `litespec consumer` refuses an id the manifest does not ship and rejects a selection whose stack does not support the extension. The authoring validator checks each path, scope, kind list, and replacement id.
 
 ### Version Pins
 
@@ -201,4 +201,4 @@ An extension is added in three steps:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `4.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.
+The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `4.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.

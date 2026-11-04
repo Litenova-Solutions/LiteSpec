@@ -1,10 +1,6 @@
 ---
 type: example-cast
 title: Claimwick Cast
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 ---
 # Claimwick Cast
 

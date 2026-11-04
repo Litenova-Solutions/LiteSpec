@@ -77,11 +77,15 @@ internal static class ExplanationChecks
     {
         foreach (var record in model.Records.Where(record => !record.IsEntry && RecordFile.ArticleTypes.Contains(record.Type)))
         {
+            if (!RequiredSections.TryGetValue(record.Type, out var sections))
+            {
+                continue;
+            }
+
             var label = record.Type switch
             {
                 RecordTypes.Research => "Research",
-                RecordTypes.Decision => "Decision",
-                _ => "Topic",
+                _ => "Decision",
             };
 
             if (record.ExplanationFile is null || record.Explanation is null)
@@ -94,7 +98,7 @@ internal static class ExplanationChecks
 
             var headings = HeadingsOf(record.Explanation);
 
-            foreach (var section in RequiredSections[record.Type])
+            foreach (var section in sections)
             {
                 if (!headings.Contains("## " + section))
                 {
@@ -109,7 +113,6 @@ internal static class ExplanationChecks
     {
         [RecordTypes.Research] = ["Answer"],
         [RecordTypes.Decision] = ["Context"],
-        [RecordTypes.Topic] = ["The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are"],
     };
 
     /// <summary>Every H2 heading line of an explanation file, trimmed, as the page contract reads them.</summary>

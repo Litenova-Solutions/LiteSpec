@@ -66,7 +66,7 @@ public sealed class IntentFindingMessageFormatTests
         }
     }
 
-    /// <summary>A model triggering the intent-side findings: uncited requirements, unparented records, unknown verbs, vague words, and lookalikes.</summary>
+    /// <summary>A model triggering the intent-side findings: uncited requirements, unparented records, uncovered steps, unknown triggers, empty governs, template keys and missing effects.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the triggering records.</returns>
     static ProjectModel IntentModel(string root)
@@ -75,13 +75,13 @@ public sealed class IntentFindingMessageFormatTests
             TestModel.Config(root),
             TestModel.Record("requirement", "requirement/borrowing.max-5-loans", Path.Combine(root, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""),
             TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(root, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "serves": ["goal/faster-checkout"]}"""),
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.yaml"), """{"solves": ["problem/hold-delays"], "serves": ["goal/faster-checkout"]}"""),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
             TestModel.Record("use-case", "use-case/lending.fetch-volume", Path.Combine(root, "fetch.yaml"), """{"kind": "command"}"""),
             TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(root, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("rule", "rule/lending.handle-renewal", Path.Combine(root, "rules.yaml"), """{"kind": "calculation", "statement": "The clerk handles the renewal.", "governs": []}"""),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(root, "soldout.yaml"), """{"template": "soldout"}"""),
             TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(root, "sold-out.yaml"), """{"triggeredBy": ["event/sale.sale-ended"]}"""),
-            TestModel.Record("actor", "actor/reader", Path.Combine(root, "reader.yaml"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(root, "reader.yaml"), """{"kind": "person"}"""));
     }
 }

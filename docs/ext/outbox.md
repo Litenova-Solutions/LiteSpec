@@ -44,11 +44,11 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#record-durable-delivery-behavior`
 
-**Statement:** A durable-delivery specification MUST document delivery guarantee, downstream boundary, duplicate behavior, retry horizon, recovery owner, record owner, and status.
+**Statement:** A durable-delivery specification MUST document delivery guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook.
 
-**Rationale:** Delivery crosses a system boundary, so the team agrees up front on the guarantee, the boundary, the duplicate behavior, the retry horizon, and who recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. A draft names its decider and decide-by date so the agreement lands before the first message does.
+**Rationale:** Delivery crosses a system boundary, so the team agrees up front on the guarantee, the boundary, the duplicate behavior, the retry horizon, and the runbook that recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. The agreement lands before the first message does.
 
-**Reviewed for:** Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, recovery owner, record owner, and status.
+**Reviewed for:** Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook.
 
 ### Exclude Manually Repeatable Reactions and Jobs
 
@@ -460,8 +460,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 ## Dependencies
 
-Packages: `None.`
+Packages: None.
 
 Related extensions: `integrations`, `jobs`.
 
-Guides: `None.`
+Guides: None.

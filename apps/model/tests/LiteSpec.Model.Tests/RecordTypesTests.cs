@@ -6,16 +6,17 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the topic, reaction, job and exception record types and the link verbs are registered.</summary>
+/// <summary>Proves the reaction, job and exception record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
-    /// <summary>The topic is an Intent record type, and the requirement page style is gone.</summary>
-    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
+    /// <summary>The topic record type and the review report page style are gone.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Topic_Is_An_Intent_Record_Type()
+    public void Topic_And_Review_Report_Are_Gone()
     {
-        Assert.Contains("topic", RecordTypes.All);
-        Assert.Equal("intent", RecordTypes.LayerByType["topic"]);
+        Assert.DoesNotContain("topic", RecordTypes.All);
+        Assert.DoesNotContain("topic", RecordTypes.LayerByType.Keys);
+        Assert.DoesNotContain("review-report", RecordTypes.PageStyles);
         Assert.DoesNotContain("requirement-page", RecordTypes.PageStyles);
     }
 
@@ -99,6 +100,17 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["reaction", "job"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
             ["reaction", "job", "decision", "requirement"]));
+    }
+
+    /// <summary>BasedOn links the records a limit or a choice rests on, and the renamed fields are gone.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void BasedOn_Links_Limits_And_Choices()
+    {
+        Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
+            ["constraint", "research", "decision", "requirement"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("acceptedBy"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("entryPoint"));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>

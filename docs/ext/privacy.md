@@ -80,17 +80,17 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Reviewed for:** The erasure use cases cite the request they answer and touch only the data it names.
 
-### Approve the Erasure Sentence in Intent
+### State the Erasure Sentence in Intent
 
-**ID:** `litespec/ext/privacy#approve-the-erasure-sentence-in-intent`
+**ID:** `litespec/ext/privacy#state-the-erasure-sentence-in-intent`
 
-**Statement:** The literal sentence the subject reads about an erasure MUST be approved in Intent before the erasure ships.
+**Statement:** The literal sentence the subject reads about an erasure MUST stand in Intent before the erasure ships.
 
-**Rationale:** The sentence on the confirmation screen is the promise: what goes, what stays, and for how long. Behavior cannot word it, because only the product owner decides what the product promises. Approving it in Intent puts the exact sentence readers see under the same review as the requirement it fulfils.
+**Rationale:** The sentence on the confirmation screen is the promise: what goes, what stays, and for how long. Behavior cannot word it, because only the product team decides what the product promises. Stating it in Intent puts the exact sentence readers see beside the requirement it fulfils.
 
-**Example:** Mastodon shows on its account deletion form that content other servers have cached may persist, next to the promise that the account and its posts are removed; that sentence is the approved user-facing copy for a requested reach.
+**Example:** Mastodon shows on its account deletion form that content other servers have cached may persist, next to the promise that the account and its posts are removed; that sentence is the user-facing copy for a requested reach.
 
-**Reviewed for:** The confirmation sentence in the Intent requirement carries an approval before the release that shows it.
+**Reviewed for:** The confirmation sentence in the Intent requirement stands before the release that shows it.
 
 ### Complete the Subject Export Before Erasure
 
@@ -132,13 +132,13 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **ID:** `litespec/ext/privacy#record-which-duty-wins-each-conflict`
 
-**Statement:** Each retention conflict MUST name the winning duty, its basis, the owner recording the exception, and the review date.
+**Statement:** Each retention conflict MUST name the winning duty and its basis.
 
-**Rationale:** Keeping for audit and erasing for the subject collide on the same row: the invoice the statute keeps sits beside the name the subject erases. Silence lets each implementer pick a winner. Naming the winning duty with its basis, the owner who records the exception, and the date the choice is reviewed keeps one decision where every reader finds it.
+**Rationale:** Keeping for audit and erasing for the subject collide on the same row: the invoice the statute keeps sits beside the name the subject erases. Silence lets each implementer pick a winner. Naming the winning duty with its basis keeps one decision where every reader finds it.
 
-**Example:** Claimwick keeps the expense ledger for seven years under tax law while erasing the submitter contact, and the retention row names the finance owner and the next review date. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
+**Example:** Claimwick keeps the expense ledger for seven years under tax law while erasing the submitter contact. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
 
-**Reviewed for:** The retention schedule rows name the winning duty with its basis, recording owner, and review date.
+**Reviewed for:** The retention schedule rows name the winning duty with its basis.
 
 ## Conventions
 

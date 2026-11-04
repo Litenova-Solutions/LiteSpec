@@ -53,7 +53,7 @@ internal static class ProofChecks
                 findings.Add(new Finding("use-case-scenario-missing", $"Use case '{useCase.Id}' has no scenario.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
-            if (model.Status.TryGetValue(useCase.Id, out var status) && !status.Implemented)
+            if (model.Completion.TryGetValue(useCase.Id, out var completion) && completion.Stage is "unfulfilled" or "specified")
             {
                 findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has no handler, reaction or job.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
@@ -166,7 +166,7 @@ internal static class ProofChecks
                 continue;
             }
 
-            if (model.Status.TryGetValue(useCase.Id, out var status) && !status.Verified)
+            if (model.Completion.TryGetValue(useCase.Id, out var completion) && completion.Stage != "proven")
             {
                 findings.Add(new Finding("use-case-unverified", $"Use case '{useCase.Id}' has scenarios with no passing proof.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }

@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 46 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 43 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
@@ -26,7 +26,7 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 
 Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. Opting out turns off the whole package: no analyzer rule runs, and the generator writes no source and reports no diagnostic in an opted-out project. A declared `LiteSpecLayer` value that names no known layer still reports `LS2017`.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, WebApi, and Worker. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application, Infrastructure, and Worker. `LS2003` and `LS2006` run in WebApi. `LS2017` reports an unknown declared value in any project. Style rules run in every production project. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` and `LS5010` run in Domain, Application, Infrastructure, and WebApi. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
+Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, WebApi, and Worker. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application, Infrastructure, and Worker. `LS2003` and `LS2006` run in WebApi. `LS2017` reports an unknown declared value in any project. Style rules run in every production project. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
@@ -36,11 +36,11 @@ Each diagnostic carries a help link of the form `https://litespec.dev/4.0.0/<pag
 
 A traceability rule reads the records the code marks name. The package adds `.litespec/project.json` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
-Severity follows the record the finding is about: a blocking finding is an error and a reported one is a warning. A finding about a draft record reports as a warning, and a finding about a retired record is not reported. A finding that an approved exception covers stays silent. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries an exception record.
+Severity follows the finding tier: a blocking finding is an error and an advisory finding is a warning. A finding that a live exception covers stays silent: an exception is live when it is present and unexpired. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries an exception record.
 
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so a draft finding stays a warning while a blocking one fails the build. A project lowers the severity per rule in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the finding is advisory, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so an advisory finding stays a warning while a blocking one fails the build. A project lowers the severity per rule in `.editorconfig`:
 
 ```ini
 [*.cs]
@@ -105,4 +105,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where an exception allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 46 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 43 rules, grouped by layer.

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -21,7 +22,10 @@ public sealed class ReactionTriggerTests
         var root = document.RootElement;
 
         Assert.DoesNotContain(root.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs");
-        Assert.False(root.GetProperty("status").GetProperty("use-case/lending.notify-overdue").GetProperty("implemented").GetBoolean());
+        var completion = CompletionOf(root, "use-case/lending.notify-overdue");
+
+        Assert.Equal("unfulfilled", completion.GetProperty("stage").GetString());
+        Assert.Equal(0, completion.GetProperty("counts").GetProperty("code found").GetProperty("done").GetInt32());
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>
@@ -53,12 +57,16 @@ public sealed class ReactionTriggerTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
+
+    static JsonElement CompletionOf(JsonElement root, string id) =>
+        root.GetProperty("records").EnumerateArray()
+            .Single(record => record.GetProperty("id").GetString() == id)
+            .GetProperty("completion");
 
     static void Write(string root, string relative, string text)
     {
@@ -72,8 +80,6 @@ public sealed class ReactionTriggerTests
           "type": "use-case",
           "id": "use-case/lending.notify-overdue",
           "title": "Notify overdue",
-          "owner": "lending-team",
-          "status": "reviewed",
           "kind": "command",
           "access": {
             "grant": "system",
@@ -90,7 +96,6 @@ public sealed class ReactionTriggerTests
               "type": "result",
               "id": "result/notify-overdue.notified",
               "title": "Notified",
-              "owner": "lending-team",
               "outcome": "success",
               "meaning": "The reader is told."
             }
@@ -103,8 +108,6 @@ public sealed class ReactionTriggerTests
           "type": "reaction",
           "id": "reaction/lending.send-notice-on-loan-borrowed",
           "title": "Send notice on loan borrowed",
-          "owner": "lending-team",
-          "status": "reviewed",
           "triggeredBy": [
             "event/loan.loan-borrowed"
           ],

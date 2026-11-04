@@ -13,7 +13,7 @@ namespace LiteSpec.Model;
 public static class Suppression
 {
     /// <summary>
-    ///     Splits findings into reported and known. An approved exception inside its expiry date
+    ///     Splits findings into reported and known. An exception inside its expiry date
     ///     holds the findings it covers on the subjects and paths it names: a gap names its
     ///     finding codes, and a departure names the provision whose codes it follows through
     ///     <paramref name="codesOfProvision" />. An exception naming a use case also covers
@@ -34,11 +34,10 @@ public static class Suppression
         Func<string, string?> useCaseOfHome,
         Func<string, IReadOnlyList<string>>? codesOfProvision = null)
     {
-        // An approved exception inside its expiry date holds the findings it covers on the
+        // An exception inside its expiry date holds the findings it covers on the
         // subjects and paths it names.
         var live = records
             .Where(record => record.Type == "exception"
-                && record.Status == "approved"
                 && record.Field("expiresOn") is string expiresOn
                 && IsoDate(expiresOn, out var expires)
                 && today <= expires)
@@ -83,7 +82,7 @@ public static class Suppression
         return (kept, known);
     }
 
-    /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
+    /// <summary>An exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>

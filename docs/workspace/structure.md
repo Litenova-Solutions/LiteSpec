@@ -12,7 +12,7 @@ A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for 
 
 ### Records and Their Homes
 
-Each record type has one home in the tree: the [model page](../core/model.md) names the home, and the canonical tree below realizes it. Entries live on their home page instead of their own files, so an agent derives the path from the record type without searching.
+Each record type has one home in the tree: the [model page](../core/model.md) names the home, and the canonical tree below realizes it. Entries live in their home file instead of their own files, so an agent derives the path from the record type without searching.
 
 The model builder writes the generated project model under `.litespec/model/` from records, code, routes, tests, and test runs; the folder is rebuilt rather than reviewed.
 
@@ -30,64 +30,74 @@ The model builder writes the generated project model under `.litespec/model/` fr
 {repo}/
   .config/
     dotnet-tools.json
-  .litespec/model/                      generated; ignored
+  .litespec/
+    project.json
+    glossary.yaml
+    intent/
+      product.yaml
+      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/
+      modules/
+        {module}/
+          module.yaml
+          goals/ problems/ constraints/ decisions/ research/
+          features/
+            {feature}.yaml              requirements as entries
+    behavior/
+      rules/                            cross-module invariants only
+      external-systems/                 create with the first product-level external system
+      entry-points/
+        {entry-point}/
+          entry-point.yaml
+          screens/
+            {screen}.yaml
+      modules/
+        {module}/
+          permissions.yaml
+          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/
+          {aggregate}/
+            aggregate.yaml
+            {use-case}.yaml             results and scenarios as entries
+            events/ rules/
+    implementation/
+      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/
+      operations/
+        limits.yaml                     create with the first limit record
+        secrets.json                    create with the first secret
+        log/                            create with the first operations entry
+      entry-points/
+        {entry-point}/                  UI catalog, captures and patterns
+      modules/
+        {module}/
+          decisions/ runbooks/
+    governance/
+      exceptions/                       create with the first exception record
+      modules/
+        {module}/
+          exceptions/
+    proof/                              generated registers, gate files and run outputs; no authored records
+    model/                              generated; ignored
   apps/
     api/
       <backend project manifest>
       src/
       tests/
     {frontend}/
-    apphost/                   when one host runs more than one application
+    apphost/                            when one host runs more than one application
   packages/
-  docs/
-    product/
-      brief.yaml
-      {area}/                  requirement pages carrying requirement entries
-      constraints/             create with the first constraint record
-      decisions/
-      features/                create with the first feature record
-      goals/                   create with the first goal record
-      journeys/                create with the first journey record
-      problems/                create with the first problem record
-    research/                  create with the first research record
-    domain/
-      README.md
-      actors/
-      roles/
-      permissions.yaml
-      entry-points.yaml
-      systems/                 create with the first external system record
-      modules/
-        {module}/
-          README.md
-          {aggregate}/
-            README.md
-            {use-case}.yaml
-      rules/                   create with the first cross-aggregate rule set
-    operations/                create with the first operating record
-      limits.yaml              create with the first limit record
-      secrets.json             create with the first secret
-      log/                     create with the first operations entry
-    runbooks/                  create with the first runbook
-    governance/
-      exceptions/              create with the first exception record
-    ui/                        create with the first UI decision or guide, held in the pattern catalog and the design contract
-    glossary.yaml
   AGENTS.md
   <toolchain pin file>
-  package.json                 when a frontend or TypeScript package exists
-  pnpm-lock.yaml               when a frontend or TypeScript package exists
-  pnpm-workspace.yaml          when a frontend or TypeScript package exists
-  .litespec/project.json
+  package.json                          when a frontend or TypeScript package exists
+  pnpm-lock.yaml                        when a frontend or TypeScript package exists
+  pnpm-workspace.yaml                   when a frontend or TypeScript package exists
 ```
 
 A backend stack binding names the files that realize the entries in angle brackets.
 
-The example places neither the backend application nor a frontend application at the workspace root. Under `modules/`, each module folder holds one folder per aggregate in plural kebab-case form.
+The example places neither the backend application nor a frontend application at the workspace root. Under `behavior/modules/`, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module's own name may stay flat.
 
-A record page lives at the home the [model page](../core/model.md) names for its type. An entry lives on its home page: requirements on requirement pages, permissions on the permissions page, entry points on the entry-point page, limits on the limits page, and rules, results, scenarios, and events on their aggregate or use case page.
+A record file lives at the home the [model page](../core/model.md) names for its type. An entry lives in its home file: requirements in their feature file, permissions in their module's permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
 
-**Reviewed for:** The workspace tree matches the canonical tree in this section, with each record at its type's home under `docs/`.
+**Reviewed for:** The workspace tree matches the canonical tree in this section, with each record at its type's home under `.litespec/`.
 
 ### Declare Size and Application Stacks in Project Config
 
@@ -152,21 +162,21 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-consumer-documentation-at-the-root`
 
-**Statement:** Project records MUST live under the root `docs/` directory.
+**Statement:** Project records MUST live under the root `.litespec/` directory.
 
-**Rationale:** Project records describe the product, not the standard and not the code. Placing them inside the application tree makes them disappear when it is rewritten. The root `docs/` directory keeps records in a place that survives replacing the standard or rewriting the application.
+**Rationale:** Project records describe the product, not the standard and not the code. Placing them inside the application tree makes them disappear when it is rewritten. The root `.litespec/` directory keeps records in a place that survives replacing the standard or rewriting the application.
 
-**Reviewed for:** Every record path sits under the root `docs/` directory.
+**Reviewed for:** Every record path sits under the root `.litespec/` directory.
 
 ### Keep Orientation Documents Separate from Canonical Records
 
 **ID:** `litespec/workspace/structure#keep-orientation-documents-separate-from-canonical-records`
 
-**Statement:** A README under `docs/` MUST link to the approved record rather than restate its content.
+**Statement:** A README under `.litespec/` MUST link to the record rather than restate its content.
 
-**Rationale:** A README orients; a record decides. A README that restates a decision becomes a second authored source that drifts from the record it summarizes, until the two disagree and neither is trusted. Linking to the approved record keeps one source with many pointers.
+**Rationale:** A README orients; a record decides. A README that restates a decision becomes a second authored source that drifts from the record it summarizes, until the two disagree and neither is trusted. Linking to the record keeps one source with many pointers.
 
-**Reviewed for:** Each `README.md` under `docs/` links to its approved record and restates no record content.
+**Reviewed for:** Each `README.md` under `.litespec/` links to its record and restates no record content.
 
 ## Conventions
 
@@ -188,11 +198,11 @@ apps/api/
 
 **Default:** Place generated OpenAPI types in `packages/api-types/` and a thin client in `packages/api-client/` when more than one frontend consumes the API.
 
-**Replacement:** A project with a single frontend records that frontend as the local owner of both outputs.
+**Replacement:** A project with a single frontend records that frontend as keeping both outputs.
 
 **Rationale:** Generated OpenAPI types and their thin client belong to every frontend that reads the API. With more than one consumer, `packages/api-types/` and `packages/api-client/` keep one copy each. A single frontend may own both locally until a second consumer appears.
 
-**Reviewed for:** Generated OpenAPI types sit in `packages/api-types/` and the thin client in `packages/api-client/` once two frontends consume the API; with one frontend, that frontend owns both outputs.
+**Reviewed for:** Generated OpenAPI types sit in `packages/api-types/` and the thin client in `packages/api-client/` once two frontends consume the API; with one frontend, that frontend keeps both outputs.
 
 ## Reference Example
 

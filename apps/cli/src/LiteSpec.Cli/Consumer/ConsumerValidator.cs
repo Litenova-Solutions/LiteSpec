@@ -6,11 +6,10 @@ namespace LiteSpec.Consumer;
 ///     The <c>litespec consumer</c> command: holds a consumer repository to the release it pinned.
 ///     It checks the project record, the manifest version and the named stacks and extensions,
 ///     every record file against the record schema, every explanation file and document,
-///     the glossary with the rejected words, and the controlled UI through the UI validator.
+///     the glossary, and the controlled UI through the UI validator.
 /// </summary>
 /// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
-/// <follows>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</follows>
 static class ConsumerValidator
 {
     /// <summary>

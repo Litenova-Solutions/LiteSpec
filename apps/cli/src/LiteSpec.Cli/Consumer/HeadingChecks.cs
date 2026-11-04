@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
 namespace LiteSpec.Consumer;
 
@@ -66,17 +67,18 @@ static class HeadingChecks
     ///     Headings inside fenced blocks and generated regions are tool output or
     ///     quoted examples rather than authored headings, so they are skipped.
     /// </summary>
-    /// <param name="relative">The page path the findings name.</param>
+    /// <param name="file">The page file as a full path.</param>
     /// <param name="lines">The page lines.</param>
+    /// <param name="subject">The record id the findings are about, when there is one.</param>
     /// <param name="add">Collects one finding.</param>
-    public static void CheckHeadings(string relative, string[] lines, Action<string> add)
+    public static void CheckHeadings(string file, string[] lines, string? subject, Action<Finding> add)
     {
         var inFence = false;
         var inGenerated = false;
 
-        foreach (var line in lines)
+        for (var number = 0; number < lines.Length; number++)
         {
-            var trimmed = line.Trim();
+            var trimmed = lines[number].Trim();
 
             if (trimmed.StartsWith("```", StringComparison.Ordinal))
             {
@@ -112,7 +114,7 @@ static class HeadingChecks
 
                 if (title.Length > 0 && !TitleCase(title))
                 {
-                    add($"{relative}: H1 '{title}' must use Title Case");
+                    add(new Finding("page-heading-invalid", $"H1 '{title}' must use Title Case", file, number + 1, subject));
                 }
             }
             else if (trimmed.StartsWith("## ", StringComparison.Ordinal))
@@ -121,7 +123,7 @@ static class HeadingChecks
 
                 if (name.Length > 0 && !TitleCase(name))
                 {
-                    add($"{relative}: H2 '{name}' must use Title Case");
+                    add(new Finding("page-heading-invalid", $"H2 '{name}' must use Title Case", file, number + 1, subject));
                 }
             }
         }

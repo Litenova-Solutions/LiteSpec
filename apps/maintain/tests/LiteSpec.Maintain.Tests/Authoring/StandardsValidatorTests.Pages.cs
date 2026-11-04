@@ -90,14 +90,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#order-glossary-groups-alphabetically</proves>
     [Fact(DisplayName = "glossary definition")]
     public void GlossaryDefinition() => Check(
-        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Topic\n\nA bounded standards subject. It has another definition sentence.\n"),
+        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\nOne sample term. It has another definition sentence.\n"),
         ["GLOSSARY_DEFINITION"]);
 
     /// <summary>Glossary term order.</summary>
     /// <proves>litespec/core/authoring#order-glossary-groups-alphabetically</proves>
     [Fact(DisplayName = "glossary term order")]
     public void GlossaryTermOrder() => Check(
-        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Topic\n\nThe sample group.\n\n### Zeta\n\nThe last sample term.\n\n### Alpha\n\nThe first sample term.\n"),
+        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\nThe sample group.\n\n### Zeta\n\nThe last sample term.\n\n### Alpha\n\nThe first sample term.\n"),
         ["GLOSSARY_ORDER"]);
 
     /// <summary>Non-action heading.</summary>

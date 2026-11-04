@@ -6,18 +6,13 @@ namespace LiteSpec;
 ///     the command does not declare is a usage error, as are a repeated option
 ///     and an empty value for <c>--root</c>, <c>--model</c>, <c>--out</c> or
 ///     <c>--editor</c>. A usage error is reported before <c>--help</c> is
-///     honoured. The repeatable options are <c>--batch</c> and
-///     <c>--batches</c>: <c>model approve</c> collects every batch from the
-///     raw arguments, so a repeated batch option is not an error.
+///     honoured.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class CliArgs
 {
     /// <summary>Options whose empty value is a usage error.</summary>
     static readonly HashSet<string> NonEmptyOptions = new(StringComparer.Ordinal) { "--root", "--model", "--out", "--editor" };
-
-    /// <summary>Options a command collects repeatedly from the raw arguments.</summary>
-    static readonly HashSet<string> RepeatableOptions = new(StringComparer.Ordinal) { "--batch", "--batches" };
 
     /// <summary>The option values by option name.</summary>
     readonly Dictionary<string, string> values = new(StringComparer.Ordinal);
@@ -79,7 +74,7 @@ public sealed class CliArgs
             }
             else if (knownOptions.Contains(name))
             {
-                if (!seenOptions.Add(name) && !RepeatableOptions.Contains(name))
+                if (!seenOptions.Add(name))
                 {
                     result.Error ??= $"Option {name} is repeated.";
                 }

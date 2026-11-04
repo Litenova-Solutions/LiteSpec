@@ -36,11 +36,11 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-audit-adoption-decision`
 
-**Statement:** An audit adoption decision MUST record its `owner`, `status`, `decider`, `decideBy`, audited categories, threshold, access model, integrity method, and records entry.
+**Statement:** An audit adoption decision MUST record its audited categories, threshold, access model, integrity method, and records entry.
 
-**Rationale:** Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation, and no record is approved while the decision is still draft. Without that order, each reviewer reconstructs the policy from the code and two reviewers reconstruct different policies.
+**Rationale:** Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation instead of reconstructing it from the code, which would give two reviewers two different policies.
 
-**Reviewed for:** Which adoption decisions lack owner, status, decider, decideBy, categories, threshold, access model, integrity method, or records entry? Look at the adoption decision behind the audited Commands.
+**Reviewed for:** Which adoption decisions lack categories, threshold, access model, integrity method, or records entry? Look at the adoption decision behind the audited Commands.
 
 ### Declare Audit Selection on Every Command
 

@@ -20,4 +20,4 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
   - [Naming Grammar Evidence](research/naming-grammar-evidence.md): the 248-field inventory, the collisions and the word classes behind D9 to D18.
   - [Lower Layers Practice](research/lower-layers-practice.md): the outside review and the measured consumer counts behind D25 to D46.
   - [Record Format Evidence](research/record-format-evidence.md): the format comparison and the measured consumer counts behind records in YAML.
-- Decisions (`decisions/`): the twenty decision records this release settles, written beside these research records. Decisions 0010 to 0019 record the Intent simplification, the record language and the lower-layer designs; decision 0020 records records in YAML with explanation files.
+- Decisions (`decisions/`): the seventeen decision records this release settles, written beside these research records. Decisions 0001 to 0009 record the hierarchy, naming and book shape; decisions 0011, 0012 and 0014 to 0018 record the record language and the lower-layer designs; decision 0020 records records in YAML with explanation files.

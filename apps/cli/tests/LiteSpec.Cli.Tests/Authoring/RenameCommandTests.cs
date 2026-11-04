@@ -31,7 +31,7 @@ public sealed class RenameCommandTests
         using var fixture = ModelFixture.Prepare("small");
         var loans = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "loans");
         var linking = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "notes.md");
-        File.WriteAllText(linking, "---\ntype: reference\nid: notes\ntitle: Notes\nowner: lending-team\nstatus: draft\n---\n\n# Notes\n\nSee [borrowing](use-case/lending.borrow-copy).\n");
+        File.WriteAllText(linking, "---\ntype: reference\nid: notes\ntitle: Notes\n---\n\n# Notes\n\nSee [borrowing](use-case/lending.borrow-copy).\n");
 
         var result = Cli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", fixture.Path);
 

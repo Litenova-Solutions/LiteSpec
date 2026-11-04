@@ -19,14 +19,14 @@
     return {
       total: ids.length,
       shown: book.anyFilter() ? ids.filter((id) => book.matches(id)).length : 0,
-      appr: ids.filter((id) => !book.needs(id)).length,
+      done: ids.filter((id) => book.completeOf(id)).length,
       all: book.order.filter((id) => book.layerOf[id] === row.layer).length,
     };
   });
   const desc = $derived.by(() => {
     if (row.kind !== "desc") return "";
     const meta = book.layerByKey[row.layer];
-    return inline(book, meta?.question ?? "") + (meta?.writes ? " Written by " + esc(meta.writes) + "; reviewed by " + esc(meta.reviews) + "." : "");
+    return inline(book, meta?.question ?? "") + (meta?.writes ? " Written by " + esc(meta.writes) + "." : "");
   });
 
   function toggleLayer(key: string) {
@@ -53,7 +53,7 @@
     </span>
     <span class="flex-none">{meta?.label ?? row.layer}</span>
     {#if loaded && stats}
-      <span class="ml-auto font-mono text-[11px] font-normal whitespace-nowrap text-muted-foreground" title="{stats.appr} of {stats.total} approved or reviewed">
+      <span class="ml-auto font-mono text-[11px] font-normal whitespace-nowrap text-muted-foreground" title="{stats.done} of {stats.total} complete">
         {book.anyFilter() ? `${stats.shown} shown` : n0(stats.total || stats.all)}
       </span>
     {/if}

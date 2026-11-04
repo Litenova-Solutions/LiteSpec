@@ -6,7 +6,7 @@ One field name carries two concepts, and one concept carries two names, across t
 
 ## Decision
 
-Each colliding field is renamed to one concept, one name, and one shape: feature `state` to `lifecycle`, goal and requirement `by` to `dueBy`, feature `by` to `plannedFor`, decision `decided` to `decidedOn`, constraint `source` to `authority`, and constraint `category` to `kind`. The Links table states how every link reads in both directions, and the book takes its connection labels from those phrases.
+Each colliding field is renamed to one concept, one name, and one shape: constraint `source` to `authority`, and constraint `category` to `kind`. The Links table states how every link reads in both directions, and the book takes its connection labels from those phrases.
 
 ## Evidence with Confidence
 

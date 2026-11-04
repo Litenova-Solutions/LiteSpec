@@ -2,7 +2,7 @@
 
 ## Intent
 
-These principles settle a design choice when no narrower provision prefers one design: each record layer is written from the record layer above, commitments flow down while facts flow up, and every edge between records is declared. This page states those principles with the engineering rules that still hold: one source for each fact, mechanical proof of boundaries, restraint about new machinery, and names that state boundary intent. Apply it when two designs both satisfy the narrower pages, and read the [layers page](layers.md) for the boundaries these principles govern.
+These principles settle a design choice when no narrower provision prefers one design. LiteSpec defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. Apply this page when two designs both satisfy the narrower pages, and read the [layers page](layers.md) for the boundaries these principles govern.
 
 ## Concepts
 
@@ -12,19 +12,15 @@ Each record layer is written from the record layer above it: Intent states the p
 
 ### Commitments Flow Down and Facts Flow Up
 
-A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated. What a lower record layer needs, and the upper record layer does not say, travels up as a draft question with a decider and a date. Nothing travels up from code.
+A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated. What a lower record layer needs, and the upper record layer does not say, goes to the owner as a question or to the backlog board outside the repository, never quietly into the lower record layer. Nothing travels up from code.
 
 ### The Spec Wins Where Intent Has Spoken
 
-Where Intent states a promise, the record wins over the code: code that disagrees is the defect. Where Intent is silent, working code is evidence for a question, and the question carries the code behavior to a decider. Silence is a gap to ask about, not a defect to delete and not a source to transcribe quietly.
+Where Intent states a promise, the record wins over the code: code that disagrees is the defect. Where Intent is silent, working code is evidence for a question to the owner, and the answer lands in Intent first. Silence is a gap to ask about, not a defect to delete and not a source to copy quietly.
 
 ### Derivation Between Records Only
 
 One record derives from another: generic refusals derive from access and input, and views derive from the records they list. Derivation runs between records, in one direction, from the authored source to what cites it. Code is not a source for a record.
-
-### Intent Is Enough to Approve
-
-A decider approves Intent without opening Behavior: the ballot and each book chapter carry what the decision needs. Each ballot and chapter carries a consequences summary rendered from Behavior, marked as context and outside what the approval covers. The summary shows refusals in product words, data kept and for how long, and money effects.
 
 ### Declared Edges, Not Mechanism Bans
 
@@ -36,7 +32,7 @@ LiteSpec favors modules, aggregates, domain events, use cases, reactions, and jo
 
 ### One Source for Each Fact
 
-Each fact lives in exactly one home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. Coverage, history, and status derive from the model; nobody types them by hand. Each record carries its status in its record file, where tools and reviewers read it, and each draft names its decider and decideBy date. Entries inherit their page's `owner` and `status` unless they set their own. The [model page](model.md) defines the common fields and the computed links.
+Each fact lives in exactly one home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. Completion derives from the model; nobody types it by hand. The [model page](model.md) defines the common fields and the computed links.
 
 ### Mechanical Proof of Boundaries
 
@@ -49,6 +45,34 @@ Each package, project, wrapper, background process, cache, queue, or distributed
 ### Naming Boundary Intent
 
 Boundaries are where components meet and where future readers orient themselves. Boundary names state the business action they guard, so a newcomer places the interaction without opening either side. Generic names collect unrelated responsibility behind them with every change.
+
+### Git Is the Decision Record
+
+A record in the repository is decided, and the pull request that changes it is its review. A record nobody wants is deleted; git keeps its history. Who changed what and when comes from git, so records carry no history of their own.
+
+### The Specification Is Closed
+
+An agent builds what the specification states and nothing more. Something that seems missing becomes a question to the owner or a backlog item, never code. Ideas live on the backlog board outside the repository until they are specified.
+
+### Every Record Is About the Software
+
+Every record states what the application does, holds, refuses at runtime, or runs on. Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure, and none qualifies when it is about running the company. A goal is a software goal that translates into code, results, and infrastructure, never a business goal.
+
+### Completion Is Computed
+
+What a reader asks first is how much of a thing exists and is proven. The model computes it from code, tests, and passing scenarios, and nobody types it. The book shows completion first, derived from the runs.
+
+### Guidance States Its Strength
+
+The specification model is strict: a record follows its schema, links resolve, and code and tests mark the records they serve, and a violation is a defect. Every provision beside the model says whether it is a rule, a default, or advice, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+
+### Tools Stay Small
+
+A command, check, generated file, or package exists because the owner approved it, and it is removed when nothing uses it. Each tool adds maintenance, failure modes, and concepts every later reader learns. Preference and possible future need justify nothing.
+
+### Work in Progress
+
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
 
 ## Standards
 
@@ -82,7 +106,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A consumer MUST NOT compute a record above Implementation from code.
 
-**Rationale:** A record computed from code turns what exists into what is promised, so drift becomes the plan and review approves its own output. Records above Implementation state decided promises, and code points up to the record it serves through a mark naming that record.
+**Rationale:** A record computed from code turns what exists into what is promised, so drift becomes the plan and the record restates what the code already does. Records above Implementation state decided promises, and code points up to the record it serves through a mark naming that record.
 
 **Reviewed for:** Which records above Implementation restate code instead of a decided promise? Compare each new record with the code beside it.
 
@@ -104,21 +128,21 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** A provider behavior, a regulation, or an incident is evidence from outside the project, and entering it as research or a constraint keeps the citation and the date beside the fact. A fact typed straight into Behavior or code loses its source, and later readers treat an observation as a decision.
 
-**Example:** An agent records a slower payout settlement as research, then drafts the constraint that cites it.
+**Example:** An agent records a slower payout settlement as research, then writes the constraint that cites it.
 
 **Reviewed for:** Which outside facts lack a cited and dated source? Look at the research and constraint records beside the change.
 
-### Raise What a Lower Layer Needs as a Question
+### Raise What a Lower Layer Needs to the Owner
 
-**ID:** `litespec/core/principles#raise-what-a-lower-layer-needs-as-a-question`
+**ID:** `litespec/core/principles#raise-what-a-lower-layer-needs-to-the-owner`
 
-**Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, as a draft question with a decider and a date.
+**Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, to the owner as a question or to the backlog board, never quietly in the lower record layer.
 
-**Rationale:** A need that travels up as a draft question reaches the person who decides it, with a date that keeps it visible. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust. The [model page](model.md) states how an aged question is reported (`litespec/core/model#answer-each-question-on-its-record`).
+**Rationale:** A need that goes to the owner reaches the person who decides it, and a need placed on the backlog board stays visible outside the repository. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust.
 
-**Example:** A use case that needs a price its requirements do not state raises a draft question with a named decider and a decideBy date.
+**Example:** A use case that needs a price its requirements do not state raises an owner question naming the missing price.
 
-**Reviewed for:** Which needs from a lower record layer lack a draft question with a decider and a date? Look at the open questions beside the records that need them.
+**Reviewed for:** Which needs from a lower record layer lack an owner question or a backlog item? Look at the owner questions and the backlog board beside the records that need them.
 
 ### Follow Intent Where It Has Spoken
 
@@ -130,27 +154,17 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Reviewed for:** Which code disagrees with a stated promise? Compare the changed code with the Intent records it serves.
 
-### Treat Code Beyond Silent Intent as Evidence for a Question
+### Treat Code Beyond Silent Intent as Evidence for an Owner Question
 
-**ID:** `litespec/core/principles#treat-code-beyond-silent-intent-as-evidence-for-a-question`
+**ID:** `litespec/core/principles#treat-code-beyond-silent-intent-as-evidence-for-an-owner-question`
 
-**Statement:** A consumer MUST treat working code that Intent does not cover as evidence for a question, not as a defect to delete and not as a source to transcribe quietly.
+**Statement:** A consumer MUST treat working code that Intent does not cover as evidence for a question to the owner, not as a defect to delete and not as a source to copy into Intent.
 
-**Rationale:** Silent Intent plus working code means a decision nobody recorded: deleting the code destroys behavior users rely on, and transcribing it quietly turns code into a promise nobody approved. A question carries the behavior to a decider with the code as evidence, and the decision lands in Intent first.
+**Rationale:** Silent Intent plus working code means a decision nobody recorded: deleting the code destroys behavior users rely on, and copying it quietly into Intent turns code into a promise nobody stated. A question carries the behavior to the owner with the code as evidence, and the answer lands in Intent first.
 
-**Example:** A positivity guard in code that no rule states becomes a draft question citing the guard, and the code stays until the decision lands.
+**Example:** A positivity guard in code that no rule states becomes an owner question citing the guard, and the code stays until the answer lands in Intent.
 
-**Reviewed for:** Which working code outside Intent lacks a question carrying it? Look at the open questions beside the uncovered code.
-
-### Render Consequences as Context Outside Approval
-
-**ID:** `litespec/core/principles#render-consequences-as-context-outside-approval`
-
-**Statement:** Each ballot and each book chapter MUST carry a consequences summary rendered from Behavior, marked as context and outside the approval hash.
-
-**Rationale:** Intent is enough to approve when the ballot shows what the decision costs: new refusals in product words, data kept and for how long, and money effects. Marking the summary as context outside the approval hash keeps Behavior detail from becoming part of what Intent approves, so Behavior can change without reopening the Intent approval.
-
-**Reviewed for:** Which ballots or book chapters lack a consequences summary marked as context? Look at the rendered book beside the changed Intent records.
+**Reviewed for:** Which working code outside Intent lacks an owner question carrying it? Look at the owner questions beside the uncovered code.
 
 ### Declare Every Edge
 
@@ -160,7 +174,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.
 
-**Example:** A use case that reminds an approver declares a sends edge to the notification with its timing and failure handling.
+**Example:** A use case that reminds a manager declares a sends edge to the notification with its timing and failure handling.
 
 **Reviewed for:** Which edges lack a declaration on their record? Look at the `effects` entries with `runs`, `sends`, `emits`, or `calls` beside the changed records.
 
@@ -234,7 +248,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A consumer MUST author each record once in its home file and derive every other appearance from the model.
 
-**Rationale:** Two homes for one fact become two facts with the next edit: each copy changes on its own schedule while readers guess which one rules. Deriving every other appearance from the model keeps the authored record as the single place a change lands. Coverage, history, and status computed from the model stay true without anyone typing them by hand.
+**Rationale:** Two homes for one fact become two facts with the next edit: each copy changes on its own schedule while readers guess which one rules. Deriving every other appearance from the model keeps the authored record as the single place a change lands. Completion computed from the model stays true without anyone typing it by hand.
 
 **Reviewed for:** Each fact on the changed pages traces to one authored record, with every other appearance derived from the model.
 
@@ -248,65 +262,97 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Checked by:** `litespec consumer` fails a project whose stack versions do not resolve from the manifest.
 
-### Locate Record Status in the Record File
-
-**ID:** `litespec/core/principles#locate-record-status-in-frontmatter`
-
-**Statement:** A consumer MUST carry each record's `status`, `owner`, `decider`, and `decideBy` date in its record file.
-
-**Rationale:** Status in the record file exposes it to tools and reviewers in one predictable place. Entries inherit their page's `owner` and `status` unless they set their own, so one record file governs the whole page. Status kept in prose hides from every check and goes stale with the next edit. The [model page](model.md) defines the common fields.
-
-**Checked by:** `litespec consumer` fails a record whose record file is missing a required common field.
-
 ### Prove Scenarios with Tests
 
 **ID:** `litespec/core/principles#prove-scenarios-with-tests`
 
 **Statement:** A test MUST prove a scenario only by calling its use case and asserting its result.
 
-**Rationale:** A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test is a gap exception with an owner and an expiry date, not silent coverage. The [model page](model.md) defines the `proves` link.
+**Rationale:** A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test carries a gap exception with an expiry date, not silent coverage. The [model page](model.md) defines the `proves` link.
 
 **Reviewed for:** Each scenario in the model links a passing test that calls its use case and asserts its result.
 
-### Classify Record Authority
+### Keep Git as the Decision Record
 
-**ID:** `litespec/core/principles#classify-record-authority`
+**ID:** `litespec/core/principles#keep-git-as-the-decision-record`
 
-**Statement:** A record MUST carry exactly one status of its record layer: draft, approved, or retired for Intent and governance records, and draft, reviewed, or retired for Behavior records.
+**Statement:** A consumer MUST treat a record in the repository as decided, with the pull request that changes it as its review.
 
-**Rationale:** Exactly one status tells every reader what a record is: under review, authoritative, or past. Intent records turn approved while Behavior records turn reviewed, so each record layer names its own authority without borrowing the other. A draft without a decider and decideBy date waits on nobody and decides nothing.
+**Rationale:** A record in git is the decision, and the pull request that changes it is its review. A record nobody wants is deleted, and git keeps who changed what and when. Records carry no history of their own.
 
-**Checked by:** `litespec consumer` fails a record with a missing or unknown status, or a draft without `decider` and `decideBy` date.
+**Example:** A feature nobody wants is deleted from the repository; its history stays in git.
 
-### Refuse Approval Behind a Draft Decision
+**Reviewed for:** Which changed records bypass their pull request? Look at the pull request behind the change.
 
-**ID:** `litespec/core/principles#refuse-approval-behind-a-draft-decision`
+### Build Only What the Specification States
 
-**Statement:** A record MUST NOT be approved or reviewed while a decision behind it is a draft.
+**ID:** `litespec/core/principles#build-only-what-the-specification-states`
 
-**Rationale:** Approval or review on a draft turns an undecided choice into an authoritative record that later readers trust. The records then rest on a choice nobody made. Approving the decision first keeps the chain sound: decided choice, then the records behind it.
+**Statement:** A consumer MUST build what the specification states and nothing more.
 
-**Reviewed for:** Each decision behind an approved or reviewed record shows approved status in its own record.
+**Rationale:** The specification is closed: something that seems missing becomes a question to the owner or a backlog item, never code. Code without a record behind it is a promise nobody stated.
 
-### Separate Authority from Implementation
+**Example:** An agent that finds no payout rule asks the owner instead of coding a guessed guard.
 
-**ID:** `litespec/core/principles#separate-authority-from-implementation`
+**Reviewed for:** Which code has no specification record behind it? Compare the changed code with the records it serves.
 
-**Statement:** A record MUST NOT write its own implemented, verified, stale, reachable, or effective status, because the builder computes each from code and test runs.
+### Write Every Record About the Software
 
-**Rationale:** An approved or reviewed record states a planned target, not a claim that behavior runs. Writing a computed status by hand turns the plan into a completion report that the next commit falsifies. The [model page](model.md) defines how the model computes each status from code and test runs.
+**ID:** `litespec/core/principles#write-every-record-about-the-software`
 
-**Checked by:** `litespec consumer` fails a record that writes its own implemented, verified, stale, reachable, or effective status.
+**Statement:** Every record MUST state what the application does, holds, refuses at runtime, or runs on.
 
-### Retire Public Behavior Deliberately
+**Rationale:** Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure. Running the company stays out; it enters only as a constraint or as dated research.
 
-**ID:** `litespec/core/principles#retire-public-behavior-deliberately`
+**Example:** A goal that translates into payout code and tests qualifies; a sales target does not.
 
-**Statement:** A retired use case MUST name no entry point in `reachedThrough`.
+**Reviewed for:** Which records state company business instead of the software? Compare each new record with the code, results, tests, or infrastructure it translates into.
 
-**Rationale:** A retired record stays readable as the past and owns no still-supported public behavior. A use case that still names an entry point in `reachedThrough` claims a route the team no longer supports. Removing the route before retiring the record keeps the retirement honest.
+### Compute Completion from Code and Tests
 
-**Checked by:** `litespec consumer` fails a retired use case that still names an entry point.
+**ID:** `litespec/core/principles#compute-completion-from-code-and-tests`
+
+**Statement:** A consumer MUST NOT write completion by hand, because the model computes it from code, tests, and passing scenarios.
+
+**Rationale:** What a reader asks first is how much of a thing exists and is proven. Completion typed by hand turns the plan into a completion report that the next commit falsifies. The [model page](model.md) defines what the model computes.
+
+**Example:** The book shows a use case complete when its handler exists and its scenarios pass, with the model deriving that from the runs.
+
+**Reviewed for:** Which records state their own completion? Compare the record fields with the completion the model computes.
+
+### State the Strength of Every Provision
+
+**ID:** `litespec/core/principles#state-the-strength-of-every-provision`
+
+**Statement:** Every provision MUST state whether it is a rule, a default, or advice, and where it applies.
+
+**Rationale:** Strength words work only when each one means exactly one thing: an agent tells binding from advisory without a check existing. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+
+**Reviewed for:** Which provisions leave their strength or scope unstated? Look at the provisions the change adds.
+
+### Keep Tools Small
+
+**ID:** `litespec/core/principles#keep-tools-small`
+
+**Statement:** A command, check, generated file, or package MUST exist only while the owner approves it and something uses it.
+
+**Rationale:** Each command, check, generated file, or package adds maintenance, failure modes, and concepts every later reader learns. A tool nothing uses is removed instead of kept beside its replacement.
+
+**Example:** A check nobody runs is removed with its command.
+
+**Reviewed for:** Which commands, checks, generated files, or packages lack an owner approval or a user? Look at the tooling the change adds beside its users.
+
+### Complete Work Before Merging
+
+**ID:** `litespec/core/principles#complete-work-before-merging`
+
+**Statement:** What merges MUST be complete.
+
+**Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+
+**Example:** A use case with no endpoint stays on its branch until the endpoint lands or an exception with `expiresOn` parks it.
+
+**Checked by:** `litespec model check` reports unreached records locally and blocks on them in the pull-request check.
 
 ### Prove Enforceable Boundaries Mechanically
 
@@ -336,9 +382,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A consumer MUST use business operation names, specific command and query mediators, and business-action external ports at boundaries.
 
-**Rationale:** Boundaries are where components meet and where future readers orient themselves. Business operation names, specific command and query mediators, and business-action external ports state the purpose and owner at that meeting point. A precise name lets a newcomer place the interaction without opening either side.
+**Rationale:** Boundaries are where components meet and where future readers orient themselves. Business operation names, specific command and query mediators, and business-action external ports state the purpose at that meeting point. A precise name lets a newcomer place the interaction without opening either side.
 
-**Reviewed for:** Each changed boundary name states its business action and owner.
+**Reviewed for:** Each changed boundary name states its business action.
 
 ### Avoid Generic Boundary Names
 

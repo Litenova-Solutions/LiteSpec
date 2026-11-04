@@ -5,7 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     What the model builder reads from the consumer's declaration.
 /// </summary>
-/// <follows>litespec/core/model#declare-size-stacks-and-optional-types</follows>
+/// <follows>litespec/core/model#declare-size-and-stacks</follows>
 sealed class ConsumerConfig
 {
     /// <summary>Initializes a new instance of the <see cref="ConsumerConfig" /> class for one consumer root.</summary>
@@ -27,31 +27,11 @@ sealed class ConsumerConfig
     /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
-    /// <summary>Gets days before a draft question on a record with no risk class auto-approves.</summary>
-    public int VetoWindowDays { get; private set; } = 7;
-
-    /// <summary>Gets the share of a batch of records with no risk class that batch approval samples, from the lowest semantic hashes.</summary>
-    public double SampleShare { get; private set; } = 0.1;
-
-    /// <summary>
-    ///     Gets the approval table: each risk class with the owner who approves records
-    ///     carrying it, and the <c>default</c> entry with the rule for records with no
-    ///     risk class, as written in <c>approvals</c>. Empty when the project names none.
-    /// </summary>
-    public IReadOnlyDictionary<string, string> Approvals { get; private set; } =
-        new Dictionary<string, string>(StringComparer.Ordinal);
-
     /// <summary>Gets the absolute screenshot gallery folders, from <c>screenshots.galleries</c>.</summary>
     public IReadOnlyList<string> ScreenshotGalleries { get; private set; } = [];
 
     /// <summary>Gets the screenshot file-name pattern, from <c>screenshots.pattern</c>.</summary>
     public string ScreenshotPattern { get; private set; } = "{route}--{theme}--{width}.png";
-
-    /// <summary>Gets the owner reviewing access, outside calls and personal-data flows.</summary>
-    public string? SecurityReviewer { get; private set; }
-
-    /// <summary>Gets the decision whose approval ends transcription mode.</summary>
-    public string? TranscriptionEndsWith { get; private set; }
 
     /// <summary>Gets the refusal code the derived forbidden result carries.</summary>
     public string ForbiddenCode { get; private set; } = "authorization.forbidden";
@@ -72,32 +52,9 @@ sealed class ConsumerConfig
     /// </summary>
     public IReadOnlyList<string> RefusalComposed { get; private set; } = [];
 
-    /// <summary>Gets the client refusal vocabulary translated to declared codes, by client code.</summary>
+    /// <summary>Gets the client refusal codes translated to declared codes, by client code.</summary>
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
-
-    /// <summary>Gets the domain verbs the project adds to the baseline vocabulary.</summary>
-    public IReadOnlyList<string> Verbs { get; private set; } = [];
-
-    /// <summary>Gets multi-word verbs counted as one use-case opening.</summary>
-    public IReadOnlyList<string> PhrasalVerbs { get; private set; } = [];
-
-    /// <summary>Gets the project verbs that name a query, beside the baseline reading verbs.</summary>
-    public IReadOnlyList<string> QueryVerbs { get; private set; } = [];
-
-    /// <summary>Gets retired synonyms mapped to their replacement verb, by synonym, beside the baseline ones.</summary>
-    public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
-        new Dictionary<string, string>(StringComparer.Ordinal);
-
-    /// <summary>Gets lookalike pairs the term-clash check skips, each as "a|b".</summary>
-    public IReadOnlyList<string> LookalikeIgnore { get; private set; } = [];
-
-    /// <summary>Gets the past tense of project domain verbs, by verb, beside the baseline table.</summary>
-    public IReadOnlyDictionary<string, string> PastTense { get; private set; } =
-        new Dictionary<string, string>(StringComparer.Ordinal);
-
-    /// <summary>Gets a value indicating whether whether the declaration names a use-case verb vocabulary.</summary>
-    public bool HasVocabulary { get; private set; }
 
     /// <summary>Gets the backend layers.</summary>
     public string ApplicationRoot { get; private set; } = "";
@@ -167,19 +124,6 @@ sealed class ConsumerConfig
 
     /// <summary>Gets a value indicating whether whether the CI environment variable is set, so reader-missing blocks.</summary>
     public bool IsContinuousIntegration { get; private set; }
-
-    /// <summary>Gets the closed owner list.</summary>
-    public IReadOnlyList<string> Owners { get; private set; } = [];
-
-    /// <summary>Gets the CODEOWNERS handles each owner name maps to, by owner name.</summary>
-    public IReadOnlyDictionary<string, IReadOnlyList<string>> OwnerCodeowners { get; private set; } =
-        new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-
-    /// <summary>Gets a value indicating whether whether the declaration names an owner list.</summary>
-    public bool HasOwners { get; private set; }
-
-    /// <summary>Gets the optional types the project records.</summary>
-    public IReadOnlyList<string> OptionalTypes { get; private set; } = [];
 
     /// <summary>Gets the steps classes whose when steps run a job, such as one that moves a simulated clock.</summary>
     public IReadOnlyList<string> JobTriggerSteps { get; private set; } = [];
@@ -324,38 +268,6 @@ sealed class ConsumerConfig
             ];
         }
 
-        if (document.RootElement.TryGetProperty("owners", out var owners)
-            && owners.ValueKind == JsonValueKind.Array)
-        {
-            config.HasOwners = true;
-
-            // An entry is a plain name or an object mapping a readable name to its
-            // CODEOWNERS handles. The first entry wins when two entries share a name.
-            var names = new List<string>();
-            var mapped = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-
-            foreach (var entry in owners.EnumerateArray())
-            {
-                var name = entry.ValueKind switch
-                {
-                    JsonValueKind.String => entry.GetString(),
-                    JsonValueKind.Object when entry.TryGetProperty("name", out var named)
-                        && named.ValueKind == JsonValueKind.String => named.GetString(),
-                    _ => null,
-                };
-
-                if (name is not { Length: > 0 } || !mapped.TryAdd(name, ReadHandles(entry)))
-                {
-                    continue;
-                }
-
-                names.Add(name);
-            }
-
-            config.Owners = names;
-            config.OwnerCodeowners = mapped;
-        }
-
         if (document.RootElement.TryGetProperty("selectedExtensions", out var extensions)
             && extensions.ValueKind == JsonValueKind.Array)
         {
@@ -379,49 +291,11 @@ sealed class ConsumerConfig
             config.Extensions = ids;
         }
 
-        if (document.RootElement.TryGetProperty("optionalTypes", out var optional)
-            && optional.ValueKind == JsonValueKind.Array)
-        {
-            config.OptionalTypes =
-            [
-                .. optional.EnumerateArray()
-                             .Where(entry => entry.ValueKind == JsonValueKind.String)
-                             .Select(entry => entry.GetString()!),
-            ];
-        }
-
         if (document.RootElement.TryGetProperty("proof", out var proof)
             && proof.ValueKind == JsonValueKind.Object)
         {
             config.JobTriggerSteps = ReadNames(proof, "jobTriggerSteps");
             config.OutcomeOnlySteps = ReadNames(proof, "outcomeOnlySteps");
-        }
-
-        if (document.RootElement.TryGetProperty("review", out var review)
-            && review.ValueKind == JsonValueKind.Object)
-        {
-            if (review.TryGetProperty("vetoWindowDays", out var window)
-                && window.ValueKind == JsonValueKind.Number
-                && window.TryGetInt32(out var days)
-                && days > 0)
-            {
-                config.VetoWindowDays = days;
-            }
-
-            if (review.TryGetProperty("sampleShare", out var share)
-                && share.ValueKind == JsonValueKind.Number
-                && share.TryGetDouble(out var sampled)
-                && sampled is > 0 and <= 1)
-            {
-                config.SampleShare = sampled;
-            }
-
-            if (review.TryGetProperty("securityReviewer", out var reviewer)
-                && reviewer.ValueKind == JsonValueKind.String
-                && reviewer.GetString() is { Length: > 0 } name)
-            {
-                config.SecurityReviewer = name;
-            }
         }
 
         if (document.RootElement.TryGetProperty("refusals", out var refusals)
@@ -445,35 +319,6 @@ sealed class ConsumerConfig
             config.RefusalAliases = ReadAliases(refusals);
             config.RefusalPrefixes = ReadNames(refusals, "prefixes");
             config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
-        }
-
-        if (document.RootElement.TryGetProperty("vocabulary", out var vocabulary)
-            && vocabulary.ValueKind == JsonValueKind.Object)
-        {
-            config.HasVocabulary = true;
-            config.Verbs = ReadNames(vocabulary, "verbs");
-            config.PhrasalVerbs = ReadNames(vocabulary, "phrasal");
-            config.QueryVerbs = ReadNames(vocabulary, "queryVerbs");
-            config.RetiredVerbs = ReadRetired(vocabulary);
-            config.LookalikeIgnore = ReadNames(vocabulary, "lookalikeIgnore");
-            config.PastTense = ReadPastTense(vocabulary);
-        }
-
-        if (document.RootElement.TryGetProperty("approvals", out var approvals)
-            && approvals.ValueKind == JsonValueKind.Object)
-        {
-            var table = new Dictionary<string, string>(StringComparer.Ordinal);
-
-            foreach (var entry in approvals.EnumerateObject())
-            {
-                if (entry.Value.ValueKind == JsonValueKind.String
-                    && entry.Value.GetString() is { Length: > 0 } approver)
-                {
-                    table[entry.Name] = approver;
-                }
-            }
-
-            config.Approvals = table;
         }
 
         if (document.RootElement.TryGetProperty("screenshots", out var screenshots)
@@ -506,15 +351,6 @@ sealed class ConsumerConfig
             }
         }
 
-        if (document.RootElement.TryGetProperty("adoption", out var adoption)
-            && adoption.ValueKind == JsonValueKind.Object
-            && adoption.TryGetProperty("transcriptionEndsWith", out var ends)
-            && ends.ValueKind == JsonValueKind.String
-            && ends.GetString() is { Length: > 0 } decision)
-        {
-            config.TranscriptionEndsWith = decision;
-        }
-
         config.IsContinuousIntegration = Environment.GetEnvironmentVariable("CI") is { Length: > 0 };
         config.Problems = problems;
 
@@ -529,22 +365,12 @@ sealed class ConsumerConfig
     public string Relative(string absolute) =>
         Path.GetRelativePath(Root, absolute).Replace(Path.DirectorySeparatorChar, '/');
 
-    /// <summary>
-    ///     The owner itself plus the CODEOWNERS handles its project owners entry lists.
-    /// </summary>
-    /// <param name="owner">The owner name to expand.</param>
-    /// <returns>The owner followed by its CODEOWNERS handles, or the owner alone when it maps to none.</returns>
-    public IReadOnlyList<string> CandidatesFor(string owner) =>
-        OwnerCodeowners.TryGetValue(owner, out var handles)
-            ? [owner, .. handles]
-            : [owner];
-
     /// <summary>Reads a string array field, keeping only its string entries.</summary>
-    /// <param name="owner">The JSON object holding the field.</param>
+    /// <param name="element">The JSON object holding the field.</param>
     /// <param name="field">The field name to read.</param>
     /// <returns>The string entries of the field, or an empty list when the field is missing or not an array.</returns>
-    private static IReadOnlyList<string> ReadNames(JsonElement owner, string field) =>
-        owner.TryGetProperty(field, out var names) && names.ValueKind == JsonValueKind.Array
+    private static IReadOnlyList<string> ReadNames(JsonElement element, string field) =>
+        element.TryGetProperty(field, out var names) && names.ValueKind == JsonValueKind.Array
             ? [.. names.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)]
             : [];
 
@@ -598,70 +424,6 @@ sealed class ConsumerConfig
 
         return aliases;
     }
-
-    /// <summary>The past-tense map: each project domain verb with its past tense.</summary>
-    /// <param name="vocabulary">The vocabulary object holding the pastTense table.</param>
-    /// <returns>The past tense for each project domain verb.</returns>
-    private static Dictionary<string, string> ReadPastTense(JsonElement vocabulary)
-    {
-        var past = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        if (vocabulary.TryGetProperty("pastTense", out var table)
-            && table.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var entry in table.EnumerateObject())
-            {
-                if (entry.Name.Length > 0
-                    && entry.Value.ValueKind == JsonValueKind.String
-                    && entry.Value.GetString() is { Length: > 0 } form
-                    && !past.ContainsKey(entry.Name))
-                {
-                    past.Add(entry.Name, form);
-                }
-            }
-        }
-
-        return past;
-    }
-
-    /// <summary>The retired verb map: each retired synonym with its replacement verb.</summary>
-    /// <param name="vocabulary">The vocabulary object holding the retired table.</param>
-    /// <returns>The replacement verb for each retired synonym.</returns>
-    private static Dictionary<string, string> ReadRetired(JsonElement vocabulary)
-    {
-        var retired = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        if (vocabulary.TryGetProperty("retired", out var table)
-            && table.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var entry in table.EnumerateObject())
-            {
-                if (entry.Name.Length > 0
-                    && entry.Value.ValueKind == JsonValueKind.String
-                    && entry.Value.GetString() is { Length: > 0 } replacement
-                    && !retired.ContainsKey(entry.Name))
-                {
-                    retired.Add(entry.Name, replacement);
-                }
-            }
-        }
-
-        return retired;
-    }
-
-    /// <summary>Reads the CODEOWNERS handles one owner entry lists.</summary>
-    /// <param name="entry">The owner entry, a name string or an object with a codeowners array.</param>
-    /// <returns>The distinct non-empty handles the entry lists, or an empty list for a plain name entry.</returns>
-    private static IReadOnlyList<string> ReadHandles(JsonElement entry) =>
-        entry.ValueKind == JsonValueKind.Object
-        && entry.TryGetProperty("codeowners", out var handles)
-        && handles.ValueKind == JsonValueKind.Array
-            ? [.. handles.EnumerateArray()
-                .Where(handle => handle.ValueKind == JsonValueKind.String)
-                .Select(handle => handle.GetString()!)
-                .Where(handle => handle.Length > 0)
-                .Distinct(StringComparer.Ordinal)]
-            : [];
 
     /// <summary>Reads one string field of the paths object, with a fallback.</summary>
     /// <param name="paths">The paths object, or null when the declaration names none.</param>

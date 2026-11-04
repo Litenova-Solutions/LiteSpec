@@ -4,10 +4,10 @@ namespace LiteSpec.Book;
 
 /// <summary>
 ///     The relationship readings over the index: one scenario's proof state, the
-///     children and owner of a use case, why-chains, governing rules and the first
-///     calculation example.
+///     children and use case of a result, why-chains, governing rules and the
+///     first calculation example.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookModelQueries
 {
     /// <summary>One scenario's proof state from its proves links, while the model holds no stored state for it.</summary>
@@ -142,11 +142,11 @@ static class BookModelQueries
         {
             var result = FirstLink(record, "result");
             Add("Result", result);
-            AddUseCaseTail(result is null ? null : UseCaseOf(index, result) is { } owner ? BookRender.StrProp(owner, "id") : null);
+            AddUseCaseTail(result is null ? null : UseCaseOf(index, result) is { } holder ? BookRender.StrProp(holder, "id") : null);
         }
         else if (type == "result")
         {
-            AddUseCaseTail(UseCaseOf(index, id) is { } owner ? BookRender.StrProp(owner, "id") : null);
+            AddUseCaseTail(UseCaseOf(index, id) is { } holder ? BookRender.StrProp(holder, "id") : null);
         }
         else if (type == "use-case")
         {

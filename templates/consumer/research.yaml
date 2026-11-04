@@ -1,10 +1,6 @@
 type: research
 id: research/approval-time-benchmarks
 title: Approval Time Benchmarks
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 sources:
   - key: expense-benchmark-report
     url: https://example.com/expense-benchmark-report
@@ -13,9 +9,3 @@ question: How fast do comparable products reimburse expenses?
 conclusion: Comparable products reimburse within three days of approval.
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

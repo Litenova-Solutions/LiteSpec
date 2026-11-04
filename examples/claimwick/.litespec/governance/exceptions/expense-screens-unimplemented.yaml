@@ -1,8 +1,7 @@
 type: exception
 id: exception/expense-screens-unimplemented
 title: Expense Screens Unimplemented
-owner: claimwick-team
-status: approved
+summary: The web app holds the expense list only, so eight browser-reached use cases have no screen.
 kind: gap
 covers:
   - use-case-unreached
@@ -18,6 +17,3 @@ subject:
 reason: The web app holds the expense list only, so eight browser-reached use cases have no screen.
 exit: Eight browser-reached use cases have no screen while the web app holds the expense list only. The gap closes when each of them gains its screen.
 expiresOn: 2027-06-01
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 12e4cedd

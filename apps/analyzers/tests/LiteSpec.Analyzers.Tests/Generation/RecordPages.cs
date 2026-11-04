@@ -44,13 +44,13 @@ internal static class RecordPages
     /// <param name="id">The event identifier.</param>
     /// <returns>The page text.</returns>
     public static string EventPage(string id) =>
-        Page("{\"type\": \"event\", \"id\": \"" + id + "\", \"title\": \"Expense submitted\", \"owner\": \"team\", \"status\": \"reviewed\"}");
+        Page("{\"type\": \"event\", \"id\": \"" + id + "\", \"title\": \"Expense submitted\"}");
 
     /// <summary>Builds a rule-set page holding the entries.</summary>
     /// <param name="entries">The entry objects.</param>
     /// <returns>The page text.</returns>
     public static string RuleSetPage(params string[] entries) =>
-        Page("{\"type\": \"rule-set\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
+        Page("{\"type\": \"rule-set\", \"records\": [" + string.Join(", ", entries) + "]}");
 
     /// <summary>Builds a rule entry.</summary>
     /// <param name="id">The rule identifier.</param>
@@ -75,14 +75,14 @@ internal static class RecordPages
     /// <param name="id">The decision identifier.</param>
     /// <returns>The page text.</returns>
     public static string DecisionPage(string id) =>
-        Page("{\"type\": \"decision\", \"id\": \"" + id + "\", \"title\": \"Store expenses as documents\", \"owner\": \"team\", \"status\": \"approved\"}");
+        Page("{\"type\": \"decision\", \"id\": \"" + id + "\", \"title\": \"Store expenses as documents\"}");
 
     /// <summary>Builds a use-case page.</summary>
     /// <param name="id">The use-case identifier.</param>
     /// <param name="grant">The access grant, or null for no access object.</param>
     /// <returns>The page text.</returns>
     public static string UseCasePage(string id, string? grant) =>
-        Page("{\"type\": \"use-case\", \"id\": \"" + id + "\", \"title\": \"Submit expense\", \"owner\": \"team\", \"status\": \"reviewed\", \"kind\": \"command\""
+        Page("{\"type\": \"use-case\", \"id\": \"" + id + "\", \"title\": \"Submit expense\", \"kind\": \"command\""
         + (grant is null ? string.Empty : ", \"access\": {\"auth\": [\"session\"], \"grant\": \"" + grant + "\", \"tenant\": \"own\"}")
         + "}");
 
@@ -98,27 +98,7 @@ internal static class RecordPages
             entries.Add("{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"}");
         }
 
-        return Page("{\"type\": \"permission-list\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
-    }
-
-    /// <summary>Builds the additional files with a project file carrying the vocabulary JSON.</summary>
-    /// <param name="vocabulary">The vocabulary object text.</param>
-    /// <param name="pages">The record pages with their file names.</param>
-    /// <returns>The additional files.</returns>
-    public static IReadOnlyList<(string Path, string Text)> FilesWithVocabulary(
-        string vocabulary, params (string Name, string Text)[] pages)
-    {
-        var files = new List<(string Path, string Text)>
-        {
-            (ProjectPath, "{\"marks\": \"xml\", \"paths\": {\"docs\": \".litespec\", \"behaviorDocs\": \".litespec/behavior\"}, \"vocabulary\": " + vocabulary + "}"),
-        };
-
-        foreach (var page in pages)
-        {
-            files.Add(("/project/.litespec/behavior/" + page.Name, page.Text));
-        }
-
-        return files;
+        return Page("{\"type\": \"permission-list\", \"records\": [" + string.Join(", ", entries) + "]}");
     }
 
     /// <summary>Builds a permission entry with the scope, group and risks the record states.</summary>
@@ -153,7 +133,7 @@ internal static class RecordPages
     /// <param name="entries">The entry objects.</param>
     /// <returns>The page text.</returns>
     public static string PermissionFactsPage(params string[] entries) =>
-        Page("{\"type\": \"permission-list\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
+        Page("{\"type\": \"permission-list\", \"records\": [" + string.Join(", ", entries) + "]}");
 
     /// <summary>Builds a role page with the scope and allows the record states.</summary>
     /// <param name="id">The role identifier.</param>
@@ -162,7 +142,7 @@ internal static class RecordPages
     /// <returns>The page text.</returns>
     public static string RolePage(string id, string? scope = null, string[]? allows = null)
     {
-        var page = "{\"type\": \"role\", \"id\": \"" + id + "\", \"title\": \"A role\", \"owner\": \"team\", \"status\": \"reviewed\"";
+        var page = "{\"type\": \"role\", \"id\": \"" + id + "\", \"title\": \"A role\"";
 
         if (scope is not null)
         {

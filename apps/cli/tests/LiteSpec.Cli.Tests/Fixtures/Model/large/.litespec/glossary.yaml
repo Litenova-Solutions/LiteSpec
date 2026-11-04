@@ -11,8 +11,6 @@ terms:
     rejected:
       - word: checkout
         reason: Checkout names the desk action.
-    owner: lending-team
-    status: retired
   - id: term/copy
     term: copy
     meaning: One physical item the library lends.
@@ -22,8 +20,6 @@ terms:
       nl: exemplaar
       de: Exemplar
     rejected: []
-    owner: lending-team
-    status: retired
   - id: term/hold
     term: hold
     meaning: A reader queue for one copy.
@@ -33,8 +29,6 @@ terms:
       nl: reservering
       de: Vormerkung
     rejected: []
-    owner: lending-team
-    status: retired
   - id: term/reader
     term: reader
     meaning: A person holding a library card.
@@ -44,8 +38,6 @@ terms:
       nl: lezer
       de: Leser
     rejected: []
-    owner: lending-team
-    status: retired
 mannered:
   - term: one-way-door
     instead: irreversible

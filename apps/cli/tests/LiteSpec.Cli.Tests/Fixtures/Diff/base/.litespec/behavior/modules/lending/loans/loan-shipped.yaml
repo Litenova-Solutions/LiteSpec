@@ -1,0 +1,14 @@
+type: integration-event
+id: integration-event/loan-shipped
+title: Loan shipped
+direction: out
+eventType: library.loan.shipped
+source: library-api
+subject: loan
+payload:
+  - name: loanId
+    meaning: The lent loan.
+    classification: internal
+    type: id
+    of: aggregate/lending.loan
+translates: event/loan.loan-borrowed

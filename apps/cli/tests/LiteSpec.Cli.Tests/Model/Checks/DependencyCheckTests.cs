@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -167,7 +166,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("[G]", finding);
         Assert.Contains("decision/0099-admit-extra-package", finding);
         Assert.Contains("nuget:UnknownLib", finding);
-        Assert.Contains("operatingCost", finding);
+        Assert.Contains("failureBehavior", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
@@ -287,7 +286,7 @@ public sealed class DependencyCheckTests
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
-        Assert.Contains("operatingCost", finding);
+        Assert.Contains("failureBehavior", finding);
     }
 
     /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-undeclared.</summary>
@@ -417,42 +416,24 @@ public sealed class DependencyCheckTests
 
         ## Decision
 
-        The project admits the package with its license and operating cost.
+        The project admits the package with its license and failure behavior.
         """;
 
-    static string DecisionJson(string id, string admitsJson)
-    {
-        var fields =
-            "{\n"
-            + "  \"type\": \"decision\",\n"
-            + $"  \"id\": \"{id}\",\n"
-            + "  \"title\": \"Admit extra package\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"approved\",\n"
-            + "  \"options\": [\n"
-            + "    {\"name\": \"Library\", \"pros\": \"It fits.\", \"cons\": \"It costs.\"},\n"
-            + "    {\"name\": \"Hand written\", \"pros\": \"No package.\", \"cons\": \"More code.\"}\n"
-            + "  ],\n"
-            + "  \"choice\": \"Library\",\n"
-            + "  \"consequences\": \"The package joins the bill of materials with its license.\",\n"
-            + "  \"reopenedWhen\": \"The library stops fitting.\",\n"
-            + "  \"basedOn\": [\"requirement/borrowing.loan-period-days\"],\n"
-            + $"  \"admits\": {admitsJson}\n"
-            + "}\n";
-
-        using var document = JsonDocument.Parse(fields);
-        var record = new LiteSpec.Model.Record
-        {
-            Type = "decision",
-            Id = id,
-            Raw = document.RootElement.Clone(),
-            Explanation = DecisionExplanation,
-        };
-        var hash = Checker.SemanticHash(record);
-        return fields.Replace(
-            "\n}",
-            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-    }
+    static string DecisionJson(string id, string admitsJson) =>
+        "{\n"
+        + "  \"type\": \"decision\",\n"
+        + $"  \"id\": \"{id}\",\n"
+        + "  \"title\": \"Admit extra package\",\n"
+        + "  \"options\": [\n"
+        + "    {\"name\": \"Library\", \"pros\": \"It fits.\", \"cons\": \"It costs.\"},\n"
+        + "    {\"name\": \"Hand written\", \"pros\": \"No package.\", \"cons\": \"More code.\"}\n"
+        + "  ],\n"
+        + "  \"choice\": \"Library\",\n"
+        + "  \"consequences\": \"The package joins the bill of materials with its license.\",\n"
+        + "  \"reopenedWhen\": \"The library stops fitting.\",\n"
+        + "  \"basedOn\": [\"requirement/borrowing.loan-period-days\"],\n"
+        + $"  \"admits\": {admitsJson}\n"
+        + "}\n";
 
     static string FollowerFile(string decisionId, string className) =>
         "namespace Library.Application.Lending.Loans;\n"
@@ -555,9 +536,9 @@ public sealed class DependencyCheckTests
             + "}\n";
     }
 
-    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
+    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
 
-    const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process"}]""";
 
-    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
+    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
 }

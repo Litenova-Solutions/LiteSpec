@@ -51,8 +51,6 @@ internal static class Descriptors
     private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
     /// <summary>The provision the related descriptors enforce: name asynchronous methods completely (litespec/backend/dotnet/naming#name-asynchronous-methods-completely).</summary>
     private static readonly Provision AsyncNames = Provision.Of("backend/dotnet/naming", "name-asynchronous-methods-completely");
-    /// <summary>The provision the related descriptors enforce: match c files and primary types (litespec/backend/dotnet/naming#match-c-files-and-primary-types).</summary>
-    private static readonly Provision FileNames = Provision.Of("backend/dotnet/naming", "match-c-files-and-primary-types");
     /// <summary>The provision the related descriptors enforce: keep implementation style consistent (litespec/backend/dotnet/naming#keep-implementation-style-consistent).</summary>
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
     /// <summary>The provision the related descriptors enforce: organize a module by aggregate and concept (litespec/backend/domain#organize-a-module-by-aggregate-and-concept).</summary>
@@ -89,9 +87,6 @@ internal static class Descriptors
     private static readonly Provision PartialTypes = Provision.Of("backend/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
     /// <summary>The provision the related descriptors enforce: raise the declared events from the marked act (litespec/backend/domain#raise-the-declared-events-from-the-marked-act).</summary>
     private static readonly Provision MarkedAct = Provision.Of("backend/domain", "raise-the-declared-events-from-the-marked-act");
-    /// <summary>The provision the related descriptors enforce: state the scope of every permission (litespec/core/access#state-the-scope-of-every-permission).</summary>
-    private static readonly Provision PermissionScope = Provision.Of("core/access", "state-the-scope-of-every-permission");
-
     /// <summary>The LS1001 descriptor: Domain references an outer-layer concern.</summary>
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
@@ -274,18 +269,6 @@ internal static class Descriptors
         "Method '{0}' returns '{1}' and must end in 'Async'",
         "A method returning Task or ValueTask ends in Async.");
 
-    /// <summary>The LS3002 descriptor: CancellationToken is not the last parameter.</summary>
-    public static readonly DiagnosticDescriptor LS3002 = Create("LS3002", StyleCategory, AsyncNames,
-        "CancellationToken is not the last parameter",
-        "Method '{0}' must take 'CancellationToken cancellationToken' as its last parameter",
-        "A cancelable asynchronous method takes CancellationToken cancellationToken last.");
-
-    /// <summary>The LS3003 descriptor: File does not match its primary type.</summary>
-    public static readonly DiagnosticDescriptor LS3003 = Create("LS3003", StyleCategory, FileNames,
-        "File does not match its primary type",
-        "File '{0}' must hold one primary top-level type named '{0}'",
-        "A C# file contains one primary top-level type and takes that type's exact name.");
-
     /// <summary>The LS3004 descriptor: Concrete class is not sealed.</summary>
     public static readonly DiagnosticDescriptor LS3004 = Create("LS3004", StyleCategory, ImplementationStyle,
         "Concrete class is not sealed",
@@ -346,12 +329,6 @@ internal static class Descriptors
         "Declared event is raised by no marked act",
         "'{0}' marked with '{1}' raises no '{2}', which the use case lists in 'raises'",
         "Every event a use case lists in raises is raised by a root method marked with the use case.");
-
-    /// <summary>The LS5010 descriptor: Permission opens with an undeclared verb.</summary>
-    public static readonly DiagnosticDescriptor LS5010 = Create("LS5010", TraceabilityCategory, PermissionScope,
-        "Permission opens with an undeclared verb",
-        "Permission '{0}' starts with '{1}', which the use-case vocabulary does not declare",
-        "A permission opens with a verb from the use-case vocabulary, so whether it only reads follows from the verb's kind; a project verb is declared in the vocabulary of .litespec/project.json.");
 
     /// <summary>The LS5011 descriptor: Message maps to two use cases.</summary>
     public static readonly DiagnosticDescriptor LS5011 = Create("LS5011", TraceabilityCategory, PointToRecords,

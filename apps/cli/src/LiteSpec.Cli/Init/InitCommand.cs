@@ -416,7 +416,7 @@ static class InitCommand
         }
     }
 
-    /// <summary>Every template placeholder, such as <c>__OWNER__</c>, still in the document.</summary>
+    /// <summary>Every template placeholder, such as <c>__EXAMPLE__</c>, still in the document.</summary>
     /// <param name="node">The document node to scan, or null when the document holds no value.</param>
     /// <returns>Every placeholder token still present in the document string values.</returns>
     public static IEnumerable<string> Placeholders(JsonNode? node) => node switch
@@ -427,6 +427,6 @@ static class InitCommand
         _ => [],
     };
 
-    /// <summary>The pattern matching a template placeholder token such as <c>__OWNER__</c>.</summary>
+    /// <summary>The pattern matching a template placeholder token such as <c>__EXAMPLE__</c>.</summary>
     static readonly System.Text.RegularExpressions.Regex PlaceholderPattern = new(@"__[A-Z][A-Z0-9_]*?__");
 }

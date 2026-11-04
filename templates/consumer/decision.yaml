@@ -1,11 +1,6 @@
 type: decision
 id: decision/0001-receipt-threshold
 title: Receipt Threshold
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-replaces: decision/0002-store-expenses-as-documents
 options:
   - name: Threshold at 25 euros
     pros: Most expenses pass untouched.
@@ -17,14 +12,8 @@ choice: Threshold at 25 euros
 consequences: Every expense above the threshold needs an attached receipt before approval.
 reopenedWhen: The fraud rate crosses one percent.
 decides:
-  - requirement/approval.decided-within-five-days
+  - requirement/approval-reminders.decided-within-five-days
 basedOn:
   - research/approval-time-benchmarks
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

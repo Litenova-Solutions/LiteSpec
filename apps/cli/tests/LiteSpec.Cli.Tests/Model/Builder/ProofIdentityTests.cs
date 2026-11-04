@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -20,7 +21,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.False(root.GetProperty("status").GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
+        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 
@@ -41,7 +42,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.True(root.GetProperty("status").GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
+        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 
@@ -75,13 +76,17 @@ public sealed class ProofIdentityTests
         throw new InvalidOperationException($"No proves link claims '{claim}'.");
     }
 
+    static JsonElement CompletionOf(JsonElement root, string id) =>
+        root.GetProperty("records").EnumerateArray()
+            .Single(record => record.GetProperty("id").GetString() == id)
+            .GetProperty("completion");
+
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static void Write(string root, string relative, string text)
@@ -104,8 +109,6 @@ public sealed class ProofIdentityTests
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
           "title": "Borrowing an available copy succeeds",
-          "owner": "lending-team",
-          "status": "reviewed",
           "given": "A copy sits available on its shelf.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.borrowed",

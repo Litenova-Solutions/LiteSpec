@@ -147,20 +147,6 @@ public sealed class FollowsCheckTests
         Assert.Contains("which matches no decision or exception.", finding.Message);
     }
 
-    /// <summary>A follows naming a retired decision reports mark-unknown.</summary>
-    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A follows naming a retired decision reports mark-unknown")]
-    public void RetiredDecisionReportsMarkUnresolved()
-    {
-        using var temp = MarksFixture.Prepare("follows");
-
-        var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
-            finding => FileName(finding) == "LegacyExporter.cs");
-
-        Assert.Contains("which is retired.", finding.Message);
-    }
-
     /// <summary>No other mark-unknown fires in the follows fixture.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "No other mark-unknown fires in the follows fixture")]
@@ -170,7 +156,7 @@ public sealed class FollowsCheckTests
 
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
-        Assert.Equal(5, unresolved.Count);
+        Assert.Equal(4, unresolved.Count);
     }
 
     /// <summary>A technical class naming one decision twice reports mark-count-invalid.</summary>

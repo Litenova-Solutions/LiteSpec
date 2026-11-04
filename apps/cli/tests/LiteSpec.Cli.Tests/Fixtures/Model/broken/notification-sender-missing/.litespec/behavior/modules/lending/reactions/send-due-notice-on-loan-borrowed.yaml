@@ -1,8 +1,6 @@
 type: reaction
 id: reaction/lending.send-due-notice-on-loan-borrowed
 title: Send loan due notice
-owner: lending-team
-status: reviewed
 triggeredBy:
   - event/loan.loan-borrowed
 effects:
@@ -10,6 +8,3 @@ effects:
     timing: async
 fulfills:
   - requirement/borrowing.max-active-loans
-approvedBy: lending-team
-approvedOn: 2026-10-31
-approvedHash: 1c007566

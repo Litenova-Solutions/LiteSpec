@@ -4,6 +4,4 @@ namespace LiteSpec.Model.Checks;
 internal sealed record DataClassException(
     string Field,
     string? OnErasure,
-    string? EnforcedBy,
-    string? ReviewBy,
-    IReadOnlyList<string> AcceptedBy);
+    string? EnforcedBy);

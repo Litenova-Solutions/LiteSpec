@@ -1,10 +1,6 @@
 ---
 type: command
 title: Export Expenses
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 ---
 # Export Expenses
 

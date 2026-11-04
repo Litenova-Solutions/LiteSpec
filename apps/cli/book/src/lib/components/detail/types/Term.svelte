@@ -29,7 +29,7 @@
       ]}
     />
     <p class="mt-2 text-xs text-muted-foreground">
-      Translations sit outside the approval hash, so adding a language reopens no approval.
+      Adding a language changes no other record.
     </p>
   </Block>
 {/if}

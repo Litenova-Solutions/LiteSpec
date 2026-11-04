@@ -33,8 +33,7 @@ sealed class PackageChecks
     /// <param name="platform">The package platform.</param>
     public void ValidateComponentsJson(string file, JsonNode? baseline, bool baselineOverride, string platform)
     {
-        var label = session.RelativeToRoot(file);
-        var config = session.ReadJson(file, label);
+        var config = session.ReadJson(file, "ui-components-invalid");
         if (config is null)
         {
             return;
@@ -50,7 +49,7 @@ sealed class PackageChecks
             // compared. The style field is deprecated under Tailwind v4 and unread.
             if (!JsonRead.StrictEqual(JsonRead.Dot(JsonRead.Child(config, "tailwind"), "baseColor"), JsonRead.Child(baseline, "baseColor")))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: tailwind.baseColor must be '{JsonRead.Show(JsonRead.Child(baseline, "baseColor"))}'");
+                session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be '{JsonRead.Show(JsonRead.Child(baseline, "baseColor"))}'", file);
             }
 
             foreach (var (key, baselineKey) in new[] { ("iconLibrary", "icons"), ("menuColor", "menuColor"), ("menuAccent", "menuAccent") })
@@ -59,14 +58,14 @@ sealed class PackageChecks
                 var got = JsonRead.Child(config, key);
                 if (got.Found && !JsonRead.StrictEqual(got, want))
                 {
-                    session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: {key} must be {JsonRead.StringifyOrUndefined(want)}");
+                    session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {key} must be {JsonRead.StringifyOrUndefined(want)}", file);
                 }
             }
 
             var registry = JsonRead.Child(config, "registry");
             if (JsonRead.Truthy(registry) && !JsonRead.StrictEqual(registry, JsonRead.Dot(JsonRead.Child(baseline, "registry"), "url")) && !baselineOverride)
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: registry '{JsonRead.Show(registry)}' is not the built-in shadcn-svelte registry; an additional registry requires an exception");
+                session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] registry '{JsonRead.Show(registry)}' is not the built-in shadcn-svelte registry; an additional registry requires an exception", file);
             }
 
             return;
@@ -83,26 +82,26 @@ sealed class PackageChecks
         {
             if (!JsonRead.StrictEqual(JsonRead.Child(config, key), want))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: {key} must be {JsonRead.StringifyOrUndefined(want)}");
+                session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {key} must be {JsonRead.StringifyOrUndefined(want)}", file);
             }
         }
 
         var tailwind = JsonRead.Child(config, "tailwind");
         if (!JsonRead.StrictEqual(JsonRead.Dot(tailwind, "baseColor"), JsonRead.Child(baseline, "baseColor")))
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: tailwind.baseColor must be '{JsonRead.Show(JsonRead.Child(baseline, "baseColor"))}'");
+            session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be '{JsonRead.Show(JsonRead.Child(baseline, "baseColor"))}'", file);
         }
 
         var cssVariables = JsonRead.Child(baseline, "cssVariables");
         if (!JsonRead.StrictEqual(JsonRead.Dot(tailwind, "cssVariables"), cssVariables))
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: tailwind.cssVariables must be {JsonRead.Show(cssVariables)}");
+            session.Add("ui-components-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] tailwind.cssVariables must be {JsonRead.Show(cssVariables)}", file);
         }
 
         var registries = JsonRead.Child(config, "registries");
         if (registries is { Found: true, Node: not null } && RegistriesNonEmpty(registries.Node) && !baselineOverride)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: an additional registry requires an exception");
+            session.Add("ui-components-invalid", "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] an additional registry requires an exception", file);
         }
     }
 

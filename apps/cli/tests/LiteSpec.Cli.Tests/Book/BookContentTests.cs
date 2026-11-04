@@ -76,15 +76,18 @@ public sealed class BookContentTests
         }
     }
 
-    /// <summary>The shortcuts dialog names the four views the keys 1 to 4 switch, Ballots last.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>The shortcuts dialog names the two views the keys 1 to 2 switch, Security last.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Shortcuts_Name_The_Four_Views()
+    public void Shortcuts_Name_The_Two_Views()
     {
-        Assert.Contains("Outline, Review queue, Security, Ballots", Client(), StringComparison.Ordinal);
+        var script = Client();
+        Assert.Contains("Outline, Security", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("Review queue", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("Ballots", script, StringComparison.Ordinal);
     }
 
-    /// <summary>Status and proof labels use LiteSpec words: no verdict or proof phrase outside the model survives in the client.</summary>
+    /// <summary>Completion and proof labels use LiteSpec words: no verdict, approval or proof phrase outside the model survives in the client.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void Client_Labels_Use_LiteSpec_Terms()
@@ -101,6 +104,17 @@ public sealed class BookContentTests
             "proved indirectly",
             "scenarios without a test",
             "Has open questions",
+            "Download review",
+            "Next draft",
+            "Auto-approves",
+            "Needs an explicit answer",
+            "Request changes",
+            "Ask a question",
+            "approved by",
+            "decide by",
+            "Approved or reviewed",
+            "Held by a draft",
+            "Counts as draft",
         })
         {
             Assert.DoesNotContain(purged, script, StringComparison.Ordinal);
@@ -112,6 +126,9 @@ public sealed class BookContentTests
             "not tested",
             "scenarios not tested",
             "Not implemented or not tested",
+            "Has code",
+            "Has tests",
+            "scenarios pass",
             "No record with this identifier is in the book",
         })
         {

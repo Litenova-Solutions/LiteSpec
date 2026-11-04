@@ -4,13 +4,12 @@
   import Detail from "$lib/components/detail/Detail.svelte";
   import Sidebar from "$lib/components/nav/Sidebar.svelte";
   import Rail from "$lib/components/rail/Rail.svelte";
-  import VerdictBar from "$lib/components/review/VerdictBar.svelte";
   import TopBar from "$lib/components/shell/TopBar.svelte";
   import IntentTree from "$lib/components/tree/IntentTree.svelte";
   import * as Tooltip from "$lib/components/ui/tooltip";
 
-  // The shell: the top bar over three columns, the navigation, the record page with
-  // its verdict bar, and the rail. The Intent tree takes the page and the rail.
+  // The shell: the top bar over three columns, the navigation, the record page
+  // and the rail. The Intent tree takes the page and the rail.
   let main = $state<HTMLElement | null>(null);
 
   book.boot(decodeURIComponent(location.hash.slice(1)));
@@ -62,9 +61,6 @@
             <article class="mx-auto w-full max-w-[800px] flex-1 px-6 py-8 md:px-12">
               <Detail />
             </article>
-            <div class="sticky bottom-0 border-t bg-background/95 backdrop-blur">
-              <VerdictBar />
-            </div>
           </main>
           <aside aria-label="Connections" class="sticky top-14 hidden h-[calc(100vh-3.5rem)] overflow-y-auto border-l px-6 py-7 xl:block">
             <Rail />

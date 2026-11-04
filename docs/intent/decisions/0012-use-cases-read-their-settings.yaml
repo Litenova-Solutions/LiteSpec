@@ -1,11 +1,6 @@
 type: decision
 id: decision/0012-use-cases-read-their-settings
 title: Use Cases Read Their Settings
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
-replaces: decision/0007-adopt-setting-readby
 options:
   - name: Name readers on the use case and compute the inverse
     pros: The link lives on the record that points, reads as an active verb, and has one written side with the inverse computed.

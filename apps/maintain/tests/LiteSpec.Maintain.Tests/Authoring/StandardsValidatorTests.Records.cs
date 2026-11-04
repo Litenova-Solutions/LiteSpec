@@ -14,6 +14,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
         },
         []);
 
@@ -25,6 +26,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/implementation/decisions/0001-sample-choice");
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
         },
         []);
 
@@ -83,25 +85,25 @@ public sealed partial class StandardsValidatorTests
         },
         ["RECORD_UNKNOWN_REFERENCE"]);
 
-    /// <summary>Approved decision cited by no provision.</summary>
+    /// <summary>Decision cited by no provision.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
-    [Fact(DisplayName = "approved decision cited by no provision")]
-    public void ApprovedDecisionCitedByNoProvision() => Check(
+    [Fact(DisplayName = "decision cited by no provision")]
+    public void DecisionCitedByNoProvision() => Check(
         root =>
         {
             StandardsFixture.WriteResearch(root);
-            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", StandardsFixture.ReplaceFirst(StandardsFixture.DecisionJson, "\"status\": \"draft\"", "\"status\": \"approved\""));
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
         },
         ["RECORD_DECISION_UNCITED"]);
 
-    /// <summary>Approved decision cited by a provision.</summary>
+    /// <summary>Decision cited by a provision.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
-    [Fact(DisplayName = "approved decision cited by a provision")]
-    public void ApprovedDecisionCitedByAProvision() => Check(
+    [Fact(DisplayName = "decision cited by a provision")]
+    public void DecisionCitedByAProvision() => Check(
         root =>
         {
             StandardsFixture.WriteResearch(root);
-            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", StandardsFixture.ReplaceFirst(StandardsFixture.DecisionJson, "\"status\": \"draft\"", "\"status\": \"approved\""));
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
         },
         []);

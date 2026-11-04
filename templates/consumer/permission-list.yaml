@@ -1,9 +1,5 @@
 type: permission-list
 title: Permissions
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 records:
   - type: permission
     id: permission/submit-expense
@@ -11,3 +7,5 @@ records:
     meaning: The holder submits expenses for approval.
     scope: self
     group: spending
+    risk:
+      - money

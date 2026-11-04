@@ -3,38 +3,44 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves a result takes its holding use case's effective status through the name index.</summary>
+/// <summary>Proves the record index reads records by id and by type.</summary>
 public sealed class RecordIndexTests
 {
-    /// <summary>A result held by a draft use case is effectively a draft.</summary>
-    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    /// <summary>ById reads the first record carrying the id, or null when none carries it.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Result_Of_Draft_Use_Case_Is_Draft()
+    public void ById_Reads_The_First_Record_With_The_Id()
     {
         IReadOnlyList<IRecordFacts> records =
         [
-            new FakeRecord("use-case", "use-case/lending.borrow-copy", "draft"),
+            new FakeRecord("use-case", "use-case/lending.borrow-copy"),
             new FakeRecord("result", "result/borrow-copy.borrowed"),
         ];
 
         var index = new RecordIndex(records);
 
-        Assert.Equal("draft", index.EffectiveStatus["result/borrow-copy.borrowed"]);
+        Assert.Same(records[1], index.ById("result/borrow-copy.borrowed"));
+        Assert.Null(index.ById("result/borrow-copy.ghost"));
     }
 
-    /// <summary>A result with no holding use case keeps its own status.</summary>
-    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    /// <summary>ByType reads every record of the type, in read order.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Result_Without_Holder_Keeps_Own_Status()
+    public void ByType_Reads_Every_Record_Of_The_Type()
     {
         IReadOnlyList<IRecordFacts> records =
         [
-            new FakeRecord("use-case", "use-case/lending.borrow-copy", "draft"),
-            new FakeRecord("result", "result/renew-copy.renewed"),
+            new FakeRecord("use-case", "use-case/lending.borrow-copy"),
+            new FakeRecord("result", "result/borrow-copy.borrowed"),
+            new FakeRecord("result", "result/borrow-copy.copy-unavailable"),
         ];
 
         var index = new RecordIndex(records);
+        var results = index.ByType("result");
 
-        Assert.Equal("approved", index.EffectiveStatus["result/renew-copy.renewed"]);
+        Assert.Equal(2, results.Count);
+        Assert.Same(records[1], results[0]);
+        Assert.Same(records[2], results[1]);
+        Assert.Empty(index.ByType("scenario"));
     }
 }

@@ -156,7 +156,6 @@ public sealed class CallsLinkTests
             Path.Combine(root, ".litespec/project.json"),
             """
             {
-              "owners": ["lending-team"],
               "paths": {
                 "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte" }

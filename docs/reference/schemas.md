@@ -40,7 +40,7 @@ The release manifest opens with these fields:
 | Checked by | `litespec consumer`, and `litespec-maintain validate` for the template copy |
 | Published URL | `https://litespec.dev/4.0.0/schemas/litespec-project.schema.json` |
 
-The top-level properties describe the project. `project` holds the project name. `size` is `small` or `large`. `shape` is `server` or `client-only`. `stacks` lists the selected stacks. `reviewedLiteSpecVersion` records the LiteSpec release the project last reviewed. `paths` locates the specification tree, the glossary, the UI package, and the frontends. `stackConfig` holds per-stack configuration, such as the .NET backend paths. `selectedExtensions` lists the active extensions with their criterion and review date. `review` holds the veto window and the security reviewer. `adoption` names the decision that ends transcription mode. `refusals` names the codes the derived generic results carry. `optionalTypes`, `proof`, `constraints`, `owners`, and `exampleWordLimit` carry further project choices. The [project file](project-file.md) states every field.
+The top-level properties describe the project. `project` holds the project name. `size` is `small` or `large`. `shape` is `server` or `client-only`. `stacks` lists the selected stacks. `reviewedLiteSpecVersion` records the LiteSpec release the project last reviewed. `paths` locates the specification tree, the glossary, the UI package, and the frontends. `stackConfig` holds per-stack configuration, such as the .NET backend paths. `selectedExtensions` lists the active extensions with their criterion. `refusals` names the codes the derived generic results carry. `marks`, `proof`, `dependencies`, and `screenshots` carry further project choices. The [project file](project-file.md) states every field.
 
 The consumer template opens with these fields:
 
@@ -64,9 +64,9 @@ The consumer template opens with these fields:
 | Checked by | `litespec consumer` |
 | Published URL | `https://litespec.dev/4.0.0/schemas/record.schema.json` |
 
-The schema holds no single property list. Instead it carries a `oneOf` across 37 page variants, one per record type and page style, so each record file and each document frontmatter matches exactly one variant: `productPage`, `goalPage`, `constraintPage`, `researchPage`, `decisionPage`, `problemPage`, `featurePage`, `actorPage`, `rolePage`, `journeyPage`, `modulePage`, `aggregatePage`, `useCasePage`, `reactionPage`, `jobPage`, `notificationPage`, `externalSystemPage`, `integrationEventPage`, `runbookPage`, `exceptionPage`, `topicPage`, `permissionListPage`, `entryPointListPage`, `screenPage`, `settingPage`, `settingSetPage`, `ruleSetPage`, `retentionSchedulePage`, `indexPage`, `tutorialPage`, `howToPage`, `referencePage`, `reviewReportPage`, `commandPage`, `configurationPage`, `glossaryPage`, and `exampleCastPage`. Each variant requires `type` plus its own fields, such as `id`, `title`, `owner`, and `status`. Intent records take `draft`, `approved`, or `retired`; Behavior records take `draft`, `reviewed`, or `retired`. An approved or reviewed record carries `approvedBy`, `approvedOn`, and `approvedHash`.
+The schema holds no single property list. Instead it carries a `oneOf` across 36 page variants, one per record type and page style, so each record file and each document frontmatter matches exactly one variant: `productPage`, `goalPage`, `constraintPage`, `researchPage`, `decisionPage`, `problemPage`, `featurePage`, `actorPage`, `rolePage`, `journeyPage`, `modulePage`, `aggregatePage`, `useCasePage`, `reactionPage`, `jobPage`, `notificationPage`, `externalSystemPage`, `integrationEventPage`, `runbookPage`, `exceptionPage`, `permissionListPage`, `entryPointPage`, `entryPointListPage`, `screenPage`, `settingPage`, `settingSetPage`, `ruleSetPage`, `retentionSchedulePage`, `indexPage`, `tutorialPage`, `howToPage`, `referencePage`, `commandPage`, `configurationPage`, `glossaryPage`, and `exampleCastPage`. Each variant requires `type` plus its own fields, such as `id` and `title`. A record present in git is decided; no variant carries approval, status, or history fields.
 
-A list page carries its entries in `records`: requirement, permission, rule, result, scenario, event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `notificationId`, `settingId`, `integrationEventId`, `topicId` for `topic/<name>`, `journeyStepId` for `journey/<name>#s1`, and `derivedResultId` for the derived generic results. Shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `runs`, `sends`, `emits`, or `calls`, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, `dataClassEntry`, saga steps, exits, and `drivenBy`, and the `questionEntry` with its ballot.
+A list page carries its entries in `records`: requirement, permission, rule, result, scenario, event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `notificationId`, `settingId`, `integrationEventId`, `journeyStepId` for `journey/<name>#s1`, and `derivedResultId` for the derived generic results. Shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `runs`, `sends`, `emits`, or `calls`, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, and `dataClassEntry`.
 
 A use case page requires `kind`, which is `command` or `query`, and the `access` object, and its record file holds these fields. The entry point the use case is reached through states the caller `auth`; the use case states only `grant` and `tenant`:
 
@@ -75,8 +75,6 @@ A use case page requires `kind`, which is `command` or `query`, and the `access`
   "type": "use-case",
   "id": "use-case/<module>.<name>",
   "title": "<Use case display title>",
-  "owner": "<owner>",
-  "status": "draft",
   "kind": "command",
   "access": { "grant": "permission/<name>", "tenant": "own" }
 }
@@ -91,7 +89,7 @@ A use case page requires `kind`, which is `command` or `query`, and the `access`
 | Checked by | `litespec consumer` |
 | Published URL | `https://litespec.dev/4.0.0/schemas/glossary.schema.json` |
 
-The top-level properties hold the closed vocabulary. `schemaVersion` is the constant `2`. `terms` holds one entry per concept, each with its `id`, `term`, `meaning`, `layer` of `intent` or `behavior`, `aliases` naming the established synonyms, `labels`, `rejected` synonyms, `broader` and `narrower` terms, closed-set `values`, `owner`, and `status`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
+The top-level properties hold the closed vocabulary. `schemaVersion` is the constant `2`. `terms` holds one entry per concept, each with its `id`, `term`, `meaning`, `layer` of `intent` or `behavior`, `aliases` naming the established synonyms, `labels`, `rejected` synonyms, `broader` and `narrower` terms, and closed-set `values`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
 
 The consumer glossary template carries real mannered entries:
 

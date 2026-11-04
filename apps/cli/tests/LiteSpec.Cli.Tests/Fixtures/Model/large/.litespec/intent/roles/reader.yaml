@@ -1,0 +1,8 @@
+type: role
+id: role/reader
+title: Reader
+scope: self
+allows:
+  - permission/borrow-copy
+  - permission/read-loans
+  - permission/place-hold

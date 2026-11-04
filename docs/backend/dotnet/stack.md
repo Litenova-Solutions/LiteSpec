@@ -90,7 +90,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Example:** When Claimwick's `role/finance` record gains a permission, `LiteSpecRoles.Of("role/finance").Allows` carries it at the next build, and `LiteSpecRegistry.GrantOf(typeof(ReimburseExpenseCommand))` answers the reimbursement grant, with no hand-written table to update.
 
-**Checked by:** `dotnet build` reports `LS5009` for two records generating one constant name, `LS5010` for a permission whose first word is no known verb, `LS5011` for a message two marked handlers serve with different use cases, and `LS5012` for a role allowing a permission no record declares.
+**Checked by:** `dotnet build` reports `LS5009` for two records generating one constant name, `LS5011` for a message two marked handlers serve with different use cases, and `LS5012` for a role allowing a permission no record declares.
 
 ### Declare Marked Events and Exceptions as Partial Types
 

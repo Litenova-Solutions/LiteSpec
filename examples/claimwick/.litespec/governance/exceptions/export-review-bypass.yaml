@@ -1,8 +1,7 @@
 type: exception
 id: exception/export-review-bypass
 title: Export Review Bypass
-owner: claimwick-team
-status: approved
+summary: The weekend export runs with no reviewer on shift.
 kind: departure
 covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
@@ -10,6 +9,3 @@ subject:
 reason: The weekend export runs with no reviewer on shift.
 consequences: The weekend export skips the daily review. Finance runs the export alone, and a Monday review covers each weekend batch after the fact. The bypass ends when a reviewer covers weekends.
 expiresOn: 2027-01-01
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 757a9472

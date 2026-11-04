@@ -48,7 +48,6 @@ internal sealed class TraceabilityContext
         foreach (var record in store.Index.Records)
         {
             if (record.Type == "exception"
-                && record.Status == "approved"
                 && record.Field("expiresOn") is string expiresOn
                 && IsoDate(expiresOn, out var expires)
                 && today <= expires)
@@ -77,9 +76,10 @@ internal sealed class TraceabilityContext
     public bool OnTest => Layer == Layer.Test;
 
     /// <summary>
-    ///     Whether an approved exception inside its expiry date covers the
-    ///     finding, as <see cref="Suppression.Partition" /> decides for the CLI but
-    ///     from the sets built once in the constructor.
+    ///     Whether a live exception covers the finding, as
+    ///     <see cref="Suppression.Partition" /> decides for the CLI but from the
+    ///     sets built once in the constructor. An exception is live when it is
+    ///     present and unexpired.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
@@ -443,7 +443,7 @@ internal sealed class TraceabilityContext
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
-    /// <summary>An approved exception inside its expiry date, with the codes, subjects and paths it holds.</summary>
+    /// <summary>A live exception, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>

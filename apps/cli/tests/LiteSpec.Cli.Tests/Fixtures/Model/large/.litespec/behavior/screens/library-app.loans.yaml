@@ -1,8 +1,6 @@
 type: screen
 id: screen/library-app.loans
 title: Loans
-owner: lending-team
-status: reviewed
 summary: A reader can register, borrow, extend, list, return and hold copies, and a librarian can retire a copy.
 entryPoint: entry-point/library-app
 address: /loans
@@ -24,6 +22,3 @@ serves:
   - journey/borrow-and-return#s6
   - journey/borrow-and-return#s7
   - journey/borrow-and-return#s8
-approvedBy: lending-team
-approvedOn: 2026-10-01
-approvedHash: a7a5abb1

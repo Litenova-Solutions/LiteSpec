@@ -23,7 +23,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | research | The question the record answers | How Long Employees Wait for Reimbursement |
 | use case, job, runbook | Verb first | Approve Expense Claim |
 | rule | The assertion as a clause | A Claim Never Exceeds Its Policy Limit |
-| screen | The place name the user sees | Claim Review Queue |
+| screen | The place name the user sees | Claim List |
 
 Eight words is the bound because a title stands alone in book lists, outlines, tabs and search results, where a longer title wraps and stops scanning as one line. The longest form, a problem clause naming who and the pain, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
 
@@ -34,13 +34,12 @@ An explanation file beside a record file uses the fixed sections of its record t
 | Record type | Sections, in order |
 |:---|:---|
 | problem | Who Has It, What They Do Today, Evidence, What Would Retire It |
-| journey | Who Walks and Why, Before It Starts (optional), Example, What It Connects To, Open Questions |
-| feature | Who It Serves and Why, What It Offers, What Good Looks Like, Open Questions |
-| goal | Why It Matters, What Counts as Done, What It Connects To, Open Questions |
-| actor | Who They Are, What They Do, What They Can Reach, Open Questions |
+| journey | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
+| feature | Who It Serves and Why, What It Offers, What Good Looks Like |
+| goal | Why It Matters, What Counts as Done, What It Connects To |
+| actor | Who They Are, What They Do, What They Can Reach |
 | decision | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
 | research | Answer, Notes on Sources (optional) |
-| topic | The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are |
 
 ### Documentation Kinds
 
@@ -67,7 +66,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every record, explanation section and documentation page MUST open by naming who it concerns and what is at stake, before any pointer to another page.
 
-**Rationale:** Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. The tone throughout is a business explaining itself to its owner: plain words, checkable facts and honest roles, with no selling and no decoration.
+**Rationale:** Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration.
 
 **Example:** A Claimwick problem opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." A reader who has opened no other page knows who waits and what it costs them.
 
@@ -79,9 +78,9 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every sentence in a record MUST name its actor as its subject, in the active voice and the present tense.
 
-**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior nobody has approved. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states.
+**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states.
 
-**Example:** Claimwick writes "Finance reimburses the approved expense." The actor Finance opens the sentence, and the present tense states what holds.
+**Example:** Claimwick writes "Finance reimburses the due expense." The actor Finance opens the sentence, and the present tense states what holds.
 
 **Reviewed for:** Which sentences open with a thing instead of an actor, use the passive voice, or promise in the future tense? Look at the statements and summaries the change adds.
 
@@ -101,13 +100,13 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words`
 
-**Statement:** Every sentence in a record `statement`, `summary`, `situation` or `description` MUST hold at most 25 words.
+**Statement:** Every sentence in a record `statement` or `summary` MUST hold at most 25 words.
 
-**Rationale:** A record sentence carries one fact a reviewer approves or a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.
+**Rationale:** A record sentence carries one fact a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.
 
 **Example:** "Employees wait three weeks for reimbursement while approvers batch decisions monthly." The sentence holds 11 words and one fact.
 
-**Checked by:** `litespec model check` reports `value-invalid` for a `statement`, `summary`, `situation` or `description` sentence over 25 words.
+**Reviewed for:** Which record statements or summaries carry a sentence past 25 words? Look at the statements and summaries the change adds.
 
 ### Give Each Paragraph One Idea
 
@@ -117,7 +116,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Rationale:** A paragraph that holds a rule, an exception and a fallback in one block forces the reader hunting for one of them to untangle all three. One idea per paragraph puts each fact where a scanning reader finds it, and one line per paragraph keeps diffs readable, so a changed sentence shows as one changed line. A list drawn from prose that is not parallel hides the reasoning that connects its items; connected reasoning stays in prose, and only parallel items become a list.
 
-**Example:** The Claimwick topic page gives Costs and Risks its own paragraph. A reader looking for what the choice gives up finds that paragraph without reading the example above it.
+**Example:** The Claimwick decision explanation gives What Would Reopen It its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it.
 
 **Reviewed for:** Which paragraphs carry two ideas, wrap across hard line breaks, or list items that are not parallel? Look at the explanation files and documents the change adds.
 
@@ -135,7 +134,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 ### Write Every Record Title in Title Case
 
-**ID:** `litespec/core/writing#title-every-record-in-title-case`
+**ID:** `litespec/core/writing#write-every-record-title-in-title-case`
 
 **Statement:** Every record title MUST use Title Case, carry no final period, and hold at most eight words.
 
@@ -143,7 +142,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Example:** The Claimwick requirement title reads "Expense Above Threshold Carries Receipt", five words in Title Case with no final period.
 
-**Checked by:** `litespec model check` reports `value-invalid` for a record title outside Title Case, ending in a period, or over eight words.
+**Reviewed for:** Which record titles fall outside Title Case, end in a period, or run past eight words? Look at the titles the change adds.
 
 ### Name Each Title in Its Record Type Form
 
@@ -163,23 +162,23 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every record `statement` MUST hold one sentence in the present tense with no modal word.
 
-**Rationale:** A statement states what holds, as a fact a reviewer approves and a builder implements. A modal word such as must, should, shall, may, can or will turns the fact into an intention, a permission or a promise, and each reader grades its strength differently. One sentence keeps one commitment per statement, so a change to one commitment reopens one approval. The value style on the [Record Language](language.md) page states the same form; this provision states the prose reason and the check covers every record type.
+**Rationale:** A statement states what holds, as a fact a builder implements. A modal word such as must, should, shall, may, can or will turns the fact into an intention, a permission or a promise, and each reader grades its strength differently. One sentence keeps one commitment per statement, so a change to one commitment changes one statement. The value style on the [Record Language](language.md) page states the same form; this provision states the prose reason and the check covers every record type.
 
 **Example:** Claimwick states "An expense above the threshold carries a receipt." The sentence states what holds, with no modal word grading it.
 
-**Checked by:** `litespec model check` reports `field-invalid` for a modal word in a `statement` outside a requirement or rule, and `value-invalid` for one inside a requirement or rule.
+**Reviewed for:** Which record statements carry a modal word or a second sentence? Look at the statements the change adds.
 
 ### Open Each Summary with Who and What Is at Stake
 
 **ID:** `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`
 
-**Statement:** Every `summary`, `situation` and `description` MUST restate who it concerns and what is at stake in its first sentence, with any pointer to another page after that content.
+**Statement:** Every `summary` MUST restate who it concerns and what is at stake in its first sentence, with any pointer to another page after that content.
 
-**Rationale:** These fields are the lead a cold reader meets in the book, before any field table or link. A first sentence that restates who and what is at stake lets that reader judge the record without opening its links; a bare pointer such as "described on the launch page" gives them nothing to judge and breaks the moment the pointed page moves. A pointer that follows the content helps the reader who wants more; a pointer that replaces the content helps no one.
+**Rationale:** This field is the lead a cold reader meets in the book, before any field table or link. A first sentence that restates who and what is at stake lets that reader judge the record without opening its links; a bare pointer such as "described on the launch page" gives them nothing to judge and breaks the moment the pointed page moves. A pointer that follows the content helps the reader who wants more; a pointer that replaces the content helps no one.
 
-**Example:** A Claimwick problem `situation` opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." Who waits and what it costs stand in the first sentence, and any link follows after it.
+**Example:** A Claimwick problem `summary` opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." Who waits and what it costs stand in the first sentence, and any link follows after it.
 
-**Reviewed for:** Which summaries, situations and descriptions open with a pointer, a field name or background instead of who and what is at stake? Look at the first sentence of each one the change adds.
+**Reviewed for:** Which summaries open with a pointer, a field name or background instead of who and what is at stake? Look at the first sentence of each one the change adds.
 
 ### Keep Company Facts Out of Intent Prose
 
@@ -187,9 +186,9 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Intent prose MUST state only behavior the application performs, data it holds, or a limit it enforces, with no schedule, effort, headcount, price as a company offer, market fact or launch date.
 
-**Rationale:** Intent records state what the product promises, and a promise mixed with how the company runs buries the product fact a builder or reviewer came for. A launch date in a problem, a headcount in a goal, or a price list in a feature reads as part of the promise and reopens with every company change, even when the product behavior stands still. Company facts enter only as a constraint the application enforces or as dated research, where their form states what they are. The scope boundary itself lives on the [Scope](scope.md) and [Intent](intent.md) pages; this provision states the prose consequence.
+**Rationale:** Intent records state what the product promises, and a promise mixed with how the company runs buries the product fact a builder came for. A launch date in a problem, a headcount in a goal, or a price list in a feature reads as part of the promise and changes with every company change, even when the product behavior stands still. Company facts enter only as a constraint the application enforces or as dated research, where their form states what they are. The scope boundary itself lives on the [Scope](scope.md) and [Intent](intent.md) pages; this provision states the prose consequence.
 
-**Example:** A Claimwick goal states the reimbursement target and its date in `target` and `dueBy` fields. Its prose names no sprint, no headcount and no launch calendar.
+**Example:** A Claimwick goal states the reimbursement target in its `target` field. Its prose names no sprint, no headcount and no launch calendar.
 
 **Reviewed for:** Which Intent records carry a schedule, an effort estimate, a headcount, an offered price, a market fact or a launch date in prose? Look at the Intent records the change adds.
 
@@ -199,7 +198,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, why it matters, what good looks like, what the record connects to, and what stays open. A problem earns four sections because its reader judges a pain: who has it, what they do today, the evidence for it, and what would retire it. Free sections may follow the fixed ones; they never replace one.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, why it matters, what good looks like, and what the record connects to. A problem earns four sections because its reader judges a pain: who has it, what they do today, the evidence for it, and what would retire it. Free sections may follow the fixed ones; they never replace one.
 
 **Example:** The Claimwick problem explanation for waiting expenses runs Who Has It, What They Do Today, Evidence, What Would Retire It. The evidence stands in its own section instead of inside a pointer to another page.
 
@@ -261,4 +260,4 @@ None.
 
 This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
 
-A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `situation` opens with who waits and what the wait costs, and its explanation file runs Who Has It, What They Do Today, Evidence, What Would Retire It. The record needs no other page open beside it: the sufferer, the workaround in use today, the evidence and the retirement condition each stand in their fixed place.
+A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Who Has It, What They Do Today, Evidence, What Would Retire It. The record needs no other page open beside it: the sufferer, the workaround in use today, the evidence and the retirement condition each stand in their fixed place.

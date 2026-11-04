@@ -10,48 +10,49 @@ namespace LiteSpec.Book;
 
 
 /// <summary>
-///     The parent of every record: the product parents each root type, a feature follows its
-///     first solves entry, a requirement follows its topic home, and containment follows
-///     the identifier home. No product field is written.
+///     The parent of every record, following the Placement Table on the model page:
+///     the container is the parent, so placement follows the folder and the
+///     identifier home, never a written link. Types at product level take the
+///     product with no field written; module members resolve their module from
+///     their file or identifier home.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookParents
 {
-    /// <summary>The parent rule per record type, keyed by type.</summary>
+    /// <summary>The parent rule per record type, keyed by type, with the Placement Table's Parent cell copied exactly.</summary>
     public static readonly IReadOnlyDictionary<string, BookParentRule> Rules =
         new Dictionary<string, BookParentRule>(StringComparer.Ordinal)
         {
-            ["product"] = new("product", [], "the project that declares it"),
-            ["goal"] = new("goal", ["product"], "the product"),
-            ["problem"] = new("problem", ["product"], "the product"),
-            ["constraint"] = new("constraint", ["product"], "the product"),
-            ["research"] = new("research", ["product"], "the product"),
-            ["decision"] = new("decision", ["product"], "the product"),
-            ["actor"] = new("actor", ["product"], "the product"),
-            ["term"] = new("term", ["product"], "the product"),
-            ["module"] = new("module", ["product"], "the product"),
-            ["role"] = new("role", ["product"], "the product"),
-            ["permission"] = new("permission", ["product"], "the product"),
-            ["entry-point"] = new("entry-point", ["product"], "the product"),
-            ["external-system"] = new("external-system", ["product"], "the product"),
-            ["runbook"] = new("runbook", ["product"], "the product"),
-            ["integration-event"] = new("integration-event", ["product"], "the product"),
-            ["exception"] = new("exception", ["product"], "the product"),
-            ["feature"] = new("feature", ["problem"], "`solves`, first entry"),
-            ["topic"] = new("topic", ["product"], "the product"),
-            ["requirement"] = new("requirement", ["topic"], "identifier home"),
-            ["journey"] = new("journey", ["goal"], "`serves`"),
-            ["aggregate"] = new("aggregate", ["module"], "identifier home"),
-            ["use-case"] = new("use-case", ["aggregate", "module"], "the aggregate holding its page; else identifier home"),
-            ["result"] = new("result", ["use-case"], "identifier home"),
-            ["scenario"] = new("scenario", ["result"], "`result`"),
-            ["rule"] = new("rule", ["aggregate", "module"], "identifier home, an aggregate before a module"),
-            ["event"] = new("event", ["aggregate"], "identifier home"),
-            ["reaction"] = new("reaction", ["module"], "identifier home"),
-            ["job"] = new("job", ["module"], "identifier home"),
-            ["notification"] = new("notification", ["module"], "identifier home"),
-            ["setting"] = new("setting", ["module"], "identifier home"),
-            ["screen"] = new("screen", ["entry-point"], "`entryPoint`, agreeing with the identifier home"),
+            ["product"] = new("product", [], "none"),
+            ["goal"] = new("goal", ["product", "module"], "product or module"),
+            ["problem"] = new("problem", ["product", "module"], "product or module"),
+            ["constraint"] = new("constraint", ["product", "module"], "product or module"),
+            ["research"] = new("research", ["product", "module"], "product or module"),
+            ["decision"] = new("decision", ["product", "module"], "product or module"),
+            ["actor"] = new("actor", ["product"], "product"),
+            ["term"] = new("term", ["product"], "product"),
+            ["module"] = new("module", ["product"], "product"),
+            ["role"] = new("role", ["product"], "product"),
+            ["journey"] = new("journey", ["product"], "product"),
+            ["entry-point"] = new("entry-point", ["product"], "product"),
+            ["feature"] = new("feature", ["module"], "module"),
+            ["permission"] = new("permission", ["module"], "module"),
+            ["integration-event"] = new("integration-event", ["module"], "module"),
+            ["external-system"] = new("external-system", ["product", "module"], "its folder node"),
+            ["runbook"] = new("runbook", ["product", "module"], "product or module"),
+            ["exception"] = new("exception", ["product", "module"], "product or module"),
+            ["requirement"] = new("requirement", ["feature"], "feature"),
+            ["aggregate"] = new("aggregate", ["module"], "module"),
+            ["use-case"] = new("use-case", ["aggregate", "module"], "aggregate or module"),
+            ["result"] = new("result", ["use-case"], "use case"),
+            ["scenario"] = new("scenario", ["result"], "result"),
+            ["rule"] = new("rule", ["aggregate", "module", "product"], "its folder node"),
+            ["event"] = new("event", ["aggregate"], "aggregate"),
+            ["reaction"] = new("reaction", ["module"], "module"),
+            ["job"] = new("job", ["module"], "module"),
+            ["notification"] = new("notification", ["module"], "module"),
+            ["setting"] = new("setting", ["module"], "module"),
+            ["screen"] = new("screen", ["entry-point"], "entry point"),
         };
 
     /// <summary>The parent id of one record, or null when no rule places it.</summary>
@@ -94,8 +95,8 @@ static class BookParents
         public Dictionary<string, string> ModulesByName { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the entry-point identifier for each entry-point name segment, first record winning.</summary>
         public Dictionary<string, string> EntryPointsByName { get; } = new(StringComparer.Ordinal);
-        /// <summary>Gets the topic identifier for each topic name segment, first record winning.</summary>
-        public Dictionary<string, string> TopicsByName { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the feature identifier for each feature name segment, first record winning.</summary>
+        public Dictionary<string, string> FeaturesByName { get; } = new(StringComparer.Ordinal);
     }
 
     /// <summary>Builds the parent lookup tables from the model records.</summary>
@@ -148,9 +149,9 @@ static class BookParents
             {
                 index.EntryPointsByName.TryAdd(name, pair.Key);
             }
-            else if (string.Equals(type, "topic", StringComparison.Ordinal))
+            else if (string.Equals(type, "feature", StringComparison.Ordinal))
             {
-                index.TopicsByName.TryAdd(name, pair.Key);
+                index.FeaturesByName.TryAdd(name, pair.Key);
             }
         }
 
@@ -173,10 +174,10 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "topic" or "actor" or "term" or "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook" or "integration-event" or "exception" => index.ProductId,
-            "feature" => LinkParent(index, FirstLink(record, "solves")),
-            "requirement" => TopicParent(index, id),
-            "journey" => LinkParent(index, FirstLink(record, "serves")),
+            "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "exception" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
+            "feature" or "permission" or "integration-event" => ModuleFromFile(index, record),
+            "requirement" => FeatureParent(index, id),
             "aggregate" => ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
@@ -184,7 +185,7 @@ static class BookParents
             "rule" => RuleParent(index, id),
             "event" => AggregateNameParent(index, id),
             "reaction" or "job" or "notification" or "setting" => ModuleParent(index, id),
-            "screen" => ScreenParent(index, record, id),
+            "screen" => ScreenParent(index, id),
             _ => null,
         };
 
@@ -192,25 +193,43 @@ static class BookParents
         return string.Equals(parent, id, StringComparison.Ordinal) ? null : parent;
     }
 
-    /// <summary>Resolves a link target to a parent when the target names a known record.</summary>
+    /// <summary>Finds the module parent of a record from its file: the module its folder sits under.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
-    /// <param name="target">The link target identifier, or null.</param>
-    /// <returns>The target identifier when it is non-empty and known, otherwise null.</returns>
-    static string? LinkParent(ParentIndex index, string? target) =>
-        target is { Length: > 0 } && index.ById.ContainsKey(target) ? target : null;
+    /// <param name="record">The record object that holds the file path.</param>
+    /// <returns>The module identifier for the folder, or null when the file names no known module.</returns>
+    static string? ModuleFromFile(ParentIndex index, JsonObject record)
+    {
+        var file = StrProp(record, "file");
+        if (file is not { Length: > 0 })
+        {
+            return null;
+        }
 
-    /// <summary>Finds the topic parent of a record from its identifier home.</summary>
+        var segments = file.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        for (var at = 0; at + 1 < segments.Length; at++)
+        {
+            if (string.Equals(segments[at], "modules", StringComparison.Ordinal)
+                && index.ModulesByName.TryGetValue(segments[at + 1], out var module))
+            {
+                return module;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Finds the feature parent of a record from its identifier home.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
-    /// <param name="id">The record identifier whose home names the topic.</param>
-    /// <returns>The topic identifier for the home, or null when the identifier has no home or no topic carries that name.</returns>
-    static string? TopicParent(ParentIndex index, string id)
+    /// <param name="id">The record identifier whose home names the feature.</param>
+    /// <returns>The feature identifier for the home, or null when the identifier has no home or no feature carries that name.</returns>
+    static string? FeatureParent(ParentIndex index, string id)
     {
         if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
         {
             return null;
         }
 
-        return index.TopicsByName.TryGetValue(home, out var topic) ? topic : null;
+        return index.FeaturesByName.TryGetValue(home, out var feature) ? feature : null;
     }
 
     /// <summary>Finds the module parent of a record from its identifier home.</summary>
@@ -273,10 +292,10 @@ static class BookParents
         return null;
     }
 
-    /// <summary>Finds the parent of a rule from its identifier home, an aggregate before a module.</summary>
+    /// <summary>Finds the parent of a rule from its identifier home: an aggregate before a module, a product-level invariant under the product.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
     /// <param name="id">The rule identifier whose home names the aggregate or module.</param>
-    /// <returns>The aggregate identifier when one carries the home name, else the module identifier, or null when neither does.</returns>
+    /// <returns>The aggregate identifier when one carries the home name, else the module identifier, else the product, or null when the identifier has no home.</returns>
     static string? RuleParent(ParentIndex index, string id)
     {
         if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
@@ -284,13 +303,14 @@ static class BookParents
             return null;
         }
 
-        // An aggregate home wins over a module home.
+        // An aggregate home wins over a module home; a home naming neither is
+        // a product-level invariant, the one stated exception.
         if (index.AggregatesByName.TryGetValue(home, out var aggregate))
         {
             return aggregate;
         }
 
-        return index.ModulesByName.TryGetValue(home, out var module) ? module : null;
+        return index.ModulesByName.TryGetValue(home, out var module) ? module : index.ProductId;
     }
 
     /// <summary>Finds the aggregate parent of a record from its identifier home.</summary>
@@ -307,26 +327,18 @@ static class BookParents
         return index.AggregatesByName.TryGetValue(home, out var aggregate) ? aggregate : null;
     }
 
-    /// <summary>Finds the entry-point parent of a screen when its entry-point link agrees with its identifier home.</summary>
+    /// <summary>Finds the entry-point parent of a screen from its identifier home.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
-    /// <param name="record">The screen record object that holds the entry-point link.</param>
-    /// <param name="id">The screen identifier whose home must agree with the link.</param>
-    /// <returns>The entry-point identifier when the link is known and agrees with the home, otherwise null.</returns>
-    static string? ScreenParent(ParentIndex index, JsonObject record, string id)
+    /// <param name="id">The screen identifier whose home names the entry point.</param>
+    /// <returns>The entry-point identifier for the home, or null when the identifier has no home or no entry point carries that name.</returns>
+    static string? ScreenParent(ParentIndex index, string id)
     {
-        var entryPoint = FirstLink(record, "entryPoint");
-        if (entryPoint is not { Length: > 0 } || !index.ById.ContainsKey(entryPoint))
-        {
-            return null;
-        }
-
-        // The field and the identifier home must agree on one entry point.
         if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
         {
             return null;
         }
 
-        return string.Equals(entryPoint, "entry-point/" + home, StringComparison.Ordinal) ? entryPoint : null;
+        return index.EntryPointsByName.TryGetValue(home, out var entryPoint) ? entryPoint : null;
     }
 
     /// <summary>Reads the first link value among the named fields, from links before fields.</summary>

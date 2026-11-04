@@ -4,13 +4,13 @@
   import { book, type View } from "$lib/book";
   import FilterPanel from "./FilterPanel.svelte";
   import NavRow from "./NavRow.svelte";
-  import QueueViews from "./QueueViews.svelte";
+  import SecurityView from "./SecurityView.svelte";
   import Tools from "./Tools.svelte";
   import ViewTabs from "./ViewTabs.svelte";
-  import { ballotGroups, buildListRows, buildOutlineRows, queueGroups, ROW_HEIGHT, securityGroups, type Row } from "./rows";
+  import { buildListRows, buildOutlineRows, ROW_HEIGHT, securityGroups, type Row } from "./rows";
 
   // The book's left navigation: view tabs, tools and filters over the
-  // virtualized outline or record list, or the queue, security and ballots.
+  // virtualized outline or record list, or the security groups.
   const outlinesReady = $derived.by(() => (book.man?.layers ?? []).every((l) => book.isLayerLoaded(l.key)));
   const outlineLoading = $derived(book.anyFilter() && !outlinesReady);
   const rows = $derived.by((): Row[] => {
@@ -20,16 +20,12 @@
     return [];
   });
   const models = $derived.by(() => ({
-    queue: !outlineLoading && book.view === "queue" ? queueGroups(book) : [],
     security: !outlineLoading && book.view === "security" ? securityGroups(book) : [],
-    ballots: !outlineLoading && book.view === "ballots" ? ballotGroups(book) : [],
   }));
   const navKeys = $derived.by((): string[] => {
     if (book.view === "outline" || book.view === "list")
       return rows.flatMap((r) => (r.kind === "record" || r.kind === "listrecord" ? [r.id] : []));
-    if (book.view === "queue") return models.queue.flatMap((g) => g.batches.map((b) => b.id));
-    if (book.view === "security") return models.security.flatMap((g) => g.items.map((i) => i.id));
-    return models.ballots.flatMap((g) => g.ballots.flatMap((b) => b.items.map((x) => x.id + "|" + x.i)));
+    return models.security.flatMap((g) => g.items.map((i) => i.id));
   });
 
   let loadingOutlines = false;
@@ -129,34 +125,25 @@
   $effect(() => {
     const sel = book.selected;
     const tick = book.focusNavTick;
-    const focusQ = book.focusQ;
     void revealTick;
     void book.view;
     if (untrack(() => outlineLoading)) {
       lastTick = tick;
       return;
     }
-    const key = book.view === "ballots" && sel && focusQ !== null ? sel + "|" + focusQ : sel;
     const doFocus = tick !== lastTick;
     lastTick = tick;
-    if (!key || !scrollEl) return;
-    void reveal(key, doFocus);
+    if (!sel || !scrollEl) return;
+    void reveal(sel, doFocus);
   });
 
   async function switchView(v: View) {
-    if (v !== "outline" && v !== "queue" && v !== "security" && v !== "ballots") return;
+    if (v !== "outline" && v !== "security") return;
     if (v === book.view) return;
     await book.setView(v);
-    if (v === "queue" || v === "security") {
+    if (v === "security") {
       const first = navKeys[0];
       if (first && first !== book.selected) void book.select(first);
-    } else if (v === "ballots") {
-      const first = navKeys[0];
-      if (first) {
-        const bar = first.indexOf("|");
-        const id = bar < 0 ? first : first.slice(0, bar);
-        if (id !== book.selected) void book.select(id, { q: bar < 0 ? 0 : +first.slice(bar + 1) });
-      }
     }
   }
 </script>
@@ -186,8 +173,8 @@
           {/if}
         {/each}
       </div>
-    {:else if book.view === "queue" || book.view === "security" || book.view === "ballots"}
-      <QueueViews view={book.view} qgroups={models.queue} sgroups={models.security} bgroups={models.ballots} />
+    {:else}
+      <SecurityView sgroups={models.security} />
     {/if}
   </div>
 </div>

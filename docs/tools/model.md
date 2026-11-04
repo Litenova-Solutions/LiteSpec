@@ -2,92 +2,53 @@
 
 ## Name
 
-`litespec model` builds the project model, checks it, formats record files, diffs it against a base, renders generated regions, approves records, answers record queries, and prints the names inventory.
+`litespec model` builds the project model, checks it, formats record files, renders generated regions, and answers record queries.
 
 ## Synopsis
 
 ```bash
 litespec model build [--root <consumer>] [--out <file>]
-litespec model check [--root <consumer>] [--format json] [--staged] [--release] [--since <ref>] [--level <levels>]
+litespec model check [--root <consumer>] [--format json] [--release] [--since <ref>]
 litespec model format [--root <consumer>] [--check]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
-litespec model names [--root <consumer>] [--format text|json]
-litespec model review [--root <consumer>] [--decider <owner>] [--risk <class>|none] [--module <module>] [--type <type>] [--format json]
-litespec model approve [--root <consumer>] (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
-litespec model approve [--root <consumer>] --batch <selector> [--batch <selector>...] [--batches <file>] --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
-litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
 ```
 
 ## Description
 
-The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`. `build` runs the checks once on the model it built and writes the result into `model.json` as `findings` and `known`, the same objects `check --format json` writes, so the book reads its findings from the model and needs no separate findings file.
+The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`. `build` runs the checks once on the model it built and writes the result into `model.json` as `findings` and `known`, the same objects `check --format json` writes, so the book reads its findings from the model and needs no separate findings file.
 
 Each screen in `screens` lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. `links.calls` carries one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
 A proof goes stale when its scenario changes after the proof passed. `.litespec/proof/proofs.json` is committed: for each scenario it holds the scenario hash and its test body's hash at the last passing run. On every later build, a scenario whose hash or test body differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. A test that both passed and failed within the runs read reports `proof-invalid`. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
-`approve` writes approval data onto the named records, or with `--all` onto every approved or reviewed record that carries no `approvedHash`. It sets `approvedBy` (from `--by`, else the record decider, else its owner) and `approvedOn` (from `--on`, else today) when they are missing, and always writes `approvedHash`, the builder hash over the record semantic fields. A person runs it when they approve or review a record; agents run it only with `--by "auto (veto window)"` for a question on a record with no risk class past its veto window. With `--dry-run` it writes nothing and prints what it would do: each record that would be stamped for carrying no `approvedHash`, and each record that would be reopened for a semantic hash that differs from it. [The approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type. `approve` and the batch approver write record files and never touch explanation files.
-
-`review` prints the review queue the [release page](../core/release.md) describes under Batch Review. It lists every draft and every reopened record, grouped into batches: a use case with its results and scenarios, a decision with the records it decides, a record carrying a risk class that no use case or decision holds on its own, and the remaining drafts with no risk class of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves. Batches come in one order: batches holding a `fullReRead` record, then batches holding another reopened record, then by the count of drafts awaiting the batch, most first, then in authority order (Intent before Behavior), then by the earliest `decideBy`, then by selector. With `--format json` it writes one object with a `batches` array; each batch carries `selector`, `kind` (`use-case`, `decision`, `record`, or `module-type`), `riskClasses`, `deciders`, `decideBy`, `awaiting`, and `records`, and each record carries `id`, `type`, `layer`, `risk`, `approval`, `decider`, `decideBy`, `status`, `effectiveStatus`, `reopened`, `fullReRead`, `awaiting` (the drafts whose effective status is draft because of it, through `decides`, `fulfills`, or `serves`), `openQuestions`, `scenarios` (`total`, `confirmed`, `passing`, `stale`), and `findings` (the count of open findings whose subject is the record).
-
-`approve --batch` approves one batch per `--batch`, and `--batch` may be given more than once to approve many batches in one run. `--batches <file>` names a text file with one selector per line; blank lines and lines starting with `#` are ignored, and a second whitespace-separated field on a line names that batch's review report, overriding `--review-report` for that batch. The model is built once, and the batches run in the order given; every other option applies to every batch. Each batch promotes each draft in the batch, Intent and governance records to `approved` and Behavior records to `reviewed`, writes `approvedBy` from `--by`, `approvedOn`, and `approvedHash`, re-stamps each reopened record, and leaves a record already approved with an unchanged hash as it is. A `decision/` batch promotes the decision first, then the records it decides in authority order. After a batch is applied, its records count as approved or reviewed for the batches after it in the same run. Any batch except a module and type batch is refused as a whole, writes nothing, and holds no later batch back when a guard fails: no `--by` naming an owner, a record carrying a risk class and no `--second-reviewer` other than the approver, a record with an open question, a decision that names no chosen option, a transcribed record that serves a journey still in draft, or a record whose effective status would stay draft. A module and type batch instead approves every record whose guards pass and holds the rest: each held record keeps its status, gets no stamp, is named with its guard, and is written with action `held` and its guards in `heldBecause`. A module and type batch is refused whole only when no `--by` names an owner, or when no record in it passes its guards. Stamping a page leaves each entry that inherits the page status and is not in the batch at the page's former status, written on the entry. Each refusal names the batch, the record, and the guard. On success each batch writes the manifest `.litespec/proof/approvals/<YYYY-MM-DD>-<selector>.json`, the selector with every `/`, `.`, and `:` replaced by `-`, and `-2`, `-3` and so on appended when a manifest of that name exists. The manifest holds `selector`, `approvedBy`, `secondReviewer`, `reviewReport`, `approvedOn`, `sampleShare`, `sample` (the sampled ids, records with no risk class only), and `records`, each with `id`, `type`, `risk`, `action` (`promoted`, `re-stamped`, or `held`), `hash`, `scenarios`, `findings`, and `heldBecause` (the guards holding the record when a module and type batch held it, else null). A run over many batches prints one line per batch, approved with its manifest path or refused with its reasons, then `<n> batches approved, <m> refused.`, and exits 0 when no batch was refused and 1 otherwise. With `--dry-run` it prints the plans, the guard failures, and the sample, and writes nothing.
-
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
-The nine subcommands share one reader:
+The five subcommands share one reader:
 
-- `build` writes `model.json` under `.litespec/model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`, the project approval table as `approvals`, each record carrying risk with its `approval`, each requirement, use case, journey, feature and goal with its `completion`, and each screen with its `captures` and `captureState` from the screenshot galleries the project file names.
-- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It prints a summary before the detail: every open blocking finding in full, one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `value-invalid A 21767`, and the totals line. With `--level <levels>` it limits the detail lines, the counts and the JSON findings to the named levels. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2. With `--release` the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a record carrying a risk class. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report.
+- `build` writes `model.json` under `.litespec/model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`, each requirement, use case, journey, feature and goal with its `completion`, and each screen with its `captures` and `captureState` from the screenshot galleries the project file names.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It prints a summary before the detail: every open blocking finding in full, one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `record-invalid G 3`, and the totals line. With `--release` the release-readiness findings block: `use-case-unverified`. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report; it also reports every client-breaking contract change since `<ref>`: a removed result, a removed refusal code, and a changed integration event: each as a `contract-break` finding of level S, which always blocks.
 - `format` rewrites every record file under the record roots, and the glossary file, into canonical form. With `--check` it writes nothing and lists each file that would change.
 - `render` rewrites the fenced generated regions in explanation files and documents, and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
-- `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, reaction facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
-- `diff` compares the working tree against a base. The base is a consumer folder holding `.litespec/project.json`, or a git revision of the consumer. In a consumer, `<base>` is the consumer default branch, such as `main`, for a review diff, unless the review names a consumer folder or another git revision. Records match by identifier. `--intent` shows Intent changes in product words, `--behavior` shows Behavior changes and the security queue, and without either flag it shows both. The changelog prints REMOVED, then MODIFIED, then ADDED; each section groups entries by family: goals and requirements, domain, access, operations. The header counts breaking, removed, modified, and added changes. `text` is the changelog reviewers read, `markdown` is the pull request comment, and `json` carries every change with its fingerprint and the counts for machines. `--breaking-only` shows breaking changes and hides the rest.
 
-The security queue ends the behavior diff. It lists the changes the security reviewer named in `review.securityReviewer` approves: access tenant scope widenings to `cross`, new `calls` effects, and new personal or sensitive data classes.
+A finding that an exception covers is reported as known and exits zero, as the [model page](../core/model.md) states under The Model Builder. An exception on a use case also covers the findings about the scenarios and results it holds. An expired exception fails the check.
 
-A change breaks approved intent when it removes or narrows an approved requirement, adds a refusal or a precondition to an approved use case, removes a result, state, transition, or scenario, weakens a rule, or changes a quality measure or target. Each breaking entry names its reason code:
-
-| Code | Meaning |
-|:---|:---|
-| `requirement-removed` | An approved requirement no longer exists. |
-| `requirement-narrowed` | An approved requirement statement changed. |
-| `quality-measure-changed` | A quality requirement measure or target changed. |
-| `refusal-added` | A refusal was added to an approved use case. |
-| `precondition-added` | A precondition was added to an approved use case. |
-| `refusal-path-added` | A scenario proves a new refusal path. |
-| `result-removed` | A result was removed from approved intent. |
-| `scenario-removed` | A scenario was removed from approved intent. |
-| `state-removed` | A state was removed from an approved aggregate. |
-| `transition-removed` | A transition was removed from an approved aggregate. |
-| `aggregate-removed` | An approved aggregate was removed. |
-| `rule-weakened` | A rule was weakened. |
-| `refusal-meaning-changed` | A refusal meaning changed. |
-| `result-outcome-changed` | A result outcome changed. |
-
-Every reason except `refusal-path-added` fires only on approved or reviewed records.
-
-A finding that an approved exception covers is reported as known and exits zero, as the [model page](../core/model.md) states under The Model Builder. An exception on a use case also covers the findings about the scenarios and results it holds. An expired exception fails the check.
-
-Every check has a level. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent; a missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a record with no risk class and level G for a record carrying a risk class. The finding codes are:
+Every check has a level. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent; a missing structural parent is level G. Every other required link is level G. The finding codes are:
 
 | Code | Level | Meaning | Fix |
 |:---|:---|:---|:---|
 | `record-invalid` | G | A record file fails to parse, or a record fails the shape its type requires. | Correct the file so it parses and matches the shape its type requires. |
-| `identifier-invalid` | G | An identifier breaks the form its type requires, or a requirement topic segment differs from its page name. | Rename the identifier to the required form. |
+| `identifier-invalid` | G | An identifier breaks the form its type requires. | Rename the identifier to the required form. |
 | `identifier-duplicate` | G | One identifier names two records. | Give one of the records a new identifier. |
-| `field-invalid` | G | A field holds a value outside its shape, or a record other than a decision carries `replaces`. | Write the field in its declared shape, or move `replaces` to a decision. |
+| `field-invalid` | G | A field holds a value outside its shape. | Write the field in its declared shape. |
 | `reference-unknown` | G | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
-| `owner-unknown` | G | A record names an owner or decider the owners list does not hold, or an owner no team owning its path claims. | Name a listed owner, or add the owner to the owners list. |
-| `decider-missing` | G | A draft or a question entry names no decider or no decide-by date. | Name the decider and the decide-by date. |
-| `approval-invalid` | G | An approved record rests on a draft decision. | Approve the decision first, or return the record to draft. |
 | `product-count-invalid` | G | The project holds no single product record. | Write one product record. |
 | `size-type-missing` | G | The size requires a type the project lacks. | Add a record of the missing type. |
-| `requirement-fulfillment-missing` | G | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting, unless it cites a planned, later or refused feature; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. | Fulfill the requirement from a Behavior record, cite its planned, later or refused feature, or name a quality requirement from a technical decision in `basedOn`. |
+| `requirement-fulfillment-missing` | G | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. | Fulfill the requirement from a Behavior record, or name a quality requirement from a technical decision in `basedOn`. |
 | `requirement-measure-missing` | G (A for a statement naming a number with no `measure`) | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
-| `requirement-cites-missing` | A (G when the requirement carries a risk class) | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
+| `requirement-cites-missing` | G | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
 | `decision-decides-missing` | G | A product decision names nothing it decides. | Name the records the decision decides. |
 | `use-case-journey-missing` | G | A public use case sits in no journey and names no background caller. It runs at large size only. | Walk the use case in a journey, or name its background caller. |
@@ -101,7 +62,6 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `exception-finding-unknown` | G | An exception names a finding code no check emits. | Name a finding code a check emits. |
 | `aggregate-name-clash` | G | Two aggregates share one name across the project. | Give one aggregate a new name. |
 | `use-case-name-clash` | G | Two use cases share one name across the project. | Give one use case a new name. |
-| `use-case-verb-unknown` | G | A use-case name starts with a verb neither the baseline nor the project vocabulary declares; a retired synonym names its replacement. | Start the name with a declared verb, or declare the verb. |
 | `use-case-verb-invalid` | G | A query opens with a changing verb, or a command opens with a reading verb. | Open the name with a verb of its kind. |
 | `reaction-name-invalid` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. | Rename the reaction to `<verb>-<what>-on-<fact>` with a declared verb. |
 | `job-name-invalid` | G | A job name does not start with the verb of a use case it runs. | Start the job name with the verb of a use case it runs. |
@@ -116,9 +76,8 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `reaction-trigger-unknown` | G | A reaction names a trigger no domain event or integration event carries. | Point the trigger at a written domain event or integration event. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. | Declare the erasure position of the field. |
 | `record-link-missing` | G | A use case, reaction, job, notification or setting names neither `serves` nor `fulfills`. | Link the record with `serves` or `fulfills`. |
-| `record-parent-missing` | G | A requirement home names no topic, a feature `solves` names no problem, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
-| `feature-goal-missing` | A (G when the feature carries a risk class) | A feature that is not refused advances no goal. | Advance a goal from the feature, or record the refusal. |
-| `feature-shipped-drift` | A | A feature whose lifecycle is `shipped` while its completion stage is below `proven`. | Prove every in-scope requirement and journey step, or return the lifecycle to `planned`. |
+| `record-parent-missing` | G | A feature `solves` names no problem, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
+| `feature-goal-missing` | G | A feature advances no goal. | Advance a goal from the feature. |
 | `result-scenario-missing` | A (G for success results) | A written result is shown by no scenario. | Write a scenario that shows the result. |
 | `step-use-case-missing` | G | A journey step is served by no use case, reaction or job. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. | Serve the step from a use case, a reaction or a job. |
 | `effect-loop-invalid` | G | The effect graph cycles outside a domain event with a stated end condition. | Break the cycle, or route it through a domain event with a stated end condition. |
@@ -127,23 +86,19 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `paging-undeclared` | G | A collection query declares no `paging`. | Declare the `paging` of the query. |
 | `widening-cites-missing` | G | A query group visible beyond its `reads` names no requirement in `cites`. | Cite the widening requirement in `cites`. |
 | `retention-enforcement-missing` | G | A data class names no `enforcedBy`. | Name the enforcement in `enforcedBy`. |
-| `risk-acceptance-missing` | G | A retained or exempt personal data class names no `acceptedBy` in Intent. | Record the acceptance in `acceptedBy`. |
+| `risk-acceptance-missing` | G | A retained or exempt personal data class names no `basedOn` in Intent. | Record the acceptance in `basedOn`. |
 | `exemption-expired` | G | An erasure exemption passed its `reviewBy` date. | Review the exemption and set a new `reviewBy` date. |
 | `setting-requirement-missing` | G | A commercial, legal, or tenant-varying default fulfills no requirement. | Fulfill a requirement from the setting. |
 | `reservation-release-missing` | G | A reservation rule names no `releasedBy`, or names never with no reason. | Name the releasing record in `releasedBy`, or never with a reason. |
 | `notification-sender-missing` | G | A notification is sent by no reaction, job or use case. | Send the notification from a reaction, a job or a use case. |
 | `except-fallback-missing` | G | An `except` names no fallback requirement, or the fallback carries its own `except`. | Name a fallback requirement that carries no `except` of its own. |
-| `approval-reopened` | G | A semantic hash differs from the recorded `approvedHash`. | Re-approve the record. |
-| `parent-reopened` | A (G once approved) | A record cites, fulfills or serves a record whose semantic hash changed after the record was last approved. | Re-approve the record against the changed parent. |
-| `transcription-status-invalid` | G | A transcribed record is reviewed while its parent is unapproved. | Approve the parent first, or return the record to draft. |
-| `transcription-expired` | G | A transcribed record remains after the adoption decision is approved. | Adopt the record, or remove it. |
 | `job-guard-missing` | G | A manual job states no `guard`. | State the `guard` of the job. |
 | `schedule-invalid` | G | A job schedule is neither an `every` duration nor a `cron` expression. | Write the schedule as an `every` duration or a `cron` expression. |
 | `atomic-group-drift` | G | An atomic use case's `changes` differ from its atomicity rule's `binds`. | Match `changes` to the rule's `binds`, or update the rule. |
 | `atomic-group-invalid` | A | An atomic group binds more than 4 aggregates. | Extract a saga for the group. |
 | `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, an engine step that maps to no use case, or (the frontend case) a route with no screen mark or a mark naming no screen is named by no record. | Delete the code, or write its parent record from a requirement, drafting the requirement when none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. | Add the mark the marks table names. |
-| `mark-unknown` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or exception, a retired record, or a provision on a page the project's stacks do not apply. | Point the mark at a record its element takes, or remove the mark. |
+| `mark-unknown` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or exception, or a provision on a page the project's stacks do not apply. | Point the mark at a record its element takes, or remove the mark. |
 | `decision-unimplemented` | S | A technical decision under `.litespec/implementation/decisions/` is followed by no code element. | Follow the decision from a code element, or retire the decision. |
 | `decision-basis-missing` | A | A technical decision names no constraint or requirement in `basedOn`. | Name the constraint or requirement in `basedOn`. |
 | `constituent-parent-missing` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. | Move the type under its aggregate, or mark it. |
@@ -178,20 +133,20 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `write-undeclared` | S | The code writes an aggregate outside `changes`. | Declare the aggregate in `changes`, or stop writing it. |
 | `result-undeclared` | S | The code returns an outcome no result declares. | Declare the outcome in a result, or stop returning it. |
 | `effect-undeclared` | S | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
-| `prose-missing` | A | A significant use case holds no `purpose` field, or a significant command holds no `whatHappens` field. | Write the missing `purpose` or `whatHappens` field. |
+| `prose-missing` | A | A record holds no `summary` field, or a goal, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | A | A `.md` file under a record root has no frontmatter and no record file beside it, and is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
-| `explanation-missing` | A | A research, decision, or topic record has no explanation file, or its explanation lacks a required section. | Write the explanation file with its required sections. |
+| `explanation-missing` | A | A research or decision record has no explanation file, or its explanation lacks a required section. | Write the explanation file with its required sections. |
 | `format-drift` | A | A record file differs from canonical form. | Run `litespec model format`. |
 | `source-link-bare` | A | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |
 | `source-key-unknown` | A | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |
 | `source-unused` | A | A research source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
 | `atomic-group-duplicate` | A | One command saves more than one atomic write group. | Save one atomic write group per command, or extract a saga. |
-| `question-expired` | A | An unanswered question stands past its `decideBy` date and cannot auto-approve. | Answer the question, or record a new `decideBy` date. |
 | `use-case-method-drift` | A | A command handler calls aggregate methods, none starting with the use-case verb. | Start an aggregate method with the use-case verb. |
 | `event-tense-invalid` | A | An aggregate method raises an event not ending with the past tense of its verb. | End the event name with the past tense of the method verb. |
 | `name-drift` | A | A message type, operation id or audit action differs from the use-case name. | Match the name to the use-case name. |
 | `operation-id-duplicate` | S | Two endpoints declare one operation id, which the API document and every generated client refuse. | Give one endpoint a new operation id. |
 | `operation-use-case-drift` | S | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. | Name the endpoint use case in `x-litespec-use-case`, or fix the unreadable contract. |
+| `contract-break` | S | A result or refusal code the `--since` base held no longer exists, or an integration event changed since the base. It runs on `check --since` only. | Keep the result, refusal code and integration event the base published. |
 | `alert-link-missing` | S | An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook. | Label the alert rule with the requirement and the runbook. |
 | `alert-threshold-drift` | A | An alert rule's own text carries none of the decimal numbers its requirement's `measure` names. | Carry a decimal number from the `measure` in the alert text. |
 | `quality-alert-missing` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open exception covers. | Name the requirement from an alert, or record an exception. |
@@ -214,14 +169,13 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `effect-timing-invalid` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. | Send or call after the commit, from an event handler or a job. |
 | `partial-missing` | S | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. | Declare the domain event or rule exception `partial`. |
 
-The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `history`, `use-case-coverage`, `sub-processors`, `runbook-index`, `rule-map`, `operations-log`, `open-questions`, `journeys`, `glossary`, `deviations`, `census`, `aggregate-map`, `audit-register`, `alert-inventory`, and `counts`.
+The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `alert-inventory`, `runbook-index`, and `operations-log`.
 
 ## Arguments
 
 | Argument | Required | Effect |
 |:---|:---|:---|
 | `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
-| `<base>` | for `diff` | The consumer folder or git revision to compare against; in a consumer, the default branch, such as `main`, for a review diff. |
 
 ## Options
 
@@ -229,23 +183,9 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | Selects the consumer repository to read. |
 | `--out <file>` | `.litespec/model/model.json` under the root | Writes the model to this file instead. Only `build` reads it. |
-| `--format <name>` | human lines | Only `check`, `diff`, and `names` read it. `check` accepts `json` and writes the findings as one JSON object. `diff` accepts `text`, `markdown`, or `json`. `names` accepts `text` or `json`. |
-| `--intent` | off | Only `diff` reads it. Shows the Intent changes in product words. |
-| `--behavior` | off | Only `diff` reads it. Shows the Behavior changes and the security queue. |
-| `--fail-on breaking` | off | Only `diff` reads it. Exits 1 when the change breaks approved intent. |
-| `--breaking-only` | off | Only `diff` reads it. Shows the breaking changes and hides the rest. |
-| `--by <owner>` | the record decider, else its owner | Only `approve` reads it, and never with `--dry-run`. Sets `approvedBy` where it is missing. |
-| `--on <YYYY-MM-DD>` | today | Only `approve` reads it, and never with `--dry-run`. Sets `approvedOn` where it is missing. |
-| `--dry-run` | off | Only `approve` reads it. Prints the plan and writes nothing. |
-| `--decider <owner>`, `--risk <class>\|none`, `--module <module>`, `--type <type>` | none | Only `review` reads them. Keeps the batches holding a record that matches every given filter; `--risk none` keeps a record carrying no risk class. |
-| `--batch <selector>` | none | Only `approve` reads it. May be given more than once; each value approves one batch, in the order given: `use-case/<module>.<name>`, `decision/<id>`, a record carrying a risk class on its own id, or `<module>/<type>`. |
-| `--batches <file>` | none | Only `approve` reads it. Names a text file with one batch selector per line; blank lines and lines starting with `#` are ignored. A second field on a line names that batch's review report and overrides `--review-report` for that batch. |
-| `--second-reviewer <owner>\|agent` | none | Only `approve --batch` reads it. Names the second reading of a record carrying a risk class: another owner, or `agent` with `--review-report`. It applies to every batch in the run. |
-| `--review-report <file>` | none | Only `approve --batch` reads it, with `--second-reviewer agent`. The agent review report the manifest cites; the file must exist. A report named in a `--batches` file overrides it for that batch. |
-| `--staged` | off | Only `check` reads it. Reports the staged scope only: staged records, their direct links, and the records staged code implements. |
-| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a record carrying a risk class. |
-| `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. |
-| `--level <levels>` | every level | Only `check` reads it. A comma-separated subset of `G`, `S`, `A`, such as `G,S`. Limits the detail lines, the per-code counts and the JSON findings to the named levels. Any other value exits 2. |
+| `--format <name>` | human lines | Only `check` reads it. It accepts `json` and writes the findings as one JSON object. |
+| `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified`. |
+| `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. Also reports every removed result, removed refusal code and changed integration event since `<ref>` as a `contract-break` finding. |
 | `--check` | off | Only `format` reads it. Writes nothing, lists each file that would change, and exits 1 when any would. |
 | `--help` | off | Prints the usage text and exits 0. |
 
@@ -254,8 +194,8 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | Code | Meaning |
 |:---|:---|
 | `0` | The command finished with no open blocking finding. |
-| `1` | `check` found an open blocking finding or an expired exception, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `diff` with `--fail-on breaking` found a breaking change, `format --check` found a file it would change, or the run failed. |
-| `2` | The arguments are wrong, the root holds no project record, the diff base is neither a consumer folder nor a git revision, `check --staged` runs outside git, or `format` found a file that does not parse. |
+| `1` | `check` found an open blocking finding or an expired exception, `query` found no record with the `id`, `format --check` found a file it would change, or the run failed. |
+| `2` | The arguments are wrong, the root holds no project record, the `--since` revision names no commit, or `format` found a file that does not parse. |
 
 ## Examples
 
@@ -295,74 +235,20 @@ Print one record with its links:
 litespec model query --root ../consumer use-case/orders.cancel-order
 ```
 
-Print the names inventory with the lookalike groups:
-
-```bash
-litespec model names --root ../consumer --format json
-```
-
-Record the finance lead approving two requirements:
-
-```bash
-litespec model approve --root ../consumer requirement/approval.receipt-over-threshold requirement/approval.no-self-approval --by "Claimwick finance lead"
-```
-
-Show what approving every record would stamp or reopen, without writing:
-
-```bash
-litespec model approve --root ../consumer --all --dry-run
-```
-
-Check only the staged records and their links before committing:
-
-```bash
-litespec model check --root ../consumer --staged
-```
-
 Check for release, with the release-readiness findings blocking:
 
 ```bash
 litespec model check --root ../consumer --release
 ```
 
-Block only on the findings changed since the main branch:
+Block only on the findings changed since the main branch, and report every breaking contract change since it:
 
 ```bash
 litespec model check --root ../consumer --since main
-```
-
-Show only the blocking levels, with the blocking findings and the counts before the detail:
-
-```bash
-litespec model check --root ../consumer --level G,S
-```
-
-Diff the working tree against the main branch:
-
-```bash
-litespec model diff main --root ../consumer
-```
-
-Show the Intent changes in product words for the finance lead review:
-
-```bash
-litespec model diff main --root ../consumer --intent
-```
-
-Show the Behavior changes with the security queue for the developer review:
-
-```bash
-litespec model diff main --root ../consumer --behavior
-```
-
-Show only the breaking changes as a pull request comment, and fail on them:
-
-```bash
-litespec model diff main --root ../consumer --format markdown --breaking-only --fail-on breaking
 ```
 
 ## Underneath
 
 A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
-The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.json`. It reads shared provisions from the release the tool carries, the record owners from the CODEOWNERS file at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and the test run from TRX or JUnit XML files under `paths.testResults`. A git diff base is read through an archive into a temporary folder, which is removed after the diff. Nothing beneath it is separately runnable.
+The builder reads `paths`, `shape`, and `stacks` from the consumer's `.litespec/project.json`. It reads shared provisions from the release the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. A check `--since` base is read through an archive into a temporary folder, which is removed after the check. Nothing beneath it is separately runnable.

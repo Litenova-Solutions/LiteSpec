@@ -36,14 +36,14 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>Decider Setting Without Key Passes.</summary>
+    /// <summary>Product Setting Without Key Passes.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
-    public void Decider_Setting_Without_Key_Passes()
+    public void Product_Setting_Without_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
-            "setting/lending.max-renewals", "Max renewals", "decider", null));
+            "setting/lending.max-renewals", "Max renewals", "product", null));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -380,8 +380,6 @@ public sealed class SettingsCheckTests
             + "  \"type\": \"setting\",\n"
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"reviewed\",\n"
             + "  \"valueType\": \"integer\",\n"
             + "  \"default\": 5,\n"
             + "  \"range\": \"1-10\",\n"
@@ -404,8 +402,6 @@ public sealed class SettingsCheckTests
             + "  \"type\": \"notification\",\n"
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"reviewed\",\n"
             + "  \"template\": \"" + template + "\",\n"
             + "  \"addresses\": [\n    \"actor/reader\"\n  ],\n"
             + "  \"channel\": [\n    \"email\"\n  ],\n"

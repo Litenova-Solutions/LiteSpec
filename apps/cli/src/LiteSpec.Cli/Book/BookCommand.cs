@@ -9,7 +9,7 @@ namespace LiteSpec.Book;
 ///     The <c>litespec book</c> command: generate the project book, one offline
 ///     shell with sharded data, from a consumer's model.json.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookCommand
 {
     /// <summary>The command's usage text.</summary>
@@ -92,25 +92,12 @@ static class BookCommand
         var root = ResolveRoot(parsed.Root, parsed.Model!);
         var editor = parsed.Editor ?? DefaultEditor;
 
-        // The check result reaches the book only through the model: `litespec model build`
-        // writes findings and known into model.json, and the model itself holds that shape.
-        JsonNode? findingsFile = null;
-        if (store["findings"] is JsonArray || store["known"] is JsonArray)
-        {
-            findingsFile = store;
-        }
-        else if (store["findings"] is JsonObject embedded && embedded["findings"] is JsonArray)
-        {
-            findingsFile = embedded;
-        }
-
-        // One pass over the one index: outline, details and review batches are each
+        // One pass over the one index: the outline and the details are each
         // built once, then packed into shards. Nothing is recomputed per record.
         var index = BookIndexBuilder.BuildIndex(store);
         var outline = BookOutline.Build(store);
         var details = BookEnrich.Build(store, outline);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
-        var review = BookReviewQueries.ReviewData(index, findingsFile, root);
 
         try
         {
@@ -142,7 +129,7 @@ static class BookCommand
 
             BookShards.WriteShard(dataDir, "lexicon", lexicon.ToJson());
             shards += 1;
-            BookShards.WriteShard(dataDir, "queue", QueueJson(index, root, review, store, details));
+            BookShards.WriteShard(dataDir, "security", SecurityJson(details));
             shards += 1;
             BookShards.WriteShard(
                 dataDir,
@@ -359,7 +346,6 @@ static class BookCommand
                 ["litespec"] = liteSpecRoot,
             },
             ["editor"] = editor,
-            ["approvals"] = store["approvals"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["testRun"] = store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["totals"] = totals,
             ["layers"] = layers,
@@ -371,154 +357,7 @@ static class BookCommand
     }
 
     /// <summary>
-    ///     The queue shard value: the review batches keyed by selector with their
-    ///     order, the open ballots, the security items and the review settings.
-    /// </summary>
-    /// <param name="index">The model index that holds the review settings.</param>
-    /// <param name="root">The absolute consumer root, used to load review settings the index lacks.</param>
-    /// <param name="review">The review data that holds the batches in order.</param>
-    /// <param name="store">The model object that holds the records with their open questions.</param>
-    /// <param name="details">The enriched record details keyed by record identifier.</param>
-    /// <returns>The queue shard value with batches, ballots, security items and review settings.</returns>
-    static JsonObject QueueJson(
-        BookIndex index,
-        string root,
-        ReviewBundle review,
-        JsonObject store,
-        IReadOnlyDictionary<string, JsonObject> details)
-    {
-        var batches = new JsonObject();
-        var order = new JsonArray();
-        foreach (var batch in review.Batches)
-        {
-            var records = new JsonArray();
-            foreach (var entry in batch.Records)
-            {
-                records.Add(entry);
-            }
-
-            var riskClasses = batch.RiskClasses.Count > 0 ? batch.RiskClasses : RiskClassesOf(details, batch.Records);
-            var approvers = batch.Approvers.Count > 0 ? batch.Approvers : ApproversOf(details, batch.Records);
-            batches[batch.Selector] = new JsonObject
-            {
-                ["selector"] = batch.Selector,
-                ["kind"] = batch.Kind,
-                ["riskClasses"] = new JsonArray([.. riskClasses.Select(risk => (JsonNode?)risk)]),
-                ["approvers"] = new JsonArray([.. approvers.Select(name => (JsonNode?)name)]),
-                ["deciders"] = new JsonArray([.. batch.Deciders.Select(decider => (JsonNode?)decider)]),
-                ["decideBy"] = StringOrNull(batch.DecideBy),
-                ["awaiting"] = batch.Awaiting,
-                ["n"] = batch.Records.Count,
-                ["records"] = records,
-            };
-            order.Add(batch.Selector);
-        }
-
-        return new JsonObject
-        {
-            ["batches"] = batches,
-            ["order"] = order,
-            ["ballots"] = BallotJson(store),
-            ["security"] = SecurityJson(details),
-            ["review"] = ReviewJson(index, root),
-        };
-    }
-
-    /// <summary>The risk classes the named records carry, in first-seen order.</summary>
-    /// <param name="details">The enriched record details keyed by record identifier.</param>
-    /// <param name="records">The record identifiers to read.</param>
-    /// <returns>The distinct risk class names of the records.</returns>
-    static List<string> RiskClassesOf(IReadOnlyDictionary<string, JsonObject> details, IReadOnlyList<string> records)
-    {
-        var classes = new List<string>();
-        foreach (var id in records)
-        {
-            if (!details.TryGetValue(id, out var detail))
-            {
-                continue;
-            }
-
-            foreach (var item in (detail["fields"] as JsonObject)?["risk"] as JsonArray ?? [])
-            {
-                if (item is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text is { Length: > 0 } && !classes.Contains(text))
-                {
-                    classes.Add(text);
-                }
-            }
-        }
-
-        return classes;
-    }
-
-    /// <summary>The approvers the project approval table names for the named records, sorted.</summary>
-    /// <param name="details">The enriched record details keyed by record identifier.</param>
-    /// <param name="records">The record identifiers to read.</param>
-    /// <returns>The distinct approver names of the records, sorted.</returns>
-    static List<string> ApproversOf(IReadOnlyDictionary<string, JsonObject> details, IReadOnlyList<string> records)
-    {
-        var approvers = new List<string>();
-        foreach (var id in records)
-        {
-            if (details.TryGetValue(id, out var detail)
-                && detail["approval"] is JsonObject approval
-                && StrProp(approval, "by") is { Length: > 0 } by
-                && !approvers.Contains(by))
-            {
-                approvers.Add(by);
-            }
-        }
-
-        approvers.Sort(StringComparer.Ordinal);
-        return approvers;
-    }
-
-    /// <summary>
-    ///     Every open question with its record id and its index in the record's
-    ///     questions, so the client renders ballots without reading every record.
-    /// </summary>
-    /// <param name="store">The model object that holds the records with their open questions.</param>
-    /// <returns>Every open question with its record identifier and its index in the record questions.</returns>
-    static JsonArray BallotJson(JsonObject store)
-    {
-        var ballots = new JsonArray();
-        foreach (var record in store["records"] as JsonArray ?? [])
-        {
-            if (record is not JsonObject entry || StrProp(entry, "id") is not { Length: > 0 } id)
-            {
-                continue;
-            }
-
-            var at = 0;
-            foreach (var item in (entry["fields"] as JsonObject)?["questions"] as JsonArray ?? [])
-            {
-                if (item is JsonObject question && StrProp(question, "question") is { Length: > 0 } text)
-                {
-                    ballots.Add(new JsonObject
-                    {
-                        ["id"] = id,
-                        ["i"] = at,
-                        ["q"] = new JsonObject
-                        {
-                            ["question"] = text,
-                            ["riskClasses"] = new JsonArray([.. BookReviewQueries.RiskClassesOf(entry).Select(risk => (JsonNode?)risk)]),
-                            ["approval"] = BookReviewQueries.ApprovalOf(entry)?.DeepClone(),
-                            ["decider"] = StringOrNull(StrProp(question, "decider")),
-                            ["decideBy"] = StringOrNull(StrProp(question, "decideBy")),
-                            ["ballot"] = StringOrNull(StrProp(question, "ballot")),
-                            ["recommendation"] = StringOrNull(StrProp(question, "recommendation")),
-                        },
-                    });
-                }
-
-                at++;
-            }
-        }
-
-        return ballots;
-    }
-
-    /// <summary>
-    ///     The security items the security reviewer reads: cross-tenant access,
+    ///     The security items the Security view lists: cross-tenant access,
     ///     outside calls and personal or sensitive data, in the client's words.
     /// </summary>
     /// <param name="details">The enriched record details keyed by record identifier.</param>
@@ -632,33 +471,6 @@ static class BookCommand
     static string Cap(string text) =>
         text.Length == 0 ? text : char.ToUpperInvariant(text[0]) + text[1..];
 
-    /// <summary>The review settings the client reads: the veto window and the security reviewer.</summary>
-    /// <param name="index">The model index that holds the veto window and possibly the security reviewer.</param>
-    /// <param name="root">The absolute consumer root, used to load the security reviewer when the index lacks one.</param>
-    /// <returns>The review settings value with the veto window in days and the security reviewer, or JSON null for the reviewer when neither source names one.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Loading the consumer configuration for the fallback security reviewer must report no failure; any failure leaves the reviewer absent so the book still builds.")]
-    static JsonObject ReviewJson(BookIndex index, string root)
-    {
-        var reviewer = index.SecurityReviewer;
-        if (reviewer is null)
-        {
-            try
-            {
-                reviewer = ConsumerConfig.Load(root).SecurityReviewer;
-            }
-            catch (Exception)
-            {
-                reviewer = null;
-            }
-        }
-
-        return new JsonObject
-        {
-            ["vetoWindowDays"] = index.VetoWindowDays,
-            ["securityReviewer"] = StringOrNull(reviewer),
-        };
-    }
-
     /// <summary>
     ///     Copies each screen capture the model lists into the book output under
     ///     <c>assets/captures/&lt;screen&gt;/</c>, and records the book-relative path on
@@ -722,9 +534,4 @@ static class BookCommand
     /// <param name="name">The property name to read.</param>
     /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
-
-    /// <summary>A JSON string, or JSON null when the text is absent.</summary>
-    /// <param name="value">The text to convert, or null.</param>
-    /// <returns>A JSON string node for the text, or null when the text is null.</returns>
-    static JsonNode? StringOrNull(string? value) => BookRender.StrNode(value);
 }

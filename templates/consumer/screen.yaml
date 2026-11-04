@@ -1,12 +1,7 @@
 type: screen
 id: screen/claimwick-app.expense-list
 title: Expense List
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 summary: The expense list shows every expense the employee submitted this quarter.
-entryPoint: entry-point/claimwick-app
 address: /expenses
 offers:
   - use-case/spending.submit-expense
@@ -15,9 +10,3 @@ serves:
 floorplan: list-page
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

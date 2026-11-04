@@ -1,12 +1,8 @@
 type: aggregate
 id: aggregate/spending.expense
 title: Expense
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 summary: The expense keeps one reimbursement consistent from submission to payout.
-kind: saga
+kind: entity
 parts:
   - line-item
 states:
@@ -27,28 +23,8 @@ dataClasses:
     exceptions:
       - field: amount
         onErasure: anonymize
-steps:
-  - id: decide
-    runs: use-case/spending.approve-expense
-    compensation:
-      mode: use-case
-      useCase: use-case/spending.reimburse-expense
-    guard: The receipt is attached.
-exits:
-  - name: decided
-    trigger: The approver decides within five days.
-    then: The run leaves through the decided exit.
-finishedWhen: The saga reaches the decided exit.
-drivenBy:
-  - job: job/spending.send-approver-reminders
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.
 records:
   - type: rule
     id: rule/expense.receipt-required-above-threshold
@@ -61,7 +37,7 @@ records:
     basedOn:
       - constraint/tax-receipt-retention
     fulfills:
-      - requirement/approval.decided-within-five-days
+      - requirement/approval-reminders.decided-within-five-days
   - type: event
     id: event/expense.submitted
     title: Submitted

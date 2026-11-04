@@ -12,15 +12,11 @@ Every protected operation answers one question: who may do what to which target.
 
 ### Trust Boundaries
 
-A trust boundary is any point where data crosses from one owner to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context may be unsafe in the new one. Application validators then check message shape, while Domain checks business invariants.
+A trust boundary is any point where data crosses from one party to another: a request arriving at the API, a file upload, a provider response, database content rendered into a new output, or generated text shown to a user. Each boundary validates what crosses it before use, because data that was safe in its old context may be unsafe in the new one. Application validators then check message shape, while Domain checks business invariants.
 
 ### Personal Data and Its Stores
 
 Personal data spreads further than the database: logs, search indexes, outboxes, snapshots, and backups each hold their own copy. Each store that holds personal data keeps its own inventory entry naming the fields, the purposes, and the retention, so every export, erasure, and breach answer starts from the same map.
-
-### Security Review
-
-Three changes move trust or data outward: an access tenant scope widening to cross, a new calls effect on an outside operation, and a new personal or sensitive data class. The behavior diff lists them in the security queue, a list to read rather than a gate, for review separately from the developer review.
 
 ## Standards
 
@@ -40,7 +36,7 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** Actor resolution MUST follow `litespec/quality/security#use-one-current-actor-abstraction`.
 
-**Rationale:** Actor resolution has one owner: the WebApi boundary, which maps verified claims to identity, roles, and scopes through the one current-actor accessor. Request data never supplies the current actor, because anything the caller sends can name anyone. One resolution path keeps every operation answering "who acts" from the same verified source.
+**Rationale:** Actor resolution has one home: the WebApi boundary, which maps verified claims to identity, roles, and scopes through the one current-actor accessor. Request data never supplies the current actor, because anything the caller sends can name anyone. One resolution path keeps every operation answering "who acts" from the same verified source.
 
 **Reviewed for:** Actor resolution in WebApi maps verified claims through the one current-actor accessor.
 
@@ -65,16 +61,6 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 **Example:** A query for an organization's orders adds the organization predicate to the database query. It does not load every order and drop the ones the caller may not read.
 
 **Reviewed for:** Each protected collection query carries its authorization scope as a database predicate before paging.
-
-### Route Access and Data Changes Carrying a Risk Class Through the Security Reviewer
-
-**ID:** `litespec/quality/security#route-access-and-data-changes-carrying-a-risk-class-through-the-security-reviewer`
-
-**Statement:** A change that widens access tenant scope to cross, adds a calls effect, or adds a personal or sensitive data class MUST appear in the security queue for review separately from the developer review.
-
-**Rationale:** A cross-tenant grant, a new outside call, and a new personal-data flow each move trust or data further than the developer review sees: the use case still reads correctly while the exposure grows. The security queue in the behavior diff lists each of the three, so one reviewer judges them together and the decision stays visible beside the change.
-
-**Reviewed for:** Which cross-scope access grants, new calls effects, and new personal-data flows shipped without security review? Look at the security queue of the behavior diff.
 
 ### Validate at Trust Boundaries
 
@@ -112,7 +98,7 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** A public error MUST use the error contract `litespec/backend/api#return-stable-problem-details` defines.
 
-**Rationale:** The error contract has one owner: the HTTP API rules. Every public error then carries the same stable shape with nothing extra. A stack trace, SQL, connection detail, provider body, uncontracted internal identifier, or authorization reason that reveals resource existence gives an attacker the system's structure with every error.
+**Rationale:** The error contract has one home: the HTTP API rules. Every public error then carries the same stable shape with nothing extra. A stack trace, SQL, connection detail, provider body, uncontracted internal identifier, or authorization reason that reveals resource existence gives an attacker the system's structure with every error.
 
 **Reviewed for:** Each public error carries the HTTP API error contract shape.
 
@@ -120,9 +106,9 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#protect-browser-boundaries`
 
-**Statement:** A frontend MUST apply framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of approved rich content.
+**Statement:** A frontend MUST apply framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content.
 
-**Rationale:** The browser is hostile ground: injected scripts, forged requests, malicious redirects, and hostile markup all arrive as ordinary page content. Framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of approved rich content each blocks one of those attacks. A route guard or hidden control is presentation, so it never replaces API authorization.
+**Rationale:** The browser is hostile ground: injected scripts, forged requests, malicious redirects, and hostile markup all arrive as ordinary page content. Framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content each blocks one of those attacks. A route guard or hidden control is presentation, so it never replaces API authorization.
 
 **Reviewed for:** Each frontend ships framework escaping, a Content Security Policy, secure headers, redirect validation, forgery protection, and rich-content sanitization.
 
@@ -180,11 +166,11 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#report-a-breach-within-its-deadline`
 
-**Statement:** A breach-notification procedure MUST name an owner and a backup person and meet the deadline the applicable constraint record states.
+**Statement:** A breach-notification procedure MUST name the person who acts and a backup person and meet the deadline the applicable constraint record states.
 
-**Rationale:** A breach deadline starts running at discovery. The applicable constraint record states the deadline the outside rule sets. A deadline nobody owns slips past the team, and an owner without a backup fails on the first absence. Naming both before anything happens keeps the procedure starting on time.
+**Rationale:** A breach deadline starts running at discovery. The applicable constraint record states the deadline the outside rule sets. A deadline with nobody named to meet it slips past the team, and one named person fails on the first absence. Naming both before anything happens keeps the procedure starting on time.
 
-**Reviewed for:** The breach procedure names an owner, a backup person, and the deadline the constraint record states.
+**Reviewed for:** The breach procedure names the person who acts, a backup person, and the deadline the constraint record states.
 
 ### Protect Live Data at Rest
 
@@ -192,7 +178,7 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** Live data at rest MUST carry encryption or a departure exception covering this provision.
 
-**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the exception covering this provision keeps the gap visible with its reason, owner, and expiry date instead of silent.
+**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the exception covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.
 
 **Reviewed for:** Each live store carries encryption, or an exception record covers this provision.
 
@@ -200,11 +186,11 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#bound-abuse-at-exposed-endpoints`
 
-**Statement:** A public, authentication, webhook, search, or upload endpoint MUST declare its limit as a setting record with key, owner, and rejection response.
+**Statement:** A public, authentication, webhook, search, or upload endpoint MUST declare its limit as a setting record with key and rejection response.
 
-**Rationale:** Public, authentication, webhook, search, and upload endpoints invite abuse: credential stuffing, scraping, flooding. Declaring the bound as a setting record names the key that isolates one caller, the owner who monitors the limit, and the rejection response the caller sees. The rejection is `429` with a stable code, so legitimate callers can back off and retry.
+**Rationale:** Public, authentication, webhook, search, and upload endpoints invite abuse: credential stuffing, scraping, flooding. Declaring the bound as a setting record names the key that isolates one caller and the rejection response the caller sees. The rejection is `429` with a stable code, so legitimate callers can back off and retry.
 
-**Reviewed for:** Each public, authentication, webhook, search, and upload endpoint declares its setting with key, owner, and rejection response.
+**Reviewed for:** Each public, authentication, webhook, search, and upload endpoint declares its setting with key and rejection response.
 
 ### Keep One Limit Store Across Replicas
 
@@ -240,11 +226,11 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **ID:** `litespec/quality/security#rotate-production-secrets`
 
-**Statement:** A production secret MUST have a secret-inventory entry naming its owner, storage location, and next rotation date, with revocation and recovery in a runbook.
+**Statement:** A production secret MUST have a secret-inventory entry naming its storage location and next rotation date, with revocation and recovery in a runbook.
 
-**Rationale:** Every secret leaks eventually: through a departing teammate, a copied file, an old backup. A secret-inventory entry with owner, storage location, and next rotation date keeps each secret's lifetime bounded, and rotation allows overlap while clients switch. Procedures, logs, artifacts, and audit records carry no secret value, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and revocation and recovery live in a runbook.
+**Rationale:** Every secret leaks eventually: through a departing teammate, a copied file, an old backup. A secret-inventory entry with storage location and next rotation date keeps each secret's lifetime bounded, and rotation allows overlap while clients switch. Procedures, logs, artifacts, and audit records carry no secret value, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and revocation and recovery live in a runbook.
 
-**Reviewed for:** Each production secret carries a secret-inventory entry with owner, location, and rotation date beside its revocation runbook.
+**Reviewed for:** Each production secret carries a secret-inventory entry with location and rotation date beside its revocation runbook.
 
 ### Set an ASVS Level as the Security Target
 
@@ -272,7 +258,7 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** CI MUST scan every pull request for security findings with a free static analyzer.
 
-**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap exception covering the finding, with its reason, owner, and expiry date, so each acceptance stays visible and dated.
+**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap exception covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.
 
 **Reviewed for:** The static analysis report for the pull request shows its findings with a gap exception for each accepted one.
 

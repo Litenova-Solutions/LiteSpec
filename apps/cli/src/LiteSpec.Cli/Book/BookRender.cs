@@ -11,7 +11,7 @@ namespace LiteSpec.Book;
 ///     and <see cref="JsonValues"/>; this type keeps the book's own display
 ///     coercion and its link check.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookRender
 {
     /// <summary>Gets the compact JSON options, with no escaping of quotes, apostrophes or angle brackets.</summary>

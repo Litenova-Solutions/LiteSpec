@@ -143,7 +143,6 @@ sealed class BookLexicon
             {
                 ["label"] = value.Label,
                 ["writes"] = value.Writes,
-                ["reviews"] = value.Reviews,
             };
         }
 

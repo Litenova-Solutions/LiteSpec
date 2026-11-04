@@ -77,7 +77,7 @@ public sealed class ExplanationCheckTests
         var file = Path.Combine(temp.Path, ".litespec", "decisions", "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", file, """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
@@ -101,7 +101,7 @@ public sealed class ExplanationCheckTests
                 "decision/0001-loan-period",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
+                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
                 Path.Combine(temp.Path, "0001-loan-period.md"),
                 "# Loan period\n\nNo sections here.\n"));
 
@@ -127,77 +127,11 @@ public sealed class ExplanationCheckTests
                 "decision/0001-loan-period",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
+                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
                 Path.Combine(temp.Path, "0001-loan-period.md"),
                 "# Loan period\n\n## Context\n\nReaders asked for a longer loan.\n"));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>A topic explanation missing one required section reports it.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
-    [Fact]
-    public void Topic_Explanation_Missing_A_Section_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "borrowing.yaml");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record(
-                "topic",
-                "topic/borrowing",
-                file,
-                1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "reviewBy": "2027-04-01"}""",
-                Path.Combine(temp.Path, "borrowing.md"),
-                "# Borrowing\n\n## The Situation\n\nTerm start floods the listing.\n\n## What We Do\n\nListings answer from an index.\n\n## Why It Is Better\n\nThe index answers faster.\n\n## Example\n\nTwo hundred readers list at once.\n\n## How Sure We Are\n\nThe load check measures the share.\n"));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Topic 'topic/borrowing' holds no Costs and Risks section in its explanation.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("topic/borrowing", finding.Subject);
-    }
-
-    /// <summary>A topic explanation with every required section passes.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
-    [Fact]
-    public void Topic_Explanation_With_Every_Section_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "borrowing.yaml");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record(
-                "topic",
-                "topic/borrowing",
-                file,
-                1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "reviewBy": "2027-04-01"}""",
-                Path.Combine(temp.Path, "borrowing.md"),
-                "# Borrowing\n\n## The Situation\n\nTerm start floods the listing.\n\n## What We Do\n\nListings answer from an index.\n\n## Why It Is Better\n\nThe index answers faster.\n\n## Example\n\nTwo hundred readers list at once.\n\n## Costs and Risks\n\nThe index needs warming.\n\n## How Sure We Are\n\nThe load check measures the share.\n"));
-
-        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
-    }
-
-    /// <summary>A topic with no explanation file reports the missing file.</summary>
-    /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
-    [Fact]
-    public void Topic_Without_An_Explanation_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, ".litespec", "borrowing.yaml");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("topic", "topic/borrowing", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "reviewBy": "2027-04-01"}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("Topic 'topic/borrowing' holds no explanation file '.litespec/borrowing.md'.", finding.Message);
-        Assert.Equal(file, finding.Path);
-        Assert.Equal(1, finding.Line);
-        Assert.Equal("topic/borrowing", finding.Subject);
     }
 
     /// <summary>A research explanation without Answer reports the missing section.</summary>
@@ -214,7 +148,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\n## Notes on Sources\n\nOne source covers the answer.\n"));
 
@@ -240,7 +174,7 @@ public sealed class ExplanationCheckTests
                 "research/loan-period-benchmarks",
                 file,
                 1,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
                 Path.Combine(temp.Path, "benchmarks.md"),
                 "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [per the report][benchmark-report].\n"));
 
@@ -256,7 +190,7 @@ public sealed class ExplanationCheckTests
         var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
+            TestModel.Record("research", "research/loan-period-benchmarks", file, """{"sources": [{"key": "benchmark-report"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
@@ -280,7 +214,7 @@ public sealed class ExplanationCheckTests
                 "decision/0001-loan-period",
                 file,
                 4,
-                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
+                """{"options": [{"name": "Fourteen days", "pros": "Copies turn over fast.", "cons": "Readers rush."}], "reopenedWhen": "Demand shifts."}""",
                 isEntry: true));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
@@ -294,7 +228,7 @@ public sealed class ExplanationCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }

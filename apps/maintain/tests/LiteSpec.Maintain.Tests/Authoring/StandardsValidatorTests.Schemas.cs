@@ -11,8 +11,8 @@ public sealed partial class StandardsValidatorTests
         "\"type\":\"object\"," +
         "\"properties\":{\"selectedExtensions\":{\"type\":\"array\",\"items\":{\"oneOf\":[" +
         "{\"type\":\"string\",\"pattern\":\"^[a-z][a-z0-9-]*$\"}," +
-        "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"id\",\"criterion\",\"reviewBy\"]," +
-        "\"properties\":{\"id\":{\"type\":\"string\"},\"criterion\":{\"type\":\"string\"},\"reviewBy\":{\"type\":\"string\"}}}" +
+        "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"id\",\"criterion\"]," +
+        "\"properties\":{\"id\":{\"type\":\"string\"},\"criterion\":{\"type\":\"string\"}}}" +
         "]}}}}";
 
     /// <summary>Schema id naming another home or release.</summary>
@@ -202,7 +202,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-project.schema.json", OneOfSchema);
-            StandardsFixture.Write(root, "templates/consumer/project.json", "{\"selectedExtensions\":[{\"id\":\"outbox\",\"criterion\":\"Durable delivery.\"}]}");
+            StandardsFixture.Write(root, "templates/consumer/project.json", "{\"selectedExtensions\":[{\"id\":\"outbox\",\"criterion\":\"Durable delivery.\",\"scope\":\"project\"}]}");
         },
         ["SCHEMA_INVALID"]);
 
@@ -213,7 +213,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/litespec-project.schema.json", OneOfSchema);
-            StandardsFixture.Write(root, "templates/consumer/project.json", "{\"selectedExtensions\":[\"outbox\",{\"id\":\"jobs\",\"criterion\":\"Holds expire on a timer.\",\"reviewBy\":\"2099-01-01\"}]}");
+            StandardsFixture.Write(root, "templates/consumer/project.json", "{\"selectedExtensions\":[\"outbox\",{\"id\":\"jobs\",\"criterion\":\"Holds expire on a timer.\"}]}");
         },
         [], ["SCHEMA_INVALID"]);
 
@@ -286,7 +286,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"goalPage\":{\"type\":\"object\",\"properties\":{\"reviewBy\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"goalPage\":{\"type\":\"object\",\"properties\":{\"finishBy\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         ["FIELD_NAME_SHAPE"]);
@@ -339,8 +339,8 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"ownerBy\":{\"$ref\":\"#/$defs/ownerName\"}}}," +
-                "\"ownerName\":{\"type\":\"string\",\"minLength\":1}}}");
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"writerBy\":{\"$ref\":\"#/$defs/writerName\"}}}," +
+                "\"writerName\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         ["FIELD_NAME_SHAPE"]);
 
@@ -401,7 +401,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"ownerOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"writerOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
                 "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
         },
         ["FIELD_NAME_SHAPE"]);
@@ -446,10 +446,10 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
-    /// <summary>Reaction, job and saga fields sharing their word classes.</summary>
+    /// <summary>Reaction and job fields sharing their word classes.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
-    [Fact(DisplayName = "reaction, job and saga fields sharing their word classes")]
-    public void ReactionJobAndSagaFieldsSharingWordClasses() => Check(
+    [Fact(DisplayName = "reaction and job fields sharing their word classes")]
+    public void ReactionAndJobFieldsSharingWordClasses() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
@@ -483,19 +483,13 @@ public sealed partial class StandardsValidatorTests
     static readonly string TemplateGoalSchema =
         "{\"$defs\":{" +
         "\"goalPage\":{\"type\":\"object\",\"additionalProperties\":false," +
-        "\"required\":[\"type\",\"id\",\"title\",\"owner\",\"status\",\"decideBy\",\"kind\"]," +
+        "\"required\":[\"type\",\"id\",\"title\",\"kind\"]," +
         "\"properties\":{\"type\":{\"const\":\"goal\"}," +
         "\"id\":{\"$ref\":\"#/$defs/goalId\"}," +
         "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
-        "\"owner\":{\"$ref\":\"#/$defs/ownerName\"}," +
-        "\"status\":{\"$ref\":\"#/$defs/intentStatus\"}," +
-        "\"decideBy\":{\"$ref\":\"#/$defs/isoDate\"}," +
         "\"kind\":{\"enum\":[\"a\",\"b\"]}}}," +
         "\"goalId\":{\"type\":\"string\",\"pattern\":\"^goal/[a-z0-9][a-z0-9-]*$\"}," +
-        "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}," +
-        "\"ownerName\":{\"type\":\"string\",\"minLength\":1}," +
-        "\"intentStatus\":{\"type\":\"string\",\"enum\":[\"draft\",\"approved\"]}," +
-        "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}}}";
+        "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}";
 
     static string TemplateDocument(string json) =>
         "---\n" + StandardsFixture.Yaml(json) + "---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
@@ -509,7 +503,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
             StandardsFixture.Write(root, "templates/consumer/goal.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
-                "\"owner\":\"<owner>\",\"status\":\"draft\",\"decideBy\":\"<YYYY-MM-DD>\",\"kind\":\"<a|b>\"}"));
+                "\"kind\":\"<a|b>\"}"));
         },
         []);
 
@@ -521,8 +515,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
             StandardsFixture.Write(root, "templates/consumer/goal.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"goal\",\"id\":\"goal/sample\",\"owner\":\"Sam\"," +
-                "\"status\":\"draft\",\"decideBy\":\"2026-11-30\",\"kind\":\"a\"}"));
+                "{\"type\":\"goal\",\"id\":\"goal/sample\",\"kind\":\"a\"}"));
         },
         ["TEMPLATE_SCHEMA"]);
 

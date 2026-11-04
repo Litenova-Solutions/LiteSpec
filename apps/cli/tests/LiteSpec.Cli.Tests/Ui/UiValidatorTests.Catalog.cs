@@ -62,6 +62,17 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <summary>A Design Contract Without A Vocabulary Section Stays Clean.</summary>
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
+    [Fact]
+    public void A_Design_Contract_Without_A_Vocabulary_Section_Stays_Clean()
+    {
+        using var fixture = UiFixture.Create();
+        File.WriteAllText(fixture.DesignFile,
+            File.ReadAllText(fixture.DesignFile).Replace("## Vocabulary", "## Notes", StringComparison.Ordinal));
+        UiFixture.AssertClean(fixture.Run());
+    }
+
     // Pattern catalog (litespec/frontend/patterns#keep-one-pattern-catalog,
     // litespec/frontend/patterns#record-every-option-considered,
     // litespec/frontend/patterns#declare-the-compact-behavior,

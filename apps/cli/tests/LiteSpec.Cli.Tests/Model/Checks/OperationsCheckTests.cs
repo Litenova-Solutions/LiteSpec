@@ -1,6 +1,4 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -202,7 +200,8 @@ public sealed class OperationsCheckTests
         WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
-        SetPaths(temp.Path, checkResults: CheckResultsDir);
+        Write(temp.Path, CaddyFile, CaddyPassing);
+        SetPaths(temp.Path, operations: [CaddyFile], checkResults: CheckResultsDir);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -210,7 +209,7 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement an approved exception covers reports as known.</summary>
+    /// <summary>A quality requirement a live exception covers reports as known.</summary>
     /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
     public void Quality_Covered_By_Exception_Reports_Known()
@@ -219,7 +218,7 @@ public sealed class OperationsCheckTests
         WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
         WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
-        WriteRecord(temp.Path, ExceptionFile, ExceptionJson(), ExceptionExplanation);
+        WriteRecord(temp.Path, ExceptionFile, ExceptionJson, ExceptionExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -258,7 +257,8 @@ public sealed class OperationsCheckTests
         WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
-        SetPaths(temp.Path, checkResults: CheckResultsDir);
+        Write(temp.Path, CaddyFile, CaddyPassing);
+        SetPaths(temp.Path, operations: [CaddyFile], checkResults: CheckResultsDir);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unmeasured = check.Output.Split('\n').Where(candidate =>
@@ -356,7 +356,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
-        Assert.Equal(0, check.Status);
+        Assert.Equal(1, check.Status);
         Assert.Contains("decision-unimplemented", check.Output, StringComparison.Ordinal);
     }
 
@@ -389,7 +389,8 @@ public sealed class OperationsCheckTests
         WriteRecord(root, DecisionFile, DecisionJson, DecisionExplanation);
         Write(root, AlertFile, alert);
         Write(root, ResultFile, ResultPassing);
-        SetPaths(root, alerts: [AlertDir], checkResults: CheckResultsDir);
+        Write(root, CaddyFile, CaddyPassing);
+        SetPaths(root, alerts: [AlertDir], operations: [CaddyFile], checkResults: CheckResultsDir);
     }
 
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)
@@ -433,9 +434,9 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string RequirementFile = ".litespec/product/lending/performance.yaml";
-    const string RunbookFile = ".litespec/behavior/runbooks/slow-listings.yaml";
-    const string OriginFile = ".litespec/product/decisions/0003-term-start-listing.yaml";
+    const string RequirementFile = ".litespec/intent/modules/lending/features/performance.yaml";
+    const string RunbookFile = ".litespec/implementation/runbooks/slow-listings.yaml";
+    const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing.yaml";
 
     const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index.yaml";
     const string AlertFile = "deploy/alerts/lending.yaml";
@@ -443,29 +444,21 @@ public sealed class OperationsCheckTests
     const string ResultFile = ".litespec/proof/checks/2026-11-20-list-loans-load.json";
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
-    const string LimitsFile = ".litespec/behavior/operations/limits.md";
+    const string LimitsFile = ".litespec/implementation/operations/limits.md";
     const string ExceptionFile = ".litespec/governance/exceptions/list-loans-latency-unwatched.yaml";
 
     const string RequirementJson = """
         {
-          "type": "topic",
-          "id": "topic/performance",
+          "type": "feature",
+          "id": "feature/performance",
           "title": "Performance",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
-          "summary": "Listing loans answers fast at term start.",
-          "position": "decision/0003-term-start-listing sets the latency target, and requirement/performance.list-loans-latency carries the measure.",
-          "reviewBy": "2027-04-01",
+          "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
+          "solves": ["problem/slow-desk-loans"],
           "records": [
             {
               "type": "requirement",
               "id": "requirement/performance.list-loans-latency",
               "title": "List loans latency",
-              "status": "draft",
-              "decider": "lending-team",
-              "decideBy": "2027-02-01",
               "kind": "quality",
               "statement": "Listing loans answers within 300 milliseconds at p95.",
               "rationale": "Term start floods the listing.",
@@ -473,7 +466,6 @@ public sealed class OperationsCheckTests
               "environment": "Normal operation, the search index warm.",
               "response": "Each listing answers from the index.",
               "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-              "dueBy": "2027-01-15",
               "check": "list-loans-load"
             }
           ]
@@ -483,29 +475,7 @@ public sealed class OperationsCheckTests
     const string RequirementExplanation = """
         # Performance
 
-        ## The Situation
-
         Term start floods the loan listing with readers listing at once.
-
-        ## What We Do
-
-        Listing loans answers from one warm search index within 300 milliseconds at p95.
-
-        ## Why It Is Better
-
-        The index answers faster than reading loans one by one.
-
-        ## Example
-
-        Two hundred readers list their loans in the first hour of the term, and each listing answers within 300 milliseconds.
-
-        ## Costs and Risks
-
-        The index needs warming after deploys.
-
-        ## How Sure We Are
-
-        The list-loans-load check measures the share answered within 300 milliseconds.
         """;
 
     const string RunbookJson = """
@@ -513,10 +483,6 @@ public sealed class OperationsCheckTests
           "type": "runbook",
           "id": "runbook/slow-listings",
           "title": "Slow Listings",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
           "trigger": "The listing-latency-high alert fires.",
           "impact": "Readers wait on listings past the promised time.",
           "prerequisites": "Access to the listing dashboard and the search index.",
@@ -533,10 +499,6 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0003-term-start-listing",
           "title": "Term Start Listing",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
           "options": [
             {
               "name": "Answer within 300 milliseconds",
@@ -544,6 +506,7 @@ public sealed class OperationsCheckTests
               "cons": "The listing needs an index."
             }
           ],
+          "choice": "Answer within 300 milliseconds",
           "consequences": "The listing reads from an index.",
           "reopenedWhen": "Term start load changes.",
           "decides": [
@@ -559,9 +522,17 @@ public sealed class OperationsCheckTests
 
         Term start floods the loan listing.
 
+        ## Options
+
+        Answer within 300 milliseconds, or queue readers behind a waiting page.
+
         ## Decision
 
         Listing loans answers within 300 milliseconds at p95.
+
+        ## Evidence
+
+        Term start drill, November 2026.
         """;
 
     const string DecisionJson = """
@@ -569,10 +540,6 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
           "options": [
             {
               "name": "Search index",
@@ -580,6 +547,7 @@ public sealed class OperationsCheckTests
               "cons": "The index needs warming after deploys."
             }
           ],
+          "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
@@ -593,10 +561,6 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
-          "owner": "lending-team",
-          "status": "draft",
-          "decider": "lending-team",
-          "decideBy": "2027-02-01",
           "options": [
             {
               "name": "Search index",
@@ -604,6 +568,7 @@ public sealed class OperationsCheckTests
               "cons": "The index needs warming after deploys."
             }
           ],
+          "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
@@ -619,9 +584,17 @@ public sealed class OperationsCheckTests
 
         Listings read loans one by one today.
 
+        ## Options
+
+        One warm search index, or a read replica beside the loans.
+
         ## Decision
 
         Listings read from one warm search index.
+
+        ## Evidence
+
+        Term start drill, November 2026.
         """;
 
     const string AlertPassing = """
@@ -682,41 +655,23 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    // Writes the exception fields as JSON, stamped with the approval hash over the
-    // written fields, so the exception itself reports nothing.
-    static string ExceptionJson()
-    {
-        var fields =
-            "{\n"
-            + "  \"type\": \"exception\",\n"
-            + "  \"id\": \"exception/list-loans-latency-unwatched\",\n"
-            + "  \"title\": \"List loans latency unwatched\",\n"
-            + "  \"owner\": \"lending-team\",\n"
-            + "  \"status\": \"approved\",\n"
-            + "  \"kind\": \"gap\",\n"
-            + "  \"covers\": [\n"
-            + "    \"quality-alert-missing\"\n"
-            + "  ],\n"
-            + "  \"subject\": [\n"
-            + "    \"requirement/performance.list-loans-latency\"\n"
-            + "  ],\n"
-            + "  \"expiresOn\": \"2027-06-01\",\n"
-            + "  \"reason\": \"The listing alert ships with the search index.\",\n"
-            + "  \"exit\": \"The listing-latency-high alert ships and watches the requirement.\"\n"
-            + "}\n";
-
-        using var document = JsonDocument.Parse(fields);
-        var record = new LiteSpec.Model.Record
+    const string ExceptionJson = """
         {
-            Type = "exception",
-            Id = "exception/list-loans-latency-unwatched",
-            Raw = document.RootElement.Clone(),
-        };
-        var hash = Checker.SemanticHash(record);
-        return fields.Replace(
-            "\n}",
-            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-    }
+          "type": "exception",
+          "id": "exception/list-loans-latency-unwatched",
+          "title": "List loans latency unwatched",
+          "kind": "gap",
+          "covers": [
+            "quality-alert-missing"
+          ],
+          "subject": [
+            "requirement/performance.list-loans-latency"
+          ],
+          "expiresOn": "2027-06-01",
+          "reason": "The listing alert ships with the search index.",
+          "exit": "The listing-latency-high alert ships and watches the requirement."
+        }
+        """;
 
     const string ExceptionExplanation = """
         # List loans latency unwatched

@@ -109,7 +109,7 @@
             ],
             "basedOn": [],
             "fulfills": [
-              "requirement/borrowing.copy-shelf-home"
+              "requirement/hold-queue.copy-shelf-home"
             ]
           },
           {
@@ -185,7 +185,7 @@
             "refusal": "result/place-hold.hold-already-waiting",
             "basedOn": [],
             "fulfills": [
-              "requirement/borrowing.hold-pickup-window"
+              "requirement/hold-queue.hold-pickup-window"
             ]
           },
           {
@@ -262,7 +262,7 @@
             "refusal": "result/borrow-copy.copy-unavailable",
             "basedOn": [],
             "fulfills": [
-              "requirement/borrowing.max-active-loans"
+              "requirement/hold-queue.max-active-loans"
             ]
           },
           {
@@ -278,7 +278,7 @@
             ],
             "basedOn": [],
             "fulfills": [
-              "requirement/borrowing.loan-period-days"
+              "requirement/hold-queue.loan-period-days"
             ]
           },
           {
@@ -607,13 +607,13 @@
         "choice": "21 days",
         "reopenedWhen": "Reader demand shifts.",
         "decides": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ],
         "basedOn": []
       },
       "links": {
         "decides": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ]
       }
     },
@@ -860,7 +860,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/product/features/hold-queue.yaml",
+      "file": ".litespec/intent/modules/lending/features/hold-queue.yaml",
       "line": 3,
       "fields": {
         "type": "feature",
@@ -940,7 +940,7 @@
           }
         ],
         "cites": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       },
       "links": {
@@ -955,7 +955,7 @@
           "use-case/lending.retire-copy"
         ],
         "cites": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       }
     },
@@ -1049,7 +1049,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/permissions.yaml",
+      "file": ".litespec/behavior/modules/lending/permissions.yaml",
       "line": 10,
       "fields": {
         "type": "permission",
@@ -1070,7 +1070,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/permissions.yaml",
+      "file": ".litespec/behavior/modules/lending/permissions.yaml",
       "line": 30,
       "fields": {
         "type": "permission",
@@ -1091,7 +1091,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/permissions.yaml",
+      "file": ".litespec/behavior/modules/lending/permissions.yaml",
       "line": 40,
       "fields": {
         "type": "permission",
@@ -1112,7 +1112,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/permissions.yaml",
+      "file": ".litespec/behavior/modules/lending/permissions.yaml",
       "line": 20,
       "fields": {
         "type": "permission",
@@ -1182,29 +1182,8 @@
       "links": {}
     },
     {
-      "type": "topic",
-      "id": "topic/borrowing",
-      "title": "Borrowing",
-      "owner": "lending-team",
-      "status": "approved",
-      "effectiveStatus": "approved",
-      "decider": null,
-      "decideBy": null,
-      "file": ".litespec/product/lending/borrowing.yaml",
-      "line": 3,
-      "fields": {
-        "type": "topic",
-        "id": "topic/borrowing",
-        "title": "Borrowing",
-        "owner": "lending-team",
-        "status": "approved",
-        "reviewBy": "2027-04-01"
-      },
-      "links": {}
-    },
-    {
       "type": "requirement",
-      "id": "requirement/borrowing.copy-shelf-home",
+      "id": "requirement/hold-queue.copy-shelf-home",
       "title": "Copy shelf home",
       "owner": "lending-team",
       "status": "approved",
@@ -1215,7 +1194,7 @@
       "line": 40,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.copy-shelf-home",
+        "id": "requirement/hold-queue.copy-shelf-home",
         "title": "Copy shelf home",
         "owner": "lending-team",
         "status": "approved",
@@ -1227,7 +1206,7 @@
     },
     {
       "type": "requirement",
-      "id": "requirement/borrowing.hold-pickup-window",
+      "id": "requirement/hold-queue.hold-pickup-window",
       "title": "Hold pickup window",
       "owner": "lending-team",
       "status": "approved",
@@ -1238,7 +1217,7 @@
       "line": 30,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.hold-pickup-window",
+        "id": "requirement/hold-queue.hold-pickup-window",
         "title": "Hold pickup window",
         "owner": "lending-team",
         "status": "approved",
@@ -1250,7 +1229,7 @@
     },
     {
       "type": "requirement",
-      "id": "requirement/borrowing.loan-period-days",
+      "id": "requirement/hold-queue.loan-period-days",
       "title": "Loan period days",
       "owner": "lending-team",
       "status": "approved",
@@ -1261,7 +1240,7 @@
       "line": 20,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.loan-period-days",
+        "id": "requirement/hold-queue.loan-period-days",
         "title": "Loan period days",
         "owner": "lending-team",
         "status": "approved",
@@ -1273,7 +1252,7 @@
     },
     {
       "type": "requirement",
-      "id": "requirement/borrowing.max-active-loans",
+      "id": "requirement/hold-queue.max-active-loans",
       "title": "Max active loans",
       "owner": "lending-team",
       "status": "approved",
@@ -1284,7 +1263,7 @@
       "line": 10,
       "fields": {
         "type": "requirement",
-        "id": "requirement/borrowing.max-active-loans",
+        "id": "requirement/hold-queue.max-active-loans",
         "title": "Max active loans",
         "owner": "lending-team",
         "status": "approved",
@@ -1733,7 +1712,7 @@
         ],
         "basedOn": [],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       },
       "links": {
@@ -1741,7 +1720,7 @@
           "use-case/lending.register-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       }
     },
@@ -1770,7 +1749,7 @@
         "refusal": "result/place-hold.hold-already-waiting",
         "basedOn": [],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ]
       },
       "links": {
@@ -1781,7 +1760,7 @@
           "result/place-hold.hold-already-waiting"
         ],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ]
       }
     },
@@ -1809,7 +1788,7 @@
         ],
         "basedOn": [],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ]
       },
       "links": {
@@ -1817,7 +1796,7 @@
           "use-case/lending.borrow-copy"
         ],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ]
       }
     },
@@ -1846,7 +1825,7 @@
         "refusal": "result/borrow-copy.copy-unavailable",
         "basedOn": [],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       },
       "links": {
@@ -1857,7 +1836,7 @@
           "result/borrow-copy.copy-unavailable"
         ],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       }
     },
@@ -1906,7 +1885,7 @@
         ],
         "basedOn": [],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       },
       "links": {
@@ -1914,7 +1893,7 @@
           "aggregate/lending.copy"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       }
     },
@@ -2057,7 +2036,7 @@
           "event/loan.loan-borrowed"
         ],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ],
         "records": [
           {
@@ -2102,7 +2081,7 @@
           "event/loan.loan-borrowed"
         ],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       }
     },
@@ -2132,7 +2111,7 @@
           "event/hold.hold-canceled"
         ],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ],
         "records": [
           {
@@ -2177,7 +2156,7 @@
           "event/hold.hold-canceled"
         ],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ]
       }
     },
@@ -2207,7 +2186,7 @@
           "event/loan.loan-extended"
         ],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ],
         "records": [
           {
@@ -2252,7 +2231,7 @@
           "event/loan.loan-extended"
         ],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ]
       }
     },
@@ -2280,7 +2259,7 @@
         ],
         "raises": [],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ],
         "records": [
           {
@@ -2313,7 +2292,7 @@
           "entry-point/library-app"
         ],
         "fulfills": [
-          "requirement/borrowing.max-active-loans"
+          "requirement/hold-queue.max-active-loans"
         ]
       }
     },
@@ -2343,7 +2322,7 @@
           "event/hold.hold-placed"
         ],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ],
         "records": [
           {
@@ -2388,7 +2367,7 @@
           "event/hold.hold-placed"
         ],
         "fulfills": [
-          "requirement/borrowing.hold-pickup-window"
+          "requirement/hold-queue.hold-pickup-window"
         ]
       }
     },
@@ -2418,7 +2397,7 @@
           "event/copy.copy-registered"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ],
         "records": [
           {
@@ -2463,7 +2442,7 @@
           "event/copy.copy-registered"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       }
     },
@@ -2493,7 +2472,7 @@
           "event/copy.copy-retired"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ],
         "records": [
           {
@@ -2538,7 +2517,7 @@
           "event/copy.copy-retired"
         ],
         "fulfills": [
-          "requirement/borrowing.copy-shelf-home"
+          "requirement/hold-queue.copy-shelf-home"
         ]
       }
     },
@@ -2568,7 +2547,7 @@
           "event/loan.loan-returned"
         ],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ],
         "records": [
           {
@@ -2613,7 +2592,7 @@
           "event/loan.loan-returned"
         ],
         "fulfills": [
-          "requirement/borrowing.loan-period-days"
+          "requirement/hold-queue.loan-period-days"
         ]
       }
     },
@@ -2676,7 +2655,7 @@
       "effectiveStatus": null,
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/integration/loan-borrowed.yaml",
+      "file": ".litespec/behavior/modules/lending/integration-events/loan-borrowed.yaml",
       "line": 3,
       "fields": {
         "type": "integration-event",

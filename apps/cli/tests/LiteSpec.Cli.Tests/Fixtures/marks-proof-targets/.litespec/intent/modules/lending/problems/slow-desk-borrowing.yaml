@@ -1,0 +1,12 @@
+type: problem
+id: problem/slow-desk-borrowing
+title: Slow desk borrowing
+affects:
+  - actor/reader
+summary: Readers borrow every copy at the desk, so the desk queues at busy hours and borrowing feels slow.
+statement: Desk borrowing feels slow at busy hours.
+evidence:
+  - claim: Readers queue at the desk to borrow copies at busy hours.
+    source: https://example.org/library/desk-log
+    readOn: 2026-10-01
+    kind: reported

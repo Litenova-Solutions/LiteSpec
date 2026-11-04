@@ -6,7 +6,7 @@ namespace LiteSpec.Book;
 /// <summary>
 ///     Builds the index over model.json for the book generator. Pure data shaping, no HTML.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookIndexBuilder
 {
     /// <summary>Builds the index over a parsed model.json object.</summary>
@@ -216,14 +216,6 @@ static class BookIndexBuilder
             index.ReachableStates[pair.Key] = names;
         }
 
-        foreach (var stale in model["stale"] as JsonArray ?? [])
-        {
-            if (stale is JsonValue scalar && scalar.TryGetValue<string>(out var id) && id is not null)
-            {
-                index.StaleIds.Add(id);
-            }
-        }
-
         index.TestRun = model["testRun"] is { } run && BookRender.IsTruthy(run) && run is JsonObject or JsonArray ? run : null;
 
         foreach (var step in model["exercisedSteps"] as JsonArray ?? [])
@@ -253,33 +245,7 @@ static class BookIndexBuilder
             }
         }
 
-        index.StoredBatches = model["reviewBatches"] as JsonArray;
-        index.SecurityReviewer = BookRender.StrProp(model["review"] as JsonObject, "securityReviewer");
-
-        index.HasFindings = model["findings"] is JsonArray or JsonObject || model["known"] is JsonArray;
-        index.VetoWindowDays = VetoWindowOf(model);
-
         return index;
-    }
-
-    /// <summary>The veto window in days: the model's review value, or 7 when absent.</summary>
-    /// <param name="model">The parsed model.</param>
-    /// <returns>The veto window in days.</returns>
-    public static int VetoWindowOf(JsonObject model)
-    {
-        JsonNode? value = (model["review"] as JsonObject)?["vetoWindowDays"] ?? model["vetoWindowDays"];
-        if (value is JsonValue scalar && scalar.TryGetValue<int>(out var days) && days > 0)
-        {
-            return days;
-        }
-
-        if (value is JsonValue text && text.TryGetValue<string>(out var words)
-            && int.TryParse(words, out var parsed) && parsed > 0)
-        {
-            return parsed;
-        }
-
-        return 7;
     }
 
     /// <summary>The use-case name holding a derived generic result, or null when the id is not derived.</summary>

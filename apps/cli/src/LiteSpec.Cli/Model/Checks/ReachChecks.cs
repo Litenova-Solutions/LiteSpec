@@ -8,7 +8,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>The reach checks: every use case sits in a journey, every declared code literal is recorded, and every screen call matches an endpoint.</summary>
-/// <follows>litespec/core/model#connect-every-use-case-to-intent</follows>
+/// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
 internal static class ReachChecks
 {

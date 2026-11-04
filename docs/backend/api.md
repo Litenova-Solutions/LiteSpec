@@ -456,7 +456,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
 
-**Checked by:** `litespec model check` reports `name-drift` (level A) for a message type, operation id or audit action differing from the use-case name, and `operation-id-duplicate` (level S) for two endpoints declaring one operation id.
+**Reviewed for:** Which message types, operation ids, or audit actions carry a different name than their use case? Look at each use case's message type, operation id, and audit action.
 
 ## Conventions
 
@@ -544,7 +544,7 @@ POST   /api/expenses/{id}/reimburse
 POST   /api/holds/{holdId}/cancel
 ```
 
-**Checked by:** `litespec model check` reports `route-invalid` (level A) for a command route ending outside its verb or carrying no aggregate plural.
+**Reviewed for:** Which command routes end outside their verb or carry no aggregate plural? Look at the command routes.
 
 ### Keep Numeric Transport Types Precise
 

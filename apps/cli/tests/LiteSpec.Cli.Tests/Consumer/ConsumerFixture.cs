@@ -43,44 +43,26 @@ static class ConsumerFixture
     [
         new(".litespec/product/brief.yaml",
             """
-            {"type":"product","id":"product/fixture","title":"Fixture Shop","owner":"fixture","status":"approved","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","exclusions":["The shop never sells ebooks."],"addresses":["actor/customer"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"product","id":"product/fixture","title":"Fixture Shop","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","addresses":["actor/customer"]}
             """,
             null),
         new(".litespec/product/pricing.yaml",
             """
-            {"type":"topic","id":"topic/pricing","title":"Pricing","owner":"fixture","status":"approved","summary":"Every order carries a flat fee of one euro.","position":"The shop holds the flat fee until delivery costs move.","reviewBy":"2027-04-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000","records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","owner":"fixture","status":"approved","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","solves":["problem/slow-checkout"],"advances":["goal/faster-delivery"],"records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}]}
             """,
             """
             # Pricing
 
-            ## The Situation
-
-            Customers wait weeks to learn what delivery costs.
-
-            ## What We Do
-
             The shop charges one flat fee on every order.
-
-            ## Why It Is Better
-
-            One fee keeps every receipt readable at a glance.
 
             ## Example
 
             Alex orders two books on Monday and pays one fee at checkout.
 
-            ## Costs and Risks
-
-            Large orders pay too little for their delivery cost.
-
-            ## How Sure We Are
-
-            The launch plan states the fee with high confidence.
-
             """),
         new(".litespec/product/decisions/0001-launch.yaml",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[]}
             """,
             """
             # Launch with a Flat Fee
@@ -100,7 +82,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/actors/customer.yaml",
             """
-            {"type":"actor","id":"actor/customer","title":"Customer","owner":"fixture","status":"approved","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":[{"role":"role/customer","scope":"self"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":[{"role":"role/customer","scope":"self"}]}
             """,
             """
             # Customer
@@ -110,22 +92,22 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/roles/customer.yaml",
             """
-            {"type":"role","id":"role/customer","title":"Customer","owner":"fixture","status":"reviewed","summary":"A customer holds this role on their own orders.","scope":"self","allows":["permission/cancel-order"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"role","id":"role/customer","title":"Customer","summary":"A customer holds this role on their own orders.","scope":"self","allows":["permission/cancel-order"]}
             """,
             null),
         new(".litespec/behavior/permissions.yaml",
             """
-            {"type":"permission-list","id":"permissions","title":"Permissions","owner":"fixture","status":"reviewed","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","scope":"self","meaning":"The holder cancels an order they placed.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","scope":"self","meaning":"The holder cancels an order they placed."}]}
             """,
             null),
         new(".litespec/behavior/entry-points.yaml",
             """
-            {"type":"entry-point-list","id":"entry-points","title":"Entry points","owner":"fixture","status":"reviewed","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","owner":"fixture","status":"reviewed","kind":"browser","auth":["session"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"entry-point-list","id":"entry-points","title":"Entry points","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","kind":"browser","auth":["session"]}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/module.yaml",
             """
-            {"type":"module","id":"module/orders","title":"Orders","owner":"fixture","status":"reviewed","dependsOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"module","id":"module/orders","title":"Orders","dependsOn":[]}
             """,
             """
             # Orders
@@ -135,7 +117,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/order-claims/aggregate.yaml",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","owner":"fixture","status":"reviewed","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","owner":"fixture","status":"reviewed","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","owner":"fixture","status":"reviewed","meaning":"An order claim was canceled.","carries":["orderId"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":["orderId"]}]}
             """,
             """
             # Order Claim
@@ -159,7 +141,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/modules/orders/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","purpose":"A customer cancels an order claim before shipment.","whatHappens":"The customer asks to cancel the claim. The shop refuses the cancel when the shipment already left.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
     ];
@@ -168,7 +150,7 @@ static class ConsumerFixture
     [
         new(".litespec/guide/first-run.md",
             """
-            {"type":"tutorial","id":"first-run","title":"Run It For The First Time","owner":"fixture","status":"approved"}
+            {"type":"tutorial","id":"first-run","title":"Run It For The First Time"}
             """,
             """
             # Run It for the First Time
@@ -192,7 +174,7 @@ static class ConsumerFixture
             """),
         new(".litespec/guide/add-a-pack.md",
             """
-            {"type":"how-to","id":"add-a-pack","title":"Add A Seed Pack","owner":"fixture","status":"approved"}
+            {"type":"how-to","id":"add-a-pack","title":"Add A Seed Pack"}
             """,
             """
             # Add a Seed Pack
@@ -213,7 +195,7 @@ static class ConsumerFixture
             """),
         new(".litespec/tools/fixture-up.md",
             """
-            {"type":"command","id":"fixture-up","title":"Fixture Up","owner":"fixture","status":"approved"}
+            {"type":"command","id":"fixture-up","title":"Fixture Up"}
             """,
             """
             # Fixture Up
@@ -266,7 +248,7 @@ static class ConsumerFixture
             """),
         new(".litespec/reference/ports.md",
             """
-            {"type":"reference","id":"ports","title":"Allocated Ports","owner":"fixture","status":"approved"}
+            {"type":"reference","id":"ports","title":"Allocated Ports"}
             """,
             """
             # Allocated Ports
@@ -284,7 +266,7 @@ static class ConsumerFixture
             """),
         new(".litespec/tools/configuration.md",
             """
-            {"type":"configuration","id":"configuration","title":"Fixture Settings","owner":"fixture","status":"approved"}
+            {"type":"configuration","id":"configuration","title":"Fixture Settings"}
             """,
             """
             # Fixture Settings
@@ -307,7 +289,7 @@ static class ConsumerFixture
     ];
 
     const string GlossaryJsonText = """
-        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}],"owner":"fixture","status":"approved"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
+        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}]}],"mannered":[{"term":"load-bearing","instead":"required"}]}
         """;
 
     sealed record ManifestInfo(string Version, string KnownExtension);
@@ -360,9 +342,6 @@ static class ConsumerFixture
                 ["frontends"] = new JsonArray(),
             },
             ["selectedExtensions"] = new JsonArray(),
-            ["owners"] = new JsonArray("fixture"),
-            ["constraints"] = new JsonObject { ["answered"] = true },
-            ["optionalTypes"] = new JsonArray(),
         };
         WriteFile(folder.Path, ".litespec/project.json", $"{Stringify(project)}\n");
         foreach (var record in Records)

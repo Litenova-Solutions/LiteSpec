@@ -10,7 +10,7 @@ internal static class ParentChecks
     private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
     {
         "use-case", "reaction", "job", "notification", "setting", "aggregate",
-        "rule", "event", "result", "scenario",
+        "rule", "event", "result", "scenario", "screen",
     };
 
     /// <summary>Whether the record reports a missing identifier home through the parent check.</summary>
@@ -35,7 +35,7 @@ internal static class ParentChecks
 
         foreach (var record in model.Records)
         {
-            if (record.Status == RecordStatuses.Retired || record.Derived)
+            if (record.Derived)
             {
                 continue;
             }
@@ -44,9 +44,6 @@ internal static class ParentChecks
             {
                 case "feature":
                     CheckFeatureParent(record, findings);
-                    break;
-                case "requirement":
-                    CheckRequirementParent(model, record, findings);
                     break;
                 case "journey":
                     CheckJourneyParent(model, record, findings);
@@ -80,7 +77,7 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a feature solving no problem, refused or not.</summary>
+    /// <summary>Reports a feature solving no problem.</summary>
     /// <param name="record">The feature record whose solves field is inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckFeatureParent(Record record, List<Finding> findings)
@@ -90,27 +87,6 @@ internal static class ParentChecks
             findings.Add(new Finding(
                 "record-parent-missing",
                 $"Feature '{record.Id}' has no parent and 'solves' names no problem.",
-                record.File, record.Line, SubjectOf(record)));
-        }
-    }
-
-    /// <summary>Reports a requirement whose topic holds no topic record.</summary>
-    /// <param name="model">The loaded project model that resolves the topic record.</param>
-    /// <param name="record">The requirement record whose home names its topic.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRequirementParent(ProjectModel model, Record record, List<Finding> findings)
-    {
-        // A malformed identifier is identifier-invalid, so the parent check stays silent here.
-        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
-        {
-            return;
-        }
-
-        if (!model.ById.TryGetValue($"topic/{home}", out var topic) || topic.Type != RecordTypes.Topic)
-        {
-            findings.Add(new Finding(
-                "record-parent-missing",
-                $"Requirement '{record.Id}' has no parent and its home '{home}' names no topic.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -199,43 +175,30 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a screen naming no entry point, else one disagreeing with its home.</summary>
+    /// <summary>Reports a screen whose home names no entry point.</summary>
     /// <param name="model">The loaded project model that resolves each entry point identifier.</param>
-    /// <param name="record">The screen record whose entry point field and home are inspected.</param>
+    /// <param name="record">The screen record whose home is inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        var points = record.Ids(RecordFields.EntryPoint);
-
-        if (points.Count == 0)
+        if (FrontendRecords.EntryPointOf(record) is not { } entryPoint)
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Screen '{record.Id}' has no parent and 'entryPoint' names no entry point.",
+                $"Screen '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
+        if (!model.ById.ContainsKey(entryPoint))
         {
-            return;
-        }
+            var home = entryPoint[(RecordTypes.EntryPoint.Length + 1)..];
 
-        if (points.Any(point => point == $"entry-point/{home}"))
-        {
-            return;
+            findings.Add(new Finding(
+                "record-parent-missing",
+                $"Screen '{record.Id}' has no parent and its home '{home}' names no entry point.",
+                record.File, record.Line, SubjectOf(record)));
         }
-
-        // A dangling entry point is reference-unknown, so one defect draws one finding.
-        if (points.Any(point => !model.ById.ContainsKey(point)))
-        {
-            return;
-        }
-
-        findings.Add(new Finding(
-            "record-parent-missing",
-            $"Screen '{record.Id}' has no parent and 'entryPoint' '{points[0]}' disagrees with its home '{home}'.",
-            record.File, record.Line, SubjectOf(record)));
     }
 
     /// <summary>Reports a result naming a use case no record holds.</summary>
@@ -346,53 +309,6 @@ internal static class ParentChecks
                 "record-parent-missing",
                 $"Event '{record.Id}' has no parent and its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
-        }
-    }
-
-    /// <summary>
-    ///     Reports a record citing, fulfilling or serving a record that changed
-    ///     after its approval: level A while the record is a draft, level G once
-    ///     approved. The flag stands until the changed record is re-approved.
-    /// </summary>
-    /// <param name="model">The loaded project model that holds every record and its approval state.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunParentChanged(ProjectModel model, List<Finding> findings)
-    {
-        var changed = model.Records
-            .Where(record => !record.Derived
-                && record.Status is RecordStatuses.Approved or RecordStatuses.Reviewed
-                && record.ApprovedHash is { Length: > 0 }
-                && Checker.SemanticHash(record) != record.ApprovedHash)
-            .Select(record => record.Id)
-            .ToHashSet(StringComparer.Ordinal);
-
-        if (changed.Count == 0)
-        {
-            return;
-        }
-
-        foreach (var record in model.Records.Where(record => !record.Derived && record.Status != RecordStatuses.Retired))
-        {
-            foreach (var field in new[] { RecordFields.Cites, RecordFields.Fulfills, RecordFields.Serves })
-            {
-                foreach (var target in record.Ids(field).Order(StringComparer.Ordinal))
-                {
-                    var baseId = Identifiers.BaseId(target);
-
-                    if (baseId == record.Id || !changed.Contains(baseId))
-                    {
-                        continue;
-                    }
-
-                    findings.Add(new Finding(
-                        "parent-reopened",
-                        $"Record '{record.Id}' {field} '{target}' which differs after approval.",
-                        record.File, record.Line, SubjectOf(record))
-                    {
-                        TierOverride = record.Status == RecordStatuses.Draft ? "A" : "G",
-                    });
-                }
-            }
         }
     }
 }

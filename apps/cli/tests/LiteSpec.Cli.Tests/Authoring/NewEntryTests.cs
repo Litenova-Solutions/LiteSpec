@@ -8,21 +8,16 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = ".litespec/intent/spending/approval.yaml";
+    const string RequirementPage = ".litespec/intent/features/approval.yaml";
     const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
     const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
     const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
 
     const string RequirementJson = """
         {
-          "type": "topic",
-          "id": "topic/approval",
+          "type": "feature",
+          "id": "feature/approval",
           "title": "Approval",
-          "owner": "fixture",
-          "status": "draft",
-          "decider": "fixture",
-          "decideBy": "2026-12-01",
-          "reviewBy": "2027-04-01",
           "records": [
             {
               "type": "requirement",
@@ -40,10 +35,6 @@ public sealed class NewEntryTests
         {
           "type": "rule-set",
           "title": "Spending Rules",
-          "owner": "fixture",
-          "status": "draft",
-          "decider": "fixture",
-          "decideBy": "2026-12-01",
           "records": [
             {
               "type": "rule",
@@ -60,10 +51,6 @@ public sealed class NewEntryTests
         {
           "type": "permission-list",
           "title": "Permissions",
-          "owner": "fixture",
-          "status": "draft",
-          "decider": "fixture",
-          "decideBy": "2026-12-01",
           "records": [
             {
               "type": "permission",
@@ -80,17 +67,13 @@ public sealed class NewEntryTests
         {
           "type": "setting-set",
           "title": "Settings",
-          "owner": "fixture",
-          "status": "draft",
-          "decider": "fixture",
-          "decideBy": "2026-12-01",
           "records": [
             {
               "type": "setting",
               "id": "setting/spending.receipt-threshold",
               "title": "Receipt Threshold",
               "valueType": "money",
-              "setBy": "decider"
+              "setBy": "product"
             }
           ]
         }
@@ -186,7 +169,7 @@ public sealed class NewEntryTests
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(before, after, "id: setting/spending.approval-reminder-delay");
         Assert.Contains("valueType: integer", inserted);
-        Assert.Contains("setBy: decider", inserted);
+        Assert.Contains("setBy: product", inserted);
     }
 
     /// <summary>New entry refuses a taken requirement id and leaves the page alone.</summary>
@@ -267,8 +250,8 @@ public sealed class NewEntryTests
     public void DerivesRequirementHomeFromFileStem()
     {
         using var consumer = Consumer();
-        const string relative = ".litespec/intent/spending/fees.yaml";
-        WritePage(consumer.Path, relative, "topic", "Fees");
+        const string relative = ".litespec/intent/features/fees.yaml";
+        WritePage(consumer.Path, relative, "feature", "Fees");
 
         var result = Cli.Run(
             "new", "entry", relative, "requirement", "late-fee-cap",
@@ -357,7 +340,7 @@ public sealed class NewEntryTests
         { ["entry", RulePage, "requirement", "decided-within-five-days"] },
         { ["entry", SettingPage, "permission", "approve-expense"] },
         { ["entry", PermissionPage, "setting", "grace-days"] },
-        { ["entry", ".litespec/intent/spending/no-such-page.yaml", "requirement", "decided-within-five-days"] },
+        { ["entry", ".litespec/intent/features/no-such-page.yaml", "requirement", "decided-within-five-days"] },
         { ["entry", RequirementPage, "requirement"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
@@ -407,7 +390,7 @@ public sealed class NewEntryTests
             .Replace("<the build result with its reference>", "Pass (fixture build 1)", StringComparison.Ordinal)
             .Replace("<the test result with its reference>", "Pass (fixture suites, 41 passing)", StringComparison.Ordinal)
             .Replace("<the contract result with its reference>", "Pass (no contract change)", StringComparison.Ordinal)
-            .Replace("<the security result with its reference>", "Pass (no queue item)", StringComparison.Ordinal)
+            .Replace("<the security result with its reference>", "Pass (no open item)", StringComparison.Ordinal)
             .Replace("<the journey result with its reference>", "Pass (no journey included)", StringComparison.Ordinal)
             .Replace("<the schema result with its reference>", "Pass (no migration)", StringComparison.Ordinal)
             .Replace("<the backup result with its reference>", "Pass (nightly backup restored on 2026-08-20)", StringComparison.Ordinal)
@@ -455,10 +438,6 @@ public sealed class NewEntryTests
             {
               "type": "{{type}}",
               "title": "{{title}}",
-              "owner": "fixture",
-              "status": "draft",
-              "decider": "fixture",
-              "decideBy": "2026-12-01",
               "records": []
             }
             """);

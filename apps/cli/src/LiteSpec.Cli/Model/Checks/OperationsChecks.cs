@@ -153,7 +153,7 @@ internal static class OperationsChecks
         }
 
         foreach (var requirement in model.Records
-                     .Where(record => record.Type == RecordTypes.Requirement && record.Field(RecordFields.Kind) == "quality" && record.Status != RecordStatuses.Retired))
+                     .Where(record => record.Type == RecordTypes.Requirement && record.Field(RecordFields.Kind) == "quality"))
         {
             if (named.Contains(requirement.Id))
             {
@@ -206,8 +206,7 @@ internal static class OperationsChecks
 
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
-    ///     the carried release on an applied page, or a decision or exception that
-    ///     is not retired.
+    ///     the carried release on an applied page, or a decision or exception.
     /// </summary>
     /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and every record.</param>
     /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
@@ -239,10 +238,6 @@ internal static class OperationsChecks
             if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Exception))
             {
                 findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or exception.", mark.File, mark.Line, id));
-            }
-            else if (record.Status == RecordStatuses.Retired)
-            {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is retired.", mark.File, mark.Line, null));
             }
 
             return;

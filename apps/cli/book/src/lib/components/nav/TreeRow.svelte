@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { book, HLABEL, plural } from "$lib/book";
+  import { book } from "$lib/book";
   import Icon from "$lib/components/book/Icon.svelte";
   import { cn } from "$lib/utils";
   import RowTail from "./RowTail.svelte";
   import { indentClass } from "./rows";
 
-  // One record row in the navigation. The outline tree, the record list, the
-  // security list and the review queue share it; the variant picks the shape.
+  // One record row in the navigation. The outline tree, the record list and
+  // the security list share it; the variant picks the shape.
   const DOT = " " + String.fromCharCode(0xb7) + " ";
   let {
     id,
@@ -22,7 +22,7 @@
     titleText = null,
   }: {
     id: string;
-    variant?: "tree" | "list" | "security" | "queue";
+    variant?: "tree" | "list" | "security";
     depth?: number;
     level?: number;
     kids?: number;
@@ -37,13 +37,8 @@
   const selected = $derived(book.selected === id);
   const hovered = $derived(book.hover === id);
   const label = $derived.by(() => {
-    const h = book.human(id);
-    const risks = book.riskWords(id);
-    const q = book.openQs(id).length;
     return (
-      book.typeName(book.typeOf(id)) + ", " + book.title(id) + ", " + HLABEL[h] +
-      (risks.length ? ", risk: " + risks.join(", ") : "") +
-      (q ? ", " + plural(q, "open question") : "") +
+      book.typeName(book.typeOf(id)) + ", " + book.title(id) +
       (book.proofState(id) === "failing" ? ", a test fails" : "") +
       (id !== book.selected && book.related.has(id) ? ", linked" : "")
     );
@@ -54,10 +49,8 @@
     const firstLine = String(f.statement || f.summary || f.description || f.meaning || f.offering || "");
     const parent = book.parent(id);
     const home = parent ? book.title(parent) : (book.layerByKey[book.layerOf[id]]?.label ?? "");
-    const h = book.human(id);
-    return book.typeName(book.typeOf(id)) + DOT + (HLABEL[h] || h) + (home ? DOT + home : "") + (firstLine ? DOT + firstLine : "");
+    return book.typeName(book.typeOf(id)) + (home ? DOT + home : "") + (firstLine ? DOT + firstLine : "");
   });
-  const due = $derived(variant === "list" ? book.dueOf(id) : null);
 
   function choose() { void book.select(id); }
   function toggle(e: MouseEvent) {
@@ -120,10 +113,6 @@
       <span class="block overflow-hidden text-ellipsis whitespace-nowrap">{titleText ?? book.title(id)}</span>
       <span class="block overflow-hidden text-ellipsis whitespace-nowrap text-[11.5px] font-normal text-muted-foreground">{subText}</span>
     </span>
-    {#if due}
-      {@const full = book.fmtDate(due)}
-      <span class={cn("font-mono text-[11px] whitespace-nowrap text-muted-foreground", (book.days(due) ?? 0) < 0 && "text-warn-foreground")} title="Decide by {full}">{full.replace(/ \d{4}$/, "")}</span>
-    {/if}
     {#if tail}<span class="mt-0.5 flex flex-none items-center gap-[7px]"><RowTail {id} /></span>{/if}
   </div>
 {/if}

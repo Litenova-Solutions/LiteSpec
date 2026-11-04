@@ -9,7 +9,7 @@ namespace LiteSpec.Model.Checks;
 ///     path matches. Basename patterns match in any folder, directory patterns own
 ///     everything beneath, and `*`, `**` and `?` span as usual.
 /// </summary>
-/// <follows>litespec/quality/ci#map-record-areas-to-owners</follows>
+/// <follows>litespec/core/system#keep-decision-authority-with-accountable-people</follows>
 internal sealed class Codeowners
 {
     /// <summary>The parsed ownership rules in file order, where a later rule overrides an earlier one for the same path.</summary>

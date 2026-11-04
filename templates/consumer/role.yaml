@@ -1,19 +1,9 @@
 type: role
 id: role/approver
 title: Approver
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 summary: The approver role decides expenses up to its approval level.
 scope: tenant
 allows:
   - permission/approve-expense
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

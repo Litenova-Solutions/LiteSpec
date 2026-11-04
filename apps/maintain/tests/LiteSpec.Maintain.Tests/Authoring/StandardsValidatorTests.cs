@@ -135,9 +135,9 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Exit Codes", "## Results")),
         ["PAGE_MISSING_SECTION", "PAGE_UNKNOWN_SECTION"]);
 
-    /// <summary>Frontend topic with per-stack sections rejected.</summary>
+    /// <summary>Frontend standard page with per-stack sections rejected.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "frontend topic with per-stack sections rejected")]
+    [Fact(DisplayName = "frontend standard page with per-stack sections rejected")]
     public void FrontendWithPerStackSections() => Check(
         root =>
         {

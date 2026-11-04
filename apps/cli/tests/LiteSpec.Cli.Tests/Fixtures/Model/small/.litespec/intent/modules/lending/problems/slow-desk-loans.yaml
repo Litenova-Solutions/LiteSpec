@@ -1,0 +1,12 @@
+type: problem
+id: problem/slow-desk-loans
+title: Slow desk loans
+affects:
+  - actor/reader
+summary: Readers borrow and return every copy at the desk, so the desk queues at busy hours and loans take too long.
+statement: Desk loans take too long at busy hours.
+evidence:
+  - claim: Readers queue at the desk to borrow and return copies at busy hours.
+    source: https://example.org/library/desk-log
+    readOn: 2026-10-01
+    kind: reported

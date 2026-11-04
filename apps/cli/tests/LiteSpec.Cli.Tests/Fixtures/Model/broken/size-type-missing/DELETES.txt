@@ -1,2 +1,4 @@
-.litespec/product/features/hold-queue.yaml
-.litespec/product/features/hold-queue.md
+.litespec/intent/modules/lending/features/hold-queue.yaml
+.litespec/intent/modules/lending/features/hold-queue.md
+.litespec/intent/modules/lending/features/borrowing.yaml
+.litespec/intent/modules/lending/features/borrowing.md

@@ -13,16 +13,13 @@ public sealed class RecordIndex
     private readonly IReadOnlyList<IRecordFacts> records;
     /// <summary>The first record carrying each id.</summary>
     private readonly Dictionary<string, IRecordFacts> byId;
-    /// <summary>The first use case carrying each name.</summary>
-    private readonly Dictionary<string, IRecordFacts> useCaseByName;
 
-    /// <summary>Initializes a new instance of the <see cref="RecordIndex"/> class.Builds the index over the records and computes their effective status.</summary>
+    /// <summary>Initializes a new instance of the <see cref="RecordIndex"/> class.Builds the index over the records.</summary>
     /// <param name="records">Every record, in read order.</param>
     public RecordIndex(IReadOnlyList<IRecordFacts> records)
     {
         this.records = records;
         byId = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
-        useCaseByName = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
 
         foreach (var record in records)
         {
@@ -30,24 +27,11 @@ public sealed class RecordIndex
             {
                 byId.Add(record.Id, record);
             }
-
-            if (record.Type == "use-case"
-                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
-                && name.Length > 0
-                && !useCaseByName.ContainsKey(name))
-            {
-                useCaseByName.Add(name, record);
-            }
         }
-
-        EffectiveStatus = Authority.EffectiveStatus(records, Holder);
     }
 
     /// <summary>Gets every record, in read order.</summary>
     public IReadOnlyList<IRecordFacts> Records => records;
-
-    /// <summary>Gets the effective status by record id.</summary>
-    public IReadOnlyDictionary<string, string> EffectiveStatus { get; }
 
     /// <summary>Reads the record with the id, or null when none carries it.</summary>
     /// <param name="id">The identifier.</param>
@@ -71,20 +55,5 @@ public sealed class RecordIndex
         }
 
         return found;
-    }
-
-    /// <summary>
-    ///     The use case holding a result or scenario: the use case its home names.
-    /// </summary>
-    /// <param name="record">The result or scenario record.</param>
-    /// <returns>The holding use case, or null when no use case holds it.</returns>
-    private IRecordFacts? Holder(IRecordFacts record)
-    {
-        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
-        {
-            return null;
-        }
-
-        return useCaseByName.TryGetValue(home, out var holder) ? holder : null;
     }
 }

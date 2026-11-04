@@ -6,7 +6,5 @@ internal sealed record DataClassPosition(
     string Classification,
     string? OnErasure,
     string? EnforcedBy,
-    string? ReviewBy,
-    IReadOnlyList<string> AcceptedBy,
     IReadOnlyList<string> Fields,
     IReadOnlyList<DataClassException> Exceptions);

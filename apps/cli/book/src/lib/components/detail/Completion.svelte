@@ -1,50 +1,41 @@
 <script lang="ts">
-  import { book, cap } from "$lib/book";
+  import { book } from "$lib/book";
   import type { BookRecord } from "$lib/book/types";
-  import InlineRef from "$lib/components/book/InlineRef.svelte";
-  import { completionOf } from "./helpers";
+  import Icon from "$lib/components/book/Icon.svelte";
+  import Block from "./blocks/Block.svelte";
 
-  // Completion first: the stage, the proof, what holds it, and the counts.
+  // The completion block: whether the record has code and tests, and how many
+  // of its scenarios pass. Each line shows only when the record expects it.
   let { r }: { r: BookRecord } = $props();
-  const c = $derived(completionOf(r));
-  const proofText = $derived(
-    !c ? "" : c.proof === "unknown" ? "proof unknown (no test run in the model)" : c.proof === "known" ? "proof known" : c.proof ? "proof " + c.proof : "",
-  );
-  const rows = $derived(
-    c ? Object.keys(c.counts ?? {}).map((label) => ({ label: cap(label), value: `${c.counts[label]?.done ?? "?"} of ${c.counts[label]?.of ?? "?"}` })) : [],
-  );
+  const c = $derived(r.completion ?? {});
+  const run = $derived(book.man?.testRun);
+  const show = $derived(c.hasCode !== null && c.hasCode !== undefined || c.hasTests !== null && c.hasTests !== undefined || !!c.scenarios);
 </script>
 
-{#if c && c.stage}
-  <section class="mb-[26px] border-t-2 border-foreground pt-[18px]" aria-label="Completion">
-    <h2 class="m-0 mb-2 text-base font-semibold">Completion</h2>
-    <p class="m-0 mb-2 text-base font-semibold">{cap(c.stage)}{proofText ? ", " + proofText : ""}</p>
-    {#if c.heldBy.length}
-      <p class="m-0 mb-2 text-sm text-subtle-foreground">
-        Held by:{" "}
-        {#each c.heldBy as x, i}
-          <span class="whitespace-nowrap">
-            {#if String(x).indexOf("#") > 0}
-              <InlineRef id={String(x).split("#")[0]} />, step {String(x).split("#")[1].replace(/^s/, "")}
-            {:else}
-              <InlineRef id={String(x)} />
-            {/if}{i < c.heldBy.length - 1 ? "," : ""}
-          </span>{" "}
-        {/each}
-        {#if c.heldByMore}and {c.heldByMore} more{/if}
-      </p>
-    {/if}
-    {#if rows.length}
-      <table class="mt-2.5 w-full border-collapse text-[14.5px]">
-        <tbody class="[&_tr:last-child_th]:border-b-0 [&_tr:last-child_td]:border-b-0">
-          {#each rows as row}
-            <tr>
-              <th class="w-[180px] border-b border-border py-2 pr-4 text-left align-top font-medium text-muted-foreground">{row.label}</th>
-              <td class="border-b border-border py-2 align-top text-foreground">{row.value}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    {/if}
-  </section>
+{#if show}
+  <Block blockKey="completion" heading="Completion">
+    <ul class="m-0 list-none p-0">
+      {#if c.hasCode !== null && c.hasCode !== undefined}
+        <li class="flex items-center gap-2">
+          <Icon name={c.hasCode ? "done" : "missing"} class="size-3.5 {c.hasCode ? 'text-convention-foreground' : 'text-warn-foreground'}" />
+          <span class={c.hasCode ? "" : "text-warn-foreground"}>{c.hasCode ? "Has code" : "No code"}</span>
+        </li>
+      {/if}
+      {#if c.hasTests !== null && c.hasTests !== undefined}
+        <li class="flex items-center gap-2">
+          <Icon name={c.hasTests ? "done" : "missing"} class="size-3.5 {c.hasTests ? 'text-convention-foreground' : 'text-warn-foreground'}" />
+          <span class={c.hasTests ? "" : "text-warn-foreground"}>{c.hasTests ? "Has tests" : "No tests"}</span>
+        </li>
+      {/if}
+      {#if c.scenarios}
+        {@const pass = c.scenarios.pass ?? 0}
+        {@const of = c.scenarios.of ?? 0}
+        {@const all = of > 0 && pass >= of}
+        <li class="flex items-center gap-2">
+          <Icon name={all ? "done" : "missing"} class="size-3.5 {all ? 'text-convention-foreground' : 'text-warn-foreground'}" />
+          <span class={all ? "" : "text-warn-foreground"}>{pass} of {of} {of === 1 ? "scenario passes" : "scenarios pass"}{#if !run} (no test run in the model){/if}</span>
+        </li>
+      {/if}
+    </ul>
+  </Block>
 {/if}

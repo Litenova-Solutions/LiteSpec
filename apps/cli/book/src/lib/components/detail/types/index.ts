@@ -44,7 +44,6 @@ import Term from "./Term.svelte";
 import Test from "./Test.svelte";
 import TestClass from "./TestClass.svelte";
 import TestProject from "./TestProject.svelte";
-import Topic from "./Topic.svelte";
 import UseCase from "./UseCase.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
@@ -54,7 +53,6 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   goal: Goal,
   problem: Problem,
   feature: Feature,
-  topic: Topic,
   requirement: Requirement,
   decision: Decision,
   constraint: Constraint,

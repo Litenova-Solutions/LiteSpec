@@ -295,8 +295,6 @@ public sealed class MarkFolderDriftTests
             Type = type,
             Id = id,
             Title = id,
-            Owner = "lending-team",
-            Status = "reviewed",
             File = Path.Combine(root, ".litespec", "record.md"),
             Line = 1,
             Raw = raw,

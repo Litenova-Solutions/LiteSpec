@@ -23,7 +23,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "requirement statement holding a modal word")]
     public void RequirementStatementHoldingModalWord() => Check(
         root => WriteExample(root, "approval.yaml",
-            "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
+            "{\"type\":\"feature\",\"id\":\"feature/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
             "\"statement\":\"Each expense should be decided within five days.\"," +
@@ -62,7 +62,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "rationale starting with because")]
     public void RationaleStartingWithBecause() => Check(
         root => WriteExample(root, "approval.yaml",
-            "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
+            "{\"type\":\"feature\",\"id\":\"feature/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
             "\"statement\":\"Each expense is decided within five days.\"," +
@@ -111,7 +111,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "except condition starting with if")]
     public void ExceptConditionStartingWithIf() => Check(
         root => WriteExample(root, "approval.yaml",
-            "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
+            "{\"type\":\"feature\",\"id\":\"feature/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
             "\"statement\":\"Each expense is decided within five days.\"," +
@@ -126,15 +126,6 @@ public sealed partial class StandardsValidatorTests
         root => WriteExample(root, "external-system.yaml",
             "{\"type\":\"external-system\",\"id\":\"external-system/sample\",\"title\":\"Sample System\"," +
             "\"failure\":\"The call fails with spending.receipt-missing.\"}"),
-        ["VALUE_STYLE"]);
-
-    /// <summary>Question without a question mark.</summary>
-    /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
-    [Fact(DisplayName = "question without a question mark")]
-    public void QuestionWithoutQuestionMark() => Check(
-        root => WriteExample(root, "research.yaml",
-            "{\"type\":\"research\",\"id\":\"research/sample\",\"title\":\"Sample Study\"," +
-            "\"question\":\"How fast are expenses decided\"}"),
         ["VALUE_STYLE"]);
 
     /// <summary>Title starting lower case with a final period.</summary>

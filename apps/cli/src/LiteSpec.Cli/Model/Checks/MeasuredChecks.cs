@@ -40,7 +40,6 @@ internal static class MeasuredChecks
     {
         foreach (var requirement in model.Records.Where(record =>
             record.Type == RecordTypes.Requirement
-            && record.Status != RecordStatuses.Retired
             && record.Field(RecordFields.Measure) is not { Length: > 0 }
             && record.Field(RecordFields.Statement) is { Length: > 0 } statement
             && NamesNumber(statement)))

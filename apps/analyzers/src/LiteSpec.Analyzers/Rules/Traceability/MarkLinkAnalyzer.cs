@@ -271,8 +271,8 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
 
     /// <summary>
     ///     Checks one <c>follows</c> mark on a symbol of any kind or none: it names
-    ///     a provision of the carried release, or a decision or exception that is
-    ///     not retired. A <c>follows</c> mark is never stray.
+    ///     a provision of the carried release, or a decision or exception. A
+    ///     <c>follows</c> mark is never stray.
     /// </summary>
     /// <param name="context">The symbol analysis context that carries the compilation state for this pass.</param>
     /// <param name="state">The traceability context holding the record store and the carried provision set.</param>
@@ -324,19 +324,6 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                     symbol.Name,
                     id,
                     "matches no decision or exception");
-            }
-            else if (record.Status == "retired")
-            {
-                TraceabilityReporter.Report(
-                    state,
-                    context.ReportDiagnostic,
-                    Descriptors.LS5002,
-                    "mark-unknown",
-                    subject: null,
-                    location,
-                    symbol.Name,
-                    id,
-                    "is retired");
             }
 
             return;

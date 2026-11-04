@@ -2,7 +2,7 @@
 
 ## Intent
 
-A product that sells tiers promises each plan a set of entitlements: the behavior the plan unlocks and the amounts it allows. This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan. A project selects it when customers buy different tiers, so a plan change moves one record instead of scattered checks.
+A product that gates behavior and amounts by tier records each plan's entitlements in one place: the behavior the plan unlocks and the amounts it allows. This page states how the product records its plans, how behavior and amounts resolve to what the acting plan entitles, and how the product answers a run past its plan. A project selects it when tiers change what the software allows, so a plan change moves one record instead of scattered checks.
 
 ## Activation
 
@@ -10,7 +10,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `plans` when it sells more than one tier, or gates behavior by entitlement within one offering. A single offering with no gated behavior does not select it: without tiers there is nothing to entitle.
+The project selects `plans` when tiers gate behavior or amounts in the software, within one offering or across several. An offering with no gated behavior or amount does not select it: without gated tiers there is nothing to entitle.
 
 ## Baseline Relationship
 
@@ -24,13 +24,13 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#record-each-plan-once`
 
-**Statement:** A consumer selecting `plans` MUST record each plan once with its name, price, billing period, and entitlements.
+**Statement:** A consumer selecting `plans` MUST record each plan once with its name and entitlements.
 
-**Rationale:** A plan named in two places disagrees the day one updates without the other: the price page promises what the gate refuses. One record per plan holds the name, the price, the billing period, and the entitlements, so a plan change is one edit with one owner.
+**Rationale:** A plan named in two places disagrees the day one updates without the other: one record promises what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
 
-**Example:** The monthly plan names its fee, its month period, and the use cases and amounts it unlocks.
+**Example:** The team tier names the export use case and the row cap it unlocks.
 
-**Reviewed for:** The requirement pages under `.litespec/intent/` hold one record per plan with its price, billing period, and entitlements.
+**Reviewed for:** The requirement pages under `.litespec/intent/` hold one record per plan with its entitlements.
 
 ### Gate Behavior Through Permissions
 
@@ -98,22 +98,10 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Reviewed for:** The authorization pipeline resolves the acting plan, or the plan-resolution convention names where use cases find it.
 
-### Record Plan Prices as Policy Requirement Values
-
-**ID:** `litespec/ext/plans#record-plan-prices-as-business-requirement-values`
-
-**Default:** Record each plan price as values on its policy requirement.
-
-**Replacement:** A consumer records a plan-price convention naming where its plan prices live.
-
-**Rationale:** A policy requirement carries its values with effective dates, as the [intent page](../core/intent.md) states, so each price shows when it holds. Recording each plan price there keeps the commercial fact with the commitment it prices.
-
-**Reviewed for:** Each plan price sits as values on its policy requirement, or the plan-price convention names where prices live.
-
 ## Dependencies
 
 Packages: None.
 
-Related extensions: The `tenancy` extension owns tenant isolation when tenants buy different tiers. The `audit` extension owns tamper-resistant evidence when an entitlement decision needs a record.
+Related extensions: The `tenancy` extension owns tenant isolation when tenants sit on different tiers. The `audit` extension owns tamper-resistant evidence when an entitlement decision needs a record.
 
 Guides: None.

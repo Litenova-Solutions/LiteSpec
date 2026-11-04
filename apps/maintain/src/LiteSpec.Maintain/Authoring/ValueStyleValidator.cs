@@ -24,12 +24,12 @@ internal sealed partial class ValueStyleValidator
     private ValidationContext Context { get; }
 
     // The value style states one written form per value: a period ends a
-    // statement, a question mark ends a question, and a clause never repeats
-    // the word it completes. Placeholders skip every rule: angle brackets and
-    // dunder names teach the shape, not the style. A definition meaning is
-    // checked on term and setting records, where the value-style table owns
-    // it; result, event, permission, and field meanings follow the text-kind
-    // table instead.
+    // statement, and a clause never repeats the word it completes.
+    // Placeholders skip every rule: angle brackets and dunder names teach
+    // the shape, not the style. A definition meaning is checked on term
+    // and setting records, where the value-style table owns it; result,
+    // event, permission, and field meanings follow the text-kind table
+    // instead.
     // (litespec/core/language#write-each-value-in-the-value-style)
     /// <summary>Checks the value style of the shipped templates and examples.</summary>
     internal void CheckValueStyle()
@@ -199,16 +199,6 @@ internal sealed partial class ValueStyleValidator
             if (RefusalCodePattern().IsMatch(text))
             {
                 add(relative, 1, "VALUE_STYLE", "`failure` must not hold a refusal code");
-            }
-
-            return;
-        }
-
-        if (field == "question")
-        {
-            if (!text.EndsWith('?'))
-            {
-                add(relative, 1, "VALUE_STYLE", "`question` must end in `?`");
             }
 
             return;

@@ -10,24 +10,10 @@
     "svelte"
   ],
   "reviewedLiteSpecVersion": "4.0.0",
-  "optionalTypes": [
-    "constraint",
-    "research",
-    "setting",
-    "runbook",
-    "goal",
-    "external-system"
-  ],
-  "constraints": {
-    "answered": true
-  },
-  "owners": [
-    "claimwick-team"
-  ],
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
-    "uiDocs": ".litespec/implementation/ui",
+    "uiDocs": ".litespec/implementation/entry-points/claimwick-app",
     "glossary": ".litespec/glossary.yaml",
     "testRoots": [
       "apps/api/tests"
@@ -78,14 +64,6 @@
     }
   },
   "selectedExtensions": [],
-  "vocabulary": {
-    "verbs": [
-      "attach",
-      "erase",
-      "reimburse",
-      "submit"
-    ]
-  },
   "dependencies": {
     "licenses": [
       "MIT",

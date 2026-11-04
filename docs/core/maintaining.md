@@ -107,7 +107,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Rationale:** Provisions state obligations without the questions, sources, or conclusions behind them, so a later change cannot tell why a rule reads as it does. Settled by [decision/0001-keep-release-reasoning-as-records](decision/0001-keep-release-reasoning-as-records) on the evidence in [research/comparable-rationale-practice](research/comparable-rationale-practice).
 
-**Example:** Claimwick states its five-day approval target in a provision, and the benchmark behind the number sits in a research record beside it.
+**Example:** Claimwick states its five-day reimbursement target in a provision, and the benchmark behind the number sits in a research record beside it.
 
 **Checked by:** `litespec-maintain validate` emits no `RECORD_SCHEMA`, `RECORD_ID_MISMATCH`, `RECORD_SOURCE`, `RECORD_UNKNOWN_REFERENCE`, or `RECORD_DECISION_UNCITED` diagnostic.
 

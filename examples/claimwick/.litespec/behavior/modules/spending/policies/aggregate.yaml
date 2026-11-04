@@ -1,8 +1,6 @@
 type: aggregate
 id: aggregate/spending.policy
 title: Policy
-owner: claimwick-team
-status: reviewed
 summary: The policy is the company spending policy and its receipt threshold.
 kind: entity
 states:
@@ -15,8 +13,6 @@ records:
   - type: rule
     id: rule/policy.threshold-never-negative
     title: Threshold Never Negative
-    owner: claimwick-team
-    status: reviewed
     kind: invariant
     statement: A threshold is never negative.
     governs:
@@ -25,9 +21,3 @@ records:
     basedOn: []
     fulfills:
       - requirement/approval.receipt-over-threshold
-    approvedBy: claimwick-team
-    approvedOn: 2026-10-01
-    approvedHash: 9b08116e
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: bf0d019b

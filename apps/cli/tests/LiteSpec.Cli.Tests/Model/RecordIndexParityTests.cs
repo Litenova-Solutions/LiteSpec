@@ -1,5 +1,4 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Model.Diff;
 
 namespace LiteSpec.Tests.Model;
 
@@ -15,13 +14,6 @@ public sealed class RecordIndexParityTests
         {
             using var temp = ModelFixture.Prepare(fixture);
             CheckRoot(temp.Path);
-        }
-
-        var pair = DiffFixture.Prepare();
-        using (pair.Base)
-        using (pair.Head)
-        {
-            CheckRoot(pair.Base.Path);
         }
     }
 
@@ -55,7 +47,6 @@ public sealed class RecordIndexParityTests
 
             Assert.Equal(record.Type, match.Type);
             Assert.Equal(record.Id, match.Id);
-            Assert.Equal(record.Status, match.Status);
             Assert.Equal(record.File, match.File);
             Assert.Equal(record.Line, match.Line);
         }

@@ -290,9 +290,9 @@ public sealed class YamlTextTests
         Assert.Equal(1, dash.Line);
         Assert.Equal("Expected a quoted value; a plain value cannot start with '- ' at line 1.", dash.Message);
 
-        var question = Assert.Throws<JsonTextException>(() => YamlText.Parse("key: ? value\n"));
-        Assert.Equal(1, question.Line);
-        Assert.Equal("Expected a quoted value; a plain value cannot start with '? ' at line 1.", question.Message);
+        var thrown = Assert.Throws<JsonTextException>(() => YamlText.Parse("key: ? value\n"));
+        Assert.Equal(1, thrown.Line);
+        Assert.Equal("Expected a quoted value; a plain value cannot start with '? ' at line 1.", thrown.Message);
 
         var colon = Assert.Throws<JsonTextException>(() => YamlText.Parse("key: : value\n"));
         Assert.Equal(1, colon.Line);

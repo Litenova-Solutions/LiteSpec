@@ -149,8 +149,6 @@ public sealed class ScreenRenameAndRecordsTests
             Type = "screen",
             Id = id,
             Title = "Loans",
-            Owner = "lending-team",
-            Status = "reviewed",
             File = Path.Combine(root, "screen.md"),
             Line = 1,
             Raw = JsonDocument.Parse(
@@ -166,8 +164,6 @@ public sealed class ScreenRenameAndRecordsTests
             Type = type,
             Id = id,
             Title = id,
-            Owner = "lending-team",
-            Status = "reviewed",
             File = Path.Combine(root, $"{type}.md"),
             Line = 1,
             Raw = document.RootElement.Clone(),

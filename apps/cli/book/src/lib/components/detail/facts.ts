@@ -22,7 +22,7 @@ function proofFact(state: unknown): Fact | null {
 }
 
 const facts: Record<string, (id: string, r: BookRecord, f: Fields) => Fact[]> = {
-  feature: (_id, _r, f) => (f.lifecycle ? [{ key: "Lifecycle", text: cap(f.lifecycle) }] : []),
+  feature: () => [],
   requirement: (_id, r, f) => {
     const out: Fact[] = [];
     if (f.kind) out.push({ key: "Kind", text: cap(f.kind) });

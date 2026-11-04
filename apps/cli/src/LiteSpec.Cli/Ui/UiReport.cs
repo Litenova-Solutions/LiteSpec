@@ -1,10 +1,11 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Ui;
 
 /// <summary>The collected result of one <see cref="UiValidator.Validate"/> run.</summary>
 /// <param name="ExitCode">What <c>litespec ui</c> returns: 0 pass, 1 problems, 2 unusable root.</param>
-/// <param name="Problems">The same strings the JSON output's problems array holds.</param>
+/// <param name="Problems">The findings the JSON output's problems array holds.</param>
 /// <param name="Consumer">The consumer root the run checked.</param>
 /// <param name="SharedPackage">The declared shared package, or null when none resolved.</param>
 /// <param name="ControlledFrontends">How many controlled frontends were checked.</param>
@@ -13,7 +14,7 @@ namespace LiteSpec.Ui;
 /// <param name="Frontends">Every declared frontend, for the skipped scope line.</param>
 sealed record UiReport(
     int ExitCode,
-    IReadOnlyList<string> Problems,
+    IReadOnlyList<Finding> Problems,
     string Consumer,
     UiSharedPackage? SharedPackage,
     int ControlledFrontends,
@@ -65,7 +66,21 @@ sealed record UiReport(
         var problems = new JsonArray();
         foreach (var problem in Problems)
         {
-            problems.Add(problem);
+            var item = new JsonObject
+            {
+                ["code"] = problem.Code,
+                ["level"] = problem.Tier,
+                ["message"] = problem.Message,
+                ["path"] = Path.GetRelativePath(Consumer, problem.Path).Replace(Path.DirectorySeparatorChar, '/'),
+                ["line"] = problem.Line,
+            };
+
+            if (problem.Subject is not null)
+            {
+                item["subject"] = problem.Subject;
+            }
+
+            problems.Add(item);
         }
 
         return new JsonObject

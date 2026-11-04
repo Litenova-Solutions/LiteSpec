@@ -32,7 +32,7 @@ public sealed class BookTruthTests
             Assert.Equal("norun", Str(Obj(details[id], "proof"), "state"));
         }
 
-        // Proof links still count; only the run verdict is unknown.
+        // Proof links still count; only the run outcome is unknown.
         Assert.Equal(1, Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof")["tests"]?.GetValue<int>());
 
         var borrow = details["use-case/lending.borrow-copy"];

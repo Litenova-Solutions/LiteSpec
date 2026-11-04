@@ -5,6 +5,5 @@ namespace LiteSpec.Book;
 /// <param name="Kind">One of record, group, code, test or finding.</param>
 /// <param name="Label">The title, the type plural, the layer label, or the file, test or finding name.</param>
 /// <param name="Type">The record type, the code, test or finding type, or null for a layer group.</param>
-/// <param name="Status">The record status, or null for anything else.</param>
 /// <param name="Children">The nested nodes.</param>
-sealed record BookOutlineNode(string Id, string Kind, string Label, string? Type, string? Status, List<BookOutlineNode> Children);
+sealed record BookOutlineNode(string Id, string Kind, string Label, string? Type, List<BookOutlineNode> Children);

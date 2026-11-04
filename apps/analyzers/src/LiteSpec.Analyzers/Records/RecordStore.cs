@@ -129,22 +129,10 @@ public sealed class RecordStore
         return store;
     }
 
-    /// <summary>The effective status of the subject, or null when it names no record.</summary>
-    /// <param name="subject">The record id the finding is about, or null.</param>
-    /// <returns>The effective status, or null.</returns>
-    public string? EffectiveStatus(string? subject)
-    {
-        if (subject is null)
-        {
-            return null;
-        }
-
-        return Index.EffectiveStatus.TryGetValue(subject, out var status) ? status : null;
-    }
-
     /// <summary>
-    ///     Whether an approved exception inside its expiry date covers the
-    ///     finding, as <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
+    ///     Whether a live exception covers the finding, as
+    ///     <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
+    ///     An exception is live when it is present and unexpired.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>

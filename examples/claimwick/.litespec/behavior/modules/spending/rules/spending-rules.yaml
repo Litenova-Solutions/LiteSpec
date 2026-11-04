@@ -1,0 +1,14 @@
+type: rule-set
+title: Spending Rules
+summary: Receipt files are filed once across spending.
+records:
+  - type: rule
+    id: rule/spending.receipt-filed-once
+    title: Receipt Filed Once
+    kind: cross-aggregate
+    statement: A receipt file supports one expense across spending.
+    governs:
+      - aggregate/spending.receipt
+    basedOn: []
+    fulfills:
+      - requirement/approval.receipt-over-threshold

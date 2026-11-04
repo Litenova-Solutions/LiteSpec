@@ -1,10 +1,6 @@
 ---
 type: configuration
 title: Claimwick Configuration
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 ---
 # Claimwick Configuration
 

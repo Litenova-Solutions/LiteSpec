@@ -13,7 +13,6 @@ sealed class FakeRecord : IRecordFacts
     /// <summary>Initializes a new instance of the <see cref="FakeRecord"/> class.Builds the record with the identity, the fields and the id lists.</summary>
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="id">The identifier.</param>
-    /// <param name="status">The resolved status.</param>
     /// <param name="fields">The string fields.</param>
     /// <param name="lists">The id-list fields.</param>
     /// <param name="file">The absolute file path.</param>
@@ -21,7 +20,6 @@ sealed class FakeRecord : IRecordFacts
     public FakeRecord(
         string type,
         string id,
-        string? status = "approved",
         Dictionary<string, string>? fields = null,
         Dictionary<string, IReadOnlyList<string>>? lists = null,
         string file = "docs/page.md",
@@ -30,7 +28,6 @@ sealed class FakeRecord : IRecordFacts
         Type = type;
         Id = id;
         Title = id;
-        Status = status;
         File = file;
         Line = line;
         this.fields = fields ?? new Dictionary<string, string>(StringComparer.Ordinal);
@@ -45,9 +42,6 @@ sealed class FakeRecord : IRecordFacts
 
     /// <summary>Gets the display title.</summary>
     public string Title { get; }
-
-    /// <summary>Gets the resolved status.</summary>
-    public string? Status { get; }
 
     /// <summary>Gets the absolute file path.</summary>
     public string File { get; }

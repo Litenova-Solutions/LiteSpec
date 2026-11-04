@@ -53,30 +53,15 @@ sealed class BookIndex
     /// <summary>Gets the reachable states by aggregate id, or empty when the model holds none.</summary>
     public Dictionary<string, HashSet<string>> ReachableStates { get; init; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets the scenarios whose passing proof went stale, or empty when the model holds none.</summary>
-    public HashSet<string> StaleIds { get; init; } = new(StringComparer.Ordinal);
-
     /// <summary>Gets or sets the latest test run, or null when the model holds none.</summary>
     public JsonNode? TestRun { get; set; }
 
     /// <summary>Gets the journey steps a passing test walked, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
     public HashSet<string> ExercisedSteps { get; init; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets or sets a value indicating whether whether the model carries the check result the model build wrote, as findings or known.</summary>
-    public bool HasFindings { get; set; }
-
-    /// <summary>Gets or sets days before a question on a record with no risk auto-approves; 7 when the model names none.</summary>
-    public int VetoWindowDays { get; set; } = 7;
-
     /// <summary>Gets the tested state by record id the builder wrote, or empty when the model holds none.</summary>
     public Dictionary<string, bool> Tested { get; init; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets the proof state by scenario or rule id the builder wrote, or empty when the model holds none.</summary>
     public Dictionary<string, string> ScenarioStatus { get; init; } = new(StringComparer.Ordinal);
-
-    /// <summary>Gets or sets the review batches the builder wrote, or null when the model holds none.</summary>
-    public JsonArray? StoredBatches { get; set; }
-
-    /// <summary>Gets or sets the security reviewer the model names, or null when it names none.</summary>
-    public string? SecurityReviewer { get; set; }
 }

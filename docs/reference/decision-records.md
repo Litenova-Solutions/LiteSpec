@@ -2,7 +2,7 @@
 
 ## Intent
 
-A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed, the evidence cited, and the decider named, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record ends: replaced, never edited.
+A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.
 
 ## Reference
 
@@ -21,7 +21,7 @@ Each record is one record file with its explanation file beside it in the consum
 
 ### Identifier Form
 
-The identifier is `decision/<number>-<name>`, such as `decision/0001-receipt-threshold`. The name states the choice in words, in at most six words, and the number counts as one of those words. The number keeps proposal order only: it orders records by when they were proposed and carries no other meaning.
+The identifier is `decision/<number>-<name>`, such as `decision/0001-receipt-threshold`. The name states the choice in words, in at most six words, and the number counts as one of those words. Decision numbers come from one sequence across every home, allocated by `litespec new decision`, which takes the next free number. The number keeps proposal order only: it orders records by when they were proposed and carries no other meaning.
 
 ### What a Record Contains
 
@@ -30,19 +30,15 @@ The explanation file carries three sections:
 | Section | What it states |
 |:---|:---|
 | Context | The concrete constraint or conflict forcing a choice. |
-| Decision | The selected behavior and its decider. |
+| Decision | The selected behavior. |
 | Evidence | The research and constraints the choice rests on, each with its confidence. |
 
-The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option once approved, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets, `basedOn` with the constraints and research behind it, and `replaces` with the record this choice overturns. A draft carries `decider` with the decider and `decideBy` with the date the choice is due. `status` is `draft`, `approved`, or `retired`, and an approved record carries `approvedBy`, `approvedOn`, and `approvedHash` over its semantic fields. Open questions on any record group under a ballot named by this decision's id, and the book lists them in the Ballots view.
+The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets and `basedOn` with the constraints and research behind it. A record present in git is decided.
 
-### Replaced, Never Edited
+### Changed in Place
 
-An approved record never changes, so its bytes stay a faithful history of the reasoning. A later choice is a new record naming the old one in `replaces`, and the old record stands retired beside the new one. A departure from a shared standard is an exception of kind `departure` rather than a decision.
-
-### The Draft Gate
-
-A record stays unapproved while a decision it depends on stays draft, because approving it would fix a choice on ground that can still move. Approval records the approver in `approvedBy`, the date in `approvedOn`, and the selected option in `choice`.
+A record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record are a blocking finding, not a tie to resolve. A departure from a shared standard is an exception of kind `departure` rather than a decision.
 
 ## Notes
 
-The outside conventions for this artifact are [Nygard's architecture decision record](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) and [MADR](https://adr.github.io/). Both record context, decision, and consequences in one immutable record per choice, and this record keeps that shape.
+The outside conventions for this artifact are [Nygard's architecture decision record](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) and [MADR](https://adr.github.io/). Both record context, decision, and consequences in one record per choice, and this record keeps that shape while git keeps the history.

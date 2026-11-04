@@ -1,0 +1,7 @@
+type: entry-point
+id: entry-point/claimwick-app
+title: Claimwick App
+summary: Employees reach spending through the expenses app.
+kind: browser
+auth:
+  - session

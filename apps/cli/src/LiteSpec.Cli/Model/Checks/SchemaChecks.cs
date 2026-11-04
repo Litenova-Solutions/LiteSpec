@@ -7,24 +7,20 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its exception, idempotency and failure-policy shapes.</summary>
+/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, holds its exception, idempotency and failure-policy shapes, and every saga step states its compensation and driver.</summary>
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
-/// <follows>litespec/core/model#keep-one-owner-and-status-on-every-record</follows>
 /// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
+/// <follows>litespec/core/domain-model#state-each-saga-step-with-its-compensation</follows>
+/// <follows>litespec/core/domain-model#close-every-saga-with-named-exits-and-a-driver</follows>
 internal static class SchemaChecks
 {
-    /// <summary>Whether the record lives in the behavior layer, from the one layer table.</summary>
-    /// <param name="record">The record whose layer is read.</param>
-    /// <returns>True when the record type belongs to the behavior layer; otherwise false.</returns>
-    private static bool IsBehavior(Record record) =>
-        RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) && layer == "behavior";
-
+    /// <summary>The saga field naming what moves the saga: one job, reaction or person.</summary>
+    private const string DrivenBy = "drivenBy";
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <param name="owners">The parsed CODEOWNERS rules that decide team coverage of each record path.</param>
-    internal static void Run(ProjectModel model, List<Finding> findings, Codeowners owners)
+    internal static void Run(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
         {
@@ -55,143 +51,7 @@ internal static class SchemaChecks
                 findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no title.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (record.Owner is null)
-            {
-                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no owner.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (model.Config.HasOwners && !model.Config.Owners.Contains(record.Owner, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("owner-unknown", $"Record '{record.Id}' names owner '{record.Owner}', which the owner list does not hold.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (record.Owner is { } owner && !owners.Covers(model.Config.Root, record.File, model.Config.CandidatesFor(owner)))
-            {
-                findings.Add(new Finding("owner-unknown", $"Record '{record.Id}' names owner '{owner}', which belongs to no team owning its path.", record.File, record.Line, SubjectOf(record)));
-            }
-
-            if (record.Status is null)
-            {
-                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no status.", record.File, record.Line, SubjectOf(record)));
-            }
-            else if (!ValidStatus(record))
-            {
-                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has status '{record.Status}' outside {StatusVocabulary(record)}.", record.File, record.Line, SubjectOf(record)));
-            }
-
-            if (record.Status == RecordStatuses.Draft)
-            {
-                if (record.Decider is null)
-                {
-                    findings.Add(new Finding("decider-missing", $"Record '{record.Id}' is a draft with no decider.", record.File, record.Line, SubjectOf(record)));
-                }
-                else if (model.Config.HasOwners && !model.Config.Owners.Contains(record.Decider, StringComparer.Ordinal))
-                {
-                    findings.Add(new Finding("owner-unknown", $"Record '{record.Id}' is a draft naming decider '{record.Decider}' outside the owner list.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                if (record.DecideBy is null)
-                {
-                    findings.Add(new Finding("decider-missing", $"Record '{record.Id}' is a draft with no decide-by date.", record.File, record.Line, SubjectOf(record)));
-                }
-                else if (!ValidDate(record.DecideBy))
-                {
-                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' is a draft with decide-by '{record.DecideBy}' which is no date.", record.File, record.Line, SubjectOf(record)));
-                }
-            }
-
-            CheckQuestionDeciders(record, model, findings);
             CheckTypeFields(model, record, findings);
-            CheckReplaces(model, record, findings);
-        }
-    }
-
-    /// <summary>Whether the status fits the record layer vocabulary.</summary>
-    /// <param name="record">The record whose status and type decide the allowed vocabulary.</param>
-    /// <returns>True when the status belongs to the vocabulary of the record layer; otherwise false.</returns>
-    private static bool ValidStatus(Record record)
-    {
-        if (record.Status is RecordStatuses.Draft or RecordStatuses.Retired)
-        {
-            return true;
-        }
-
-        // Terms span both layers, so either live status fits.
-        if (record.Type == RecordTypes.Term)
-        {
-            return record.Status is RecordStatuses.Approved or RecordStatuses.Reviewed;
-        }
-
-        return IsBehavior(record)
-            ? record.Status == RecordStatuses.Reviewed
-            : record.Status == RecordStatuses.Approved;
-    }
-
-    /// <summary>The status words the record layer vocabulary allows.</summary>
-    /// <param name="record">The record whose layer decides the vocabulary text.</param>
-    /// <returns>The allowed status words as one comma-separated phrase for the finding message.</returns>
-    private static string StatusVocabulary(Record record)
-    {
-        if (record.Type == RecordTypes.Term)
-        {
-            return "draft, approved, reviewed or retired";
-        }
-
-        return IsBehavior(record)
-            ? "draft, reviewed or retired"
-            : "draft, approved or retired";
-    }
-
-    /// <summary>Reports a question entry naming no decider or no decide-by date.</summary>
-    /// <param name="record">The record whose question entries are inspected.</param>
-    /// <param name="model">The loaded project model that holds the owner list.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckQuestionDeciders(Record record, ProjectModel model, List<Finding> findings)
-    {
-        if (record.Status == RecordStatuses.Retired)
-        {
-            return;
-        }
-
-        var decider = false;
-        var date = false;
-
-        foreach (var entry in QuestionEntries(record))
-        {
-            if (!decider)
-            {
-                var named = Str(entry, RecordFields.Decider);
-
-                if (named is not { Length: > 0 })
-                {
-                    findings.Add(new Finding("decider-missing", $"Record '{record.Id}' holds a question that names no decider.", record.File, record.Line, SubjectOf(record)));
-                    decider = true;
-                }
-                else if (model.Config.HasOwners && !model.Config.Owners.Contains(named, StringComparer.Ordinal))
-                {
-                    findings.Add(new Finding("owner-unknown", $"Record '{record.Id}' holds a question naming decider '{named}' outside the owner list.", record.File, record.Line, SubjectOf(record)));
-                    decider = true;
-                }
-            }
-
-            if (!date)
-            {
-                var decideBy = Str(entry, RecordFields.DecideBy);
-
-                if (decideBy is not { Length: > 0 })
-                {
-                    findings.Add(new Finding("decider-missing", $"Record '{record.Id}' holds a question that names no decide-by date.", record.File, record.Line, SubjectOf(record)));
-                    date = true;
-                }
-                else if (!ValidDate(decideBy))
-                {
-                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds a question with decide-by '{decideBy}' which is no date.", record.File, record.Line, SubjectOf(record)));
-                    date = true;
-                }
-            }
-
-            if (decider && date)
-            {
-                break;
-            }
         }
     }
 
@@ -200,9 +60,9 @@ internal static class SchemaChecks
 
     /// <summary>
     ///     The use cases another record runs: a reaction, job or use case through a `runs`
-    ///     effect, or a saga through a step. Such a use case is reached from inside the system.
+    ///     effect. Such a use case is reached from inside the system.
     /// </summary>
-    /// <param name="model">The loaded project model whose records declare the runs effects and saga steps.</param>
+    /// <param name="model">The loaded project model whose records declare the runs effects.</param>
     /// <returns>The identifiers of use cases that another record runs.</returns>
     private static HashSet<string> RunTargets(ProjectModel model) => RunTargetCache.GetValue(model, built =>
     {
@@ -244,7 +104,6 @@ internal static class SchemaChecks
         {
             case RecordTypes.Product:
                 RequireString(record, RecordFields.Boundary, findings);
-                RequireArray(record, RecordFields.Exclusions, 0, findings);
                 RequireIds(record, RecordFields.Addresses, 1, findings);
                 break;
 
@@ -252,7 +111,6 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Statement, findings);
                 RequireString(record, RecordFields.Measure, findings);
                 RequireString(record, RecordFields.Target, findings);
-                RequireString(record, RecordFields.DueBy, findings);
                 break;
 
             case RecordTypes.Constraint:
@@ -264,23 +122,13 @@ internal static class SchemaChecks
 
             case RecordTypes.Research:
                 RequireArray(record, RecordFields.Sources, 1, findings);
-                RequireString(record, RecordFields.Question, findings);
                 RequireString(record, RecordFields.Conclusion, findings);
                 break;
 
             case RecordTypes.Decision:
                 RequireArray(record, RecordFields.Options, 1, findings);
                 RequireString(record, RecordFields.ReopenedWhen, findings);
-
-                if (record.Status == RecordStatuses.Approved)
-                {
-                    RequireString(record, RecordFields.Choice, findings);
-                }
-
-                break;
-
-            case RecordTypes.Topic:
-                RequireDate(record, RecordFields.ReviewBy, findings);
+                RequireString(record, RecordFields.Choice, findings);
                 break;
 
             case RecordTypes.Requirement:
@@ -300,17 +148,6 @@ internal static class SchemaChecks
                     RequireString(record, RecordFields.Environment, findings);
                     RequireString(record, RecordFields.Response, findings);
                     RequireString(record, RecordFields.Measure, findings);
-                    RequireString(record, RecordFields.DueBy, findings);
-                }
-
-                if (record.Has(RecordFields.Measure))
-                {
-                    RequireString(record, RecordFields.DueBy, findings);
-                }
-
-                if (record.Has(RecordFields.DueBy))
-                {
-                    RequireString(record, RecordFields.Measure, findings);
                 }
 
                 break;
@@ -321,18 +158,7 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Feature:
-                RequireEnum(record, RecordFields.Lifecycle, ["planned", "shipped", "later", "refused"], findings);
                 RequireIds(record, RecordFields.Solves, 1, findings);
-
-                if (record.Field(RecordFields.Lifecycle) == "refused")
-                {
-                    RequireString(record, RecordFields.RefusedBecause, findings);
-                }
-
-                if (record.Field(RecordFields.Lifecycle) == "planned")
-                {
-                    RequireString(record, RecordFields.PlannedFor, findings);
-                }
 
                 if (record.Has(RecordFields.Serves))
                 {
@@ -372,16 +198,9 @@ internal static class SchemaChecks
                     RequireStateEntries(record, findings);
                 }
 
-                // A saga coordinates steps on other aggregates, with its exits and driver.
                 if (record.Field(RecordFields.Kind) == "saga")
                 {
-                    RequireArray(record, RecordFields.Steps, 1, findings);
-                    RequireArray(record, RecordFields.Exits, 1, findings);
-
-                    if (!record.Has(RecordFields.DrivenBy))
-                    {
-                        findings.Add(new Finding("record-invalid", $"Aggregate '{record.Id}' is a saga with no drivenBy.", record.File, record.Line, SubjectOf(record)));
-                    }
+                    CheckSaga(model, record, findings);
                 }
 
                 break;
@@ -401,10 +220,9 @@ internal static class SchemaChecks
 
             case RecordTypes.UseCase:
                 RequireEnum(record, RecordFields.Kind, ["command", "query"], findings);
-                // A retired use case names no entry point, and a use case only a reaction, a job,
-                // a saga step or another use case runs has no door of its own: only the rest must
-                // name one.
-                if (record.Status != RecordStatuses.Retired && !RunTargets(model).Contains(record.Id))
+                // A use case only a reaction, a job or another use case runs has no door of
+                // its own: only the rest must name one.
+                if (!RunTargets(model).Contains(record.Id))
                 {
                     RequireIds(record, RecordFields.ReachedThrough, 1, findings);
                 }
@@ -462,8 +280,6 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Screen:
-                RequireIds(record, RecordFields.EntryPoint, 1, findings);
-
                 if (record.Has(RecordFields.Address) && record.Has(RecordFields.Host))
                 {
                     findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries address and host.", record.File, record.Line, SubjectOf(record)));
@@ -540,6 +356,152 @@ internal static class SchemaChecks
         if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
         {
             findings.Add(new Finding("record-invalid", $"Exception '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a saga step running no use case or compensating with nothing stated, and a saga driven by no single job, reaction or person.</summary>
+    /// <param name="model">The loaded project model that resolves each runs and drivenBy target.</param>
+    /// <param name="record">The saga record whose steps and drivenBy are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSaga(ProjectModel model, Record record, List<Finding> findings)
+    {
+        if (record.Raw.ValueKind == JsonValueKind.Object
+            && record.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            && steps.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var step in steps.EnumerateArray())
+            {
+                if (step.ValueKind == JsonValueKind.Object)
+                {
+                    CheckSagaStep(model, record, step, findings);
+                }
+            }
+        }
+
+        if (record.Raw.ValueKind == JsonValueKind.Object
+            && record.Raw.TryGetProperty(DrivenBy, out var driven)
+            && driven.ValueKind == JsonValueKind.Object)
+        {
+            CheckSagaDriver(model, record, driven, findings);
+        }
+    }
+
+    /// <summary>Reports one saga step running no use case, or compensating with no stated reversal or reason.</summary>
+    /// <param name="model">The loaded project model that resolves the runs target.</param>
+    /// <param name="record">The saga record holding the step.</param>
+    /// <param name="step">The step entry whose runs and compensation are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSagaStep(ProjectModel model, Record record, JsonElement step, List<Finding> findings)
+    {
+        var id = Str(step, RecordFields.Id) ?? "?";
+
+        if (Str(step, RecordFields.Runs) is { Length: > 0 } runs)
+        {
+            if (!model.ById.TryGetValue(runs, out var target))
+            {
+                findings.Add(new Finding("reference-unknown", $"Aggregate '{record.Id}' runs '{runs}' from step '{id}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (target.Type != RecordTypes.UseCase)
+            {
+                findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' runs '{runs}' from step '{id}', which is a {target.Type}.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+
+        if (!step.TryGetProperty(RecordFields.Compensation, out var compensation)
+            || compensation.ValueKind != JsonValueKind.Object)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds step '{id}' with no compensation.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var mode = Str(compensation, RecordFields.Mode);
+
+        if (mode == "none" && Str(compensation, RecordFields.Reason) is not { Length: > 0 })
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds step '{id}' with a none compensation naming no reason.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (mode == "use-case" && Str(compensation, RecordFields.UseCase) is not { Length: > 0 })
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds step '{id}' with a use-case compensation naming no use case.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a drivenBy naming no single job, reaction or person, and a driver resolving to no record of its type.</summary>
+    /// <param name="model">The loaded project model that resolves each driver target.</param>
+    /// <param name="record">The saga record holding the drivenBy.</param>
+    /// <param name="driven">The drivenBy entry whose driver is judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSagaDriver(ProjectModel model, Record record, JsonElement driven, List<Finding> findings)
+    {
+        var drivers = new[] { RecordFields.Job, RecordFields.Reaction, RecordFields.Person }
+            .Where(field => Str(driven, field) is { Length: > 0 })
+            .ToList();
+
+        if (drivers.Count != 1)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds drivenBy naming no single job, reaction or person.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (drivers[0] == RecordFields.Job && Str(driven, RecordFields.Job) is { Length: > 0 } job)
+        {
+            CheckSagaTarget(model, record, job, RecordTypes.Job, findings);
+        }
+        else if (drivers[0] == RecordFields.Reaction && Str(driven, RecordFields.Reaction) is { Length: > 0 } reaction)
+        {
+            CheckSagaTarget(model, record, reaction, RecordTypes.Reaction, findings);
+        }
+        else
+        {
+            CheckSagaPerson(model, record, driven, findings);
+        }
+    }
+
+    /// <summary>Reports a job or reaction driver resolving to no record, or to a record of another type.</summary>
+    /// <param name="model">The loaded project model that resolves the driver target.</param>
+    /// <param name="record">The saga record holding the drivenBy.</param>
+    /// <param name="target">The driver identifier under test.</param>
+    /// <param name="type">The record type the driver must resolve to.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSagaTarget(ProjectModel model, Record record, string target, string type, List<Finding> findings)
+    {
+        if (!model.ById.TryGetValue(target, out var resolved))
+        {
+            findings.Add(new Finding("reference-unknown", $"Aggregate '{record.Id}' is driven by '{target}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (resolved.Type != type)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' is driven by '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a person driver with no runbook, and a runbook or dueWithin outside its shape.</summary>
+    /// <param name="model">The loaded project model that resolves the runbook.</param>
+    /// <param name="record">The saga record holding the drivenBy.</param>
+    /// <param name="driven">The drivenBy entry whose runbook and dueWithin are judged.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSagaPerson(ProjectModel model, Record record, JsonElement driven, List<Finding> findings)
+    {
+        if (Str(driven, RecordFields.Runbook) is not { Length: > 0 } runbook)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' is driven by a person with no runbook.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (!model.ById.TryGetValue(runbook, out var resolved))
+        {
+            findings.Add(new Finding("reference-unknown", $"Aggregate '{record.Id}' is driven by a person with runbook '{runbook}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (resolved.Type != RecordTypes.Runbook)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' is driven by a person with runbook '{runbook}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+        }
+
+        if (Str(driven, RecordFields.DueWithin) is not { Length: > 0 } dueWithin)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' is driven by a person with no dueWithin.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (!IsoDuration.IsMatch(dueWithin))
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' is driven by a person with dueWithin '{dueWithin}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -687,26 +649,6 @@ internal static class SchemaChecks
         ];
     }
 
-    /// <summary>Reports a replaces link on a record that is no decision, or one naming a record of another type.</summary>
-    /// <param name="model">The loaded project model that resolves each replaces target.</param>
-    /// <param name="record">The record whose replaces field is judged.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckReplaces(ProjectModel model, Record record, List<Finding> findings)
-    {
-        if (record.Type != RecordTypes.Decision && record.Ids(RecordFields.Replaces).Any())
-        {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' carries replaces and is no decision.", record.File, record.Line, SubjectOf(record)));
-        }
-
-        foreach (var target in record.Ids(RecordFields.Replaces))
-        {
-            if (model.ById.TryGetValue(target, out var resolved) && resolved.Type != record.Type)
-            {
-                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' replaces '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-    }
-
     /// <summary>Decides whether text states a date as an ISO day or a timestamp.</summary>
     /// <param name="text">The date text under test.</param>
     /// <returns>True when the text parses as an ISO date or a timestamp; otherwise false.</returns>
@@ -828,9 +770,9 @@ internal static class SchemaChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSetBy(Record record, List<Finding> findings)
     {
-        if (record.Field(RecordFields.SetBy) is { } setBy && setBy is not ("decider" or "operator" or "tenant"))
+        if (record.Field(RecordFields.SetBy) is { } setBy && setBy is not ("product" or "operator" or "tenant"))
         {
-            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has setBy '{setBy}' outside decider, operator, tenant.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has setBy '{setBy}' outside product, operator, tenant.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

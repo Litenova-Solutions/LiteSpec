@@ -38,4 +38,32 @@ public sealed class ExceptionPageTests
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown type 'deviation'.", result.Output);
     }
+
+    /// <summary>New topic is an unknown type.</summary>
+    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    [Fact(DisplayName = "new topic is an unknown type")]
+    public void NewTopicIsUnknown()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+
+        var result = Cli.Run(
+            "new", "topic", "approval", "--root", fixture.Path);
+
+        Assert.Equal(2, result.Status);
+        Assert.Contains("Unknown type 'topic'.", result.Output);
+    }
+
+    /// <summary>New review report is an unknown type.</summary>
+    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    [Fact(DisplayName = "new review report is an unknown type")]
+    public void NewReviewReportIsUnknown()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+
+        var result = Cli.Run(
+            "new", "review-report", "october-review", "--root", fixture.Path);
+
+        Assert.Equal(2, result.Status);
+        Assert.Contains("Unknown type 'review-report'.", result.Output);
+    }
 }

@@ -9,7 +9,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Builds the project model: reads records, code, screens, tests, the test run,
 ///     scenario coverage and measured-check results, then computes the implements,
-///     calls and proves links and the status.
+///     calls and proves links and the proof states.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static partial class ModelBuilder
@@ -74,8 +74,8 @@ static partial class ModelBuilder
             ComputeCalls(model);
             RefusalCodes.Compute(model);
             ProofConfirmation.Compute(model);
-            ModelStatus.Compute(model);
-            ModelStatus.ComputeAuthority(model);
+            CompletionCalculator.Compute(model);
+            ComputeReachableStates(model);
             Constituents.Compute(model);
             ScreenshotCaptures.Compute(model);
         });
@@ -83,6 +83,54 @@ static partial class ModelBuilder
         Timing.Report($"[time] build total {total.Elapsed.TotalSeconds:0.0}s");
 
         return model;
+    }
+
+    /// <summary>
+    ///     Computes each aggregate's reachable states: every state a transition leads
+    ///     into, plus every state a transition leaves that nothing leads into, which
+    ///     starts its lifecycle.
+    /// </summary>
+    /// <param name="model">The project model.</param>
+    private static void ComputeReachableStates(ProjectModel model)
+    {
+        foreach (var aggregate in model.Records.Where(record => record.Type == RecordTypes.Aggregate))
+        {
+            var entered = new HashSet<string>(StringComparer.Ordinal);
+            var left = new HashSet<string>(StringComparer.Ordinal);
+
+            if (aggregate.Raw.ValueKind == JsonValueKind.Object
+                && aggregate.Raw.TryGetProperty(RecordFields.Transitions, out var transitions)
+                && transitions.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var transition in transitions.EnumerateArray())
+                {
+                    if (transition.ValueKind != JsonValueKind.Object)
+                    {
+                        continue;
+                    }
+
+                    if (transition.TryGetProperty("from", out var from)
+                        && from.ValueKind == JsonValueKind.String
+                        && from.GetString() is { Length: > 0 } start
+                        && start != RecordReader.Creation)
+                    {
+                        // A creation leaves no state: "-" marks that the instance did not exist yet.
+                        left.Add(start);
+                    }
+
+                    if (transition.TryGetProperty("to", out var to)
+                        && to.ValueKind == JsonValueKind.String
+                        && to.GetString() is { Length: > 0 } end)
+                    {
+                        entered.Add(end);
+                    }
+                }
+            }
+
+            left.ExceptWith(entered);
+            entered.UnionWith(left);
+            model.ReachableStates[aggregate.Id] = entered;
+        }
     }
 
     /// <summary>Runs one build phase and reports how long it took.</summary>
@@ -264,7 +312,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "acceptedBy", "compensation", "authority", "operation", "event" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "compensation", "authority", "operation", "event" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {
@@ -401,9 +449,9 @@ static partial class ModelBuilder
     ///     proves, or through an integration fact that resolves a service from the host
     ///     and calls the message type of a governed use case or the governed aggregate.
     ///     A requirement, decision, external-system, or integration-event claim
-    ///     confirms on its own once it resolves: no step, message, or effect analysis
-    ///     applies, and its passing run marks it tested. A provision claim confirms
-    ///     when the carried release holds it.
+    ///     confirms once it resolves and the test asserts something: no step,
+    ///     message, or effect analysis applies, and its passing run marks it
+    ///     tested. A provision claim confirms when the carried release holds it.
     /// </summary>
     /// <param name="model">The project model.</param>
     /// <param name="test">The scenario test.</param>

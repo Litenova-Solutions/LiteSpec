@@ -41,7 +41,7 @@ sealed class SourceLockChecks
     public void ValidateSourceLock(string file, JsonNode? baseline, string packageRoot, JsonNode? manifest, bool baselineOverride, string platform)
     {
         var label = session.RelativeToRoot(file);
-        var lockNode = session.ReadJson(file, label);
+        var lockNode = session.ReadJson(file, "ui-sourcelock-invalid");
         if (lockNode is null)
         {
             return;
@@ -49,10 +49,10 @@ sealed class SourceLockChecks
 
         foreach (var key in new[] { "schemaVersion", "generator", "cli", "preset", "registry", "formatter", "components" })
         {
-            session.Required(lockNode, key, label);
+            session.Required(lockNode, key, label, "ui-sourcelock-invalid", file);
         }
 
-        session.SchemaCheck("ui-source-lock.schema.json", lockNode, label, "litespec/frontend/web/ui#track-source-changes");
+        session.SchemaCheck("ui-source-lock.schema.json", lockNode, label, "litespec/frontend/web/ui#track-source-changes", "ui-sourcelock-invalid");
         var cliPackage = platform == "svelte" ? "shadcn-svelte" : "shadcn";
         var expectedCli = JsonRead.Chain(manifest, "packages", "npm", cliPackage);
         var cli = JsonRead.Child(lockNode, "cli");
@@ -62,18 +62,18 @@ sealed class SourceLockChecks
         // no separate branch for the word is reachable.
         if (!PinnedVersion.IsMatch(cliText))
         {
-            session.Errors.Add($"{label}: cli must be a pinned semantic version");
+            session.Add("ui-sourcelock-invalid", "cli must be a pinned semantic version", file);
         }
         else if (JsonRead.Truthy(expectedCli) && !JsonRead.StrictEqual(cli, expectedCli))
         {
-            session.Errors.Add($"{label}: cli must match manifest {cliPackage} pin '{JsonRead.Show(expectedCli)}'");
+            session.Add("ui-sourcelock-invalid", $"cli must match manifest {cliPackage} pin '{JsonRead.Show(expectedCli)}'", file);
         }
 
         var lockRegistry = JsonRead.Child(lockNode, "registry");
         var baselineRegistry = JsonRead.Child(baseline, "registry");
         if ((!JsonRead.StrictEqual(JsonRead.Dot(lockRegistry, "name"), JsonRead.Dot(baselineRegistry, "name")) || !JsonRead.StrictEqual(JsonRead.Dot(lockRegistry, "url"), JsonRead.Dot(baselineRegistry, "url"))) && !baselineOverride)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: registry '{JsonRead.ShowOr(JsonRead.Dot(lockRegistry, "name"), "(unnamed)")}' is not the built-in {JsonRead.ShowOr(JsonRead.Dot(baselineRegistry, "name"), "registry")} registry; an additional registry requires an exception");
+            session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] registry '{JsonRead.ShowOr(JsonRead.Dot(lockRegistry, "name"), "(unnamed)")}' is not the built-in {JsonRead.ShowOr(JsonRead.Dot(baselineRegistry, "name"), "registry")} registry; an additional registry requires an exception", file);
         }
 
         foreach (var key in new[] { "style", "base", "cssVariables", "baseColor", "theme", "chartColor", "font", "fontHeading", "icons", "radius", "menuAccent", "menuColor", "componentsStyle" })
@@ -81,31 +81,31 @@ sealed class SourceLockChecks
             var want = JsonRead.Child(baseline, key);
             if (want.Found && !JsonRead.StrictEqual(JsonRead.Dot(JsonRead.Child(lockNode, "preset"), key), want))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] {label}: preset.{key} does not match the manifest baseline");
+                session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] preset.{key} does not match the manifest baseline", file);
             }
         }
 
         var pinnedPackages = JsonRead.NpmKeys(manifest);
-        var items = session.ReadArray(lockNode, "components", label);
-        session.Unique(items.Select(item => JsonRead.Child(item, "name")), $"{label}.components");
+        var items = session.ReadArray(lockNode, "components", label, "ui-sourcelock-invalid", file);
+        session.Unique(items.Select(item => JsonRead.Child(item, "name")), $"{label}.components", "ui-sourcelock-invalid", file);
         foreach (var item in items)
         {
             var itemLabel = $"{label}.{JsonRead.ShowOr(JsonRead.Child(item, "name"), "component")}";
             foreach (var key in new[] { "name", "address", "status", "paths", "digest", "dependencies" })
             {
-                session.Required(item, key, itemLabel);
+                session.Required(item, key, itemLabel, "ui-sourcelock-invalid", file);
             }
 
-            foreach (var dependency in session.ReadArray(item, "dependencies", itemLabel))
+            foreach (var dependency in session.ReadArray(item, "dependencies", itemLabel, "ui-sourcelock-invalid", file))
             {
                 var name = dependency is JsonValue dependencyValue && dependencyValue.TryGetValue<string>(out var dependencyName) ? dependencyName : null;
                 if (name is null || !pinnedPackages.Contains(name))
                 {
-                    session.Errors.Add($"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonRead.ShowNode(dependency)}' is not pinned in the LiteSpec manifest");
+                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonRead.ShowNode(dependency)}' is not pinned in the LiteSpec manifest", file);
                 }
             }
 
-            foreach (var path in session.ReadArray(item, "paths", itemLabel))
+            foreach (var path in session.ReadArray(item, "paths", itemLabel, "ui-sourcelock-invalid", file))
             {
                 if (path is not JsonValue pathValue || !pathValue.TryGetValue<string>(out var relative))
                 {
@@ -115,20 +115,20 @@ sealed class SourceLockChecks
                 var candidate = Path.GetFullPath(Path.Combine(packageRoot, relative));
                 if (!FileWalk.Within(packageRoot, candidate))
                 {
-                    session.Errors.Add($"{itemLabel}: path escapes the shared package root '{relative}'");
+                    session.Add("ui-sourcelock-invalid", $"{itemLabel}: path escapes the shared package root '{relative}'", file);
                     continue;
                 }
 
                 if (!FileWalk.Exists(candidate))
                 {
-                    session.Errors.Add($"{itemLabel}: source path does not exist '{relative}'");
+                    session.Add("ui-sourcelock-invalid", $"{itemLabel}: source path does not exist '{relative}'", file);
                     continue;
                 }
 
                 var actual = session.Digest(candidate);
                 if (actual is null)
                 {
-                    session.Errors.Add($"{itemLabel}: cannot read source path '{relative}'");
+                    session.Add("ui-sourcelock-invalid", $"{itemLabel}: cannot read source path '{relative}'", file);
                     continue;
                 }
 
@@ -138,7 +138,7 @@ sealed class SourceLockChecks
                 var isBaseline = status is { Node: JsonValue statusValue } && statusValue.TryGetValue<string>(out var statusText) && statusText == "baseline";
                 if (!matches && isBaseline)
                 {
-                    session.Errors.Add($"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: '{relative}' no longer matches the recorded digest; record it as extended or forked");
+                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: '{relative}' no longer matches the recorded digest; record it as extended or forked", file);
                 }
             }
         }

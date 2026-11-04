@@ -43,13 +43,13 @@ internal sealed class FieldValidator
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
         ["serves", "fulfills", "solves", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
-            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries", "replaces",
+            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries",
             "binds", "exercises"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name a closed set.</summary>
     private static readonly HashSet<string> ClosedSetNouns = new(
-        ["kind", "mode", "direction", "trust", "reach", "lifecycle", "level"],
+        ["kind", "mode", "direction", "trust", "reach", "level"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name prose.</summary>

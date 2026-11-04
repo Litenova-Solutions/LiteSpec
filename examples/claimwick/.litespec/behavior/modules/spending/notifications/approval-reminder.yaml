@@ -1,8 +1,7 @@
 type: notification
 id: notification/spending.approval-reminder
 title: Approval Reminder
-owner: claimwick-team
-status: reviewed
+summary: The reminder names the expense and its waiting time. Each waiting expense earns one reminder.
 template: approval-reminder-manager
 addresses:
   - actor/manager
@@ -16,6 +15,3 @@ params:
 locale: English only; the template ships one language.
 fulfills:
   - requirement/approval.decided-within-five-days
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: e0cc7502

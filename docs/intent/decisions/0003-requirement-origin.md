@@ -6,7 +6,7 @@ Most requirements name neither a carrying feature nor a basis, while every enfor
 
 ## Decision
 
-Every requirement names its parent: a carrying `feature` of any lifecycle including shipped, or a constraint or research in `basedOn`, or a decision that names it in `decides`, in that precedence.
+Every requirement names its parent: a carrying `feature`, including a shipped feature, or a constraint or research in `basedOn`, or a decision that names it in `decides`, in that precedence.
 
 ## Evidence with Confidence
 

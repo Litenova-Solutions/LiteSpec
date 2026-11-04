@@ -2,7 +2,7 @@
 
 ## Intent
 
-Behavior states how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write these records from Intent, and developers review them before code carries them. The [model page](model.md) states the shared record rules, the [intent page](intent.md) states the promises Behavior answers to, and the [record language page](language.md) states how each field, value and record name is written.
+Behavior states how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write these records from Intent, and code carries them. The [model page](model.md) states the shared record rules, the [intent page](intent.md) states the promises Behavior answers to, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -61,7 +61,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Child entities and value objects MUST appear only in code and the glossary, never as records.
 
-**Rationale:** The records name what carries business meaning; the design inside an aggregate changes without changing that meaning. Recording each child and value as its own record would triple the tree while adding no decision a reviewer approves. Code and the glossary carry them, where builders and readers meet them.
+**Rationale:** The records name what carries business meaning; the design inside an aggregate changes without changing that meaning. Recording each child and value as its own record would triple the tree while adding no decision a reviewer judges. Code and the glossary carry them, where builders and readers meet them.
 
 **Example:** Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record.
 

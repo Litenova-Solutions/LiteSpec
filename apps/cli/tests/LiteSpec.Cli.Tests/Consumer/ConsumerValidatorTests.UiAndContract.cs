@@ -104,14 +104,14 @@ public sealed partial class ConsumerValidatorTests
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         Assert.Equal(false, (bool?)parsed["ok"]);
         Assert.Equal("consumer", (string?)parsed["tool"]);
-        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty);
+        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem!["message"] ?? string.Empty);
         Assert.Contains(problems, problem => problem.Contains("requires an H2 'Context'", StringComparison.Ordinal));
     }
 
-    /// <summary>Machine-readable problems carry their level.</summary>
+    /// <summary>Machine-readable problems carry their code and level.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact(DisplayName = "machine-readable problems carry their level")]
-    public void MachineReadableProblemsCarryTheirLevel()
+    [Fact(DisplayName = "machine-readable problems carry their code and level")]
+    public void MachineReadableProblemsCarryTheirCodeAndLevel()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
@@ -121,9 +121,16 @@ public sealed partial class ConsumerValidatorTests
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
-        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty).ToList();
+        var problems = parsed["problems"]!.AsArray().Select(problem => (JsonObject)problem!).ToList();
         Assert.NotEmpty(problems);
-        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
+        Assert.All(problems, problem =>
+        {
+            Assert.Equal("G", (string?)problem["level"]);
+            Assert.Equal("page-section-missing", (string?)problem["code"]);
+            Assert.Equal(".litespec/product/decisions/0001-launch.md", (string?)problem["path"]);
+            Assert.Equal(1, (int?)problem["line"]);
+            Assert.Equal("decision/0001-launch", (string?)problem["subject"]);
+        });
     }
 
     /// <summary>Page with a leading byte-order mark.</summary>
@@ -136,7 +143,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             ".litespec/behavior/modules/orders/bom-page.md",
             char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"reference","id":"bom-page","title":"BOM Page","owner":"fixture","status":"approved"}"""),
+                ConsumerFixture.Meta("""{"type":"reference","id":"bom-page","title":"BOM Page"}"""),
                 """
                 # BOM Page
 

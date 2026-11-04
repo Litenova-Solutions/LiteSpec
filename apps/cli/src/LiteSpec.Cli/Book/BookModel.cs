@@ -7,13 +7,13 @@ namespace LiteSpec.Book;
 ///     link labels, the precedence order, and the URL of every page, plus the
 ///     entry points the index builder and the review queries keep under this name.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookModel
 {
     /// <summary>The navigation layers, in display order.</summary>
     public static readonly IReadOnlyList<BookLayer> Layers =
     [
-        new("Why", ["product", "goal", "constraint", "research", "decision", "topic", "requirement"]),
+        new("Why", ["product", "goal", "constraint", "research", "decision", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Journeys", ["journey"]),
@@ -33,7 +33,6 @@ static class BookModel
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),
             ["decision"] = ("Decision", "Decisions"),
-            ["topic"] = ("Topic", "Topics"),
             ["requirement"] = ("Requirement", "Requirements"),
             ["problem"] = ("Problem", "Problems"),
             ["feature"] = ("Feature", "Features"),
@@ -158,11 +157,6 @@ static class BookModel
     /// <returns>The built index.</returns>
     public static BookIndex BuildIndex(JsonObject model) => BookIndexBuilder.BuildIndex(model);
 
-    /// <summary>One record's risk classes, in model order.</summary>
-    /// <param name="record">The record.</param>
-    /// <returns>The risk class names the record carries, empty when it carries no risk.</returns>
-    public static IReadOnlyList<string> RiskClassesOf(JsonObject record) => BookReviewQueries.RiskClassesOf(record);
-
     /// <summary>The display label of a record type, singular or plural.</summary>
     /// <param name="type">The record type, or null.</param>
     /// <param name="plural">Whether the plural label is wanted.</param>
@@ -199,10 +193,6 @@ static class BookModel
     /// <param name="type">The record type.</param>
     /// <returns>The type index URL.</returns>
     public static string TypeIndexUrl(string type) => $"{type}/index.html";
-
-    /// <summary>The URL of the ballots page.</summary>
-    /// <returns>The ballots URL.</returns>
-    public static string BallotsUrl() => "ballots/index.html";
 
     /// <summary>The URL of an actor's lens page.</summary>
     /// <param name="actorId">The actor id.</param>

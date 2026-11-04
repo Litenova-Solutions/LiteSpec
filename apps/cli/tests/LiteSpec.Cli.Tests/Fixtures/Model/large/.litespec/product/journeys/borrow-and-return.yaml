@@ -1,10 +1,8 @@
 type: journey
 id: journey/borrow-and-return
 title: Borrow and return
-owner: lending-team
-status: approved
 actor: actor/reader
-description: A reader borrows a copy from the shelf and returns it to the desk. The walk starts when the reader takes the copy and ends with the copy back on its shelf. A good walk keeps each loan inside its due date, because overdue loans block the next reader.
+summary: A reader borrows a copy from the shelf and returns it to the desk. The walk starts when the reader takes the copy and ends with the copy back on its shelf. A good walk keeps each loan inside its due date, because overdue loans block the next reader.
 serves:
   - goal/faster-pickup
 finishedWhen: The reader holds the copy, then the copy sits back on its shelf.
@@ -38,6 +36,3 @@ steps:
     actor: actor/librarian
 cites:
   - requirement/borrowing.max-active-loans
-approvedBy: lending-team
-approvedOn: 2026-10-01
-approvedHash: 76ca9c3a

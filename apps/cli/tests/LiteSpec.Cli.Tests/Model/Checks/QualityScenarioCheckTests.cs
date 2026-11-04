@@ -14,7 +14,6 @@ public sealed class QualityScenarioCheckTests
     [InlineData("environment")]
     [InlineData("response")]
     [InlineData("measure")]
-    [InlineData("dueBy")]
     // The InlineData values name each omitted scenario field case.
     public void Quality_Requirement_Missing_Field_Reports_Record_Shape(string field)
     {
@@ -47,7 +46,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
@@ -62,7 +61,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()),
-            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
@@ -90,21 +89,18 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()),
-            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
-    /// <summary>A quality requirement carrying every scenario field except the missing ones, as a draft.</summary>
+    /// <summary>A quality requirement carrying every scenario field except the missing ones.</summary>
     /// <param name="missing">The scenario fields to omit from the requirement.</param>
     /// <returns>The requirement fields as JSON.</returns>
     static string QualityJson(params string[] missing)
     {
         var fields = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["status"] = "draft",
-            ["decider"] = "lending-team",
-            ["decideBy"] = "2035-06-01",
             ["kind"] = "quality",
             ["statement"] = "Checkout answers within two seconds at peak.",
             ["rationale"] = "The sale crowds the checkout.",

@@ -29,22 +29,46 @@ public sealed class InitCommandTests
         Assert.Equal(expected, paths.ContainsKey("uiPatterns"));
     }
 
-    /// <summary>Init fills the project name and lists the placeholders left to fill.</summary>
+    /// <summary>Init fills the project name and leaves no placeholder to fill.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
-    [Fact(DisplayName = "init fills the project name and lists the placeholders left to fill")]
-    public void InitFillsTheProjectNameAndListsPlaceholders()
+    [Fact(DisplayName = "init fills the project name and leaves no placeholder to fill")]
+    public void InitFillsTheProjectNameAndLeavesNoPlaceholders()
     {
         using var consumer = Cli.Temp("init-placeholders");
 
         var result = Cli.Run("init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path, "--name", "shop");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Fill these placeholders before validating: __OWNER__.", result.Stdout, StringComparison.Ordinal);
+        Assert.DoesNotContain("Fill these placeholders before validating", result.Stdout, StringComparison.Ordinal);
         var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json"));
         Assert.Contains("\"apps/api/shop.slnx\"", text, StringComparison.Ordinal);
         Assert.Contains("\"@shop/ui\"", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__PROJECT__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("fixture", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>Init lists a template placeholder it cannot fill.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init lists a template placeholder it cannot fill")]
+    public void InitListsAnUnfilledPlaceholder()
+    {
+        using var home = Cli.Temp("init-home");
+        using var consumer = Cli.Temp("init-consumer");
+        FixtureHome(home.Path);
+        var templatePath = Path.Combine(home.Path, "templates", "consumer", "project.json");
+        File.WriteAllText(
+            templatePath,
+            File.ReadAllText(templatePath).Replace(
+                "\"selectedExtensions\": []",
+                "\"selectedExtensions\": [],\n              \"note\": \"__EXAMPLE__\"",
+                StringComparison.Ordinal));
+
+        var result = Cli.Run(
+            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("Fill these placeholders before validating: __EXAMPLE__.", result.Stdout, StringComparison.Ordinal);
     }
 
     /// <summary>Init writes a capitalized project name as a lowercase package scope.</summary>

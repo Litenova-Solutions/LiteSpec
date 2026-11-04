@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { book, n0, STATUS_KEYS, type Human } from "$lib/book";
+  import { book, n0 } from "$lib/book";
   import Icon from "$lib/components/book/Icon.svelte";
   import { cn } from "$lib/utils";
-  import { ballotItems, securityItems } from "./rows";
+  import { securityItems } from "./rows";
 
   // The filter panel, the active filter chips and the shown line with the
-  // status legend beneath the navigation tools.
+  // row-mark legend beneath the navigation tools.
   interface FacetVal { value: string; name: string; count: number; on: boolean }
   interface FacetModel { key: string; label: string; vals: FacetVal[] }
   const facets = $derived.by((): FacetModel[] => {
@@ -26,8 +26,6 @@
       if (f.key === "type") {
         const order = Object.keys(book.lex.types ?? {});
         vals.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-      } else if (f.key === "status") {
-        vals.sort((a, b) => STATUS_KEYS.indexOf(a as Human) - STATUS_KEYS.indexOf(b as Human));
       } else {
         vals.sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0));
       }
@@ -40,12 +38,6 @@
     const out: { key: string; value: string; label: string; name: string }[] = [];
     for (const f of book.facets) for (const v of book.active[f.key] ?? []) out.push({ key: f.key, value: v, label: f.label, name: f.name(v) });
     return out;
-  });
-  const ballotCounts = $derived.by(() => {
-    if (book.view !== "ballots") return { all: 0, open: 0 };
-    void book.rev;
-    const all = ballotItems(book);
-    return { all: all.length, open: all.filter((x) => !book.answered[x.id + "#" + x.i]).length };
   });
   const securityCount = $derived.by(() => {
     if (book.view !== "security") return 0;
@@ -109,12 +101,8 @@
   </div>
 {/if}
 <div class="mt-2 text-xs text-muted-foreground">
-  {#if book.view === "ballots"}
-    <b class="font-medium text-foreground tabular-nums">{ballotCounts.open}</b> open of {ballotCounts.all} questions, grouped by risk class
-  {:else if book.view === "queue"}
-    The review queue: every draft and reopened record, in approval batches
-  {:else if book.view === "security"}
-    <b class="font-medium text-foreground tabular-nums">{securityCount}</b> items in the queue
+  {#if book.view === "security"}
+    <b class="font-medium text-foreground tabular-nums">{securityCount}</b> security items
   {:else if book.anyFilter()}
     <b class="font-medium text-foreground tabular-nums">{n0(outlineCounts.n)}</b> of {n0(outlineCounts.total)} records match
   {:else}
@@ -123,9 +111,7 @@
 </div>
 {#if book.view === "outline"}
   <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 border-t pt-3 text-xs text-muted-foreground">
-    <span class="inline-flex items-center gap-[5px]"><span class="grid text-rule-foreground"><Icon name="draft" class="size-3.5" /></span>Draft</span>
-    <span class="inline-flex items-center gap-[5px]"><span class="grid text-convention-foreground"><Icon name="approved" class="size-3.5" /></span>Approved or reviewed</span>
-    <span class="inline-flex items-center gap-[5px]"><span class="grid text-muted-foreground"><Icon name="inherited" class="size-3.5" /></span>Held by a draft</span>
     <span class="inline-flex items-center gap-[5px]"><span class="grid text-warn-foreground"><Icon name="missing" class="size-3.5" /></span>Not implemented or not tested</span>
+    <span class="inline-flex items-center gap-[5px]"><span class="grid text-warn-foreground"><Icon name="flask" class="size-3.5" /></span>A test fails</span>
   </div>
 {/if}

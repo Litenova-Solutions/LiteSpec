@@ -1,10 +1,6 @@
 ---
 type: reference
 title: Error Codes
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 ---
 # Error Codes
 

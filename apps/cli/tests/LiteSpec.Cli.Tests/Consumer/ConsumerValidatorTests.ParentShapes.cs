@@ -15,7 +15,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"description":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         TestRecords.Explain(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.md",
@@ -32,25 +32,25 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","description":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'destination'");
     }
 
-    /// <summary>Feature carrying its lifecycle and advances.</summary>
-    /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
-    [Fact(DisplayName = "feature carrying its lifecycle and advances")]
-    public void FeatureCarryingItsLifecycleAndAdvances()
+    /// <summary>Feature carrying its offering and advances.</summary>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-offering</proves>
+    [Fact(DisplayName = "feature carrying its offering and advances")]
+    public void FeatureCarryingItsOfferingAndAdvances()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","offering":"Managers get a reminder for claims waiting past three days.","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>Feature carrying a field its type does not declare.</summary>
-    /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-offering</proves>
     [Fact(DisplayName = "feature carrying a field its type does not declare")]
     public void FeatureCarryingAnUndeclaredField()
     {
@@ -58,7 +58,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","offering":"Managers get a reminder for claims waiting past three days.","lifecycle":"shipped","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 

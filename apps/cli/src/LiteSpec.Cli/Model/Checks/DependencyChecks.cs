@@ -12,10 +12,10 @@ namespace LiteSpec.Model.Checks;
 /// <follows>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</follows>
 internal static class DependencyChecks
 {
-    /// <summary>The six facts every admits entry names.</summary>
+    /// <summary>The four facts every admits entry names.</summary>
     private static readonly string[] AdmissionFacts =
     [
-        "layer", "license", "location", "accountOwner", "failureBehavior", "operatingCost",
+        "layer", "license", "location", "failureBehavior",
     ];
 
     /// <summary>SPDX expression operators: every other token is a license identifier.</summary>
@@ -92,7 +92,7 @@ internal static class DependencyChecks
 
 
     /// <summary>
-    ///     Every admission: the admits entries of the technical decisions that are not retired.
+    ///     Every admission: the admits entries of the technical decisions.
     /// </summary>
     /// <param name="model">The loaded project model that holds every technical decision record.</param>
     /// <returns>Each admitted package with its ecosystem, name and admitted license where one is named.</returns>
@@ -103,7 +103,6 @@ internal static class DependencyChecks
         foreach (var record in model.Records)
         {
             if (record.Type != RecordTypes.Decision
-                || record.Status == RecordStatuses.Retired
                 || !MarkChecks.UnderImplementationDecisions(model.Config, record.File)
                 || record.Raw.ValueKind != JsonValueKind.Object
                 || !record.Raw.TryGetProperty(RecordFields.Admits, out var admits)
@@ -221,7 +220,7 @@ internal static class DependencyChecks
         return identifiers.Count > 0 && identifiers.All(accepted.Contains);
     }
 
-    /// <summary>Reports every admits entry missing any of its six facts.</summary>
+    /// <summary>Reports every admits entry missing any of its four facts.</summary>
     /// <param name="model">The loaded project model that holds every technical decision record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckAdmissionsComplete(ProjectModel model, List<Finding> findings)
@@ -229,7 +228,6 @@ internal static class DependencyChecks
         foreach (var record in model.Records)
         {
             if (record.Type != RecordTypes.Decision
-                || record.Status == RecordStatuses.Retired
                 || !MarkChecks.UnderImplementationDecisions(model.Config, record.File)
                 || record.Raw.ValueKind != JsonValueKind.Object
                 || !record.Raw.TryGetProperty(RecordFields.Admits, out var admits)

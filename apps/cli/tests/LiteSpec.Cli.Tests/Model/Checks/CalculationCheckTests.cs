@@ -92,25 +92,6 @@ public sealed class CalculationCheckTests
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Retired Scenario With Examples Does Not Cover.</summary>
-    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
-    [Fact]
-    public void Retired_Scenario_With_Examples_Does_Not_Cover()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            Rule(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""),
-            TestModel.Record(
-                "scenario",
-                "scenario/borrow-copy.late-fee-examples-hold",
-                Path.Combine(temp.Path, "borrow.md"),
-                """{"status": "retired", "given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
-
-        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
-    }
-
     static Record Rule(string root) =>
         TestModel.Record(
             "rule",

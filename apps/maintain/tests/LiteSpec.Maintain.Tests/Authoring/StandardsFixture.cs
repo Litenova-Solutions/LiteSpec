@@ -225,11 +225,6 @@ static class StandardsFixture
           "type": "research",
           "id": "research/sample-study",
           "title": "Sample Study",
-          "owner": "LiteSpec maintainer",
-          "status": "draft",
-          "decider": "LiteSpec maintainer",
-          "decideBy": "2026-11-30",
-          "question": "What does the sample show?",
           "conclusion": "The sample shows one finding.",
           "sources": [
             {
@@ -246,10 +241,6 @@ static class StandardsFixture
           "type": "decision",
           "id": "decision/0001-sample-choice",
           "title": "Sample Choice",
-          "owner": "LiteSpec maintainer",
-          "status": "draft",
-          "decider": "LiteSpec maintainer",
-          "decideBy": "2026-11-30",
           "options": [
             {
               "name": "Keep the sample",
@@ -435,7 +426,7 @@ static class StandardsFixture
         Write(root, "docs/tutorial/sample.md", TutorialPage);
         Write(root, "docs/reference/sample.md", ReferencePage);
         Write(root, "docs/tools/sample.md", CommandPage);
-        Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Topic\n\nA bounded standards subject.\n");
+        Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Sample\n\nOne sample term.\n");
         RebuildIndex(root);
     }
 

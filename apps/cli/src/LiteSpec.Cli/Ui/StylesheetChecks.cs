@@ -147,13 +147,12 @@ sealed class StylesheetChecks
     public void ValidateGlobalCss(string file, string platform)
     {
         _ = platform;
-        var label = session.RelativeToRoot(file);
         var text = File.ReadAllText(file);
         var malformed = false;
         var structure = CssStructure(text, reason =>
         {
             malformed = true;
-            session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: global CSS has {reason}");
+            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] global CSS has {reason}", file);
         });
         var depth = 0;
         foreach (var character in structure)
@@ -168,7 +167,7 @@ sealed class StylesheetChecks
                 depth--;
                 if (depth < 0)
                 {
-                    session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: closing brace has no matching opening brace");
+                    session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] closing brace has no matching opening brace", file);
                     malformed = true;
                     break;
                 }
@@ -177,7 +176,7 @@ sealed class StylesheetChecks
 
         if (!malformed && depth != 0)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: global CSS has an unclosed block");
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] global CSS has an unclosed block", file);
         }
 
         // The packages the manifest already pins. A pinned font family is a token, so
@@ -207,11 +206,11 @@ sealed class StylesheetChecks
 
             if (!pinned.Contains(packageName))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: import '{specifier}' is outside the approved global CSS surface");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] import '{specifier}' is outside the approved global CSS surface", file);
             }
         }
 
-        ClassifyGlobalCss(label, structure);
+        ClassifyGlobalCss(file, structure);
     }
 
     // A top-level classifier, not a CSS parser. It reports the statements the
@@ -221,9 +220,9 @@ sealed class StylesheetChecks
     /// <summary>
     ///     Reports the ungoverned statements of a global stylesheet.
     /// </summary>
-    /// <param name="label">The stylesheet label the findings name.</param>
+    /// <param name="file">The stylesheet as a full path.</param>
     /// <param name="stripped">The stylesheet structure.</param>
-    public void ClassifyGlobalCss(string label, string stripped)
+    public void ClassifyGlobalCss(string file, string stripped)
     {
         var depth = 0;
         var statement = new StringBuilder();
@@ -231,7 +230,7 @@ sealed class StylesheetChecks
         // The generated entry expresses its documented browser base rules with
         // '@apply' inside '@layer base'. That block is accepted generated source, the
         // same way upstream utility classes in installed components are. '@apply'
-        // anywhere else hides an unreviewed utility group.
+        // anywhere else hides a utility group outside the generated source.
         var topLevelOpener = "";
         var applyOutsideBase = false;
         foreach (var character in stripped)
@@ -241,7 +240,7 @@ sealed class StylesheetChecks
                 if (depth == 0)
                 {
                     topLevelOpener = statement.ToString().Trim();
-                    ReportGlobalStatement(label, statement.ToString());
+                    ReportGlobalStatement(file, statement.ToString());
                 }
 
                 depth++;
@@ -263,7 +262,7 @@ sealed class StylesheetChecks
 
             if (character == ';' && depth == 0)
             {
-                ReportGlobalStatement(label, statement.ToString());
+                ReportGlobalStatement(file, statement.ToString());
                 statement.Clear();
                 continue;
             }
@@ -278,16 +277,16 @@ sealed class StylesheetChecks
 
         if (applyOutsideBase)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: '@apply' outside the generated '@layer base' block hides an unreviewed utility group");
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#restrict-css-decisions] '@apply' outside the generated '@layer base' block hides a utility group outside the generated source", file);
         }
     }
 
     /// <summary>
     ///     Reports one ungoverned statement of a global stylesheet.
     /// </summary>
-    /// <param name="label">The stylesheet label the findings name.</param>
+    /// <param name="file">The stylesheet as a full path.</param>
     /// <param name="statement">The statement text.</param>
-    public void ReportGlobalStatement(string label, string statement)
+    public void ReportGlobalStatement(string file, string statement)
     {
         var value = statement.Trim();
         if (value.Length == 0)
@@ -311,7 +310,7 @@ sealed class StylesheetChecks
             var name = rest[..end];
             if (!AllowedGlobalAtRules.Contains(name))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: at-rule '@{name}' is outside the approved global CSS surface");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] at-rule '@{name}' is outside the approved global CSS surface", file);
             }
 
             return;
@@ -328,7 +327,7 @@ sealed class StylesheetChecks
 
             if (trimmed.StartsWith('.') || trimmed.StartsWith('#'))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#restrict-css-decisions] {label}: selector '{trimmed}' is a feature style; use a component variant or semantic token");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#restrict-css-decisions] selector '{trimmed}' is a feature style; use a component variant or semantic token", file);
             }
         }
     }
@@ -348,13 +347,12 @@ sealed class StylesheetChecks
     public void ValidateFrontendStylesheet(string file, string? packageRoot, JsonNode? package, string platform)
     {
         _ = platform;
-        var label = session.RelativeToRoot(file);
         var text = File.ReadAllText(file);
         var structure = CssStructure(text, _ => { });
         var imports = GlobalImport.Matches(text).Cast<Match>().Select(match => match.Groups[2].Value).ToList();
         if (imports.Count == 0)
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] {label}: imports no stylesheet; an application stylesheet imports the shared package's token stylesheet");
+            session.Add("ui-stylesheet-invalid", "[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] imports no stylesheet; an application stylesheet imports the shared package's token stylesheet", file);
             return;
         }
 
@@ -369,7 +367,7 @@ sealed class StylesheetChecks
 
             if (!value.StartsWith(prefix, StringComparison.Ordinal))
             {
-                session.Errors.Add($"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] {label}: import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] import '{value}' is outside the shared package '{JsonRead.Show(packageName)}'", file);
             }
         }
 
@@ -392,13 +390,13 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Errors.Add($"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] {label}: declares '{property}'; a value written in an application belongs in the shared package's tokens");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] declares '{property}'; a value written in an application belongs in the shared package's tokens", file);
             }
         }
 
         if (packageRoot is not null && !FileWalk.Within(Path.GetFullPath(session.Root), packageRoot))
         {
-            session.Errors.Add($"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] {label}: the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace");
+            session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] the shared package root '{JsonRead.Show(JsonRead.Child(package, "path"))}' is outside the workspace", file);
         }
     }
 
@@ -429,7 +427,6 @@ sealed class StylesheetChecks
                 continue;
             }
 
-            var label = session.RelativeToRoot(file);
             var structure = CssStructure(File.ReadAllText(file), _ => { });
             var reported = new HashSet<string>(StringComparer.Ordinal);
             foreach (Match match in LiteralColour.Matches(structure))
@@ -439,7 +436,7 @@ sealed class StylesheetChecks
                     continue;
                 }
 
-                session.Errors.Add($"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] {label}: literal color '{match.Value}' belongs in the token stylesheet");
+                session.Add("ui-stylesheet-invalid", $"[litespec/frontend/web/ui#keep-tokens-in-one-stylesheet] literal color '{match.Value}' belongs in the token stylesheet", file);
             }
         }
     }

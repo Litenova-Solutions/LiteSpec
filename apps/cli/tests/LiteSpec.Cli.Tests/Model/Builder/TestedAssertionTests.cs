@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -20,8 +21,10 @@ public sealed class TestedAssertionTests
         WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_stays_fast");
 
         using var document = Build(temp.Path);
+        var link = ProvesLink(document.RootElement, Requirement);
 
-        Assert.True(document.RootElement.GetProperty("tested").GetProperty(Requirement).GetBoolean());
+        Assert.True(link.GetProperty("confirmed").GetBoolean());
+        Assert.True(link.GetProperty("passing").GetBoolean());
     }
 
     /// <summary>A passing test without an assertion leaves its quality requirement untested.</summary>
@@ -35,8 +38,9 @@ public sealed class TestedAssertionTests
         WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_runs");
 
         using var document = Build(temp.Path);
+        var link = ProvesLink(document.RootElement, Requirement);
 
-        Assert.False(document.RootElement.GetProperty("tested").GetProperty(Requirement).GetBoolean());
+        Assert.False(link.GetProperty("confirmed").GetBoolean());
     }
 
     const string RequirementPath = ".litespec/intent/lending/performance.yaml";
@@ -58,11 +62,23 @@ public sealed class TestedAssertionTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
+    }
+
+    static JsonElement ProvesLink(JsonElement root, string claim)
+    {
+        foreach (var link in root.GetProperty("links").GetProperty("proves").EnumerateArray())
+        {
+            if (link.GetProperty("claim").GetString() == claim)
+            {
+                return link;
+            }
+        }
+
+        throw new InvalidOperationException($"No proves link claims '{claim}'.");
     }
 
     static void Write(string root, string relative, string text)
@@ -74,19 +90,14 @@ public sealed class TestedAssertionTests
 
     const string RequirementJson = """
         {
-          "type": "topic",
-          "id": "topic/performance",
+          "type": "feature",
+          "id": "feature/performance",
           "title": "Borrowing performance",
-          "owner": "lending-team",
-          "status": "approved",
-          "reviewBy": "2027-04-01",
           "records": [
             {
               "type": "requirement",
               "id": "requirement/performance.borrow-latency",
               "title": "Borrow latency",
-              "owner": "lending-team",
-              "status": "approved",
               "kind": "quality",
               "statement": "Borrowing answers fast.",
               "rationale": "Readers leave when borrowing is slow.",

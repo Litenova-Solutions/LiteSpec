@@ -11,14 +11,13 @@
   import Findings from "./Findings.svelte";
   import Header from "./Header.svelte";
   import LinksBlock from "./LinksBlock.svelte";
-  import Questions from "./Questions.svelte";
   import WhySections from "./WhySections.svelte";
   import { factsFor } from "./facts";
   import { leadTextOf, proseOf } from "./helpers";
   import { GenericType, TYPES } from "./types/index";
 
   // The record page: header, lead, completion, field table, evidence, the type
-  // content, Why sections, questions, findings, body sections and links.
+  // content, Why sections, findings, body sections and links.
   const id = $derived(book.selected);
   const r = $derived(id ? book.get(id) : undefined);
   const facts = $derived(r && id ? factsFor(r.type, id, r) : []);
@@ -63,7 +62,6 @@
   <Evidence {r} />
   <TypeContent {id} {r} />
   <WhySections {r} />
-  <Questions {id} {r} />
   <Findings {r} />
   <BodySections {r} />
   <LinksBlock {id} />

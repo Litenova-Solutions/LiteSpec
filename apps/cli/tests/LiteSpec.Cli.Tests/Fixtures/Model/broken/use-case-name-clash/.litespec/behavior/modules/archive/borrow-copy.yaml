@@ -1,8 +1,6 @@
 type: use-case
 id: use-case/archive.borrow-copy
 title: Borrow copy
-owner: lending-team
-status: reviewed
 kind: command
 access:
   grant: permission/borrow-copy
@@ -18,24 +16,12 @@ records:
   - type: result
     id: result/borrow-copy.archived
     title: Archived
-    owner: lending-team
     outcome: success
     meaning: The archived copy is lent.
-    approvedBy: lending-team
-    approvedOn: 2026-10-01
-    approvedHash: cc5d7d08
   - type: scenario
     id: scenario/borrow-copy.archiving-a-borrow-succeeds
     title: Archiving a borrow succeeds
-    owner: lending-team
-    status: reviewed
     given: An archived copy sits available.
     when: The reader borrows the copy.
     then: The loan is active.
     result: result/borrow-copy.archived
-    approvedBy: lending-team
-    approvedOn: 2026-10-01
-    approvedHash: 9d8e6c14
-approvedBy: lending-team
-approvedOn: 2026-10-31
-approvedHash: 6c78459e

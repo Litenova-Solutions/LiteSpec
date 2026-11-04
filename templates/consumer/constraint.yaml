@@ -1,20 +1,11 @@
 type: constraint
 id: constraint/tax-receipt-retention
 title: Tax Receipt Retention
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 summary: The national tax authority requires keeping every receipt for seven years.
 authority: The national tax authority receipt retention rules.
+readOn: 2026-10-12
 kind: legal
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursement.
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.

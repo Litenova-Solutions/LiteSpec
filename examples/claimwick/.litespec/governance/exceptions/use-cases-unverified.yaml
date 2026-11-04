@@ -1,8 +1,7 @@
 type: exception
 id: exception/use-cases-unverified
 title: Use Cases Unverified
-owner: claimwick-team
-status: approved
+summary: Claimwick ships no test run, so no scenario has a passing proof.
 kind: gap
 covers:
   - use-case-unverified
@@ -19,6 +18,3 @@ subject:
 reason: Claimwick ships no test run, so no scenario has a passing proof.
 exit: The gap closes when the example ships a test run whose passing proofs cover every scenario.
 expiresOn: 2027-06-01
-approvedBy: claimwick-team
-approvedOn: 2026-10-31
-approvedHash: 58d04f81

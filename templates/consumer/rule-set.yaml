@@ -1,9 +1,5 @@
 type: rule-set
 title: Spending Rules
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 summary: These rules keep expense totals consistent across aggregates.
 records:
   - type: rule
@@ -17,4 +13,4 @@ records:
     basedOn:
       - research/approval-time-benchmarks
     fulfills:
-      - requirement/approval.decided-within-five-days
+      - requirement/approval-reminders.decided-within-five-days

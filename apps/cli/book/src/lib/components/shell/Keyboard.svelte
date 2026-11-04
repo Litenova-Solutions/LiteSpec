@@ -5,21 +5,15 @@
   // Ctrl or Cmd K; shadcn closes its own overlays on Escape.
   let { focusSearch, openKeys }: { focusSearch: (select: boolean) => void; openKeys: () => void } = $props();
 
-  const views = ["outline", "queue", "security", "ballots"] as const;
+  const views = ["outline", "security"] as const;
 
   async function move(delta: number) {
     const list = book.navIds;
     const sel = book.selected;
-    const cur = book.view === "ballots" && book.focusQ !== null && sel ? sel + "|" + book.focusQ : (sel ?? "");
-    const i = list.indexOf(cur);
+    const i = list.indexOf(sel ?? "");
     const n = list[i + delta] ?? (i < 0 ? list[0] : undefined);
     if (!n) return;
-    if (n.includes("|")) {
-      const [id, q] = n.split("|");
-      await book.select(id, { q: +q });
-    } else {
-      await book.select(n);
-    }
+    await book.select(n);
     book.focusNavTick++;
   }
 
@@ -93,18 +87,6 @@
       }
       return;
     }
-    if (k === "n") {
-      const nx = book.nextNeeding(book.selected);
-      if (nx) {
-        await book.select(nx);
-        book.focusNavTick++;
-      }
-      return;
-    }
-    if (k === "a") {
-      if (sel) book.setVerdict(book.isBeh(sel) ? "mineR" : "mine");
-      return;
-    }
     if (k === "e") {
       book.expandAll();
       return;
@@ -113,7 +95,7 @@
       book.collapseAll();
       return;
     }
-    if (k >= "1" && k <= "4") {
+    if (k >= "1" && k <= "2") {
       void book.setView(views[+k - 1]);
     }
   }

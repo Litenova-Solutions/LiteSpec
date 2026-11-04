@@ -1,10 +1,6 @@
 type: reaction
 id: reaction/lending.retry-notice-on-loan-borrowed
 title: Sloppy retry
-owner: lending-team
-status: draft
-decider: lending-team
-decideBy: 2035-06-01
 triggeredBy:
   - event/loan.loan-borrowed
 fulfills:

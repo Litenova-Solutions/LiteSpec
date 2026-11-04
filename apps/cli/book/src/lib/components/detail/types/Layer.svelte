@@ -7,7 +7,7 @@
   import Block from "../blocks/Block.svelte";
   import Kv from "../blocks/Kv.svelte";
 
-  // A layer page: what the layer answers, who writes and reviews it, and its
+  // A layer page: what the layer answers, who writes it, and its
   // record types with the question each answers.
   let { id, r }: { id: string; r: BookRecord } = $props();
   const f = $derived(r.fields ?? {});
@@ -23,10 +23,7 @@
 {#if f.writes}
   <div class="mb-8">
     <Kv
-      pairs={[
-        { label: "Written by", html: esc(String(f.writes)) },
-        { label: "Reviewed by", html: esc(String(f.reviews ?? "")) },
-      ]}
+      pairs={[{ label: "Written by", html: esc(String(f.writes)) }]}
     />
   </div>
 {/if}

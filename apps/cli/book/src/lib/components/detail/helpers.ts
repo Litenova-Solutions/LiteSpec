@@ -3,7 +3,7 @@
 // opens, and explanations as data-explain, which the ExplainLayer shows.
 
 import { base, book, cap, plural, uniq } from "$lib/book";
-import type { Batch, BookRecord, Fields } from "$lib/book/types";
+import type { BookRecord, Fields } from "$lib/book/types";
 import { duration, editorHref, esc, inline, safeHref } from "$lib/book/html";
 
 export interface BodySection {
@@ -98,7 +98,7 @@ export function proseOf(r: BookRecord, name: string) {
 
 /** The explanation sections of a record. The CLI writes each as { h, html }. */
 export function secList(r: BookRecord): BodySection[] {
-  const list = (r.sections as { list?: unknown } | null)?.list;
+  const list = r.sections?.list;
   return Array.isArray(list) ? (list as BodySection[]) : [];
 }
 
@@ -153,7 +153,6 @@ export function whyPartsOf(r: BookRecord): WhyPart[] {
     ["reason", "Reason"],
     ["rationale", "Rationale"],
     ["appliesBecause", "Applies because"],
-    ["refusedBecause", "Refused because"],
   ];
   for (const [field, label] of rows) if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
   for (const s of secList(r)) if (WHY_SECTIONS.test(s.h) && (s.html || "").trim()) parts.push({ label: s.h, html: s.html });
@@ -183,7 +182,7 @@ export function resultInfoOf(scenarioId: string): ResultInfo | null {
   const q = rid ? book.get(rid) : undefined;
   if (!q) return null;
   const f = q.fields ?? {};
-  return { title: q.title, outcome: f.outcome, code: f.code, meaning: f.meaning };
+  return { title: q.title, outcome: String(f.outcome ?? ""), code: String(f.code ?? ""), meaning: String(f.meaning ?? "") };
 }
 
 export function refusalOf(ruleId: string): { info: ResultInfo | null; id: string | null } {
@@ -192,53 +191,7 @@ export function refusalOf(ruleId: string): { info: ResultInfo | null; id: string
   const rid = book.outs(base(ruleId), "refusal")[0];
   const q = rid ? book.get(rid) : undefined;
   const f = q?.fields ?? {};
-  return { info: q ? { title: q.title, outcome: "", code: f.code, meaning: f.meaning } : null, id: rid ?? null };
-}
-
-/** Why the record carries its status, in one sentence. */
-export function statusReasonHtml(id: string) {
-  const r = book.get(id);
-  if (!r) return "";
-  const f = r.fields ?? {};
-  if (r.status === "draft")
-    return (
-      "Waiting for " +
-      esc(r.decider || "a decider") +
-      (r.decideBy ? " to decide by " + book.fmtDate(r.decideBy) : "") +
-      (book.openQs(id).length ? ", with " + plural(book.openQs(id).length, "open question") : "")
-    );
-  if (r.effective === "draft") {
-    const held = Array.isArray(r.heldBy) ? (r.heldBy as unknown[]) : [];
-    return (
-      "Counts as draft while " +
-      (held.length
-        ? held.map((x) => inlineRefHtml(typeof x === "string" ? x : String((x as Fields)?.id ?? ""))).join(", ") + " draft"
-        : "a record above it is draft")
-    );
-  }
-  if (r.status === "retired") return "Replaced";
-  return f.approvedBy
-    ? (book.isBeh(id) ? "Reviewed by " : "Approved by ") + esc(f.approvedBy) + (f.approvedOn ? " on " + book.fmtDate(f.approvedOn) : "")
-    : "Settled";
-}
-
-export interface Completion {
-  stage: string;
-  proof: string;
-  heldBy: string[];
-  heldByMore: number;
-  counts: Record<string, { done?: unknown; of?: unknown }>;
-}
-
-export function completionOf(r: BookRecord): Completion | null {
-  const c = r.completion as Fields | null;
-  if (!c || typeof c !== "object") return null;
-  let held: string[] = [];
-  if (Array.isArray(c.heldBy)) held = (c.heldBy as unknown[]).map((x) => (typeof x === "string" ? x : String((x as Fields)?.id ?? (x as Fields)?.record ?? ""))).filter(Boolean);
-  else if (c.heldBy && Array.isArray((c.heldBy as Fields).ids)) held = ((c.heldBy as Fields).ids as string[]).slice();
-  const holder = c.heldBy as Fields | null;
-  const more = Number(c.heldByCount || c.heldByMore || (holder && !Array.isArray(holder) ? holder.more || holder.count : 0) || 0);
-  return { stage: String(c.stage ?? ""), proof: String(c.proof ?? ""), heldBy: held, heldByMore: more, counts: (c.counts as Completion["counts"]) ?? {} };
+  return { info: q ? { title: q.title, outcome: "", code: String(f.code ?? ""), meaning: String(f.meaning ?? "") } : null, id: rid ?? null };
 }
 
 export function teamValue(f: Fields) {
@@ -254,23 +207,6 @@ export function relationLabelOf(label: string, items: { id: string }[], selfType
     ? book.phraseFor(field, items.length ? book.typeOf(items[0].id) : null, "inverse")
     : book.phraseFor(field, selfType, "forward");
   return cap(String(phrase || field).replace(/^is\s+/i, "").replace(/^are\s+/i, ""));
-}
-
-/** A batch named by what it holds, as release.md describes the four kinds. */
-export function batchNameOf(b: Batch) {
-  const p = String(b.selector ?? "").split("/");
-  if (b.kind === "use-case") return "This use case with its results and scenarios";
-  if (b.kind === "decision") {
-    const dn = base(String(b.selector ?? "").replace(/^decision\//, ""));
-    return "Decision " + (book.has(dn) ? '"' + book.title(dn) + '"' : String(b.selector ?? "")) + " with what it decides";
-  }
-  if (b.kind === "record") return "This record on its own";
-  return "All draft " + String(book.pluralName(p[1] ?? "") || p[1] || "").toLowerCase() + (p[0] === "intent" || p[0] === "governance" ? "" : " in " + p[0].replace(/-/g, " "));
-}
-
-export function ballotNameOf(key: string) {
-  if (book.has(key)) return book.title(key);
-  return key.replace(/^decision\//, "").replace(/-/g, " ");
 }
 
 // ---------- behavior values ----------
@@ -433,4 +369,3 @@ export function serverLineInfo(b: string): { built: boolean; scenarios: number; 
 export function uniqStrings(xs: unknown[]) {
   return uniq(xs.filter(Boolean).map((x) => base(String(x))));
 }
-

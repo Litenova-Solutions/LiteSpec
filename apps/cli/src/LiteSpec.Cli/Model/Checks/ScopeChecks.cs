@@ -4,73 +4,20 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>
-///     The scope checks: no Intent area folder names running the company, and
-///     every runbook is named by an alert, a job, a reaction or a failure policy.
-/// </summary>
-/// <follows>litespec/core/scope#reject-company-areas-in-intent</follows>
+/// <summary>The scope checks: every runbook is named by an alert, a job, a reaction or a failure policy.</summary>
 /// <follows>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</follows>
 internal static class ScopeChecks
 {
-    /// <summary>The Intent area folder names that hold running the company instead of the product.</summary>
-    private static readonly HashSet<string> CompanyAreas = new(StringComparer.Ordinal)
-    {
-        "business", "company", "go-to-market", "markets", "roadmap",
-    };
-
-    /// <summary>Runs intent-area-invalid and runbook-unused.</summary>
+    /// <summary>Runs runbook-unused.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        CheckIntentAreas(model, findings);
         CheckRunbooksNamed(model, findings);
     }
 
-    /// <summary>Reports each record file under an Intent area folder that names running the company.</summary>
-    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckIntentAreas(ProjectModel model, List<Finding> findings)
-    {
-        var reported = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var record in model.Records)
-        {
-            if (AreaOf(model, record) is not { } area || !reported.Add(record.File))
-            {
-                continue;
-            }
-
-            findings.Add(new Finding(
-                "intent-area-invalid",
-                $"Intent area '{area}' holds record '{record.Id}' under a company area folder.",
-                record.File,
-                record.Line,
-                SubjectOf(record)));
-        }
-    }
-
-    /// <summary>The Intent area folder of the record, when its file sits under an Intent root in a forbidden area.</summary>
-    /// <param name="model">The loaded project model that supplies the consumer root.</param>
-    /// <param name="record">The record whose file is inspected.</param>
-    /// <returns>The forbidden area name, or null when the file sits in no forbidden Intent area.</returns>
-    private static string? AreaOf(ProjectModel model, Record record)
-    {
-        var segments = model.Config.Relative(record.File).Split('/');
-
-        for (var index = 0; index + 1 < segments.Length; index++)
-        {
-            if (segments[index] == "intent")
-            {
-                return CompanyAreas.Contains(segments[index + 1]) ? segments[index + 1] : null;
-            }
-        }
-
-        return null;
-    }
-
     /// <summary>Reports each runbook record that no alert, job, reaction or failure policy names.</summary>
-    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckRunbooksNamed(ProjectModel model, List<Finding> findings)
     {
@@ -78,7 +25,7 @@ internal static class ScopeChecks
 
         foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Runbook))
         {
-            if (record.Status == RecordStatuses.Retired || named.Contains(record.Id))
+            if (named.Contains(record.Id))
             {
                 continue;
             }
@@ -96,7 +43,7 @@ internal static class ScopeChecks
     }
 
     /// <summary>Every runbook identifier an alert, job, reaction or failure policy names.</summary>
-    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The runbook identifiers named by an alert label or by a runbook field in any record.</returns>
     private static HashSet<string> NamedRunbooks(ProjectModel model)
     {

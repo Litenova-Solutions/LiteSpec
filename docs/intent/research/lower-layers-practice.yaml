@@ -1,10 +1,6 @@
 type: research
 id: research/lower-layers-practice
 title: Lower Layers Practice
-owner: LiteSpec maintainer
-status: draft
-decider: LiteSpec maintainer
-decideBy: 2026-11-30
 sources:
   - url: https://cucumber.io/docs/gherkin/reference
     readOn: 2026-10-31
@@ -48,5 +44,5 @@ sources:
   - path: litespec.manifest.json
     readOn: 2026-10-31
     key: litespec-manifest
-question: What do outside practice and the 2026-10-31 review show about exceptions, approval, proof, tooling, and design wording below Intent?
-conclusion: The review confirms exceptions that are uneven and too wide, approval satisfiable without a second person, proof words that overclaim, tooling that fails open, and design departures without stated reasons, so one exception record, one approval path sized for one-person teams, tracked proof with four proof words, fail-closed checks, and renamed records follow.
+question: What do outside practice and the 2026-10-31 review show about exceptions, proof, tooling, and design wording below Intent?
+conclusion: The review confirms exceptions that are uneven and too wide, proof words that overclaim, tooling that fails open, and design departures without stated reasons, so one exception record, tracked proof with four proof words, fail-closed checks, and renamed records follow.

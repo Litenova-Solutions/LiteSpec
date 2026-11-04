@@ -11,7 +11,7 @@
   // message, and its check level.
   let { r }: { r: BookRecord } = $props();
   const list = $derived(((r.findings as Fields[] | undefined) ?? []) as Fields[]);
-  const TL: Record<string, string> = { G: "Blocks a release", S: "Blocks once approved", A: "Advice" };
+  const TL: Record<string, string> = { G: "Blocks a release", S: "Blocks when qualified", A: "Advice" };
 </script>
 
 {#if list.length}

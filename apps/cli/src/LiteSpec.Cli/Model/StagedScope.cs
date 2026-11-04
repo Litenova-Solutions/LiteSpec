@@ -3,10 +3,10 @@ using System.Diagnostics;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The git scopes for <c>model check --staged</c> and <c>model check --since</c>:
-///     the records on changed pages, plus their direct links in both directions and
-///     the records changed code implements. A finding is in scope when its path
-///     changed or its subject is.
+///     The git scope for <c>model check --since</c>: the records on changed
+///     pages, plus their direct links in both directions and the records
+///     changed code implements. A finding is in scope when its path changed
+///     or its subject is.
 /// </summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class StagedScope
@@ -19,34 +19,6 @@ static class StagedScope
         IReadOnlySet<string> RecordIds,
         IReadOnlySet<string> Files,
         int ChangedFiles);
-
-    /// <summary>
-    ///     Computes the scope from the git index, or null with an error when git is
-    ///     unavailable or the root sits outside a git repository.
-    /// </summary>
-    /// <param name="model">The built project model whose records are scoped.</param>
-    /// <returns>The computed scope, or a null scope with the error that stopped it.</returns>
-    public static (Scope? Scope, string Error) For(ProjectModel model)
-    {
-        var top = RunGit(model.Config.Root, "rev-parse", "--show-toplevel");
-
-        if (top.Status != 0)
-        {
-            return (null, $"Cannot read the git index: {Detail(top, "the root sits outside a git repository")}.");
-        }
-
-        var diff = RunGit(model.Config.Root, "diff", "--cached", "--name-only", "-z");
-
-        if (diff.Status != 0)
-        {
-            return (null, $"Cannot read the git index: {Detail(diff, "git diff failed")}.");
-        }
-
-        var staged = AbsolutePaths(top.Stdout.Trim(), diff.Stdout);
-        staged.RemoveWhere(path => IsToolOutput(model, path));
-
-        return (BuildScope(model, staged), "");
-    }
 
     /// <summary>
     ///     Computes the scope from what changed since the revision: the tracked files

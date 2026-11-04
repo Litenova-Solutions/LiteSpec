@@ -4,11 +4,10 @@ using System.Formats.Tar;
 namespace LiteSpec.Model.Diff;
 
 /// <summary>
-///     One loaded diff base: its model and its label. Disposing removes the
+///     One loaded comparison base: its model and its label. Disposing removes the
 ///     temporary folder of a git base; a folder base needs no cleanup.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
-/// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
+/// <follows>litespec/backend/identifiers#keep-wire-codes-stable</follows>
 sealed class DiffBase : IDisposable
 {
     /// <summary>
@@ -79,18 +78,6 @@ sealed class DiffBase : IDisposable
         return LoadRevision(headConfig, baseArg);
     }
 
-    /// <summary>The head name: the current branch, or the working tree outside git.</summary>
-    /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
-    /// <returns>The branch name, or working tree when no branch is checked out.</returns>
-    public static string HeadLabel(ConsumerConfig headConfig)
-    {
-        var branch = RunGit(headConfig.Root, "branch", "--show-current");
-
-        return branch.Status == 0 && branch.Stdout.Trim().Length > 0
-            ? branch.Stdout.Trim()
-            : "working tree";
-    }
-
     /// <summary>
     ///     The consumer folder the base argument names: the path itself or the folder beside the head root, or
     ///     null when neither exists.
@@ -155,7 +142,7 @@ sealed class DiffBase : IDisposable
             throw new InvalidOperationException($"Base '{baseArg}' could not be read: {archived.Error.Trim()}.");
         }
 
-        var temp = Directory.CreateTempSubdirectory("litespec-diff-").FullName;
+        var temp = Directory.CreateTempSubdirectory("litespec-base-").FullName;
 
         try
         {

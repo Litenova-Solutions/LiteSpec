@@ -11,9 +11,8 @@ namespace LiteSpec.Analyzers.Generation;
 /// <summary>
 /// The record facts the generator reads from the project file and the record files: the declared
 /// mark style, the event identifiers, each rule's refusal code, each permission with its scope,
-/// group and risks, each role with its scope and allowed permissions, each use case's access
-/// grant, and the project's vocabulary additions. Statuses never gate generation: a mark to a
-/// record of any status still resolves, and the checks own the reporting.
+/// group and risks, each role with its scope and allowed permissions, and each use case's
+/// access grant.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
@@ -29,10 +28,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         ImmutableArray<RuleCode>.Empty,
         ImmutableArray<PermissionFacts>.Empty,
         ImmutableArray<RoleFacts>.Empty,
-        ImmutableArray<UseCaseGrant>.Empty,
-        ImmutableArray<string>.Empty,
-        ImmutableArray<string>.Empty,
-        ImmutableArray<string>.Empty);
+        ImmutableArray<UseCaseGrant>.Empty);
 
     /// <summary>Initializes a new instance of the <see cref="RecordModel"/> class.Creates a record model.</summary>
     /// <param name="valid">Whether a project file was found and parsed.</param>
@@ -42,9 +38,6 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     /// <param name="permissions">Each permission with its scope, group and risks, sorted by id.</param>
     /// <param name="roles">Each role with its scope and allowed permissions, sorted by id.</param>
     /// <param name="grants">Each use case with an access grant, sorted by use case.</param>
-    /// <param name="verbs">The domain verbs the project adds to the baseline.</param>
-    /// <param name="queryVerbs">The project verbs that name a query.</param>
-    /// <param name="phrasalVerbs">The multi-word verbs counted as one opening.</param>
     public RecordModel(
         bool valid,
         MarkStyle style,
@@ -52,10 +45,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         ImmutableArray<RuleCode> ruleCodes,
         ImmutableArray<PermissionFacts> permissions,
         ImmutableArray<RoleFacts> roles,
-        ImmutableArray<UseCaseGrant> grants,
-        ImmutableArray<string> verbs,
-        ImmutableArray<string> queryVerbs,
-        ImmutableArray<string> phrasalVerbs)
+        ImmutableArray<UseCaseGrant> grants)
     {
         Valid = valid;
         Style = style;
@@ -64,9 +54,6 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         Permissions = permissions;
         Roles = roles;
         Grants = grants;
-        Verbs = verbs;
-        QueryVerbs = queryVerbs;
-        PhrasalVerbs = phrasalVerbs;
     }
 
     /// <summary>Gets a value indicating whether whether a project file was found and parsed.</summary>
@@ -89,15 +76,6 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
     /// <summary>Gets each use case with an access grant, sorted by use case.</summary>
     public ImmutableArray<UseCaseGrant> Grants { get; }
-
-    /// <summary>Gets the domain verbs the project adds to the baseline.</summary>
-    public ImmutableArray<string> Verbs { get; }
-
-    /// <summary>Gets the project verbs that name a query.</summary>
-    public ImmutableArray<string> QueryVerbs { get; }
-
-    /// <summary>Gets the multi-word verbs counted as one opening.</summary>
-    public ImmutableArray<string> PhrasalVerbs { get; }
 
     /// <summary>
     /// Reads the model from the additional files: the project file beside the consumer root, and
@@ -178,10 +156,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             RuleCodesOf(index),
             PermissionsOf(index),
             RolesOf(index),
-            GrantsOf(index, grants),
-            ImmutableArray.CreateRange(settings.Verbs),
-            ImmutableArray.CreateRange(settings.QueryVerbs),
-            ImmutableArray.CreateRange(settings.PhrasalVerbs));
+            GrantsOf(index, grants));
     }
 
     /// <inheritdoc />
@@ -193,10 +168,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         && RuleCodes.SequenceEqual(other.RuleCodes)
         && Permissions.SequenceEqual(other.Permissions)
         && Roles.SequenceEqual(other.Roles)
-        && Grants.SequenceEqual(other.Grants)
-        && Verbs.SequenceEqual(other.Verbs)
-        && QueryVerbs.SequenceEqual(other.QueryVerbs)
-        && PhrasalVerbs.SequenceEqual(other.PhrasalVerbs);
+        && Grants.SequenceEqual(other.Grants);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is RecordModel other && Equals(other);
@@ -233,21 +205,6 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             foreach (var grant in Grants)
             {
                 hash = hash * 31 + grant.GetHashCode();
-            }
-
-            foreach (var verb in Verbs)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
-            }
-
-            foreach (var verb in QueryVerbs)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
-            }
-
-            foreach (var verb in PhrasalVerbs)
-            {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
             }
 
             return hash;

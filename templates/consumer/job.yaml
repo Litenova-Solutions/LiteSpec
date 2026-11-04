@@ -1,12 +1,7 @@
 type: job
 id: job/spending.send-approver-reminders
 title: Send Approver Reminders
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
-purpose: No expense waits past its decision deadline.
-whatHappens: The job resends reminders for expenses still undecided after five days.
+summary: No expense waits past its decision deadline.
 kind: scheduled
 schedule:
   every: PT1H
@@ -25,7 +20,7 @@ effects:
   - sends: notification/spending.approval-reminder
     timing: async
 fulfills:
-  - requirement/approval.decided-within-five-days
+  - requirement/approval-reminders.decided-within-five-days
 serves:
   - journey/submit-and-reimburse#s2
 onFailure:
@@ -49,16 +44,8 @@ reads:
   - aggregate/spending.expense
 changes:
   - aggregate/spending.expense
-risk:
-  - personal-data
 terms:
   - term/expense
-questions:
-  - question: Which approver covers expenses above the receipt threshold?
-    decider: claimwick-team
-    decideBy: 2026-11-30
-    ballot: approval
-    recommendation: The finance lead approves expenses above the threshold.
 records:
   - type: scenario
     id: scenario/send-approver-reminders.undecided-expenses-reminded

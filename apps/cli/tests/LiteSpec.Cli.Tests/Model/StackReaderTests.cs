@@ -15,7 +15,7 @@ public sealed class StackReaderTests
     /// <param name="scenarios">The scenario count the case expects the build to print.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 72, 7, 0, 0)]
+    [InlineData("small", 73, 7, 0, 0)]
     [InlineData("large", 93, 7, 1, 9)]
     public void Build_Prints_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
     {
@@ -108,10 +108,8 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(1, run.GetProperty("failed").GetInt32());
 
-        var status = root.GetProperty("status");
-
-        Assert.True(status.GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
-        Assert.False(status.GetProperty("use-case/lending.return-copy").GetProperty("verified").GetBoolean());
+        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
     }
 
     /// <summary>A TRX file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
@@ -159,10 +157,8 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(1, run.GetProperty("failed").GetInt32());
 
-        var status = root.GetProperty("status");
-
-        Assert.True(status.GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
-        Assert.False(status.GetProperty("use-case/lending.return-copy").GetProperty("verified").GetBoolean());
+        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
     }
 
     /// <summary>A Playwright result verifies the browser-only use case and exercises its journey step.</summary>
@@ -213,9 +209,7 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(0, run.GetProperty("failed").GetInt32());
 
-        var status = root.GetProperty("status");
-
-        Assert.True(status.GetProperty("use-case/lending.review-loans").GetProperty("verified").GetBoolean());
+        Assert.Equal("proven", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
         Assert.Contains(
             "journey/borrow-and-return#s4",
             root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));
@@ -264,7 +258,7 @@ public sealed class StackReaderTests
         using var document = JsonDocument.Parse(File.ReadAllText(output));
         var root = document.RootElement;
 
-        Assert.False(root.GetProperty("status").GetProperty("use-case/lending.review-loans").GetProperty("verified").GetBoolean());
+        Assert.Equal("specified", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
         Assert.False(ProvesLink(root, "scenario/review-loans.reviewing-loans-succeeds").GetProperty("confirmed").GetBoolean());
     }
 
@@ -279,6 +273,19 @@ public sealed class StackReaderTests
         }
 
         throw new InvalidOperationException($"No proves link claims '{claim}'.");
+    }
+
+    static JsonElement CompletionOf(JsonElement root, string id)
+    {
+        foreach (var record in root.GetProperty("records").EnumerateArray())
+        {
+            if (record.GetProperty("id").GetString() == id)
+            {
+                return record.GetProperty("completion");
+            }
+        }
+
+        throw new InvalidOperationException($"No record holds '{id}'.");
     }
 
     const string BorrowScenarioJson = """

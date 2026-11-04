@@ -61,18 +61,9 @@ public sealed class FindingCodesTests
     [Theory]
     [InlineData("requirement-cites-missing", "A")]
     [InlineData("constraint-unreached", "G")]
-    [InlineData("parent-reopened", "A")]
     public void New_Intent_Codes_Have_Tiers(string code, string tier)
     {
         Assert.Equal(tier, Finding.Tiers[code]);
-    }
-
-    /// <summary>The value-style code reports at level A.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void Value_Invalid_Code_Is_Advisory()
-    {
-        Assert.Equal("A", Finding.Tiers["value-invalid"]);
     }
 
     /// <summary>Each new YAML finding code carries its contracted tier.</summary>
@@ -95,7 +86,6 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("reaction-name-invalid", "G")]
     [InlineData("job-name-invalid", "G")]
     [InlineData("reaction-trigger-unknown", "G")]
     [InlineData("job-guard-missing", "G")]
@@ -130,7 +120,7 @@ public sealed class FindingCodesTests
         Assert.Equal("S", Finding.Tiers["mark-folder-drift"]);
     }
 
-    /// <summary>Every finding code reads subject-problem with one of the fifteen problem words, beside the D37 proof code.</summary>
+    /// <summary>Every finding code reads subject-problem with one of the fourteen problem words, beside the D37 proof code.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]
     public void Codes_Follow_Subject_Problem_Grammar()
@@ -200,7 +190,7 @@ public sealed class FindingCodesTests
         return found;
     }
 
-    /// <summary>Whether the code ends with one of the fifteen problem words, or is the D37 proof code.</summary>
+    /// <summary>Whether the code ends with one of the fourteen problem words, or is the D37 proof code.</summary>
     /// <param name="code">The finding code under test.</param>
     /// <returns>True when the code follows the subject-problem grammar; otherwise false.</returns>
     static bool FollowsGrammar(string code)
@@ -211,16 +201,22 @@ public sealed class FindingCodesTests
             return true;
         }
 
+        // The model diff names a breaking contract change contract-break.
+        if (string.Equals(code, "contract-break", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
         var dash = code.LastIndexOf('-');
 
         return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
     }
 
-    /// <summary>Gets the fifteen problem words of the finding-code grammar.</summary>
+    /// <summary>Gets the fourteen problem words of the finding-code grammar.</summary>
     static HashSet<string> ProblemWords { get; } = new(StringComparer.Ordinal)
     {
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
-        "drift", "invalid", "duplicate", "clash", "expired", "reopened",
+        "drift", "invalid", "duplicate", "clash", "expired",
         "orphaned", "bare", "unused",
     };
 

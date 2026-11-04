@@ -233,12 +233,6 @@
       "replaces": [],
       "switchesOn": []
     },
-    "site": {
-      "path": "docs/ext/site.md",
-      "activationScope": "project",
-      "replaces": [],
-      "switchesOn": []
-    },
     "privacy": {
       "path": "docs/ext/privacy.md",
       "activationScope": "project",

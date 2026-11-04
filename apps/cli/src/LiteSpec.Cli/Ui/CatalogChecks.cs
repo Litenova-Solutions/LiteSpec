@@ -42,17 +42,17 @@ sealed class CatalogChecks
         var label = session.RelativeToRoot(file);
         if (!FileWalk.Exists(file))
         {
-            session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] pattern catalog: no catalog at '{relative}'");
+            session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] pattern catalog: no catalog at '{relative}'", file);
             return;
         }
 
-        var catalog = session.ReadJson(file, label);
+        var catalog = session.ReadJson(file, "ui-catalog-invalid");
         if (catalog is null)
         {
             return;
         }
 
-        session.SchemaCheck("ui-pattern-catalog.schema.json", catalog, label, "litespec/frontend/patterns#keep-one-pattern-catalog");
+        session.SchemaCheck("ui-pattern-catalog.schema.json", catalog, label, "litespec/frontend/patterns#keep-one-pattern-catalog", "ui-catalog-invalid");
 
         // A catalog that breaks the schema still reads below, so each access guards
         // its own shape rather than assuming the schema proved it.
@@ -94,13 +94,13 @@ sealed class CatalogChecks
             {
                 if (seenPatterns.Any(candidate => JsonRead.StrictEqual(candidate, id)))
                 {
-                    session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] {label}: duplicate pattern id '{JsonRead.Show(id)}'");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] duplicate pattern id '{JsonRead.Show(id)}'", file);
                 }
 
                 seenPatterns.Add(id);
             }
 
-            var where = $"{label}: pattern '{JsonRead.ShowOr(id, "(unnamed)")}'";
+            var where = $"pattern '{JsonRead.ShowOr(id, "(unnamed)")}'";
             var options = JsonRead.Child(pattern, "options").Node is JsonArray optionArray
                 ? optionArray.ToList()
                 : new List<JsonNode?>();
@@ -116,7 +116,7 @@ sealed class CatalogChecks
 
                 if (seenOptions.Any(candidate => JsonRead.StrictEqual(candidate, optionId)))
                 {
-                    session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] {where} has a duplicate option id '{JsonRead.Show(optionId)}'");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] {where} has a duplicate option id '{JsonRead.Show(optionId)}'", file);
                 }
 
                 seenOptions.Add(optionId);
@@ -125,26 +125,26 @@ sealed class CatalogChecks
             var group = JsonRead.Child(pattern, "group");
             if (group.Found && !groupIds.Any(candidate => JsonRead.StrictEqual(candidate, group)))
             {
-                session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: group '{JsonRead.Show(group)}' is not one of the catalog groups");
+                session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: group '{JsonRead.Show(group)}' is not one of the catalog groups", file);
             }
 
             var decisionOption = JsonRead.Dot(JsonRead.Child(pattern, "decision"), "option");
             if (decisionOption.Found && !optionIds.Any(candidate => JsonRead.StrictEqual(candidate, decisionOption)))
             {
-                session.Errors.Add($"[litespec/frontend/patterns#record-every-option-considered] {where}: decision.option '{JsonRead.Show(decisionOption)}' is not one of its options");
+                session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#record-every-option-considered] {where}: decision.option '{JsonRead.Show(decisionOption)}' is not one of its options", file);
             }
 
             var compact = JsonRead.Child(pattern, "compact");
             var breakpoint = JsonRead.Dot(compact, "breakpoint");
             if (breakpoint.Found && !(breakpoint.Node is JsonValue breakpointValue && breakpointValue.TryGetValue<string>(out var breakpointName) && breakpoints.Contains(breakpointName)))
             {
-                session.Errors.Add($"[litespec/frontend/patterns#declare-the-compact-behavior] {where}: compact.breakpoint '{JsonRead.Show(breakpoint)}' is not a key of breakpoints");
+                session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#declare-the-compact-behavior] {where}: compact.breakpoint '{JsonRead.Show(breakpoint)}' is not a key of breakpoints", file);
             }
 
             var compactOption = JsonRead.Dot(compact, "option");
             if (compactOption.Found && !optionIds.Any(candidate => JsonRead.StrictEqual(candidate, compactOption)))
             {
-                session.Errors.Add($"[litespec/frontend/patterns#declare-the-compact-behavior] {where}: compact.option '{JsonRead.Show(compactOption)}' is not one of its options");
+                session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#declare-the-compact-behavior] {where}: compact.option '{JsonRead.Show(compactOption)}' is not one of its options", file);
             }
 
             var extensions = JsonRead.Child(pattern, "extensions").Node is JsonArray extensionArray
@@ -155,7 +155,7 @@ sealed class CatalogChecks
                 var extensionOption = JsonRead.Child(extensions[index], "option");
                 if (extensionOption.Found && !optionIds.Any(candidate => JsonRead.StrictEqual(candidate, extensionOption)))
                 {
-                    session.Errors.Add($"[litespec/frontend/patterns#record-every-option-considered] {where}: extensions[{index}].option '{JsonRead.Show(extensionOption)}' is not one of its options");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#record-every-option-considered] {where}: extensions[{index}].option '{JsonRead.Show(extensionOption)}' is not one of its options", file);
                 }
             }
 
@@ -167,7 +167,7 @@ sealed class CatalogChecks
             {
                 if (Cited(libraryId) is not { } cited)
                 {
-                    session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: library '{libraryId}' is not a pattern on a LiteSpec pattern page");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: library '{libraryId}' is not a pattern on a LiteSpec pattern page", file);
                 }
                 else
                 {
@@ -183,7 +183,7 @@ sealed class CatalogChecks
 
                         if (optionName.Node is JsonValue nameValue && nameValue.TryGetValue<string>(out var name) && name != expected.Name)
                         {
-                            session.Errors.Add($"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: options[{index}].name '{name}' does not match the LiteSpec pattern option '{optionKey}' name '{expected.Name}'");
+                            session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] {where}: options[{index}].name '{name}' does not match the LiteSpec pattern option '{optionKey}' name '{expected.Name}'", file);
                         }
                     }
                 }
@@ -206,7 +206,7 @@ sealed class CatalogChecks
 
                         if (!FileWalk.Exists(session.FilePath(component)))
                         {
-                            session.Errors.Add($"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target}.components[{index}] does not exist '{component}'");
+                            session.Add("ui-catalog-invalid", $"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target}.components[{index}] does not exist '{component}'", file);
                         }
                     }
                 }
@@ -215,13 +215,13 @@ sealed class CatalogChecks
                 var status = JsonRead.Child(implementation, "status");
                 if (status is { Node: JsonValue statusValue } && statusValue.TryGetValue<string>(out var statusText) && statusText == "adopted" && (!components.Found || (components.Node is JsonArray adopted && adopted.Count == 0)))
                 {
-                    session.Errors.Add($"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target} has status 'adopted' with no components");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/web/patterns#implement-a-chosen-pattern-once] {target} has status 'adopted' with no components", file);
                 }
 
                 var gap = JsonRead.Child(implementation, "gap");
                 if (status is { Node: JsonValue gapStatusValue } && gapStatusValue.TryGetValue<string>(out var gapStatus) && (gapStatus == "partial" || gapStatus == "pending") && (gap.Node is null || (gap.Node is JsonValue gapValue && gapValue.TryGetValue<string>(out var gapText) && gapText.Length == 0)))
                 {
-                    session.Errors.Add($"[litespec/frontend/patterns#state-the-implementation-status] {target} has status '{JsonRead.Show(status)}' with no gap");
+                    session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#state-the-implementation-status] {target} has status '{JsonRead.Show(status)}' with no gap", file);
                 }
             }
         }

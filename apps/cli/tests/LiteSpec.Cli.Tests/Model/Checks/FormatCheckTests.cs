@@ -18,7 +18,7 @@ public sealed class FormatCheckTests
         File.WriteAllText(file, "title: Loan\ntype: aggregate\nid: aggregate/lending.loan\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "format-drift");
         Assert.Equal("A", finding.Tier);
@@ -36,10 +36,10 @@ public sealed class FormatCheckTests
         using var temp = Cli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan", "owner": "lending-team", "status": "draft", "kind": "entity"}""")!));
+        File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan", "kind": "entity"}""")!));
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
 
         Assert.DoesNotContain("format-drift", TestModel.Codes(model));
     }
@@ -55,7 +55,7 @@ public sealed class FormatCheckTests
         File.WriteAllText(file, "type: [unclosed\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
 
         Assert.DoesNotContain("format-drift", TestModel.Codes(model));
     }

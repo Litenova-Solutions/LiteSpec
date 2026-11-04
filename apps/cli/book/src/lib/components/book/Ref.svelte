@@ -2,10 +2,9 @@
   import { base, book } from "$lib/book";
   import { srcHref } from "$lib/book/html";
   import Icon from "./Icon.svelte";
-  import StatusIcon from "./StatusIcon.svelte";
   import TypeTag from "./TypeTag.svelte";
 
-  // A record as one line: type icon, title, type tag and status. An identifier that
+  // A record as one line: type icon, title and type tag. An identifier that
   // names no record in the book reads as itself, never as a link.
   let { id, sub = "" }: { id: string; sub?: string } = $props();
   const b = $derived(base(id));
@@ -20,7 +19,6 @@
       <Icon name={t} class="size-3.5 text-muted-foreground" />
       <span class="truncate">{book.title(b)}{#if sub}<span class="text-muted-foreground"> {sub}</span>{/if}</span>
       <TypeTag type={t} />
-      {#if r}<StatusIcon id={b} />{/if}
     </button>
     {#if href}
       <a {href} class="text-muted-foreground hover:text-foreground" title={"Open " + r?.src?.path + " in the editor"} aria-label="Open the source"><Icon name="ext" class="size-3.5" /></a>

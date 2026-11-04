@@ -1,0 +1,63 @@
+type: feature
+id: feature/approval
+title: Approval
+summary: Employees submit work expenses and wait for the money, managers decide each one, and finance reimburses the approved ones. Expenses arrive daily, and each one needs a timely decision with proof where the policy asks for it.
+offering: Employees submit expenses with receipts, managers decide each one within five business days, and finance reimburses and exports the approved ones.
+solves:
+  - problem/expenses-wait-weeks
+records:
+  - type: requirement
+    id: requirement/approval.decided-within-five-days
+    title: Decided Within Five Days
+    kind: functional
+    statement: Each submitted expense is decided within five business days.
+    rationale: Late decisions stall employees and payouts.
+    cites:
+      - feature/approval-reminders
+      - research/approval-time-benchmarks
+  - type: requirement
+    id: requirement/approval.receipt-over-threshold
+    title: Receipt over Threshold
+    kind: functional
+    statement: An expense above the receipt threshold carries a receipt.
+    rationale: Proof above the line keeps the tax file defensible.
+    cites:
+      - feature/approval-reminders
+      - constraint/tax-receipt-retention
+  - type: requirement
+    id: requirement/approval.no-self-approval
+    title: No Self Approval
+    kind: functional
+    statement: Nobody approves their own expense.
+    rationale: A second pair of eyes keeps approvals honest.
+    cites:
+      - feature/approval-reminders
+  - type: requirement
+    id: requirement/approval.single-reimbursement
+    title: Single Reimbursement
+    kind: functional
+    statement: An approved expense is reimbursed at most once.
+    rationale: A double payment is hard to take back.
+    cites:
+      - feature/approval-reminders
+  - type: requirement
+    id: requirement/approval.erase-after-retention
+    title: Erase After Retention
+    kind: functional
+    statement: The personal data of a decided expense is erased after its retention.
+    rationale: Past its need, personal data is a risk with no use.
+    cites:
+      - constraint/tax-receipt-retention
+  - type: requirement
+    id: requirement/approval.month-end-submissions
+    title: Month-end Submissions
+    kind: quality
+    statement: Each month-end submission is acknowledged within two seconds.
+    rationale: Month-end is the peak load the pilot must survive.
+    stimulus: Five hundred employees submit expenses in the last hour of the month
+    environment: Normal operation, one application instance down
+    response: Each submission is stored and acknowledged
+    measure: "Share of submissions acknowledged within two seconds: at least 99 percent"
+    check: month-end-load
+    cites:
+      - feature/approval-reminders

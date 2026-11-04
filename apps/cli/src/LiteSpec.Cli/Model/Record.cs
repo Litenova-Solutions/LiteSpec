@@ -14,29 +14,11 @@ sealed class Record : IRecordFacts
     /// <summary>Gets the identifier.</summary>
     public string Id { get; init; } = "";
 
+    /// <summary>Gets the qualified identifier, computed from the identifier segments plus placement and never written.</summary>
+    public string QualifiedId { get; init; } = "";
+
     /// <summary>Gets the display title.</summary>
     public string Title { get; init; } = "";
-
-    /// <summary>Gets the resolved owner: the entry's own, else its page's.</summary>
-    public string? Owner { get; init; }
-
-    /// <summary>Gets the resolved status: the entry's own, else its page's.</summary>
-    public string? Status { get; init; }
-
-    /// <summary>Gets the resolved decider.</summary>
-    public string? Decider { get; init; }
-
-    /// <summary>Gets the resolved decide-by date.</summary>
-    public string? DecideBy { get; init; }
-
-    /// <summary>Gets who approved or reviewed the record: an owner name, or auto (veto window).</summary>
-    public string? ApprovedBy { get; init; }
-
-    /// <summary>Gets the date the record was approved or reviewed.</summary>
-    public string? ApprovedOn { get; init; }
-
-    /// <summary>Gets the semantic hash the approval covers, written by the builder.</summary>
-    public string? ApprovedHash { get; init; }
 
     /// <summary>Gets a value indicating whether whether the builder derived the record rather than reading it from a page.</summary>
     public bool Derived { get; init; }

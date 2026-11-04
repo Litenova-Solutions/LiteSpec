@@ -1,8 +1,6 @@
 type: use-case
 id: use-case/lending.list-loans
 title: List loans
-owner: lending-team
-status: reviewed
 kind: query
 access:
   grant: permission/read-loans
@@ -33,12 +31,5 @@ records:
   - type: result
     id: result/list-loans.listed
     title: Listed
-    owner: lending-team
     outcome: success
     meaning: The loans are listed.
-    approvedBy: lending-team
-    approvedOn: 2026-10-01
-    approvedHash: 36e67f1d
-approvedBy: lending-team
-approvedOn: 2026-10-31
-approvedHash: 895dde0b

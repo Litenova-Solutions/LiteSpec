@@ -80,8 +80,7 @@ sealed class DependencyBoundaryChecks
     {
         foreach (var file in PackageManifests())
         {
-            var label = session.RelativeToRoot(file);
-            var packageJson = session.ReadJson(file, label);
+            var packageJson = session.ReadJson(file, "ui-dependency-invalid");
             if (packageJson is null)
             {
                 continue;
@@ -103,7 +102,7 @@ sealed class DependencyBoundaryChecks
             {
                 if (dependencies.TryGetValue(name, out var dependency) && JsonRead.Truthy(dependency))
                 {
-                    session.Errors.Add($"[litespec/frontend/ui#select-one-visual-authority] {label}: second general-purpose visual dependency '{name}' requires an exception");
+                    session.Add("ui-dependency-invalid", $"[litespec/frontend/ui#select-one-visual-authority] second general-purpose visual dependency '{name}' requires an exception", file);
                 }
             }
 

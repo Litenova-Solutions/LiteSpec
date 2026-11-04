@@ -1,0 +1,8 @@
+type: entry-point
+id: entry-point/claimwick-app
+title: Claimwick App
+kind: browser
+auth:
+  - session
+terms:
+  - term/expense

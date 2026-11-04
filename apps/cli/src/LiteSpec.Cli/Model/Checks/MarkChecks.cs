@@ -322,7 +322,7 @@ internal static class MarkChecks
     /// <summary>
     ///     Checks one <c>follows</c> mark on an element of any kind: it names a
     ///     provision of the carried release on an applied page, or a decision or
-    ///     exception that is not retired.
+    ///     exception.
     /// </summary>
     /// <param name="model">The loaded project model that resolves the followed record.</param>
     /// <param name="element">The marked code element that carries the mark.</param>
@@ -345,10 +345,6 @@ internal static class MarkChecks
             if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Exception))
             {
                 findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or exception.", mark.File, mark.Line, id));
-            }
-            else if (record.Status == RecordStatuses.Retired)
-            {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is retired.", mark.File, mark.Line, null));
             }
 
             return;
@@ -421,7 +417,7 @@ internal static class MarkChecks
     /// <summary>
     ///     Reports every technical decision no code element follows: a decision under
     ///     the project's implementation decisions folder that no <c>follows</c> mark
-    ///     names. Retired decisions need no follower.
+    ///     names.
     /// </summary>
     /// <param name="model">The loaded project model that holds every decision record and each follows mark.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -461,7 +457,7 @@ internal static class MarkChecks
 
         foreach (var record in model.Records)
         {
-            if (record.Type != RecordTypes.Decision || record.Status == RecordStatuses.Retired || !UnderImplementationDecisions(model.Config, record.File))
+            if (record.Type != RecordTypes.Decision || !UnderImplementationDecisions(model.Config, record.File))
             {
                 continue;
             }
@@ -583,7 +579,7 @@ internal static class MarkChecks
     }
 
     /// <summary>
-    ///     Whether the use case changes an entity or saga aggregate: one
+    ///     Whether the use case changes an entity aggregate: one
     ///     <c>changes</c> entry naming an aggregate whose kind is not
     ///     <c>store</c>. An aggregate with no declared kind is an entity; a
     ///     pass running other commands lists nothing in <c>changes</c>.
@@ -856,14 +852,14 @@ internal static class MarkChecks
                         screen.Frontend == frontend.Name
                         && screen.ScreenId is { } screenId
                         && model.ById.TryGetValue(screenId, out var screenRecord)
-                        && screenRecord.Ids(RecordFields.EntryPoint).Contains(entry, StringComparer.Ordinal)))
+                        && string.Equals(FrontendRecords.EntryPointOf(screenRecord), entry, StringComparison.Ordinal)))
                     .ToList();
 
                 if (serving.Count == 0)
                 {
                     if (!model.Screens.Any(screen => screen.UseCases.Contains(useCase.Id, StringComparer.Ordinal))
                         && !ScreenRecords(model).Any(screen =>
-                            screen.Ids(RecordFields.EntryPoint).Contains(entry, StringComparer.Ordinal)
+                            string.Equals(FrontendRecords.EntryPointOf(screen), entry, StringComparison.Ordinal)
                             && screen.Ids(RecordFields.Offers).Contains(useCase.Id, StringComparer.Ordinal)))
                     {
                         findings.Add(new Finding("use-case-unreached", $"Use case '{useCase.Id}' is reached through '{entry}', but no screen calls it.", useCase.File, useCase.Line, SubjectOf(useCase)));

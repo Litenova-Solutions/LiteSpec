@@ -1,10 +1,6 @@
 ---
 type: how-to
 title: Remind an Approver
-owner: claimwick-team
-status: draft
-decider: claimwick-team
-decideBy: 2026-12-15
 ---
 # Remind an Approver
 

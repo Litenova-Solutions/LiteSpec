@@ -1,8 +1,6 @@
 ---
 type: example-cast
 title: Example Cast
-owner: claimwick-team
-status: approved
 ---
 
 # Example Cast

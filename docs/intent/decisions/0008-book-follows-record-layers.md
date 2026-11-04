@@ -6,7 +6,7 @@ The outline places Behavior correctly but invents Intent groupings, splits the g
 
 ## Decision
 
-The book generator is rebuilt to the approved mockup, generated from the model: one offline shell with sharded data, every record placed once under its exported parent, and every unplaceable record reported as a finding instead of swept to a root.
+The book generator is rebuilt to the accepted mockup, generated from the model: one offline shell with sharded data, every record placed once under its exported parent, and every unplaceable record reported as a finding instead of swept to a root.
 
 ## Evidence with Confidence
 

@@ -2,13 +2,13 @@
 
 ## Intent
 
-Use Cases states what the system does and what it answers: the commands and queries, their verbs, inputs, effects, endings, scenarios, and the settings they read. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Use Cases states what the system does and what it answers: the commands and queries, their verbs, inputs, effects, endings, scenarios, and the settings they read. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
 ### Use Cases
 
-A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results. A use case may carry an optional `risk` from money, physical-access, personal-data, and access, as the [model page](model.md) states.
+A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results.
 
 | Field | Meaning |
 |:---|:---|
@@ -31,7 +31,7 @@ Each consistency mode defines its promise and the effect timings it permits:
 
 Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-`purpose` states the intent and `whatHappens` walks the steps. A significant use case carries `purpose`, and a significant command also carries `whatHappens`, as [Write Prose on Significant Use Cases](#write-prose-on-significant-use-cases) states; the fields plus `purpose` suffice elsewhere. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
+`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under What Happens in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
 
 ### Queries
 
@@ -46,7 +46,7 @@ A query reads without changing and declares what its readers receive. Its output
 
 ### Use-Case Verbs
 
-A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project adds its domain verbs in `.litespec/project.json` `vocabulary`, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
+A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project records its domain verbs as conventions, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
 
 | Verb | Kind | Means |
 |:---|:---|:---|
@@ -55,7 +55,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `search` | query | A page of records matching free text. |
 | `export` | query | A generated file of many records. |
 | `download` | query | The stored or rendered document of one record. |
-| `answer`, `draft`, `summarize`, `translate` | either | Text a model writes for a person to review. |
+| `answer`, `draft`, `summarize`, `translate` | either | Text a model writes for a person to check. |
 | `create` | command | A new aggregate root. |
 | `add`, `remove` | command | A part inside an existing record. |
 | `change` | command | Data of an existing record. |
@@ -63,7 +63,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `open`, `close` | command | A period, case or shift that runs between the two. |
 | `start`, `complete` | command | Work that runs to an end. |
 | `publish`, `withdraw` | command | What readers or the public can see. |
-| `pause`, `resume` | command | A temporary stop the owner chooses. |
+| `pause`, `resume` | command | A temporary stop a person chooses. |
 | `suspend`, `reinstate` | command | A stop an operator imposes. |
 | `enable`, `disable` | command | A switch. |
 | `grant`, `revoke` | command | Access. |
@@ -100,19 +100,19 @@ A scenario proves one ending: a child record with `given`, `when`, `then`, an op
 | Field | Meaning |
 |:---|:---|
 | `given`, `when`, `then` | The situation, the action, and the assertion. |
-| `examples` | The worked rows reviewers agreed. |
+| `examples` | The worked example rows. |
 | `result` | The written or derived result the scenario ends in. |
 | `exercises` | The rules the scenario shows, optional. |
 
 ### Settings
 
-A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A platform-wide setting lives in the `platform` module. The `setting-set` page style holds many settings. A setting set carries `purpose` and `whatHappens`, and its explanation file holds Notes.
+A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A product-wide setting lives at product level. The `setting-set` page style holds many settings. A setting set carries `summary`, and its explanation file holds Notes.
 
 | Field | Meaning |
 |:---|:---|
 | `valueType` | `integer`, `duration`, `money`, `boolean`, `text`, or `choice`. A money setting holds an amount with an ISO 4217 currency, as the [Record Language](language.md) states. |
 | `default`, `range`, `unit` | The value, the min-max or choices, and the unit. |
-| `setBy` | `decider`, `operator`, or `tenant`. |
+| `setBy` | `product`, `operator`, or `tenant`. |
 | `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`. Operator settings name it, as [Name the Configuration Key of Every Operator Setting](#name-the-configuration-key-of-every-operator-setting) states. |
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
@@ -134,13 +134,13 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#start-every-use-case-with-a-declared-verb`
 
-**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `.litespec/project.json`.
+**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project records as conventions.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first adds it to `vocabulary.verbs` in `.litespec/project.json` in the same change, or to `vocabulary.queryVerbs` for a reading verb, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the vocabulary addition lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first records it as a convention in the same change, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the convention lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
 
-**Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
+**Example:** The project records `borrow` and `check-in` as domain verbs, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline vocabulary and the project verbs.
+**Reviewed for:** Which use-case names open outside the baseline vocabulary and the recorded project verbs? Look at the first word of each use-case name.
 
 ### Keep One Kind per Verb
 
@@ -148,11 +148,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST open with a verb of its own kind, or with an either verb.
 
-**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-invalid` check reports a use case whose verb names the other kind.
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project records which of its domain verbs read; its other domain verbs open either kind. The `use-case-verb-invalid` check reports a use case whose verb names the other kind.
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.answer-inquiry` opens either kind on an either verb and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 
-**Checked by:** `litespec model check` reports `use-case-verb-invalid` for a query opening with a changing verb or a command opening with a reading verb.
+**Reviewed for:** Which queries open with a changing verb, or which commands open with a reading verb? Look at the first word of each use-case name beside its kind.
 
 ### Name What a Use Case Acts on from the Model
 
@@ -164,7 +164,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Example:** `use-case/lending.borrow-copy` names the copy aggregate, and `use-case/sales.add-line` names the declared line part; `use-case/lending.borrow-volume` names no model word and is reported.
 
-**Checked by:** `litespec model check` reports `use-case-noun-unknown` (level A) for a use case naming no aggregate, declared part, or glossary term after its verb.
+**Reviewed for:** Which use-case names carry no aggregate, declared part, or glossary term after their verb? Look at the words after the verb in each use-case name.
 
 ### Name a Use Case for the Act Its Aggregate Performs
 
@@ -176,7 +176,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported; the project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
 
-**Checked by:** `litespec model check` reports `use-case-method-drift` (level A) for a command handler calling aggregate methods, none starting with the use-case verb or with `Request`.
+**Reviewed for:** Which command handlers call aggregate methods starting with neither the use-case verb nor `Request`? Look at the methods each command handler calls.
 
 ### Connect Each Use Case to Intent
 
@@ -196,7 +196,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
-**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who may act and how far the call reaches beside the behavior. The [Access page](access.md) states the grant forms and the tenant meanings, and the door the call arrives through states how the caller proved identity. Tenant scope `cross` routes the use case to the security queue, as `litespec/core/access#route-cross-tenant-access-through-the-security-queue` states. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
+**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who may act and how far the call reaches beside the behavior. The [Access page](access.md) states the grant forms and the tenant meanings, and the door the call arrives through states how the caller proved identity. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
 
 **Example:** The reimburse-expense command declares the reimburse-expense permission with own tenant scope, reached through a session door, while the self-checkout scan declares a system grant through a device door.
 
@@ -208,7 +208,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
-**Rationale:** A use case with no named door is reachable from anywhere or nowhere: reviewers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction, a job, a saga step or another use case runs has no door of its own, and its `runs` edge already shows how it is reached.
+**Rationale:** A use case with no named door is reachable from anywhere or nowhere: readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction, a job, or another use case runs has no door of its own, and its `runs` edge already shows how it is reached.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point.
 
@@ -218,7 +218,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use-case input MUST declare its name, meaning, type, origin, and classification.
 
-**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, and `id`, the origin of `caller`, `claim`, or `derived`, and the classification states what arrives, what it is, and how far to trust it. An `id` field names the record it refers to in `of`, and a `choice` field names its choices there; other types carry no `of`. `required` states whether the caller sends the field, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time.
+**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the type from `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, and `id`, the origin of `caller`, `claim`, or `derived`, and the classification states what arrives, what it is, and how far to trust it. An `id` field names the record it refers to in `of`, and a `choice` field names its choices there; other types carry no `of`. `required` states whether the caller sends the field, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. A type on each field lets the builder compare the records with the generated contract and lets agents generate the right code first time. Settled by [decision/0016-typed-contracts-and-privacy](decision/0016-typed-contracts-and-privacy) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:**
 
@@ -249,7 +249,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST name every aggregate it changes in `changes` and every aggregate it reads in `reads`.
 
-**Rationale:** A write no record names is invisible to review: the handler touches a second aggregate, the second aggregate changes under its reviewers, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `changes`.
+**Rationale:** A write no record names is invisible: the handler touches a second aggregate, the second aggregate changes, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `changes`.
 
 **Checked by:** `litespec model check` reports `write-undeclared` for a write outside `changes` and `reference-unknown` for an unknown aggregate.
 
@@ -259,7 +259,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST declare its write consistency in `consistency`.
 
-**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` commits every write in `changes` as one group, `per-record` commits each write on its own, and `compensated` names the undo of each write. An atomic write across aggregates cites its `atomicity` rule in `cites`, and `changes` holds exactly the aggregates the rule binds; a group above 4 aggregates is a saga candidate. Atomic consistency never spans an `async` edge. The [Domain Model page](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `cites`, `atomic-group-drift` reports `changes` differing from the bound group, and `atomic-group-invalid` reports a group above 4 aggregates.
+**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` commits every write in `changes` as one group, `per-record` commits each write on its own, and `compensated` names the undo of each write. An atomic write across aggregates cites its `atomicity` rule in `cites`, and `changes` holds exactly the aggregates the rule binds; a group above 4 aggregates is reported. Atomic consistency never spans an `async` edge. The [Domain Model page](domain-model.md) states the `atomicity` rule. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `cites`, `atomic-group-drift` reports `changes` differing from the bound group, and `atomic-group-invalid` reports a group above 4 aggregates.
 
 **Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
@@ -343,9 +343,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#justify-every-wider-visibility`
 
-**Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the approved requirement widening it in `cites`.
+**Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the requirement widening it in `cites`.
 
-**Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `cites` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
+**Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement states the view. Citing the requirement in `cites` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
 
 **Checked by:** `litespec model check` reports `widening-cites-missing` for a widened include group with no cited requirement.
 
@@ -391,7 +391,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Example:** `spending.receipt-missing` names the missing receipt; `spending.receipt-invalid` hides the state behind a vague word and is reported.
 
-**Checked by:** `litespec model check` reports `refusal-code-invalid` (level A) for a refusal code outside its module, outside kebab-case, or carrying a vague word.
+**Reviewed for:** Which refusal codes fall outside `<module>.<noun>-<state>` or hide their state behind a vague word? Look at the refusal codes on each use-case page.
 
 ### Retire Refusal Codes with Their Replacements
 
@@ -519,15 +519,17 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Reviewed for:** Which use cases repeat shared setup across scenarios instead of holding it in `background`? Look at the givens beside each use-case page.
 
-### Write Prose on Significant Use Cases
+### Write Prose on Every Use Case
 
-**ID:** `litespec/core/use-cases#write-prose-on-significant-use-cases`
+**ID:** `litespec/core/use-cases#write-prose-on-every-use-case`
 
-**Statement:** Each use case changing more than one aggregate, refusing beyond the generic refusals, carrying risk, or running effects inline MUST carry `purpose` on every kind and `whatHappens` on a command.
+**Statement:** Each use case MUST carry `summary`.
 
-**Rationale:** Prose on every use case buries the significant ones: a simple read carries fields saying what the record already says. Requiring `purpose` on every significant use case and `whatHappens` beside it on a command keeps prose where judgment lives. The `prose-missing` check reports a significant use case without its prose as advisory.
+**Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under What Happens in the explanation file beside a command, where they stay readable without a shape a check must parse.
 
-**Checked by:** `litespec model check` reports `prose-missing` for a significant use case without `purpose` and for a significant command without `whatHappens`.
+**Example:** The submit-expense summary states that an employee files a work expense for approval, and its What Happens section walks validation, storage, and the approver notice in order.
+
+**Checked by:** `litespec model check` reports `prose-missing` for a use case without `summary`.
 
 ### Hold Every Setting Default to a Requirement
 
@@ -535,9 +537,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
-**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of decider, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-requirement-missing` check reports such a default with no cited requirement.
+**Rationale:** A default no requirement holds is a figure nobody stated: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of product, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-requirement-missing` check reports such a default with no cited requirement.
 
-**Example:** The receipt threshold declares money with a decider-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
+**Example:** The receipt threshold declares money with a product-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
 **Checked by:** `litespec model check` reports `setting-requirement-missing` for a commercial, legal, or varying default with no cited requirement.
 
@@ -547,7 +549,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST name the settings it reads in `reads`.
 
-**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](decision/0012-use-cases-read-their-settings) on the evidence in [research/behavior-containment-evidence](research/behavior-containment-evidence) and [research/field-naming-evidence](research/field-naming-evidence).
+**Rationale:** A setting read by a use case no record names is a coupling readers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](decision/0012-use-cases-read-their-settings) on the evidence in [research/behavior-containment-evidence](research/behavior-containment-evidence) and [research/field-naming-evidence](research/field-naming-evidence).
 
 **Example:** The submit-expense use case names `setting/spending.receipt-threshold` in `reads`, so a move of the threshold meets the submission story.
 
@@ -559,7 +561,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** A setting the operator sets MUST name its configuration path in `key`.
 
-**Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the decider sets is held as data by an aggregate instead, and names no key.
+**Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the product sets is held as data by an aggregate instead, and names no key.
 
 **Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator and carries `key` `Spending:ApprovalReminderDelay`.
 

@@ -2,10 +2,6 @@
 type: job
 id: job/lending.expire-due-loans
 title: Sloppy sweep
-owner: lending-team
-status: draft
-decider: lending-team
-decideBy: 2035-06-01
 kind: scheduled
 schedule:
   every: P1D

@@ -20,16 +20,6 @@ public sealed class CliArgsTests
         Assert.Contains("--root", equals.Error, StringComparison.Ordinal);
     }
 
-    /// <summary>The repeatable <c>--batch</c> option of <c>model approve</c> stays repeatable.</summary>
-    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact]
-    public void Batch_Option_May_Repeat()
-    {
-        var parsed = CliArgs.Parse(["--batch", "a", "--batch", "b"], [], ["--batch"]);
-
-        Assert.Null(parsed.Error);
-    }
-
     /// <summary>An empty value for --root, --model, --out or --editor is a usage error in both spellings.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]

@@ -14,7 +14,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"status": "approved", "kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2000-01-01"}"""));
+            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2000-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "exception-expired");
         Assert.Equal("G", finding.Tier);
@@ -30,7 +30,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"status": "approved", "kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
 
         Assert.DoesNotContain("exception-expired", TestModel.Codes(model));
     }
@@ -43,7 +43,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"status": "approved", "kind": "gap", "covers": ["no-such-finding"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"kind": "gap", "covers": ["no-such-finding"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "exception-finding-unknown");
         Assert.Equal("G", finding.Tier);
@@ -59,7 +59,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"status": "approved", "kind": "gap", "covers": ["use-case-unimplemented", "use-case-endpoint-missing"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented", "use-case-endpoint-missing"], "subject": ["use-case/lending.list-loans"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
 
         Assert.DoesNotContain("exception-finding-unknown", TestModel.Codes(model));
     }
@@ -72,7 +72,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/inline-bank-answer", Path.Combine(temp.Path, "inline-bank-answer.yaml"), """{"status": "approved", "kind": "departure", "covers": "litespec/backend/application#send-messages-after-commit", "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/inline-bank-answer", Path.Combine(temp.Path, "inline-bank-answer.yaml"), """{"kind": "departure", "covers": "litespec/backend/application#send-messages-after-commit", "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         Assert.DoesNotContain("exception-finding-unknown", TestModel.Codes(model));
         Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
@@ -86,7 +86,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/inline-bank-answer", Path.Combine(temp.Path, "inline-bank-answer.yaml"), """{"status": "approved", "kind": "departure", "covers": "use-case-unimplemented", "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/inline-bank-answer", Path.Combine(temp.Path, "inline-bank-answer.yaml"), """{"kind": "departure", "covers": "use-case-unimplemented", "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid");
         Assert.Equal("Exception 'exception/inline-bank-answer' names 'use-case-unimplemented', which is not a shared provision.", finding.Message);
@@ -101,7 +101,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"status": "approved", "kind": "gap", "covers": ["use-case-unimplemented"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), """{"kind": "gap", "covers": ["use-case-unimplemented"], "reason": "Listing waits for the search index.", "expiresOn": "2999-01-01"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("names neither subject nor paths", StringComparison.Ordinal));
         Assert.Equal("Exception 'exception/list-loans-unimplemented' names neither subject nor paths.", finding.Message);
@@ -116,7 +116,7 @@ public sealed class ExceptionCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Message.Contains("names neither subject nor paths", StringComparison.Ordinal));
     }

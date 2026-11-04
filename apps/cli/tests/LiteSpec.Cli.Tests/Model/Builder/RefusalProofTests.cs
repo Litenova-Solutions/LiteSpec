@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -97,11 +99,10 @@ public sealed class RefusalProofTests
 
     static JsonDocument Build(string root)
     {
-        var output = Path.Combine(root, ".litespec/model", "model.json");
-        var result = Cli.Run("model", "build", "--root", root, "--out", output);
-        Assert.Equal(0, result.Status);
+        var config = ConsumerConfig.Load(root);
+        var model = ModelBuilder.Build(config);
 
-        return JsonDocument.Parse(File.ReadAllText(output));
+        return JsonDocument.Parse(model.ToJson());
     }
 
     static void Write(string root, string relative, string text)
@@ -114,11 +115,17 @@ public sealed class RefusalProofTests
     static void WriteRefusals(string root, string statuses, string aliases)
     {
         var path = Path.Combine(root, ".litespec/project.json");
-        var text = File.ReadAllText(path);
-        var refusals = "\"refusals\": {\"forbidden\": \"authorization.forbidden\", \"invalidInput\": \"request.validation-failed\", \"statuses\": " + statuses + ", \"aliases\": " + aliases + "}";
-        var updated = text.Replace(@"""selectedExtensions"": []", $@"""selectedExtensions"": [], {refusals}");
+        var project = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        project["refusals"] = JsonNode.Parse($$"""
+            {
+              "forbidden": "authorization.forbidden",
+              "invalidInput": "request.validation-failed",
+              "statuses": {{statuses}},
+              "aliases": {{aliases}}
+            }
+            """);
 
-        File.WriteAllText(path, updated);
+        File.WriteAllText(path, project.ToJsonString());
     }
 
     const string RefusalScenarioJson = """
@@ -126,8 +133,6 @@ public sealed class RefusalProofTests
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-unavailable-copy-refuses",
           "title": "Borrowing an unavailable copy refuses",
-          "owner": "lending-team",
-          "status": "reviewed",
           "given": "A copy is lent out.",
           "when": "The reader borrows the copy.",
           "result": "result/borrow-copy.copy-unavailable",

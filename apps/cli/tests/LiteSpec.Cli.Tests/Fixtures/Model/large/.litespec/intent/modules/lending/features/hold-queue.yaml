@@ -1,0 +1,8 @@
+type: feature
+id: feature/hold-queue
+title: Hold queue
+offering: Waiting readers queue for busy copies and pick them up when ready.
+solves:
+  - problem/overdue-loans-pile-up
+advances:
+  - goal/faster-pickup

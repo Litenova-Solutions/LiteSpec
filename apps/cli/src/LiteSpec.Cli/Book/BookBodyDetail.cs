@@ -6,7 +6,7 @@ namespace LiteSpec.Book;
 ///     The explanation detail of one record: its explanation file rendered to HTML
 ///     with hash record links, split by section.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookBodyDetail
 {
     /// <summary>Renders one record explanation to HTML with hash record links, split by section.</summary>

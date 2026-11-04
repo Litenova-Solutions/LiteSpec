@@ -37,7 +37,7 @@ public sealed class CompletionTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"status": "draft", "fulfills": ["requirement/borrowing.max-loans"]}"""));
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         CompletionCalculator.Compute(model);
 
@@ -58,9 +58,9 @@ public sealed class CompletionTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"status": "reviewed", "fulfills": ["requirement/borrowing.max-loans"]}"""));
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
-        model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(true, false);
+        model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
         CompletionCalculator.Compute(model);
 
         var completion = model.Completion["requirement/borrowing.max-loans"];
@@ -81,10 +81,10 @@ public sealed class CompletionTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"status": "reviewed", "fulfills": ["requirement/borrowing.max-loans"]}"""));
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "scenario.yaml"), """{"result": "result/borrow-copy.borrowed"}"""));
 
-        model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(true, true);
-        model.RequirementStatus["requirement/borrowing.max-loans"] = new RequirementStatus(true, null);
+        model.Proves.Add(new ProvesLink("BorrowCopyTests.Borrowing_An_Available_Copy_Succeeds", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", true, true, false));
         model.TestRun = new TestRun();
         CompletionCalculator.Compute(model);
 
@@ -104,10 +104,10 @@ public sealed class CompletionTests
         using var temp = Cli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrowing-a-copy", Path.Combine(temp.Path, "journey.yaml"), """{"status": "approved", "serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"status": "reviewed", "serves": ["journey/borrowing-a-copy#s1"]}"""));
+            TestModel.Record("journey", "journey/borrowing-a-copy", Path.Combine(temp.Path, "journey.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"serves": ["journey/borrowing-a-copy#s1"]}"""));
 
-        model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(true, false);
+        model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
         CompletionCalculator.Compute(model);
 
         var completion = model.Completion["journey/borrowing-a-copy"];
@@ -120,10 +120,10 @@ public sealed class CompletionTests
         Assert.Equal(0, completion.Counts["steps exercised"].Done);
     }
 
-    /// <summary>A feature takes the stage of its weakest requirement and names a parked requirement in heldBy without counting it.</summary>
+    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap exception names it: completion follows proof alone.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Feature_Parked_Requirement_Names_Itself_In_HeldBy_Without_Holding_The_Stage()
+    public void Feature_With_Unfulfilled_Requirement_Ignores_Its_Gap_Exception()
     {
         using var temp = Cli.Temp("completion");
         var model = TestModel.Model(
@@ -131,19 +131,18 @@ public sealed class CompletionTests
             Feature(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""),
             Requirement(temp.Path, "requirement/borrowing.no-card", """{"cites": ["feature/borrowing"]}"""),
-            TestModel.Record("exception", "exception/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"status": "approved", "kind": "gap", "subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
-            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"status": "reviewed", "fulfills": ["requirement/borrowing.max-loans"]}"""));
+            TestModel.Record("exception", "exception/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"kind": "gap", "subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
+            UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
-        model.Status["use-case/lending.borrow-copy"] = new UseCaseStatus(true, false);
+        model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
         CompletionCalculator.Compute(model);
 
         var completion = model.Completion["feature/borrowing"];
 
-        Assert.Equal("implemented", completion.Stage);
-        Assert.Contains("requirement/borrowing.max-loans", completion.HeldBy);
-        Assert.Contains("requirement/borrowing.no-card", completion.HeldBy);
-        Assert.Equal(1, completion.Counts["requirements fulfilled"].Of);
+        Assert.Equal("unfulfilled", completion.Stage);
+        Assert.Equal(["requirement/borrowing.no-card"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["requirements fulfilled"].Done);
+        Assert.Equal(2, completion.Counts["requirements fulfilled"].Of);
         Assert.Equal(0, completion.Counts["requirements proven"].Done);
     }
 
@@ -174,7 +173,7 @@ public sealed class CompletionTests
         using var temp = Cli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("goal", "goal/borrow", Path.Combine(temp.Path, "goal.yaml"), """{"status": "approved"}"""),
+            TestModel.Record("goal", "goal/borrow", Path.Combine(temp.Path, "goal.yaml"), "{}"),
             Feature(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""));
 
@@ -188,41 +187,14 @@ public sealed class CompletionTests
         Assert.Equal(1, completion.Counts["features proven"].Of);
     }
 
-    /// <summary>A shipped feature below proven is advisory, and a planned feature below proven is silent.</summary>
-    /// <proves>litespec/core/model#flag-a-shipped-feature-below-proven</proves>
-    [Fact]
-    public void Shipped_Feature_Below_Proven_Reports_Advisory()
-    {
-        using var temp = Cli.Temp("completion");
-        var shipped = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "feature.yaml"), """{"status": "approved", "lifecycle": "shipped", "solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}"""),
-            Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""));
-
-        var finding = Assert.Single(
-            Checker.Check(shipped).Findings, found => found.Code == "feature-shipped-drift");
-
-        Assert.Equal("A", finding.Tier);
-        Assert.Equal("feature/borrowing", finding.Subject);
-        Assert.Contains("unfulfilled", finding.Message, StringComparison.Ordinal);
-
-        using var plannedTemp = Cli.Temp("completion-planned");
-        var planned = TestModel.Model(
-            TestModel.Config(plannedTemp.Path),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(plannedTemp.Path, "feature.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot", "solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}"""),
-            Requirement(plannedTemp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""));
-
-        Assert.DoesNotContain("feature-shipped-drift", TestModel.Codes(planned));
-    }
-
     static LiteSpec.Model.Record Requirement(string root, string id, string fields) =>
         TestModel.Record("requirement", id, Path.Combine(root, id.Replace('/', '.') + ".yaml"), fields == "{}"
-            ? """{"status": "approved", "kind": "functional", "statement": "A reader borrows one copy."}"""
-            : $$"""{"status": "approved", "kind": "functional", "statement": "A reader borrows one copy.", {{fields[1..^1]}}}""");
+            ? """{"kind": "functional", "statement": "A reader borrows one copy."}"""
+            : $$"""{"kind": "functional", "statement": "A reader borrows one copy.", {{fields[1..^1]}}}""");
 
     static LiteSpec.Model.Record UseCase(string root, string id, string fields) =>
         TestModel.Record("use-case", id, Path.Combine(root, id.Replace('/', '.') + ".yaml"), fields);
 
     static LiteSpec.Model.Record Feature(string root) =>
-        TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot", "solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}""");
+        TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}""");
 }

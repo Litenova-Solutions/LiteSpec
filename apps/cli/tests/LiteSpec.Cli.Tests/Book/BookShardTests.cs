@@ -73,12 +73,11 @@ public sealed class BookShardTests
             "group",
             "Goals",
             "goal",
-            null,
             new List<BookOutlineNode>
             {
-                new("goal/faster-borrowing", "record", "Faster Borrowing", "goal", "approved", new List<BookOutlineNode>
+                new("goal/faster-borrowing", "record", "Faster Borrowing", "goal", new List<BookOutlineNode>
                 {
-                    new("feature/self-checkout", "record", "Self Checkout", "feature", "draft", new List<BookOutlineNode>()),
+                    new("feature/self-checkout", "record", "Self Checkout", "feature", new List<BookOutlineNode>()),
                 }),
             });
 
@@ -90,7 +89,7 @@ public sealed class BookShardTests
         Assert.Equal("records-000", goal["shard"]!.GetValue<string>());
         Assert.Equal("Faster Borrowing", goal["label"]!.GetValue<string>());
         Assert.Equal("goal", goal["type"]!.GetValue<string>());
-        Assert.Equal("approved", goal["status"]!.GetValue<string>());
+        Assert.Null(goal["status"]);
         var feature = goal["children"]!.AsArray()[0]!.AsObject();
         Assert.Equal("records-001", feature["shard"]!.GetValue<string>());
     }
@@ -109,12 +108,11 @@ public sealed class BookShardTests
             "record",
             "Borrow Copy",
             "use-case",
-            "reviewed",
             new List<BookOutlineNode>
             {
-                new("code/src/App/Borrow.cs", "code", "Borrow.cs", "code", null, new List<BookOutlineNode>()),
-                new("test/Library.Tests.BorrowTests.Borrowing", "test", "Borrowing", "test", null, new List<BookOutlineNode>()),
-                new("finding/1", "finding", "Missing handler.", "finding", null, new List<BookOutlineNode>()),
+                new("code/src/App/Borrow.cs", "code", "Borrow.cs", "code", new List<BookOutlineNode>()),
+                new("test/Library.Tests.BorrowTests.Borrowing", "test", "Borrowing", "test", new List<BookOutlineNode>()),
+                new("finding/1", "finding", "Missing handler.", "finding", new List<BookOutlineNode>()),
             });
 
         var json = BookShards.OutlineNodeJson(node, shardOf);
@@ -147,7 +145,6 @@ public sealed class BookShardTests
                 "record",
                 $"G-{i:000} " + new string('w', 9000),
                 "goal",
-                "approved",
                 new List<BookOutlineNode>()));
         }
 

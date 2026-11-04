@@ -13,7 +13,7 @@ static class BookLexiconParsers
     /// <summary>Gets the model-page sections the book explains from, in display order.</summary>
     static IReadOnlyList<string> SectionHeadings { get; } =
     [
-        "Statuses", "Approval as Data", "Risk Classes and the Approval Table", "Check Levels", "Transcription Mode", "Questions and Ballots",
+        "Completion Stages", "Check Levels",
     ];
 
 
@@ -61,12 +61,12 @@ static class BookLexiconParsers
 
         var layers = new Dictionary<string, LexiconLayer>(StringComparer.Ordinal);
         foreach (var row in BookLexiconTables.TableRows(file, BookLexiconTables.SectionBody(lines, at),
-            ["Record layer", "Question", "Writes", "Reviews", "Records"], "four-layer"))
+            ["Record layer", "Question", "Writes", "Records"], "four-layer"))
         {
             var key = row[0].ToLowerInvariant();
             if (!layers.ContainsKey(key))
             {
-                layers[key] = new LexiconLayer(row[0], row[2], row[3]);
+                layers[key] = new LexiconLayer(row[0], row[2]);
             }
         }
 
@@ -76,7 +76,7 @@ static class BookLexiconParsers
         {
             if (!layers.ContainsKey(key))
             {
-                layers[key] = new LexiconLayer(BookLexiconTables.TypeLabel(key), "", "");
+                layers[key] = new LexiconLayer(BookLexiconTables.TypeLabel(key), "");
             }
         }
 
@@ -119,7 +119,7 @@ static class BookLexiconParsers
         return links;
     }
 
-    /// <summary>The Written on cell as record-type ids: any record widens to every type.</summary>
+    /// <summary>The Written on cell as record-type ids: any record widens to every type, and carriers that name no record type are skipped.</summary>
     /// <param name="file">The carried page.</param>
     /// <param name="field">The link field.</param>
     /// <param name="writtenOn">The Written on cell.</param>
@@ -131,20 +131,13 @@ static class BookLexiconParsers
             return RecordTypes.All.OrderBy(type => type, StringComparer.Ordinal).ToList();
         }
 
-        var carriers = writtenOn
+        // A row may also name nested carriers, such as a data class, which the
+        // book never phrases from a record, so only record types are kept.
+        return writtenOn
             .Split(',', StringSplitOptions.TrimEntries)
             .Select(carrier => carrier.ToLowerInvariant().Replace(' ', '-'))
+            .Where(carrier => RecordTypes.All.Contains(carrier))
             .ToList();
-
-        foreach (var carrier in carriers)
-        {
-            if (!RecordTypes.All.Contains(carrier))
-            {
-                throw new BookLexiconException(file, $"'{file}' Links row '{field}' names '{carrier}' in Written on, which is no record type.");
-            }
-        }
-
-        return carriers;
     }
 
     /// <summary>The model-page sections the mockup explains from: first paragraph and source each.</summary>

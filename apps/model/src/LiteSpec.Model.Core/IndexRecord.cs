@@ -18,16 +18,12 @@ public sealed class IndexRecord : IRecordFacts
     /// <param name="line">The 1-based line.</param>
     /// <param name="isEntry">Whether the record is an entry rather than a page.</param>
     /// <param name="pageId">The carrying page's record id, for an entry.</param>
-    /// <param name="inheritedOwner">The page's owner, for an entry carrying none.</param>
-    /// <param name="inheritedStatus">The page's status, for an entry carrying none.</param>
     public IndexRecord(
         JsonText raw,
         string file,
         int line,
         bool isEntry,
-        string? pageId,
-        string? inheritedOwner,
-        string? inheritedStatus)
+        string? pageId)
     {
         this.raw = raw;
         File = file;
@@ -37,8 +33,6 @@ public sealed class IndexRecord : IRecordFacts
         Type = StringOf(raw, "type") ?? "";
         Id = StringOf(raw, "id") ?? "";
         Title = StringOf(raw, "title") ?? "";
-        Owner = StringOf(raw, "owner") ?? inheritedOwner;
-        Status = StringOf(raw, "status") ?? inheritedStatus;
     }
 
     /// <summary>Gets the record type, kebab-case.</summary>
@@ -49,12 +43,6 @@ public sealed class IndexRecord : IRecordFacts
 
     /// <summary>Gets the display title.</summary>
     public string Title { get; }
-
-    /// <summary>Gets the resolved owner: the entry's own, else its page's.</summary>
-    public string? Owner { get; }
-
-    /// <summary>Gets the resolved status: the entry's own, else its page's.</summary>
-    public string? Status { get; }
 
     /// <summary>Gets the absolute file path.</summary>
     public string File { get; }

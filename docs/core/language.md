@@ -12,16 +12,16 @@ Every field name belongs to one of eight word classes. The class decides the nam
 
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
-| 1. Identity | fixed words | none | `type`, `id`, `title`, `owner`, `status`, `terms`, `questions`, `records` |
+| 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
 | 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `solves`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
-| 3. Link to one record in a role | singular noun naming the role | "the journey's actor is traveller" | `actor`, `entryPoint`, `fallback`, `runbook`, `result`, `host`, `refusal` |
-| 4. Link where the target acts on this record | `<participle>By` | "the data class is acceptedBy the requirement" | `approvedBy`, `acceptedBy`, `enforcedBy`, `releasedBy`, `computedBy`, `drivenBy`, `triggeredBy` |
+| 3. Link to one record in a role | singular noun naming the role | "the journey's actor is traveller" | `actor`, `fallback`, `runbook`, `result`, `host`, `refusal` |
+| 4. Link where the target acts on this record | `<participle>By`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `releasedBy`, `computedBy`, `triggeredBy` |
 | 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `direction`, `trust`, `reach`, `lifecycle`, `level` |
-| 6. Prose | singular noun for what the text is; plural noun for a list of sentences | "its statement is ..." | `statement`, `meaning`, `rationale`, `summary`, `conclusion`, `failure`, `exclusions` |
-| 7. Condition | `<participle or adjective>When` for a named condition; `condition` inside an entry | "it is finishedWhen ..." | `finishedWhen`, `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen` |
-| 8. Reason | `<participle>Because`, or `reason` alone | "it is refusedBecause ..." | `refusedBecause`, `appliesBecause` |
+| 6. Prose | singular noun for what the text is; plural noun for a list of sentences | "its statement is ..." | `statement`, `meaning`, `rationale`, `summary`, `conclusion`, `failure` |
+| 7. Condition | `<participle or adjective>When` for a named condition; `condition` inside an entry | "it is frozenWhen ..." | `frozenWhen`, `visibleWhen`, `skippedWhen`, `reopenedWhen`, `removedWhen` |
+| 8. Reason | `<participle>Because`, or `reason` alone | "it appliesBecause ..." | `appliesBecause`, `reason` |
 
-Dates and booleans follow the classes: a deadline is `<base verb>By` (`decideBy`, `reviewBy`, `endBy`; `dueBy` and `plannedFor` hold a date or a milestone); a recorded date is `<verb>edOn` (`approvedOn`, `answeredOn`, `readOn`); a validity start is `effectiveFrom`; a boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix.
+Dates and booleans follow the classes: a recorded date ends in `On` (`readOn`, `expiresOn`); a validity start is `effectiveFrom`; a boolean is a present-tense predicate that is true about the record when `true` (`applies`, `secret`, `recorded`), with no `is` or `has` prefix.
 
 ### Kinds of Text
 
@@ -31,11 +31,10 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 |:---|:---|:---|
 | What holds: requirement, rule, goal and problem statements, journey steps, result meanings | Present tense, active voice, third person, one complete sentence ending in a period, no modal words | "A room the traveller starts to book is held for them for 10 minutes." |
 | What happened: event and integration-event meanings | Past tense, one sentence | "The buyer placed the order." |
-| A state something is in: aggregate state names, saga exit names, proof words | Past participle or adjective | `Held`, `Paid`, `withdrawn`, `verified`, `stale` |
+| A state something is in: aggregate state names, proof words | Past participle or adjective | `Held`, `Paid`, `withdrawn`, `verified`, `stale` |
 | What to do: runbook steps, procedure steps | Imperative, one action per step | "Restart the payment worker." |
 | A condition: `*When`, `condition`, `skippedWhen` | A clause that completes "when ...", without the word | "the application links to no event" |
 | A reason: `rationale`, `*Because`, exception `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
-| A question | One question in product words, ending in "?" | "How long should a room stay held during checkout?" |
 | A definition: `meaning` of a term, a field, a setting | A noun phrase starting with A, An or The, at most 25 words, no leading verb | "A confirmed reservation of one room for one stay." |
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
 | A finding message | One present-tense sentence of fact | "Requirement 'booking.service-fee' is fulfilled by no Behavior record." |
@@ -60,7 +59,6 @@ Each value below takes the written form its row gives. The last column names the
 | `rationale`, `*Because` | A clause completing "because ..." | Does not start with "because" |
 | `*When`, `condition` | A clause completing "when ..." | Does not start with "when" or "if" |
 | `failure` | What the person experiences, present tense, never a code | Contains no refusal-code pattern |
-| `question` | One question in product words | Ends in "?" |
 | `title` | Title Case noun phrase, no period | Title Case; no final period |
 
 ### Names for Records
@@ -72,13 +70,12 @@ Each record type takes the name form its row gives, in the word class of what th
 | goal | outcome noun phrase | `more-completed-bookings` |
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
-| topic | subject noun | `checkout` |
 | requirement | the assertion | `room-held-during-checkout` |
 | journey | the task as a verb phrase | `book-a-room` |
 | constraint | the rule's subject | `total-price-display` |
-| research | the question's subject | `partner-hold-limits` |
+| research | the evidence subject | `partner-hold-limits` |
 | decision | number and subject | `0001-room-hold-length` |
-| use case | verb first, from the verb vocabulary | `hold-room` |
+| use case | verb first | `hold-room` |
 | module | plural noun of the business area | `orders` |
 | aggregate | singular noun | `order`, `ticket-resale` |
 | rule | the assertion, keeping its negation word | `order.checkout-commits-with-holds`, `expense.approver-is-not-submitter` |
@@ -86,8 +83,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | integration event | `<aggregate>-<past participle>` | `order-placed` |
 | reaction | `<verb>-<what>-on-<fact>` | `issue-credit-note-on-refund-succeeded` |
 | job | `<verb>-<what>`, with the verb of the use case it runs | `expire-lapsed-ticket-resales` |
-| saga step | verb first | `hold-place`, `refund-buyer` |
-| saga exit, aggregate state | past participle or adjective | `withdrawn`, `Listed` |
+| aggregate state | past participle or adjective | `withdrawn`, `Listed` |
 | notification | `<subject>-<event>` noun phrase | `order-confirmation` |
 | setting | noun phrase naming the value | `checkout-hold-window` |
 | data class | noun phrase naming the data | `buyer-contact` |
@@ -108,12 +104,12 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of fifteen words, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of fourteen words, each with one meaning.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
 | `missing` | a required thing is absent | `use-case-scenario-missing` |
-| `unknown` | a name matches nothing declared | `owner-unknown` |
+| `unknown` | a name matches nothing declared | `actor-unknown` |
 | `undeclared` | used without a declaration | `erasure-undeclared` |
 | `unrecorded` | true in code but written in no record | `behavior-unrecorded` |
 | `unimplemented` | declared but built nowhere | `use-case-unimplemented` |
@@ -123,14 +119,13 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
 | `clash` | two names collide | `aggregate-name-clash` |
 | `expired` | the date passed | `exception-expired` |
-| `reopened` | approved content changed after approval | `approval-reopened` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Change codes in `litespec model diff` follow the same pattern with past participles (`refusal-added`, `rule-weakened`, `requirement-narrowed`). Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
-Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `approve`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`, `--by <owner>`). Exit codes stay 0 for clean, 1 for blocking, and 2 for bad arguments. Book labels come from the Links table's reads-as phrases and the glossary only.
+Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`). Flags are kebab-case: a mode flag names its mode (`--release`, `--staged`, `--dry-run`), and a value flag names its value (`--since <ref>`). Exit codes stay 0 for clean, 1 for blocking, and 2 for bad arguments. Book labels come from the Links table's reads-as phrases and the glossary only.
 
 ## Standards
 
@@ -140,9 +135,9 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
-**Rationale:** One grammar with no exceptions list means a reader who learned `cites` on a journey reads `cites` on a requirement without a second look. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar.
+**Rationale:** One grammar with no exceptions list means a reader who learned `cites` on a journey reads `cites` on a requirement without a second look. Each class answers one question about the field: whether it identifies, links, classifies, narrates, conditions, or reasons. Only names an outside standard fixes stand outside this grammar. Settled by [decision/0006-one-field-naming-grammar](decision/0006-one-field-naming-grammar) on the evidence in [research/field-naming-evidence](research/field-naming-evidence) and [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence).
 
-**Example:** The Claimwick journey `submit-an-expense` cites its goal in `cites`, states each step in `statement`, and records approval in `approvedBy`.
+**Example:** The Claimwick journey `submit-an-expense` cites its goal in `cites` and states each step in `statement`.
 
 **Reviewed for:** Which fields break their word class? Look at the field names the change adds, beside the word-class table.
 
@@ -162,11 +157,11 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **ID:** `litespec/core/language#name-each-date-by-what-it-marks`
 
-**Statement:** Every date field MUST end in `By` for a deadline, in `On` for a recorded date, or carry a name that states what the date does.
+**Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
-**Rationale:** A deadline and a recorded date answer different questions, so their names differ: `<base verb>By` says when something ends, and `<verb>edOn` says when something happened. `effectiveFrom` opens a validity span, while `dueBy` and `plannedFor` hold a date or a milestone where the plan names one. The shape tells a reader which dates block a decision and which record that it happened.
+**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when an exception ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
 
-**Example:** A Claimwick question carries `decideBy: 2026-11-01` and, once answered, `answeredOn` with the answer date.
+**Example:** A Claimwick constraint carries `readOn` with the date its authority was read, and an exception carries `expiresOn` with the date it ends.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 
@@ -176,23 +171,23 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
-**Rationale:** Each kind of text has one reader and one job: a requirement promises, an event reports, a runbook step instructs, and a question asks. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
+**Rationale:** Each kind of text has one reader and one job: a requirement promises, an event reports, and a runbook step instructs. One form per kind means the tense and voice tell the reader what the text does before a word is weighed. Record values stay in the third person, Intent chapter prose says `we` for the business, and nothing says `you`.
 
 **Example:** A Claimwick requirement states "An expense above the threshold waits for its approver."
 
-**Reviewed for:** Which texts miss the form of their kind? Look at the statements, steps, meanings, and questions the change adds, beside the text-kind table.
+**Reviewed for:** Which texts miss the form of their kind? Look at the statements, steps, and meanings the change adds, beside the text-kind table.
 
 ### Write Each Value in the Value Style
 
 **ID:** `litespec/core/language#write-each-value-in-the-value-style`
 
-**Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, `question`, and `title` value MUST use the value style the value-style table states.
+**Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, and `title` value MUST use the value style the value-style table states.
 
-**Rationale:** Values are read far more than they are written, in records, in the book, and in tool output. One written form per value means a period, a question mark, or a capital letter is never a styling choice but part of the value. The value-style table ends each row with the mechanical test the value meets.
+**Rationale:** Values are read far more than they are written, in records, in the book, and in tool output. One written form per value means a period or a capital letter is never a styling choice but part of the value. The value-style table ends each row with the mechanical test the value meets. Settled by [decision/0011-one-grammar-for-names-and-values](decision/0011-one-grammar-for-names-and-values) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
 **Example:** A Claimwick journey step states "The traveller pays for the booking."
 
-**Checked by:** `litespec model check` reports no `value-invalid` finding for a record value, and `litespec-maintain validate` emits no `VALUE_STYLE` diagnostic for a template or example value.
+**Reviewed for:** Which statement, meaning, rationale, condition, failure, or title values miss the value style of their row? Look at the values the change adds, beside the value-style table.
 
 ### Write Quantities in Standard Units
 
@@ -206,7 +201,7 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **Reviewed for:** Which quantities use free text or miss their unit? Look at the dates, durations, money values, and numbers the change adds.
 
-### Name Each Record by Its Type's Name Form
+### Name Each Record by Its Types Name Form
 
 **ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
 
@@ -246,13 +241,13 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **ID:** `litespec/core/language#name-each-finding-code-by-subject-and-problem`
 
-**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fifteen problem words.
+**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fourteen problem words.
 
-**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fifteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
+**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fourteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
-**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the fifteen? Look at the finding codes the change adds, beside the problem-word table.
+**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the fourteen? Look at the finding codes the change adds, beside the problem-word table.
 
 ### Write Each Finding Message as a Fact
 
@@ -260,7 +255,7 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
-**Rationale:** A message that states a fact survives every reader: the terminal, the book, and the review queue all show what is true. Advice belongs in the finding table on the [model page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
+**Rationale:** A message that states a fact survives every reader: the terminal and the book both show what is true. Advice belongs in the finding table on the [model page](../tools/model.md), where it is written once beside the code instead of repeated in every occurrence. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
 **Example:** A journey step with no serving use case reports `Journey step 'book-a-room#s3' is served by no use case.`
 
@@ -298,4 +293,4 @@ None.
 
 This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, and `litespec/core/language#write-each-finding-message-as-a-fact`.
 
-Claimwick holds booked rooms with the use case `hold-room`, which reads the setting `checkout-hold-window`. The requirement `requirement/checkout.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'checkout.room-held-during-checkout' is fulfilled by no Behavior record."
+Claimwick holds booked rooms with the use case `hold-room`, which reads the setting `checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."

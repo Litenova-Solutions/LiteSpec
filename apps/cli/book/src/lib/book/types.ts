@@ -1,120 +1,206 @@
-// The shapes of the shards the book command writes (apps/cli/src/LiteSpec.Cli/Book).
-// Records stay loosely typed: their fields follow the record schemas, which the
-// client reads by name and never invents.
+// The shapes the book client reads, shared by the store, the views and the tests.
 
-export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Fields = Record<string, any>;
-
-export interface Manifest {
-  project: { id: string; title?: string } | null;
-  roots: { consumer?: string; litespec?: string } | null;
-  editor: string | null;
-  approvals: Record<string, string | { by?: string; approver?: string; rule?: string }> | null;
-  testRun: { date?: string; total?: number; passed?: number; failed?: number } | null;
-  totals: Record<string, number>;
-  layers: { key: string; label?: string; outline?: string[] }[];
-  shardOf: Record<string, string>;
-  search: string[];
-  unplaced?: string[];
-  generatedOn?: string;
+/** A test step: the unit tests that prove it and its screenshots, if any. */
+export interface TestStep {
+  unit?: { path?: string; cases?: { name?: string; browser?: boolean }[] }[];
+  screenshots?: string[];
 }
 
-export interface LexiconType { label?: string; plural?: string; layer?: string; question?: string }
-export interface LexiconLayer { label?: string; writes?: string; reviews?: string; question?: string }
-export interface LexiconLink { field: string; carriers: string[] | string; forward?: string; inverse?: string }
+/** A record the Records packs carry, with every computed detail the book adds. */
+export interface BookRecord {
+  type: string;
+  title: string;
+  fields: Record<string, unknown>;
+  layer?: string | null;
+  src?: SourceRef | null;
+  impl?: { path?: string; line?: number | null; kind?: string }[];
+  tests?: BookTest[];
+  expect?: { impl?: boolean; proof?: boolean };
+  lacks?: string[];
+  /** Computed completion from proof: code, tests and passing scenarios, each null when the record expects nothing there. */
+  completion?: {
+    hasCode?: boolean | null;
+    hasTests?: boolean | null;
+    scenarios?: { pass?: number; of?: number } | null;
+  } | null;
+  findings?: BookFinding[];
+  proof?: {
+    state?: ProofState | null;
+    tests?: number;
+    test?: { name?: string; path?: string | null; line?: number | null } | null;
+  };
+  machine?: {
+    implemented?: boolean;
+    verified?: boolean;
+    met?: boolean;
+    measurePassed?: boolean | null;
+    tested?: boolean;
+  };
+  reachable?: string[];
+  keptBy?: Record<string, number>;
+  why?: { text?: string; links?: { id?: string; kind?: string }[] }[];
+  out?: BookEdgeJson[];
+  in?: BookEdgeJson[];
+  bodyHtml?: string;
+  sections?: BookSections | null;
+  fieldsHtml?: Record<string, string>;
+  requires?: string[];
+  route?: { frontend?: string; path?: string; surfaces?: string[] } | null;
+  steps?: { text?: string; serves?: string[] }[];
+  captures?: { path?: string; bookPath?: string }[];
+  captureState?: string;
+  evidenceStrength?: string;
+  parent?: string | null;
+  [k: string]: unknown;
+}
 
+/** One outline node: a record, a group, or the code, test or finding under its subject. */
+export interface OutlineNode {
+  id: string;
+  kind: "record" | "group" | "code" | "test" | "finding";
+  label: string;
+  type?: string | null;
+  children: OutlineNode[];
+  shard?: string;
+}
+
+/** One test proving a record: its name, file, line, and whether a proves link confirms it. */
+export interface BookTest {
+  name?: string;
+  path?: string | null;
+  file?: string;
+  line?: number | null;
+  confirmed?: boolean;
+  passing?: boolean | null;
+  browser?: boolean;
+}
+
+/** One finding on a record: its code, level, message, and whether an exception covers it. */
+export interface BookFinding {
+  code?: string | null;
+  tier?: string | null;
+  level?: string | null;
+  message?: string;
+  known?: boolean;
+  outcome?: unknown;
+  reason?: unknown;
+  path?: string | null;
+  line?: number | null;
+}
+
+/** One edge as the records packs carry it: the other end and the field key. */
+export interface BookEdgeJson {
+  id?: string;
+  key?: string;
+  field?: string;
+  to?: string;
+  from?: string;
+}
+
+/** One explanation section: its heading and its rendered HTML. */
+export interface BookSection {
+  h?: string;
+  html?: string;
+}
+
+/** A record's explanation split by the CLI: the intro and the headed sections. */
+export interface BookSections {
+  intro?: string;
+  list?: BookSection[];
+}
+
+/** One record type: its label, layer and the question its page answers. */
+export interface LexiconType {
+  label: string;
+  plural: string;
+  layer: string;
+  question: string;
+}
+
+/** One record layer: its label, who writes it, and the question it answers. */
+export interface LexiconLayer {
+  label: string;
+  question?: string;
+  writes: string;
+}
+
+/** One carried prose section the client explains from. */
+export interface LexiconSection {
+  text: string;
+  source: string;
+}
+
+/** One Links-table row: the field, its carriers and both phrases. */
+export interface LexiconLink {
+  field: string;
+  carriers: string[] | string;
+  forward: string;
+  inverse: string;
+}
+
+/** The book lexicon: types, layers, links, sections, glossary, field labels and finding codes. */
 export interface Lexicon {
   types: Record<string, LexiconType>;
   layers: Record<string, LexiconLayer>;
   links: LexiconLink[];
+  sections: Record<string, LexiconSection>;
+  glossary: Record<string, { term: string; definition: string }>;
   fields: Record<string, string>;
-  glossary: Record<string, { definition?: string; record?: string }>;
-  sections: Record<string, { text?: string; source?: string }>;
-  findings: Record<string, { meaning?: string }>;
+  findings: Record<string, { level: string; meaning: string }>;
 }
 
-export interface OutlineNode {
+/** The manifest: project, roots, editor, test run, totals, layers, shard map, search, unplaced and generation date. */
+export interface Manifest {
+  project: { id: string; title: string };
+  roots: { consumer: string; litespec: string };
+  editor: string;
+  testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
+  totals: Record<string, number>;
+  layers: { key: string; label: string; outline: string[] }[];
+  shardOf: Record<string, string>;
+  search: string[];
+  unplaced: string[];
+  generatedOn: string;
+}
+
+/** One security item: cross-tenant access, an outside call, or personal or sensitive data. */
+export interface SecurityItem {
+  kind: "cross" | "calls" | "data";
   id: string;
-  kind: string;
-  label?: string;
-  type?: string | null;
-  status?: string | null;
-  shard?: string;
-  children?: OutlineNode[];
+  text: string;
 }
 
-export interface Edge { field: string; id: string }
+/** A scenario or rule proof state from its proves links and its proving test. */
+export type ProofState =
+  | "passing"
+  | "failing"
+  | "awaiting"
+  | "unconfirmed"
+  | "unproved"
+  | "indirect"
+  | "norun";
 
-export interface SourceRef { path: string; line?: number | null; litespec?: boolean }
-
-// One record as its pack carries it. Every key past the first few is optional,
-// since each record type carries its own details.
-export interface BookRecord {
-  type: string;
-  title: string;
-  owner?: string | null;
-  status?: string | null;
-  effective?: string | null;
-  decider?: string | null;
-  decideBy?: string | null;
-  fields: Fields;
-  src?: SourceRef | null;
-  parent?: string | null;
-  layer?: string | null;
-  impl?: Fields[];
-  tests?: Fields[];
-  expect?: { impl?: boolean; proof?: boolean } | null;
-  lacks?: string | null;
-  heldBy?: Fields | null;
-  findings?: Fields[];
-  bodyHtml?: string;
-  sections?: { intro?: string; list?: { title: string; html: string }[] } | null;
-  fieldsHtml?: Record<string, string>;
-  out?: Record<string, string[]> | Fields[];
-  in?: Record<string, string[]> | Fields[];
-  completion?: Fields | null;
-  approval?: { by?: string } | null;
-  proof?: { state: string } | null;
-  machine?: Fields | null;
-  batch?: string;
-  [key: string]: unknown;
+/** A link edge: the link field and the linked record id. */
+export interface Edge {
+  field: string;
+  id: string;
 }
 
-export interface Batch {
-  selector: string;
-  kind: string;
-  riskClasses?: string[];
-  approvers?: string[];
-  deciders?: string[];
-  decideBy?: string | null;
-  records?: string[];
-  ids?: string[];
-  n?: number;
-  [key: string]: unknown;
+/** A record's fields, read by name. */
+export type Fields = Record<string, any>;
+
+/** One search row: id, title, type and excerpt. */
+export type SearchRow = string[];
+
+/** A source reference: the file and line a record comes from. */
+export interface SourceRef {
+  path?: string | null;
+  line?: number | null;
+  litespec?: boolean;
 }
 
-export interface Question {
-  question: string;
-  riskClasses?: string[];
-  approval?: unknown;
-  decider?: string;
-  decideBy?: string | null;
-  ballot?: string | null;
-  recommendation?: string;
-  [key: string]: unknown;
+/** One component heading: its label and the popover it opens, if any. */
+export interface Head {
+  label: string;
+  explain?: string;
 }
-
-export interface Ballot { id: string; i: number; q: Question }
-export interface SecurityItem { kind: "cross" | "calls" | "data"; id: string; text: string }
-
-export interface Queue {
-  batches: Record<string, Batch>;
-  order?: string[];
-  ballots: Ballot[];
-  security: SecurityItem[];
-  review?: { vetoWindowDays?: number; securityReviewer?: string };
-}
-
-// A search row: id, title, type, excerpt.
-export type SearchRow = [string, string, string, string];

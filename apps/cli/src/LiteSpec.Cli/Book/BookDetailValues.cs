@@ -6,7 +6,7 @@ namespace LiteSpec.Book;
 ///     The scalar readings the record details share: link strings, JSON nodes for
 ///     nullable values, line numbers, base ids and test names.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookDetailValues
 {
     /// <summary>The strings of a link field, written as one value or a list.</summary>

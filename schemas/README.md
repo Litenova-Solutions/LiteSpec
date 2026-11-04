@@ -38,11 +38,11 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ### Litespec Project Schema
 
-`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, the owners, the review and adoption settings, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/project.json](../templates/consumer/project.json) meets it.
+`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/project.json](../templates/consumer/project.json) meets it.
 
 ### Record Schema
 
-`record.schema.json` owns the record file of every consumer record page: 37 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each record file through it and then checks the sections the schema cannot see.
+`record.schema.json` owns the record file of every consumer record page: 35 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each record file through it and then checks the sections the schema cannot see.
 
 ### Language Schema
 

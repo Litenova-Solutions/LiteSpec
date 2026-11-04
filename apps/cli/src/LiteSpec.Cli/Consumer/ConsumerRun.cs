@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
@@ -12,7 +11,6 @@ namespace LiteSpec.Consumer;
 /// </summary>
 /// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
-/// <follows>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</follows>
 sealed class ConsumerRun
 {
     /// <summary>
@@ -32,11 +30,8 @@ sealed class ConsumerRun
     /// <summary>Gets a value indicating whether gets whether the report is written as JSON.</summary>
     public bool Json { get; }
 
-    /// <summary>Gets the problems the checks reported.</summary>
-    public List<string> Errors { get; } = [];
-
-    /// <summary>Gets the advisories the checks reported.</summary>
-    public List<string> Advisories { get; } = [];
+    /// <summary>Gets the findings the checks reported.</summary>
+    public List<Finding> Errors { get; } = [];
 
     /// <summary>Gets the file texts read so far, by file.</summary>
     public Dictionary<string, string> TextCache { get; } = new(StringComparer.Ordinal);
@@ -108,9 +103,6 @@ sealed class ConsumerRun
     /// <summary>Gets or sets the glossary line the human report prints.</summary>
     public string GlossarySummary { get; set; } = "";
 
-    /// <summary>Gets today as an ISO date.</summary>
-    public string Today { get; } = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-
     /// <summary>
     ///     Runs every check of the consumer validator in order.
     /// </summary>
@@ -158,7 +150,12 @@ sealed class ConsumerRun
         // consumer with no page does not exist; a root that resolves to nothing does.
         if (Files.Count == 0)
         {
-            Err($"Scanned no record or Markdown files under '{DocsPath}'; check paths.docs, because a consumer with no page is a misconfigured scan");
+            Err(new Finding(
+                "project-path-invalid",
+                $"Scanned no record or Markdown files under '{DocsPath}'; check paths.docs, because a consumer with no page is a misconfigured scan",
+                ConsumerRoot.ProjectFile(Root),
+                1,
+                null));
         }
 
         projectWatch.Stop();
@@ -166,7 +163,7 @@ sealed class ConsumerRun
 
         PageChecks.CheckPages(this);
         ManifestSelectionChecks.CheckStageDeferrals(this);
-        GlossaryChecks.CheckGlossaryAndProse(this);
+        GlossaryChecks.CheckGlossary(this);
 
         var uiWatch = System.Diagnostics.Stopwatch.StartNew();
         ControlledUiChecks.CheckControlledUi(this);
@@ -181,10 +178,11 @@ sealed class ConsumerRun
     /// <returns>The exit code: 0 when no problem was reported, 1 otherwise.</returns>
     public int Report()
     {
-        // A machine reader gets the problems as an array and the counts as fields, so
+        // A machine reader gets the findings as objects and the counts as fields, so
         // nothing has to be recovered by parsing the human lines back apart.
-        // Every finding carries its level: problems read pages only and always
-        // block, so G; advisories report and never block, so A.
+        // Every finding carries its code, level, path, line and subject, the one
+        // finding shape the model check reads. Consumer findings read pages only
+        // and always block, so G.
         if (Json)
         {
             var payload = new JsonObject
@@ -193,8 +191,7 @@ sealed class ConsumerRun
                 ["consumer"] = Root,
                 ["ok"] = Errors.Count == 0,
                 ["scanned"] = new JsonObject { ["documentationRoot"] = DocsPath, ["files"] = Files.Count, ["pages"] = Pages },
-                ["problems"] = new JsonArray([.. Errors.Select(error => (JsonNode?)$"[G] {error}")]),
-                ["advisories"] = new JsonArray([.. Advisories.Select(advisory => (JsonNode?)$"[A] {advisory}")]),
+                ["problems"] = new JsonArray([.. Errors.Select(ProblemJson)]),
             };
 
             CliJson.Write(payload);
@@ -206,25 +203,14 @@ sealed class ConsumerRun
         Console.WriteLine($"Files scanned: {Files.Count} under {DocsPath}, pages: {Pages}");
         Console.WriteLine(GlossarySummary);
 
-        if (Advisories.Count > 0)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"ADVISORY ({Advisories.Count} finding(s))");
-
-            foreach (var advisory in Advisories)
-            {
-                Console.WriteLine($"  - [A] {advisory}");
-            }
-        }
-
         if (Errors.Count > 0)
         {
             Console.WriteLine();
             Console.WriteLine($"FAIL ({Errors.Count} problem(s)):");
 
-            foreach (var problem in Errors)
+            foreach (var finding in Errors)
             {
-                Console.WriteLine($"  - [G] {problem}");
+                Console.WriteLine($"  - {Relative(finding.Path)}:{finding.Line} [{finding.Tier}] [{finding.Code}] {finding.Message}");
             }
 
             return 1;
@@ -235,17 +221,67 @@ sealed class ConsumerRun
         return 0;
     }
 
-    /// <summary>
-    ///     Records one problem.
-    /// </summary>
-    /// <param name="message">The problem text.</param>
-    public void Err(string message) => Errors.Add(message);
+    /// <summary>One finding as its JSON object.</summary>
+    /// <param name="finding">The finding to project.</param>
+    /// <returns>The JSON object for the finding.</returns>
+    JsonNode ProblemJson(Finding finding)
+    {
+        var item = new JsonObject
+        {
+            ["code"] = finding.Code,
+            ["level"] = finding.Tier,
+            ["message"] = finding.Message,
+            ["path"] = Relative(finding.Path),
+            ["line"] = finding.Line,
+        };
+
+        if (finding.Subject is not null)
+        {
+            item["subject"] = finding.Subject;
+        }
+
+        return item;
+    }
 
     /// <summary>
-    ///     Records one advisory.
+    ///     Records one finding.
     /// </summary>
-    /// <param name="message">The advisory text.</param>
-    public void Advise(string message) => Advisories.Add(message);
+    /// <param name="finding">The finding to record.</param>
+    public void Err(Finding finding) => Errors.Add(finding);
+
+    /// <summary>
+    ///     Records one schema problem list as findings of one code. The schema
+    ///     evaluator prefixes each problem with the location it was given, which
+    ///     the finding carries as its path instead.
+    /// </summary>
+    /// <param name="code">The finding code.</param>
+    /// <param name="file">The validated file as a full path.</param>
+    /// <param name="location">The location prefix the problems carry.</param>
+    /// <param name="problems">The schema problems.</param>
+    /// <param name="subject">The record id the findings are about, when there is one.</param>
+    public void Schema(string code, string file, string location, List<string> problems, string? subject = null)
+    {
+        foreach (var problem in problems)
+        {
+            Err(SchemaFinding(code, file, location, problem, subject));
+        }
+    }
+
+    /// <summary>
+    ///     One schema problem as a finding of one code.
+    /// </summary>
+    /// <param name="code">The finding code.</param>
+    /// <param name="file">The validated file as a full path.</param>
+    /// <param name="location">The location prefix the problem carries.</param>
+    /// <param name="problem">The schema problem.</param>
+    /// <param name="subject">The record id the finding is about, when there is one.</param>
+    /// <returns>The finding.</returns>
+    public static Finding SchemaFinding(string code, string file, string location, string problem, string? subject)
+    {
+        var prefix = location + ": ";
+        var message = problem.StartsWith(prefix, StringComparison.Ordinal) ? problem[prefix.Length..] : problem;
+        return new Finding(code, message, file, 1, subject);
+    }
 
     /// <summary>
     ///     Reads a file once and reuses the text. Strips a leading byte-order mark,
@@ -367,14 +403,22 @@ sealed class ConsumerRun
     {
         if (Json)
         {
-            CliJson.Write(new
+            var problem = new JsonObject
             {
-                tool = "consumer",
-                consumer = Root,
-                ok = false,
-                scanned = new { documentationRoot = ".litespec", files = 0, pages = 0 },
-                problems = new[] { $"[G] {message}" },
-                advisories = Array.Empty<string>(),
+                ["code"] = "project-invalid",
+                ["level"] = "G",
+                ["message"] = message,
+                ["path"] = ".litespec/project.json",
+                ["line"] = 1,
+            };
+
+            CliJson.Write(new JsonObject
+            {
+                ["tool"] = "consumer",
+                ["consumer"] = Root,
+                ["ok"] = false,
+                ["scanned"] = new JsonObject { ["documentationRoot"] = ".litespec", ["files"] = 0, ["pages"] = 0 },
+                ["problems"] = new JsonArray(problem),
             });
         }
         else

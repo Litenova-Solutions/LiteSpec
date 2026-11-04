@@ -6,16 +6,16 @@ namespace LiteSpec.Book;
 ///     The prose fields of one record rendered to HTML: every C4 field the record
 ///     carries, with hash record links.
 /// </summary>
-/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookProseFields
 {
     /// <summary>Gets the prose fields the book renders as Markdown.</summary>
     public static IReadOnlyList<string> Prose { get; } =
     [
-        "summary", "description", "whyItMatters", "situation", "offering", "consequences",
-        "position", "refusals", "betweenSteps", "delivery", "impact",
+        "summary", "statement", "offering", "consequences",
+        "refusals", "betweenSteps", "delivery", "impact",
         "prerequisites", "procedure", "verification", "recovery", "escalation",
-        "purpose", "whatHappens", "exposure", "exit",
+        "exposure", "exit",
     ];
 
     /// <summary>Renders one record's prose fields to HTML with hash record links.</summary>
