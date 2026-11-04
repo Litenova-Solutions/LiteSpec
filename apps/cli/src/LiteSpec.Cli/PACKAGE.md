@@ -8,7 +8,7 @@ Install the tool in the project, at the release the project follows:
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --local --version 3.1.0
+dotnet tool install LiteSpec.Cli --local --version 4.0.0
 ```
 
 A teammate or a build restores it with `dotnet tool restore`.
@@ -38,6 +38,6 @@ Every command accepts `--help`, and the checks accept `--format json`.
 
 ## Learn More
 
-- [Adopting LiteSpec](https://litespec.dev/3.1.0/learn/adopting-litespec/)
-- [The command reference](https://litespec.dev/3.1.0/tools/)
+- [Adopting LiteSpec](https://litespec.dev/4.0.0/learn/adopting-litespec/)
+- [The command reference](https://litespec.dev/4.0.0/tools/)
 - [The source and issues](https://github.com/Litenova-Solutions/LiteSpec)

@@ -1,8 +1,8 @@
 # Changelog
 
-## v3.1.0
+## v4.0.0
 
-LiteSpec 3.1.0 specifies the product, not the company, gives every record what a reader needs to understand it cold, and makes the book lead with how complete each record is. It replaces 3.0.0 with no compatibility layer: a consumer moves its files, adds the new required fields, and records `3.1.0` in `reviewedLiteSpecVersion`. The release takes effect as the `v3.1.0` tag.
+LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It changes what LiteSpec is: a strict specification model that a tool checks, beside graded engineering provisions that agents retrieve by situation, with git as the decision record and no approval or review workflow. It replaces 3.0.0 with no compatibility layer, and a consumer records `4.0.0` in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.
 
 ### One Folder per Consumer
 

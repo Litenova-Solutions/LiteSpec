@@ -553,7 +553,7 @@ public sealed partial class StandardsValidatorTests
     static readonly string AnalyzerProjectFile = """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
-            <Version>3.1.0</Version>
+            <Version>4.0.0</Version>
           </PropertyGroup>
         </Project>
         """ + "\n";
@@ -562,7 +562,7 @@ public sealed partial class StandardsValidatorTests
         ; Shipped analyzer releases
         ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
-        ## Release 3.1.0
+        ## Release 4.0.0
 
         ### New Rules
 
@@ -597,7 +597,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "analyzer pin matching the analyzer project")]
     public void AnalyzerPinMatchingProject() => Check(
-        root => AnalyzerPinFiles(root, "3.1.0"),
+        root => AnalyzerPinFiles(root, "4.0.0"),
         []);
 
     /// <summary>Stack page citing a rule the pinned release does not ship.</summary>
@@ -606,7 +606,7 @@ public sealed partial class StandardsValidatorTests
     public void AnalyzerRuleNotShipped() => Check(
         root =>
         {
-            AnalyzerPinFiles(root, "3.1.0");
+            AnalyzerPinFiles(root, "4.0.0");
             StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
             CiteAnalyzerRule(root, "LS9999");
         },
@@ -618,7 +618,7 @@ public sealed partial class StandardsValidatorTests
     public void AnalyzerRuleShipped() => Check(
         root =>
         {
-            AnalyzerPinFiles(root, "3.1.0");
+            AnalyzerPinFiles(root, "4.0.0");
             StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
             CiteAnalyzerRule(root, "LS1001");
         },

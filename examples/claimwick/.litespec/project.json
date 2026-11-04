@@ -1,5 +1,5 @@
 {
-  "$schema": "https://litespec.dev/3.1.0/schemas/litespec-project.schema.json",
+  "$schema": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
   "project": {
     "name": "Claimwick"
   },
@@ -9,7 +9,7 @@
     "dotnet",
     "svelte"
   ],
-  "reviewedLiteSpecVersion": "3.1.0",
+  "reviewedLiteSpecVersion": "4.0.0",
   "optionalTypes": [
     "constraint",
     "research",

@@ -1,6 +1,6 @@
 # Support
 
-Read the documentation for this release at [litespec.dev/3.1.0](https://litespec.dev/3.1.0/) and in [docs/README.md](docs/README.md) before opening a request. Search the existing issues first, and include the LiteSpec release and a small reproduction where a tool is involved.
+Read the documentation for this release at [litespec.dev/4.0.0](https://litespec.dev/4.0.0/) and in [docs/README.md](docs/README.md) before opening a request. Search the existing issues first, and include the LiteSpec release and a small reproduction where a tool is involved.
 
 ## Where to Go
 

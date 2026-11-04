@@ -14,10 +14,10 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 |:---|:---|
 | Path | `litespec.manifest.json` at the repository root |
 | Schema | `schemas/litespec-manifest.schema.json` |
-| Current version | `3.1.0` |
+| Current version | `4.0.0` |
 | Schema version | `5` |
 
-The current release is `3.1.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
+The current release is `4.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
 
 ### Top-Level Fields
 
@@ -40,7 +40,7 @@ What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
 - `schemaVersion` is the constant `5`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"3.1.0"`. `litespec init` stamps it into a new `.litespec/project.json` as `reviewedLiteSpecVersion`, and `litespec consumer` compares the two and fails the run when they differ.
+- `version` is the release version, currently `"4.0.0"`. `litespec init` stamps it into a new `.litespec/project.json` as `reviewedLiteSpecVersion`, and `litespec consumer` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -201,4 +201,4 @@ An extension is added in three steps:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `3.1.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.
+The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `4.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.

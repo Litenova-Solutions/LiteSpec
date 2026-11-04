@@ -301,7 +301,7 @@ public sealed class BookCommandTests
     {
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"3.1.0"}""");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"4.0.0"}""");
         var result = Cli.Run(
             ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });

@@ -30,7 +30,7 @@ Second, a rule registers only in the layers its provision covers. Domain rules r
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
-Each diagnostic carries a help link of the form `https://litespec.dev/3.1.0/<page>/#<slug>`, which opens the provision the rule enforces.
+Each diagnostic carries a help link of the form `https://litespec.dev/4.0.0/<page>/#<slug>`, which opens the provision the rule enforces.
 
 ## How a Rule Reads Records
 

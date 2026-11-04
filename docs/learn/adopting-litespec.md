@@ -14,11 +14,11 @@ Teams usually adopt LiteSpec in six steps, from the install to the checks. For t
 
 ### 1. Install the Release
 
-Install the `litespec` command line as a local .NET tool at the release the team adopts, such as `3.1.0`:
+Install the `litespec` command line as a local .NET tool at the release the team adopts, such as `4.0.0`:
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 3.1.0
+dotnet tool install LiteSpec.Cli --version 4.0.0
 dotnet tool restore
 ```
 
@@ -32,7 +32,7 @@ Run `dotnet litespec init` with the preset closest to the stack and the size:
 dotnet litespec init --preset dotnet-react --size small
 ```
 
-It writes `.litespec/project.json` with the size, shape, and stacks, records the release the team reviewed in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the owners and paths, point `paths.behaviorDocs` at the Behavior root, name the veto window in `review` and the security reviewer when the project wants one, name the decision that ends transcription in `adoption`, and select the extensions the project needs. The [selection page](https://litespec.dev/3.1.0/select/) shows which pages the choices apply.
+It writes `.litespec/project.json` with the size, shape, and stacks, records the release the team reviewed in `reviewedLiteSpecVersion`, and writes the starting agent context, glossary, and example cast beside it. Fill in the owners and paths, point `paths.behaviorDocs` at the Behavior root, name the veto window in `review` and the security reviewer when the project wants one, name the decision that ends transcription in `adoption`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.0.0/select/) shows which pages the choices apply.
 
 ### 3. Tell the Agents
 
@@ -48,7 +48,7 @@ Build the first use case the way the standard describes: the backend projects, t
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="3.1.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="4.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 

@@ -110,7 +110,7 @@ public sealed class ApprovalCaptureTests
               "shape": "server",
               "packs": ["lite"],
               "stacks": ["dotnet"],
-              "reviewedLiteSpecVersion": "3.1.0",
+              "reviewedLiteSpecVersion": "4.0.0",
               "owners": ["lending-team"],
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }

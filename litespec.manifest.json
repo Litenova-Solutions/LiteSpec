@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/litespec-manifest.schema.json",
   "schemaVersion": 5,
-  "version": "3.1.0",
+  "version": "4.0.0",
   "name": "litespec",
   "agentsEntry": "AGENTS.md",
   "stacks": {
@@ -331,7 +331,7 @@
       "LiteBus.Queries.Abstractions": "7.0.0",
       "LiteBus.Storage.PostgreSql": "7.0.0",
       "LiteBus.Testing.Mediation": "7.0.0",
-      "LiteSpec.Analyzers": "3.1.0",
+      "LiteSpec.Analyzers": "4.0.0",
       "Marten": "9.50.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
       "Microsoft.AspNetCore.DataProtection": "10.0.13",

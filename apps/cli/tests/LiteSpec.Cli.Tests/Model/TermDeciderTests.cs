@@ -72,7 +72,7 @@ public sealed class TermDeciderTests
         {
             Write(temp.Path, ".litespec/project.json", """
                 {"project": {"name": "Term Decider Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.1.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "4.0.0", "owners": ["lending-team"],
                   "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []}}
                 """);
             TestRecords.Write(temp.Path, ".litespec/glossary.yaml", $$"""

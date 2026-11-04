@@ -5,7 +5,7 @@
   "size": "large",
   "shape": "server",
   "stacks": ["dotnet", "svelte"],
-  "reviewedLiteSpecVersion": "3.1.0",
+  "reviewedLiteSpecVersion": "4.0.0",
   "optionalTypes": [
     "constraint",
     "research",

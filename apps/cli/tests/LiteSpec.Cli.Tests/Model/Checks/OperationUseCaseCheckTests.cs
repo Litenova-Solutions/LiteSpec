@@ -113,7 +113,7 @@ public sealed class OperationUseCaseCheckTests
 
     const string RightContract = """
         {
-          "openapi": "3.1.0",
+          "openapi": "4.0.0",
           "paths": {
             "/api/lending/borrow-copy": {
               "post": {
@@ -127,7 +127,7 @@ public sealed class OperationUseCaseCheckTests
 
     const string MissingContract = """
         {
-          "openapi": "3.1.0",
+          "openapi": "4.0.0",
           "paths": {
             "/api/lending/borrow-copy": {
               "post": {
@@ -140,7 +140,7 @@ public sealed class OperationUseCaseCheckTests
 
     const string WrongContract = """
         {
-          "openapi": "3.1.0",
+          "openapi": "4.0.0",
           "paths": {
             "/api/lending/borrow-copy": {
               "post": {

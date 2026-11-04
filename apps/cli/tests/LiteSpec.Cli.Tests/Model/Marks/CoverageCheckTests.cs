@@ -133,7 +133,7 @@ public sealed class CoverageCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "3.1.0",
+                  "reviewedLiteSpecVersion": "4.0.0",
                   "owners": [
                     "lending-team"
                   ],
