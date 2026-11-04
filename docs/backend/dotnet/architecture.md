@@ -20,7 +20,7 @@ The host also keeps the endpoints that have no handler to sit beside: protocol e
 
 Every node of the tree may hold the same layer folders. Each level allows a closed set of folder names, so any other folder is refused. Inside a layer folder subfolders stay free, because the folder already states the layer and the lowest-folder rule already placed the type.
 
-A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner Contracts folder, and shared-kernel values live in the product Domain folder. The product root holds no WebApi folder, because product-wide HTTP plumbing stays in the host.
+A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner Contracts folder, and shared-kernel values live in the product Domain folder. The product WebApi folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
 
 A module with one aggregate of its own name stays flat. Models stay separate and flow one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result and never the aggregate.
 

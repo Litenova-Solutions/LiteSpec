@@ -374,6 +374,35 @@ public sealed class DomainOuterLayerAnalyzerTests
                     """),
             ], assemblyName: "NightHall");
 
+    /// <summary>LS1001 accepts a typed identifier from another module's Contracts and reports a port there.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 accepts a typed identifier from Contracts and reports a port there")]
+    public Task AcceptsAContractsIdentifierAndReportsAContractsPort() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("NightHall/Billing/Invoices/Domain/Invoice.cs", """
+                    namespace NightHall.Billing.Invoices;
+
+                    internal sealed class Invoice
+                    {
+                        internal Invoice Bill(NightHall.Organizations.OrganizerId organizer, NightHall.Organizations.{|LS1001:IOrganizerReader|} reader) => this;
+                    }
+                    """),
+                ("NightHall/Organizations/Contracts/OrganizerId.cs", """
+                    namespace NightHall.Organizations;
+
+                    internal readonly record struct OrganizerId(System.Guid Value);
+                    """),
+                ("NightHall/Organizations/Contracts/IOrganizerReader.cs", """
+                    namespace NightHall.Organizations;
+
+                    internal interface IOrganizerReader
+                    {
+                    }
+                    """),
+            ], assemblyName: "NightHall");
+
     /// <summary>LS1001 accepts a Domain file naming only Domain types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
