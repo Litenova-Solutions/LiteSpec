@@ -9,10 +9,7 @@ artifacts/
 .fuse/
 mcps/
 .opencode/
-.agents/delegate/
 
-# Working plans stay local.
-.agents/plans/
 
 # The model builder and the book write their output here in every consumer, fixture and example.
 **/.litespec/model/
@@ -21,3 +18,6 @@ mcps/
 # Agent worktrees from other sessions are separate checkouts, never part of this repository.
 .claude/worktrees/
 .playwright-cli/
+
+# Agent working files stay local.
+.agents/
