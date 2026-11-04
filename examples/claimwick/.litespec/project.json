@@ -13,7 +13,6 @@
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
-    "uiDocs": ".litespec/implementation/entry-points/claimwick-app",
     "glossary": ".litespec/glossary.yaml",
     "testRoots": [
       "apps/api/tests"

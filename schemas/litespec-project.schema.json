@@ -188,7 +188,7 @@
     "paths": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["behaviorDocs", "uiDocs", "frontends"],
+      "required": ["behaviorDocs", "frontends"],
       "properties": {
         "docs": {
           "description": "Root of the specification tree. Every Markdown file under it carries a metadata block unless the path is listed in unstructuredDocs.",
@@ -271,7 +271,6 @@
             }
           }
         },
-        "uiDocs": { "$ref": "#/$defs/projectPath" },
         "uiPackage": {
           "description": "The workspace's one shared UI package: the registry configuration, the copied primitive source, the token stylesheet, the source lock, and the design contract. A workspace with no controlled web frontend omits it.",
           "$ref": "#/$defs/uiPackage"

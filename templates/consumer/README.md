@@ -84,6 +84,6 @@ Only research and decision scaffold an explanation file today. For the other rec
 |:---|:---|:---|
 | `design-contract.md` | `packages/ui/DESIGN.md` | States the brand, tokens, composites, and voice every frontend composes from. |
 | `ui-source-lock.json` | `packages/ui/ui-source-lock.json` | Records the installed registry source, digests, and dependencies. |
-| `ui-pattern-catalog.json` | `.litespec/ui/pattern-catalog.json` | Records each recurring interface decision with its options and choice. |
+| `ui-pattern-catalog.json` | `.litespec/implementation/patterns/catalog.json` | Records each recurring interface decision with its options and choice. |
 
 The model builder reads each record and writes the computed state into `model.json`.

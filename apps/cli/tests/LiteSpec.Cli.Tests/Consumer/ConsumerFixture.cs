@@ -338,7 +338,6 @@ static class ConsumerFixture
             {
                 ["docs"] = ".litespec",
                 ["behaviorDocs"] = ".litespec/behavior",
-                ["uiDocs"] = ".litespec/ui",
                 ["frontends"] = new JsonArray(),
             },
             ["selectedExtensions"] = new JsonArray(),

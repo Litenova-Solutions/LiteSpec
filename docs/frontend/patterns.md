@@ -187,7 +187,7 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 **Example:** The project file points at the catalog.
 
 ```json
-{ "paths": { "uiPatterns": ".litespec/ui/patterns.json" } }
+{ "paths": { "uiPatterns": ".litespec/implementation/patterns/catalog.json" } }
 ```
 
 **Checked by:** `litespec model check` reports `[litespec/frontend/patterns#keep-one-pattern-catalog]` for a missing catalog, a duplicate id, an unknown group, an unknown library pattern, or a renamed option. Run it at the consumer root.

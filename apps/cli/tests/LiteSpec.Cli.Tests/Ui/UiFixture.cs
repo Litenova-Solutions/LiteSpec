@@ -119,7 +119,7 @@ sealed class UiFixture : IDisposable
     public string DesignFile => Join("packages/ui/DESIGN.md");
 
     /// <summary>Gets the pattern catalog.</summary>
-    public string CatalogFile => Join(".litespec/ui/pattern-catalog.json");
+    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.json");
 
     /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");

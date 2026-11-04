@@ -133,7 +133,6 @@ What each field means and what reads it:
 | `sbom` | array of strings | no | none |
 | `apiClient` | string | no | `packages/api` |
 | `surfaces` | array of object | no | none |
-| `uiDocs` | string | yes | none |
 | `uiPackage` | object | no | none |
 | `uiPatterns` | string | no | none |
 | `frontends` | array of object | yes | none |
@@ -144,7 +143,7 @@ What each field means and what reads it:
 - `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document, unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `.litespec`.
 - `glossary` names the project glossary. `litespec model check` validates it and scans the pages against its rejected words and mannered terms.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
-- `behaviorDocs` and `uiDocs` name the behavior and UI documentation roots. Both are required.
+- `behaviorDocs` names the behavior documentation root. It is required.
 - `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `exception`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
@@ -278,7 +277,6 @@ This example shows the file `litespec init --preset dotnet-react --size small --
   "paths": {
     "docs": "docs",
     "behaviorDocs": ".litespec/behavior",
-    "uiDocs": ".litespec/ui",
     "unstructuredDocs": [],
     "testRoots": [
       "apps/api/tests"
@@ -295,7 +293,7 @@ This example shows the file `litespec init --preset dotnet-react --size small --
         "@shop/ui/floorplans"
       ]
     },
-    "uiPatterns": ".litespec/ui/pattern-catalog.json",
+    "uiPatterns": ".litespec/implementation/patterns/catalog.json",
     "frontends": [
       {
         "name": "web",

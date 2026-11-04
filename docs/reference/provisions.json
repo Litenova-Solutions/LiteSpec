@@ -19614,7 +19614,7 @@
       "strength": "rule",
       "statement": "A workspace with a controlled frontend MUST keep one pattern catalog at \u0060paths.uiPatterns\u0060 in \u0060.litespec/project.json\u0060, valid against the schema.",
       "rationale": "An interface decision kept in one catalog is found before it is remade: the next author reads the entry and builds the chosen option. A decision kept in chat, in a review thread, or in one author\u0027s memory is decided again on the next page, and the two answers differ. One catalog at the configured path, valid against the schema, keeps every decision searchable and every choice comparable.",
-      "example": "The project file points at the catalog.\n\n\u0060\u0060\u0060json\n{ \u0022paths\u0022: { \u0022uiPatterns\u0022: \u0022.litespec/ui/patterns.json\u0022 } }\n\u0060\u0060\u0060"
+      "example": "The project file points at the catalog.\n\n\u0060\u0060\u0060json\n{ \u0022paths\u0022: { \u0022uiPatterns\u0022: \u0022.litespec/implementation/patterns/catalog.json\u0022 } }\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/frontend/patterns#keep-the-catalog-platform-neutral",

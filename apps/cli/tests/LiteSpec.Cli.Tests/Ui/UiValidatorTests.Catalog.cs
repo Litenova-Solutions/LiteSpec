@@ -105,7 +105,7 @@ public sealed partial class UiValidatorTests
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.CatalogFile);
-        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/ui/pattern-catalog.json'");
+        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/implementation/patterns/catalog.json'");
     }
 
     /// <summary>A Catalog That Breaks The Schema.</summary>

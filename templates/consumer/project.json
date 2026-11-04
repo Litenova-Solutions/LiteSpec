@@ -19,7 +19,6 @@
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
-    "uiDocs": ".litespec/ui",
     "unstructuredDocs": [],
     "testRoots": [
       "apps/api/tests"
@@ -36,7 +35,7 @@
         "@__PROJECT__/ui/floorplans"
       ]
     },
-    "uiPatterns": ".litespec/ui/pattern-catalog.json",
+    "uiPatterns": ".litespec/implementation/patterns/catalog.json",
     "frontends": [
       {
         "name": "web",

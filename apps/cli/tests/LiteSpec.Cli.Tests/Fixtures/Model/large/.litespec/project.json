@@ -12,7 +12,6 @@
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",
-    "uiDocs": ".litespec/ui",
     "glossary": ".litespec/glossary.yaml",
     "testRoots": [
       "apps/api/tests"

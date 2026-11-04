@@ -163,7 +163,7 @@ A Convention states a default a project may replace:
 ```markdown
 ### Use the Default Location
 
-**Default:** Store the catalog at `.litespec/ui/patterns.json`.
+**Default:** Store the catalog at `.litespec/implementation/patterns/catalog.json`.
 
 **Replacement:** A project names another path in `paths.uiPatterns`.
 
