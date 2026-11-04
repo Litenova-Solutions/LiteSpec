@@ -30,6 +30,11 @@ public sealed class SliceIsolationAnalyzerTests
                     {
                     }
                     """),
+                ("NightHall/Domain/Money.cs", """
+                    namespace NightHall.Domain;
+
+                    internal readonly record struct Money(decimal Amount);
+                    """),
             ],
             assemblyName: "NightHall");
 
@@ -62,6 +67,11 @@ public sealed class SliceIsolationAnalyzerTests
                     {
                     }
                     """),
+                ("NightHall/Domain/Money.cs", """
+                    namespace NightHall.Domain;
+
+                    internal readonly record struct Money(decimal Amount);
+                    """),
             ],
             assemblyName: "NightHall");
 
@@ -86,8 +96,40 @@ public sealed class SliceIsolationAnalyzerTests
                     {
                     }
                     """),
+                ("NightHall/Domain/Money.cs", """
+                    namespace NightHall.Domain;
+
+                    internal readonly record struct Money(decimal Amount);
+                    """),
             ],
             assemblyName: "NightHall");
+
+    /// <summary>LS2019 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 stays quiet in a project laid out without product layer folders")]
+    public Task StaysQuietWithoutProductLayerFolders() =>
+        Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
+            [
+                ("NightHall.Cli/Exercises/SignInCommand.cs", """
+                    namespace NightHall.Cli.Exercises;
+
+                    internal sealed class SignInCommand
+                    {
+                        internal void Run(NightHall.Cli.Stack.StartStackCommand start)
+                        {
+                        }
+                    }
+                    """),
+                ("NightHall.Cli/Stack/StartStackCommand.cs", """
+                    namespace NightHall.Cli.Stack;
+
+                    internal sealed class StartStackCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "NightHall.Cli");
 
     /// <summary>LS2019 stays quiet when an aggregate file names a use case type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -110,6 +152,11 @@ public sealed class SliceIsolationAnalyzerTests
                     internal sealed class RenameTeamCommand
                     {
                     }
+                    """),
+                ("NightHall/Domain/Money.cs", """
+                    namespace NightHall.Domain;
+
+                    internal readonly record struct Money(decimal Amount);
                     """),
             ],
             assemblyName: "NightHall");

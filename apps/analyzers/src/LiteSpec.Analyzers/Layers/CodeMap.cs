@@ -81,7 +81,7 @@ internal sealed class CodeMap
             layout,
             FileScope.DeclaredLayer(options),
             modules,
-            FindSlices(paths, ProjectRootOf(paths, compilation.AssemblyName ?? string.Empty)));
+            FindSlices(paths, layout, ApplicationRootOf(paths, compilation.AssemblyName ?? string.Empty)));
     }
 
     /// <summary>Returns the layer of the file.</summary>
@@ -260,6 +260,13 @@ internal sealed class CodeMap
         return modules;
     }
 
+    /// <summary>Returns the application project root, or null when the compilation is no application project.</summary>
+    /// <param name="paths">The source file paths of the compilation.</param>
+    /// <param name="assemblyName">The application assembly name.</param>
+    /// <returns>The root as a forward-slash directory path, or null.</returns>
+    private static string? ApplicationRootOf(List<string> paths, string assemblyName) =>
+        ProjectRootOf(paths, assemblyName) is string root && HoldsProductLayerFolder(paths, root) ? root : null;
+
     /// <summary>
     ///     Returns true when a source file sits in a product layer folder directly under the root:
     ///     the application project holds <c>Domain/</c>, <c>Application/</c> or <c>Infrastructure/</c>
@@ -351,11 +358,19 @@ internal sealed class CodeMap
 
     /// <summary>Finds the slice folders: folders of role-suffixed files outside the known folder names.</summary>
     /// <param name="paths">The source file paths of the compilation.</param>
-    /// <param name="root">The project root, or null when none is found; a slice sits below it, outside every layer folder.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="root">The application project root, or null when the compilation is no application project; a slice sits below it, outside every layer folder.</param>
     /// <returns>The slice folders, as forward-slash directory paths.</returns>
-    private static HashSet<string> FindSlices(List<string> paths, string? root)
+    private static HashSet<string> FindSlices(List<string> paths, Layout layout, string? root)
     {
         var slices = new HashSet<string>(StringComparer.Ordinal);
+        // Under layer-projects the use case folders sit in the layer projects; under modules only
+        // the application project holds them.
+        if (root is null && layout != Layout.LayerProjects)
+        {
+            return slices;
+        }
+
         foreach (var path in paths)
         {
             var folder = FolderOf(path);
