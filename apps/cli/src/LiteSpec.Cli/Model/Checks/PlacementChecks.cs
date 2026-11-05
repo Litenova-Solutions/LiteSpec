@@ -1363,12 +1363,20 @@ internal static class PlacementChecks
         return useCases;
     }
 
-    /// <summary>The declared reaction folders by module and folder name, one On{Fact} folder per trigger of each reaction, the fact being the event's home and name, the home named once.</summary>
+    /// <summary>
+    ///     The declared reaction folders by module and folder name, one On{Fact} folder per trigger of each reaction.
+    ///     The fact is the name of the event class that carries the trigger's mark, without its Event suffix. A
+    ///     trigger with no marked class allows its name alone and its home and name, since either can name the class.
+    /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The module and folder name of each reaction trigger with a placed qualified identifier.</returns>
     private static List<(string Module, string Folder)> DeclaredReactionFolders(ProjectModel model)
     {
         var folders = new List<(string Module, string Folder)>();
+        var eventClasses = model.Code.Elements
+            .Where(element => element.Kind == CodeKind.DomainEvent)
+            .SelectMany(element => element.Marks.Select(mark => (mark.RecordId, element.Class)))
+            .ToLookup(pair => pair.RecordId, pair => pair.Class, StringComparer.Ordinal);
 
         foreach (var record in model.Records)
         {
@@ -1386,10 +1394,20 @@ internal static class PlacementChecks
 
             foreach (var trigger in record.Ids(RecordFields.TriggeredBy))
             {
-                if (Identifiers.TrySplit(trigger, out _, out var home, out var name) && name.Length > 0)
+                var classes = eventClasses[trigger].ToList();
+
+                if (classes.Count > 0)
                 {
-                    var fact = home is null || name.StartsWith(home + "-", StringComparison.Ordinal) ? name : home + "-" + name;
-                    folders.Add((path.Module, "On" + Pascal(fact)));
+                    folders.AddRange(classes.Select(type => (path.Module, "On" + (type.EndsWith("Event", StringComparison.Ordinal) ? type[..^"Event".Length] : type))));
+                }
+                else if (Identifiers.TrySplit(trigger, out _, out var home, out var name) && name.Length > 0)
+                {
+                    folders.Add((path.Module, "On" + Pascal(name)));
+
+                    if (home is not null && !name.StartsWith(home + "-", StringComparison.Ordinal))
+                    {
+                        folders.Add((path.Module, "On" + Pascal(home + "-" + name)));
+                    }
                 }
             }
         }
