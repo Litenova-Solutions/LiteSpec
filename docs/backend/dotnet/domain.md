@@ -729,7 +729,7 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 
 **Replacement:** A project names its Domain folder layout in its Domain documentation.
 
-**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, and each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
+**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, and each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder with the exceptions of the rules they enforce, which take the product as their home, such as `rule/claimwick.amount-is-never-negative`. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
 
 **Example:** The Domain layer folder layout is:
 

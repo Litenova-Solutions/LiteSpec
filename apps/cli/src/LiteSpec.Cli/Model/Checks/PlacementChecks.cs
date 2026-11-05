@@ -129,6 +129,21 @@ internal static class PlacementChecks
                     continue;
                 }
 
+                // A rule the product holds is enforced by a shared value, so its code lives in
+                // the shared kernel, wherever the rule's record file sits.
+                if (record.Type == RecordTypes.Rule
+                    && Identifiers.TrySplit(record.Id, out _, out var ruleHome, out _)
+                    && ruleHome is not null
+                    && model.ById.ContainsKey($"product/{ruleHome}"))
+                {
+                    if (!SourceRoots.IsUnder(model.Config.SharedKernelRoot, element.File))
+                    {
+                        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' implements the product rule '{record.Id}', so it belongs in the shared kernel.", mark.File, mark.Line, mark.RecordId));
+                    }
+
+                    continue;
+                }
+
                 var path = PathOf(record, model.Config);
 
                 if (path.Module is null)

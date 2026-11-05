@@ -130,6 +130,46 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Empty(Run(model));
     }
 
+    /// <summary>A product rule exception in the shared kernel reports nothing, wherever its record file sits.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Product_Rule_Exception_In_Shared_Kernel_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        AddProductRule(model, temp.Path);
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Exceptions", "TextRequiredException.cs");
+        WriteCode(file, "Library.Domain.Exceptions", "TextRequiredException");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "TextRequiredException", file, "rule/library.required-text-is-never-blank"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A product rule exception in a module reports that it belongs in the shared kernel.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Product_Rule_Exception_In_A_Module_Reports_The_Shared_Kernel()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        AddProductRule(model, temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "Exceptions", "TextRequiredException.cs");
+        WriteCode(file, "Library.Lending.Contracts.Exceptions", "TextRequiredException");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "TextRequiredException", file, "rule/library.required-text-is-never-blank"));
+
+        var finding = Assert.Single(Run(model));
+        Assert.Equal("Rule exception 'TextRequiredException' implements the product rule 'rule/library.required-text-is-never-blank', so it belongs in the shared kernel.", finding.Message);
+    }
+
+    /// <summary>Adds the product and one rule it holds, with the rule record filed under a module.</summary>
+    /// <param name="model">The model receiving the records.</param>
+    /// <param name="root">The fixture root folder.</param>
+    static void AddProductRule(ProjectModel model, string root)
+    {
+        model.Records.Add(Rec(RecordTypes.Product, "product/library", "library", root));
+        model.Records.Add(Rec(RecordTypes.Rule, "rule/library.required-text-is-never-blank", "lending/loans/rule/required-text-is-never-blank", root));
+    }
+
     /// <summary>A rule exception in another module Contracts folder reports the module folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
