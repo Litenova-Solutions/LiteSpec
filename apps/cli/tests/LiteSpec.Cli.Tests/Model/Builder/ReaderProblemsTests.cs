@@ -142,14 +142,14 @@ public sealed class ReaderProblemsTests
         using var temp = Cli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.json"),
-            """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"application": "src/Missing.Application"}}}""");
+            """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/Missing.Modules"}}}""");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
         var problem = Assert.Single(model.Problems, found => found.Code == "reader-missing");
 
         Assert.Equal("S", problem.Tier);
-        Assert.Contains("application", problem.Message);
-        Assert.Contains("Missing.Application", problem.Message);
+        Assert.Contains("modules", problem.Message);
+        Assert.Contains("Missing.Modules", problem.Message);
     }
 
     /// <summary>A declared stack root wildcard that matches no folder reports reader-missing naming the pattern.</summary>
@@ -161,12 +161,12 @@ public sealed class ReaderProblemsTests
         Directory.CreateDirectory(Path.Combine(temp.Path, "src"));
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.json"),
-            """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"application": "src/*.Application"}}}""");
+            """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/*.Modules"}}}""");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
         var problem = Assert.Single(model.Problems, found => found.Code == "reader-missing");
 
-        Assert.Contains("*.Application", problem.Message);
+        Assert.Contains("*.Modules", problem.Message);
     }
 
     /// <summary>A server project with no backend reader reports reader-missing; a client-only project stays silent.</summary>
@@ -259,7 +259,7 @@ public sealed class ReaderProblemsTests
             Path.Combine(root, ".litespec/project.json"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "application": "src/App", "domain": "src/Domain",
+              "modules": "src/App", "domain": "src/Domain",
               "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
             """);
 

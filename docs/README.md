@@ -67,7 +67,7 @@ These principles hold for every backend. A backend stack folder states how its t
 ### .NET Stack
 
 - [.NET Stack](backend/dotnet/stack.md): what the .NET backend binding covers and what the builder reads.
-- [.NET Architecture](backend/dotnet/architecture.md): the one application project with its hosts, the namespace tree, and host-only endpoints.
+- [.NET Architecture](backend/dotnet/architecture.md): the shared kernel and modules projects with their hosts, the namespace tree, and host-only endpoints.
 - [.NET Domain Layer](backend/dotnet/domain.md): the C# types, references, and tooling for the Domain project.
 - [.NET Application Layer](backend/dotnet/application.md): LiteBus dispatch and validity reporting.
 - [.NET Persistence](backend/dotnet/persistence.md): the Marten baseline provider rules.

@@ -341,7 +341,7 @@ internal sealed record PathContext(
                 "Application" => "application",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
-                "Contracts" or "Reactions" or "Jobs" => "application",
+                "Composition" or "Contracts" or "Jobs" => "application",
                 "Migrations" => "infrastructure",
                 _ => "",
             };
@@ -459,7 +459,13 @@ internal sealed record PathContext(
             return "job";
         }
 
-        if (HasSegment(segments, "Reactions") && name.EndsWith("Handler.cs", StringComparison.Ordinal))
+        // A reaction folder is named On{Fact} for the fact it handles, in the module
+        // UseCases folder or beside the aggregate it changes, so the parent folder
+        // names the reaction whatever tree holds it.
+        if (name.EndsWith("Handler.cs", StringComparison.Ordinal)
+            && segments.Length >= 2
+            && segments[^2].StartsWith("On", StringComparison.Ordinal)
+            && segments[^2].Length > 2)
         {
             return "reaction";
         }

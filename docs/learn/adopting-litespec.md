@@ -44,7 +44,7 @@ Start with the product: one `.litespec/intent/product.yaml` that says what the p
 
 ### 5. Build to the Standard
 
-Build the first use case the way the standard describes: the application project ordered by module, aggregate, and use case, the handler in its folder, the refusal codes, the tests. A codebase already on five projects selects the `layer-projects` extension instead of moving to one application project. Reference `LiteSpec.Analyzers` from the application project and the hosts, or once in `Directory.Build.props`, so a breach of a .NET provision fails the build at the line that breaks it:
+Build the first use case the way the standard describes: the modules project ordered by module, aggregate, `UseCases/`, and use case, the handler in its folder, the refusal codes, the tests. A codebase already on five projects selects the `layer-projects` extension instead of moving to the shared kernel and modules projects. Reference `LiteSpec.Analyzers` from the business projects and the hosts, or once in `Directory.Build.props`, so a breach of a .NET provision fails the build at the line that breaks it:
 
 ```xml
 <ItemGroup>
@@ -56,7 +56,7 @@ Then check what the builder finds:
 
 ```bash
 dotnet litespec model check
-dotnet litespec rules apps/api/src/Shop/Orders/Order/CancelOrder/CancelOrderCommandHandler.cs
+dotnet litespec rules apps/api/src/Shop.Modules/Orders/Order/UseCases/CancelOrder/CancelOrderCommandHandler.cs
 ```
 
 The first command lists the gaps with a level beside each finding. The second lists the provisions that apply to the file just written, grouped by strength.

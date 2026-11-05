@@ -22,7 +22,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 | Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
 | Assembly marker | `{Product}AssemblyMarker` | `ClaimwickAssemblyMarker` |
 
-In the dotnet stack, the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the application project carries one assembly marker.
+In the dotnet stack, the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and the modules project carries one assembly marker.
 
 Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
 
@@ -62,11 +62,11 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Default:** No folder is named `Shared`, `Common`, `Util`, `Utils`, `Helpers`, or `Misc`, and no type carries one of those names or ends in `Helper`, `Manager`, `Util`, or `Utils`, outside the declared shared kernel.
 
-**Replacement:** A project names its shared kernel folder in `stackConfig.dotnet.sharedKernel` and keeps every other folder and type named for its reason.
+**Replacement:** A project names its shared kernel project in `stackConfig.dotnet.sharedKernel` and keeps every other folder and type named for its reason.
 
-**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name; each such name becomes the drawer where unrelated code gathers. The domain shared kernel is the one declared exception, named in one place, so the exception stays visible instead of spreading.
+**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name; each such name becomes the drawer where unrelated code gathers. The shared kernel project is the one declared exception, named in one place, so the exception stays visible instead of spreading.
 
-**Example:** The declared product `Domain/` folder passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
+**Example:** The declared shared kernel project passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
 **Checked by:** `litespec model check` reports `name-reason-missing` (level S) for a folder or type named for the absence of a reason outside the declared shared kernel.
 
@@ -75,7 +75,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 This informative example demonstrates `litespec/backend/dotnet/naming#match-c-files-and-primary-types`, `litespec/workspace/naming#use-architectural-suffixes`, and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
 
 ```csharp
-namespace Example.Posts.CreateDraft;
+namespace Example.Posts.UseCases.CreateDraft;
 
 internal sealed class CreateDraftCommandHandler(
     IPostRepository postRepository,

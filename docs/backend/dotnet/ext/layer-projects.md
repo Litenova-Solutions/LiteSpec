@@ -20,20 +20,20 @@ The consumer selects `layer-projects` when its backend already packages each lay
 For a project selecting this extension, this extension replaces:
 
 - `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: one folder per module in every project replaces the one module tree.
-- `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`: five application projects replace the one application project with its hosts.
-- `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`: host endpoints without a handler live in the WebApi project instead of beside the one application project.
+- `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`: five layer projects replace the shared kernel and modules projects with their hosts.
+- `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`: host endpoints without a handler live in the WebApi project instead of beside the shared kernel and modules projects.
 - `litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree`: one folder and namespace per module in every project replaces the one namespace tree.
-- `litespec/workspace/dependencies#follow-the-declared-dependency-graph`: project references between the five projects replace references from the hosts to the one application project.
+- `litespec/workspace/dependencies#follow-the-declared-dependency-graph`: project references between the five projects replace references from the hosts to the shared kernel and modules projects.
 - `litespec/workspace/dependencies#keep-domain-dependency-free`: a Domain project with no package references replaces analyzer-checked purity of the Domain layer folders.
 - `litespec/workspace/dependencies#keep-application-free-of-provider-packages`: an Application project with narrow references replaces the same boundary on the Application layer folders.
 - `litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer`: package ownership by project replaces ownership by layer folder.
-- `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-application-project-and-hosts`: the analyzers run in every application project instead of in the one application project and the hosts.
+- `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`: the analyzers run in every layer project instead of in the shared kernel and modules projects and the hosts.
 - `litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout`: aggregate folders in the Domain project replace aggregate layer folders in the module tree.
-- `litespec/backend/dotnet/application#use-the-use-case-folder-layout`: operation folders in the Application project replace operation files in the use case folders.
+- `litespec/backend/dotnet/application#use-the-use-case-folder-layout`: operation folders in the Application project replace operation files in the `UseCases/` use case folders.
 - `litespec/backend/dotnet/api#place-endpoints-in-their-use-case-folders`: endpoint folders in the WebApi project replace endpoint files in the use case folders.
-- `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`: the Infrastructure persistence folder replaces the product and module Infrastructure folders.
+- `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`: the Infrastructure persistence folder replaces the shared kernel and module Infrastructure folders.
 - `litespec/backend/testing#keep-the-test-suites-the-size-requires`: Domain.Tests and Application.Tests beside Architecture, Integration, and Acceptance replace the one unit test project beside them.
-- `litespec/workspace/structure#keep-production-and-test-code-separate`: the five-project source tree replaces the one application project beside its hosts.
+- `litespec/workspace/structure#keep-production-and-test-code-separate`: the five-project source tree replaces the shared kernel and modules projects beside their hosts.
 
 Every other baseline provision binds unchanged.
 
@@ -88,7 +88,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 | Project | may reference |
 |:---|:---|
-| Domain | No application project |
+| Domain | None |
 | Application.Abstractions | Domain |
 | Application | Domain, Application.Abstractions |
 | Infrastructure | Domain, Application.Abstractions, Application |
@@ -203,7 +203,7 @@ That refusal is why it is a project rather than a folder. A folder inside Applic
 
 An implementation never belongs there. The project name states the test, and a type that cannot pass it belongs to a module under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
 
-Hosts support local hosting and diagnostics. They are hosts rather than application projects. A Worker project hosts background work under `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`.
+Hosts support local hosting and diagnostics. They are hosts rather than layer projects. A Worker project hosts background work under `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`.
 
 **Example:**
 
@@ -273,7 +273,7 @@ The example adds a package to the narrowest owning project. A central version en
 </ItemGroup>
 ```
 
-**Reviewed for:** Which application project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each application project file.
+**Reviewed for:** Which layer project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each layer project file.
 
 ### Use the Domain Module Layout
 

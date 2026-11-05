@@ -178,7 +178,7 @@ public sealed class FindingMessageFormatTests
             """
             {"owners": ["lending-team"], "size": "large",
              "paths": {"frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}]},
-             "stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Domain/Shared"}}}
+             "stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}
             """);
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 

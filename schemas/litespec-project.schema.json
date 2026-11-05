@@ -44,8 +44,12 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "application": {
-              "description": "The one code root the model builder reads: the application project holding every module at every layer. Defaults to apps/api/src/*. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.",
+            "modules": {
+              "description": "The modules project the model builder reads: every module with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/*.Modules. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.",
+              "$ref": "#/$defs/projectPath"
+            },
+            "sharedKernel": {
+              "description": "The shared kernel project the model builder reads: what every module builds on and that names no module, where reasonless names are allowed. Defaults to apps/api/src/*.SharedKernel.",
               "$ref": "#/$defs/projectPath"
             },
             "domain": {
@@ -66,10 +70,6 @@
             },
             "apiSolution": {
               "description": "Path to the API solution. A consumer with no backend omits it and records the decision that it has none.",
-              "$ref": "#/$defs/projectPath"
-            },
-            "sharedKernel": {
-              "description": "The one folder holding the domain shared kernel, where reasonless names are allowed. Defaults to none.",
               "$ref": "#/$defs/projectPath"
             },
             "templateStore": {

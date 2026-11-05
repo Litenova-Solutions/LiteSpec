@@ -62,15 +62,15 @@ public sealed class LayerResolverTests
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Theory]
-    [InlineData("NightHall/Organizations/Teams/Domain/Team.cs", Layer.Domain)]
-    [InlineData("NightHall/Organizations/Teams/Application/CreateTeam.cs", Layer.Application)]
-    [InlineData("NightHall/Organizations/Teams/Infrastructure/TeamRepository.cs", Layer.Infrastructure)]
-    [InlineData("NightHall/Organizations/Teams/WebApi/TeamLinks.cs", Layer.WebApi)]
-    [InlineData("NightHall/Organizations/Contracts/TeamId.cs", Layer.Application)]
-    [InlineData("NightHall/Organizations/Teams/Domain/Events/TeamRenamedEvent.cs", Layer.Domain)]
-    [InlineData("NightHall/Application/Pipeline/Transaction.cs", Layer.Application)]
-    [InlineData("NightHall\\Organizations\\Teams\\Domain\\Team.cs", Layer.Domain)]
-    [InlineData("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", null)]
+    [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", Layer.Domain)]
+    [InlineData("Claimwick/Organizations/Teams/Application/CreateTeam.cs", Layer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/Infrastructure/TeamRepository.cs", Layer.Infrastructure)]
+    [InlineData("Claimwick/Organizations/Teams/WebApi/TeamLinks.cs", Layer.WebApi)]
+    [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", Layer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/Domain/Events/TeamRenamedEvent.cs", Layer.Domain)]
+    [InlineData("Claimwick/Application/Pipeline/Transaction.cs", Layer.Application)]
+    [InlineData("Claimwick\\Organizations\\Teams\\Domain\\Team.cs", Layer.Domain)]
+    [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", null)]
     [InlineData("Source.cs", null)]
     [InlineData(null, null)]
     public void Reads_The_Nearest_Layer_Folder(string? filePath, Layer? expected) =>
@@ -104,24 +104,24 @@ public sealed class LayerResolverTests
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Theory]
-    [InlineData("NightHall/Organizations/Teams/Domain/Team.cs", Layer.Domain)]
-    [InlineData("NightHall/Organizations/Contracts/TeamId.cs", Layer.Application)]
-    [InlineData("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", Layer.Application)]
-    [InlineData("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", Layer.WebApi)]
-    [InlineData("NightHall/Organizations/Jobs/SendDigest/SendDigestJob.cs", Layer.Application)]
-    [InlineData("NightHall/Organizations/Teams/Team.cs", Layer.None)]
+    [InlineData("Claimwick/Organizations/Teams/Domain/Team.cs", Layer.Domain)]
+    [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", Layer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", Layer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", Layer.WebApi)]
+    [InlineData("Claimwick/Organizations/Jobs/SendDigest/SendDigestJob.cs", Layer.Application)]
+    [InlineData("Claimwick/Organizations/Teams/Team.cs", Layer.None)]
     public void Resolves_A_Module_File(string filePath, Layer expected) =>
-        Assert.Equal(expected, LayerResolver.FileLayer(filePath, "NightHall", Layout.Modules, null));
+        Assert.Equal(expected, LayerResolver.FileLayer(filePath, "Claimwick", Layout.Modules, null));
 
     /// <summary>A host file reads its layer from its assembly.</summary>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Theory]
-    [InlineData("NightHall.WebApi", Layer.WebApi)]
-    [InlineData("NightHall.Worker", Layer.Worker)]
+    [InlineData("Claimwick.WebApi", Layer.WebApi)]
+    [InlineData("Claimwick.Worker", Layer.Worker)]
     public void Resolves_A_Host_File_From_Its_Assembly(string assemblyName, Layer expected) =>
-        Assert.Equal(expected, LayerResolver.FileLayer("NightHall.WebApi/Program.cs", assemblyName, Layout.Modules, null));
+        Assert.Equal(expected, LayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, Layout.Modules, null));
 
     /// <summary>A test file stays in the test layer whatever folders it mirrors.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
@@ -129,7 +129,7 @@ public sealed class LayerResolverTests
     public void Resolves_A_Test_File_From_Its_Assembly()
     {
         var layer = LayerResolver.FileLayer(
-            "NightHall.Tests/Organizations/Teams/Domain/TeamTests.cs", "NightHall.Tests", Layout.Modules, null);
+            "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", Layout.Modules, null);
 
         Assert.Equal(Layer.Test, layer);
     }
@@ -154,7 +154,7 @@ public sealed class LayerResolverTests
     public void Declared_Layer_Wins(Layout layout)
     {
         var layer = LayerResolver.FileLayer(
-            "NightHall/Organizations/Teams/Domain/Team.cs", "NightHall", layout, "Application");
+            "Claimwick/Organizations/Teams/Domain/Team.cs", "Claimwick", layout, "Application");
 
         Assert.Equal(Layer.Application, layer);
     }

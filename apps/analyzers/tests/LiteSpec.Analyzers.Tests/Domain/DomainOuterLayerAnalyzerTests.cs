@@ -324,22 +324,22 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsADomainFileNamingAnApplicationType() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                         internal Team Rename({|LS1001:CreateTeamCommand|} command) => this;
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-            ], assemblyName: "NightHall");
+            ], assemblyName: "Claimwick.Modules");
 
     /// <summary>LS1001 reports a Domain file naming Infrastructure and WebApi types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -348,8 +348,8 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task ReportsADomainFileNamingInfrastructureAndWebApiTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
@@ -358,21 +358,21 @@ public sealed class DomainOuterLayerAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Teams/Infrastructure/TeamStore.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Infrastructure/TeamStore.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class TeamStore
                     {
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamEndpoint
                     {
                     }
                     """),
-            ], assemblyName: "NightHall");
+            ], assemblyName: "Claimwick.Modules");
 
     /// <summary>LS1001 accepts a typed identifier from another module's Contracts and reports a port there.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -381,27 +381,27 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsAContractsIdentifierAndReportsAContractsPort() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/Domain/Invoice.cs", """
-                    namespace NightHall.Billing.Invoices;
+                ("Claimwick.Modules/Billing/Invoices/Domain/Invoice.cs", """
+                    namespace Claimwick.Billing.Invoices;
 
                     internal sealed class Invoice
                     {
-                        internal Invoice Bill(NightHall.Organizations.OrganizerId organizer, NightHall.Organizations.{|LS1001:IOrganizerReader|} reader) => this;
+                        internal Invoice Bill(Claimwick.Organizations.OrganizerId organizer, Claimwick.Organizations.{|LS1001:IOrganizerReader|} reader) => this;
                     }
                     """),
-                ("NightHall/Organizations/Contracts/OrganizerId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/OrganizerId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct OrganizerId(System.Guid Value);
                     """),
-                ("NightHall/Organizations/Contracts/IOrganizerReader.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Ports/IOrganizerReader.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal interface IOrganizerReader
                     {
                     }
                     """),
-            ], assemblyName: "NightHall");
+            ], assemblyName: "Claimwick.Modules");
 
     /// <summary>LS1001 accepts a rule refusal another module publishes in its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -410,22 +410,22 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsAContractsRuleRefusal() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/Domain/Invoice.cs", """
-                    namespace NightHall.Billing.Invoices;
+                ("Claimwick.Modules/Billing/Invoices/Domain/Invoice.cs", """
+                    namespace Claimwick.Billing.Invoices;
 
                     internal sealed class Invoice
                     {
-                        internal static void Refuse() => throw new NightHall.Organizations.OrganizerUnknownException();
+                        internal static void Refuse() => throw new Claimwick.Organizations.OrganizerUnknownException();
                     }
                     """),
-                ("NightHall/Organizations/Contracts/OrganizerUnknownException.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Exceptions/OrganizerUnknownException.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal sealed class OrganizerUnknownException : System.Exception
                     {
                     }
                     """),
-            ], assemblyName: "NightHall");
+            ], assemblyName: "Claimwick.Modules");
 
     /// <summary>LS1001 accepts a Domain file naming only Domain types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -434,20 +434,20 @@ public sealed class DomainOuterLayerAnalyzerTests
     public Task AcceptsADomainFileNamingOnlyDomainTypes() =>
         Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                         internal Team Rename(TeamName name) => this;
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/TeamName.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/TeamName.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed record TeamName(string Value);
                     """),
-            ], assemblyName: "NightHall");
+            ], assemblyName: "Claimwick.Modules");
 
     /// <summary>LS1001 reports an outer-layer namespace under layer-projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

@@ -25,7 +25,7 @@ The project installs the `litespec` command line as a local .NET tool at the ado
 Before editing a file, the agent asks which provisions govern it:
 
 ```bash
-dotnet litespec rules apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
+dotnet litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 The command lists the provisions grouped by strength, as one-line statements, with the project's conventions and departures merged in. When a statement is not enough, `--full` adds rationale and example.

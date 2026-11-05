@@ -56,7 +56,7 @@ public sealed class RegistryUseCaseOfOperationTests
     public void ModuleHostMapsItsOwnOperations()
     {
         var sources = RecordPages.Sources("""
-            namespace NightHall.WebApi;
+            namespace Claimwick.WebApi;
 
             public interface IEndpoint;
 
@@ -68,7 +68,7 @@ public sealed class RegistryUseCaseOfOperationTests
         var files = RecordPages.Files(
             "xml",
             ("sign-out-session.yaml", RecordPages.UseCasePage("use-case/accounts.sign-out-session", null)));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "NightHall.WebApi", layout: "modules");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Claimwick.WebApi", layout: "modules");
 
         Assert.False(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "A module host generates no registry.");
         Assert.True(run.Sources.TryGetValue("LiteSpecHostOperations.g.cs", out var operations), "The host operation map is missing.");

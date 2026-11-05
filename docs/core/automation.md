@@ -110,7 +110,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
-**Rationale:** Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code under the `On{Fact}` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions answering its event as a view derived from records.
+**Rationale:** Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code in the `On{Fact}` folder inside the module `UseCases/` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions answering its event as a view derived from records.
 
 **Reviewed for:** Which reaction or job pages sit outside the module they change? Look at the reactions and jobs beside the modules whose records they change.
 

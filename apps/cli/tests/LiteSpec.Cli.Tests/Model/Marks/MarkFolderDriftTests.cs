@@ -199,8 +199,8 @@ public sealed class MarkFolderDriftTests
     public void Element_Under_Shared_Kernel_Reports_No_Mark_Folder_Drift()
     {
         using var temp = Cli.Temp("marks");
-        var model = DriftModel(temp.Path, "xml", "\"sharedKernel\": \"apps/api/src/Library.Domain/Shared\"");
-        var file = LayerFile(temp.Path, "Domain", "Shared", "Money.cs");
+        var model = DriftModel(temp.Path, "xml", "\"sharedKernel\": \"apps/api/src/Library.SharedKernel\"");
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "aggregate/billing.invoice"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
@@ -235,7 +235,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = Cli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Billing", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -252,7 +252,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = Cli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
@@ -271,14 +271,14 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>A model with the one application root and the records the drift cases mark.</summary>
+    /// <summary>A model with the modules root and the records the drift cases mark.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the records.</returns>
     static ProjectModel ModuleModel(string root)
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"application\": \"apps/api/src/Library\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec("use-case", "use-case/booking.hold-room", root, """{"status": "reviewed", "kind": "command"}"""));
@@ -290,13 +290,13 @@ public sealed class MarkFolderDriftTests
         return model;
     }
 
-    /// <summary>One file under the one application root.</summary>
+    /// <summary>One file under the modules root.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <param name="segments">The path segments under the application root.</param>
+    /// <param name="segments">The path segments under the modules root.</param>
     /// <returns>The full path to the file.</returns>
     static string ProductFile(string root, params string[] segments)
     {
-        var parts = new List<string> { root, "apps", "api", "src", "Library" };
+        var parts = new List<string> { root, "apps", "api", "src", "Library.Modules" };
         parts.AddRange(segments);
 
         return Path.Combine([.. parts]);
@@ -310,7 +310,7 @@ public sealed class MarkFolderDriftTests
     static ProjectModel DriftModel(string root, string marks = "xml", string? dotnetExtra = null)
     {
         var dotnet = """
-            "application": "apps/api/src/Library.Application",
+            "modules": "apps/api/src/Library.Application",
             "domain": "apps/api/src/Library.Domain",
             "webapi": "apps/api/src/Library.WebApi",
             "infrastructure": "apps/api/src/Library.Infrastructure",

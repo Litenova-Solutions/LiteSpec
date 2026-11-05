@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Readers;
 
-/// <summary>Proves the backend readers recognize kinds and layers under the one application root.</summary>
+/// <summary>Proves the backend readers recognize kinds and layers under the modules root.</summary>
 public sealed class ModuleLayoutReaderTests
 {
     /// <summary>A handler in a use case folder reads as a handler.</summary>
@@ -84,15 +84,15 @@ public sealed class ModuleLayoutReaderTests
         WriteModuleProject(temp.Path);
         var config = ConsumerConfig.Load(temp.Path);
 
-        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "ITextGateway.cs")));
+        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Contracts", "Ports", "ITextGateway.cs")));
         Assert.Equal("Domain", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "Domain", "LoanPricing.cs")));
-        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
-        Assert.Equal("WebApi", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyEndpoint.cs")));
+        Assert.Equal("Application", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs")));
+        Assert.Equal("WebApi", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyEndpoint.cs")));
         Assert.Equal("Infrastructure", SourceRoots.LayerOf(config, ProductFile(temp.Path, "Lending", "Loans", "Infrastructure", "LoanStore.cs")));
         Assert.Equal("WebApi", SourceRoots.LayerOf(config, Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi", "Protocol", "SignOutEndpoint.cs")));
     }
 
-    /// <summary>Unmarked Domain types group by their aggregate folder under the one application root.</summary>
+    /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and shared kernel types under the kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
     public void Constituents_Group_By_Aggregate_Folder_In_Module_Layout()
@@ -102,35 +102,37 @@ public sealed class ModuleLayoutReaderTests
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         var root = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Loan.cs");
         var held = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Money.cs");
-        var kernel = ProductFile(temp.Path, "Domain", "Clock.cs");
+        var kernel = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Clock.cs");
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.AggregateRoot, "Loan", null, root, 3,
             [new CodeMark("aggregate/lending.loan", MarkStyle.Xml, MarkVerb.Implements, root, 1)],
             InTests: false));
         model.Code.DomainTypes.Add(new DomainType("Money", "Library.Lending.Loans", held, 3, false));
-        model.Code.DomainTypes.Add(new DomainType("Clock", "Library", kernel, 3, false));
+        model.Code.DomainTypes.Add(new DomainType("Clock", "Library.Domain", kernel, 3, false));
 
         Constituents.Compute(model);
 
-        Assert.Equal("apps/api/src/Library/Lending/Loans/Domain/Money.cs:Money", Assert.Single(model.Constituents["aggregate/lending.loan"]));
-        Assert.Equal("apps/api/src/Library/Domain/Clock.cs:Clock", Assert.Single(model.Constituents["kernel"]));
+        Assert.Equal("apps/api/src/Library.Modules/Lending/Loans/Domain/Money.cs:Money", Assert.Single(model.Constituents["aggregate/lending.loan"]));
+        Assert.Equal("apps/api/src/Library.SharedKernel/Domain/Clock.cs:Clock", Assert.Single(model.Constituents["kernel"]));
         Assert.Empty(Constituents.Orphans(model));
     }
 
-    /// <summary>The one application root resolves without the layer-projects extension, leaving the layer roots empty.</summary>
+    /// <summary>The modules and shared kernel roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>
     /// <proves>litespec/core/model#declare-size-and-stacks</proves>
     [Fact]
-    public void Module_Layout_Resolves_The_One_Application_Root()
+    public void Module_Layout_Resolves_The_Modules_And_Shared_Kernel_Roots()
     {
         using var temp = Cli.Temp("readers");
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"));
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.json"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.False(config.IsLayerProjects);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library"), config.ApplicationRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"), config.ModulesRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"), config.SharedKernelRoot);
         Assert.Equal("", config.DomainRoot);
         Assert.Equal("", config.InfrastructureRoot);
     }
@@ -152,7 +154,7 @@ public sealed class ModuleLayoutReaderTests
         var config = ConsumerConfig.Load(temp.Path);
 
         Assert.True(config.IsLayerProjects);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), config.ApplicationRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), config.ModulesRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Domain"), config.DomainRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Infrastructure"), config.InfrastructureRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi"), config.WebApiRoot);
@@ -165,23 +167,23 @@ public sealed class ModuleLayoutReaderTests
     static CodeModel ReadBackend(string root) =>
         new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
-    /// <summary>Writes a module-layout consumer: the one application root with a use case, contracts and layer folders.</summary>
+    /// <summary>Writes a module-layout consumer: the modules root with a use case, contracts and layer folders.</summary>
     /// <param name="root">The fixture root folder.</param>
     static void WriteModuleProject(string root)
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"application\": \"apps/api/src/Library\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
-        WriteSource(ProductFile(root, "Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
-            namespace Library.Lending.Loans.BorrowCopy;
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+        WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
+            namespace Library.Lending.Loans.UseCases.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Contracts", "ITextGateway.cs"), """
-            namespace Library.Lending.Contracts;
+        WriteSource(ProductFile(root, "Lending", "Contracts", "Ports", "ITextGateway.cs"), """
+            namespace Library.Lending.Contracts.Ports;
 
             /// <implements>external-system/lending.text-gateway</implements>
             public interface ITextGateway
@@ -196,8 +198,8 @@ public sealed class ModuleLayoutReaderTests
             {
             }
             """);
-        WriteSource(ProductFile(root, "Lending", "Loans", "BorrowCopy", "BorrowCopyEndpoint.cs"), """
-            namespace Library.Lending.Loans.BorrowCopy;
+        WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyEndpoint.cs"), """
+            namespace Library.Lending.Loans.UseCases.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyEndpoint : IEndpoint
@@ -230,13 +232,13 @@ public sealed class ModuleLayoutReaderTests
         File.WriteAllText(file, text);
     }
 
-    /// <summary>One file under the one application root.</summary>
+    /// <summary>One file under the modules root.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <param name="segments">The path segments under the application root.</param>
+    /// <param name="segments">The path segments under the modules root.</param>
     /// <returns>The full path to the file.</returns>
     static string ProductFile(string root, params string[] segments)
     {
-        var parts = new List<string> { root, "apps", "api", "src", "Library" };
+        var parts = new List<string> { root, "apps", "api", "src", "Library.Modules" };
         parts.AddRange(segments);
 
         return Path.Combine([.. parts]);

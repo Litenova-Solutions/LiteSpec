@@ -37,7 +37,7 @@ The exception covers the finding because its `covers` lists the finding code and
 
 ## The Run with the Approve Expense Handler Removed
 
-Removing `apps/api/src/Claimwick.Application/Spending/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs` and running the check again gives one open finding:
+Removing `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs` and running the check again gives one open finding:
 
 ```text
 .litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [S use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler.
@@ -46,7 +46,7 @@ Removing `apps/api/src/Claimwick.Application/Spending/Expenses/ApproveExpense/Ap
 exit 1
 ```
 
-The finding says no code implements the Approve expense use case. The fix is to restore the marked handler at its path under `Claimwick.Application/Spending/Expenses/ApproveExpense/`, which the computed `implemented` state then picks up on the next run. The Export expenses line stays excepted, because its exception still covers it. The run exits 1, because one open finding remains.
+The finding says no code implements the Approve expense use case. The fix is to restore the marked handler at its path under `Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/`, which the computed `implemented` state then picks up on the next run. The Export expenses line stays excepted, because its exception still covers it. The run exits 1, because one open finding remains.
 
 ## Querying One Record
 
@@ -90,7 +90,7 @@ Querying the Submit expense use case by either `use-case/spending.submit-expense
     "implemented": true,
     "verified": false,
     "implements": [
-      "apps/api/src/Claimwick.Application/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs"
+      "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs"
     ],
     "calls": [],
     "proves": [

@@ -13,8 +13,8 @@ public sealed class SliceIsolationAnalyzerTests
     public Task ReportsAUseCaseNamingAnotherUseCase() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -23,20 +23,15 @@ public sealed class SliceIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Teams/RenameTeam/RenameTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class RenameTeamCommand
                     {
                     }
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall.Domain;
-
-                    internal readonly record struct Money(decimal Amount);
-                    """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2019 accepts a use case folder naming its own types and aggregate types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -45,64 +40,54 @@ public sealed class SliceIsolationAnalyzerTests
     public Task AcceptsAUseCaseNamingItsOwnSlice() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall.Domain;
-
-                    internal readonly record struct Money(decimal Amount);
-                    """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2019 accepts a use case naming product plumbing whose file carries a role suffix.</summary>
+    /// <summary>LS2019 accepts a use case naming layer folder types whose files carry role suffixes.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
-    [Fact(DisplayName = "LS2019 accepts a use case naming product plumbing whose file carries a role suffix")]
-    public Task AcceptsProductPlumbingWithARoleSuffix() =>
+    [Fact(DisplayName = "LS2019 accepts a use case naming layer folder types whose files carry role suffixes")]
+    public Task AcceptsLayerFolderTypesWithRoleSuffixes() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamCommand : IActingAccountCommand
                     {
                     }
                     """),
-                ("NightHall/Application/Authorization/IActingAccountCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Application/IActingAccountCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal interface IActingAccountCommand
                     {
                     }
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall.Domain;
-
-                    internal readonly record struct Money(decimal Amount);
-                    """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2019 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -111,25 +96,25 @@ public sealed class SliceIsolationAnalyzerTests
     public Task StaysQuietWithoutProductLayerFolders() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall.Cli/Exercises/SignInCommand.cs", """
-                    namespace NightHall.Cli.Exercises;
+                ("Claimwick.Cli/Exercises/SignInCommand.cs", """
+                    namespace Claimwick.Cli.Exercises;
 
                     internal sealed class SignInCommand
                     {
-                        internal void Run(NightHall.Cli.Stack.StartStackCommand start)
+                        internal void Run(Claimwick.Cli.Stack.StartStackCommand start)
                         {
                         }
                     }
                     """),
-                ("NightHall.Cli/Stack/StartStackCommand.cs", """
-                    namespace NightHall.Cli.Stack;
+                ("Claimwick.Cli/Stack/StartStackCommand.cs", """
+                    namespace Claimwick.Cli.Stack;
 
                     internal sealed class StartStackCommand
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall.Cli");
+            assemblyName: "Claimwick.Cli");
 
     /// <summary>LS2019 stays quiet when an aggregate file names a use case type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -138,28 +123,23 @@ public sealed class SliceIsolationAnalyzerTests
     public Task StaysQuietOutsideUseCaseFolders() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/Application/TeamQueries.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Application/TeamQueries.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class TeamQueries
                     {
                         internal RenameTeamCommand? Current() => null;
                     }
                     """),
-                ("NightHall/Organizations/Teams/RenameTeam/RenameTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class RenameTeamCommand
                     {
                     }
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall.Domain;
-
-                    internal readonly record struct Money(decimal Amount);
-                    """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2019 stays quiet for test files mirroring use case folders.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -168,8 +148,8 @@ public sealed class SliceIsolationAnalyzerTests
     public Task StaysQuietInTestFiles() =>
         Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
             [
-                ("NightHall.Tests/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Tests/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -178,15 +158,71 @@ public sealed class SliceIsolationAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall.Tests/Organizations/Teams/RenameTeam/RenameTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Tests/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class RenameTeamCommand
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall.Tests");
+            assemblyName: "Claimwick.Tests");
+
+    /// <summary>LS2019 isolates two slices under one aggregate UseCases folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 isolates two slices under one aggregate UseCases folder")]
+    public Task ReportsTwoSlicesUnderOneAggregateUseCases() =>
+        Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    namespace Claimwick.Billing.Invoices;
+
+                    internal sealed class CreateInvoiceHandler
+                    {
+                        internal void Handle({|LS2019:CancelInvoiceCommand|} command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CancelInvoice/CancelInvoiceCommand.cs", """
+                    namespace Claimwick.Billing.Invoices;
+
+                    internal sealed class CancelInvoiceCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2019 reports a reaction folder naming another slice.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 reports a reaction folder naming another slice")]
+    public Task ReportsAReactionFolderNamingAnotherSlice() =>
+        Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/UseCases/OnTeamMemberRemoved/SendNoticeOnTeamMemberRemovedHandler.cs", """
+                    using Claimwick.Organizations.Teams;
+
+                    namespace Claimwick.Organizations;
+
+                    internal sealed class SendNoticeOnTeamMemberRemovedHandler
+                    {
+                        internal void Handle({|LS2019:CreateTeamCommand|} command)
+                        {
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
+
+                    internal sealed class CreateTeamCommand
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2019 reports a use case folder naming another under layer-projects.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

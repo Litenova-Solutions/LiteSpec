@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
-/// <summary>LS2019: a use case, reaction or job folder names no type of another such folder.</summary>
+/// <summary>LS2019: a use case or reaction folder names no type of another such folder.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SliceIsolationAnalyzer : LayerAnalyzer

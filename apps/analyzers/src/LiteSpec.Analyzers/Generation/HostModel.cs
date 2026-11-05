@@ -6,9 +6,10 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
 /// The compilation facts the generator reads beside the records and the marks: the project layer,
-/// the backend layout, whether the compilation is the module-layout application project, and
+/// the backend layout, whether the compilation is the modules project, and
 /// whether xUnit v3 is referenced. The layer follows the same rule the layer resolver uses:
 /// the declared LiteSpecLayer property first, then the assembly name suffix.
+/// The assembly ending .SharedKernel is the shared kernel and generates nothing.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class HostModel : IEquatable<HostModel>
@@ -16,9 +17,9 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <summary>Initializes a new instance of the <see cref="HostModel"/> class.Creates a host model.</summary>
     /// <param name="layer">The project layer.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="applicationProject">Whether the compilation is the module-layout application project.</param>
+    /// <param name="applicationProject">Whether the compilation is the modules project.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
-    /// <param name="moduleHost">Whether the compilation is a host beside a module-layout application project.</param>
+    /// <param name="moduleHost">Whether the compilation is a host beside the modules project.</param>
     public HostModel(Layer layer, Layout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
     {
         ModuleHost = moduleHost;
@@ -34,17 +35,17 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <summary>Gets the backend layout the consumer builds.</summary>
     public Layout Layout { get; }
 
-    /// <summary>Gets a value indicating whether whether the compilation is the module-layout application project.</summary>
+    /// <summary>Gets a value indicating whether the compilation is the modules project.</summary>
     public bool ApplicationProject { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether the compilation is a host beside a module-layout application
-    ///     project: its layer comes from its assembly name, and the application project generates the
+    ///     Gets a value indicating whether the compilation is a host beside the modules
+    ///     project: its layer comes from its assembly name, and the modules project generates the
     ///     values it uses.
     /// </summary>
     public bool ModuleHost { get; }
 
-    /// <summary>Gets a value indicating whether whether the compilation references xUnit v3.</summary>
+    /// <summary>Gets a value indicating whether the compilation references xUnit v3.</summary>
     public bool XunitV3 { get; }
 
     /// <summary>Reads the declared layer property, or empty when the project sets none.</summary>
@@ -86,12 +87,24 @@ internal sealed class HostModel : IEquatable<HostModel>
         var layer = declared.Length == 0
             ? LayerResolver.FromAssemblyName(assemblyName)
             : LayerResolver.Parse(declared);
-        var applicationProject = layout == Layout.Modules && declared.Length == 0 && layer == Layer.None;
+
+        // The assembly ending .Modules is the modules project and generates the registry,
+        // the permissions and the roles. The assembly ending .SharedKernel reads layer
+        // None with no application project and no host, so it generates nothing.
+        var applicationProject = layout == Layout.Modules && declared.Length == 0 && layer == Layer.None
+            && !IsSharedKernelAssembly(assemblyName);
 
         var moduleHost = layout == Layout.Modules && declared.Length == 0 && layer != Layer.None;
 
         return new HostModel(layer, layout, applicationProject, xunitV3, moduleHost);
     }
+
+    /// <summary>Returns true when the assembly is the shared kernel; otherwise false.</summary>
+    /// <param name="assemblyName">The compilation assembly name.</param>
+    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
+    private static bool IsSharedKernelAssembly(string assemblyName) =>
+        assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal);
 
     /// <inheritdoc />
     public bool Equals(HostModel? other) =>

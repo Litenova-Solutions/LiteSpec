@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Layers;
 internal sealed class FileScope
 {
     /// <summary>Initializes a new instance of the <see cref="FileScope"/> class.</summary>
-    /// <param name="assemblyName">The assembly name that names the application project.</param>
+    /// <param name="assemblyName">The assembly name that names the modules project.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="applies">The rule's layer predicate.</param>
@@ -25,7 +25,7 @@ internal sealed class FileScope
         Applies = applies;
     }
 
-    /// <summary>Gets the assembly name that names the application project.</summary>
+    /// <summary>Gets the assembly name that names the modules project.</summary>
     public string AssemblyName { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
@@ -46,7 +46,7 @@ internal sealed class FileScope
         For(compilation.AssemblyName ?? string.Empty, DeclaredLayout(options), DeclaredLayer(options), applies);
 
     /// <summary>Builds the scope from its inputs.</summary>
-    /// <param name="assemblyName">The assembly name that names the application project.</param>
+    /// <param name="assemblyName">The assembly name that names the modules project.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="applies">The rule's layer predicate.</param>

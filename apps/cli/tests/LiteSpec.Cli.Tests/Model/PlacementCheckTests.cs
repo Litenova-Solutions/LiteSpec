@@ -34,7 +34,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -47,7 +47,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Holds", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Holds", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         var placed = Run(model);
@@ -64,7 +64,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Billing.Loans.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
@@ -82,8 +82,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs");
-        WriteCode(file, "Library.Lending.Loans.BorrowCopy", "BorrowCopyCommandHandler");
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
         Assert.Empty(Run(model));
@@ -127,8 +127,8 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyScenarios.cs");
-        WriteCode(file, "Library.Acceptance.Tests.Lending.Loans.BorrowCopy", "BorrowCopyScenarios");
+        var file = TestFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyScenarios");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
 
         Assert.Empty(Run(model));
@@ -141,7 +141,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        var file = TestFile(temp.Path, "Billing", "Invoices", "BorrowCopy", "BorrowCopyScenarios.cs");
+        var file = TestFile(temp.Path, "Billing", "Invoices", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
 
         var placed = Run(model);
@@ -224,12 +224,12 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library", "Archive"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Archive"));
 
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Folder 'apps/api/src/Library/Archive' names no layer folder or declared module.", finding.Message);
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Archive' names no Composition folder or declared module.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -240,7 +240,7 @@ public sealed class PlacementCheckTests
     {
         using var temp = Cli.Temp("placement");
         var model = PlacementModel(temp.Path);
-        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library", "Lending", "Loans", "BorrowCopy"));
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Loans", "UseCases", "BorrowCopy"));
 
         Assert.Empty(Run(model));
     }
@@ -256,7 +256,7 @@ public sealed class PlacementCheckTests
         return findings.Where(finding => finding.Code == "code-placement-drift").ToList();
     }
 
-    /// <summary>A model with the one application root, the host, the test root and the records the placement cases mark.</summary>
+    /// <summary>A model with the modules root, the host, the test root and the records the placement cases mark.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="withFrontend">Whether the model declares a frontend with a modules root.</param>
     /// <returns>The project model holding the records.</returns>
@@ -268,7 +268,7 @@ public sealed class PlacementCheckTests
 
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"application\": \"apps/api/src/Library\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec(RecordTypes.Module, "module/lending", "lending", root));
@@ -297,13 +297,13 @@ public sealed class PlacementCheckTests
     static MarkedElement TestElement(string @class, string method, string file) =>
         new(CodeKind.Test, @class, method, file, 3, [new CodeMark("scenario/borrow-copy.borrowing-an-available-copy-succeeds", MarkStyle.Xml, MarkVerb.Proves, file, 1)], InTests: true);
 
-    /// <summary>One file under the one application root.</summary>
+    /// <summary>One file under the modules root.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <param name="segments">The path segments under the application root.</param>
+    /// <param name="segments">The path segments under the modules root.</param>
     /// <returns>The full path to the file.</returns>
     static string ProductFile(string root, params string[] segments)
     {
-        var parts = new List<string> { root, "apps", "api", "src", "Library" };
+        var parts = new List<string> { root, "apps", "api", "src", "Library.Modules" };
         parts.AddRange(segments);
 
         return Path.Combine([.. parts]);

@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Book;
 
-/// <summary>Proves the book holds NightHall size: 21,500 records pack under their shard caps with a complete outline and a full shard map.</summary>
+/// <summary>Proves the book holds a large product: 21,500 records pack under their shard caps with a complete outline and a full shard map.</summary>
 public sealed class BookScaleTests
 {
     const int ScaleRecords = 21500;

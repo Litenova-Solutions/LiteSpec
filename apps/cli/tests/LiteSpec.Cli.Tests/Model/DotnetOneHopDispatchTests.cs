@@ -148,7 +148,7 @@ public sealed class DotnetOneHopDispatchTests
             Path.Combine(root, ".litespec/project.json"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "application": "src/App", "domain": "src/Domain",
+              "modules": "src/App", "domain": "src/Domain",
               "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
             """);
 

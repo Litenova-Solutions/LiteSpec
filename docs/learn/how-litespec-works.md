@@ -85,10 +85,10 @@ Read it as one proven path: given the situation, when the employee acts, the use
 
 ### The Implementation
 
-The standard states where the code goes and what shape it takes. A use case is implemented by one command handler in the application project, in a folder ordered by module, then aggregate, then use case:
+The standard states where the code goes and what shape it takes. A use case is implemented by one command handler in the modules project, in a folder ordered by module, then aggregate, then `UseCases/`, then use case:
 
 ```text
-apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
+apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 The use case folder is flat: the command, the result, the handler, the validator, the endpoint, and the request and response models sit beside each other. Each code element carries a mark naming the record it serves. The handler refuses an expense above the threshold that carries no receipt with the refusal code the result entry names. The folder mirrors the record, so any developer or agent knows where to look, and the mark is the link the model builder follows to find the handler.
@@ -114,7 +114,7 @@ Alongside the record's own fields, the answer holds what the builder computed fr
   "implemented": true,
   "verified": false,
   "implements": [
-    "apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs"
+    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs"
   ],
   "calls": [],
   "proves": [
@@ -151,7 +151,7 @@ Every rule in the standard is a provision: one identified block with one asserti
 Each provision also states its strength: `rule`, `default`, or `advice`. A rule binds every project it applies to. A default binds unless the project records its own choice. Advice is experience to apply with judgement, and it records nothing. Each page states the scope its provisions apply to, and a provision narrower than its page names it. Before editing a file, an agent asks which provisions apply to it:
 
 ```bash
-dotnet litespec rules apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
+dotnet litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 The command lists the provisions grouped by strength, as one-line statements, with the project's own conventions and departures merged in.

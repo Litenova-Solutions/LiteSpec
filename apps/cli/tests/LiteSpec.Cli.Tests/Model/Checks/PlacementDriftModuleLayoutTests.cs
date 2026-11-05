@@ -5,7 +5,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the code placement check matches the module layout: module-level use cases, the element's own folder, Contracts publishing, enforcing aggregates, and mirrored tests.</summary>
+/// <summary>Proves the code placement check matches the module layout: module-level use cases, the element's own folder, Contracts publishing, reactions, enforcing aggregates, and mirrored tests.</summary>
 public sealed class PlacementDriftModuleLayoutTests
 {
     /// <summary>A module-level use case endpoint in UseCases reports nothing.</summary>
@@ -30,7 +30,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Controls", "Flags", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
+        var file = ProductFile(temp.Path, "Controls", "Flags", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
 
         var placed = Run(model);
@@ -47,8 +47,8 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
-        WriteCode(file, "Library.Cancellations.EventChangeAnswers.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
+        var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        WriteCode(file, "Library.Cancellations.EventChangeAnswers.UseCases.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
         Assert.Empty(Run(model));
@@ -61,7 +61,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
         var placed = Run(model);
@@ -109,8 +109,8 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Directory", "Directory", "SearchAccounts", "SearchAccountsEndpoint.cs");
-        WriteCode(file, "Library.Directory.Directory.SearchAccounts", "SearchAccountsEndpoint");
+        var file = ProductFile(temp.Path, "Directory", "Directory", "UseCases", "SearchAccounts", "SearchAccountsEndpoint.cs");
+        WriteCode(file, "Library.Directory.Directory.UseCases.SearchAccounts", "SearchAccountsEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SearchAccountsEndpoint", file, "use-case/directory.search-accounts"));
 
         Assert.Empty(Run(model));
@@ -123,8 +123,8 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanNotFoundException.cs");
-        WriteCode(file, "Library.Lending.Contracts", "LoanNotFoundException");
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "Exceptions", "LoanNotFoundException.cs");
+        WriteCode(file, "Library.Lending.Contracts.Exceptions", "LoanNotFoundException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
 
         Assert.Empty(Run(model));
@@ -137,7 +137,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Billing", "Contracts", "LoanNotFoundException.cs");
+        var file = ProductFile(temp.Path, "Billing", "Contracts", "Exceptions", "LoanNotFoundException.cs");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
 
         var placed = Run(model);
@@ -154,8 +154,8 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = Cli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanBorrowedEvent.cs");
-        WriteCode(file, "Library.Lending.Contracts", "LoanBorrowedEvent");
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "IntegrationEvents", "LoanBorrowedEvent.cs");
+        WriteCode(file, "Library.Lending.Contracts.IntegrationEvents", "LoanBorrowedEvent");
         model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
 
         Assert.Empty(Run(model));
@@ -237,7 +237,89 @@ public sealed class PlacementDriftModuleLayoutTests
         var placed = Run(model);
 
         var finding = Assert.Single(placed);
-        Assert.Equal("Folder 'apps/api/src/Library/Controls/ReadFeatureFlag' names no layer folder or declared aggregate.", finding.Message);
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Controls/ReadFeatureFlag' names no layer folder or declared aggregate.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>An aggregate-owned handler under its aggregate UseCases folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Aggregate_Owned_Handler_Under_UseCases_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
+
+        Assert.Empty(Run(model));
+        Assert.Empty(FolderDrift(model));
+    }
+
+    /// <summary>An aggregate-owned endpoint flat in its aggregate folder reports the missing UseCases level.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Aggregate_Owned_Endpoint_Flat_In_Aggregate_Folder_Reports_UseCases_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyEndpoint.cs");
+        WriteCode(file, "Library.Lending.Loans.BorrowCopy", "BorrowCopyEndpoint");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "BorrowCopyEndpoint", file, "use-case/lending.borrow-copy"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Folder 'apps/api/src/Library.Modules/Lending/Loans/BorrowCopy' names no layer folder or UseCases folder.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A reaction under its module UseCases On fact folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Reaction_Under_UseCases_On_Fact_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "UseCases", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.UseCases.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
+        model.Code.Elements.Add(Element(CodeKind.EventHandler, "SendDueNoticeOnLoanBorrowedHandler", file, "reaction/lending.send-due-notice"));
+
+        Assert.Empty(Run(model));
+        Assert.Empty(FolderDrift(model));
+    }
+
+    /// <summary>A file directly in a module Contracts folder reports the kind folders.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void File_Directly_In_Contracts_Reports_Contracts_Kind_Folders()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanId.cs");
+        WriteCode(file, "Library.Lending.Contracts", "LoanId");
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("File 'apps/api/src/Library.Modules/Lending/Contracts/LoanId.cs' sits directly in Contracts/, which holds only its kind folders.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>A shared kernel folder outside its closed set of layer folders reports the layer folders.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Shared_Kernel_Folder_Outside_Closed_Set_Reports_Layer_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var shared = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Shared");
+        Directory.CreateDirectory(shared);
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Folder 'apps/api/src/Library.SharedKernel/Shared' names no shared kernel layer folder.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -263,14 +345,14 @@ public sealed class PlacementDriftModuleLayoutTests
         return findings.Where(finding => finding.Code == "mark-folder-drift").ToList();
     }
 
-    /// <summary>A model with the one application root, the host, the test root and the records the drift cases mark.</summary>
+    /// <summary>A model with the modules root, the shared kernel root, the host, the test root and the records the drift cases mark.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <returns>The project model holding the records.</returns>
     static ProjectModel DriftModel(string root)
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"application\": \"apps/api/src/Library\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec(RecordTypes.Module, "module/controls", "controls", root));
@@ -288,6 +370,8 @@ public sealed class PlacementDriftModuleLayoutTests
         model.Records.Add(Rec(RecordTypes.Rule, "rule/loan.request-names-an-existing-loan", "lending/loans/rule/request-names-an-existing-loan", root,
             """{"status": "reviewed", "governs": ["aggregate/lending.loan"]}"""));
         model.Records.Add(Rec(RecordTypes.Event, "event/loan.loan-borrowed", "lending/loans/event/loan-borrowed", root));
+        model.Records.Add(Rec(RecordTypes.Reaction, "reaction/lending.send-due-notice", "lending/reaction/send-due-notice", root,
+            """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"]}"""));
         model.Records.Add(Rec(RecordTypes.Module, "module/billing", "billing", root));
         model.Records.Add(Rec(RecordTypes.Module, "module/admission", "admission", root));
         model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/admission.admission-gate", "admission/admission-gates", root));
@@ -323,13 +407,13 @@ public sealed class PlacementDriftModuleLayoutTests
     static MarkedElement TestElement(string @class, string method, string file, string scenarioId) =>
         new(CodeKind.Test, @class, method, file, 3, [new CodeMark(scenarioId, MarkStyle.Xml, MarkVerb.Proves, file, 1)], InTests: true);
 
-    /// <summary>One file under the one application root.</summary>
+    /// <summary>One file under the modules root.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <param name="segments">The path segments under the application root.</param>
+    /// <param name="segments">The path segments under the modules root.</param>
     /// <returns>The full path to the file.</returns>
     static string ProductFile(string root, params string[] segments)
     {
-        var parts = new List<string> { root, "apps", "api", "src", "Library" };
+        var parts = new List<string> { root, "apps", "api", "src", "Library.Modules" };
         parts.AddRange(segments);
 
         return Path.Combine([.. parts]);

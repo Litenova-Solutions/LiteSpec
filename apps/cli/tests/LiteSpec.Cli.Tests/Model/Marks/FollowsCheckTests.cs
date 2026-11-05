@@ -255,7 +255,7 @@ public sealed class FollowsCheckTests
                   "stacks": ["dotnet"], "reviewedLiteSpecVersion": "4.0.0", "owners": ["lending-team"],
                   "marks": "attribute",
                   "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []},
-                  "stackConfig": {"dotnet": {"application": "apps/api/src/Library.Application"}}}
+                  "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Application"}}}
                 """);
             Write(temp.Path, ".litespec/glossary.yaml", """
                 schemaVersion: 2

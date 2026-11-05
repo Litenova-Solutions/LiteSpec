@@ -55,9 +55,9 @@
   },
   "stackConfig": {
     "dotnet": {
-      "application": "apps/api/src/Claimwick",
-      "sharedKernel": "apps/api/src/Claimwick/Domain",
-      "templateStore": "apps/api/src/Claimwick/Spending/Application/MessageTemplates.cs"
+      "modules": "apps/api/src/Claimwick.Modules",
+      "sharedKernel": "apps/api/src/Claimwick.SharedKernel",
+      "templateStore": "apps/api/src/Claimwick.Modules/Spending/Application/MessageTemplates.cs"
     }
   },
   "selectedExtensions": [],

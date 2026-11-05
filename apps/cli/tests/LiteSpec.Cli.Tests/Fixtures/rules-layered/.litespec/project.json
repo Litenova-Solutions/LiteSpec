@@ -19,7 +19,7 @@
   },
   "stackConfig": {
     "dotnet": {
-      "application": "apps/api/src/Demo.Application",
+      "modules": "apps/api/src/Demo.Application",
       "domain": "apps/api/src/Demo.Domain",
       "webapi": "apps/api/src/Demo.WebApi",
       "infrastructure": "apps/api/src/Demo.Infrastructure"

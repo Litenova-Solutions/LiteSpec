@@ -203,16 +203,16 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Strength:** default
 
-**Default:** Place Marten configuration, repositories, commit behavior, and serialization in the product and module Infrastructure folders this provision names.
+**Default:** Place Marten configuration, repositories, commit behavior, and serialization in the shared kernel and module Infrastructure folders this provision names.
 
 **Replacement:** A project names the folders holding its persistence types in its project documentation.
 
-**Rationale:** One store stays the default, configured in the product Infrastructure folder, while each module mappings and repositories live in its own Infrastructure folders, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the product. This provision binds `litespec/backend/persistence#use-one-persistence-folder` for .NET.
+**Rationale:** One store stays the default, configured in the shared kernel Infrastructure folder, while each module mappings and repositories live in its own Infrastructure folders, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the product. This provision binds `litespec/backend/persistence#use-one-persistence-folder` for .NET.
 
 **Example:**
 
 ```text
-{Product}/
+{Product}.SharedKernel/
   Infrastructure/
     Marten/
       MartenServiceRegistration.cs
@@ -221,6 +221,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
         SaveChangesCommandPostHandler.cs
       Events/
         DomainEventBuffer.cs
+{Product}.Modules/
   Posts/                            single aggregate whose name matches the module: files directly under the module
     Infrastructure/
       PostRepository.cs
@@ -238,9 +239,9 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 The module folders follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A single-aggregate module stays flat when its aggregate root plural name equals the module name. For example, `Post` stays flat under `Posts`. Otherwise, each aggregate takes its own folder.
 
-Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay in the product Infrastructure folder.
+Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay in the shared kernel Infrastructure folder.
 
-**Reviewed for:** Which Marten configuration, repository, commit, or serialization files sit outside their product or module Infrastructure folder? Look at the persistence files.
+**Reviewed for:** Which Marten configuration, repository, commit, or serialization files sit outside their shared kernel or module Infrastructure folder? Look at the persistence files.
 
 ### Register One Scoped Session
 

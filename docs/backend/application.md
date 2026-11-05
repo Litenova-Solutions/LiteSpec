@@ -11,7 +11,7 @@ The Application layer coordinates use cases, checking the shape of each incoming
 
 ### The Use Case Folder
 
-Every Application folder in the module tree is a product, module, aggregate, or use case layer folder, a `Contracts/` folder, or a `Reactions/`, `Jobs/`, or `UseCases/` folder. One use case folder holds everything a reviewer needs to judge a use case, flat: its message, result, validator, handler, mapping, definition of pipeline-read values, and its endpoint with the request and response models. A use case file's layer comes from its role suffix, so Application and WebApi files sit side by side in the one folder. An event handler folder holds its event handler classes with the marks naming their reactions, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Contracts another module names live in the owning module's `Contracts/`, and the pipeline machinery lives in the product `Application/` folder.
+Every Application folder in the module tree is a product, module, aggregate, or use case layer folder, a `Contracts/` folder, or a `Jobs/` or `UseCases/` folder. One use case folder holds everything a reviewer needs to judge a use case, flat: its message, result, validator, handler, mapping, definition of pipeline-read values, and its endpoint with the request and response models. A use case file's layer comes from its role suffix, so Application and WebApi files sit side by side in the one folder. An `On{Fact}/` folder inside the module `UseCases/` folder holds its event handler classes with the marks naming their reactions, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Contracts another module names live in the owning module's `Contracts/` folder sorted by kind, and the pipeline machinery lives in the product `Application/` folder.
 
 ### The Command Pipeline
 
@@ -19,7 +19,7 @@ A command travels fixed stages in order: validation, authorization, idempotency,
 
 ### Ports
 
-A port is a narrow interface Application declares for work it does not do itself, such as archiving posts or reading the clock. Each port names one business capability with project-owned types, and Infrastructure implements it. A port is declared in the layer folder its consumers share, so it is reviewed with the specification it serves; a port another module calls is published in the owning module's `Contracts/`. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning system holds.
+A port is a narrow interface Application declares for work it does not do itself, such as archiving posts or reading the clock. Each port names one business capability with project-owned types, and Infrastructure implements it. A port is declared in the layer folder its consumers share, so it is reviewed with the specification it serves; a port another module calls is published in the owning module's `Contracts/Ports/` folder. An external-system port carries the operations one `calls` effect names, a messenger port carries the notifications `sends` effects name, and a store port carries state the owning system holds.
 
 ### Declared Effects
 
@@ -33,11 +33,11 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 **Strength:** rule
 
-**Statement:** Each command or query MUST own one use case folder under its module and aggregate holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
+**Statement:** Each command or query MUST own one use case folder inside the `UseCases/` folder of its module and aggregate holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
 
-**Rationale:** One use case folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and pipeline-read values, with its endpoint and transport models beside them. Grouping by technical type scatters one use case across the module, so a change touches six folders and review misses one. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`. Pipeline-read values are declared beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
+**Rationale:** One use case folder inside its `UseCases/` folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and pipeline-read values, with its endpoint and transport models beside them. Grouping by technical type scatters one use case across the module, so a change touches six folders and review misses one. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`. Pipeline-read values are declared beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
 
-**Reviewed for:** Which commands or queries lack one use case folder under their module and aggregate with message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
+**Reviewed for:** Which commands or queries lack one use case folder inside the `UseCases/` folder of their module and aggregate with message, result, validator, handler, mapping, and pipeline-read values? Look at the folders under each module.
 
 ### Dispatch Commands and Queries Through Separate Entry Points
 
@@ -282,7 +282,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** A port MUST be declared at the lowest folder holding every consumer that names it, following `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
 
-**Rationale:** A port reviewed beside the aggregate it serves is reviewed with that aggregate's specification; a port in a product-wide folder is reviewed by nobody. A port whose consumers sit in one module is declared in that module's layer folder beside the aggregate it serves, and only a port another module calls belongs in the owning module's `Contracts/`. Collecting every port in one folder because they share the word "port" is grouping by technical type. `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
+**Rationale:** A port reviewed beside the aggregate it serves is reviewed with that aggregate's specification; a port in a product-wide folder is reviewed by nobody. A port whose consumers sit in one module is declared in that module's layer folder beside the aggregate it serves, and only a port another module calls belongs in the owning module's `Contracts/Ports/` folder. Collecting every port in one folder because they share the word "port" is grouping by technical type. `litespec/backend/application#organize-application-by-use-case` rejects that grouping one level down for the same reason.
 
 You review a port declared beside its aggregate with that aggregate's specification. Nobody reviews a port in a product-wide folder. Where a port serves aggregates in one module but is called from another, the declaring module is the one that owns the aggregates. That module is the one whose rules change when the port changes.
 
@@ -378,11 +378,11 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** A reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.
 
-**Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `triggeredBy`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles under the module `Reactions/` folder, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The [automation page](../core/automation.md) states the trigger fields. An entry with `after-commit` timing uses durable delivery through the outbox extension.
+**Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `triggeredBy`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles inside the module `UseCases/` folder, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The [automation page](../core/automation.md) states the trigger fields. An entry with `after-commit` timing uses durable delivery through the outbox extension.
 
-**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `Reactions/OnLoanBorrowed/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
+**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `UseCases/OnLoanBorrowed/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
-**Reviewed for:** Which event handlers answer outside one class with one mark in their `Reactions/On{Fact}` folder? Look at each event handler class and its mark.
+**Reviewed for:** Which event handlers answer outside one class with one mark in their `UseCases/On{Fact}` folder? Look at each event handler class and its mark.
 
 ### Run Each Job Within Its Declared Selection
 
@@ -592,44 +592,47 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** default
 
-**Default:** Place each use case in a folder named for it under its module and aggregate, with the use case files flat inside and shared types in the node layer folders.
+**Default:** Place each use case in a folder named for it inside the `UseCases/` folder of its module and aggregate, with the use case files flat inside and shared types in the node layer folders.
 
 **Replacement:** A project names its own Application folder layout in its documentation.
 
-**Rationale:** One folder per use case holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map. A use case file's layer comes from its role suffix, so Application files sit beside the endpoint and transport models in the one folder.
+**Rationale:** One folder per use case inside its `UseCases/` folder holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map. A use case file's layer comes from its role suffix, so Application files sit beside the endpoint and transport models in the one folder.
 
 **Example:** The layout reads as follows:
 
 ```text
 {Product}/
   Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else
-  Posts/                                  single aggregate whose name matches the module: use cases sit directly under the module
-    Contracts/                            ports other modules call
+  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder
+    Contracts/
+      Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
     Application/                          a port several Posts use cases name sits here
-    CreateDraft/                          one folder per use case, flat: Command, Query, Result, Handler, Validator,
+    UseCases/
+      CreateDraft/                        one folder per use case, flat: Command, Query, Result, Handler, Validator,
                                           Endpoint, RequestModel, ResponseModel, mapping
-    GetPost/
-    ListPosts/
-      ListPostsQueryResultItem            a result part named after its result
-    Reactions/
+      GetPost/
+      ListPosts/
+        ListPostsQueryResultItem          a result part named after its result
       OnPostPublished/                    one folder per fact, holding every handler of that fact
         NotifySubscribersOnPostPublishedHandler   one event handler class with its mark
     Jobs/
-  Customers/                              two aggregates: use cases nest under each aggregate
+  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder
     Contracts/
+      Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
     CustomerAccounts/
       Application/                        aggregate-owned types sit in the aggregate layer folder
-      RestrictAccount/
+      UseCases/
+        RestrictAccount/
     Consents/
-      GrantConsent/
-    UseCases/                             use cases no single aggregate owns
-    Reactions/
+      UseCases/
+        GrantConsent/
+    UseCases/                             use cases no single aggregate owns, with one On{Fact} folder per reaction
     Jobs/
 ```
 
 Module, aggregate, and use case order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-Only a use case or an event handler folder gets a folder below its node. Any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, so every folder name below a module names one use case or one fact. An event handler lives in the `On{Fact}` folder for the fact it handles under `Reactions/`, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, with its mark under `litespec/backend/application#keep-reaction-implementations-explicit`. A folder named for a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
+Only a use case or an event handler folder gets a folder below its `UseCases/` folder. Any other type sits in the node layer folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, so every folder name below a `UseCases/` folder names one use case or one fact. An event handler lives in the `On{Fact}` folder for the fact it handles inside the module `UseCases/` folder, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, with its mark under `litespec/backend/application#keep-reaction-implementations-explicit`. A folder named for a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
 
 **Reviewed for:** Which use-case paths, event handler folders, or result part names break the layout? Look at each path under the modules.
 

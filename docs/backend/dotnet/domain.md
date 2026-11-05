@@ -603,11 +603,11 @@ Application validators handle malformed caller input through validation errors. 
 
 **Strength:** default
 
-**Default:** Declare the shared Domain contracts once in the product Domain folder and reuse them across every module.
+**Default:** Declare the shared Domain contracts once in the shared kernel Domain folder and reuse them across every module.
 
 **Replacement:** A project names its shared contract home in its Domain documentation.
 
-**Rationale:** Every module raises events, throws domain exceptions, and identifies aggregates, so each shared contract declared twice becomes two contracts that drift. Declaring `IDomainEvent`, `DomainException`, `IStronglyTypedId`, `Entity<TId>`, `IAggregateRoot`, and `AggregateRoot<TId>` once in the product Domain folder gives every module the same mechanics. Generic handling constrains its parameters with `IAggregateRoot`, as in `IRepository<T> where T : IAggregateRoot`. This provision binds `litespec/backend/domain#reuse-the-shared-domain-contracts-across-modules` for .NET.
+**Rationale:** Every module raises events, throws domain exceptions, and identifies aggregates, so each shared contract declared twice becomes two contracts that drift. Declaring `IDomainEvent`, `DomainException`, `IStronglyTypedId`, `Entity<TId>`, `IAggregateRoot`, and `AggregateRoot<TId>` once in the shared kernel Domain folder gives every module the same mechanics. Generic handling constrains its parameters with `IAggregateRoot`, as in `IRepository<T> where T : IAggregateRoot`. This provision binds `litespec/backend/domain#reuse-the-shared-domain-contracts-across-modules` for .NET.
 
 **Example:**
 
@@ -729,13 +729,14 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 
 **Replacement:** A project names its Domain folder layout in its Domain documentation.
 
-**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, and each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner Contracts folder, and shared-kernel values live in the product Domain folder. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
+**Rationale:** Each aggregate Domain folder holds everything one aggregate owns in the files the layout names, so a reader finds the full aggregate in one place. Namespaces follow the folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, and each file sits at the lowest folder holding its consumers under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. This provision binds `litespec/backend/domain#organize-a-module-by-aggregate-and-concept` for .NET.
 
 **Example:** The Domain layer folder layout is:
 
 ```text
-{Product}/
+{Product}.SharedKernel/
   Domain/                         shared kernel: AggregateRoot, Entity, IAggregateRoot, IDomainEvent, IStronglyTypedId, DomainException
+{Product}.Modules/
   Posts/                          one aggregate whose name matches the module: kept flat in the module folder
     Domain/
       Post.cs
@@ -753,7 +754,8 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
         PostIdentityRequiredException.cs
         PostAlreadyPublishedException.cs
     Contracts/
-      PostId.cs                   only when another module names it; else beside Post.cs
+      Identifiers/
+        PostId.cs                 only when another module names it; else beside Post.cs
   Shipping/                       one aggregate whose name differs from the module, with a domain union in a concept folder
     Shipments/
       Domain/

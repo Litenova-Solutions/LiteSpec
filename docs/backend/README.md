@@ -6,7 +6,7 @@ The backend pages state how a LiteSpec server application is built: its layers, 
 
 ## How the Pages Fit Together
 
-The eight principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its application project and hosts, its C# shapes, and its Marten persistence. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
+The eight principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
 
 ## Backend Principles
 

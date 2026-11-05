@@ -107,12 +107,12 @@ outbox.StageCollectedEvents();
 
 **Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `On{Fact}` folder under its module Reactions folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: a reaction that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#keep-reaction-implementations-explicit` for .NET.
+**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `On{Fact}` folder inside its module `UseCases/` folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: a reaction that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#keep-reaction-implementations-explicit` for .NET.
 
 **Example:**
 
 ```csharp
-// Lending/Reactions/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler.cs
+// Lending/UseCases/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
 internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 {
@@ -120,7 +120,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 }
 ```
 
-**Reviewed for:** Which reactions escape one handler class with their record's mark in the Reactions `On{Fact}` folder? Look at each reaction in its module Reactions folder.
+**Reviewed for:** Which reactions escape one handler class with their record's mark in the module `UseCases/On{Fact}` folder? Look at each reaction in its module `UseCases/` folder.
 
 ### Run Scheduled Jobs as Hosted Operations
 
@@ -166,16 +166,16 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Strength:** default
 
-**Default:** Place each use case flat in a folder named for its use case under its module and aggregate, with the files this provision names.
+**Default:** Place each use case flat in a folder named for its use case inside the `UseCases/` folder of its module and aggregate, with the files this provision names.
 
 **Replacement:** A project names its use case layout in its Application documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case or a handled fact gets a folder: any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and a handled fact folder takes the `On{Fact}` name with its marked handler classes under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
+**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case or a handled fact gets a folder below its `UseCases/` folder: any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and a handled fact folder takes the `On{Fact}` name with its marked handler classes under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
 
 **Example:** The use case folder layout is:
 
 ```text
-{Product}/
+{Product}.SharedKernel/
   Application/                      product plumbing: pipeline positions, clock, failures, validation
     Pipeline/                       the pipeline own stages, and nothing else
       ApplicationPipeline.cs
@@ -188,48 +188,51 @@ internal sealed class EraseExpiredPersonalDataHost(...)
       UseCaseConflictException.cs
     Validation/
       ValidationErrors.cs
-  Posts/                            single aggregate whose name matches the module: use cases sit directly under the module
+{Product}.Modules/
+  Posts/                            single aggregate whose name matches the module: use cases sit in the module UseCases folder
     Application/
       IPostArchive.cs               a port several Posts use cases name
-    CreateDraft/
-      CreateDraftCommand.cs
-      CreateDraftCommandResult.cs
-      CreateDraftCommandValidator.cs
-      CreateDraftCommandHandler.cs
-      CreateDraftEndpoint.cs
-      CreateDraftRequestModel.cs
-      CreateDraftResponseModel.cs
-    GetPost/
-      GetPostQuery.cs
-      GetPostQueryResult.cs
-      GetPostQueryValidator.cs
-      GetPostQueryHandler.cs
-    ListPosts/
-      ListPostsQuery.cs
-      ListPostsQueryResult.cs
-      ListPostsQueryResultItem.cs
-      ListPostsQueryValidator.cs
-      ListPostsQueryHandler.cs
-    Reactions/
+    UseCases/
+      CreateDraft/
+        CreateDraftCommand.cs
+        CreateDraftCommandResult.cs
+        CreateDraftCommandValidator.cs
+        CreateDraftCommandHandler.cs
+        CreateDraftEndpoint.cs
+        CreateDraftRequestModel.cs
+        CreateDraftResponseModel.cs
+      GetPost/
+        GetPostQuery.cs
+        GetPostQueryResult.cs
+        GetPostQueryValidator.cs
+        GetPostQueryHandler.cs
+      ListPosts/
+        ListPostsQuery.cs
+        ListPostsQueryResult.cs
+        ListPostsQueryResultItem.cs
+        ListPostsQueryValidator.cs
+        ListPostsQueryHandler.cs
       OnPostPublished/              event handlers of one fact: one marked class per reaction
         NotifySubscribersOnPostPublishedHandler.cs
         IPostPublicationNotifier.cs a port one event handler names
-  Customers/                        two aggregates: use cases nest under each aggregate
+  Customers/                        two aggregates: use cases nest under each aggregate UseCases folder
     CustomerAccounts/
       Application/
         CustomerAccountScopeLookup.cs aggregate-owned, so it sits with the aggregate
-      RestrictAccount/
-        RestrictAccountCommand.cs
-        RestrictAccountCommandHandler.cs
+      UseCases/
+        RestrictAccount/
+          RestrictAccountCommand.cs
+          RestrictAccountCommandHandler.cs
     Consents/
-      GrantConsent/
-        GrantConsentCommand.cs
-        GrantConsentCommandHandler.cs
+      UseCases/
+        GrantConsent/
+          GrantConsentCommand.cs
+          GrantConsentCommandHandler.cs
 ```
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`. A use case file takes its layer from its role suffix under `litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level`.
 
-**Reviewed for:** Which use case folders miss message, result, validator, or handler files named for the use case, or which event handlers escape their Reactions `On{Fact}` folder? Look at each use case folder.
+**Reviewed for:** Which use case folders miss message, result, validator, or handler files named for the use case, or which event handlers escape their module `UseCases/On{Fact}` folder? Look at each use case folder.
 
 ### Use the Pinned Mediator Entry Points
 
@@ -283,7 +286,7 @@ The pinned LiteBus package signatures take precedence over illustrative example 
 ### Change Another Aggregate from an Event Handler
 
 ```csharp
-// Lending/Loans/BorrowBook/BorrowBookCommandHandler.cs
+// Lending/Loans/UseCases/BorrowBook/BorrowBookCommandHandler.cs
 internal sealed class BorrowBookCommandHandler(
     ILoanRepository loanRepository)
     : ICommandHandler<BorrowBookCommand, BorrowBookCommandResult>
@@ -306,7 +309,7 @@ internal sealed class BorrowBookCommandHandler(
 ```
 
 ```csharp
-// Lending/Reactions/OnLoanBorrowed/MarkBookLentOnLoanBorrowedHandler.cs
+// Lending/UseCases/OnLoanBorrowed/MarkBookLentOnLoanBorrowedHandler.cs
 /// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
 internal sealed class MarkBookLentOnLoanBorrowedHandler(
     IBookRepository bookRepository)

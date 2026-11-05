@@ -94,7 +94,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** `IPayoutProviderClient` is provider infrastructure rather than an Application port.
 
-**Reviewed for:** Which Application assemblies reference a provider SDK or transport type? Look at the Application project references.
+**Reviewed for:** Which Application layer code references a provider SDK or transport type? Look at the Application layer folders.
 
 ### Bind Client Configuration
 

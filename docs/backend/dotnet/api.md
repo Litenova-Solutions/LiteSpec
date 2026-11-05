@@ -12,7 +12,7 @@ Each HTTP operation in a .NET backend runs through one endpoint class in its use
 
 ### Endpoint Classes
 
-A WebApi endpoint is a small class that owns one route operation: it converts HTTP input to an Application command or query, sends it through the mediator, and maps the result back to HTTP. Each endpoint implements the product-owned `IEndpoint` contract, so the host finds every endpoint by scanning the application assembly through its one public marker and maps each one exactly once, in type-name order.
+A WebApi endpoint is a small class that owns one route operation: it converts HTTP input to an Application command or query, sends it through the mediator, and maps the result back to HTTP. Each endpoint implements the product-owned `IEndpoint` contract, so the host finds every endpoint by scanning the modules assembly through its one public marker and maps each one exactly once, in type-name order.
 
 One global handler maps each thrown failure to its HTTP status and Problem Details body, so endpoints carry no error mapping.
 
@@ -43,7 +43,7 @@ internal interface IEndpoint
 }
 ```
 
-At startup, the host scans the application assembly through its one public marker for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
+At startup, the host scans the modules assembly through its one public marker for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
 
 **Reviewed for:** Which mapped routes escape one `IEndpoint` type converting input, dispatching, and mapping the result? Look at the endpoints in the use case folders.
 
@@ -124,7 +124,7 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Applies to:** artifact: endpoint
 
-**Default:** Place each endpoint with its request and response models and mappings flat in its use case folder under its module and aggregate.
+**Default:** Place each endpoint with its request and response models and mappings flat in its use case folder inside the `UseCases/` folder of its module and aggregate.
 
 **Replacement:** A project names its endpoint layout in its WebApi documentation.
 
@@ -133,30 +133,33 @@ The handler maps each known exception type to its status and code, and answers 5
 **Example:** The endpoint layout is:
 
 ```text
-{Product}/
+{Product}.Modules/
   Posts/                            single aggregate whose name matches the module
     WebApi/
       PostLinks.cs                  transport types two or more Posts use cases name
-    CreateDraft/
-      CreateDraftEndpoint.cs
-      CreateDraftRequestModel.cs
-      CreateDraftResponseModel.cs
-      CreateDraftApiMappings.cs
-    GetPost/
-      GetPostEndpoint.cs
-      GetPostResponseModel.cs
-      GetPostApiMappings.cs
-  Customers/                        two aggregates: use cases nest under each aggregate
+    UseCases/
+      CreateDraft/
+        CreateDraftEndpoint.cs
+        CreateDraftRequestModel.cs
+        CreateDraftResponseModel.cs
+        CreateDraftApiMappings.cs
+      GetPost/
+        GetPostEndpoint.cs
+        GetPostResponseModel.cs
+        GetPostApiMappings.cs
+  Customers/                        two aggregates: use cases nest under each aggregate UseCases folder
     CustomerAccounts/
-      RestrictAccount/
-        RestrictAccountEndpoint.cs
-        RestrictAccountRequestModel.cs
-        RestrictAccountApiMappings.cs
+      UseCases/
+        RestrictAccount/
+          RestrictAccountEndpoint.cs
+          RestrictAccountRequestModel.cs
+          RestrictAccountApiMappings.cs
     Consents/
-      GrantConsent/
-        GrantConsentEndpoint.cs
-        GrantConsentRequestModel.cs
-        GrantConsentApiMappings.cs
+      UseCases/
+        GrantConsent/
+          GrantConsentEndpoint.cs
+          GrantConsentRequestModel.cs
+          GrantConsentApiMappings.cs
 {Product}.WebApi/
   Errors/
     GlobalExceptionHandler.cs

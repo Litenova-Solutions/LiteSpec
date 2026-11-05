@@ -56,8 +56,8 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Gets the one code root: the application project holding every module at every layer, or the Application project under layer-projects.</summary>
-    public string ApplicationRoot { get; private set; } = "";
+    /// <summary>Gets the modules project holding every module, or the Application project under layer-projects.</summary>
+    public string ModulesRoot { get; private set; } = "";
 
     /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string DomainRoot { get; private set; } = "";
@@ -74,8 +74,8 @@ sealed class ConsumerConfig
     /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
     public bool IsLayerProjects { get; private set; }
 
-    /// <summary>Gets the declared shared-kernel folder, or empty when the project declares none.</summary>
-    public string SharedKernel { get; private set; } = "";
+    /// <summary>Gets the shared kernel project holding what every module builds on.</summary>
+    public string SharedKernelRoot { get; private set; } = "";
 
     /// <summary>Gets where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
@@ -216,19 +216,12 @@ sealed class ConsumerConfig
         config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
         config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
         config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
-        config.ApplicationRoot = DeclaredRoot("application", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*");
+        config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules");
         config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain") : DeclaredRootOrEmpty("domain");
         config.WebApiRoot = DeclaredRoot("webapi", "apps/api/src/*.WebApi");
         config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure") : DeclaredRootOrEmpty("infrastructure");
         config.WorkerRoot = DeclaredRoot("worker", "apps/api/src/*.Worker");
-
-        if (dotnet is not null
-            && dotnet.Value.TryGetProperty("sharedKernel", out var kernel)
-            && kernel.ValueKind == JsonValueKind.String
-            && kernel.GetString() is { Length: > 0 } kernelPath)
-        {
-            config.SharedKernel = DeclaredRoot("sharedKernel", kernelPath);
-        }
+        config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel");
 
         if (dotnet is not null
             && dotnet.Value.TryGetProperty("templateStore", out var store)

@@ -8,13 +8,13 @@ namespace LiteSpec.Analyzers.Layers;
 
 /// <summary>
 ///     Maps every source file of one compilation to its architectural home: its
-///     layer, its module, and its use case, reaction or job folder. Built once
+///     layer, its module, and its use case or reaction folder. Built once
 ///     per compilation; the boundary rules read it for every reference.
 /// </summary>
 /// <follows>litespec/backend/architecture#point-dependencies-inward</follows>
 internal sealed class CodeMap
 {
-    /// <summary>Folder names that never hold a use case, reaction or job of their own.</summary>
+    /// <summary>Folder names that never hold a use case or reaction of their own, and never name a module.</summary>
     private static readonly HashSet<string> KnownFolders = new(StringComparer.Ordinal)
     {
         "Domain",
@@ -22,6 +22,7 @@ internal sealed class CodeMap
         "Infrastructure",
         "WebApi",
         "Contracts",
+        "Composition",
         "UseCases",
         "Reactions",
         "Jobs",
@@ -30,11 +31,11 @@ internal sealed class CodeMap
     };
 
     /// <summary>Initializes a new instance of the <see cref="CodeMap"/> class.</summary>
-    /// <param name="assemblyName">The assembly name that names the application project.</param>
+    /// <param name="assemblyName">The assembly name that names the modules project.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="modules">The module folders, as forward-slash directory paths.</param>
-    /// <param name="slices">The use case, reaction and job folders, as forward-slash directory paths.</param>
+    /// <param name="slices">The use case and reaction folders, as forward-slash directory paths.</param>
     private CodeMap(string assemblyName, Layout layout, string? declared, HashSet<string> modules, HashSet<string> slices)
     {
         AssemblyName = assemblyName;
@@ -44,7 +45,7 @@ internal sealed class CodeMap
         Slices = slices;
     }
 
-    /// <summary>Gets the assembly name that names the application project.</summary>
+    /// <summary>Gets the assembly name that names the modules project.</summary>
     public string AssemblyName { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
@@ -56,7 +57,7 @@ internal sealed class CodeMap
     /// <summary>Gets the module folders, as forward-slash directory paths.</summary>
     private HashSet<string> Modules { get; }
 
-    /// <summary>Gets the use case, reaction and job folders, as forward-slash directory paths.</summary>
+    /// <summary>Gets the use case and reaction folders, as forward-slash directory paths.</summary>
     private HashSet<string> Slices { get; }
 
     /// <summary>Builds the map for one compilation.</summary>
@@ -114,7 +115,7 @@ internal sealed class CodeMap
         return longest;
     }
 
-    /// <summary>Returns the use case, reaction or job folder holding the file, or null when none does.</summary>
+    /// <summary>Returns the use case or reaction folder holding the file, or null when none does.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The slice folder, or null when the file sits outside every slice.</returns>
     public string? SliceOf(string? filePath)
@@ -204,7 +205,7 @@ internal sealed class CodeMap
     /// <summary>Finds the module folders: parents of Contracts folders, or project children under layer-projects.</summary>
     /// <param name="paths">The source file paths of the compilation.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="assemblyName">The application assembly name, which names the application project folder.</param>
+    /// <param name="assemblyName">The modules assembly name, which names the modules project folder.</param>
     /// <returns>The module folders, as forward-slash directory paths.</returns>
     private static HashSet<string> FindModules(List<string> paths, Layout layout, string assemblyName)
     {
@@ -238,9 +239,10 @@ internal sealed class CodeMap
             }
         }
 
-        // Under the module layout every top-level folder of the application project outside the
-        // product layer folders is a module, whether or not it publishes a Contracts folder yet.
-        if (layout != Layout.LayerProjects && ProjectRootOf(paths, assemblyName) is string root && HoldsProductLayerFolder(paths, root))
+        // Under the module layout every top-level folder of the modules project outside the
+        // known folders is a module, whether or not it publishes a Contracts folder yet.
+        // Composition/ belongs to no module: it names several modules at once.
+        if (layout != Layout.LayerProjects && ApplicationRootOf(paths, assemblyName) is string root)
         {
             foreach (var path in paths)
             {
@@ -260,21 +262,44 @@ internal sealed class CodeMap
         return modules;
     }
 
-    /// <summary>Returns the application project root, or null when the compilation is no application project.</summary>
+    /// <summary>Returns the modules project root, or null when the compilation is no modules project.</summary>
     /// <param name="paths">The source file paths of the compilation.</param>
-    /// <param name="assemblyName">The application assembly name.</param>
+    /// <param name="assemblyName">The compilation assembly name.</param>
     /// <returns>The root as a forward-slash directory path, or null.</returns>
-    private static string? ApplicationRootOf(List<string> paths, string assemblyName) =>
-        ProjectRootOf(paths, assemblyName) is string root && HoldsProductLayerFolder(paths, root) ? root : null;
+    private static string? ApplicationRootOf(List<string> paths, string assemblyName)
+    {
+        if (IsSharedKernelAssembly(assemblyName) || ProjectRootOf(paths, assemblyName) is not string root)
+        {
+            return null;
+        }
+
+        // The modules project holds Composition/ beside its modules and needs no marker;
+        // any other project proves itself with product layer folders at its root.
+        return IsModulesAssembly(assemblyName) || HoldsProductLayerFolder(paths, root) ? root : null;
+    }
+
+    /// <summary>Returns true when the assembly is the modules project; otherwise false.</summary>
+    /// <param name="assemblyName">The compilation assembly name.</param>
+    /// <returns>True when the assembly name ends with the Modules segment; otherwise false.</returns>
+    private static bool IsModulesAssembly(string assemblyName) =>
+        assemblyName.Equals("Modules", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".Modules", StringComparison.Ordinal);
+
+    /// <summary>Returns true when the assembly is the shared kernel; otherwise false.</summary>
+    /// <param name="assemblyName">The compilation assembly name.</param>
+    /// <returns>True when the assembly name ends with the SharedKernel segment; otherwise false.</returns>
+    private static bool IsSharedKernelAssembly(string assemblyName) =>
+        assemblyName.Equals("SharedKernel", StringComparison.Ordinal)
+        || assemblyName.EndsWith(".SharedKernel", StringComparison.Ordinal);
 
     /// <summary>
     ///     Returns true when a source file sits in a product layer folder directly under the root:
-    ///     the application project holds <c>Domain/</c>, <c>Application/</c> or <c>Infrastructure/</c>
-    ///     beside its modules, while a host, a tool or a test project holds none.
+    ///     <c>Domain/</c>, <c>Application/</c> or <c>Infrastructure/</c>. The modules project,
+    ///     a host, a tool or a test project holds none there.
     /// </summary>
     /// <param name="paths">The source file paths of the compilation.</param>
     /// <param name="root">The project root as a forward-slash directory path.</param>
-    /// <returns>True when the compilation is laid out as the application project.</returns>
+    /// <returns>True when the compilation holds product layer folders at its root.</returns>
     private static bool HoldsProductLayerFolder(List<string> paths, string root)
     {
         foreach (var path in paths)
@@ -301,15 +326,15 @@ internal sealed class CodeMap
     }
 
     /// <summary>
-    ///     Returns the application project folder: the folder named after the assembly, or else the
+    ///     Returns the project folder: the folder named after the assembly, or else the
     ///     deepest folder holding every rooted, non-generated source file of the compilation.
     /// </summary>
     /// <param name="paths">The source file paths of the compilation.</param>
-    /// <param name="assemblyName">The application assembly name.</param>
+    /// <param name="assemblyName">The compilation assembly name.</param>
     /// <returns>The project root as a forward-slash directory path, or null when none is found.</returns>
     private static string? ProjectRootOf(List<string> paths, string assemblyName)
     {
-        // The application project folder carries the assembly name: apps/api/src/{Product}/.
+        // The modules project folder carries the assembly name: apps/api/src/{Product}.Modules/.
         if (assemblyName.Length > 0)
         {
             foreach (var path in paths)
@@ -356,16 +381,16 @@ internal sealed class CodeMap
         return root;
     }
 
-    /// <summary>Finds the slice folders: folders of role-suffixed files outside the known folder names.</summary>
+    /// <summary>Finds the slice folders: folders directly under a UseCases/ folder, or folders of role-suffixed files under layer-projects.</summary>
     /// <param name="paths">The source file paths of the compilation.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="root">The application project root, or null when the compilation is no application project; a slice sits below it, outside every layer folder.</param>
+    /// <param name="root">The modules project root, or null when the compilation is no modules project; under modules a slice sits below it, directly under a UseCases/ folder.</param>
     /// <returns>The slice folders, as forward-slash directory paths.</returns>
     private static HashSet<string> FindSlices(List<string> paths, Layout layout, string? root)
     {
         var slices = new HashSet<string>(StringComparer.Ordinal);
         // Under layer-projects the use case folders sit in the layer projects; under modules only
-        // the application project holds them.
+        // the modules project holds them.
         if (root is null && layout != Layout.LayerProjects)
         {
             return slices;
@@ -374,7 +399,24 @@ internal sealed class CodeMap
         foreach (var path in paths)
         {
             var folder = FolderOf(path);
-            if (folder is null || KnownFolders.Contains(FolderName(folder)) || UnderLayerFolder(folder, root))
+            if (folder is null)
+            {
+                continue;
+            }
+
+            // A slice is a folder directly under a UseCases/ folder, at module or
+            // aggregate level, including On{Fact}/ reaction folders.
+            if (layout != Layout.LayerProjects)
+            {
+                if (ParentNameIs(folder, "UseCases"))
+                {
+                    slices.Add(folder);
+                }
+
+                continue;
+            }
+
+            if (KnownFolders.Contains(FolderName(folder)) || UnderLayerFolder(folder, root))
             {
                 continue;
             }
@@ -386,6 +428,24 @@ internal sealed class CodeMap
         }
 
         return slices;
+    }
+
+    /// <summary>Returns true when the folder sits directly under a folder of that name; otherwise false.</summary>
+    /// <param name="folder">The folder as a forward-slash directory path.</param>
+    /// <param name="parent">The parent folder name.</param>
+    /// <returns>True when the folder sits directly under a folder of that name; otherwise false.</returns>
+    private static bool ParentNameIs(string folder, string parent)
+    {
+        var slash = folder.LastIndexOf('/');
+        if (slash <= 0)
+        {
+            return false;
+        }
+
+        var before = folder.Substring(0, slash);
+        var parentSlash = before.LastIndexOf('/');
+        var name = parentSlash < 0 ? before : before.Substring(parentSlash + 1);
+        return name.Equals(parent, StringComparison.Ordinal);
     }
 
     /// <summary>Returns the module folder of a layer-projects file: the folder under its project folder.</summary>

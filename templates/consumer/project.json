@@ -51,7 +51,8 @@
   },
   "stackConfig": {
     "dotnet": {
-      "application": "apps/api/src/__PROJECT__",
+      "modules": "apps/api/src/__PROJECT__.Modules",
+      "sharedKernel": "apps/api/src/__PROJECT__.SharedKernel",
       "apiSolution": "apps/api/__PROJECT__.slnx"
     }
   },

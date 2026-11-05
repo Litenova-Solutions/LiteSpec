@@ -921,7 +921,7 @@ internal static class CodeChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckReasonlessName(ProjectModel model, List<Finding> findings)
     {
-        var kernel = model.Config.SharedKernel;
+        var kernel = model.Config.SharedKernelRoot;
         var reportedFolders = new HashSet<string>(StringComparer.Ordinal);
         var reportedTypes = new HashSet<string>(StringComparer.Ordinal);
         var files = new List<string>();
@@ -998,10 +998,10 @@ internal static class CodeChecks
         }
     }
 
-    /// <summary>Whether the file sits under the declared shared-kernel folder.</summary>
-    /// <param name="kernel">The shared kernel folder path, empty when none is declared.</param>
+    /// <summary>Whether the file sits under the shared kernel project.</summary>
+    /// <param name="kernel">The shared kernel project path.</param>
     /// <param name="file">The full path of the file under test.</param>
-    /// <returns>True when the file sits under the shared kernel folder; otherwise false.</returns>
+    /// <returns>True when the file sits under the shared kernel project; otherwise false.</returns>
     private static bool UnderSharedKernel(string kernel, string file)
     {
         if (kernel.Length == 0)

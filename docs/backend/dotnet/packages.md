@@ -27,13 +27,13 @@ None.
 
 **Reviewed for:** Which project files reference a LiteBus module their code never dispatches? Look at each project file.
 
-### Run LiteSpec Analyzers in the Application Project and Hosts
+### Run LiteSpec Analyzers in the Business Projects and Hosts
 
-**ID:** `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-application-project-and-hosts`
+**ID:** `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`
 
 **Strength:** default
 
-**Default:** Reference `LiteSpec.Analyzers` at the manifest pin, with `PrivateAssets="all"`, from the application project and each host project.
+**Default:** Reference `LiteSpec.Analyzers` at the manifest pin, with `PrivateAssets="all"`, from the shared kernel and modules projects and each host project.
 
 **Replacement:** A project names the projects its analyzer run covers in its project documentation.
 
@@ -47,7 +47,7 @@ None.
 </ItemGroup>
 ```
 
-**Reviewed for:** Which application or host project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each application and host project file.
+**Reviewed for:** Which shared kernel, modules, or host project files miss `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`? Look at each business and host project file.
 
 ### Raise the LiteBus Handler Analyzers to Errors
 

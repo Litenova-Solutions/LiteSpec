@@ -28,7 +28,7 @@
   },
   "stackConfig": {
     "dotnet": {
-      "application": "apps/api/src/Demo"
+      "modules": "apps/api/src/Demo"
     }
   },
   "selectedExtensions": []

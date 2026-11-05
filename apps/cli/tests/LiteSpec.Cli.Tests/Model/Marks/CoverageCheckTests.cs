@@ -148,7 +148,7 @@ public sealed class CoverageCheckTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "application": "apps/api/src/Library.Application",
+                      "modules": "apps/api/src/Library.Application",
                       "domain": "apps/api/src/Library.Domain",
                       "webapi": "apps/api/src/Library.WebApi",
                       "infrastructure": "apps/api/src/Library.Infrastructure"

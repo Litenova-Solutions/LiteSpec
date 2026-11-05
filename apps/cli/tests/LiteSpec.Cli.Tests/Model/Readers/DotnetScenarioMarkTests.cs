@@ -187,7 +187,7 @@ public sealed class DotnetScenarioMarkTests
             {"stacks": ["dotnet"],
               "paths": {"testRoots": ["tests/Acceptance"]},
               "stackConfig": {"dotnet": {
-                "application": "src/App", "domain": "src/Domain",
+                "modules": "src/App", "domain": "src/Domain",
                 "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
             """);
 

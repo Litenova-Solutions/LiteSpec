@@ -24,7 +24,7 @@ Layer boundaries are not deployment boundaries: the layers deploy together as on
 
 ### Modules and Use Cases
 
-A [module](../reference/glossary.md) is one business area organizing language, records, use cases, and ownership. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand. Every module organizes its code as the module tree: one folder per declared aggregate, one folder per declared use case, and the layer folders each level allows, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map. A module publishes its public surface in `Contracts/`: typed identifiers other modules name, integration events it publishes, and ports other modules call.
+A [module](../reference/glossary.md) is one business area organizing language, records, use cases, and ownership. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand. Every module organizes its code as the module tree: one folder per declared aggregate, one `UseCases/` folder per aggregate and module with one folder per declared use case inside it, one `On{Fact}/` folder per reaction inside the module `UseCases/` folder, and the layer folders each level allows, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map. A module publishes its public surface in its `Contracts/` folder sorted by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/` and `Ports/`.
 
 ### The Folder Tree
 
@@ -32,30 +32,36 @@ Every node (product root, module, aggregate) may hold the same layer folders. Ea
 
 ```text
 {Product}/
-  Domain/  Application/  Infrastructure/     shared kernel, pipeline positions, store setup and outbox
-  Organizations/                             module
-    Contracts/                               public surface: typed ids, integration events, ports other modules call
-    Domain/  Application/  Infrastructure/   types used by two or more aggregates; module registration
-    WebApi/                                  transport types used by use cases of two or more aggregates
-    Teams/                                   aggregate
-      Domain/          Team, TeamId, TeamState, ITeamRepository, Events/, Refusals/
+  Domain/  Application/  Infrastructure/  WebApi/     shared kernel, pipeline positions, store setup and outbox
+  Organizations/                                      module
+    Contracts/
+      Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
+    Domain/  Application/  Infrastructure/            types used by two or more aggregates; module registration
+    WebApi/                                           transport types used by use cases of two or more aggregates
+    Teams/                                            aggregate
+      Domain/          Team, TeamState, ITeamRepository, Events/, Refusals/
       Application/     types used by two or more Team use cases
       Infrastructure/  TeamRepository
       WebApi/          transport types used by two or more Team use cases (headers, links, partial models)
-      CreateTeam/      use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
-    UseCases/          use cases no single aggregate owns
-    Reactions/
+      UseCases/
+        CreateTeam/    use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
+    UseCases/
+      ReadTeamDirectory/      a use case no single aggregate owns
+      OnTeamMemberRemoved/    a reaction
     Jobs/
 ```
 
 | Level | Allowed folders |
 |:---|:---|
-| Product root | `Domain/`, `Application/`, `Infrastructure/`, one per declared module |
-| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/`, `Reactions/`, `Jobs/`, one per declared aggregate |
-| Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared use case |
-| Use case | Files only |
+| Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
+| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/`, `Jobs/`, one per declared aggregate |
+| Module `Contracts/` | `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/`, `Ports/` |
+| Module `UseCases/` | one per declared module use case, one `On{Fact}/` per reaction |
+| Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/` |
+| Aggregate `UseCases/` | one per declared use case |
+| Use case, `On{Fact}/` | Files only |
 
-A typed identifier another module names lives in its owner's `Contracts/`, so the one rule "another module only through `Contracts/`" covers identifiers too. Shared-kernel values stay in the product `Domain/`. Product-wide HTTP plumbing (Problem Details, authentication, OpenAPI, rate limiting) stays in the host. The product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor. `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between a use case folder and the aggregate, module and product layer folders; across modules a type is never shared, and the owning module publishes it in `Contracts/`. A use case file's layer comes from its role suffix in `litespec/workspace/naming#use-architectural-suffixes`: `Endpoint`, `RequestModel` and `ResponseModel` are WebApi, while `Command`, `Query`, `Result`, `Handler` and `Validator` are Application. Module-level folders mirror the record homes: `UseCases/` holds the use cases no single aggregate owns, `Reactions/` the reactions, and `Jobs/` the jobs. A module with one aggregate of its own name stays flat. The models stay separate and the flow is one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result, never the aggregate.
+A typed identifier another module names lives in its owner's `Contracts/Identifiers/` folder, so the one rule "another module only through `Contracts/`" covers identifiers too. Each module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/` and `Ports/`. Shared-kernel values stay in the product `Domain/`. Product-wide HTTP plumbing (Problem Details, authentication, OpenAPI, rate limiting) stays in the host. The product `WebApi/` folder holds only what endpoints of two or more modules compile against, such as the endpoint contract and the current actor. `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between a use case folder and the aggregate, module and product layer folders; across modules a type is never shared, and the owning module publishes it in `Contracts/`. A use case file's layer comes from its role suffix in `litespec/workspace/naming#use-architectural-suffixes`: `Endpoint`, `RequestModel` and `ResponseModel` are WebApi, while `Command`, `Query`, `Result`, `Handler` and `Validator` are Application. An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder, beside one `On{Fact}/` folder per reaction. A module with one aggregate of its own name stays flat. The models stay separate and the flow is one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result, never the aggregate.
 
 ### Commands and Queries
 
@@ -71,7 +77,7 @@ CQRS separates the command and query models inside the one Application layer: a 
 | A use case folder | Any type in another use case folder |
 | A module | Another module's types outside its `Contracts/`, and any module outside its `dependsOn` |
 
-A module that needs another module's data reads it through a read port in the owner's `Contracts/` that returns contract results keyed by typed id, or answers with its own query; it loads the other module's aggregate or repository in no case. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, dispatched or triggered by an integration event. A reaction to another module's fact subscribes to the published integration event, never to the domain event.
+A module that needs another module's data reads it through a read port in the owner's `Contracts/Ports/` folder that returns contract results keyed by typed id, or answers with its own query; it loads the other module's aggregate or repository in no case. A command changes only its own module's aggregates; an act on another module's aggregate is that module's use case, dispatched or triggered by an integration event. A reaction to another module's fact subscribes to the published integration event, never to the domain event.
 
 ### From Records to Code
 
@@ -113,9 +119,9 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **Strength:** rule
 
-**Statement:** Every module MUST organize its code as the module tree with one folder per declared aggregate and one folder per declared use case, using only the folder names its level allows.
+**Statement:** Every module MUST organize its code as the module tree with one folder per declared aggregate, one `UseCases/` folder per aggregate and module, one folder per declared use case inside its `UseCases/` folder, and one `On{Fact}/` folder per reaction inside the module `UseCases/` folder, using only the folder names its level allows.
 
-**Rationale:** One folder per declared aggregate and one folder per declared use case let a reader move from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact: a folder outside the allowed set is refused, so no second organization grows beside the tree. A module publishes what other modules may name in `Contracts/`, and use cases no single aggregate owns sit in `UseCases/`. An aggregate stays flat only when its plural name equals the single module name.
+**Rationale:** One folder per declared aggregate and one folder per declared use case inside its `UseCases/` folder let a reader move from a Domain aggregate to its handler, its repository, and its endpoint without a map. The closed folder names at each level keep that reading exact: a folder outside the allowed set is refused, so no second organization grows beside the tree. A module publishes what other modules may name in its `Contracts/` folder sorted by kind, use cases no single aggregate owns sit in the module `UseCases/` folder, and each reaction sits in one `On{Fact}/` folder beside them. An aggregate stays flat only when its plural name equals the single module name.
 
 A folder named for a technical grouping rather than a module defeats the rule, because the next unrelated type fits it. `Shared`, `Common`, `Util`, `Helpers`, `Core`, and `Misc` inside a layer are the names that do this.
 
@@ -125,24 +131,30 @@ A folder named for a technical grouping rather than a module defeats the rule, b
 # single-aggregate module whose aggregate name matches the module: the aggregate stays flat
 Organizations/
   Contracts/
+    Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
   Domain/  Application/  Infrastructure/  WebApi/
-  CreateOrganization/      use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
+  UseCases/
+    CreateOrganization/      use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
 
-# multi-aggregate module: module, then aggregate folder, then use case
+# multi-aggregate module: module, then aggregate folder, then UseCases, then use case
 Spending/
   Contracts/
+    Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
   Expenses/
     Domain/  Application/  Infrastructure/  WebApi/
-    SubmitExpense/
-    ApproveExpense/
+    UseCases/
+      SubmitExpense/
+      ApproveExpense/
   Policies/
     Domain/  Application/  Infrastructure/  WebApi/
-    DefinePolicy/
+    UseCases/
+      DefinePolicy/
 
 # module-level work beside the aggregates
 Spending/
   UseCases/
-  Reactions/
+    ReadExpenseDirectory/     a use case no single aggregate owns
+    OnExpenseReimbursed/      a reaction
   Jobs/
 ```
 
@@ -214,13 +226,13 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Strength:** rule
 
-**Statement:** A module needing another module's data MUST read it only through a read port in the owner's `Contracts/` that returns contract results keyed by typed id, or through its own query.
+**Statement:** A module needing another module's data MUST read it only through a read port in the owner's `Contracts/Ports/` folder that returns contract results keyed by typed id, or through its own query.
 
-**Rationale:** A read port in the owner's `Contracts/` keeps the owning module in charge of its data: the port returns contract results keyed by typed id, so the caller names targets without loading them. A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. Where no shared read fits, the module answers with its own query over data it already holds.
+**Rationale:** A read port in the owner's `Contracts/Ports/` folder keeps the owning module in charge of its data: the port returns contract results keyed by typed id, so the caller names targets without loading them. A module that loaded another module's aggregate or repository would couple its reads to the owner's consistency boundary and storage. Where no shared read fits, the module answers with its own query over data it already holds.
 
-**Example:** In the Claimwick product, the reporting module reads expense totals through the spending module's read port in `Contracts/`, which returns contract results keyed by expense id; it loads no spending aggregate and no spending repository.
+**Example:** In the Claimwick product, the reporting module reads expense totals through the spending module's read port in `Contracts/Ports/`, which returns contract results keyed by expense id; it loads no spending aggregate and no spending repository.
 
-**Reviewed for:** Which cross-module reads bypass the owner's `Contracts/` read port or load another module's aggregate or repository? Look at the cross-module reads beside the `Contracts/` folders.
+**Reviewed for:** Which cross-module reads bypass the owner's `Contracts/Ports/` read port or load another module's aggregate or repository? Look at the cross-module reads beside the `Contracts/` folders.
 
 ### Restrict Commands to Their Own Module Aggregates
 

@@ -92,7 +92,7 @@ Source: the package managers.
 
 ### Module Layout
 
-The default backend layout, with every module in one application project, layer folders at each node, and one flat folder per use case.
+The default backend layout, with every module in the modules project beside the shared kernel project, layer folders at each node, one `UseCases/` folder per aggregate and module, and one flat folder per use case inside it.
 
 Source: LiteSpec.
 

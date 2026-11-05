@@ -2,19 +2,19 @@
 
 ## Intent
 
-A use case is one command or query with its access, results, and scenarios. Implementing one means turning its written record into code in the layer that owns each part. Claimwick is the example product the docs follow, in which employees submit work expenses with receipts; this page follows its Submit expense use case from the written record into .NET code, naming where each file lives in the application project, then showing the Expense aggregate, the command and its handler, the endpoint, and the acceptance scenario that proves the code matches the record.
+A use case is one command or query with its access, results, and scenarios. Implementing one means turning its written record into code in the layer that owns each part. Claimwick is the example product the docs follow, in which employees submit work expenses with receipts; this page follows its Submit expense use case from the written record into .NET code, naming where each file lives in the shared kernel and modules projects, then showing the Expense aggregate, the command and its handler, the endpoint, and the acceptance scenario that proves the code matches the record.
 
 ## Where Each File Lives
 
-A .NET backend holds one application project with every module, and a WebApi host for composition and HTTP plumbing. The [.NET Architecture](../backend/dotnet/architecture.md) page states the application project and hosts. The use-case record itself, with its results and scenarios, is shown on [Modules and Records](modules-and-records.md).
+A .NET backend holds its business code in the shared kernel and modules projects, and a WebApi host for composition and HTTP plumbing. The [.NET Architecture](../backend/dotnet/architecture.md) page states the business projects and hosts. The use-case record itself, with its results and scenarios, is shown on [Modules and Records](modules-and-records.md).
 
-Code is organized by module, then aggregate, then use case (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`). The [Backend Architecture](../backend/architecture.md) page states the folder rule. The example groups Spending into Expenses, Policies, and Receipts folders, so Submit expense nests under Spending, then Expenses, then SubmitExpense. The folders mirror the records so a reader finds the code; the marks on the code point up to the records it serves (`litespec/core/system#point-code-and-tests-up-to-records`). The project's `.litespec/project.json` points the model builder at the solution through its `stackConfig` with `testRoots` beside it. The folders below sit under `examples/claimwick/apps/api/src/Claimwick/`.
+Code is organized by module, then aggregate, then `UseCases/`, then use case (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`). The [Backend Architecture](../backend/architecture.md) page states the folder rule. The example groups Spending into Expenses, Policies, and Receipts folders, so Submit expense nests under Spending, then Expenses, then `UseCases/`, then SubmitExpense. The folders mirror the records so a reader finds the code; the marks on the code point up to the records it serves (`litespec/core/system#point-code-and-tests-up-to-records`). The project's `.litespec/project.json` points the model builder at the solution through its `stackConfig` with `testRoots` beside it. The folders below sit under `examples/claimwick/apps/api/src/Claimwick.Modules/`, except the shared clock contract, which sits under `examples/claimwick/apps/api/src/Claimwick.SharedKernel/`.
 
 | Folder | Submit expense files |
 |:---|:---|
 | `Spending/Expenses/Domain/` | The aggregate, its states, events, exceptions, and repository interface |
-| `Application/` | `IClock.cs`, the shared clock contract used across modules |
-| `Spending/Expenses/SubmitExpense/` | The command, the handler, the validator, the result, the endpoint, and the request and response models, flat |
+| `Application/` in the shared kernel | `IClock.cs`, the shared clock contract used across modules |
+| `Spending/Expenses/UseCases/SubmitExpense/` | The command, the handler, the validator, the result, the endpoint, and the request and response models, flat |
 | `Spending/Application/` | `IPolicyStore.cs`, the policy store port shared by the module's aggregates |
 | `Spending/Expenses/Infrastructure/` | The example holds no repository implementation; in a project, it sits here beside its aggregate |
 
@@ -128,10 +128,10 @@ public interface IPolicyStore
 
 ## The Command and Its Handler
 
-Submit expense owns one flat use-case folder with its command, handler, validator, result, endpoint, and request and response models (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-use-case-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
+Submit expense owns one flat use-case folder inside its aggregate `UseCases/` folder with its command, handler, validator, result, endpoint, and request and response models (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-use-case-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
 
 ```csharp
-namespace Claimwick.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Spending.Expenses.UseCases.SubmitExpense;
 
 public sealed record SubmitExpenseCommand(Guid ExpenseId, Guid EmployeeId, decimal Amount, string Currency, Guid? ReceiptId);
 ```
@@ -145,7 +145,7 @@ using Claimwick.Spending.Application;
 using Claimwick.Spending.Expenses.Domain;
 using LiteBus.Commands.Abstractions;
 
-namespace Claimwick.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Spending.Expenses.UseCases.SubmitExpense;
 
 /// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseCommandHandler(
@@ -172,14 +172,14 @@ internal sealed class SubmitExpenseCommandHandler(
 The result carries only the new expense identity, the one value the caller needs (`litespec/backend/application#return-use-case-results`). The result below is the example's `SubmitExpenseCommandResult.cs` file, and the integration test reads `submitted.ExpenseId` from it.
 
 ```csharp
-namespace Claimwick.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Spending.Expenses.UseCases.SubmitExpense;
 
 public sealed record SubmitExpenseCommandResult(Guid ExpenseId);
 ```
 
 ## The Endpoint
 
-The endpoint lives in the use-case folder at `Spending/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs`, with its request and response models beside it (`litespec/backend/api#use-this-endpoint-layout`). The [HTTP API](../backend/api.md) page states the endpoint layout. The WebApi host maps it through the one public assembly marker.
+The endpoint lives in the use-case folder at `Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs`, with its request and response models beside it (`litespec/backend/api#use-this-endpoint-layout`). The [HTTP API](../backend/api.md) page states the endpoint layout. The WebApi host maps it through the one public assembly marker.
 
 One class owns one route: it carries a mark naming its use case, converts HTTP input to the command, dispatches through the command mediator, and maps the result back to HTTP (`litespec/backend/dotnet/api#use-one-endpoint-per-operation`). The [.NET HTTP API](../backend/dotnet/api.md) page states the endpoint contract. The submitter is the signed-in employee, read from verified claims rather than from the request body (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and the server creates the new expense's identity. The command travels through `ICommandMediator.SendAsync` (`litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`). Submitting creates an expense resource, so the route names that resource (`litespec/backend/api#keep-routes-resource-oriented`).
 
@@ -187,7 +187,7 @@ One class owns one route: it carries a mark naming its use case, converts HTTP i
 using System.Security.Claims;
 using LiteBus.Commands.Abstractions;
 
-namespace Claimwick.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Spending.Expenses.UseCases.SubmitExpense;
 
 /// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseEndpoint : IEndpoint
@@ -224,12 +224,12 @@ The operation declares a stable operation ID, a summary, and its success and fai
 
 ## The Acceptance Scenario
 
-A large backend proves its behavior with an Acceptance suite (`litespec/backend/testing#keep-the-test-suites-the-size-requires`). The [Backend Testing](../backend/testing.md) page states the suites and their .NET form. The scenario path mirrors the production folders (`litespec/backend/testing#mirror-production-module-names`): `examples/claimwick/apps/api/tests/Claimwick.Acceptance.Tests/Spending/Expenses/SubmitExpense/SubmitExpenseScenarios.cs`.
+A large backend proves its behavior with an Acceptance suite (`litespec/backend/testing#keep-the-test-suites-the-size-requires`). The [Backend Testing](../backend/testing.md) page states the suites and their .NET form. The scenario path mirrors the production folders (`litespec/backend/testing#mirror-production-module-names`): `examples/claimwick/apps/api/tests/Claimwick.Acceptance.Tests/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseScenarios.cs`.
 
 The scenario below is the example's file. Its proves mark points the test up to its scenario, and its When step belongs to the `SubmitExpenseSteps` use case steps class (`litespec/backend/testing#mark-the-test-that-proves-each-scenario`). The mark is the test's only record citation, and the level S checks confirm the claim by reading the code: the handler writes only inside `changes`, the codes it returns stay inside the declared results and refusals, and it honors the declared effects.
 
 ```csharp
-namespace Claimwick.Acceptance.Tests.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Acceptance.Tests.Spending.Expenses.UseCases.SubmitExpense;
 
 public sealed class SubmitExpenseScenarios
 {
@@ -249,7 +249,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Claimwick.Acceptance.Tests.Support;
 
-namespace Claimwick.Acceptance.Tests.Spending.Expenses.SubmitExpense;
+namespace Claimwick.Acceptance.Tests.Spending.Expenses.UseCases.SubmitExpense;
 
 public sealed class SubmitExpenseSteps
 {

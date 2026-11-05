@@ -20,7 +20,7 @@ A provision applies when its scope meets the target. An artifact-scoped provisio
 
 The groups print in strength order: Required, Defaults, Advisory, then Patterns. Each item shows its identifier, its statement, and its reasons, such as `[path match (artifact endpoint); record use-case/spending.submit-expense]`.
 
-The layer comes from the layout: the `Domain`, `Application`, `Infrastructure`, and `WebApi` folders, the `Contracts`, `Reactions`, and `Jobs` folders, the role suffix of a use-case file, or the project name under `layer-projects`. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations. The artifact comes from the file's role suffix, its folder, and the records it marks. A record identifier resolves to the records layer with its type's artifact.
+The layer comes from the layout: the `Domain`, `Application`, `Infrastructure`, and `WebApi` folders, the `Contracts`, `UseCases`, and `Jobs` folders, the role suffix of a use-case file, or the project name under `layer-projects`. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations. The artifact comes from the file's role suffix, its folder, and the records it marks. A record identifier resolves to the records layer with its type's artifact.
 
 Only provisions on pages the consumer's stacks, shape, and selected extensions apply are returned, minus the provisions a selected extension replaces.
 
@@ -51,13 +51,13 @@ Only provisions on pages the consumer's stacks, shape, and selected extensions a
 List the provisions that govern a handler before editing it:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
+litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 Read the rationale and example behind each returned statement:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs --full
+litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs --full
 ```
 
 List the provisions that govern a use case record:

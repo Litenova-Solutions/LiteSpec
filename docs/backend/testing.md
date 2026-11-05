@@ -252,22 +252,24 @@ One harness binds the integration suite. An activated BDD extension brings its o
 
 **Strength:** default
 
-**Default:** Mirror the production module, aggregate, and use case folder names inside each test suite.
+**Default:** Mirror the production module, aggregate, `UseCases/`, and use case folder names inside each test suite.
 
 **Replacement:** A project names its test tree shape in its testing documentation.
 
 **Rationale:** Mirrored folders let a reader find the tests for a module without searching. Test suites stay exempt for harness and flat files: a `Support` folder and flat Architecture test files need no production counterpart. Adapter tests sit under the adapter's `Infrastructure/` path and are exempt by kind, because they prove a scenario through an adapter with no use case folder of their own.
 
-**Example:** The test trees mirror the production module folders.
+**Example:** The test trees mirror the production module folders, including the `UseCases/` level.
 
 ```text
 Unit tests/
   Posts/
-    CreateDraft/
-    GetPost/
+    UseCases/
+      CreateDraft/
+      GetPost/
 Integration tests/
   Posts/
-    CreateDraft/
+    UseCases/
+      CreateDraft/
   Support/
 Architecture tests/
 ```

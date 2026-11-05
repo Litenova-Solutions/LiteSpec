@@ -74,14 +74,14 @@ public sealed class ConstituentCheckTests
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        var file = Path.Combine(temp.Path, "src", "Domain", "Shared", "Money.cs");
-        AddType(model, file, "Money", "Library.Domain.Shared", 4, false);
+        var file = Path.Combine(temp.Path, "src", "Library.SharedKernel", "Domain", "Money.cs");
+        AddType(model, file, "Money", "Library.SharedKernel.Domain", 4, false);
 
         Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
 
         Constituents.Compute(model);
 
-        Assert.Contains("src/Domain/Shared/Money.cs:Money", model.Constituents["kernel"]);
+        Assert.Contains("src/Library.SharedKernel/Domain/Money.cs:Money", model.Constituents["kernel"]);
     }
 
     /// <summary>Marked Domain Service Is Never A Constituent.</summary>
@@ -141,7 +141,7 @@ public sealed class ConstituentCheckTests
     static void WriteProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            """{"stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Domain/Shared"}}}""");
+            """{"stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}""");
 
     static void AddRoot(ProjectModel model, string file, string root, string aggregate, int line = 5) =>
         model.Code.Elements.Add(new MarkedElement(

@@ -163,22 +163,22 @@ What each field means and what reads it:
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `application` | string | no | `apps/api/src/*` (`apps/api/src/*.Application` under `layer-projects`) |
+| `modules` | string | no | `apps/api/src/*.Modules` |
+| `sharedKernel` | string | no | `apps/api/src/*.SharedKernel` |
 | `domain` | string | no | `apps/api/src/*.Domain` under `layer-projects`, none otherwise |
 | `infrastructure` | string | no | `apps/api/src/*.Infrastructure` under `layer-projects`, none otherwise |
 | `webapi` | string | no | `apps/api/src/*.WebApi` |
 | `worker` | string | no | `apps/api/src/*.Worker` |
 | `apiSolution` | string | no | none |
-| `sharedKernel` | string | no | none |
 | `templateStore` | string | no | none |
 
 What each field means and what reads it:
 
-- `application` is the one code root the model builder reads: the application project holding every module at every layer. Under `layer-projects` it is the Application project. A `*` in one segment expands to the first matching folder.
+- `modules` is the code root the model builder reads: the modules project holding every module. A `*` in one segment expands to the first matching folder.
+- `sharedKernel` names the shared kernel project holding what every module builds on, where reasonless names are allowed. When omitted, the default applies and `litespec model check` reports `name-reason-missing` for every reasonless folder or type outside it.
 - `domain` and `infrastructure` name the Domain and Infrastructure projects the model builder reads, under `layer-projects` only. Without that extension they default to none.
 - `webapi` and `worker` name the WebApi and Worker host projects the model builder reads.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
-- `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `name-reason-missing` for every reasonless folder or type.
 - `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
 
 ### The `uiPackage` Object
@@ -305,7 +305,8 @@ This example shows the file `litespec init --preset dotnet-react --size small --
   },
   "stackConfig": {
     "dotnet": {
-      "application": "apps/api/src/shop",
+      "modules": "apps/api/src/shop.Modules",
+      "sharedKernel": "apps/api/src/shop.SharedKernel",
       "apiSolution": "apps/api/shop.slnx"
     }
   },

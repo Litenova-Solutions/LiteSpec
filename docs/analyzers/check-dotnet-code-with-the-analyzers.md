@@ -9,8 +9,8 @@ The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler e
 Start with:
 
 - The .NET 9.0.300 SDK, or Visual Studio 17.14 or later, whose compiler the analyzer package targets.
-- A solution with the application project and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: one application project holding every module, and a WebApi host for composition and HTTP plumbing.
-- One shared build file that every application project imports, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
+- A solution with the business projects and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: the shared kernel and modules projects holding every module, and a WebApi host for composition and HTTP plumbing.
+- One shared build file that every project imports, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
 
 ## Procedure
 
@@ -44,7 +44,7 @@ When a project name does not end in a layer name under `layer-projects`, set the
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out: opting out turns off the whole package, so no analyzer rule runs and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package sets the layout from `selectedExtensions` in `.litespec/project.json`, so no extra wiring is needed. This step implements the application project and hosts in [the .NET architecture page](../backend/dotnet/architecture.md).
+The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out: opting out turns off the whole package, so no analyzer rule runs and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package sets the layout from `selectedExtensions` in `.litespec/project.json`, so no extra wiring is needed. This step implements the shared kernel and modules projects with their hosts in [the .NET architecture page](../backend/dotnet/architecture.md).
 
 ### 3. Build and Read the First Diagnostics
 

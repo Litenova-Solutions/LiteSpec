@@ -523,20 +523,23 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** An endpoint in its use case folder makes the folder path match the specification path. A reader locates an operation from its use-case identifier without searching. Transport types used by use cases of two or more aggregates sit in the module or aggregate `WebApi/` folder, while the host keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling.
 
-**Example:** The endpoints sit in their use case folders:
+**Example:** The endpoints sit in their use case folders inside the `UseCases/` folder of their module and aggregate:
 
 ```text
 {Product}/
   Posts/                            single aggregate whose name matches the module
     WebApi/                         transport types used by two or more Posts use cases
-    CreateDraft/                    endpoint, request model, and response model beside the handler
-    GetPost/
-  Customers/                        two aggregates: operations nest under each aggregate
+    UseCases/
+      CreateDraft/                  endpoint, request model, and response model beside the handler
+      GetPost/
+  Customers/                        two aggregates: operations nest under each aggregate UseCases folder
     CustomerAccounts/
       WebApi/                       transport types used by two or more CustomerAccounts use cases
-      RestrictAccount/
+      UseCases/
+        RestrictAccount/
     Consents/
-      GrantConsent/
+      UseCases/
+        GrantConsent/
 ```
 
 Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.

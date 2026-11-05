@@ -105,11 +105,11 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** rule
 
-**Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the `Reactions/` folder of the subscriber module, and be named `{Action}On{Fact}Handler`.
+**Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the `UseCases/` folder of the subscriber module, and be named `{Action}On{Fact}Handler`.
 
 **Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers.
 
-**Example:** `Lending/Reactions/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
+**Example:** `Lending/UseCases/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
 
 **Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler declared outside the `On{Fact}` folder its event names.
 
@@ -209,13 +209,13 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** default
 
-**Default:** Start a namespace with the product name and follow the folders beneath the application project root.
+**Default:** Start a namespace with the product name and follow the folders beneath the project root.
 
 **Replacement:** A project whose layout needs another root records its own namespace root in its project documentation.
 
-**Rationale:** Starting the namespace with the product name and following the folders beneath it puts each type exactly where its namespace says. Including `src` or `apps` couples the type name to a workspace layout decision. The application project root is the directory holding the application project file, so every folder above it stays outside the namespace.
+**Rationale:** Starting the namespace with the product name and following the folders beneath it puts each type exactly where its namespace says. Including `src` or `apps` couples the type name to a workspace layout decision. The project root is the directory holding the project file, so every folder above it stays outside the namespace.
 
-**Reviewed for:** Each namespace starts with its product name and follows the folders beneath the application project root; where replaced, the project documentation names the project's own namespace root.
+**Reviewed for:** Each namespace starts with its product name and follows the folders beneath the project root; where replaced, the project documentation names the project's own namespace root.
 
 ### Avoid Generic Type Names
 

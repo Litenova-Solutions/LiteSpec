@@ -263,7 +263,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2019 = Create("LS2019", LayersCategory, UseCaseIsolation,
         "Use case names a type of another use case",
         "'{0}' lives in use case folder '{1}', which this use case may not name",
-        "A use case folder names no type declared in another use case folder. A reaction or job folder keeps the same boundary.");
+        "A use case folder names no type declared in another use case folder. A reaction folder keeps the same boundary.");
 
     /// <summary>The LS2020 descriptor: Module names a type outside another module's Contracts.</summary>
     public static readonly DiagnosticDescriptor LS2020 = Create("LS2020", LayersCategory, ModuleContracts,

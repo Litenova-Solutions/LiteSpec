@@ -49,7 +49,7 @@ A project starts once with `dotnet litespec init --preset dotnet-react --size sm
 
 New records start with `dotnet litespec new`, which puts a record in its one legal folder with a correct identifier. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
 
-Before editing, the agent asks which provisions govern the files it will touch: `dotnet litespec rules <path>` lists them grouped by strength, with the project's conventions and departures merged in. During implementation, a use case runs in one flat folder in the application project ordered by module, aggregate, and use case, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
+Before editing, the agent asks which provisions govern the files it will touch: `dotnet litespec rules <path>` lists them grouped by strength, with the project's conventions and departures merged in. During implementation, a use case runs in one flat folder in the modules project ordered by module, aggregate, and use case, and the analyzers flag slips as you work. If you model a closed set of values as an enum, the build reports `LS1002` and points at `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums` on the [domain page](../backend/dotnet/domain.md), which shows the record hierarchy that replaces the enum.
 
 The model commands read your records and follow the marks in the backend code and the tests, the frontend routes, and the latest test run. `dotnet litespec model query <id>` inspects one record, `dotnet litespec model check` lists the gaps with a level beside each finding, `dotnet litespec model format` rewrites record files into canonical form, and `dotnet litespec model render` refreshes the marked regions of your pages. The [model page](../tools/model.md) lists every finding code. `dotnet litespec model check --since <base>` catches breaking changes against an older commit, and `dotnet litespec book` writes the browsable site of your project, with no server. The [book page](../tools/book.md) describes the shell and its views.
 
@@ -64,7 +64,7 @@ You and your agent read the same release in different forms.
 You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/4.0.0/select/) that shows which pages your shape and stacks apply. An agent starts from the provisions that apply to the files it will touch:
 
 ```bash
-dotnet litespec rules apps/api/src/Shop/Orders/Order/CancelOrder/CancelOrderCommandHandler.cs
+dotnet litespec rules apps/api/src/Shop.Modules/Orders/Order/UseCases/CancelOrder/CancelOrderCommandHandler.cs
 ```
 
 That command lists the provisions grouped by strength, as one-line statements, and `--full` adds rationale and example. For reading pages, the agent starts from the selection index for your project:

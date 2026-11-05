@@ -31,6 +31,8 @@ internal static class Emitter
         ImmutableArray<MarkedType> types,
         HostModel host)
     {
+        // The shared kernel reads layer None with no application project and no host,
+        // so it leaves through the same gate as an opted-out project and generates nothing.
         if (host.Layer == Layer.None && !host.ApplicationProject)
         {
             return;
@@ -93,7 +95,7 @@ internal static class Emitter
             }
         }
 
-        // A host beside a module-layout application project sees the registry, the permissions and the
+        // A host beside the modules project sees the registry, the permissions and the
         // roles through that project, so it generates none of its own.
         if (!host.ModuleHost)
         {
@@ -101,7 +103,7 @@ internal static class Emitter
         }
         else if (host.Layer == Layer.WebApi)
         {
-            // The host still maps the operations of the endpoints it holds, which the application
+            // The host still maps the operations of the endpoints it holds, which the modules
             // project cannot see.
             context.AddSource("LiteSpecHostOperations.g.cs", HostOperationsText(OperationUseCasesOf(ordered)));
         }

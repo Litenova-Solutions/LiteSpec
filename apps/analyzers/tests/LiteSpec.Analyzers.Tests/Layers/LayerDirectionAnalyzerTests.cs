@@ -13,8 +13,8 @@ public sealed class LayerDirectionAnalyzerTests
     public Task ReportsAnApplicationFileNamingAnInfrastructureType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -23,15 +23,15 @@ public sealed class LayerDirectionAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Teams/Infrastructure/TeamStore.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Infrastructure/TeamStore.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class TeamStore
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 reports an Application file naming a WebApi type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -40,8 +40,8 @@ public sealed class LayerDirectionAnalyzerTests
     public Task ReportsAnApplicationFileNamingAWebApiType() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -50,15 +50,15 @@ public sealed class LayerDirectionAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamEndpoint
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 reports an Application file naming ASP.NET Core and HttpContext.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -67,11 +67,11 @@ public sealed class LayerDirectionAnalyzerTests
     public Task ReportsAnApplicationFileNamingAspNetCore() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
                     using Microsoft.AspNetCore.Http;
                     using Microsoft.AspNetCore.Mvc;
 
-                    namespace NightHall.Organizations.Teams;
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
@@ -95,7 +95,7 @@ public sealed class LayerDirectionAnalyzerTests
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 reports a WebApi file naming a Domain aggregate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -104,28 +104,28 @@ public sealed class LayerDirectionAnalyzerTests
     public Task ReportsAWebApiFileNamingADomainAggregate() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamEndpoint
                     {
                         internal {|LS2018:Team|} Load() => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 reports a WebApi file naming a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -134,23 +134,23 @@ public sealed class LayerDirectionAnalyzerTests
     public Task ReportsAWebApiFileNamingARepository() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamEndpoint
                     {
                         internal {|LS2018:ITeamRepository|} Store() => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/ITeamRepository.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/ITeamRepository.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal interface ITeamRepository
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 accepts a WebApi file naming an identifier and a shared-kernel value.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -159,26 +159,26 @@ public sealed class LayerDirectionAnalyzerTests
     public Task AcceptsAWebApiFileNamingAnIdentifierAndASharedValue() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamEndpoint.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamEndpoint
                     {
-                        internal TeamId Load(NightHall.Money budget) => default;
+                        internal TeamId Load(Claimwick.Money budget) => default;
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall;
+                ("Claimwick.Modules/Composition/Domain/Money.cs", """
+                    namespace Claimwick;
 
                     internal readonly record struct Money(decimal Amount);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 accepts an Application file naming Domain and Application types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -187,30 +187,30 @@ public sealed class LayerDirectionAnalyzerTests
     public Task AcceptsAnApplicationFileNamingInnerTypes() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 stays quiet in a Domain file of the same compilation.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -219,23 +219,23 @@ public sealed class LayerDirectionAnalyzerTests
     public Task StaysQuietOutsideApplicationAndWebApi() =>
         Verify.AnalyzerAsync<LayerDirectionAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                         internal TeamStore Store() => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/Infrastructure/TeamStore.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Infrastructure/TeamStore.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class TeamStore
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2018 follows the LiteSpecLayer property over the assembly name.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

@@ -2,7 +2,7 @@
   "stacks": ["dotnet"],
   "stackConfig": {
     "dotnet": {
-      "application": "src/Library.Application"
+      "modules": "src/Library.Application"
     }
   }
 }

@@ -33,8 +33,8 @@ static class KindClosure
 
         foreach (var root in backends)
         {
-            var portRoot = root == config.ApplicationRoot
-                || root == config.ApplicationRoot + ".Abstractions"
+            var portRoot = root == config.ModulesRoot
+                || root == config.ModulesRoot + ".Abstractions"
                 || root == config.InfrastructureRoot;
             var technicalRoot = root != config.DomainRoot;
 

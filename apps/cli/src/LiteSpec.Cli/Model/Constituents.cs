@@ -37,10 +37,10 @@ static class Constituents
         var grouped = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var orphans = new List<DomainType>();
 
-        // The Domain scope is the Domain project under layer-projects and the one
-        // application root in the module layout, where the reader already kept the
-        // Domain layer files only.
-        var scope = model.Config.DomainRoot.Length > 0 ? model.Config.DomainRoot : model.Config.ApplicationRoot;
+        // The Domain scope is the Domain project under layer-projects and the modules
+        // root in the module layout, where the reader already kept the Domain layer
+        // files only. The shared kernel project holds kernel types beside the scope.
+        var scope = model.Config.DomainRoot.Length > 0 ? model.Config.DomainRoot : model.Config.ModulesRoot;
 
         if (scope.Length == 0)
         {
@@ -49,15 +49,16 @@ static class Constituents
 
         var domain = Folder(scope);
         var aggregates = AggregateByFolder(model, scope, domain);
+        var kernelOnDisk = Directory.Exists(model.Config.SharedKernelRoot);
 
         foreach (var type in model.Code.DomainTypes)
         {
-            if (type.HasMark || !IsUnder(scope, type.File))
+            if (type.HasMark || (!IsUnder(scope, type.File) && !IsUnder(model.Config.SharedKernelRoot, type.File)))
             {
                 continue;
             }
 
-            if (IsUnder(model.Config.SharedKernel, type.File))
+            if (IsUnder(model.Config.SharedKernelRoot, type.File))
             {
                 Add(grouped, "kernel", Entry(model, type));
                 continue;
@@ -65,7 +66,7 @@ static class Constituents
 
             var folder = FolderOf(type.File);
 
-            if (model.Config.SharedKernel.Length == 0 && IsKernelFolder(model, scope, folder))
+            if (!kernelOnDisk && IsKernelFolder(model, scope, folder))
             {
                 Add(grouped, "kernel", Entry(model, type));
                 continue;
@@ -183,7 +184,7 @@ static class Constituents
         return aggregates;
     }
 
-    /// <summary>Whether the folder is the kernel home: the scope root itself under layer-projects, the product Domain folder in the module layout.</summary>
+    /// <summary>Whether the folder is the kernel home when no shared kernel project is on disk: the scope root itself under layer-projects, the Domain folder under the modules root in the module layout.</summary>
     /// <param name="model">The built project model holding the declared roots.</param>
     /// <param name="scope">The Domain scope root the walk stays inside.</param>
     /// <param name="folder">The normalized folder holding the type.</param>

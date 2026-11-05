@@ -13,11 +13,11 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsAModuleNamingAnotherModuleOutsideContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using NightHall.Organizations;
-                    using NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations;
+                    using Claimwick.Organizations.Teams;
 
-                    namespace NightHall.Billing;
+                    namespace Claimwick.Billing;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -26,25 +26,25 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Billing/Contracts/InvoiceId.cs", """
-                    namespace NightHall.Billing;
+                ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
+                    namespace Claimwick.Billing;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 reports a module that publishes no Contracts folder yet.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -53,10 +53,10 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsAModuleWithoutContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Teams;
 
-                    namespace NightHall.Billing;
+                    namespace Claimwick.Billing;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -65,20 +65,15 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall.Domain;
-
-                    internal readonly record struct Money(decimal Amount);
-                    """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -87,10 +82,10 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task StaysQuietWithoutProductLayerFolders() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall.Cli/Exercises/SignInCommand.cs", """
-                    using NightHall.Cli.Stack;
+                ("Claimwick.Cli/Exercises/SignInCommand.cs", """
+                    using Claimwick.Cli.Stack;
 
-                    namespace NightHall.Cli.Exercises;
+                    namespace Claimwick.Cli.Exercises;
 
                     internal sealed class SignInCommand
                     {
@@ -99,15 +94,15 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall.Cli/Stack/IdentityIssuer.cs", """
-                    namespace NightHall.Cli.Stack;
+                ("Claimwick.Cli/Stack/IdentityIssuer.cs", """
+                    namespace Claimwick.Cli.Stack;
 
                     internal sealed class IdentityIssuer
                     {
                     }
                     """),
             ],
-            assemblyName: "NightHall.Cli");
+            assemblyName: "Claimwick.Cli");
 
     /// <summary>LS2020 accepts a module naming another module through its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -116,33 +111,33 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task AcceptsAModuleNamingContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using NightHall.Organizations;
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations;
 
-                    namespace NightHall.Billing;
+                    namespace Claimwick.Billing;
 
                     internal sealed class CreateInvoiceHandler
                     {
                         internal TeamId Handle(Money budget) => default;
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("NightHall/Billing/Contracts/InvoiceId.cs", """
-                    namespace NightHall.Billing;
+                ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
+                    namespace Claimwick.Billing;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
-                ("NightHall/Domain/Money.cs", """
-                    namespace NightHall;
+                ("Claimwick.Modules/Billing/Invoices/Domain/Money.cs", """
+                    namespace Claimwick.Billing;
 
                     internal readonly record struct Money(decimal Amount);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 accepts a module naming its own types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -151,35 +146,35 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task AcceptsAModuleNamingItsOwnTypes() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("NightHall/Organizations/Teams/CreateTeam/CreateTeamCommand.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 still reports a reference resolved through a global using.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -188,8 +183,8 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task ReportsThroughAGlobalUsing() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Billing/Invoices/CreateInvoice/CreateInvoiceHandler.cs", """
-                    namespace NightHall.Billing;
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    namespace Claimwick.Billing;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -198,28 +193,28 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("NightHall/Billing/Invoices/CreateInvoice/Globals.cs", """
-                    global using NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/Globals.cs", """
+                    global using Claimwick.Organizations.Teams;
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("NightHall/Billing/Contracts/InvoiceId.cs", """
-                    namespace NightHall.Billing;
+                ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
+                    namespace Claimwick.Billing;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 stays quiet for shared files outside every module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -228,30 +223,67 @@ public sealed class ModuleBoundaryAnalyzerTests
     public Task StaysQuietOutsideModules() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("NightHall/Application/Pipeline/Transaction.cs", """
-                    using NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Composition/Application/ModuleComposition.cs", """
+                    using Claimwick.Organizations.Teams;
 
-                    namespace NightHall;
+                    namespace Claimwick;
 
-                    internal sealed class Transaction
+                    internal sealed class ModuleComposition
                     {
                         internal Team? Current() => null;
                     }
                     """),
-                ("NightHall/Organizations/Teams/Domain/Team.cs", """
-                    namespace NightHall.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
+                    namespace Claimwick.Organizations.Teams;
 
                     internal sealed class Team
                     {
                     }
                     """),
-                ("NightHall/Organizations/Contracts/TeamId.cs", """
-                    namespace NightHall.Organizations;
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
             ],
-            assemblyName: "NightHall");
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2020 accepts another module naming a Contracts kind subfolder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    [Fact(DisplayName = "LS2020 accepts another module naming a Contracts kind subfolder")]
+    public Task AcceptsAContractsKindSubfolder() =>
+        Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
+            [
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations;
+
+                    namespace Claimwick.Billing;
+
+                    internal sealed class CreateInvoiceHandler
+                    {
+                        internal TeamId Handle(IOrganizerReader reader) => default;
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
+                    namespace Claimwick.Organizations;
+
+                    internal readonly record struct TeamId(System.Guid Value);
+                    """),
+                ("Claimwick.Modules/Organizations/Contracts/Ports/IOrganizerReader.cs", """
+                    namespace Claimwick.Organizations;
+
+                    internal interface IOrganizerReader
+                    {
+                    }
+                    """),
+                ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
+                    namespace Claimwick.Billing;
+
+                    internal readonly record struct InvoiceId(System.Guid Value);
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
 
     /// <summary>LS2020 stays quiet under layer-projects, which has no Contracts folders.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

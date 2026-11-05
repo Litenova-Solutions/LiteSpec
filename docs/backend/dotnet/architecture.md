@@ -6,7 +6,7 @@
 
 ## Intent
 
-A .NET backend holds every module at every layer in one application project, with hosts that compose and serve it. This page binds that shape for .NET: which projects exist, how modules aggregates and use cases fill one namespace tree, which folders each level allows, and where host-only endpoints live, so every type keeps one home and boundaries hold by folder and mark. The shared architecture rules live on [Backend Architecture](../architecture.md); this page holds only their .NET bindings.
+A .NET backend holds its business code in two projects, the shared kernel and the modules, with hosts that compose and serve them. This page binds that shape for .NET: which projects exist, how modules aggregates and use cases fill one namespace tree, which folders each level allows, and where host-only endpoints live, so every type keeps one home and boundaries hold by folder and mark. The shared architecture rules live on [Backend Architecture](../architecture.md); this page holds only their .NET bindings.
 
 ## Concepts
 
@@ -22,7 +22,7 @@ The host also keeps the endpoints that have no handler to sit beside: protocol e
 
 Every node of the tree may hold the same layer folders. Each level allows a closed set of folder names, so any other folder is refused. Inside a layer folder subfolders stay free, because the folder already states the layer and the lowest-folder rule already placed the type.
 
-An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder, beside one `On{Fact}/` folder per reaction. A module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/` and `Ports/`, so a reader sees at a glance what another module may name.
+An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder, beside one `On{Fact}/` folder per reaction. A module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/` and `Ports/`, so a reader sees at a glance what another module may name.
 
 A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. The shared kernel `WebApi/` folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
 
@@ -42,18 +42,18 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **Statement:** Every type in the shared kernel and modules projects MUST live in the namespace tree that starts with the product name and follows the folders below the project root.
 
-**Rationale:** The namespace reads like the qualified identifier, so `NightHall.Organizations.Teams.UseCases.CreateTeam` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
+**Rationale:** The namespace reads like the qualified identifier, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
 
-**Example:** The Teams aggregate of the Organizations module fills one branch:
+**Example:** The Expenses aggregate of the Spending module fills one branch:
 
 ```text
-NightHall.Modules/Organizations/Teams/Domain/Team.cs
-NightHall.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommandHandler.cs
+Claimwick.Modules/Spending/Expenses/Domain/Expense.cs
+Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
-The handler above lives in namespace `NightHall.Organizations.Teams.UseCases.CreateTeam`.
+The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.SubmitExpense`.
 
-**Reviewed for:** Which types miss the product module aggregate use case namespace or name one outside its folder? Look at the namespaces beside the folders in the application project.
+**Reviewed for:** Which types miss the product module aggregate use case namespace or name one outside its folder? Look at the namespaces beside the folders in the shared kernel and modules projects.
 
 ### Keep Closed Folder Sets at Every Level
 
@@ -72,7 +72,7 @@ The handler above lives in namespace `NightHall.Organizations.Teams.UseCases.Cre
 | Shared kernel project root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/` |
 | Modules project root | `Composition/`, one per declared module |
 | Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/`, `Jobs/`, one per declared aggregate |
-| Module `Contracts/` | `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Ports/` |
+| Module `Contracts/` | `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/`, `Ports/` |
 | Module `UseCases/` | one per declared module use case, one `On{Fact}/` per reaction |
 | Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/` |
 | Aggregate `UseCases/` | one per declared use case |
@@ -85,7 +85,7 @@ The handler above lives in namespace `NightHall.Organizations.Teams.UseCases.Cre
   Composition/
   Organizations/
     Contracts/
-      Identifiers/  Exceptions/  IntegrationEvents/  Ports/
+      Identifiers/  Exceptions/  IntegrationEvents/  Commands/  Ports/
     Domain/  Application/  Infrastructure/  WebApi/
     Teams/
       Domain/          Team.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/
@@ -108,11 +108,11 @@ The handler above lives in namespace `NightHall.Organizations.Teams.UseCases.Cre
 
 **Strength:** rule
 
-**Statement:** An application MUST place commands queries results handlers validators and module ports in Application folders and cross-module contracts in Contracts folders.
+**Statement:** An application MUST place commands queries results handlers validators and module ports in Application folders and cross-module contracts in the sorted kind folders of its Contracts folder.
 
-**Rationale:** One use case stays flat in its folder, with its command query result handler validator endpoint and transport models side by side. Types used by two or more use cases of one aggregate live in the aggregate Application folder, types used by two or more aggregates in the module Application folder, and product-wide plumbing in the product Application folder. A module publishes its typed identifiers integration events and cross-module ports in its Contracts folder, so the public surface of a module stays visible at the module.
+**Rationale:** One use case stays flat in its folder, with its command query result handler validator endpoint and transport models side by side. Types used by two or more use cases of one aggregate live in the aggregate Application folder, types used by two or more aggregates in the module Application folder, and product-wide plumbing in the shared kernel Application folder. A module publishes its typed identifiers in `Contracts/Identifiers/`, its refusals in `Contracts/Exceptions/`, its integration events in `Contracts/IntegrationEvents/` and its cross-module ports in `Contracts/Ports/`, so the public surface of a module stays visible at the module.
 
-**Reviewed for:** Which commands queries results handlers validators or ports sit outside their Application or Contracts folder? Look at the Application and Contracts folders beside the use case folders.
+**Reviewed for:** Which commands queries results handlers validators or ports sit outside their Application folder or their Contracts kind folder? Look at the Application and Contracts folders beside the use case folders.
 
 ### Keep Implementation Types Internal
 
@@ -159,7 +159,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Statement:** A use case folder MUST reference no type in another use case folder.
 
-**Rationale:** A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A type named by two use cases belongs in the aggregate module or product layer folder that holds every consumer naming it, under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. The rule applies to files and to global usings alike.
+**Rationale:** A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. The rule applies to files and to global usings alike.
 
 **Checked by:** `dotnet build` reports `LS2019` for a use case folder naming a type in another use case folder.
 
@@ -171,7 +171,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Statement:** A module MUST reach another module only through types its Contracts folder publishes.
 
-**Rationale:** The Contracts folder is the public surface of a module: typed identifiers, integration events, the refusals of rules other modules enforce, and ports that other modules call. Domain may name the typed identifiers and refusals; ports and integration events stay outside Domain. A module that needs another module data reads it through a read port in the owner Contracts folder that returns contract results keyed by typed identifier, or answers with its own query; it loads no foreign aggregate or repository. A command changes only its own module aggregates, and an act on another module aggregate runs as that module use case, dispatched or triggered by an integration event. A reaction to another module fact subscribes to the published integration event and never to the domain event.
+**Rationale:** The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in `Identifiers/`, the refusals of rules other modules enforce in `Exceptions/`, integration events in `IntegrationEvents/`, the commands and queries other modules send with their results in `Commands/`, and ports that other modules call in `Ports/`. Domain may name the typed identifiers and refusals; ports and integration events stay outside Domain. A module that needs another module data reads it through a read port in the owner `Contracts/Ports/` folder that returns contract results keyed by typed identifier, or answers with its own query; it loads no foreign aggregate or repository. A command changes only its own module aggregates, and an act on another module aggregate runs as that module use case, dispatched or triggered by an integration event. A reaction to another module fact subscribes to the published integration event and never to the domain event.
 
 **Checked by:** `dotnet build` reports `LS2020` for a module reference naming another module type outside its Contracts folder.
 
@@ -258,10 +258,10 @@ AddWebApi(...)
 
 **Strength:** default
 
-**Default:** Expose one public static assembly marker in the application project for host endpoint discovery and scanning.
+**Default:** Expose one public static assembly marker in the modules project for host endpoint discovery and scanning.
 
 **Replacement:** A project names its scanner assembly reference in its host documentation.
 
-**Rationale:** Scanners and the host need an assembly reference, and without a marker developers make handlers public to supply one. One public static marker in the application project gives the host and the scanners their reference while every handler stays internal.
+**Rationale:** Scanners and the host need an assembly reference, and without a marker developers make handlers public to supply one. One public static marker in the modules project gives the host and the scanners their reference while every handler stays internal.
 
-**Reviewed for:** Does the application project expose one public static assembly marker, and does any other project expose one it needs not? Look at each project for its marker.
+**Reviewed for:** Does the modules project expose one public static assembly marker, and does any other project expose one it needs not? Look at each project for its marker.

@@ -64,11 +64,11 @@ public sealed class RulesCommandTests
         var result = Cli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, layer: application, artifact: command-handler)",
+            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, layer: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
         Assert.Contains("- litespec/backend/application#organize-application-by-use-case:", result.Output);
@@ -98,7 +98,7 @@ public sealed class RulesCommandTests
         var result = Cli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick/Spending/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs",
+            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs",
             "--full");
 
         Assert.Equal(0, result.Status);
