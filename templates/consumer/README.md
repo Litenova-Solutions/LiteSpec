@@ -86,4 +86,4 @@ Only research and decision scaffold an explanation file today. For the other rec
 | `ui-source-lock.json` | `packages/ui/ui-source-lock.json` | Records the installed registry source, digests, and dependencies. |
 | `ui-pattern-catalog.json` | `.litespec/implementation/patterns/catalog.json` | Records each recurring interface decision with its options and choice. |
 
-The model builder reads each record and writes the computed state into `model.json`.
+The model builder reads each record and computes its state in memory, and the book renders that state.

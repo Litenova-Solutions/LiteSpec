@@ -13,8 +13,7 @@ public sealed class BookViewsTests
     public void Every_Record_Type_Renders_In_Shards_Search_And_Outline()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
 
         var data = Path.Combine(temp.Path, "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -133,11 +132,7 @@ public sealed class BookViewsTests
     public void Outline_Nests_Code_Test_And_Finding_Leaves_Under_Their_Subjects()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run(
-            "book",
-            "--model", BookTruthTests.ModelWithEmbeddedFindings(temp),
-            "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
 
         var data = Path.Combine(temp.Path, "data");
         var tops = ReadOutlineTops(data, ReadShard(Path.Combine(data, "manifest.js"), "manifest"));
@@ -168,8 +163,7 @@ public sealed class BookViewsTests
     public void Record_Explanation_Renders_As_Escaped_Html_With_Sections()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
         var html = Str(loan, "bodyHtml") ?? "";
         Assert.Contains("<h3 id=\"body-bounds\">Bounds</h3>", html, StringComparison.Ordinal);
@@ -202,8 +196,7 @@ public sealed class BookViewsTests
     public void Record_Explanation_Escapes_Markup()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var html = Str(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"], "bodyHtml") ?? "";
         Assert.Contains("<code>&lt;code&gt;LOAN-1&lt;/code&gt;</code>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("<code>LOAN-1</code>", html, StringComparison.Ordinal);
@@ -215,8 +208,7 @@ public sealed class BookViewsTests
     public void No_Shard_Holds_Raw_Json_Or_Object_Dumps()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         foreach (var shard in Directory.GetFiles(Path.Combine(temp.Path, "data"), "*.js"))
         {
             var text = File.ReadAllText(shard);
@@ -231,8 +223,7 @@ public sealed class BookViewsTests
     public void Aggregate_Detail_Carries_Lifecycle_Fields_And_Reachable_States()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
         var fields = Obj(loan, "fields");
         Assert.Equal(3, Arr(fields, "states").Count);
@@ -249,8 +240,7 @@ public sealed class BookViewsTests
     public void Scenario_Detail_Carries_Sentences_Examples_And_Proof()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var passing = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
         var fields = Obj(passing, "fields");
@@ -279,8 +269,7 @@ public sealed class BookViewsTests
     public void Scenario_Traces_To_Its_Goal_Through_Edges()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(
             Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "out"),
@@ -322,8 +311,7 @@ public sealed class BookViewsTests
     public void Connection_Sentences_Resolve_From_Lexicon_Phrases()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var details = ReadRecords(data);
         var links = ReadShard(Path.Combine(data, "lexicon.js"), "lexicon")["links"]!.AsArray();
@@ -381,8 +369,7 @@ public sealed class BookViewsTests
     public void Goal_Trace_Reaches_Met_Requirements()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(
             Arr(details["goal/faster-borrowing"], "in"), "feature/self-checkout", "feature.advances"));
@@ -409,11 +396,7 @@ public sealed class BookViewsTests
     public void Findings_Sit_On_Their_Records_With_Exception_Expiry()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run(
-            "book",
-            "--model", BookTruthTests.ModelWithEmbeddedFindings(temp),
-            "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
 
         var details = ReadRecords(data);
@@ -437,8 +420,7 @@ public sealed class BookViewsTests
     public void Rule_Detail_Carries_Kind_Governs_And_Refusal()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var invariant = details["rule/loan.one-loan-per-copy"];
         Assert.Equal("invariant", Str(Obj(invariant, "fields"), "kind"));
@@ -465,8 +447,7 @@ public sealed class BookViewsTests
     public void Requirement_Detail_Carries_Fit_Criterion_And_Verification()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var details = ReadRecords(data);
         var measured = details["requirement/self-checkout.max-wait"];
@@ -495,8 +476,7 @@ public sealed class BookViewsTests
     public void Reaction_And_Notification_Details_Carry_Trigger_And_Audience()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var reactionId = details.Keys.First(id =>
             Str(details[id], "type") == "reaction"
@@ -519,8 +499,7 @@ public sealed class BookViewsTests
     public void Scheduled_Job_Detail_Carries_Schedule_Fields()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var scheduled = details.Keys.First(id =>
             Str(details[id], "type") == "job"
@@ -538,8 +517,7 @@ public sealed class BookViewsTests
     public void Journey_Detail_Carries_Its_Chapter()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var journey = details["journey/borrowing"];
         var fields = Obj(journey, "fields");
@@ -568,8 +546,7 @@ public sealed class BookViewsTests
     public void Setting_And_Use_Case_Details_Carry_Meaning_Access_And_Serves()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var setting = details["setting/lending.max-active-loans"];
         Assert.Equal("Active loans per member.", Str(Obj(setting, "fields"), "meaning"));
@@ -596,8 +573,7 @@ public sealed class BookViewsTests
     public void Search_Shards_Cover_Statements_And_Explanation_Heads()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var rows = ReadSearchRows(data);
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -626,8 +602,7 @@ public sealed class BookViewsTests
     public void Details_Carry_No_Status_Owner_Decider_Or_HeldBy()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         foreach (var pair in details)
         {
@@ -647,8 +622,7 @@ public sealed class BookViewsTests
     public void Implementation_And_Proof_Rail_Sections()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var borrow = details["use-case/lending.borrow-copy"];
         Assert.True(BoolOf(Obj(borrow, "expect")["impl"]));
@@ -684,8 +658,7 @@ public sealed class BookViewsTests
     public void Why_Block_Placement()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var goal = Obj(details["goal/faster-borrowing"], "sections");
         Assert.Equal("", Str(goal, "intro"));
@@ -707,8 +680,7 @@ public sealed class BookViewsTests
     public void Numbered_Reference_Lists_Read_From_Fields_And_Edges()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "problem/slow-desk-queues", "feature.solves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
@@ -732,8 +704,7 @@ public sealed class BookViewsTests
     public void Trace_Bands_Read_From_Edges_And_KeptBy()
     {
         using var temp = Cli.Temp("book-views");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(Arr(details["goal/faster-borrowing"], "in"), "feature/self-checkout", "feature.advances"));
         Assert.True(HasEdge(Arr(details["problem/slow-desk-queues"], "in"), "feature/self-checkout", "feature.solves"));

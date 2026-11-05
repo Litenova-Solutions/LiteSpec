@@ -50,6 +50,32 @@ public sealed class RegistryUseCaseOfOperationTests
         Assert.Null(lookup.Invoke(null, ["Unknown"]));
     }
 
+    /// <summary>A host beside a module-layout application project maps the operations of its own endpoints.</summary>
+    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    [Fact(DisplayName = "A host beside a module-layout application project maps the operations of its own endpoints")]
+    public void ModuleHostMapsItsOwnOperations()
+    {
+        var sources = RecordPages.Sources("""
+            namespace NightHall.WebApi;
+
+            public interface IEndpoint;
+
+            /// <implements>use-case/accounts.sign-out-session</implements>
+            internal sealed class SignOutSessionEndpoint : IEndpoint
+            {
+            }
+            """);
+        var files = RecordPages.Files(
+            "xml",
+            ("sign-out-session.yaml", RecordPages.UseCasePage("use-case/accounts.sign-out-session", null)));
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "NightHall.WebApi", layout: "modules");
+
+        Assert.False(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "A module host generates no registry.");
+        Assert.True(run.Sources.TryGetValue("LiteSpecHostOperations.g.cs", out var operations), "The host operation map is missing.");
+        Assert.Contains("[\"SignOutSession\"] = \"use-case/accounts.sign-out-session\",", operations, StringComparison.Ordinal);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
     /// <summary>A WebApi project without marked endpoints maps no operation.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "A WebApi project without marked endpoints maps no operation")]

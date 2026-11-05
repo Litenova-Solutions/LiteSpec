@@ -1,0 +1,382 @@
+using System.Text.Json;
+using LiteSpec.Model;
+using LiteSpec.Model.Checks;
+using LiteSpec.Tests.Support;
+
+namespace LiteSpec.Tests.Model.Checks;
+
+/// <summary>Proves the code placement check matches the module layout: module-level use cases, the element's own folder, Contracts publishing, enforcing aggregates, and mirrored tests.</summary>
+public sealed class PlacementDriftModuleLayoutTests
+{
+    /// <summary>A module-level use case endpoint in UseCases reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Module_Level_Endpoint_In_UseCases_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagEndpoint.cs");
+        WriteCode(file, "Library.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagEndpoint");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "ReadFeatureFlagEndpoint", file, "use-case/controls.read-feature-flag"));
+
+        Assert.Empty(Run(model));
+        Assert.Empty(FolderDrift(model));
+    }
+
+    /// <summary>A module-level use case handler nested under an aggregate folder reports that folder.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Module_Level_Handler_Nested_Under_Aggregate_Reports_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Controls", "Flags", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Handler 'ReadFeatureFlagQueryHandler' sits in folder 'Flags', but marks 'use-case/controls.read-feature-flag'.", finding.Message);
+        Assert.Equal("use-case/controls.read-feature-flag", finding.Subject);
+    }
+
+    /// <summary>An endpoint in its aggregate use case folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Aggregate_Owned_Endpoint_In_Own_Folders_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        WriteCode(file, "Library.Cancellations.EventChangeAnswers.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An endpoint in another aggregate folder reports that folder.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Aggregate_Owned_Endpoint_In_Wrong_Aggregate_Reports_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Endpoint 'RecordEventChangeAnswerEndpoint' sits in folder 'EventChanges', but marks 'use-case/cancellations.record-event-change-answer'.", finding.Message);
+        Assert.Equal("use-case/cancellations.record-event-change-answer", finding.Subject);
+    }
+
+    /// <summary>An aggregate-owned handler in the module UseCases folder reports UseCases.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Aggregate_Owned_Handler_In_Module_UseCases_Reports_UseCases_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler.cs");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "RecordEventChangeAnswerCommandHandler", file, "use-case/cancellations.record-event-change-answer"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Handler 'RecordEventChangeAnswerCommandHandler' sits in folder 'UseCases', but marks 'use-case/cancellations.record-event-change-answer'.", finding.Message);
+        Assert.Equal("use-case/cancellations.record-event-change-answer", finding.Subject);
+    }
+
+    /// <summary>A domain event of a module named like a layer folder reports nothing in its aggregate Domain folder.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Domain_Event_Of_Module_Named_Like_Layer_Folder_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Events", "ComingSoonPages", "Domain", "Events", "ComingSoonPagePublishedEvent.cs");
+        WriteCode(file, "Library.Events.ComingSoonPages.Domain.Events", "ComingSoonPagePublishedEvent");
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "ComingSoonPagePublishedEvent", file, "event/coming-soon-page.published"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>An endpoint under an aggregate named like its module reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Endpoint_Under_Aggregate_Named_Like_Module_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Directory", "Directory", "SearchAccounts", "SearchAccountsEndpoint.cs");
+        WriteCode(file, "Library.Directory.Directory.SearchAccounts", "SearchAccountsEndpoint");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "SearchAccountsEndpoint", file, "use-case/directory.search-accounts"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A rule exception in its module Contracts folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Rule_Exception_In_Own_Module_Contracts_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanNotFoundException.cs");
+        WriteCode(file, "Library.Lending.Contracts", "LoanNotFoundException");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A rule exception in another module Contracts folder reports the module folder.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Rule_Exception_In_Another_Module_Contracts_Reports_Module_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Billing", "Contracts", "LoanNotFoundException.cs");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Rule exception 'LoanNotFoundException' sits in module folder 'Billing', but marks 'rule/loan.request-names-an-existing-loan'.", finding.Message);
+        Assert.Equal("rule/loan.request-names-an-existing-loan", finding.Subject);
+    }
+
+    /// <summary>A domain event in its module Contracts folder reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Domain_Event_In_Own_Module_Contracts_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanBorrowedEvent.cs");
+        WriteCode(file, "Library.Lending.Contracts", "LoanBorrowedEvent");
+        model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A rule exception beside an aggregate its rule governs reports nothing.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Rule_Exception_Beside_Governed_Aggregate_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Admission", "AdmissionGates", "Domain", "Exceptions", "AdmissionGateEventMismatchException.cs");
+        WriteCode(file, "Library.Admission.AdmissionGates.Domain.Exceptions", "AdmissionGateEventMismatchException");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "AdmissionGateEventMismatchException", file, "rule/scanner-device.device-stands-at-own-event-gate"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A rule exception beside an aggregate its rule neither homes nor governs reports that folder.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Rule_Exception_Beside_Ungoverned_Aggregate_Reports_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Admission", "Boxes", "Domain", "Exceptions", "AdmissionGateEventMismatchException.cs");
+        model.Code.Elements.Add(Element(CodeKind.RuleException, "AdmissionGateEventMismatchException", file, "rule/scanner-device.device-stands-at-own-event-gate"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Rule exception 'AdmissionGateEventMismatchException' sits in folder 'Boxes', but marks 'rule/scanner-device.device-stands-at-own-event-gate'.", finding.Message);
+        Assert.Equal("rule/scanner-device.device-stands-at-own-event-gate", finding.Subject);
+    }
+
+    /// <summary>A test under UseCases for a module-level use case reports nothing.</summary>
+    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    [Fact]
+    public void Test_For_Module_Level_Use_Case_Under_UseCases_Reports_Nothing()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = TestFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagScenarios.cs");
+        WriteCode(file, "Library.Acceptance.Tests.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagScenarios");
+        model.Code.Elements.Add(TestElement("ReadFeatureFlagScenarios", "Reading_a_flag_succeeds", file, "scenario/read-feature-flag.reading-a-flag-succeeds"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A test under UseCases for an aggregate-owned use case reports UseCases.</summary>
+    /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
+    [Fact]
+    public void Test_For_Aggregate_Owned_Use_Case_Under_UseCases_Reports_Folder()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = TestFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
+        model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file, "scenario/borrow-copy.borrowing-an-available-copy-succeeds"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Test 'BorrowCopyScenarios.Borrowing_an_available_copy_succeeds' sits in folder 'UseCases', but marks 'scenario/borrow-copy.borrowing-an-available-copy-succeeds'.", finding.Message);
+        Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", finding.Subject);
+    }
+
+    /// <summary>A module-level handler directly under the module leaves the folder to the closed folder check.</summary>
+    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    [Fact]
+    public void Module_Level_Handler_Directly_Under_Module_Reports_Folder_Only()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        var file = ProductFile(temp.Path, "Controls", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
+        WriteCode(file, "Library.Controls.ReadFeatureFlag", "ReadFeatureFlagQueryHandler");
+        model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
+
+        var placed = Run(model);
+
+        var finding = Assert.Single(placed);
+        Assert.Equal("Folder 'apps/api/src/Library/Controls/ReadFeatureFlag' names no layer folder or declared aggregate.", finding.Message);
+        Assert.Null(finding.Subject);
+    }
+
+    /// <summary>Runs the placement check and keeps its findings.</summary>
+    /// <param name="model">The project model to check.</param>
+    /// <returns>The code placement findings.</returns>
+    static List<Finding> Run(ProjectModel model)
+    {
+        var findings = new List<Finding>();
+        PlacementChecks.Run(model, findings);
+
+        return findings.Where(finding => finding.Code == "code-placement-drift").ToList();
+    }
+
+    /// <summary>Runs the mark checks and keeps the folder drift findings.</summary>
+    /// <param name="model">The project model to check.</param>
+    /// <returns>The mark folder drift findings.</returns>
+    static List<Finding> FolderDrift(ProjectModel model)
+    {
+        var findings = new List<Finding>();
+        MarkChecks.Run(model, findings);
+
+        return findings.Where(finding => finding.Code == "mark-folder-drift").ToList();
+    }
+
+    /// <summary>A model with the one application root, the host, the test root and the records the drift cases mark.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <returns>The project model holding the records.</returns>
+    static ProjectModel DriftModel(string root)
+    {
+        File.WriteAllText(
+            Path.Combine(root, ".litespec/project.json"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"application\": \"apps/api/src/Library\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+        var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
+
+        model.Records.Add(Rec(RecordTypes.Module, "module/controls", "controls", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/controls.flag", "controls/flags", root));
+        model.Records.Add(Rec(RecordTypes.UseCase, "use-case/controls.read-feature-flag", "controls/use-case/read-feature-flag", root));
+        model.Records.Add(Rec(RecordTypes.Scenario, "scenario/read-feature-flag.reading-a-flag-succeeds", "controls/use-case/read-feature-flag/scenario/reading-a-flag-succeeds", root));
+        model.Records.Add(Rec(RecordTypes.Module, "module/cancellations", "cancellations", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/cancellations.event-change-answers", "cancellations/event-change-answers", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/cancellations.event-changes", "cancellations/event-changes", root));
+        model.Records.Add(Rec(RecordTypes.UseCase, "use-case/cancellations.record-event-change-answer", "cancellations/event-change-answers/use-case/record-event-change-answer", root));
+        model.Records.Add(Rec(RecordTypes.Module, "module/lending", "lending", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/lending.loan", "lending/loans", root));
+        model.Records.Add(Rec(RecordTypes.UseCase, "use-case/lending.borrow-copy", "lending/loans/use-case/borrow-copy", root));
+        model.Records.Add(Rec(RecordTypes.Scenario, "scenario/borrow-copy.borrowing-an-available-copy-succeeds", "lending/loans/use-case/borrow-copy/scenario/borrowing-an-available-copy-succeeds", root));
+        model.Records.Add(Rec(RecordTypes.Rule, "rule/loan.request-names-an-existing-loan", "lending/loans/rule/request-names-an-existing-loan", root,
+            """{"status": "reviewed", "governs": ["aggregate/lending.loan"]}"""));
+        model.Records.Add(Rec(RecordTypes.Event, "event/loan.loan-borrowed", "lending/loans/event/loan-borrowed", root));
+        model.Records.Add(Rec(RecordTypes.Module, "module/billing", "billing", root));
+        model.Records.Add(Rec(RecordTypes.Module, "module/admission", "admission", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/admission.admission-gate", "admission/admission-gates", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/admission.scanner-device", "admission/scanner-devices", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/admission.box", "admission/boxes", root));
+        model.Records.Add(Rec(RecordTypes.Rule, "rule/scanner-device.device-stands-at-own-event-gate", "admission/scanner-devices/rule/device-stands-at-own-event-gate", root,
+            """{"status": "reviewed", "governs": ["aggregate/admission.admission-gate"]}"""));
+        model.Records.Add(Rec(RecordTypes.Module, "module/events", "events", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/events.coming-soon-page", "events/coming-soon-pages", root));
+        model.Records.Add(Rec(RecordTypes.Event, "event/coming-soon-page.published", "events/coming-soon-pages/event/published", root));
+        model.Records.Add(Rec(RecordTypes.Module, "module/directory", "directory", root));
+        model.Records.Add(Rec(RecordTypes.Aggregate, "aggregate/directory.directory", "directory/directory", root));
+        model.Records.Add(Rec(RecordTypes.UseCase, "use-case/directory.search-accounts", "directory/directory/use-case/search-accounts", root));
+
+        return model;
+    }
+
+    /// <summary>One backend element carrying one implements mark.</summary>
+    /// <param name="kind">The code element kind.</param>
+    /// <param name="class">The class name carrying the mark.</param>
+    /// <param name="file">The file the element sits in.</param>
+    /// <param name="recordId">The record id the mark names.</param>
+    /// <returns>The marked code element.</returns>
+    static MarkedElement Element(CodeKind kind, string @class, string file, string recordId) =>
+        new(kind, @class, null, file, 3, [new CodeMark(recordId, MarkStyle.Xml, MarkVerb.Implements, file, 1)], InTests: false);
+
+    /// <summary>One test proving the scenario.</summary>
+    /// <param name="class">The test class name.</param>
+    /// <param name="method">The test method name.</param>
+    /// <param name="file">The file the test sits in.</param>
+    /// <param name="scenarioId">The scenario id the proves mark names.</param>
+    /// <returns>The marked test element.</returns>
+    static MarkedElement TestElement(string @class, string method, string file, string scenarioId) =>
+        new(CodeKind.Test, @class, method, file, 3, [new CodeMark(scenarioId, MarkStyle.Xml, MarkVerb.Proves, file, 1)], InTests: true);
+
+    /// <summary>One file under the one application root.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="segments">The path segments under the application root.</param>
+    /// <returns>The full path to the file.</returns>
+    static string ProductFile(string root, params string[] segments)
+    {
+        var parts = new List<string> { root, "apps", "api", "src", "Library" };
+        parts.AddRange(segments);
+
+        return Path.Combine([.. parts]);
+    }
+
+    /// <summary>One file under the acceptance test project.</summary>
+    /// <param name="root">The fixture root folder.</param>
+    /// <param name="segments">The path segments under the test project.</param>
+    /// <returns>The full path to the file.</returns>
+    static string TestFile(string root, params string[] segments)
+    {
+        var parts = new List<string> { root, "apps", "api", "tests", "Library.Acceptance.Tests" };
+        parts.AddRange(segments);
+
+        return Path.Combine([.. parts]);
+    }
+
+    /// <summary>Writes one C# file declaring the namespace and the class.</summary>
+    /// <param name="file">The full path of the file to write.</param>
+    /// <param name="namespace">The declared namespace.</param>
+    /// <param name="class">The declared class name.</param>
+    static void WriteCode(string file, string @namespace, string @class)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, "namespace " + @namespace + ";\n\npublic sealed class " + @class + "\n{\n}\n");
+    }
+
+    /// <summary>One record with its qualified identifier.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="qualified">The qualified identifier.</param>
+    /// <param name="root">The fixture root folder the record file sits under.</param>
+    /// <param name="raw">The raw record JSON.</param>
+    /// <returns>The record.</returns>
+    static LiteSpec.Model.Record Rec(string type, string id, string qualified, string root, string raw = """{"status": "reviewed"}""")
+    {
+        using var document = JsonDocument.Parse(raw);
+
+        return new LiteSpec.Model.Record
+        {
+            Type = type,
+            Id = id,
+            QualifiedId = qualified,
+            Title = id,
+            File = Path.Combine(root, ".litespec", "record.md"),
+            Line = 1,
+            Raw = document.RootElement.Clone(),
+        };
+    }
+}

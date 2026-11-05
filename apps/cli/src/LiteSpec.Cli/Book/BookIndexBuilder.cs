@@ -4,12 +4,12 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     Builds the index over model.json for the book generator. Pure data shaping, no HTML.
+///     Builds the index over the model for the book generator. Pure data shaping, no HTML.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookIndexBuilder
 {
-    /// <summary>Builds the index over a parsed model.json object.</summary>
+    /// <summary>Builds the index over a parsed model object.</summary>
     /// <param name="model">The parsed model.</param>
     /// <returns>The built index.</returns>
     public static BookIndex BuildIndex(JsonObject model)

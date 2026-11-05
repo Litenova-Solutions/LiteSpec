@@ -261,7 +261,7 @@ internal static class ParentChecks
             record.File, record.Line, SubjectOf(record)));
     }
 
-    /// <summary>Reports a rule naming a module or aggregate no record holds.</summary>
+    /// <summary>Reports a rule naming as its home no module, aggregate or product a record holds.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="record">The rule record whose home is inspected.</param>
     /// <param name="aggregates">The aggregate names held by the project.</param>
@@ -277,14 +277,14 @@ internal static class ParentChecks
             return;
         }
 
-        if (model.ById.ContainsKey($"module/{home}") || aggregates.Contains(home))
+        if (model.ById.ContainsKey($"module/{home}") || aggregates.Contains(home) || model.ById.ContainsKey($"product/{home}"))
         {
             return;
         }
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"Rule '{record.Id}' has no parent and its home '{home}' names no module or aggregate.",
+            $"Rule '{record.Id}' has no parent and its home '{home}' names no module, aggregate or product.",
             record.File, record.Line, SubjectOf(record)));
     }
 

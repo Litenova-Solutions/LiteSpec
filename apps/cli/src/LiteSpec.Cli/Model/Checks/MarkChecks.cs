@@ -415,7 +415,7 @@ internal static class MarkChecks
         }
     }
 
-    /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
+    /// <summary>Whether the file sits under an implementation decisions folder, at product level or under a module.</summary>
     /// <param name="config">The project configuration that holds each record root.</param>
     /// <param name="file">The full path of the file under test.</param>
     /// <returns>True when the file sits under an implementation decisions folder of a record root; otherwise false.</returns>
@@ -432,6 +432,19 @@ internal static class MarkChecks
             if (file.StartsWith(folder, comparison))
             {
                 return true;
+            }
+
+            // A technical decision may also sit under one module: implementation/modules/<m>/decisions/.
+            var modules = Path.Combine(root, "implementation", "modules") + Path.DirectorySeparatorChar;
+
+            if (file.StartsWith(modules, comparison))
+            {
+                var rest = file[modules.Length..].Split(Path.DirectorySeparatorChar);
+
+                if (rest.Length >= 3 && string.Equals(rest[1], "decisions", comparison))
+                {
+                    return true;
+                }
             }
         }
 

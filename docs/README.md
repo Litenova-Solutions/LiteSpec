@@ -178,7 +178,7 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
 - [Initialize Consumer](tools/init.md): writes `.litespec/project.json` for a new consumer from a preset.
 - [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, and answers record queries.
-- [Book](tools/book.md): builds the project book from `model.json`: one offline shell with the Outline and Security views.
+- [Book](tools/book.md): builds the project book from the records: one offline shell with the Outline and Security views.
 
 ### Maintain
 

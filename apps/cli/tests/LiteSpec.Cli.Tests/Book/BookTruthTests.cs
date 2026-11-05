@@ -12,9 +12,8 @@ public sealed class BookTruthTests
     public void Book_With_No_Test_Run_Says_Not_Run()
     {
         using var temp = Cli.Temp("book-truth");
-        var model = WriteReviewModel(temp, root => root["testRun"] = null);
-        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        var model = WriteReviewModel(root => root["testRun"] = null);
+        BookTestBooks.Write(model, temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -48,15 +47,14 @@ public sealed class BookTruthTests
     {
         using var temp = Cli.Temp("book-truth");
         var reactionId = "";
-        var model = WriteReviewModel(temp, root =>
+        var model = WriteReviewModel(root =>
         {
             var reaction = Records(root).First(record => Text(record["type"]) == "reaction");
             reactionId = Text(reaction["id"]);
             ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
         });
         Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
-        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(model, temp.Path, Out(temp));
 
         var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
         var servers = Obj(journey, "stepServers");
@@ -72,9 +70,8 @@ public sealed class BookTruthTests
     public void Exercised_Step_Renders_As_Walked()
     {
         using var temp = Cli.Temp("book-truth");
-        var model = WriteReviewModel(temp, root => root["exercisedSteps"] = new JsonArray("journey/borrowing#s1"));
-        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("journey/borrowing#s1"));
+        BookTestBooks.Write(model, temp.Path, Out(temp));
 
         var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
         var exercised = Arr(journey, "exercised");
@@ -88,9 +85,8 @@ public sealed class BookTruthTests
     public void Embedded_Findings_Reach_Their_Records()
     {
         using var temp = Cli.Temp("book-truth");
-        var model = ModelWithEmbeddedFindings(temp);
-        var result = Cli.Run("book", "--model", model, "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        var model = ModelWithEmbeddedFindings();
+        BookTestBooks.Write(model, temp.Path, Out(temp));
 
         var details = ReadRecords(Path.Combine(Out(temp), "data"));
         var open = Arr(details["use-case/lending.return-copy"], "findings");
@@ -112,10 +108,9 @@ public sealed class BookTruthTests
     }
 
     /// <summary>The review fixture with one open and one known finding on records the fixture holds.</summary>
-    /// <param name="temp">The temporary folder holding the fixture consumer.</param>
-    /// <returns>The model JSON text with the embedded findings.</returns>
-    internal static string ModelWithEmbeddedFindings(TempFolder temp) =>
-        WriteReviewModel(temp, root =>
+    /// <returns>The parsed review model with the embedded findings.</returns>
+    internal static JsonObject ModelWithEmbeddedFindings() =>
+        WriteReviewModel(root =>
         {
             root["findings"] = new JsonArray(
                 new JsonObject
@@ -139,13 +134,11 @@ public sealed class BookTruthTests
                 });
         });
 
-    static string WriteReviewModel(TempFolder temp, Action<JsonObject> mutate)
+    static JsonObject WriteReviewModel(Action<JsonObject> mutate)
     {
         var root = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/review.json")))!;
         mutate(root);
-        var path = Path.Combine(temp.Path, "model.json");
-        File.WriteAllText(path, root.ToJsonString());
-        return path;
+        return root;
     }
 
     static IEnumerable<JsonObject> Records(JsonObject root) =>

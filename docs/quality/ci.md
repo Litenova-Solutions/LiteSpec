@@ -19,7 +19,7 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 | test-backend | Architecture, integration, and acceptance suites pass. | Backend or contract change. | `dotnet test <solution>`. | Architecture and integration only. | Runs all suites. |
 | test-frontend | Lint, type-check, and route suite pass. | Frontend change. | `pnpm lint`, `pnpm type-check`, and the route suite. | Runs. | Runs. |
 | measure | Each measured check the change names passes. | Backend, frontend, or measured-requirement change. | k6 thresholds, Lighthouse CI assert, and the ZAP baseline; results feed the model. | Runs. | Runs. |
-| model | Model check, then every check reading `model.json`. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
+| model | Model check and every check reading the in-memory model. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
 | docs | Page contract, configuration, language, prose. | Documentation change. | `litespec model check`. | Runs. | Runs. |
 | contract | Published document and clients unchanged. | API or contract change. | Regenerate, then `git diff --exit-code`. | Runs. | Runs. |
 

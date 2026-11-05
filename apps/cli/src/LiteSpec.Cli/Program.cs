@@ -17,7 +17,7 @@ const string usage = """
       new           Scaffold a record page and reserve its identifier.
       rename        Rename a record identifier and rewrite every link.
       model         Check, format, render or query the project model.
-      book          Generate the project book from model.json.
+      book          Generate the project book from the records.
       rules         List the provisions that govern a path or record.
 
     Run 'litespec <command> --help' for a command's options.

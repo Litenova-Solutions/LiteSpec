@@ -2,7 +2,7 @@ using System.Text.Json.Nodes;
 
 namespace LiteSpec.Book;
 
-/// <summary>The index over model.json that every page renderer reads.</summary>
+/// <summary>The index over the model that every page renderer reads.</summary>
 sealed class BookIndex
 {
     /// <summary>Gets every entry of the records array, including entries that are not objects.</summary>

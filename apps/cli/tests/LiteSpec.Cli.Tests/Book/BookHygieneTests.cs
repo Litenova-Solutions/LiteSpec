@@ -17,8 +17,7 @@ public sealed class BookHygieneTests
     public void Shards_Hold_No_Object_String_Or_Raw_Json()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var files = Directory.GetFiles(Path.Combine(Out(temp), "data"), "*.js");
         Assert.NotEmpty(files);
@@ -36,8 +35,7 @@ public sealed class BookHygieneTests
     public void Rendered_Labels_Carry_No_Raw_Camel_Case()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         // Every lexicon label reads as words, never as the camel-case key itself.
         var lexicon = ReadShard(Path.Combine(Out(temp), "data", "lexicon.js"), "lexicon");
@@ -78,8 +76,7 @@ public sealed class BookHygieneTests
     public void Generated_Links_Resolve_Or_Show_The_Missing_Record_Text()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -141,8 +138,7 @@ public sealed class BookHygieneTests
     public void Data_Go_Buttons_Render_Only_For_Known_Records()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         foreach (var file in Directory.GetFiles(data, "*.js"))
@@ -157,12 +153,11 @@ public sealed class BookHygieneTests
     public void Source_Links_Follow_The_Configured_Editor_Template()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run(
-            "book",
-            "--model", Cli.Fixture("Book/review.json"),
-            "--out", Out(temp),
-            "--editor", "myeditor://open?f={root}/{path}&l={line}");
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(
+            BookTestBooks.LoadFixture("Book/review.json"),
+            temp.Path,
+            Out(temp),
+            "myeditor://open?f={root}/{path}&l={line}");
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -199,12 +194,7 @@ public sealed class BookHygieneTests
     public void Editor_None_Suppresses_Source_Links()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run(
-            "book",
-            "--model", Cli.Fixture("Book/review.json"),
-            "--out", Out(temp),
-            "--editor", "none");
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp), "none");
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -225,8 +215,7 @@ public sealed class BookHygieneTests
     public void Book_Client_Holds_No_Tier_Or_Fact_Badges()
     {
         using var temp = Cli.Temp("book-hygiene");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var assets = Path.Combine(Out(temp), "assets");
         var script = File.ReadAllText(Path.Combine(assets, "book.js"));

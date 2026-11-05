@@ -432,7 +432,7 @@ Each project declares its size, its shape, and its stacks in `.litespec/project.
 
 ### The Model Builder
 
-The model builder reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It writes the model file, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
+The model builder reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It holds the model in memory, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
 
 Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing.
 
@@ -464,7 +464,7 @@ The book lives in the Proof record layer. The book shows each journey as record 
 
 Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail. The book renders each record's explanation file under its fields, anchored at the record. The book leads with completion.
 
-The book renders `model.json` only and judges nothing itself.
+The book renders the in-memory model only and judges nothing itself.
 
 ## Standards
 

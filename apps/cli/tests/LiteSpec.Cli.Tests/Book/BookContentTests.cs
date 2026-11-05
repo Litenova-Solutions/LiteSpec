@@ -141,8 +141,7 @@ public sealed class BookContentTests
     static string Client()
     {
         using var temp = Cli.Temp("book-content");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Path.Combine(temp.Path, "out"));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Path.Combine(temp.Path, "out"));
         return File.ReadAllText(Path.Combine(temp.Path, "out", "assets", "book.js"));
     }
 }

@@ -3661,7 +3661,7 @@
       "artifact": "",
       "strength": "rule",
       "statement": "Code MUST read a use case\u0027s identity, its grant, a permission\u0027s facts, and a role\u0027s permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.",
-      "rationale": "Each of these facts is written once, on a record or in a mark, and a hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project: \u0060LiteSpecRegistry\u0060 answers a message type\u0027s use case (\u0060UseCaseOf\u0060), a marked type\u0027s use case (\u0060UseCaseOfType\u0060), a message type\u0027s grant (\u0060GrantOf\u0060), and in an API project an operation name\u0027s use case (\u0060UseCaseOfOperation\u0060); \u0060LiteSpecPermissions\u0060 holds one constant and one entry per \u0060permission/\u0060 record; and \u0060LiteSpecRoles\u0060 holds each role\u0027s scope and the permissions its record allows. A role that names a permission no record declares, and two records that generate one name, stop at build time.",
+      "rationale": "Each of these facts is written once, on a record or in a mark, and a hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project: \u0060LiteSpecRegistry\u0060 answers a message type\u0027s use case (\u0060UseCaseOf\u0060), a marked type\u0027s use case (\u0060UseCaseOfType\u0060), a message type\u0027s grant (\u0060GrantOf\u0060), and in an API project an operation name\u0027s use case (\u0060UseCaseOfOperation\u0060); \u0060LiteSpecPermissions\u0060 holds one constant and one entry per \u0060permission/\u0060 record; and \u0060LiteSpecRoles\u0060 holds each role\u0027s scope and the permissions its record allows. In the module layout the application project generates all three, and the host beside it reads them from there; the host generates only \u0060LiteSpecHostOperations\u0060, which answers \u0060UseCaseOfOperation\u0060 for the endpoints the host itself holds. A role that names a permission no record declares, and two records that generate one name, stop at build time.",
       "example": "When Claimwick\u0027s \u0060role/finance\u0060 record gains a permission, \u0060LiteSpecRoles.Of(\u0022role/finance\u0022).Allows\u0060 carries it at the next build, and \u0060LiteSpecRegistry.GrantOf(typeof(ReimburseExpenseCommand))\u0060 answers the reimbursement grant, with no hand-written table to update."
     },
     {
@@ -24893,7 +24893,7 @@
       "artifact": "",
       "strength": "rule",
       "statement": "The generated \u0060.litespec/model/\u0060 folder MUST stay out of source control.",
-      "rationale": "The model builder writes \u0060model.json\u0060 there from records, code, routes, tests, and test runs. Tracking it would commit a derived copy beside its sources, and every commit would carry a stale model until somebody regenerates it. The folder is rebuilt rather than reviewed.",
+      "rationale": "The model builder writes generated working files there, such as frontend facts, while it builds the model from records, code, routes, tests, and test runs. Tracking them would commit derived files beside their sources, and every commit would carry stale working files until somebody rebuilds. The folder is rebuilt rather than reviewed.",
       "example": ""
     },
     {

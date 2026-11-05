@@ -177,6 +177,21 @@ public sealed class ReachCheckTests
         Assert.Contains("intent-unreached", TestModel.Codes(model));
     }
 
+    /// <summary>A technical decision under a module skips the Intent reach rule.</summary>
+    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    [Fact]
+    public void Module_Technical_Decision_Skips_Intent_Unreached()
+    {
+        using var temp = Cli.Temp("checks");
+        var decisions = Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(decisions, "0001-ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
+
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "intent-unreached" && finding.Subject == "decision/0001-ghost-days");
+    }
+
     /// <summary>Decision Deciding Reaching Record Passes.</summary>
     /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
     [Fact]

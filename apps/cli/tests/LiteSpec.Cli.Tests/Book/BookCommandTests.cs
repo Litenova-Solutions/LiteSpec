@@ -1,9 +1,10 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Book;
 
-/// <summary>Proves <c>litespec book</c> writes one offline shell with sharded data from a fixture model.</summary>
+/// <summary>Proves <c>litespec book</c> writes one offline shell with sharded data from a fixture consumer.</summary>
 public sealed class BookCommandTests
 {
     /// <summary>The book writes <c>index.html</c>, the four assets, and the manifest, lexicon, outline, record, search and security shards.</summary>
@@ -11,10 +12,11 @@ public sealed class BookCommandTests
     [Fact]
     public void Book_Writes_The_Sharded_Book()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
@@ -59,10 +61,11 @@ public sealed class BookCommandTests
     [Fact]
     public void Manifest_Carries_The_Book_Contract()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
@@ -79,7 +82,10 @@ public sealed class BookCommandTests
 
         var totals = manifest["totals"]!.AsObject();
         var total = totals.Sum(pair => pair.Value!.GetValue<int>());
-        Assert.Equal(82, total);
+        Assert.True(total > 0, "The book holds no records.");
+        Assert.Equal(1, totals["product"]!.GetValue<int>());
+        Assert.Equal(1, totals["module"]!.GetValue<int>());
+        Assert.Equal(8, totals["use-case"]!.GetValue<int>());
 
         var layers = manifest["layers"]!.AsArray();
         Assert.Equal(
@@ -117,7 +123,7 @@ public sealed class BookCommandTests
         }
 
         Assert.True(manifest["generatedOn"]!.GetValue<string>().Length > 0);
-        Assert.Contains("82 records", result.Output, StringComparison.Ordinal);
+        Assert.Contains($"{total} records", result.Output, StringComparison.Ordinal);
 
         Assert.Null(manifest["approvals"]);
     }
@@ -128,9 +134,7 @@ public sealed class BookCommandTests
     public void Unplaced_Console_Line_Names_The_Failed_Rule()
     {
         using var temp = Cli.Temp("book");
-        var modelPath = Path.Combine(temp.Path, "model.json");
-        File.WriteAllText(
-            modelPath,
+        var model = (JsonObject)JsonNode.Parse(
             """
             {
               "records": [
@@ -138,12 +142,11 @@ public sealed class BookCommandTests
                 {"type": "requirement", "id": "requirement/nowhere.lost", "title": "Lost", "links": {}, "fields": {}}
               ]
             }
-            """);
-        var result = Cli.Run("book", "--model", modelPath, "--out", Path.Combine(temp.Path, "out"));
-        Assert.Equal(0, result.Status);
+            """)!;
+        var line = BookTestBooks.Write(model, temp.Path, Path.Combine(temp.Path, "out"));
 
-        Assert.Contains("record-parent-missing", result.Output, StringComparison.Ordinal);
-        Assert.Contains("requirement/nowhere.lost", result.Output, StringComparison.Ordinal);
+        Assert.Contains("record-parent-missing", line, StringComparison.Ordinal);
+        Assert.Contains("requirement/nowhere.lost", line, StringComparison.Ordinal);
     }
 
     /// <summary>The security shard carries the security items: cross-tenant access, outside calls and personal or sensitive data.</summary>
@@ -151,10 +154,11 @@ public sealed class BookCommandTests
     [Fact]
     public void Security_Shard_Carries_Security_Items()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
@@ -173,10 +177,11 @@ public sealed class BookCommandTests
     [Fact]
     public void Lexicon_Shard_Carries_Types_And_Links()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
@@ -192,23 +197,23 @@ public sealed class BookCommandTests
     [Fact]
     public void Root_And_Editor_Options_Reach_The_Manifest()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", Path.Combine(temp.Path, "out"),
-            "--root", temp.Path,
             "--editor", "none");
         Assert.Equal(0, result.Status);
 
         var manifest = ReadShard(Path.Combine(temp.Path, "out", "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(temp.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
+        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
         Assert.Equal("none", manifest["editor"]!.GetValue<string>());
 
         using var custom = Cli.Temp("book-editor");
         result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/model.json"),
+            "--root", consumer.Path,
             "--out", custom.Path,
             "--editor", "myeditor://open?f={root}/{path}&l={line}");
         Assert.Equal(0, result.Status);
@@ -230,67 +235,65 @@ public sealed class BookCommandTests
         var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
-        var modelPath = Path.Combine(plain, "model.json");
-        File.WriteAllText(modelPath, model.ToJsonString());
 
-        var result = Cli.Run("book", "--model", modelPath, "--out", Path.Combine(temp.Path, "out"));
+        BookTestBooks.Write(model, plain, Path.Combine(temp.Path, "out"));
 
-        Assert.Equal(0, result.Status);
         var copied = Path.Combine(temp.Path, "out", "assets", "captures", "screen-library-app-search", "home.png");
         Assert.True(File.Exists(copied), "The screen capture was not copied into the book output.");
         var shard = string.Join("\n", Directory.GetFiles(Path.Combine(temp.Path, "out", "data"), "records-*.js").Select(File.ReadAllText));
         Assert.Contains("assets/captures/screen-library-app-search/home.png", shard, StringComparison.Ordinal);
     }
 
-    /// <summary>The consumer root defaults to the model's folder, or the repository root when the model sits in a .litespec/model folder.</summary>
+    /// <summary>The consumer root defaults to the consumer found from the working directory, and the output to its book folder.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Root_Defaults_To_The_Model_Folder_Or_Its_Parent()
+    public void Root_And_Out_Default_To_The_Consumer_And_Its_Book_Folder()
     {
+        using var consumer = ModelFixture.Prepare("small");
+
+        // No --out: the book lands in .litespec/book under the consumer root.
+        var result = Cli.Run("book", "--root", consumer.Path);
+        Assert.Equal(0, result.Status);
+
+        var bookDir = Path.Combine(consumer.Path, ".litespec", "book");
+        Assert.True(File.Exists(Path.Combine(bookDir, "index.html")), "index.html was not written to the default book folder.");
+        var manifest = ReadShard(Path.Combine(bookDir, "data", "manifest.js"), "manifest");
+        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
+
+        // No --root: the consumer is found by walking up from the working directory.
         using var temp = Cli.Temp("book");
-        var plain = Path.Combine(temp.Path, "plain");
-        Directory.CreateDirectory(plain);
-        var model = Path.Combine(plain, "model.json");
-        File.Copy(Cli.Fixture("Book/model.json"), model);
-        var result = Cli.Run("book", "--model", model, "--out", Path.Combine(temp.Path, "out"));
+        result = Cli.Run(
+            ["book", "--out", Path.Combine(temp.Path, "cwd-out")],
+            workingDirectory: Path.Combine(consumer.Path, ".litespec", "behavior"));
         Assert.Equal(0, result.Status);
 
-        var manifest = ReadShard(Path.Combine(temp.Path, "out", "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(plain), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
-
-        var dotModel = Path.Combine(temp.Path, "consumer", ".litespec/model");
-        Directory.CreateDirectory(dotModel);
-        var nested = Path.Combine(dotModel, "model.json");
-        File.Copy(Cli.Fixture("Book/model.json"), nested);
-        result = Cli.Run("book", "--model", nested, "--out", Path.Combine(temp.Path, "nested-out"));
-        Assert.Equal(0, result.Status);
-
-        manifest = ReadShard(Path.Combine(temp.Path, "nested-out", "data", "manifest.js"), "manifest");
-        Assert.Equal(
-            Path.GetFullPath(Path.Combine(temp.Path, "consumer")),
-            manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
+        manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
+        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
     }
 
-    /// <summary>A missing --model exits 2 and names the missing option, the usage error for bad arguments.</summary>
+    /// <summary>A root without a project file exits 2 and names the missing file, the usage error for a root that is not a consumer.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Book_Without_Model_Exits_2()
+    public void Book_Without_Project_File_Exits_2()
     {
         using var temp = Cli.Temp("book");
-        var result = Cli.Run("book", "--out", temp.Path);
+        var result = Cli.Run("book", "--root", temp.Path);
         Assert.Equal(2, result.Status);
-        Assert.Contains("--model", result.Output);
+        Assert.Contains(".litespec/project.json", result.Output);
     }
 
-    /// <summary>An unreadable model exits 1 and names the model file.</summary>
+    /// <summary>An unwritable output exits 1 and names the output folder.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Missing_Model_File_Exits_1()
+    public void Unwritable_Output_Exits_1()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
-        var result = Cli.Run("book", "--model", Path.Combine(temp.Path, "missing.json"), "--out", temp.Path);
+        var blocker = Path.Combine(temp.Path, "blocker");
+        File.WriteAllText(blocker, "not a folder");
+        var result = Cli.Run("book", "--root", consumer.Path, "--out", blocker);
         Assert.Equal(1, result.Status);
-        Assert.Contains("missing.json", result.Output, StringComparison.Ordinal);
+        Assert.Contains(blocker, result.Output, StringComparison.Ordinal);
     }
 
     /// <summary>A carried LiteSpec page that lost its shape exits 2 and names the file.</summary>
@@ -298,11 +301,12 @@ public sealed class BookCommandTests
     [Fact]
     public void Broken_Carried_Page_Exits_2_Naming_The_File()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-home");
         File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"4.0.0"}""");
         var result = Cli.Run(
-            ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
+            ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);
         Assert.Contains("model.md", result.Output, StringComparison.Ordinal);
@@ -313,10 +317,11 @@ public sealed class BookCommandTests
     [Fact]
     public void Missing_Carried_Release_Exits_2()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-no-home");
         var result = Cli.Run(
-            ["book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path],
+            ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);
         Assert.Contains("Cannot find the carried LiteSpec release", result.Output, StringComparison.Ordinal);

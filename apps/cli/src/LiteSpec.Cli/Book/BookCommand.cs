@@ -1,25 +1,26 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Consumer;
 using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
 /// <summary>
 ///     The <c>litespec book</c> command: generate the project book, one offline
-///     shell with sharded data, from a consumer's model.json.
+///     shell with sharded data, from a consumer's records.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage =
-        "Usage: litespec book --model <model.json> --out <folder> [--root <folder>] [--editor <template>]\n"
+        "Usage: litespec book [--root <folder>] [--out <folder>] [--editor <template>]\n"
         + "\n"
         + "Options:\n"
-        + "  --model <file>       The model.json written by the model builder (required).\n"
-        + "  --out <folder>       The folder to write the static site to (required).\n"
-        + "  --root <folder>      The consumer root for source links. Defaults to the repository root when the model sits in a .litespec/model folder, else the model's folder.\n"
+        + "  --root <folder>      The consumer root to read. Defaults to the consumer found from the working directory.\n"
+        + "  --out <folder>       The folder to write the static site to. Defaults to `.litespec/book` under the consumer root.\n"
         + "  --editor <template>  The editor link template with {root}, {path} and {line}, or \"none\" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.\n"
         + "  --help               Print this text and exit.\n"
         + "\n"
@@ -32,9 +33,9 @@ static class BookCommand
     static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
     /// <summary>Runs the command with the arguments after <c>book</c>; returns the exit code.</summary>
-    /// <param name="args">The command arguments after the command name, holding the model, output, root and editor options.</param>
+    /// <param name="args">The command arguments after the command name, holding the root, output and editor options.</param>
     /// <returns>The process exit code: 0 when the book is written, 1 on unreadable input or unwritable output, and 2 on a usage error or a missing carried release or lexicon.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The book command is a last-resort command handler that reports any read, release lookup or write failure as an error message and an exit code instead of crashing.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The book command is a last-resort command handler that reports any build, release lookup or write failure as an error message and an exit code instead of crashing.")]
     public static int Run(string[] args)
     {
         var parsed = ParseArgs(args);
@@ -50,21 +51,47 @@ static class BookCommand
             return 2;
         }
 
-        JsonNode? model;
+        string root;
+
         try
         {
-            model = ReadJson(parsed.Model!);
+            root = ConsumerRoot.Resolve(parsed.Root);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.Write($"Cannot read model '{parsed.Model}': {exception.Message}\n");
-            return 1;
+            Console.Error.WriteLine($"Invalid root '{parsed.Root}': {exception.Message}");
+            return 2;
         }
 
-        if (model is not JsonObject store || store["records"] is not JsonArray)
+        if (!Directory.Exists(root))
         {
-            Console.Error.Write($"Model '{parsed.Model}' holds no records array.\n");
-            return 1;
+            Console.Error.WriteLine($"Root '{root}' does not exist.");
+            return 2;
+        }
+
+        // Without a project file every path falls back to a default, and the
+        // book would render a folder that is not a consumer at all.
+        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
+        {
+            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
+            return 2;
+        }
+
+        ConsumerConfig config;
+
+        try
+        {
+            config = ConsumerConfig.Load(root);
+        }
+        catch (JsonException exception)
+        {
+            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
+            return 2;
+        }
+        catch (InvalidOperationException exception)
+        {
+            Console.Error.WriteLine(exception.Message);
+            return 2;
         }
 
         string liteSpecRoot;
@@ -89,9 +116,73 @@ static class BookCommand
             return 2;
         }
 
-        var root = ResolveRoot(parsed.Root, parsed.Model!);
-        var editor = parsed.Editor ?? DefaultEditor;
+        ProjectModel model;
+        try
+        {
+            model = ModelBuilder.Build(config);
+        }
+        catch (Exception exception)
+        {
+            Console.Error.Write($"Cannot build the model from '{root}': {exception.Message}\n");
+            return 1;
+        }
 
+        var (modelFindings, known) = Checker.Check(model);
+        var findings = modelFindings.ToList();
+
+        // The consumer pass reads the project file, the record pages,
+        // the glossary and the controlled UI into the same finding
+        // shape, so the book shows the whole consumer.
+        try
+        {
+            var consumerRun = new ConsumerRun(root);
+            consumerRun.Execute();
+            findings.AddRange(consumerRun.Errors);
+        }
+        catch (FailFast fail)
+        {
+            Console.Error.WriteLine(fail.Message);
+            return fail.Code;
+        }
+
+        model.FindingsJson = findings.Select(finding => FindingJson(config, model, finding)).ToList();
+        model.KnownJson = known.Select(gap => KnownJson(config, gap)).ToList();
+
+        if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
+        {
+            Console.Error.Write("The built model holds no records array.\n");
+            return 1;
+        }
+
+        var editor = parsed.Editor ?? DefaultEditor;
+        var outDir = parsed.Out ?? Path.Combine(root, ConsumerRoot.FolderName, "book");
+
+        try
+        {
+            var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir);
+            Console.Out.Write(line + "\n");
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.Write($"Cannot write to '{outDir}': {exception.Message}\n");
+            return 1;
+        }
+    }
+
+    /// <summary>
+    ///     Writes the book for a parsed model: one shell with sharded data under the output folder.
+    ///     The command calls it with the model it built in memory; tests call it with a frozen model.
+    /// </summary>
+    /// <param name="store">The model object that holds the records array.</param>
+    /// <param name="root">The absolute consumer root for source links and captures.</param>
+    /// <param name="lexicon">The book lexicon read from the carried release.</param>
+    /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
+    /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
+    /// <param name="outDir">The folder to write the static site to.</param>
+    /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
+    internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir)
+    {
         // One pass over the one index: the outline and the details are each
         // built once, then packed into shards. Nothing is recomputed per record.
         var index = BookIndexBuilder.BuildIndex(store);
@@ -99,137 +190,140 @@ static class BookCommand
         var details = BookEnrich.Build(store, outline);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
 
-        try
+        var dataDir = Path.Combine(outDir, "data");
+        var shards = 0;
+
+        CopyCaptures(outDir, root, details);
+
+        // Records first: the outline nodes and the manifest map carry the shard ids.
+        var shardOf = BookShards.WriteRecords(dataDir, details);
+        shards += shardOf.Values.Distinct(StringComparer.Ordinal).Count();
+
+        var layers = new JsonArray();
+        foreach (var layerRoot in outline.Layers)
         {
-            var outDir = parsed.Out!;
-            var dataDir = Path.Combine(outDir, "data");
-            var shards = 0;
-
-            CopyCaptures(outDir, root, details);
-
-            // Records first: the outline nodes and the manifest map carry the shard ids.
-            var shardOf = BookShards.WriteRecords(dataDir, details);
-            shards += shardOf.Values.Distinct(StringComparer.Ordinal).Count();
-
-            var layers = new JsonArray();
-            foreach (var layerRoot in outline.Layers)
+            var keys = BookShards.WriteLayer(dataDir, layerRoot.Id, layerRoot.Children, shardOf);
+            shards += keys.Count;
+            layers.Add(new JsonObject
             {
-                var keys = BookShards.WriteLayer(dataDir, layerRoot.Id, layerRoot.Children, shardOf);
-                shards += keys.Count;
-                layers.Add(new JsonObject
-                {
-                    ["key"] = layerRoot.Id,
-                    ["label"] = LayerLabel(lexicon, layerRoot.Id),
-                    ["outline"] = new JsonArray([.. keys.Select(key => (JsonNode?)key)]),
-                });
-            }
-
-            var searchKeys = BookShards.WriteSearch(dataDir, SearchRows(index, details));
-            shards += searchKeys.Count;
-
-            BookShards.WriteShard(dataDir, "lexicon", lexicon.ToJson());
-            shards += 1;
-            BookShards.WriteShard(dataDir, "security", SecurityJson(details));
-            shards += 1;
-            BookShards.WriteShard(
-                dataDir,
-                "manifest",
-                ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn));
-            shards += 1;
-
-            var project = ProjectOf(store);
-            var totals = TotalsOf(store);
-            var title = project.Title.Length > 0 ? project.Title + " Book" : "Project book";
-            var html = BookShell.Render(title, BookShell.Noscript(project.Title, totals));
-            Directory.CreateDirectory(outDir);
-            File.WriteAllText(Path.Combine(outDir, "index.html"), html + "\n", Utf8NoBom);
-
-            Directory.CreateDirectory(Path.Combine(outDir, "assets"));
-            WriteAsset(outDir, "book.css");
-            WriteAsset(outDir, "book.js");
-
-            var line = $"{outDir}: {details.Count} records, {shards} shards.";
-            if (outline.Unplaced.Count > 0)
-            {
-                line += $" Unplaced (record-parent-missing): {string.Join(", ", outline.Unplaced)}.";
-            }
-
-            Console.Out.Write(line + "\n");
-            return 0;
+                ["key"] = layerRoot.Id,
+                ["label"] = LayerLabel(lexicon, layerRoot.Id),
+                ["outline"] = new JsonArray([.. keys.Select(key => (JsonNode?)key)]),
+            });
         }
-        catch (Exception exception)
+
+        var searchKeys = BookShards.WriteSearch(dataDir, SearchRows(index, details));
+        shards += searchKeys.Count;
+
+        BookShards.WriteShard(dataDir, "lexicon", lexicon.ToJson());
+        shards += 1;
+        BookShards.WriteShard(dataDir, "security", SecurityJson(details));
+        shards += 1;
+        BookShards.WriteShard(
+            dataDir,
+            "manifest",
+            ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn));
+        shards += 1;
+
+        var project = ProjectOf(store);
+        var totals = TotalsOf(store);
+        var title = project.Title.Length > 0 ? project.Title + " Book" : "Project book";
+        var html = BookShell.Render(title, BookShell.Noscript(project.Title, totals));
+        Directory.CreateDirectory(outDir);
+        File.WriteAllText(Path.Combine(outDir, "index.html"), html + "\n", Utf8NoBom);
+
+        Directory.CreateDirectory(Path.Combine(outDir, "assets"));
+        WriteAsset(outDir, "book.css");
+        WriteAsset(outDir, "book.js");
+
+        var line = $"{outDir}: {details.Count} records, {shards} shards.";
+        if (outline.Unplaced.Count > 0)
         {
-            Console.Error.Write($"Cannot write to '{parsed.Out}': {exception.Message}\n");
-            return 1;
+            line += $" Unplaced (record-parent-missing): {string.Join(", ", outline.Unplaced)}.";
         }
+
+        return line;
     }
 
-    /// <summary>The parsed book command arguments: the help flag, the usage error, and the model, output, root and editor values, each null when absent.</summary>
-    sealed record Parsed(bool Help, string? Error, string? Model, string? Out, string? Root, string? Editor);
+    /// <summary>The parsed book command arguments: the help flag, the usage error, and the output, root and editor values, each null when absent.</summary>
+    sealed record Parsed(bool Help, string? Error, string? Out, string? Root, string? Editor);
 
     /// <summary>Parses the book command arguments into their named values and any usage error.</summary>
     /// <param name="argv">The command arguments after the command name.</param>
     /// <returns>The parsed arguments, with the help flag or the usage error set when the input calls for it.</returns>
     static Parsed ParseArgs(string[] argv)
     {
-        var parsed = CliArgs.Parse(argv, [], ["--model", "--out", "--root", "--editor"]);
+        var parsed = CliArgs.Parse(argv, [], ["--out", "--root", "--editor"]);
 
         if (parsed.Help)
         {
-            return new Parsed(true, null, null, null, null, null);
+            return new Parsed(true, null, null, null, null);
         }
 
         if (parsed.Error is not null)
         {
-            return new Parsed(false, parsed.Error, null, null, null, null);
+            return new Parsed(false, parsed.Error, null, null, null);
         }
 
-        var consumer = ConsumerRoot.Find(parsed.Value("--root") is { Length: > 0 } start ? start : Directory.GetCurrentDirectory());
-        string model;
-        if (parsed.Value("--model") is { Length: > 0 } modelValue)
-        {
-            model = modelValue;
-        }
-        else
-        {
-            model = Path.Combine(consumer, ConsumerRoot.FolderName, "model", "model.json");
-            if (!File.Exists(model))
-            {
-                return new Parsed(false, "No model at .litespec/model/model.json; pass --model <model.json>.", null, null, null, null);
-            }
-        }
-
-        var output = parsed.Value("--out") is { Length: > 0 } outputValue
-            ? outputValue
-            : Path.Combine(consumer, ConsumerRoot.FolderName, "book");
-
-        return new Parsed(false, null, model, output, parsed.Value("--root"), parsed.Value("--editor"));
+        return new Parsed(false, null, parsed.Value("--out"), parsed.Value("--root"), parsed.Value("--editor"));
     }
 
     /// <summary>
-    ///     The consumer root for source links: the --root value, else the repository
-    ///     root when the model sits in a <c>.litespec/model</c> folder, else
-    ///     the model's folder.
+    ///     Decides one finding's severity the way <c>model check</c> does without flags:
+    ///     TypeScript findings take the handshake qualification, Roslyn findings stay
+    ///     qualified, and a finding with no reader is qualified.
     /// </summary>
-    /// <param name="root">The root option value, or null or empty when the option is absent.</param>
-    /// <param name="model">The path of the model file, whose folder supplies the default root.</param>
-    /// <returns>The absolute consumer root used for source links.</returns>
-    static string ResolveRoot(string? root, string model)
+    /// <param name="model">The built project model the finding belongs to.</param>
+    /// <param name="config">The consumer configuration of the project.</param>
+    /// <param name="finding">The finding to decide.</param>
+    /// <returns>The severity of the finding.</returns>
+    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding) =>
+        Severity.Of(
+            finding,
+            (finding.Code == "reader-missing" && config.IsContinuousIntegration) || finding.Reader switch
+            {
+                Finding.TypeScriptReader => model.TypeScriptQualified,
+                Finding.RoslynReader => true,
+                _ => true,
+            });
+
+    /// <summary>One standing finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
+    /// <param name="config">The consumer configuration, for the relative path.</param>
+    /// <param name="model">The built project model the finding belongs to.</param>
+    /// <param name="finding">The finding to project.</param>
+    /// <returns>The JSON object for the finding.</returns>
+    static object FindingJson(ConsumerConfig config, ProjectModel model, Finding finding)
     {
-        if (root is { Length: > 0 })
+        var severity = Decide(model, config, finding);
+
+        return new
         {
-            return Path.GetFullPath(root);
-        }
-
-        var folder = Path.GetDirectoryName(Path.GetFullPath(model)) ?? ".";
-        var parent = Path.GetDirectoryName(folder);
-
-        return string.Equals(Path.GetFileName(folder), "model", StringComparison.Ordinal)
-            && parent is not null
-            && string.Equals(Path.GetFileName(parent), ".litespec", StringComparison.Ordinal)
-            ? Path.GetDirectoryName(parent) ?? folder
-            : folder;
+            code = finding.Code,
+            level = finding.Tier,
+            outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
+            reason = (string?)null,
+            message = finding.Message,
+            path = config.Relative(finding.Path),
+            line = finding.Line,
+            subject = finding.Subject,
+        };
     }
+
+    /// <summary>One known-gap finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
+    /// <param name="config">The consumer configuration, for the relative path.</param>
+    /// <param name="finding">The known-gap finding to project.</param>
+    /// <returns>The JSON object for the known-gap finding.</returns>
+    static object KnownJson(ConsumerConfig config, Finding finding) => new
+    {
+        code = finding.Code,
+        level = finding.Tier,
+        outcome = "known",
+        reason = (string?)null,
+        message = finding.Message,
+        path = config.Relative(finding.Path),
+        line = finding.Line,
+        subject = finding.Subject,
+    };
 
     /// <summary>One layer's display label from the lexicon, else the layer key itself.</summary>
     /// <param name="lexicon">The book lexicon that holds the layer labels.</param>
@@ -517,11 +611,6 @@ static class BookCommand
             }
         }
     }
-
-    /// <summary>Reads and parses one JSON file.</summary>
-    /// <param name="path">The path of the JSON file to read.</param>
-    /// <returns>The parsed JSON node, or null when the file holds the JSON null value.</returns>
-    static JsonNode? ReadJson(string path) => JsonNode.Parse(File.ReadAllText(path));
 
     /// <summary>Writes one embedded book asset into the output assets folder.</summary>
     /// <param name="outDir">The output folder that holds the assets folder.</param>

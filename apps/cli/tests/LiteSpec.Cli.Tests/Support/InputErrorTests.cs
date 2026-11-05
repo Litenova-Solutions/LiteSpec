@@ -53,9 +53,10 @@ public sealed class InputErrorTests
     [Fact]
     public void Book_Accepts_An_Option_Written_With_An_Equals_Sign()
     {
+        using var consumer = ModelFixture.Prepare("small");
         using var folder = Cli.Temp("book");
 
-        var result = Cli.Run("book", $"--model={Cli.Fixture("Book/model.json")}", $"--out={folder.Path}");
+        var result = Cli.Run("book", $"--root={consumer.Path}", $"--out={folder.Path}");
 
         Assert.Equal(0, result.Status);
         Assert.True(File.Exists(Path.Combine(folder.Path, "index.html")));

@@ -19,8 +19,7 @@ public sealed class BookScaleTests
     public void Scale_Model_Packs_Every_Shard_Under_Its_Cap()
     {
         using var temp = Cli.Temp("book-scale");
-        var result = Cli.Run("book", "--model", WriteScaleModel(temp), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        var line = BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var recordShards = Directory.GetFiles(data, "records-*.js");
@@ -49,7 +48,7 @@ public sealed class BookScaleTests
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
         var total = manifest["totals"]!.AsObject().Sum(pair => pair.Value!.GetValue<int>());
         Assert.Equal(ScaleRecords, total);
-        Assert.Contains("21500 records", result.Output, StringComparison.Ordinal);
+        Assert.Contains("21500 records", line, StringComparison.Ordinal);
     }
 
     /// <summary>First paint stays under 1 MB and every layer outline under 1.5 MB: the shell, the client script and stylesheet with their fonts, the manifest, the lexicon and the Intent outline load first, and each layer outline loads on first open.</summary>
@@ -58,8 +57,7 @@ public sealed class BookScaleTests
     public void Budgets_Hold_First_Paint_And_Layers()
     {
         using var temp = Cli.Temp("book-scale");
-        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var firstPaint = new[]
         {
@@ -87,8 +85,7 @@ public sealed class BookScaleTests
     public void Scale_Outline_Places_Every_Record_Exactly_Once()
     {
         using var temp = Cli.Temp("book-scale");
-        var result = Cli.Run("book", "--model", WriteScaleModel(temp), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -108,8 +105,7 @@ public sealed class BookScaleTests
     public void Scale_Shard_Map_Reaches_Every_Record()
     {
         using var temp = Cli.Temp("book-scale");
-        var result = Cli.Run("book", "--model", WriteScaleModel(temp), "--out", Out(temp));
-        Assert.Equal(0, result.Status);
+        BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
@@ -156,7 +152,7 @@ public sealed class BookScaleTests
 
     static string Out(TempFolder temp) => Path.Combine(temp.Path, "out");
 
-    static string WriteScaleModel(TempFolder temp)
+    static JsonObject WriteScaleModel()
     {
         var records = new JsonArray();
         foreach (var entry in ScaleEntries())
@@ -164,7 +160,7 @@ public sealed class BookScaleTests
             records.Add(entry);
         }
 
-        var model = new JsonObject
+        return new JsonObject
         {
             ["version"] = 1,
             ["root"] = ".",
@@ -197,10 +193,6 @@ public sealed class BookScaleTests
             ["known"] = new JsonArray(),
             ["testRun"] = null,
         };
-
-        var path = Path.Combine(temp.Path, "model.json");
-        File.WriteAllText(path, model.ToJsonString());
-        return path;
     }
 
     static List<JsonObject> ScaleEntries()

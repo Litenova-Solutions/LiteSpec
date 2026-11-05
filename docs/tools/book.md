@@ -24,7 +24,7 @@ None.
 
 | Option | Meaning |
 |:--|:--|
-| `--root <folder>` | The consumer root to read. Defaults to the working directory. |
+| `--root <folder>` | The consumer root to read. Defaults to the consumer root found from the working directory. |
 | `--out <folder>` | The folder to write the static site to. Defaults to `.litespec/book` under the consumer root. |
 | `--editor <template>` | The editor link template with `{root}`, `{path}` and `{line}`, or `none` to suppress links. Defaults to `vscode://file/{root}/{path}:{line}`. |
 | `--help` | Print the usage text and exit. |

@@ -22,7 +22,7 @@ namespace LiteSpec.Book;
 
 
 /// <summary>
-///     The outline over model.json: every placed record sits once under its parent, with layer and
+///     The outline over the model: every placed record sits once under its parent, with layer and
 ///     type groups laid transparently on the path. The code implementing a record, the tests proving
 ///     it and the findings about it sit under it as leaves. A record no rule places, or whose parent
 ///     is itself unplaced, has no node and is only listed unplaced.
@@ -44,7 +44,7 @@ static class BookOutline
     /// <summary>The record types in the governance layer, in display order.</summary>
     static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
 
-    /// <summary>Builds the outline over a parsed model.json object.</summary>
+    /// <summary>Builds the outline over a parsed model object.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
     /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
     public static BookOutlineResult Build(JsonObject model)

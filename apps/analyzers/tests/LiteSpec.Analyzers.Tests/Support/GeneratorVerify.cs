@@ -23,7 +23,10 @@ internal static class GeneratorVerify
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="layer">The declared LiteSpecLayer property, or null to read the assembly name.</param>
     /// <param name="extraReferences">Further metadata references, such as xUnit.</param>
-    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
+    /// <param name="layout">
+    ///     The declared layout name. When null, an assembly named for a layer (<c>Shop.Domain</c>,
+    ///     <c>Shop.WebApi</c>) is a layer-projects project, and any other assembly reads the module layout.
+    /// </param>
     /// <returns>The run outcome.</returns>
     public static GeneratorRun Run(
         IReadOnlyList<(string Path, string Source)> sources,
@@ -33,6 +36,7 @@ internal static class GeneratorVerify
         IEnumerable<MetadataReference>? extraReferences = null,
         string? layout = null)
     {
+        layout ??= LiteSpec.Model.LayerResolver.FromAssemblyName(assemblyName) != LiteSpec.Model.Layer.None ? "layer-projects" : null;
         var compilation = CreateCompilation(sources, assemblyName, extraReferences);
         var result = RunToResult(CreateDriver(additionalFiles, layer, layout), compilation);
         var generated = new Dictionary<string, string>(StringComparer.Ordinal);

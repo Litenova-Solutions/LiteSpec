@@ -17,7 +17,7 @@ A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for 
 
 Each record type has one home in the tree: the [model page](../core/model.md) names the home, and the canonical tree below realizes it. Entries live in their home file instead of their own files, so an agent derives the path from the record type without searching.
 
-The model builder writes the generated project model under `.litespec/model/` from records, code, routes, tests, and test runs; the folder is rebuilt rather than reviewed.
+The model builder writes generated working files under `.litespec/model/` while it builds the model from records, code, routes, tests, and test runs; the folder is rebuilt rather than reviewed.
 
 ## Standards
 
@@ -124,7 +124,7 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **Statement:** The generated `.litespec/model/` folder MUST stay out of source control.
 
-**Rationale:** The model builder writes `model.json` there from records, code, routes, tests, and test runs. Tracking it would commit a derived copy beside its sources, and every commit would carry a stale model until somebody regenerates it. The folder is rebuilt rather than reviewed.
+**Rationale:** The model builder writes generated working files there, such as frontend facts, while it builds the model from records, code, routes, tests, and test runs. Tracking them would commit derived files beside their sources, and every commit would carry stale working files until somebody rebuilds. The folder is rebuilt rather than reviewed.
 
 **Reviewed for:** No path under `.litespec/model/` is tracked in git; `git ls-files .model` prints nothing.
 

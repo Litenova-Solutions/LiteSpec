@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-labelledby="learn-how-it-works-title learn-how-it-works-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="learn-how-it-works-title">The loop of standard, records, code, and model</title>
-  <desc id="learn-how-it-works-desc">Four boxes run left to right: Standard (rules, pinned), Records (intent, owned), Code and tests (handlers, screens), and Model (.litespec/model/model.json). The standard governs the records, the records are implemented by code, and the build reads code into the model. A Checks box below (consumer, model check, CI) takes gaps from the model and sends findings back to the records.</desc>
+  <desc id="learn-how-it-works-desc">Four boxes run left to right: Standard (rules, pinned), Records (intent, owned), Code and tests (handlers, screens), and Model (in memory). The standard governs the records, the records are implemented by code, and the build reads code into the model. A Checks box below (consumer, model check, CI) takes gaps from the model and sends findings back to the records.</desc>
   <defs>
     <marker id="learn-how-it-works-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -34,7 +34,7 @@
     <text x="95" y="90">rules, pinned</text>
     <text x="265" y="90">intent, owned</text>
     <text x="435" y="90">handlers, screens</text>
-    <text x="605" y="90">.litespec/model/model.json</text>
+    <text x="605" y="90">in memory</text>
     <text x="360" y="184">consumer, model check, CI</text>
     <text x="180" y="32">governs</text>
     <text x="350" y="32">implements</text>

@@ -269,6 +269,20 @@ public sealed class ParentCheckTests
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
+    /// <summary>A product-wide rule whose home is the product passes.</summary>
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void Rule_With_Product_Home_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("product", "product/library", Path.Combine(temp.Path, "product.yaml"), """{"summary": "The library lends copies."}"""),
+            TestModel.Record("rule", "rule/library.every-act-is-audited", Path.Combine(temp.Path, "rules.yaml"), """{"kind": "invariant", "statement": "Every act names its actor."}"""));
+
+        Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
+    }
+
     /// <summary>Rule With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
@@ -281,7 +295,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Rule 'rule/nope.loan-period' has no parent and its home 'nope' names no module or aggregate.", finding.Message);
+        Assert.Equal("Rule 'rule/nope.loan-period' has no parent and its home 'nope' names no module, aggregate or product.", finding.Message);
         Assert.Equal("rule/nope.loan-period", finding.Subject);
     }
 

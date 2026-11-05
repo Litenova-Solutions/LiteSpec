@@ -152,7 +152,7 @@ static class BookModel
     /// <returns>Whether the model holds a test run.</returns>
     public static bool HasTestRun(BookIndex index) => index.TestRun is not null;
 
-    /// <summary>Builds the index over a parsed model.json object.</summary>
+    /// <summary>Builds the index over a parsed model object.</summary>
     /// <param name="model">The parsed model.</param>
     /// <returns>The built index.</returns>
     public static BookIndex BuildIndex(JsonObject model) => BookIndexBuilder.BuildIndex(model);

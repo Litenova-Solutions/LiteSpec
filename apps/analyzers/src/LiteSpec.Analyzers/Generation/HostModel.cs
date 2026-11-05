@@ -18,8 +18,10 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="applicationProject">Whether the compilation is the module-layout application project.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
-    public HostModel(Layer layer, Layout layout, bool applicationProject, bool xunitV3)
+    /// <param name="moduleHost">Whether the compilation is a host beside a module-layout application project.</param>
+    public HostModel(Layer layer, Layout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
     {
+        ModuleHost = moduleHost;
         Layer = layer;
         Layout = layout;
         ApplicationProject = applicationProject;
@@ -34,6 +36,13 @@ internal sealed class HostModel : IEquatable<HostModel>
 
     /// <summary>Gets a value indicating whether whether the compilation is the module-layout application project.</summary>
     public bool ApplicationProject { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the compilation is a host beside a module-layout application
+    ///     project: its layer comes from its assembly name, and the application project generates the
+    ///     values it uses.
+    /// </summary>
+    public bool ModuleHost { get; }
 
     /// <summary>Gets a value indicating whether whether the compilation references xUnit v3.</summary>
     public bool XunitV3 { get; }
@@ -79,13 +88,15 @@ internal sealed class HostModel : IEquatable<HostModel>
             : LayerResolver.Parse(declared);
         var applicationProject = layout == Layout.Modules && declared.Length == 0 && layer == Layer.None;
 
-        return new HostModel(layer, layout, applicationProject, xunitV3);
+        var moduleHost = layout == Layout.Modules && declared.Length == 0 && layer != Layer.None;
+
+        return new HostModel(layer, layout, applicationProject, xunitV3, moduleHost);
     }
 
     /// <inheritdoc />
     public bool Equals(HostModel? other) =>
         other is not null && Layer == other.Layer && Layout == other.Layout
-        && ApplicationProject == other.ApplicationProject && XunitV3 == other.XunitV3;
+        && ApplicationProject == other.ApplicationProject && XunitV3 == other.XunitV3 && ModuleHost == other.ModuleHost;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is HostModel other && Equals(other);
@@ -100,6 +111,7 @@ internal sealed class HostModel : IEquatable<HostModel>
             hash = hash * 31 + Layout.GetHashCode();
             hash = hash * 31 + ApplicationProject.GetHashCode();
             hash = hash * 31 + XunitV3.GetHashCode();
+            hash = hash * 31 + ModuleHost.GetHashCode();
 
             return hash;
         }

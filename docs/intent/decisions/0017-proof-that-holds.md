@@ -6,7 +6,7 @@
 
 ## Decision
 
-Proof state lives in `.litespec/proof/proofs.json`, committed, holding each scenario's hash and its test body's hash at the last passing run; stale when either changes; browser outcomes are read. A finding blocks or reports by its tier. `use-case-unverified` reports by default; `litespec model check --release` makes the release-readiness items block; `litespec model check --since <ref>` blocks only on what changed since `<ref>`. Four proof words hold: verified for a use case, met for a requirement, tested for a passing test with an assertion, exercised for a journey step. Finding codes follow `<subject>-<problem>` with fifteen problem words; an unknown code fails the build; the book renders `model.json` and judges nothing itself.
+Proof state lives in `.litespec/proof/proofs.json`, committed, holding each scenario's hash and its test body's hash at the last passing run; stale when either changes; browser outcomes are read. A finding blocks or reports by its tier. `use-case-unverified` reports by default; `litespec model check --release` makes the release-readiness items block; `litespec model check --since <ref>` blocks only on what changed since `<ref>`. Four proof words hold: verified for a use case, met for a requirement, tested for a passing test with an assertion, exercised for a journey step. Finding codes follow `<subject>-<problem>` with fifteen problem words; an unknown code fails the build; the book renders the in-memory model and judges nothing itself.
 
 ## Evidence with Confidence
 
