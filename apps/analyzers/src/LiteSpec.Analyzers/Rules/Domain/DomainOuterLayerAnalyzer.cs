@@ -121,11 +121,28 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>True when the type is an outer-layer concern for Domain; otherwise false.</returns>
     // A value type in a module Contracts folder is a typed identifier or shared value the module
-    // publishes, which Domain may name; a port or an integration event there stays outer.
+    // publishes, and an exception there is a rule refusal the module publishes; Domain may name both.
+    // A port or an integration event there stays outer.
     private static bool IsOuter(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         IsOuterLayerNamespace(type.ContainingNamespace, out _)
         || (map.ReferencedLayer(type, compilation) is Layer.Application or Layer.Infrastructure or Layer.WebApi
-            && !(type.IsValueType && CodeMap.IsContracts(CodeMap.SourceFileOf(type, compilation))));
+            && !((type.IsValueType || IsException(type)) && CodeMap.IsContracts(CodeMap.SourceFileOf(type, compilation))));
+
+    /// <summary>Whether the type derives from <see cref="System.Exception" />.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when an exception type is among its base types; otherwise false.</returns>
+    private static bool IsException(INamedTypeSymbol type)
+    {
+        for (var current = type.BaseType; current is not null; current = current.BaseType)
+        {
+            if (current.ToDisplayString() == "System.Exception")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Returns true when the containing is outer layer namespace; otherwise false.</summary>
     /// <param name="containing">The containing supplied for the check, or null when the compilation does not provide it.</param>

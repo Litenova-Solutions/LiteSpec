@@ -403,6 +403,30 @@ public sealed class DomainOuterLayerAnalyzerTests
                     """),
             ], assemblyName: "NightHall");
 
+    /// <summary>LS1001 accepts a rule refusal another module publishes in its Contracts.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
+    [Fact(DisplayName = "LS1001 accepts a rule refusal from Contracts")]
+    public Task AcceptsAContractsRuleRefusal() =>
+        Verify.AnalyzerAsync<DomainOuterLayerAnalyzer>(
+            [
+                ("NightHall/Billing/Invoices/Domain/Invoice.cs", """
+                    namespace NightHall.Billing.Invoices;
+
+                    internal sealed class Invoice
+                    {
+                        internal static void Refuse() => throw new NightHall.Organizations.OrganizerUnknownException();
+                    }
+                    """),
+                ("NightHall/Organizations/Contracts/OrganizerUnknownException.cs", """
+                    namespace NightHall.Organizations;
+
+                    internal sealed class OrganizerUnknownException : System.Exception
+                    {
+                    }
+                    """),
+            ], assemblyName: "NightHall");
+
     /// <summary>LS1001 accepts a Domain file naming only Domain types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</proves>
