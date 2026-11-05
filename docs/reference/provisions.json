@@ -2455,13 +2455,13 @@
       "anchor": "keep-use-case-folders-isolated",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060dotnet build\u0060 reports \u0060LS2019\u0060 for a use case folder naming a type in another use case folder.",
+      "evidence": "\u0060dotnet build\u0060 reports \u0060LS2019\u0060 for a use case folder naming a type in another use case folder, other than one whose outermost type ends in \u0060Command\u0060, \u0060Query\u0060, \u0060CommandResult\u0060 or \u0060QueryResult\u0060.",
       "stack": "dotnet",
       "layer": "application",
       "artifact": "",
       "strength": "rule",
-      "statement": "A use case folder MUST reference no type in another use case folder.",
-      "rationale": "A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. The rule applies to files and to global usings alike.",
+      "statement": "A use case folder MUST reference no type in another use case folder, except the message and result of a use case it runs.",
+      "rationale": "A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A reaction or a use case that runs another use case sends that use case\u0027s command or query and reads its result, which is the published way in, so those types stay nameable. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. The rule applies to files and to global usings alike.",
       "example": ""
     },
     {

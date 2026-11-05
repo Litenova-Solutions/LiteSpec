@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
-/// <summary>LS2019: a use case or reaction folder names no type of another such folder.</summary>
+/// <summary>LS2019: a use case or reaction folder names no type of another such folder, except the message and result of a use case it runs.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SliceIsolationAnalyzer : LayerAnalyzer
@@ -71,7 +71,7 @@ public sealed class SliceIsolationAnalyzer : LayerAnalyzer
     /// <returns>The other slice folder, or null when the type is declared in no other slice.</returns>
     private static string? OtherSliceOf(INamedTypeSymbol type, string slice, CodeMap map, Compilation compilation)
     {
-        if (CodeMap.SourceFileOf(type, compilation) is not string file)
+        if (IsRunnableMessage(type) || CodeMap.SourceFileOf(type, compilation) is not string file)
         {
             return null;
         }
@@ -82,5 +82,23 @@ public sealed class SliceIsolationAnalyzer : LayerAnalyzer
         }
 
         return null;
+    }
+
+    /// <summary>Returns true when the type is a use case message or result, or nested in one, which a slice that runs the use case may name.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the outermost type ends in Command, Query, CommandResult or QueryResult; otherwise false.</returns>
+    private static bool IsRunnableMessage(INamedTypeSymbol type)
+    {
+        var outer = type;
+        while (outer.ContainingType is not null)
+        {
+            outer = outer.ContainingType;
+        }
+
+        var name = outer.Name;
+        return name.EndsWith("Command", StringComparison.Ordinal)
+            || name.EndsWith("Query", StringComparison.Ordinal)
+            || name.EndsWith("CommandResult", StringComparison.Ordinal)
+            || name.EndsWith("QueryResult", StringComparison.Ordinal);
     }
 }

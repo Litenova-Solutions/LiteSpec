@@ -18,16 +18,57 @@ public sealed class SliceIsolationAnalyzerTests
 
                     internal sealed class CreateTeamHandler
                     {
-                        internal void Handle({|LS2019:RenameTeamCommand|} command)
+                        internal void Handle({|LS2019:RenameTeamPolicy|} policy)
                         {
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommand.cs", """
+                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamPolicy.cs", """
                     namespace Claimwick.Organizations.Teams;
+
+                    internal sealed class RenameTeamPolicy
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules");
+
+    /// <summary>LS2019 accepts a reaction that sends a use case command and reads its result.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</proves>
+    [Fact(DisplayName = "LS2019 accepts a reaction that sends a use case command and reads its result")]
+    public Task AcceptsARunUseCaseMessageAndResult() =>
+        Verify.AnalyzerAsync<SliceIsolationAnalyzer>(
+            [
+                ("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/RenameTeamOnTeamCreatedHandler.cs", """
+                    namespace Claimwick.Organizations.UseCases.OnTeamCreated;
+
+                    using Claimwick.Organizations.Teams.UseCases.RenameTeam;
+
+                    internal sealed class RenameTeamOnTeamCreatedHandler
+                    {
+                        internal bool Handle()
+                        {
+                            var command = new RenameTeamCommand { Name = "Finance" };
+                            RenameTeamCommandResult result = new RenameTeamCommandResult.Renamed();
+                            return command.Name.Length > 0 && result is RenameTeamCommandResult.Renamed;
+                        }
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Teams.UseCases.RenameTeam;
 
                     internal sealed class RenameTeamCommand
                     {
+                        internal string Name { get; init; } = "";
+                    }
+                    """),
+                ("Claimwick.Modules/Organizations/Teams/UseCases/RenameTeam/RenameTeamCommandResult.cs", """
+                    namespace Claimwick.Organizations.Teams.UseCases.RenameTeam;
+
+                    internal abstract record RenameTeamCommandResult
+                    {
+                        internal sealed record Renamed : RenameTeamCommandResult;
                     }
                     """),
             ],
@@ -180,15 +221,15 @@ public sealed class SliceIsolationAnalyzerTests
 
                     internal sealed class CreateInvoiceHandler
                     {
-                        internal void Handle({|LS2019:CancelInvoiceCommand|} command)
+                        internal void Handle({|LS2019:CancelInvoicePolicy|} policy)
                         {
                         }
                     }
                     """),
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CancelInvoice/CancelInvoiceCommand.cs", """
+                ("Claimwick.Modules/Billing/Invoices/UseCases/CancelInvoice/CancelInvoicePolicy.cs", """
                     namespace Claimwick.Billing.Invoices;
 
-                    internal sealed class CancelInvoiceCommand
+                    internal sealed class CancelInvoicePolicy
                     {
                     }
                     """),
@@ -209,15 +250,15 @@ public sealed class SliceIsolationAnalyzerTests
 
                     internal sealed class SendNoticeOnTeamMemberRemovedHandler
                     {
-                        internal void Handle({|LS2019:CreateTeamCommand|} command)
+                        internal void Handle({|LS2019:CreateTeamPolicy|} policy)
                         {
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
+                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamPolicy.cs", """
                     namespace Claimwick.Organizations.Teams;
 
-                    internal sealed class CreateTeamCommand
+                    internal sealed class CreateTeamPolicy
                     {
                     }
                     """),
@@ -236,15 +277,15 @@ public sealed class SliceIsolationAnalyzerTests
 
                     internal sealed class CreateDraftHandler
                     {
-                        internal void Handle({|LS2019:CancelDraftCommand|} command)
+                        internal void Handle({|LS2019:CancelDraftValidator|} validator)
                         {
                         }
                     }
                     """),
-                ("Shop.Application/Orders/CancelDraft/CancelDraftCommand.cs", """
+                ("Shop.Application/Orders/CancelDraft/CancelDraftValidator.cs", """
                     namespace Shop.Orders;
 
-                    internal sealed class CancelDraftCommand
+                    internal sealed class CancelDraftValidator
                     {
                     }
                     """),

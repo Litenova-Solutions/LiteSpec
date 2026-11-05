@@ -157,11 +157,11 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Strength:** rule
 
-**Statement:** A use case folder MUST reference no type in another use case folder.
+**Statement:** A use case folder MUST reference no type in another use case folder, except the message and result of a use case it runs.
 
-**Rationale:** A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. The rule applies to files and to global usings alike.
+**Rationale:** A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A reaction or a use case that runs another use case sends that use case's command or query and reads its result, which is the published way in, so those types stay nameable. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. The rule applies to files and to global usings alike.
 
-**Checked by:** `dotnet build` reports `LS2019` for a use case folder naming a type in another use case folder.
+**Checked by:** `dotnet build` reports `LS2019` for a use case folder naming a type in another use case folder, other than one whose outermost type ends in `Command`, `Query`, `CommandResult` or `QueryResult`.
 
 ### Reach Another Module Only Through Contracts
 
