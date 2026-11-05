@@ -54,7 +54,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `decision-decides-missing` | G | A product decision names nothing it decides. | Name the records the decision decides. |
 | `decision-number-duplicate` | G | Two decisions share one number. | Give one decision the next free number. |
 | `decision-decides-duplicate` | G | Two decisions decide one record. | Keep one decision on the record and move the other. |
-| `use-case-journey-missing` | G | A public use case sits in no journey and names no background caller. It runs at large size only. | Walk the use case in a journey, or name its background caller. |
+| `use-case-journey-missing` | G | A public use case sits in no journey, and no reaction, job or other use case runs it. It runs at large size only. | Walk the use case in a journey, or name what runs it. |
 | `state-unreached` | G | A state is reached by no transition. | Add a transition that reaches the state, or remove the state. |
 | `transition-unknown` | G | A transition names a missing state or use case. | Point the transition at a written state and a written use case. |
 | `use-case-success-missing` | G | A use case ends with no success result. | Add the success result to the use case. |

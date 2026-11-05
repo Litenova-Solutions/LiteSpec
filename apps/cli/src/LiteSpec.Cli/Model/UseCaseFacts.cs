@@ -67,6 +67,15 @@ static class UseCaseFacts
         return false;
     }
 
+    /// <summary>Whether another use case runs the use case, so it reaches its journey through that use case.</summary>
+    /// <param name="model">The loaded project model.</param>
+    /// <param name="useCase">The use case under test.</param>
+    /// <returns>True when a use case names it in a runs effect; otherwise false.</returns>
+    public static bool RunByUseCase(ProjectModel model, Record useCase) =>
+        model.Records.Any(record => record.Type == RecordTypes.UseCase
+            && !ReferenceEquals(record, useCase)
+            && record.EdgeIds(RecordFields.Runs).Contains(useCase.Id, StringComparer.Ordinal));
+
     /// <summary>Whether the use case runs in the background: a reaction or job runs it.</summary>
     /// <param name="model">The project model.</param>
     /// <param name="useCase">The use case record.</param>

@@ -668,7 +668,7 @@ internal static class FolderChecks
             "actor" => folders is ["intent", "actors"],
             "role" => folders is ["intent", "roles"],
             "module" => folders is ["intent", "modules", _] && fileName == "module.yaml",
-            "aggregate" => (InAggregate(folders) && fileName == "aggregate.yaml")
+            "aggregate" => (InAggregate(folders, flat) && fileName == "aggregate.yaml")
                 || (folders is ["behavior", "modules", var flatModule] && fileName == "aggregate.yaml" && flat.Contains(flatModule)),
             "use-case" => UseCaseFile(folders, fileName, flat),
             "result" => UseCaseFile(folders, fileName, flat),
@@ -676,7 +676,7 @@ internal static class FolderChecks
             "event" => EventFile(folders, fileName, flat),
             "rule" => folders is ["behavior", "rules"]
                 || folders is ["behavior", "modules", _, "rules"]
-                || (folders is ["behavior", "modules", _, var aggregate, "rules"] && IsAggregateName(aggregate)),
+                || (folders is ["behavior", "modules", var ruleModule, var aggregate, "rules"] && IsAggregateName(aggregate, ruleModule, flat)),
             "reaction" => folders is ["behavior", "modules", _, "reactions"],
             "job" => folders is ["behavior", "modules", _, "jobs"],
             "notification" => folders is ["behavior", "modules", _, "notifications"],
@@ -706,15 +706,21 @@ internal static class FolderChecks
 
     /// <summary>Whether the folders are an aggregate folder: under a behavior module, beside the fixed type folders.</summary>
     /// <param name="folders">The record file folders anchored at the record layer.</param>
+    /// <param name="flat">The modules that keep their records flat, whose <c>events/</c> folder holds events.</param>
     /// <returns>True for <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>; otherwise false.</returns>
-    private static bool InAggregate(string[] folders) =>
-        folders is ["behavior", "modules", _, var aggregate] && IsAggregateName(aggregate);
+    private static bool InAggregate(string[] folders, HashSet<string> flat) =>
+        folders is ["behavior", "modules", var module, var aggregate] && IsAggregateName(aggregate, module, flat);
 
-    /// <summary>Whether the folder name is an aggregate name: neither a fixed type folder nor the flat events folder.</summary>
+    /// <summary>
+    ///     Whether the folder name is an aggregate name: not a fixed type folder, and not the events folder of a
+    ///     flat module. In a module with aggregate folders, <c>events</c> names an aggregate such as an event.
+    /// </summary>
     /// <param name="name">The folder name under test.</param>
+    /// <param name="module">The module folder the name sits under.</param>
+    /// <param name="flat">The modules that keep their records flat.</param>
     /// <returns>True when the name holds an aggregate; otherwise false.</returns>
-    private static bool IsAggregateName(string name) =>
-        !BehaviorModuleFolders.Contains(name) && name != "events";
+    private static bool IsAggregateName(string name, string module, HashSet<string> flat) =>
+        !BehaviorModuleFolders.Contains(name) && (name != "events" || !flat.Contains(module));
 
     /// <summary>Whether the file is a use case file: under an aggregate, under <c>use-cases/</c>, or flat under its module.</summary>
     /// <param name="folders">The record file folders anchored at the record layer.</param>
@@ -722,7 +728,7 @@ internal static class FolderChecks
     /// <param name="flat">The modules that may stay flat.</param>
     /// <returns>True when a use case, result or scenario lives in the file; otherwise false.</returns>
     private static bool UseCaseFile(string[] folders, string fileName, HashSet<string> flat) =>
-        (InAggregate(folders) && fileName != "aggregate.yaml")
+        (InAggregate(folders, flat) && fileName != "aggregate.yaml")
         || folders is ["behavior", "modules", _, "use-cases"]
         || (folders is ["behavior", "modules", var module] && flat.Contains(module) && fileName != "aggregate.yaml" && fileName != "permissions.yaml");
 
@@ -732,8 +738,8 @@ internal static class FolderChecks
     /// <param name="flat">The modules that may stay flat.</param>
     /// <returns>True when an event lives in the file; otherwise false.</returns>
     private static bool EventFile(string[] folders, string fileName, HashSet<string> flat) =>
-        (InAggregate(folders) && fileName == "aggregate.yaml")
-        || (folders is ["behavior", "modules", _, var aggregate, "events"] && IsAggregateName(aggregate))
+        (InAggregate(folders, flat) && fileName == "aggregate.yaml")
+        || (folders is ["behavior", "modules", var eventModule, var aggregate, "events"] && IsAggregateName(aggregate, eventModule, flat))
         || (folders is ["behavior", "modules", var flatAggregate] && fileName == "aggregate.yaml" && flat.Contains(flatAggregate))
         || (folders is ["behavior", "modules", var flatEvents, "events"] && flat.Contains(flatEvents));
 }

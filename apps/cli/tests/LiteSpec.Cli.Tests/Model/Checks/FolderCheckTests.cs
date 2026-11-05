@@ -91,6 +91,23 @@ public sealed class FolderCheckTests
         Assert.DoesNotContain(Run(model), found => found.Code == "folder-invalid");
     }
 
+    /// <summary>An aggregate folder named events, in a module with aggregate folders, holds its aggregate.</summary>
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void Events_Aggregate_Folder_In_Module_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "events", "events", "aggregate.yaml");
+        File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/events.event\ntitle: Event\n");
+        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "events", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/events", moduleFile, """{"dependsOn": []}"""),
+            TestModel.Record("aggregate", "aggregate/events.event", aggregate, """{"states": [{"name": "Draft", "meaning": "The event is a draft."}]}"""));
+
+        Assert.DoesNotContain(Run(model), found => found.Code is "folder-invalid" or "record-placement-invalid");
+    }
+
     /// <summary>Behavior Operations Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]

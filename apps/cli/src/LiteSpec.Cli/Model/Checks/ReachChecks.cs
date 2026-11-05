@@ -29,7 +29,7 @@ internal static class ReachChecks
 
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
         {
-            if (ModelBuilder.BackgroundOnly(model, useCase))
+            if (ModelBuilder.BackgroundOnly(model, useCase) || UseCaseFacts.RunByUseCase(model, useCase))
             {
                 continue;
             }

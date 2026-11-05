@@ -177,6 +177,24 @@ public sealed class ReachCheckTests
         Assert.Contains("intent-unreached", TestModel.Codes(model));
     }
 
+    /// <summary>A use case another use case runs needs no journey of its own.</summary>
+    /// <proves>litespec/core/model#connect-every-behavior-record-to-intent</proves>
+    [Fact]
+    public void Use_Case_Run_By_Another_Skips_Journey_Missing()
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.json"), """{"owners": ["lending-team"], "size": "large"}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["journey/borrow#s1"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "inline", "sharesTransaction": true}]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-copy", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command"}"""));
+
+        var findings = Checker.Check(model).Findings;
+
+        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-journey-missing" && finding.Subject == "use-case/lending.hold-copy");
+        Assert.DoesNotContain(findings, finding => finding.Code == "use-case-journey-missing" && finding.Subject == "use-case/lending.borrow-copy");
+    }
+
     /// <summary>A technical decision under a module skips the Intent reach rule.</summary>
     /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
     [Fact]

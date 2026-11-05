@@ -8247,7 +8247,7 @@
       "anchor": "connect-every-behavior-record-to-intent",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-link-missing\u0060 for a use case, reaction, job, notification, or setting with neither \u0060serves\u0060 nor \u0060fulfills\u0060, and \u0060use-case-journey-missing\u0060 (level G) at large size for a use case that is not background-only and serves no journey step.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-link-missing\u0060 for a use case, reaction, job, notification, or setting with neither \u0060serves\u0060 nor \u0060fulfills\u0060, and \u0060use-case-journey-missing\u0060 (level G) at large size for a use case that no reaction, job or other use case runs and that serves no journey step.",
       "stack": "any",
       "layer": "records",
       "artifact": "",

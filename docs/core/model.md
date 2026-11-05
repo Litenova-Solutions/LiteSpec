@@ -644,7 +644,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A use case, reaction, job, notification, or setting with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case, reaction, job, notification, or setting carrying neither. A use case is background-only when a reaction or job runs it, so `use-case-journey-missing` skips it.
 
-**Checked by:** `litespec model check` reports `record-link-missing` for a use case, reaction, job, notification, or setting with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that is not background-only and serves no journey step.
+**Checked by:** `litespec model check` reports `record-link-missing` for a use case, reaction, job, notification, or setting with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that no reaction, job or other use case runs and that serves no journey step.
 
 ### Reach Behavior from Every Intent Record
 
