@@ -109,6 +109,8 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", Layer.Application)]
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", Layer.WebApi)]
     [InlineData("Claimwick/Organizations/Jobs/SendDigest/SendDigestJob.cs", Layer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/TeamNameRules.cs", Layer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/WelcomeNoticeText.cs", Layer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", Layer.None)]
     public void Resolves_A_Module_File(string filePath, Layer expected) =>
         Assert.Equal(expected, LayerResolver.FileLayer(filePath, "Claimwick", Layout.Modules, null));

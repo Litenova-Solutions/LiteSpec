@@ -24,7 +24,7 @@ Every node of the tree may hold the same layer folders. Each level allows a clos
 
 An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder, beside one `On{Fact}/` folder per reaction. A module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Commands/` and `Ports/`, so a reader sees at a glance what another module may name.
 
-A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. The shared kernel `WebApi/` folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
+A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, and every other file in a use case, reaction or job folder is Application. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. The shared kernel `WebApi/` folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
 
 A module with one aggregate of its own name stays flat. Models stay separate and flow one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result and never the aggregate.
 

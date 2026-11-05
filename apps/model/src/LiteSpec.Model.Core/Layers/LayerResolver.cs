@@ -59,7 +59,28 @@ public static class LayerResolver
             return role;
         }
 
+        // Any other file in a use case, reaction or job folder is Application, so a helper
+        // named without a role suffix is still held to the layer rules.
+        if (InSliceFolder(filePath))
+        {
+            return Layer.Application;
+        }
+
         return assemblyLayer;
+    }
+
+    /// <summary>Returns true when the file sits below a UseCases or Jobs folder; otherwise false.</summary>
+    /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
+    /// <returns>True when a folder of the path is named UseCases or Jobs; otherwise false.</returns>
+    private static bool InSliceFolder(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return false;
+        }
+
+        var path = "/" + filePath!.Replace('\\', '/');
+        return path.Contains("/UseCases/") || path.Contains("/Jobs/");
     }
 
     /// <summary>Reads a declared layer name; an unknown name opts the project out.</summary>
