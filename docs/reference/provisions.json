@@ -2497,7 +2497,7 @@
       "example": ""
     },
     {
-      "id": "litespec/backend/dotnet/architecture#use-one-application-project",
+      "id": "litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules",
       "heading": "Use One Application Project",
       "page": "docs/backend/dotnet/architecture.md",
       "anchor": "use-one-application-project",

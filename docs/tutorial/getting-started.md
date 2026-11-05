@@ -27,7 +27,7 @@ This lesson creates a new project. After the project runs, adding new intent to 
      <PackageReference Include="LiteSpec.Analyzers" Version="4.0.0" PrivateAssets="all" />
    </ItemGroup>
    ```
-   This satisfies `litespec/backend/dotnet/architecture#use-one-application-project`, `litespec/backend/testing#keep-the-test-suites-the-size-requires`, and `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-application-project-and-hosts`.
+   This satisfies `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`, `litespec/backend/testing#keep-the-test-suites-the-size-requires`, and `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-application-project-and-hosts`.
 8. Apply the naming rules: match each C# file to its primary type and each namespace to its folder. This satisfies `litespec/backend/dotnet/naming#match-c-files-and-primary-types` and `litespec/workspace/naming#keep-namespaces-aligned-with-folders`.
 9. Write the product brief. Copy `product-brief.yaml` from the template index to `.litespec/intent/product.yaml`. State the boundary, the addresses, and the summary. This satisfies `litespec/core/intent#state-one-product` and `litespec/core/intent#keep-intent-in-its-homes`.
 10. Write one module with its first feature. Copy `module.yaml` from the template index to `.litespec/intent/modules/<module>/module.yaml`, then write the feature with its requirements as entries by following [Write a Feature Under a Module](../guide/write-a-feature-under-a-module.md). This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/intent#identify-every-requirement`.

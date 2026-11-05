@@ -20,7 +20,7 @@ The consumer selects `layer-projects` when its backend already packages each lay
 For a project selecting this extension, this extension replaces:
 
 - `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`: one folder per module in every project replaces the one module tree.
-- `litespec/backend/dotnet/architecture#use-one-application-project`: five application projects replace the one application project with its hosts.
+- `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`: five application projects replace the one application project with its hosts.
 - `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`: host endpoints without a handler live in the WebApi project instead of beside the one application project.
 - `litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree`: one folder and namespace per module in every project replaces the one namespace tree.
 - `litespec/workspace/dependencies#follow-the-declared-dependency-graph`: project references between the five projects replace references from the hosts to the one application project.

@@ -10,9 +10,11 @@ A .NET backend holds every module at every layer in one application project, wit
 
 ## Concepts
 
-### The Application Project and Its Hosts
+### The Shared Kernel, the Modules and Their Hosts
 
-The application project takes the product name and holds every module at every layer. The WebApi host holds Program composition and HTTP plumbing, and the Worker host exists only when background work needs its own process. Endpoints live in their use case folders and the host maps them through the one public assembly marker. The product `WebApi/` folder holds what endpoints of two or more modules compile against, such as `IEndpoint`, the current actor and shared transport values, while Problem Details, authentication, OpenAPI and rate limiting stay in the host.
+The business code lives in two projects. `{Product}.Modules` holds the modules and nothing else: each module with its aggregates, use cases, reactions and jobs, plus a `Composition/` folder for what names several modules at once, such as the module registration and the published event catalog. `{Product}.SharedKernel` holds what every module builds on and names no module: shared domain values, the command pipeline positions, store and outbox plumbing, and what endpoints of two or more modules compile against, such as `IEndpoint` and the current actor. Modules references the shared kernel, and the shared kernel references no module. Both projects take the product name as their root namespace, so a module type reads `{Product}.Organizations.Teams.UseCases.CreateTeam` and a shared kernel type reads `{Product}.Domain`.
+
+The WebApi host holds Program composition and HTTP plumbing, and the Worker host exists only when background work needs its own process. Endpoints live in their use case folders and the host maps them through the one public assembly marker. Problem Details, authentication, OpenAPI and rate limiting stay in the host.
 
 The host also keeps the endpoints that have no handler to sit beside: protocol endpoints such as sign-out and device callbacks, static assets such as scripts it serves, and development-only tooling. Each such endpoint still carries its mark.
 
@@ -20,7 +22,9 @@ The host also keeps the endpoints that have no handler to sit beside: protocol e
 
 Every node of the tree may hold the same layer folders. Each level allows a closed set of folder names, so any other folder is refused. Inside a layer folder subfolders stay free, because the folder already states the layer and the lowest-folder rule already placed the type.
 
-A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner Contracts folder, and shared-kernel values live in the product Domain folder. The product WebApi folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
+An aggregate keeps its use cases in its `UseCases/` folder, one folder per use case, and a module keeps the use cases no single aggregate owns in its own `UseCases/` folder, beside one `On{Fact}/` folder per reaction. A module `Contracts/` folder sorts its public surface by kind: `Identifiers/`, `Exceptions/`, `IntegrationEvents/` and `Ports/`, so a reader sees at a glance what another module may name.
+
+A use case file takes its layer from its role suffix: Endpoint RequestModel and ResponseModel are WebApi, while Command Query Result Handler and Validator are Application. A typed identifier that another module names lives in its owner `Contracts/Identifiers/` folder, and shared values live in the shared kernel `Domain/` folder. The shared kernel `WebApi/` folder holds only what endpoints of two or more modules compile against, while product-wide HTTP plumbing stays in the host.
 
 A module with one aggregate of its own name stays flat. Models stay separate and flow one way: request model, command, aggregate, result, response model. The endpoint maps in and out, and the handler returns a result and never the aggregate.
 
@@ -36,18 +40,18 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **Strength:** rule
 
-**Statement:** Every type in the application project MUST live in the namespace tree that starts with the product name and follows module aggregate and use case folders.
+**Statement:** Every type in the shared kernel and modules projects MUST live in the namespace tree that starts with the product name and follows the folders below the project root.
 
-**Rationale:** The namespace reads like the qualified identifier, so `NightHall.Organizations.Teams.CreateTeam` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
+**Rationale:** The namespace reads like the qualified identifier, so `NightHall.Organizations.Teams.UseCases.CreateTeam` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
 
 **Example:** The Teams aggregate of the Organizations module fills one branch:
 
 ```text
-NightHall/Organizations/Teams/Domain/Team.cs
-NightHall/Organizations/Teams/CreateTeam/CreateTeamCommandHandler.cs
+NightHall.Modules/Organizations/Teams/Domain/Team.cs
+NightHall.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommandHandler.cs
 ```
 
-The handler above lives in namespace `NightHall.Organizations.Teams.CreateTeam`.
+The handler above lives in namespace `NightHall.Organizations.Teams.UseCases.CreateTeam`.
 
 **Reviewed for:** Which types miss the product module aggregate use case namespace or name one outside its folder? Look at the namespaces beside the folders in the application project.
 
@@ -57,34 +61,42 @@ The handler above lives in namespace `NightHall.Organizations.Teams.CreateTeam`.
 
 **Strength:** rule
 
-**Statement:** Each level of the application project MUST hold only the folders the closed set table in this section allows.
+**Statement:** Each level of the shared kernel and modules projects MUST hold only the folders the closed set table in this section allows.
 
-**Rationale:** A closed set refuses the catch-all folder by construction: anything outside the table has no home and review refuses it. Product-wide plumbing lives in the product layer folders and cross-module contracts in each module Contracts folder, while `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between a use case folder and the aggregate module and product layer folders. Module folders mirror record homes, with UseCases Reactions and Jobs at module level.
+**Rationale:** A closed set refuses the catch-all folder by construction: anything outside the table has no home and review refuses it. Product-wide plumbing lives in the product layer folders and cross-module contracts in each module Contracts folder, while `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers` decides between a use case folder and the aggregate module and product layer folders. Module folders mirror record homes: use cases sit in `UseCases/` folders, reactions in `On{Fact}/` folders beside the module use cases, and jobs in the module `Jobs/` folder.
 
 **Example:**
 
 | Level | Allowed folders |
 |:---|:---|
-| Product root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared module |
-| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/`, `Reactions/`, `Jobs/`, one per declared aggregate |
-| Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, one per declared use case |
-| Use case | Files only |
+| Shared kernel project root | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/` |
+| Modules project root | `Composition/`, one per declared module |
+| Module | `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/`, `Jobs/`, one per declared aggregate |
+| Module `Contracts/` | `Identifiers/`, `Exceptions/`, `IntegrationEvents/`, `Ports/` |
+| Module `UseCases/` | one per declared module use case, one `On{Fact}/` per reaction |
+| Aggregate | `Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, `UseCases/` |
+| Aggregate `UseCases/` | one per declared use case |
+| Use case, `On{Fact}/` | Files only |
 
 ```text
-{Product}/
+{Product}.SharedKernel/
   Domain/  Application/  Infrastructure/  WebApi/
+{Product}.Modules/
+  Composition/
   Organizations/
     Contracts/
-    Domain/  Application/  Infrastructure/
-    WebApi/
+      Identifiers/  Exceptions/  IntegrationEvents/  Ports/
+    Domain/  Application/  Infrastructure/  WebApi/
     Teams/
-      Domain/          Team.cs  TeamId.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/
+      Domain/          Team.cs  TeamState.cs  ITeamRepository.cs  Events/  Exceptions/
       Application/     types used by two or more Team use cases
       Infrastructure/  TeamRepository.cs
       WebApi/          transport types used by two or more Team use cases
-      CreateTeam/      use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
+      UseCases/
+        CreateTeam/    use case, flat: Command, Result, Handler, Validator, Endpoint, RequestModel, ResponseModel
     UseCases/
-    Reactions/
+      ReadTeamDirectory/        a use case no single aggregate owns
+      OnTeamMemberRemoved/      a reaction
     Jobs/
 ```
 
@@ -191,27 +203,28 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 ## Conventions
 
-### Use One Application Project
+### Separate the Shared Kernel from the Modules
 
-**ID:** `litespec/backend/dotnet/architecture#use-one-application-project`
+**ID:** `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`
 
 **Strength:** default
 
-**Default:** Use one application project named for the product with WebApi and optional Worker hosts at every size.
+**Default:** Use a `{Product}.SharedKernel` project for what every module builds on and a `{Product}.Modules` project for the modules, with WebApi and optional Worker hosts, at every size.
 
 **Replacement:** A project records its own project layout in its host documentation.
 
-**Rationale:** One application project holds every module at every layer, so one use case stays in one tree instead of spreading across projects. Hosts stay separate projects, because two hosts can run the same modules.
+**Rationale:** The modules project then holds only business code and module slices, so a reader opening it sees the modules of the product and nothing else, and one use case stays in one tree instead of spreading across layer projects. The shared kernel names no module, so a change to one module never touches it, and the build refuses a shared kernel type that reaches into a module because the shared kernel project does not reference the modules project. Hosts stay separate projects, because two hosts can run the same modules.
 
 **Example:**
 
 ```text
-apps/api/src/{Product}/
+apps/api/src/{Product}.SharedKernel/
+apps/api/src/{Product}.Modules/
 apps/api/src/{Product}.WebApi/
 apps/api/src/{Product}.Worker/     only when background work needs its own process
 ```
 
-**Reviewed for:** Which projects sit outside the one application project and its hosts? Look at the solution file beside the declared project size.
+**Reviewed for:** Which projects sit outside the shared kernel, the modules project and their hosts, and does the shared kernel reference the modules project? Look at the solution file and the project references.
 
 ### Keep Composition in Hosts
 
