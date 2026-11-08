@@ -118,38 +118,38 @@ static class SuppressionReader
             return [];
         }
 
-        List<string> found;
+        // Walk folder by folder and never descend into a skipped folder, so a large tree with
+        // node_modules or an unreadable entry still yields every config and source file.
+        var files = new List<string>();
+        var pending = new Stack<string>();
+        pending.Push(root);
+        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
 
-        try
+        while (pending.Count > 0)
         {
-            found = Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories).ToList();
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            return [];
+            var folder = pending.Pop();
+
+            try
+            {
+                files.AddRange(Directory.EnumerateFiles(folder, "*", options).Where(IsCandidate));
+
+                foreach (var child in Directory.EnumerateDirectories(folder, "*", options))
+                {
+                    if (!Skipped.Contains(Path.GetFileName(child)))
+                    {
+                        pending.Push(child);
+                    }
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                // A folder that cannot be read holds no readable lowering; the rest of the tree still counts.
+            }
         }
 
-        var files = found
-            .Where(file => !SkippedFolders(root, file))
-            .Where(IsCandidate)
-            .ToList();
         files.Sort(StringComparer.Ordinal);
 
         return files;
-    }
-
-    /// <summary>Whether the file sits under a skipped folder below the root.</summary>
-    /// <param name="root">The absolute project root the file sits under.</param>
-    /// <param name="file">The file path to test.</param>
-    /// <returns>True when any folder between the root and the file is skipped; otherwise false.</returns>
-    private static bool SkippedFolders(string root, string file)
-    {
-        var relative = Path.GetRelativePath(root, file);
-        var folders = relative.Split(
-            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
-            StringSplitOptions.RemoveEmptyEntries);
-
-        return folders.Length > 1 && folders[..^1].Any(folder => Skipped.Contains(folder));
     }
 
     /// <summary>Whether the file can state a lowering or suppression: an editorconfig, a globalconfig, Directory.Build.props, a project file or a C# source file.</summary>
