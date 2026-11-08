@@ -39,6 +39,25 @@ static class ProofConfirmation
             }
         }
 
+        // A result file proves a scenario directly when a test case names it in a
+        // litespec.proves property, for runners whose steps carry no mark.
+        if (model.TestRun is not null)
+        {
+            var proved = model.TestRun.OutcomeByScenario
+                .OrderBy(entry => entry.Key, StringComparer.Ordinal);
+
+            foreach (var (claim, outcome) in proved)
+            {
+                if (!model.ById.TryGetValue(claim, out var claimed) || claimed.Type != RecordTypes.Scenario)
+                {
+                    continue;
+                }
+
+                model.Proves.Add(new ProvesLink(
+                    claim, claim, true, outcome == "Passed", Indirect(model, claim)));
+            }
+        }
+
         ComputeExercised(model);
     }
 

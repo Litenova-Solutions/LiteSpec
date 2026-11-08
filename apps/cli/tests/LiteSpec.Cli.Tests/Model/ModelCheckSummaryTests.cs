@@ -44,7 +44,7 @@ public sealed partial class ModelCheckSummaryTests
     };
 
     /// <summary>
-    ///     Each finding prints once, the blocking ones first; the counts per code follow the
+    ///     With --all each finding prints once, the blocking ones first; the counts per code follow the
     ///     findings, and the totals line, with the blocking count, ends the output.
     /// </summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
@@ -53,7 +53,7 @@ public sealed partial class ModelCheckSummaryTests
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         WriteScenario(fixture.Path);
-        var result = Cli.Run("model", "check", "--root", fixture.Path);
+        var result = Cli.Run("model", "check", "--root", fixture.Path, "--all");
 
         Assert.Equal(1, result.Status);
 
@@ -84,6 +84,27 @@ public sealed partial class ModelCheckSummaryTests
                 Assert.True(counts[index].Count <= counts[index - 1].Count, "The counts order by count within one level.");
             }
         }
+    }
+
+    /// <summary>By default the level A findings are summarized by code and not listed; the counts still name them.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Check_By_Default_Summarizes_Advisory_By_Code()
+    {
+        using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
+        WriteScenario(fixture.Path);
+        var result = Cli.Run("model", "check", "--root", fixture.Path);
+
+        Assert.Equal(1, result.Status);
+        Assert.Contains("[paging-undeclared]", result.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain("[use-case-unverified]", result.Output, StringComparison.Ordinal);
+        Assert.Contains("advisory findings summarized by code; run with --all to list them.", result.Output, StringComparison.Ordinal);
+        Assert.Contains(CountLines(result.Output), count => count.Code == "use-case-unverified" && count.Level == "A");
+
+        var all = Cli.Run("model", "check", "--root", fixture.Path, "--all");
+
+        Assert.Contains("[use-case-unverified]", all.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain("advisory findings summarized by code", all.Output, StringComparison.Ordinal);
     }
 
     /// <summary>A dead check option is rejected as an unknown option.</summary>

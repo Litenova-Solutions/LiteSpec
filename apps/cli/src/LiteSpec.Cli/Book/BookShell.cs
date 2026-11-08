@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -44,6 +46,24 @@ static class BookShell
         return counts.Length == 0
             ? $"<p>This book needs JavaScript. <b>{Escape(projectTitle)}</b> holds {records}.</p>"
             : $"<p>This book needs JavaScript. <b>{Escape(projectTitle)}</b> holds {records}: {counts}.</p>";
+    }
+
+    /// <summary>The static no-script summary with the Intent coverage share.</summary>
+    /// <param name="projectTitle">The project title.</param>
+    /// <param name="totals">The record count per record type.</param>
+    /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <returns>The no-script summary HTML with the Intent coverage sentence.</returns>
+    public static string Noscript(string projectTitle, IReadOnlyDictionary<string, int> totals, IntentCoverage coverage)
+    {
+        var summary = Noscript(projectTitle, totals);
+        if (coverage.Total == 0)
+        {
+            return summary;
+        }
+
+        var percent = BookIntentCoverage.PercentOf(coverage).ToString(CultureInfo.InvariantCulture);
+        return summary
+            + $"<p>Intent coverage: {coverage.Reached} of {coverage.Total} requirements and journey steps reached ({percent}%).</p>";
     }
 
     /// <summary>Escapes one HTML text span, leaving an apostrophe as itself, as the shell has always printed it.</summary>

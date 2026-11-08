@@ -7,6 +7,8 @@ namespace LiteSpec.Rules;
 ///     the target artifact and the marked records, page-scope provisions match the
 ///     target layer, and conventions match their scope glob. A live departure whose
 ///     subject or paths cover the target replaces the provision its covers names.
+///     Only provisions at or below the conformance level the project claims are
+///     retrieved, and a code path in a records project retrieves none.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class RuleRetriever
@@ -25,11 +27,21 @@ internal static class RuleRetriever
         ConsumerConfig config,
         PathContext target)
     {
+        if (config.Conformance == ConformanceLevel.Records && target.IsCodePath)
+        {
+            return [];
+        }
+
         var candidates = target.GlobCandidates(config);
         var found = new Dictionary<string, (ProvisionEntry Entry, List<string> Reasons)>(StringComparer.Ordinal);
 
         foreach (var entry in catalog.Entries)
         {
+            if (entry.Level > config.Conformance)
+            {
+                continue;
+            }
+
             var reasons = ReasonsFor(entry, target);
 
             if (reasons.Count > 0)

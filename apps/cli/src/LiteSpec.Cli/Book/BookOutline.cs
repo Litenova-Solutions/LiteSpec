@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -44,10 +45,21 @@ static class BookOutline
     /// <summary>The record types in the governance layer, in display order.</summary>
     static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
 
-    /// <summary>Builds the outline over a parsed model object.</summary>
+    /// <summary>Builds the outline over a parsed model object at the full conformance level.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
     /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
-    public static BookOutlineResult Build(JsonObject model)
+    public static BookOutlineResult Build(JsonObject model) => Build(model, ConformanceLevel.Full);
+
+    /// <summary>
+    ///     Builds the outline over a parsed model object at one conformance
+    ///     level. At <see cref="ConformanceLevel.Records" /> the outline leaves
+    ///     out the code and test leaves and the level S findings, because a
+    ///     project at that level claims no code or proof.
+    /// </summary>
+    /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
+    /// <param name="level">The conformance level the project claims.</param>
+    /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
+    public static BookOutlineResult Build(JsonObject model, ConformanceLevel level)
     {
         var entries = model["records"] is JsonArray records
             ? records.OfType<JsonObject>().ToList()
@@ -156,9 +168,13 @@ static class BookOutline
             nodes[parent].Children.Add(nodes[id]);
         }
 
-        AttachImplementation(model, byId, attached, nodes);
-        AttachProof(model, byId, attached, nodes);
-        AttachFindings(model, byId, attached, nodes);
+        if (level != ConformanceLevel.Records)
+        {
+            AttachImplementation(model, byId, attached, nodes);
+            AttachProof(model, byId, attached, nodes);
+        }
+
+        AttachFindings(model, byId, attached, nodes, level);
 
         SortTrees(layers);
         unplaced.Sort(StringComparer.Ordinal);
@@ -321,16 +337,18 @@ static class BookOutline
         }
     }
 
-    /// <summary>Attaches one finding node per open and known finding under its subject record.</summary>
+    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings at the records level.</summary>
     /// <param name="model">The parsed model object that holds the open and known findings.</param>
     /// <param name="byId">The record object for each record identifier.</param>
     /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
     /// <param name="nodes">The outline node for each record identifier, which receives the finding leaves.</param>
+    /// <param name="level">The conformance level the project claims.</param>
     static void AttachFindings(
         JsonObject model,
         Dictionary<string, JsonObject> byId,
         Dictionary<string, bool> attached,
-        Dictionary<string, BookOutlineNode> nodes)
+        Dictionary<string, BookOutlineNode> nodes,
+        ConformanceLevel level)
     {
         var entries = new List<JsonObject>();
         entries.AddRange(FindingEntries(model["findings"]));
@@ -340,6 +358,10 @@ static class BookOutline
         foreach (var finding in entries)
         {
             at++;
+            if (level == ConformanceLevel.Records && IsLevelS(finding))
+            {
+                continue;
+            }
             var subject = StrProp(finding, "subject");
             var target = subject is { Length: > 0 } ? BaseId(subject) : null;
             if (target is not { Length: > 0 } || !byId.ContainsKey(target))
@@ -359,6 +381,13 @@ static class BookOutline
             }
         }
     }
+
+    /// <summary>Whether one finding is a level S finding, by its tier or level field.</summary>
+    /// <param name="finding">The finding object.</param>
+    /// <returns>True when the finding tier or level is S.</returns>
+    static bool IsLevelS(JsonObject finding) =>
+        string.Equals(StrProp(finding, "tier") ?? StrProp(finding, "level"), "S", StringComparison.Ordinal)
+        || string.Equals(StrProp(finding, "level") ?? StrProp(finding, "tier"), "S", StringComparison.Ordinal);
 
     /// <summary>The finding objects of a findings node, as an array or a wrapped file.</summary>
     /// <param name="node">The findings node, either an array of findings or an object wrapping one, or null.</param>

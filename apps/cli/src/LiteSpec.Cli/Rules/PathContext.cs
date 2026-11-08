@@ -26,6 +26,9 @@ internal sealed record PathContext(
     string Artifact,
     IReadOnlyList<string> Marked)
 {
+    /// <summary>Gets a value indicating whether the target names code rather than a record or a record file.</summary>
+    public bool IsCodePath => !IsRecord && Layer != "records";
+
     /// <summary>The record type to artifact map: the artifact whose provisions govern the record.</summary>
     static readonly Dictionary<string, string> RecordArtifacts = new(StringComparer.Ordinal)
     {

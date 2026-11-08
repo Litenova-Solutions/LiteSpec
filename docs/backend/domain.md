@@ -19,7 +19,7 @@ Every aggregate exposes its lifecycle as state types from its first implementati
 
 ### Closed Sets
 
-A closed set is a fixed menu of values where the type system knows every case, such as a refund outcome or an expense state. Domain models each one as a type hierarchy with one type per case, so adding a case breaks every switch over it. Each outer layer mirrors the same shape in its own form: a result union in Application, a transport model in WebApi, and a stable string discriminator in storage.
+A closed set is a fixed menu of values where the type system knows every case, such as a refund outcome or an expense state. Domain models each one as a type hierarchy with one type per case. Each case is a named type that a switch can name in its own arm, and a case with no arm reaches the switch fallback at run time. Each outer layer mirrors the same shape in its own form: a result union in Application, a transport model in WebApi, and a stable string discriminator in storage.
 
 ## Standards
 
@@ -85,7 +85,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Statement:** An aggregate MUST expose its lifecycle only through one state property backed by one closed hierarchy of per-state types.
 
-**Rationale:** Each lifecycle state can carry different facts: a published post carries its publication time, a draft does not. An enumeration, string discriminator, boolean flag, parallel nullable field, or computed state carries no state-specific data, and the type system proves no switch over them exhaustive. State types hold that data, and aggregate methods own the transitions between them.
+**Rationale:** Each lifecycle state can carry different facts: a published post carries its publication time, a draft does not. An enumeration, string discriminator, boolean flag, parallel nullable field, or computed state carries no state-specific data. State types hold that data, and aggregate methods own the transitions between them. A switch over the state types names each case in its own arm where the language requires a fallback, and a case with no arm reaches that fallback at run time.
 
 **Example:** A post defines one abstract post state with draft and published cases, where the published case carries its publication time. Even an aggregate with one current state defines its hierarchy.
 
@@ -103,7 +103,7 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 
 **Statement:** Domain code MUST model a closed set as one type hierarchy whose cases the type system can enumerate.
 
-**Rationale:** A closed set with case data needs a type per case: an enumeration carries no case data, admits undefined values, and forces parallel nullable fields when one case gains data. A closed hierarchy lets the type system check exhaustiveness, so adding a case breaks every switch over it. A boundary converts a label to its case through a named lookup rather than through a string conversion, and an unrecognized label is a validation failure rather than a default case.
+**Rationale:** A closed set with case data needs a type per case: an enumeration carries no case data, admits undefined values, and forces parallel nullable fields when one case gains data. A closed hierarchy gives each case a named type that a switch can name in its own arm, and a case with no arm reaches the switch fallback at run time. A boundary converts a label to its case through a named lookup rather than through a string conversion, and an unrecognized label is a validation failure rather than a default case.
 
 **Example:** A refund outcome defines pending, succeeded, failed, and reversed cases, where each case carries its own data.
 

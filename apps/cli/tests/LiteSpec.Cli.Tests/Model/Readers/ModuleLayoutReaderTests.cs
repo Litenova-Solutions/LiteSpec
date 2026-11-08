@@ -157,8 +157,8 @@ public sealed class ModuleLayoutReaderTests
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Application"), config.ModulesRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Domain"), config.DomainRoot);
         Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Infrastructure"), config.InfrastructureRoot);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi"), config.WebApiRoot);
-        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Worker"), config.WorkerRoot);
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi"), Assert.Single(config.WebApiRoots));
+        Assert.Equal(Path.Combine(temp.Path, "apps", "api", "src", "Library.Worker"), Assert.Single(config.WorkerRoots));
     }
 
     /// <summary>Reads the backend of the module-layout project.</summary>

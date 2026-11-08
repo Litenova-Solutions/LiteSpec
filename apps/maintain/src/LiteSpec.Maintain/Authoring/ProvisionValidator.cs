@@ -384,10 +384,12 @@ internal sealed partial class ProvisionValidator
         scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values).ToList();
 
     // Every provision carries its Strength line, and an Applies to line only when it narrows
-    // its page scope. Strength values are the three the scope page fixes; Scope and Applies to
-    // values come from the scope tables, so an unreadable vocabulary skips value checks while
-    // presence and narrowing still run. One line reports one scope defect: a line with a value
-    // defect reports no narrowing defect beside it.
+    // its page scope or states a conformance level that differs from its page level. Strength
+    // values are the three the scope page fixes; Scope and Applies to values come from the
+    // scope tables, so an unreadable vocabulary skips value checks while presence and
+    // narrowing still run. Conformance values are the three level names in code, so that
+    // check always runs. One line reports one scope defect: a line with a value defect
+    // reports no narrowing defect beside it.
     /// <summary>Checks the Strength and Applies to lines of every provision on a page.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
@@ -399,6 +401,7 @@ internal sealed partial class ProvisionValidator
         var page = Scopes.ReadPageScope(reader);
         var pageStacks = ScopeValues(page, "stack");
         var pageLayers = ScopeValues(page, "layer");
+        var pageConformance = Provisions.PageConformance(relative);
         foreach (var provision in provisions)
         {
             // A pattern's fields end at its first option; everything below that
@@ -425,6 +428,11 @@ internal sealed partial class ProvisionValidator
             var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();
             if (applies.Count == 0)
             {
+                if (Provisions.IsProvisionPage(relative) && !Scopes.ConformanceValues.Contains(pageConformance))
+                {
+                    add(relative, provision.Line, "SCOPE_VALUE", $"provision '{provision.Id}' has no conformance level; its page sits outside the folders docs/core/scopes.md names, or it states no `conformance` field on an Applies to line");
+                }
+
                 continue;
             }
 
@@ -436,14 +444,14 @@ internal sealed partial class ProvisionValidator
             var narrowed = Scopes.ParseScopeFields(rest);
             if (narrowed.Count == 0)
             {
-                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, or artifact");
+                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, artifact, or conformance");
                 continue;
             }
 
-            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name != "stack" && name != "layer" && name != "artifact");
+            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name != "stack" && name != "layer" && name != "artifact" && name != "conformance");
             if (unknown is not null)
             {
-                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, or artifact");
+                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, artifact, or conformance");
                 continue;
             }
 
@@ -454,6 +462,24 @@ internal sealed partial class ProvisionValidator
                 {
                     add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
                     clean = false;
+                    continue;
+                }
+
+                if (field.Name == "conformance")
+                {
+                    if (field.Values.Count != 1)
+                    {
+                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `conformance` with {field.Values.Count} values; name exactly one of `records`, `traced`, or `full`");
+                        clean = false;
+                        continue;
+                    }
+
+                    if (!Scopes.ConformanceValues.Contains(field.Values[0]))
+                    {
+                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `conformance` value '{field.Values[0]}', which is outside `records`, `traced`, and `full`");
+                        clean = false;
+                    }
+
                     continue;
                 }
 
@@ -478,15 +504,31 @@ internal sealed partial class ProvisionValidator
                 }
             }
 
-            if (!clean || page.Count == 0)
+            if (!clean)
             {
+                continue;
+            }
+
+            var conformances = ScopeValues(narrowed, "conformance");
+            var conformanceDiffers = conformances.Count == 1 && conformances[0] != pageConformance;
+            var conformanceRepeats = conformances.Count == 1 && conformances[0] == pageConformance;
+            if (page.Count == 0)
+            {
+                if (conformanceRepeats
+                    && ScopeValues(narrowed, "stack").Count == 0
+                    && ScopeValues(narrowed, "layer").Count == 0
+                    && ScopeValues(narrowed, "artifact").Count == 0)
+                {
+                    add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
+                }
+
                 continue;
             }
 
             var stacks = ScopeValues(narrowed, "stack");
             var layers = ScopeValues(narrowed, "layer");
             var widened = false;
-            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0;
+            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0 || conformanceDiffers;
             if (stacks.Count > 0 && pageStacks.Count > 0)
             {
                 if (pageStacks.Contains("any"))
@@ -523,6 +565,10 @@ internal sealed partial class ProvisionValidator
             if (widened)
             {
                 add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' widens its page scope");
+            }
+            else if (conformanceRepeats)
+            {
+                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
             }
             else if (!strictlyNarrower)
             {

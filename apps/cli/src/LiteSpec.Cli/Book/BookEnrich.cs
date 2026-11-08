@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -16,18 +17,35 @@ static class BookEnrich
         "type", "id", "title", "owner", "status", "decider", "decideBy",
     ];
 
-    /// <summary>Builds one detail object per record id from the model and the outline.</summary>
+    /// <summary>Builds one detail object per record id from the model and the outline at the full conformance level.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="outline">The built outline.</param>
     /// <returns>The detail object per record id.</returns>
-    public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline)
+    public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline) =>
+        Build(model, outline, ConformanceLevel.Full);
+
+    /// <summary>
+    ///     Builds one detail object per record id from the model and the outline
+    ///     at one conformance level. At <see cref="ConformanceLevel.Records" />
+    ///     a detail carries no code, no proof status and no level S finding,
+    ///     and its completion holds no code or test judgement. Every detail
+    ///     at every level that is a requirement or a journey carries its
+    ///     Intent coverage.
+    /// </summary>
+    /// <param name="model">The parsed model.</param>
+    /// <param name="outline">The built outline.</param>
+    /// <param name="level">The conformance level the project claims.</param>
+    /// <returns>The detail object per record id.</returns>
+    public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline, ConformanceLevel level)
     {
+        var traced = level != ConformanceLevel.Records;
+        var coverage = BookIntentCoverage.Of(model);
         var index = BookIndexBuilder.BuildIndex(model);
         var layers = BookEnrichSources.LayerById(outline);
         var kept = BookEnrichSources.KeptBy(index);
         var served = BookEnrichSources.ServedBy(index);
-        var tests = BookEnrichSources.TestsByRecord(model, index);
-        var findings = BookEnrichSources.FindingsBySubject(model, index);
+        var tests = traced ? BookEnrichSources.TestsByRecord(model, index) : new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
+        var findings = BookEnrichSources.FindingsBySubject(model, index, level);
         var routes = BookEnrichSources.RoutesByScreen(model);
         var calls = BookEnrichSources.CallsByScreen(model);
         var handlers = BookEnrichSources.CodeByKey(model, "handlers", "useCase");
@@ -49,11 +67,21 @@ static class BookEnrich
             var detail = BaseRecord(record, type);
             detail["parent"] = BookDetailValues.StrNode(BookEnrichSources.ParentOf(outline, id));
             detail["layer"] = BookDetailValues.StrNode(layers.GetValueOrDefault(id));
-            BookProofDetail.Add(detail, index, id, type);
-            BookProofDetail.AddMachine(detail, index, id, type);
+            if (traced)
+            {
+                BookProofDetail.Add(detail, index, id, type);
+                BookProofDetail.AddMachine(detail, index, id, type);
+            }
+
             BookProofDetail.AddReachable(detail, index, id, type);
             BookProofDetail.AddKept(detail, kept, id, type);
             BookJourneyDetail.AddSteps(detail, served, index, record, id, type);
+            if (!traced && type == "journey")
+            {
+                detail["exercised"] = new JsonArray();
+            }
+
+            AddIntentCoverage(detail, coverage, id, type);
             JsonObject? routeEntry = null;
             if (type == "screen")
             {
@@ -61,13 +89,23 @@ static class BookEnrich
                 BookJourneyDetail.AddRoute(detail, routeEntry, calls);
             }
 
-            var impl = BookImplementationDetail.ImplFor(index, handlers, endpoints, methods, runnersByPath, routeEntry, id, type);
+            var impl = traced
+                ? BookImplementationDetail.ImplFor(index, handlers, endpoints, methods, runnersByPath, routeEntry, id, type)
+                : new JsonArray();
             detail["impl"] = impl;
-            detail["tests"] = BookImplementationDetail.TestList(tests.TryGetValue(id, out var ownTests) ? ownTests : []);
-            var expect = BookImplementationDetail.ExpectFor(record, type);
+            detail["tests"] = traced
+                ? BookImplementationDetail.TestList(tests.TryGetValue(id, out var ownTests) ? ownTests : [])
+                : new JsonArray();
+            var expect = traced
+                ? BookImplementationDetail.ExpectFor(record, type)
+                : new JsonObject { ["impl"] = false, ["proof"] = false };
             detail["expect"] = expect;
-            detail["lacks"] = BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type);
-            detail["completion"] = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
+            detail["lacks"] = traced
+                ? BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type)
+                : new JsonArray();
+            detail["completion"] = traced
+                ? BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type)
+                : new JsonObject { ["hasCode"] = null, ["hasTests"] = null, ["scenarios"] = null };
             detail["findings"] = FindingList(findings.TryGetValue(id, out var own) ? own : []);
             var body = BookBodyDetail.Render(index, record);
             detail["bodyHtml"] = body.Html;
@@ -126,6 +164,70 @@ static class BookEnrich
         }
 
         return detail;
+    }
+
+    /// <summary>
+    ///     Adds the Intent coverage of one requirement or journey: a
+    ///     requirement carries whether a Behavior record reaches it and the
+    ///     reaching records; a journey carries its reached and total step
+    ///     counts and one entry per step.
+    /// </summary>
+    /// <param name="detail">The detail being built.</param>
+    /// <param name="coverage">The computed Intent coverage status.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="type">The record type.</param>
+    static void AddIntentCoverage(JsonObject detail, IntentCoverage coverage, string id, string type)
+    {
+        if (type == "requirement")
+        {
+            var entry = coverage.Entries.FirstOrDefault(candidate => candidate.Kind == "requirement" && candidate.Id == id);
+            var reachedBy = new JsonArray();
+            if (entry is not null)
+            {
+                foreach (var source in entry.ReachedBy)
+                {
+                    reachedBy.Add(source);
+                }
+            }
+
+            detail["intentCoverage"] = new JsonObject
+            {
+                ["reached"] = entry?.Reached ?? false,
+                ["reachedBy"] = reachedBy,
+            };
+        }
+        else if (type == "journey")
+        {
+            var steps = new JsonArray();
+            var reached = 0;
+            foreach (var entry in coverage.Entries.Where(candidate => candidate.Kind == "step" && candidate.Id.StartsWith(id + "#", StringComparison.Ordinal)))
+            {
+                var reachedBy = new JsonArray();
+                foreach (var source in entry.ReachedBy)
+                {
+                    reachedBy.Add(source);
+                }
+
+                if (entry.Reached)
+                {
+                    reached++;
+                }
+
+                steps.Add(new JsonObject
+                {
+                    ["id"] = entry.Id,
+                    ["reached"] = entry.Reached,
+                    ["reachedBy"] = reachedBy,
+                });
+            }
+
+            detail["intentCoverage"] = new JsonObject
+            {
+                ["reached"] = reached,
+                ["total"] = steps.Count,
+                ["steps"] = steps,
+            };
+        }
     }
 
     /// <summary>The findings of one record, in model order.</summary>

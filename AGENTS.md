@@ -33,10 +33,10 @@ LiteSpec serves many projects. Never name a consumer project in it.
 
 | Repository | You change | You run |
 |:---|:---|:---|
-| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, the tests |
+| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, `litespec-maintain changelog`, the tests |
 | A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec model check`, `dotnet litespec book`, `dotnet litespec rules`, and the gates its CI selects |
 
-In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate` and `provisions`.
+In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate`, `provisions` and `changelog`.
 
 ## Loading Context
 

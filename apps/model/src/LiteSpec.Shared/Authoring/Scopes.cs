@@ -3,10 +3,11 @@ using System.Text.RegularExpressions;
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The scope vocabulary of <c>docs/core/scopes.md</c>: the stack, layer, and artifact values
-///     every Scope block and Applies to line uses, with the parsers for those lines. Strength values
-///     need no table: the Strength line diagnostic names <c>rule</c>, <c>default</c>, and
-///     <c>advice</c> itself.
+///     The scope vocabulary of <c>docs/core/scopes.md</c>: the stack, layer, artifact, and
+///     conformance values every Scope block and Applies to line uses, with the parsers for
+///     those lines. Strength values need no table: the Strength line diagnostic names
+///     <c>rule</c>, <c>default</c>, and <c>advice</c> itself. Conformance values also stand
+///     in code, because the level names are the same three the project file declares.
 /// </summary>
 /// <follows>litespec/core/scopes#use-only-declared-scope-values</follows>
 public sealed class Scopes
@@ -24,6 +25,11 @@ public sealed class Scopes
         ["rule", "default", "advice"],
         StringComparer.Ordinal);
 
+    /// <summary>Gets the conformance level values an Applies to line names.</summary>
+    public static readonly IReadOnlySet<string> ConformanceValues = new HashSet<string>(
+        ["records", "traced", "full"],
+        StringComparer.Ordinal);
+
     /// <summary>The pattern of one backticked span.</summary>
     static readonly Regex BacktickSpan = new("`([^`]+)`", RegexOptions.Compiled);
 
@@ -34,16 +40,19 @@ public sealed class Scopes
     /// <param name="layers">The layer values.</param>
     /// <param name="artifacts">The artifact values.</param>
     /// <param name="artifactPrefixes">The artifact value prefixes, such as <c>record:</c>.</param>
+    /// <param name="conformances">The conformance level values.</param>
     Scopes(
         IReadOnlySet<string> stacks,
         IReadOnlySet<string> layers,
         IReadOnlySet<string> artifacts,
-        IReadOnlyList<string> artifactPrefixes)
+        IReadOnlyList<string> artifactPrefixes,
+        IReadOnlySet<string> conformances)
     {
         Stacks = stacks;
         Layers = layers;
         Artifacts = artifacts;
         ArtifactPrefixes = artifactPrefixes;
+        Conformances = conformances;
     }
 
     /// <summary>Gets the stack values.</summary>
@@ -57,6 +66,9 @@ public sealed class Scopes
 
     /// <summary>Gets the artifact value prefixes, each with its trailing colon.</summary>
     public IReadOnlyList<string> ArtifactPrefixes { get; }
+
+    /// <summary>Gets the conformance level values the scope page declares.</summary>
+    public IReadOnlySet<string> Conformances { get; }
 
     /// <summary>Gets a value indicating whether every vocabulary table parsed, so value checks can run.</summary>
     public bool Readable => Stacks.Count > 0 && Layers.Count > 0 && Artifacts.Count > 0;
@@ -80,7 +92,8 @@ public sealed class Scopes
             new HashSet<string>(StringComparer.Ordinal),
             new HashSet<string>(StringComparer.Ordinal),
             new HashSet<string>(StringComparer.Ordinal),
-            []);
+            [],
+            new HashSet<string>(StringComparer.Ordinal));
         string raw;
         try
         {
@@ -105,13 +118,14 @@ public sealed class Scopes
         var layers = new HashSet<string>(StringComparer.Ordinal);
         var artifacts = new HashSet<string>(StringComparer.Ordinal);
         var prefixes = new List<string>();
+        var conformances = new HashSet<string>(StringComparer.Ordinal);
         var lines = raw.Split(["\r\n", "\n"], StringSplitOptions.None);
         string? section = null;
         var table = new List<string>();
         var fenced = false;
         void Flush()
         {
-            ReadTable(table, section, stacks, layers, artifacts, prefixes);
+            ReadTable(table, section, stacks, layers, artifacts, prefixes, conformances);
             table.Clear();
         }
 
@@ -154,7 +168,7 @@ public sealed class Scopes
         }
 
         Flush();
-        return new Scopes(stacks, layers, artifacts, prefixes);
+        return new Scopes(stacks, layers, artifacts, prefixes, conformances);
     }
 
     /// <summary>Removes one surrounding backtick pair from a value, with the spaces around it.</summary>
@@ -166,10 +180,12 @@ public sealed class Scopes
         return text.Length >= 2 && text.StartsWith('`') && text.EndsWith('`') ? text[1..^1].Trim() : text;
     }
 
-    // One scope line or Applies to line: comma-separated `field: value` segments, where a
-    // segment without a colon continues the values of the field before it. Each segment is
-    // unquoted first, so a wholly backticked `artifact: aggregate` reads as its inner text.
-    // Stray text before the first field is ignored; the value checks own what remains.
+    // One scope line or Applies to line: `field: value` segments separated by a comma or
+    // a semicolon, where a segment without a colon continues the values of the field
+    // before it. Fields keep the order stack, layer, artifact, conformance, separated
+    // by `; ` on an Applies to line. Each segment is unquoted first, so a wholly
+    // backticked `artifact: aggregate` reads as its inner text. Stray text before the
+    // first field is ignored; the value checks own what remains.
     /// <summary>Parses the fields of one scope line or Applies to line.</summary>
     /// <param name="text">The line text after its label.</param>
     /// <returns>The fields in first-seen order, with their values in order.</returns>
@@ -178,7 +194,7 @@ public sealed class Scopes
         var fields = new List<ScopeField>();
         var values = new List<List<string>>();
         string? current = null;
-        foreach (var segment in text.Split(','))
+        foreach (var segment in text.Split(',', ';'))
         {
             var cleaned = Unquote(segment);
             var colon = cleaned.IndexOf(':');
@@ -275,6 +291,7 @@ public sealed class Scopes
             "stack" => "stack",
             "layer" => "layer",
             "artifact" => "artifact",
+            "conformance" => "conformance",
             _ => null,
         };
     }
@@ -290,13 +307,15 @@ public sealed class Scopes
     /// <param name="layers">The layer values to add to.</param>
     /// <param name="artifacts">The artifact values to add to.</param>
     /// <param name="prefixes">The artifact prefixes to add to.</param>
+    /// <param name="conformances">The conformance level values to add to.</param>
     static void ReadTable(
         List<string> table,
         string? section,
         HashSet<string> stacks,
         HashSet<string> layers,
         HashSet<string> artifacts,
-        List<string> prefixes)
+        List<string> prefixes,
+        HashSet<string> conformances)
     {
         if (table.Count == 0)
         {
@@ -336,6 +355,7 @@ public sealed class Scopes
                     "stack" => stacks,
                     "layer" => layers,
                     "artifact" => artifacts,
+                    "conformance" => conformances,
                     _ => null,
                 };
                 if (target is null)
@@ -357,6 +377,7 @@ public sealed class Scopes
             "stack" => stacks,
             "layer" => layers,
             "artifact" => artifacts,
+            "conformance" => conformances,
             _ => null,
         };
         if (fields is null)

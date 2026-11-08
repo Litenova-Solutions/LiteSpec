@@ -1,3 +1,6 @@
+using System.Text.RegularExpressions;
+using LiteSpec.Model;
+
 namespace LiteSpec.Rules;
 
 /// <summary>
@@ -17,6 +20,8 @@ namespace LiteSpec.Rules;
 /// <param name="Example">What following the provision looks like, printed by --full.</param>
 /// <param name="ReviewedFor">The verification question or check a reviewer answers.</param>
 /// <param name="Source">Where the entry comes from: litespec or convention.</param>
+/// <param name="Conformance">The conformance level the provision belongs to: records, traced or full, or empty when it names none.</param>
+/// <param name="Mark">The verification mark: checkable when a tool checks the provision, guidance when a person judges it, or empty.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal sealed record ProvisionEntry(
     string Id,
@@ -30,7 +35,9 @@ internal sealed record ProvisionEntry(
     string Rationale,
     string Example,
     string ReviewedFor,
-    string Source)
+    string Source,
+    string Conformance,
+    string Mark)
 {
     /// <summary>The source of a LiteSpec provision from the carried release.</summary>
     public const string LiteSpecSource = "litespec";
@@ -49,4 +56,57 @@ internal sealed record ProvisionEntry(
         "advice" => "Advisory",
         _ => "Patterns",
     };
+
+    /// <summary>Gets the conformance level the provision belongs to; full when it names none, as a provision without a level runs only at full.</summary>
+    public ConformanceLevel Level
+    {
+        get
+        {
+            return ConformanceLevels.TryParse(Conformance, out var level) ? level : ConformanceLevel.Full;
+        }
+    }
+
+    /// <summary>Gets a value indicating whether a tool checks the provision, so the build already enforces it.</summary>
+    public bool IsChecked => string.Equals(Mark, "checkable", StringComparison.Ordinal);
+
+    /// <summary>One backticked span in a verification line.</summary>
+    static readonly Regex BacktickSpan = new("`([^`]+)`", RegexOptions.Compiled);
+
+    /// <summary>An analyzer or style rule identifier, such as LS2014.</summary>
+    static readonly Regex AnalyzerId = new(@"^(?:LS|SA|CS)\d{4}$", RegexOptions.Compiled);
+
+    /// <summary>A validator diagnostic identifier, such as PROSE_NON_ASCII.</summary>
+    static readonly Regex DiagnosticId = new(@"^[A-Z][A-Z0-9_]+$", RegexOptions.Compiled);
+
+    /// <summary>Gets the finding codes and analyzer IDs the checking tool reports for the provision, in evidence order.</summary>
+    public IReadOnlyList<string> CheckedCodes
+    {
+        get
+        {
+            var codes = new List<string>();
+
+            foreach (Match match in BacktickSpan.Matches(ReviewedFor))
+            {
+                var token = match.Groups[1].Value.Trim();
+
+                if ((AnalyzerId.IsMatch(token) || DiagnosticId.IsMatch(token) || Finding.Tiers.ContainsKey(token))
+                    && !codes.Contains(token, StringComparer.Ordinal))
+                {
+                    codes.Add(token);
+                }
+            }
+
+            return codes;
+        }
+    }
+
+    /// <summary>Gets the first backticked checking command in the verification line, or empty when it names none.</summary>
+    public string CheckedCommand
+    {
+        get
+        {
+            var match = BacktickSpan.Match(ReviewedFor);
+            return match.Success ? match.Groups[1].Value.Trim() : "";
+        }
+    }
 }

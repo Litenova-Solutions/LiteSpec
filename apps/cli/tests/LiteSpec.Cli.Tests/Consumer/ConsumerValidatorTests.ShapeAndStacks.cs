@@ -36,6 +36,35 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <summary>Server project with a backend and no frontend.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "server project with a backend and no frontend")]
+    public void ServerProjectWithABackendAndNoFrontend()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project =>
+        {
+            project["stacks"] = new JsonArray("dotnet");
+            PathsOf(project).Remove("frontends");
+        });
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>Records server project with no stacks and no frontends.</summary>
+    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    [Fact(DisplayName = "records server project with no stacks and no frontends")]
+    public void RecordsServerProjectWithNoStacksOrFrontends()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project =>
+        {
+            project["conformance"] = "records";
+            project.Remove("stacks");
+            PathsOf(project).Remove("frontends");
+        });
+        AssertClean(RunConsumer(folder.Path));
+    }
+
     /// <summary>Client-only project with blazor and no backend.</summary>
     /// <proves>litespec/core/scope#declare-a-consumer-that-has-no-backend</proves>
     [Fact(DisplayName = "client-only project with blazor and no backend")]

@@ -1,4 +1,5 @@
 using LiteSpec.Authoring;
+using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Authoring;
 
@@ -113,6 +114,66 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.RebuildIndex(root);
         },
         []);
+
+    /// <summary>Applies to line naming a conformance level that differs from its page.</summary>
+    /// <proves>litespec/core/scopes#give-every-provision-a-conformance-level</proves>
+    [Fact(DisplayName = "applies to line naming a conformance level that differs from its page")]
+    public void AppliesToConformanceOverride() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** conformance: traced\n\n**Statement:**"));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
+
+    /// <summary>Applies to line naming a conformance level beside an artifact.</summary>
+    /// <proves>litespec/core/scopes#give-every-provision-a-conformance-level</proves>
+    [Fact(DisplayName = "applies to line naming a conformance level beside an artifact")]
+    public void AppliesToArtifactAndConformance() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; conformance: traced\n\n**Statement:**"));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
+
+    /// <summary>Applies to line naming an unknown conformance level.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "applies to line naming an unknown conformance level")]
+    public void AppliesToUnknownConformance() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** conformance: partial\n\n**Statement:**")),
+        ["SCOPE_VALUE"]);
+
+    /// <summary>Applies to line naming two conformance levels.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "applies to line naming two conformance levels")]
+    public void AppliesToTwoConformances() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** conformance: traced, full\n\n**Statement:**")),
+        ["SCOPE_VALUE"]);
+
+    /// <summary>Applies to line stating its page conformance level.</summary>
+    /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
+    [Fact(DisplayName = "applies to line stating its page conformance level")]
+    public void AppliesToRepeatingPageConformance() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** conformance: records\n\n**Statement:**")),
+        ["SCOPE_NARROW"]);
+
+    /// <summary>Applies to line stating its page conformance level beside an artifact.</summary>
+    /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
+    [Fact(DisplayName = "applies to line stating its page conformance level beside an artifact")]
+    public void AppliesToArtifactRepeatingPageConformance() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; conformance: records\n\n**Statement:**")),
+        ["SCOPE_NARROW"]);
+
+    /// <summary>Scope vocabulary page naming the conformance levels.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "scope vocabulary page naming the conformance levels")]
+    public void ScopesVocabularyNamesConformances()
+    {
+        var vocabulary = Scopes.Load(Cli.Repository);
+        Assert.Equal(["full", "records", "traced"], vocabulary.Conformances.OrderBy(value => value, StringComparer.Ordinal).ToArray());
+        Assert.Contains("traced", Scopes.ConformanceValues);
+    }
 
     /// <summary>Provision without a Strength line.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>

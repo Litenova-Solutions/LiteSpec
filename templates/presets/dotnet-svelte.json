@@ -6,7 +6,10 @@
       {
         "name": "web",
         "path": "apps/web",
-        "platform": "svelte"
+        "platform": "svelte",
+        "ui": {
+          "profile": "application-balanced"
+        }
       }
     ]
   }

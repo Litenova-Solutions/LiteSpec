@@ -187,7 +187,7 @@ public static class RecordTypes
     [
         "product", "decision", "requirement", "actor", "role", "permission",
         "module", "aggregate", "rule", "use-case", "result", "event",
-        "entry-point", "exception", "term",
+        "entry-point", "term",
     ];
 
     /// <summary>Types only the large size requires.</summary>

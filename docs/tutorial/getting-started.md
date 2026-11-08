@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the `dotnet` backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
+A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the `dotnet` backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records conformance level follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.
 
 ## Prerequisites
 
@@ -10,6 +10,7 @@ A LiteSpec consumer is a project built against the LiteSpec standard, and this t
 - Read the [extension catalog](../ext/README.md) to learn which capabilities stay inactive at the start.
 - Install the .NET SDK and Node.js releases the adopted release pins under `stack` in its `litespec.manifest.json`.
 - Ship the `dotnet` backend with a React frontend: this tutorial follows that pair from the `dotnet-react` preset. When the product ships another frontend, follow this tutorial first, then declare that frontend with its own how-to, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) or [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md).
+- Follow the records path at the end of the Lesson when the project claims the records conformance level and keeps its own code layout. That path selects no backend stack and no frontend.
 
 ## Lesson
 
@@ -35,11 +36,7 @@ This lesson creates a new project. After the project runs, adding new intent to 
 12. Record the first decision. Copy `decision.yaml` from the template index to `.litespec/intent/decisions/<number>-<name>.yaml`, with `decision.md` beside it for the explanation. Name the options with what speaks for and against each, the choice, the consequences, and what would change the choice, and write the Context in the explanation file. This satisfies `litespec/core/intent#shape-each-decision-page`.
 13. Write the people records. Add one actor record file per party, one role record file per grantable set, and the permission entries on the permissions record file. Each use case later declares its access against one of those permissions. The `actor.yaml`, `role.yaml`, and `permission-list.yaml` templates define the fields. When the slice exchanges anything with an outside system, add an external system record file for it with its summary, operations, and erasure.
 14. Write one journey. Copy `journey.yaml` from the template index to `.litespec/intent/journeys/<name>.yaml`. State the goal record it serves in `serves`, the observable `finishedWhen`, the steps as product sentences with ids, each with its actor and what the person experiences when it goes wrong, and what passes between the steps in `betweenSteps`. Steps name no use case; use cases point up to them later with `serves`. This satisfies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
-15. Check the Intent records. Run `dotnet litespec model check` from the consumer root and fix every finding before continuing. The run scans the records written so far alone, before any Behavior record or code exists, and a clean run prints the output below.
-
-   ```text
-   0 findings, 0 blocking, 0 known.
-   ```
+15. Check the Intent records. Run `dotnet litespec model check` from the consumer root. The run scans the records written so far alone, before any Behavior record or code exists, so a clean run is not possible at this point. The small size requires every type in the small record set, and the Behavior types among them are written at step 16, so the run reports one `size-type-missing` finding for each of `aggregate`, `rule`, `use-case`, `result`, `event`, and `entry-point`. The run also reports the Intent records that no Behavior record reaches yet. Fix every finding that names a record written so far before continuing, and leave the `size-type-missing` findings and the unreached Intent findings for step 16 to close.
 
 16. Specify the module from Intent. Follow [Model a Behavior Module](model-domain.md) for the module, the aggregates with their data classes, the rules, the use cases with their access, consistency, and effects, the scenarios, the events, the reactions, jobs, notifications, and settings, and the retention rows. Then run `dotnet litespec model check` from the consumer root and fix every finding before code moves. This satisfies `litespec/core/system#group-module-use-case-files-by-aggregate` and `litespec/core/model#author-one-slice-at-a-time`.
 17. Implement one use case. Move the transition into a business method, keep the handler narrow, commit once, expose one endpoint, and authorize the target. Code points up to its record through its mark. This satisfies `litespec/backend/domain#express-transitions-through-business-methods`, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`, `litespec/backend/dotnet/api#use-one-endpoint-per-operation`, and `litespec/quality/security#authorize-each-target-resource`.
@@ -51,8 +48,27 @@ This lesson creates a new project. After the project runs, adding new intent to 
 23. Render the generated regions: run `dotnet litespec model render`, then commit what it wrote. This satisfies `litespec/core/release#run-consistency-checks`.
 24. Read the book. Run `dotnet litespec book` and open the journey detail, the way product reviewers read the change.
 
+### Records Path
+
+A project at the records conformance level claims that its Intent, Behavior, technical decision, glossary, and exception records follow the record model. It keeps its own code layout, and no code, test, or layout check runs against it. A team that starts here holds checked records before it commits to any stack, and it raises its claim later by declaring a higher conformance level and naming the stacks that level requires.
+
+1. Install the LiteSpec release as step 1 states, and run every command below as `dotnet litespec <command>` from the consumer root.
+2. Write the project configuration: run `dotnet litespec init --preset records --size small`, which writes `.litespec/project.json` with `"conformance": "records"`, the `server` shape, and no stacks, with no `paths.frontends`, beside the `## LiteSpec` block in `AGENTS.md`, the glossary, and the example cast. Fill every placeholder. This satisfies `litespec/core/scope#declare-the-conformance-level`.
+3. Write the Intent records as steps 9 to 14 state: the product brief, one module with its first feature and its requirements, the constraints answer, the first decision, the people records, and one journey.
+4. Specify the module from Intent as step 16 states, following [Model a Behavior Module](model-domain.md) for the module terms, the aggregates, the rules, the use cases, the results, the scenarios, the events, and the entry points.
+5. Check the records. Run `dotnet litespec model check` from the consumer root and fix every finding before continuing. The run reports only the findings of the records level, and a clean run prints the output below.
+
+   ```text
+   0 findings, 0 blocking, 0 known.
+   ```
+
+6. Read the book. Run `dotnet litespec book` and open the Intent and Behavior parts, the way product reviewers read the records.
+
+Stop here. The records path creates no toolchain configuration, no API solution, no frontend, and no operating records, and it runs no gate that reads code. To claim the traced or full conformance level later, declare that level in `.litespec/project.json`, name the stacks the project builds with, and follow the remaining steps of this Lesson from the point where the chosen level starts to apply.
+
 ## What You Built
 
 - A consumer repository at small size that the model check accepts.
 - One implemented use case with Intent, Behavior, code, tests, and generated contracts.
+- The records path leaves a consumer repository at the records conformance level: its Intent and Behavior records pass the model check, and its book renders, with no stack, code, or frontend yet.
 - When the product ships another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md); all commands are listed on the [command index](../tools/README.md).

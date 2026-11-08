@@ -76,6 +76,11 @@ sealed class JUnitRunReader : ITestRunReader
                 {
                     run.MergeOutcome(run.OutcomeByMethod, method, outcome);
                 }
+
+                foreach (var id in ProvesIdsOf(testcase))
+                {
+                    run.MergeOutcome(run.OutcomeByScenario, id, outcome);
+                }
             }
         }
 
@@ -114,6 +119,40 @@ sealed class JUnitRunReader : ITestRunReader
         var dotted = bare.Replace('+', '.');
 
         return dotted == bare ? [bare] : [bare, dotted];
+    }
+
+    /// <summary>
+    ///     The Behavior scenario ids the case proves: every id each
+    ///     <c>litespec.proves</c> property on the case names, split on commas.
+    /// </summary>
+    /// <param name="testcase">The JUnit testcase element whose properties are read.</param>
+    /// <returns>The scenario ids the case proves, trimmed and without empties.</returns>
+    private static List<string> ProvesIdsOf(XElement testcase)
+    {
+        var ids = new List<string>();
+
+        foreach (var properties in testcase.Elements().Where(element => element.Name.LocalName == "properties"))
+        {
+            foreach (var property in properties.Elements().Where(element => element.Name.LocalName == "property"))
+            {
+                if (property.Attribute("name")?.Value != "litespec.proves")
+                {
+                    continue;
+                }
+
+                foreach (var id in (property.Attribute("value")?.Value ?? "").Split(','))
+                {
+                    var trimmed = id.Trim();
+
+                    if (trimmed.Length > 0)
+                    {
+                        ids.Add(trimmed);
+                    }
+                }
+            }
+        }
+
+        return ids;
     }
 
     /// <summary>The file's run date, yyyy-MM-dd: the latest suite timestamp, else the file date.</summary>

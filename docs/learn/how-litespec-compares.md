@@ -2,11 +2,11 @@
 
 ## Intent
 
-LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. This page compares LiteSpec with 10 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Technical leads read it while they evaluate options, so they can place LiteSpec correctly instead of treating every approach as a rival.
+LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. This page compares LiteSpec with 14 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Technical leads read it while they evaluate options, so they can place LiteSpec correctly instead of treating every approach as a rival.
 
 ## The Short Answer
 
-Spec-driven development means writing down what to build before an AI coding agent builds it. Most approaches structure one feature or change at a time. They guide an agent through requirements, design, and tasks for a single piece of work, then archive the result. LiteSpec instead specifies one whole bounded-context application with versioned, citable, tool-checked rules.
+Spec-driven development means writing down what to build before an AI coding agent builds it. Most approaches structure one feature or change at a time. They guide an agent through requirements, design, and tasks for a single piece of work, then archive the result. LiteSpec instead specifies one whole bounded-context application with versioned, citable rules, a tool-checked subset of them, and a written agent protocol.
 
 Its rules carry stable provision IDs for exact citation, and its checks run in the editor, the build, and CI. The other approaches stay neutral about stack and architecture, which keeps them light but leaves structural decisions to each team. LiteSpec fixes the application shape and its stacks, which lets it state concrete rules an agent follows the same way twice.
 
@@ -18,7 +18,15 @@ The two sides combine: a team can run a per-feature workflow or behavior example
 
 LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records written top down through Intent, Behavior, Implementation, and Proof, and a model builder that follows the marks by which code and tests point up to records and renders the book product people read.
 
-A project selects one size, one shape, and its stacks from .NET, React, Svelte, Blazor, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, and conformance is checked by the `litespec` CLI, Roslyn analyzers, and model findings. A project pins one release, as [How the Tools Fit Together](the-tooling.md) describes.
+A project selects one size, one shape, and its stacks from .NET, React, Svelte, Blazor, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID. A project also declares the conformance level it claims in `.litespec/project.json`: `records`, `traced` or `full`, and the tools report only the part that level claims. The `litespec` CLI, Roslyn analyzers, and model findings check the claimed part. A project pins one release, as [How the Tools Fit Together](the-tooling.md) describes.
+
+| Conformance level | What the project claims |
+|:---|:---|
+| `records` | Its Intent, Behavior, governance and glossary records follow the record model. |
+| `traced` | Also: code and tests point to their records with marks, and test runs prove scenarios, in a code layout of the project's own. |
+| `full` | Also: the selected stacks, LiteSpec's code layout, the analyzers and the operations provisions. |
+
+The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims. The [supported scope page](../core/scope.md) states the declaration, and the [project file reference](../reference/project-file.md) lists the field.
 
 ### GitHub Spec Kit
 
@@ -62,7 +70,7 @@ Agent instruction files ([AGENTS.md](https://agents.md/), [CLAUDE.md memory](htt
 
 AGENTS.md is a simple, open format for guiding coding agents, stewarded by the Agentic AI Foundation under the Linux Foundation, and GitHub treats `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` as agent instructions. Teams write whatever they need as free text in nested `AGENTS.md` files, `CLAUDE.md` with `.claude/rules/`, and `.github/copilot-instructions.md` with `.github/instructions/`.
 
-Nothing enforces the format: Claude treats these files as context, not configuration, so an agent follows them on a best-effort basis. Cursor publishes its own rules page ([Cursor rules](https://docs.cursor.com/context/rules)).
+Nothing enforces the format: Claude treats these files as context, not configuration, so an agent follows them on a best-effort basis. Cursor publishes its own rules page ([Cursor rules](https://cursor.com/docs)).
 
 ### Behavior-Driven Development with Gherkin
 
@@ -84,23 +92,51 @@ Architecture tests ([ArchUnit](https://www.archunit.org/), [ArchUnitNET](https:/
 
 ArchUnit is a free, simple, and extensible library for checking Java architecture with any plain Java unit test framework. ArchUnitNET is a C# library that states architecture rules and asserts them in automated tests. Both enforce application-specific conventions beyond generic static analysis, and their rules execute as unit tests in the build pipeline. ArchUnitNET is Apache 2.0 licensed and NuGet distributed, and ArchUnit covers Java bytecode.
 
+### OpenFastTrace
+
+OpenFastTrace ([openfasttrace.itsallcode.org](https://openfasttrace.itsallcode.org/)) is a requirement tracing suite that traces each tagged specification item from requirements through design and implementation to tests and reports coverage, uncovered items, and broken or outdated links.
+
+Like LiteSpec, it follows explicit IDs from a specification to the code and tests that cover it and computes coverage from those links. It does not ship an application rulebook, stack rules, an application code layout, or analyzers; the project defines the items it traces.
+
+### StrictDoc
+
+StrictDoc ([strictdoc.readthedocs.io](https://strictdoc.readthedocs.io/en/stable/)) is open-source software for technical documentation and requirements management that holds requirements as structured text with unique IDs, links them to parent requirements, and generates traceability views from the source files.
+
+Like LiteSpec, it keeps each requirement citable by ID and derives traceability from the written source instead of a separate database. It does not state stack-specific engineering provisions, a bounded-context record model, code marks checked by analyzers, or a fixed application shape; its documents state the requirements a project writes.
+
+### Sphinx-Needs
+
+Sphinx-Needs ([sphinx-needs.readthedocs.io](https://sphinx-needs.readthedocs.io/en/latest/)) is a Sphinx extension that adds needs and requirements to Sphinx documentation, with an ID and links for each need, and renders lists, tables, and traceability views at documentation build time.
+
+Like LiteSpec, it gives each stated need a stable ID, links it to other needs, and computes its views from the source on every build. It does not provide a record model for a whole application, CLI model checks, stack provisions, or analyzers; it works inside a Sphinx documentation project.
+
+### Doorstop
+
+Doorstop ([doorstop.readthedocs.io](https://doorstop.readthedocs.io/en/stable/)) is a requirements management tool that facilitates the storage of textual requirements alongside source code in version control, with one file per item, links between items, and publication to text or HTML.
+
+Like LiteSpec, it stores each requirement as version-controlled text beside the code and follows links between items. It does not check code marks with analyzers, compute completion of an application model, or state stack and layout provisions; it manages requirement documents and their links.
+
 ## Side-by-Side Comparison
 
-The table summarizes each approach on the same dimensions, as described on the official pages read on 2026-10-21. Cells that read `None described` mean the pages read describe no such item.
+The table summarizes each approach on the same dimensions, as described on the official pages linked in each section. Cells that read `None described` mean the pages read describe no such item.
 
 | Approach | Unit of specification | Ships rules or process | Stable rule IDs | Verified by tools | Versioned rules | Intent linked to code | Stack coverage |
 |:---|:---|:---|:---|:---|:---|:---|:---|
-| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | CLI, analyzers, model checks at three levels | Pinned releases | Marks up, computed completion | .NET, React, Svelte, Blazor, Android |
+| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | Checked share in the [provision index](../reference/provisions.md); the rest reviewed | Pinned releases | Marks up, computed completion | .NET, React, Svelte, Blazor, Android |
 | GitHub Spec Kit | Feature, bug, idea | Process, templates | None described | Converge gates, review | Pinned CLI; specs in the repository | None described | Neutral; Linux, macOS, Windows |
 | Kiro | Feature, bug fix | Process, design docs | None described | Requirements analysis, correctness tests | Project files | Tasks tracked in IDE | Neutral |
 | Tessl tile | Task; org-wide skills | Process, format rules, library tiles | Named skills, rules | Spec lint, link checks, evals | Tiles versioned in registry | `[@test]` links, `targets` | Neutral; MCP agents |
-| BMAD Method | Fix to product plan | Process, skills | None described | Build-and-review loop | Installer release lines | Durable context docs | Neutral; game engines named |
+| BMAD Method | Fix to product plan | Process, skills | None described | `bmad-build` | Installer release lines | Durable context docs | Neutral; game engines named |
 | OpenSpec | Change | Process, templates | None described | Human review, verify step | CLI versioned; Markdown specs | Specs with archive | Neutral; 30+ tools |
 | Agent OS | Standards, per-spec shaping | Discovered team standards | None described | None described | Tool releases; files in the repository | Injected into context | Any language, framework |
 | Instruction files | Repository conventions | Team-authored text | None described | None described | Files in the repository | None described | Plain Markdown |
 | BDD with Gherkin | Behavior example | Examples, step definitions | None described | Executable scenarios | Feature files in source control | Step definitions | Cucumber neutral; Reqnroll .NET |
 | ADRs, arc42, C4 | System, decisions | Templates, diagrams | None described | None described | Documents in the repository | None described | Arbitrary technologies |
 | Architecture tests | Codebase structure | Team rules as tests | None described | Rules as unit tests | Test code in the suite | Rules are code | Java, .NET |
+| OpenFastTrace | Requirement, design item | Tracing tool | Spec object IDs | Trace coverage, broken links | Files in source control | Spec linked to code and tests | Neutral |
+| StrictDoc | Requirement, document | Requirements documents | Requirement UIDs | Traceability views | Text files in version control | Parent links, traceability | Neutral; Python |
+| Sphinx-Needs | Need in documentation | Documentation extension | Need IDs | Build-time link checks | Documentation in source control | Linked needs in docs | Neutral; Sphinx |
+| Doorstop | Requirement item | Requirements documents | Item identifiers | Link and document checks | YAML files in version control | Links between items | Neutral; Python |
 
 The diagram places each approach by scope against verification.
 
@@ -112,10 +148,11 @@ Each property below names the page that states it.
 
 - A standing product standard. LiteSpec ships the whole rulebook for one bounded-context application, while per-feature approaches ship a workflow the team fills in. The [supported scope page](../core/scope.md) states the boundary.
 - Citable rules. Every rule has a provision ID of page plus heading slug, so a review comment, an agent report, or an exception cites exactly one rule, such as `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. The [authoring page](../core/authoring.md) defines the grammar.
-- Automated verification in three levels. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired exceptions, each with a level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Code and tests point up to records through their marks, and the builder computes completion from those marks on every run, so it cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [model page](../tools/model.md) lists every finding code.
+- Automated verification for a checked subset. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired exceptions, each with a check level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Most provisions carry a Reviewed for question a person judges; a checked subset carries a Checked by line a tool runs. The [provision index](../reference/provisions.md) lists each provision with its mark and states the checked share for each page. Code and tests point up to records through their marks, and the builder computes completion from those marks on every run, so it cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [model page](../tools/model.md) lists every finding code.
+- Three conformance levels. A project claims `records`, `traced` or `full` in `.litespec/project.json`, and the tools report only the claimed part: records at `records`, marks and proof in the project's own layout at `traced`, and the stacks, LiteSpec's code layout, the analyzers and the operations provisions at `full`. The [supported scope page](../core/scope.md) states the levels.
 - A versioned contract. Each release states every active provision, a project pins one release, and adoption is recorded in `reviewedLiteSpecVersion`. The [authoring page](../core/authoring.md) states the release model, and [How LiteSpec Works](how-litespec-works.md) shows the pin.
 - Stack depth where it applies. The fixed application shape allows concrete rules such as the modules project ordered by module, aggregate, and use case, one way to model a lifecycle, and one way to report a refused command. The [supported scope page](../core/scope.md) states the selection, and the [.NET](../backend/dotnet/stack.md), [React](../frontend/web/react/stack.md), [Svelte](../frontend/web/svelte/stack.md), [Blazor](../frontend/blazor/stack.md), and [Android](../frontend/mobile/android/stack.md) stack pages carry the per-stack rules.
-- An enforced agent protocol. Agents ask `litespec rules` which provisions apply to the files they will edit, query one record with `litespec model query`, and finish with check-backed reports, stopping on conflicts with both rule IDs quoted. [Work with Agents](working-with-agents.md) describes how an agent finds the rules, and the [agent page](../core/agent.md) states the task order.
+- A written agent protocol. Agents ask `litespec rules` which provisions apply to the files they will edit, query one record with `litespec model query`, and finish with check-backed reports, stopping on conflicts with both rule IDs quoted. The protocol is written instructions: no tool checks that an agent ran `litespec rules`, read the records, or answered the review questions, and the [agent page](../core/agent.md) carries no Checked by line. The tools check the records and code the agent leaves behind. [Work with Agents](working-with-agents.md) describes how an agent finds the rules, and the [agent page](../core/agent.md) states the task order.
 
 ## Reasons for Another Approach
 
@@ -134,13 +171,12 @@ LiteSpec acts as the product standard, and the others work inside it.
 
 - With AGENTS.md. A short `AGENTS.md` block points agents at the selection index and raw pages: instruction files carry the pointer, and LiteSpec carries the rules. [Work with Agents](working-with-agents.md) shows the block.
 - With BDD. The manifest pins Reqnroll and LightBDD, and the `bdd` extension states how executable acceptance tests prove LiteSpec scenarios. The [BDD extension](../backend/dotnet/ext/bdd.md) states the provisions, including `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`.
-- With architecture tests. The manifest pins `ArchUnitNET`, so suite-level structural rules run beside the Roslyn analyzers. The [analyzer reference](../analyzers/README.md) documents the analyzer side.
-- With ADRs, arc42, and C4. A team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec enforces. One side records for humans, and the other checks for machines.
+- With ADRs, arc42, and C4. A team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec states. One side records for humans, and the other checks for machines.
 - With a per-feature workflow. A team can shape a change with Spec Kit, OpenSpec, Kiro, BMAD, or the Tessl tile, then carry the result into LiteSpec use-case and result records. The workflow handles one change, and LiteSpec holds the product around it.
 
 ## Sources
 
-Every address below was read on 2026-10-21.
+Every address below shows the date it was read beside it.
 
 - https://github.com/github/spec-kit (2026-10-21).
 - https://kiro.dev/docs/specs/ (2026-10-21).
@@ -157,7 +193,7 @@ Every address below was read on 2026-10-21.
 - https://agents.md/ (2026-10-21).
 - https://code.claude.com/docs/en/memory (2026-10-21).
 - https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot (2026-10-21).
-- https://docs.cursor.com/context/rules (2026-10-21).
+- https://cursor.com/docs (2026-10-21).
 - https://cucumber.io/docs/ (2026-10-21).
 - https://reqnroll.net/ (2026-10-21).
 - https://adr.github.io/ (2026-10-21).
@@ -165,6 +201,10 @@ Every address below was read on 2026-10-21.
 - https://c4model.com/ (2026-10-21).
 - https://www.archunit.org/ (2026-10-21).
 - https://github.com/TNG/ArchUnitNET (2026-10-31).
+- https://openfasttrace.itsallcode.org/ (2026-11-08).
+- https://strictdoc.readthedocs.io/en/stable/ (2026-11-08).
+- https://sphinx-needs.readthedocs.io/en/latest/ (2026-11-08).
+- https://doorstop.readthedocs.io/en/stable/ (2026-11-08).
 
 ## Next
 

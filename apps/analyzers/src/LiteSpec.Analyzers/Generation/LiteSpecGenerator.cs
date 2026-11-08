@@ -1,3 +1,5 @@
+using LiteSpec.Analyzers.Layers;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 
 namespace LiteSpec.Analyzers.Generation;
@@ -8,13 +10,16 @@ namespace LiteSpec.Analyzers.Generation;
 /// registry, one constant per permission, and one entry per role. The project file and the
 /// record files arrive as additional files; with no project file, or settings that fail to
 /// parse, the generator stays silent, and in an opted-out project (layer <c>None</c>) it writes
-/// no source and reports no diagnostic. Every pipeline model holds strings and equatable arrays
-/// only, so an edit to an unrelated file reruns nothing the edit cannot change.
+/// no source and reports no diagnostic. At the records conformance level it also writes no
+/// source and reports no diagnostic, whatever the records state. Every pipeline model holds
+/// strings and equatable arrays only, so an edit to an unrelated file reruns nothing the edit
+/// cannot change.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 [Generator]
 public sealed class LiteSpecGenerator : IIncrementalGenerator
 {
@@ -52,8 +57,18 @@ public sealed class LiteSpecGenerator : IIncrementalGenerator
             .Select(static (combined, _) => HostModel.Create(
                 combined.Left.Left.Left, combined.Left.Left.Right, combined.Left.Right, combined.Right));
 
-        var input = records.Combine(marked.Collect()).Combine(host);
-        context.RegisterSourceOutput(input, static (production, combined) => Emitter.Execute(
-            production, combined.Left.Left, combined.Left.Right, combined.Right));
+        var conformance = context.AnalyzerConfigOptionsProvider
+            .Select(static (options, _) => ConformanceGate.Declared(options));
+
+        var input = records.Combine(marked.Collect()).Combine(host).Combine(conformance);
+        context.RegisterSourceOutput(input, static (production, combined) =>
+        {
+            if (combined.Right == ConformanceLevel.Records)
+            {
+                return;
+            }
+
+            Emitter.Execute(production, combined.Left.Left.Left, combined.Left.Left.Right, combined.Left.Right);
+        });
     }
 }

@@ -894,6 +894,12 @@ The claim that a project meets the LiteSpec contract it pins.
 
 Source: the W3C QA Framework.
 
+### Conformance Level
+
+The part of the LiteSpec contract a project claims: `records`, `traced` or `full`, each level including the one below it.
+
+Source: LiteSpec.
+
 ### Consumer
 
 One project built against a pinned LiteSpec release.

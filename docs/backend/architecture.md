@@ -302,11 +302,27 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Applies to:** artifact: test
 
-**Statement:** An application MUST prove layer references, package boundaries, visibility, module folders, and aggregate inheritance with architecture tests.
+**Statement:** A structural boundary that no LiteSpec analyzer or `model check` finding covers MUST have an architecture test.
 
-**Rationale:** Layer references, package boundaries, visibility, module folders, and aggregate inheritance are invisible at runtime: the application runs the same with or without them. A structural rule that only a reviewer checks stops holding as soon as review misses one file, so architecture tests prove each one on every run.
+**Rationale:** Layer references, package boundaries, visibility, module folders, and aggregate inheritance are invisible at runtime: the application runs the same with or without them, so each one needs mechanical proof on every run. The analyzers and `model check` already give that proof for the boundaries in the table below. `LS1001`, for one, reports an outer-layer call inside a method body, which a test over compiled signatures misses. An architecture test that repeats a covered boundary holds a second copy of a rule the build or the check already enforces, and the copy drifts while the analyzer or the check keeps reporting the breach. Architecture tests hold the rest: a boundary the table covers only in part, and a structural decision the project itself made that no LiteSpec tool names.
 
-**Reviewed for:** Which structural boundaries lack an architecture test, or fail the latest run? Look at the architecture tests beside the latest test run.
+| Structural boundary | Covered by |
+|:---|:---|
+| Domain names an outer-layer type or namespace, including a persistence, web, mediator, logging, or dependency injection namespace | `LS1001` from `dotnet build` |
+| Application or WebApi names a type outside its layer | `LS2018` from `dotnet build` |
+| A module names another module's type outside its `Contracts/` folder | `LS2020` from `dotnet build` |
+| A use case folder names a type declared in another use case folder | `LS2019` from `dotnet build` |
+| A handler, validator, definition, persistence implementation, or endpoint implementation is not `internal sealed` | `LS2001` from `dotnet build` |
+| A folder sits outside the closed set its level allows, or a module folder names no declared module | `folder-invalid` and `module-undeclared` from `litespec model check` |
+| A marked code element, test, or folder sits outside the folder its record names, or a folder names no declared record | `mark-folder-drift` and `code-placement-drift` from `litespec model check` |
+| A folder or type carries a technical grouping name such as `Shared`, `Common`, or `Helpers` outside the declared shared kernel | `name-reason-missing` from `litespec model check` |
+| An aggregate exposes no `State` property typed as an abstract record, or a state case is not sealed | `LS1003` and `LS1004` from `dotnet build` |
+| Domain declares an enum for a closed set | `LS1002` from `dotnet build` |
+| A command handler holds or calls through a document session or database context | `LS2004` from `dotnet build` |
+
+**Example:** In the Claimwick product, no architecture test repeats `LS1001`, `LS1002`, or `LS2004`: the build reports a Domain file that names a Marten type, an enum declared in Domain, and a command handler that holds a document session. The architecture suite keeps a test that no handler takes an authorizer of its own, which `LS2012` does not report because it reports only a thrown access refusal, and a test that no module reaches another module outside its `dependsOn`, which `LS2020` allows when the named type sits in the other module's `Contracts/` folder.
+
+**Reviewed for:** Which structural boundaries have no LiteSpec analyzer or `model check` finding in the table and no architecture test, or which architecture tests repeat a boundary the table covers? Look at the architecture tests beside the analyzer and `model check` runs.
 
 ### Compose Each Process Explicitly
 

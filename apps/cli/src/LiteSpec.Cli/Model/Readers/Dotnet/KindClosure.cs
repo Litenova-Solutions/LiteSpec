@@ -1,5 +1,6 @@
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Readers.Dotnet;
@@ -7,7 +8,9 @@ namespace LiteSpec.Model.Readers.Dotnet;
 /// <summary>
 ///     Collects the cross-file names kind recognition needs: the aggregate roots,
 ///     the domain exceptions, the marked ports, the technical classes, and the
-///     handler, event handler, job host and domain event contracts.
+///     handler, event handler, job host and domain event contracts. At the traced
+///     conformance level an aggregate root is also found by its aggregate mark and
+///     its state record, so a project that keeps its own aggregate base still reads.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class KindClosure
@@ -94,7 +97,66 @@ static class KindClosure
             }
         }
 
+        if (config.Conformance != ConformanceLevel.Records)
+        {
+            var stateRecords = new HashSet<string>(StringComparer.Ordinal);
+            var stateRecordNames = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var (declared, qualified, _, _, _) in declaredTypes)
+            {
+                if (declared is RecordDeclarationSyntax
+                    && declared.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.AbstractKeyword)))
+                {
+                    stateRecords.Add(qualified);
+                    stateRecordNames.Add(declared.Identifier.ValueText);
+                }
+            }
+
+            var marked = new HashSet<string>(StringComparer.Ordinal);
+            var stated = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var (declared, qualified, _, _, _) in declaredTypes)
+            {
+                if (declared is InterfaceDeclarationSyntax)
+                {
+                    continue;
+                }
+
+                if (MarkReader.Read(declared).Any(mark =>
+                        mark.Verb == MarkVerb.Implements
+                        && mark.RecordId.StartsWith("aggregate/", StringComparison.Ordinal)))
+                {
+                    marked.Add(qualified);
+                }
+
+                var state = declared.Members.OfType<PropertyDeclarationSyntax>()
+                    .FirstOrDefault(property => property.Identifier.ValueText == "State");
+
+                if (state is null)
+                {
+                    continue;
+                }
+
+                var stateName = DotnetNames.SimpleName(DotnetNames.SimpleTypeName(state.Type));
+
+                if (stateRecords.Contains(qualifiedKinds.ResolveName(declared, stateName))
+                    || stateRecordNames.Contains(stateName))
+                {
+                    stated.Add(qualified);
+                }
+            }
+
+            foreach (var qualified in marked)
+            {
+                if (stated.Contains(qualified))
+                {
+                    qualifiedKinds.MarkedAggregateRoots.Add(qualified);
+                }
+            }
+        }
+
         qualifiedKinds.Complete();
+        qualifiedKinds.AggregateRoots.UnionWith(qualifiedKinds.MarkedAggregateRoots);
 
         static HashSet<string> SimpleNames(HashSet<string> qualified) =>
             [.. qualified.Select(name => DotnetNames.SimpleName(name))];

@@ -112,7 +112,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS1004 = Create("LS1004", DomainCategory, StateRecords,
         "State case is not sealed",
         "State case '{0}' derives from '{1}' but is not sealed",
-        "Each per-state record is sealed, so the set of states is closed and switch expressions are exhaustive.",
+        "Each per-state record is sealed, so the set of states is closed; a switch over the states keeps a discard arm because the compiler does not check that it covers every sealed case.",
         compilationEnd: true);
 
     /// <summary>The LS1005 descriptor: Domain throws a non-Domain exception.</summary>
@@ -162,6 +162,12 @@ internal static class Descriptors
         "Identifier is not a strongly typed value",
         "Identifier '{0}' must be a readonly record struct wrapping one Guid with no implicit conversion",
         "An aggregate identity is a readonly record struct wrapping one version 7 Guid, with no implicit conversion, primitive alias, or public parameterless creation path.");
+
+    /// <summary>The LS1013 descriptor: Switch leaves a sealed case to its discard arm.</summary>
+    public static readonly DiagnosticDescriptor LS1013 = Create("LS1013", DomainCategory, StateRecords,
+        "Switch leaves a sealed case to its discard arm",
+        "Switch on '{0}' leaves '{1}' to its discard arm; handle every sealed case explicitly",
+        "A switch over an abstract state or closed-set record gives every sealed case its own arm and keeps the discard arm for values outside the sealed set. The compiler does not check the switch, so a case left to the discard arm reaches it at run time.");
 
     /// <summary>The LS2001 descriptor: Implementation type is not internal sealed.</summary>
     public static readonly DiagnosticDescriptor LS2001 = Create("LS2001", LayersCategory, InternalImplementations,

@@ -13,11 +13,13 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     What every traceability rule needs for one compilation: its layer, the
-///     consumer's records, the cross-file kind names, the event id of every
-///     event type marked in source, and the live exceptions built
-///     once so reporting a diagnostic never rescans every record.
+///     conformance level the project claims, the consumer's records, the
+///     cross-file kind names, the event id of every event type marked in
+///     source, and the live exceptions built once so reporting a diagnostic
+///     never rescans every record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 internal sealed class TraceabilityContext
 {
     /// <summary>Holds the traceability context built for each compilation, keyed weakly so compilations stay collectable.</summary>
@@ -29,15 +31,17 @@ internal sealed class TraceabilityContext
     /// <summary>Initializes a new instance of the <see cref="TraceabilityContext"/> class.Creates the context for one compilation.</summary>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
+    /// <param name="conformance">The conformance level the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <param name="kinds">The cross-file kind names.</param>
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        Layout layout, string? declared, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        Layout layout, string? declared, ConformanceLevel conformance, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
         Layout = layout;
         Declared = declared;
+        Conformance = conformance;
         Store = store;
         Kinds = kinds;
         EventIds = eventIds;
@@ -63,6 +67,9 @@ internal sealed class TraceabilityContext
 
     /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
     public string? Declared { get; }
+
+    /// <summary>Gets the conformance level the project claims.</summary>
+    public ConformanceLevel Conformance { get; }
 
     /// <summary>Gets the consumer's records.</summary>
     public RecordStore Store { get; }
@@ -173,7 +180,17 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, RecordStore store)
+    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
+        Create(compilation, layout, declared, ConformanceLevel.Full, store);
+
+    /// <summary>Builds the context for one compilation at the level it claims.</summary>
+    /// <param name="compilation">The compilation.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
+    /// <param name="conformance">The conformance level the project claims.</param>
+    /// <param name="store">The consumer's records.</param>
+    /// <returns>The context.</returns>
+    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, ConformanceLevel conformance, RecordStore store)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -207,7 +224,7 @@ internal sealed class TraceabilityContext
         }
 
         return new TraceabilityContext(
-            layout, declared, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
+            layout, declared, conformance, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
     }
 
     /// <summary>Reads the cached context for the compilation, when one was built.</summary>
@@ -226,20 +243,31 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, RecordStore store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
+        GetOrCreate(compilation, layout, declared, ConformanceLevel.Full, store);
+
+    /// <summary>Reads the cached context for the compilation or builds and caches it at the level it claims.</summary>
+    /// <param name="compilation">The compilation.</param>
+    /// <param name="layout">The backend layout the consumer builds.</param>
+    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
+    /// <param name="conformance">The conformance level the project claims.</param>
+    /// <param name="store">The consumer's records.</param>
+    /// <returns>The compilation's context.</returns>
+    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, ConformanceLevel conformance, RecordStore store)
     {
         if (Cache.TryGetValue(compilation, out var cached)
             && cached.Layout == layout
             && cached.Declared == declared
+            && cached.Conformance == conformance
             && ReferenceEquals(cached.Store, store))
         {
             return cached;
         }
 
-        var created = Create(compilation, layout, declared, store);
+        var created = Create(compilation, layout, declared, conformance, store);
         var result = Cache.GetValue(compilation, _ => created);
 
-        if (result.Layout == layout && result.Declared == declared && ReferenceEquals(result.Store, store))
+        if (result.Layout == layout && result.Declared == declared && result.Conformance == conformance && ReferenceEquals(result.Store, store))
         {
             return result;
         }

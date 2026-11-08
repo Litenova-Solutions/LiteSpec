@@ -25,6 +25,12 @@ sealed class TestRun
     public Dictionary<string, string> OutcomeByTitle { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
+    ///     Gets outcome by Behavior scenario id, exactly as the result file proves it: a JUnit
+    ///     testcase carrying a <c>litespec.proves</c> property proves each scenario id it names.
+    /// </summary>
+    public Dictionary<string, string> OutcomeByScenario { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>
     ///     Gets the tests that both passed and failed within the runs read, by fully
     ///     qualified method name or browser title, as the proves links name them.
     /// </summary>

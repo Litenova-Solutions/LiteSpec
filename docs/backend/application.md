@@ -158,7 +158,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** The `approve-expense` handler takes the expense repository and no other; staging a second aggregate fails the check unless the record declares `consistency: atomic` over both.
 
-**Reviewed for:** Which command handlers write an aggregate outside their record's `changes`, or take more than one repository per named aggregate? Look at each handler beside its record's `changes`.
+**Checked by:** `litespec model check` reports `write-undeclared` (level S) for a handler that takes a repository whose aggregate sits outside the aggregates its record names in `changes` and `reads`; one domain repository serves each named aggregate.
 
 ### Implement One Outcome Path per Command
 
@@ -188,7 +188,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** A handler that returns a code its record never lists fails the check, even when the code is spelled correctly.
 
-**Reviewed for:** Which handlers return a result, refusal, or code their use-case record never declares? Look at each return beside the record's results.
+**Checked by:** `litespec model check` reports `result-undeclared` (level S) for a code a handler produces that no declared result names; a handler returns only the results and codes its record lists.
 
 ### Project Queries Directly
 
@@ -428,7 +428,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages `integration-event/expense.reimbursed` in the outbox because its record declares that `emits` entry; a second emit the record does not declare fails the check.
 
-**Reviewed for:** Which command handlers change more than their aggregate, or which event handler or job dispatches name no declared effect entry? Look at each dispatch beside the record's effects.
+**Checked by:** `litespec model check` reports `effect-undeclared` (level S) for a dispatch a handler, event handler, or job takes that its record declares no edge for; a declared `runs`, `sends`, or `calls` edge runs after the commit, and an `emits` edge leaves as a domain event staged in the outbox.
 
 ### Declare Audit Values Beside the Message
 
@@ -541,20 +541,6 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **Example:** The submit-expense aggregate raises its submitted fact, and an event handler sends the approver notice after the commit.
 
 **Checked by:** `litespec model check` reports `effect-timing-invalid` (level S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
-
-### Run Heavy Work as a Request Then a Build
-
-**ID:** `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`
-
-**Strength:** rule
-
-**Statement:** Each command assembling a large artifact MUST record the request and let a job build the artifact.
-
-**Rationale:** A command that reads many repositories to assemble a large response holds the caller waiting and times out under load. Recording the request answers at once, the build runs in the background, and the requester reads the state of its own request.
-
-**Example:** The export-expenses command records its request, and a job builds the file the requester then downloads.
-
-**Reviewed for:** Which commands assembling a large artifact skip the recorded request and building job? Look at each heavy command.
 
 ### Build Collaborators Through the Container
 
@@ -677,3 +663,19 @@ Only a use case or an event handler folder gets a folder below its `UseCases/` f
 **Rationale:** A mapping changes when its output shape changes, so it lives with the boundary that defines that shape: domain-to-result projection in Application, transport mapping in WebApi, view models in the frontend. A mapping kept elsewhere breaks when the owning boundary evolves.
 
 **Reviewed for:** Which conversions live outside the layer owning their output shape? Look at each conversion beside its output.
+
+### Run Heavy Work as a Request Then a Build
+
+**ID:** `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`
+
+**Strength:** default
+
+**Default:** Record the request behind a command that assembles a large artifact, and let a job build the artifact for the requester to read back.
+
+**Replacement:** A project names its own request-and-build shape for large artifacts in its documentation.
+
+**Rationale:** A command that reads many repositories to assemble a large response holds the caller waiting and times out under load. Recording the request answers at once, the build runs in the background, and the requester reads the state of its own request. Which artifact counts as large depends on the data and the load of the project, so that bound sits in the shape the project names.
+
+**Example:** The export-expenses command records its request, and a job builds the file the requester then downloads.
+
+**Reviewed for:** Which commands assembling a large artifact skip the recorded request and building job? Look at each heavy command.

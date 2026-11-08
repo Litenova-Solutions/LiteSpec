@@ -114,6 +114,7 @@ static class Checker
         Time("operations", () => OperationsChecks.Run(model, findings));
         Time("setting-keys", () => SettingChecks.Run(model, findings));
         Time("dependencies", () => DependencyChecks.Run(model, findings));
+        Time("analyzer-suppressions", () => AnalyzerSuppressionChecks.Run(model, findings));
         Time("lifecycle", () => LifecycleChecks.Run(model, findings));
         Time("erasure", () => GraphChecks.RunErasure(model, findings));
         Time("retention", () => GraphChecks.RunRetention(model, findings));

@@ -10,7 +10,7 @@ The maintainer tool is a .NET 10 console tool named `litespec-maintain`. It chec
 
 The user-facing contract of each command lives in `docs/maintain/`. Read those pages before you change behavior:
 
-- [Validate Standards](../../docs/maintain/validate.md) and [Generate Provisions](../../docs/maintain/provisions.md) for the two commands.
+- [Validate Standards](../../docs/maintain/validate.md), [Generate Provisions](../../docs/maintain/provisions.md), and [Generate Provision Changelog](../../docs/maintain/changelog.md) for the three commands.
 - [Maintain overview](../../docs/maintain/README.md) for how to run the tool.
 
 ## Quick Start
@@ -35,6 +35,12 @@ Rebuild the provision index after a provision change:
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions
 ```
 
+Write the provision changes since a git ref into the changelog, as the last step before tagging a release:
+
+```bash
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- changelog --from v3.0.0
+```
+
 Run the maintainer test suite with the other suites:
 
 ```bash
@@ -53,8 +59,8 @@ The entry file sits at the top of `apps/maintain/src/LiteSpec.Maintain/`. Each c
 
 | Path | What it owns |
 |:---|:---|
-| `Program.cs` | Command dispatch and the top-level usage text. It sets UTF-8 console output, handles `--help` and `--version`, and routes `validate` and `provisions` to their `Run` methods. Unknown commands print usage to standard error and exit 2. |
-| `Authoring/` | The `validate` and `provisions` commands. `StandardsValidator.cs` holds the usage text, the full `StableDiagnosticCodes` list, and `Run`. `StandardsValidator.Pages.cs`, `.Provisions.cs`, `.Manifest.cs`, and `.Repository.cs` hold the page, provision, manifest, and repository checks. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. |
+| `Program.cs` | Command dispatch and the top-level usage text. It sets UTF-8 console output, handles `--help` and `--version`, and routes `validate`, `provisions`, and `changelog` to their `Run` methods. Unknown commands print usage to standard error and exit 2. |
+| `Authoring/` | The `validate`, `provisions`, and `changelog` commands. `StandardsValidator.cs` holds the usage text, the full `StableDiagnosticCodes` list, and `Run`. `StandardsValidator.Pages.cs`, `.Provisions.cs`, `.Manifest.cs`, and `.Repository.cs` hold the page, provision, manifest, and repository checks. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. `ProvisionDiffCommand.cs` writes or checks the changelog section through `ProvisionDiff`, which compares the index and the manifest at a git ref with the current ones. |
 
 The solution file `LiteSpec.slnx` lists the maintainer tool and its tests beside the CLI, the analyzers, and the model library. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Markdig` for the shared page reader and `xunit.v3` for the tests. `global.json` selects `Microsoft.Testing.Platform` as the test runner and pins no SDK.
 
@@ -76,7 +82,7 @@ Authoring diagnostics carry one reporting shape: a stable code, a one-sentence m
 
 `LiteSpecHome` finds the release from the tool binary, not from the working directory. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.json`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.json.` when no release resolves, and each command converts that into exit 2 with its usage text. `Version` reads the `version` field for `--version`. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/Cli.cs`, so every test runs against this repository.
 
-`validate` and `provisions` read the LiteSpec repository at `--root`, which defaults to the `LiteSpecHome` release root. `validate` refuses a root that is not a directory or is unreadable with `Repository root is not a directory: <path>` or `Repository root is unreadable: <path>: <reason>`. `provisions --check` refuses a root without a `docs` folder with `Root '<path>' holds no docs folder.`
+`validate`, `provisions`, and `changelog` read the LiteSpec repository at `--root`, which defaults to the `LiteSpecHome` release root. `validate` refuses a root that is not a directory or is unreadable with `Repository root is not a directory: <path>` or `Repository root is unreadable: <path>: <reason>`. `provisions` and `changelog` refuse a root without a `docs` folder with `Root '<path>' holds no docs folder.` `changelog` also needs `--from`, the git tag or commit to compare with, and reads the old index and manifest with `git show`.
 
 ## Test Harness and Fixtures
 
@@ -84,7 +90,7 @@ The tests live in `apps/maintain/tests/LiteSpec.Maintain.Tests/`. The test proje
 
 Authoring tests start from `Authoring/StandardsFixture.cs`. `Base` writes a minimal repository into a temp folder: a standard page, an extension page, a stack page, a pattern page, a guide page, a tutorial page, a reference page, a command page, a glossary, a docs index with routing, and a rebuilt provision index. Each test mutates one file and runs `validate` or `provisions`. The fixture carries checkable evidence that names `litespec-maintain validate`, so the tree needs no tools stub.
 
-To add a fixture repository for a new case, follow the harness the area already uses. For a new authoring rule, extend `StandardsFixture.Base` only when the rule needs a new page shape; otherwise mutate one page from `Base` inside the test.
+To add a fixture repository for a new case, follow the harness the area already uses. For a new authoring rule, extend `StandardsFixture.Base` only when the rule needs a new page shape; otherwise mutate one page from `Base` inside the test. `Authoring/ProvisionDiffTests.cs` covers the comparison, the rendering, and the section rewrite in process, and the command end to end in a temporary git repository.
 
 ## Common Changes
 

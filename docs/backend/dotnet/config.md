@@ -21,11 +21,11 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **Strength:** rule
 
-**Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestMajor`.
+**Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestFeature`.
 
-**Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestMajor` roll-forward lets any newer SDK build it too. A patch or feature-band release then needs no workspace change, and two machines with different SDKs still build the same output. The manifest names the major release; `Directory.Build.props` sets its target framework.
+**Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestFeature` roll-forward lets a later feature band of the same major release build it too. A newer major release needs a workspace change, so a local machine and CI stay on one major line. The compiler and its analyzers ship with the SDK, so a different SDK can still build different output within that line; the floor sets the minimum, not identical output. The manifest names the major release; `Directory.Build.props` sets its target framework.
 
-**Reviewed for:** Does the root `global.json` set the manifest major release's first feature band with `latestMajor` roll-forward? Look at the root `global.json`.
+**Reviewed for:** Does the root `global.json` set the manifest major release's first feature band with `latestFeature` roll-forward? Look at the root `global.json`.
 
 ### Centralize .NET Build Settings
 

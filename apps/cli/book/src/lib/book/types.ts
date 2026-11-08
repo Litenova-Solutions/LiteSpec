@@ -40,6 +40,12 @@ export interface BookRecord {
   };
   reachable?: string[];
   keptBy?: Record<string, number>;
+  intentCoverage?: {
+    reached?: boolean | number;
+    total?: number;
+    reachedBy?: string[];
+    steps?: { id?: string; reached?: boolean; reachedBy?: string[] }[];
+  };
   why?: { text?: string; links?: { id?: string; kind?: string }[] }[];
   out?: BookEdgeJson[];
   in?: BookEdgeJson[];
@@ -151,11 +157,31 @@ export interface Lexicon {
   findings: Record<string, { level: string; meaning: string }>;
 }
 
+/** One Intent coverage entry: a requirement or journey step, whether a Behavior record reaches it, and the reaching records. */
+export interface IntentCoverageEntry {
+  id: string;
+  kind: "requirement" | "step";
+  reached: boolean;
+  reachedBy: string[];
+}
+
+/** The computed Intent coverage: counts, the share reached, and one entry per requirement and journey step. */
+export interface IntentCoverage {
+  reached: number;
+  total: number;
+  share: number;
+  requirements: { reached: number; total: number };
+  steps: { reached: number; total: number };
+  entries: IntentCoverageEntry[];
+}
+
 /** The manifest: project, roots, editor, test run, totals, layers, shard map, search, unplaced and generation date. */
 export interface Manifest {
   project: { id: string; title: string };
   roots: { consumer: string; litespec: string };
   editor: string;
+  conformance?: string;
+  intentCoverage?: IntentCoverage;
   testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
   totals: Record<string, number>;
   layers: { key: string; label: string; outline: string[] }[];

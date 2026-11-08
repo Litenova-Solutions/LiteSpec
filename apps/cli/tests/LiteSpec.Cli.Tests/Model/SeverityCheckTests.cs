@@ -24,6 +24,42 @@ public sealed class SeverityCheckTests
         Assert.Null(reason);
     }
 
+    /// <summary>The planned-Intent set holds the five reachability codes, each running at records.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Planned_Intent_Holds_The_Five_Reachability_Codes()
+    {
+        Assert.Equal(
+            new[] { "constraint-unreached", "goal-mover-missing", "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing" },
+            Severity.PlannedIntent.OrderBy(code => code, StringComparer.Ordinal).ToArray());
+        Assert.All(
+            Severity.PlannedIntent,
+            code => Assert.Equal(ConformanceLevel.Records, ConformanceLevels.LowestOf(code)));
+    }
+
+    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check at the records level.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Planned_Intent_Reports_Locally_And_Blocks_In_CI_At_Records()
+    {
+        using var fixture = ModelFixture.Prepare("large", "requirement-fulfillment-missing");
+        SetConformance(fixture.Path, "records");
+
+        var local = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var (localOutcome, _) = OutcomeOf(local.Stdout, "requirement-fulfillment-missing");
+
+        Assert.Equal(0, local.Status);
+        Assert.Equal("reported", localOutcome);
+
+        var pullRequest = Cli.Run(
+            ["model", "check", "--root", fixture.Path, "--format", "json"],
+            environment: new Dictionary<string, string> { ["CI"] = "true" });
+        var (pullOutcome, _) = OutcomeOf(pullRequest.Stdout, "requirement-fulfillment-missing");
+
+        Assert.Equal(1, pullRequest.Status);
+        Assert.Equal("blocking", pullOutcome);
+    }
+
     /// <summary>Every code a known gap may name has a tier, so an unknown code fails the build.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
@@ -48,6 +84,17 @@ public sealed class SeverityCheckTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("unknown marks \"yaml\"", result.Output);
+    }
+
+    /// <summary>Writes the claimed conformance level into the fixture project file.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="level">The level name: records, traced or full.</param>
+    static void SetConformance(string root, string level)
+    {
+        var file = Path.Combine(root, ".litespec/project.json");
+        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        project["conformance"] = JsonValue.Create(level);
+        File.WriteAllText(file, project.ToJsonString());
     }
 
     /// <summary>Leaves the fixture with only a web stack, so no .NET reader runs.</summary>

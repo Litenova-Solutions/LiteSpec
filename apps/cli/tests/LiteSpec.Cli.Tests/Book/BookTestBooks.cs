@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Book;
@@ -18,13 +19,15 @@ static class BookTestBooks
     /// <param name="root">The consumer root for source links and captures.</param>
     /// <param name="outDir">The folder to write the static site to.</param>
     /// <param name="editor">The editor link template, or null for the default template.</param>
+    /// <param name="level">The conformance level the project claims.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
-    public static string Write(JsonObject model, string root, string outDir, string? editor = null) =>
+    public static string Write(JsonObject model, string root, string outDir, string? editor = null, ConformanceLevel level = ConformanceLevel.Full) =>
         BookCommand.WriteBook(
             model,
             root,
             BookLexicon.Load(Cli.Repository),
             Cli.Repository,
             editor ?? BookCommand.DefaultEditor,
-            outDir);
+            outDir,
+            level);
 }

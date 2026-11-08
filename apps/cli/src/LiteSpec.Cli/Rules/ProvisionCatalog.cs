@@ -210,7 +210,22 @@ internal sealed class ProvisionCatalog
     static ProvisionEntry EntryOf(ProvisionRow row, Dictionary<string, string> page, Dictionary<string, string> found)
     {
         var strength = NormalizeStrength(found.GetValueOrDefault("Strength", ""));
-        var appliesTo = NormalizeScope(found.GetValueOrDefault("Applies to", ""));
+        var scope = ParseScope(found.GetValueOrDefault("Applies to", ""));
+        var appliesTo = scope.Artifact;
+        var conformance = NormalizeConformance(row.Conformance);
+
+        if (conformance.Length == 0)
+        {
+            conformance = scope.Conformance;
+        }
+
+        var mark = row.Mark.Trim().ToLowerInvariant();
+
+        if (mark.Length == 0)
+        {
+            mark = found.ContainsKey("Checked by") ? "checkable" : found.ContainsKey("Reviewed for") ? "guidance" : "";
+        }
+
         var statement = found.GetValueOrDefault("Statement", "");
 
         if (statement.Length == 0)
@@ -252,7 +267,9 @@ internal sealed class ProvisionCatalog
             found.GetValueOrDefault("Rationale", ""),
             found.GetValueOrDefault("Example", ""),
             reviewedFor,
-            ProvisionEntry.LiteSpecSource);
+            ProvisionEntry.LiteSpecSource,
+            conformance,
+            mark);
     }
 
     /// <summary>Reads the generated provisions file, or null when it is missing or broken.</summary>
@@ -320,7 +337,9 @@ internal sealed class ProvisionCatalog
                     Text(item, "rationale"),
                     Text(item, "example"),
                     Text(item, "evidence"),
-                    ProvisionEntry.LiteSpecSource));
+                    ProvisionEntry.LiteSpecSource,
+                    NormalizeConformance(Text(item, "conformance")),
+                    Text(item, "mark").Trim().ToLowerInvariant()));
             }
 
             return entries;
@@ -359,7 +378,68 @@ internal sealed class ProvisionCatalog
     /// <summary>Normalizes an Applies to value to its artifact, or empty.</summary>
     /// <param name="value">The raw value.</param>
     /// <returns>The normalized artifact.</returns>
-    static string NormalizeScope(string value)
+    static string NormalizeScope(string value) => ParseScope(value).Artifact;
+
+    /// <summary>Normalizes a conformance value to records, traced or full, or empty.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The normalized conformance level.</returns>
+    static string NormalizeConformance(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant() switch
+    {
+        "records" => "records",
+        "traced" => "traced",
+        "full" => "full",
+        _ => "",
+    };
+
+    /// <summary>Reads the artifact and conformance fields of an Applies to value.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The normalized artifact and conformance level.</returns>
+    static (string Artifact, string Conformance) ParseScope(string value)
+    {
+        var text = value.Trim().Trim('`').Trim();
+
+        if (text.Length == 0)
+        {
+            return ("", "");
+        }
+
+        var artifact = "";
+        var conformance = "";
+
+        foreach (var part in text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var segment = part.Trim().Trim('`').Trim();
+
+            if (segment.StartsWith("artifact:", StringComparison.OrdinalIgnoreCase))
+            {
+                artifact = StripArtifact(segment["artifact:".Length..]);
+            }
+            else if (segment.StartsWith("conformance:", StringComparison.OrdinalIgnoreCase))
+            {
+                conformance = NormalizeConformance(segment["conformance:".Length..]);
+            }
+            else if (segment.StartsWith("record:", StringComparison.OrdinalIgnoreCase))
+            {
+                artifact = StripArtifact(segment);
+            }
+            else if (artifact.Length == 0 && !segment.Contains(':', StringComparison.Ordinal))
+            {
+                artifact = segment.ToLowerInvariant();
+            }
+        }
+
+        if (artifact.Length == 0 && !text.Contains(';', StringComparison.Ordinal))
+        {
+            artifact = StripArtifact(text);
+        }
+
+        return (artifact, conformance);
+    }
+
+    /// <summary>Strips the artifact and record prefixes from an artifact value.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The normalized artifact.</returns>
+    static string StripArtifact(string value)
     {
         var text = value.Trim().Trim('`').Trim();
 

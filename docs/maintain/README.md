@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Maintain section documents the `litespec-maintain` command line: the two commands that keep the LiteSpec standard itself consistent, from authoring checks to the generated provision index. A maintainer opens this index to find the command that checks or rebuilds the standard. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail.
+The Maintain section documents the `litespec-maintain` command line: the three commands that keep the LiteSpec standard itself consistent, from authoring checks to the generated provision index and the release changelog. A maintainer opens this index to find the command that checks, rebuilds, or compares the standard. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail.
 
 ## Run the Maintainer Tool
 
@@ -14,3 +14,4 @@ Every command accepts `--help`, and `validate` accepts `--format json` for a cal
 
 - [Validate Standards](validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
 - [Generate Provisions](provisions.md): rebuilds the provision index from the active standards.
+- [Generate Provision Changelog](changelog.md): writes the provision changes since a git ref into the changelog.

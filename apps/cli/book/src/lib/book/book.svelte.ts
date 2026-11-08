@@ -462,8 +462,13 @@ export class Book {
   screensOf(id: string) { return this.listField(id, "screens") ?? this.ins(base(id), "offers"); }
   shownByOf(id: string) { return this.listField(id, "shownBy") ?? this.kidsByType(id, "scenario"); }
 
+  // ---------- conformance and Intent coverage ----------
+  conformance(): string { return this.man?.conformance ?? "full"; }
+  intentCoverage() { return this.man?.intentCoverage ?? null; }
+
   // ---------- completion and proof ----------
   proofState(id: string): ProofState | null {
+    if (this.conformance() === "records") return null;
     const r = this.get(id);
     if (!r) return null;
     if (r.proof) return r.proof.state as ProofState;
@@ -479,6 +484,7 @@ export class Book {
   }
   /** What a record is still missing: implementation, or tests on itself or its scenarios. */
   lacks(id: string) {
+    if (this.conformance() === "records") return "";
     const r = this.get(id);
     if (!r) return "";
     if (Array.isArray(r.lacks)) return r.lacks.join(", ");

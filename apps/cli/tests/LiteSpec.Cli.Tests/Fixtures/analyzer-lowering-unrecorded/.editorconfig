@@ -1,0 +1,5 @@
+root = true
+
+[*.cs]
+dotnet_diagnostic.LS1001.severity = warning
+dotnet_diagnostic.LS1002.severity = error

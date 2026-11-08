@@ -40,6 +40,11 @@ sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunRe
                 merged.MergeOutcome(merged.OutcomeByTitle, title, outcome);
             }
 
+            foreach (var (scenario, outcome) in run.OutcomeByScenario)
+            {
+                merged.MergeOutcome(merged.OutcomeByScenario, scenario, outcome);
+            }
+
             merged.Flaky.UnionWith(run.Flaky);
 
             merged.Total += run.Total;

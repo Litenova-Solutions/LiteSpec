@@ -11,6 +11,7 @@ const string usage = """
     Commands:
       validate      Check the authoring contract of the LiteSpec repository.
       provisions    Write or check docs/reference/provisions.md.
+      changelog     Write the provision changes since a git ref into CHANGELOG.md.
 
     Run 'litespec-maintain <command> --help' for a command's options.
     'litespec-maintain --version' prints the LiteSpec release of the checkout.
@@ -30,6 +31,7 @@ return args[0] switch
     "--version" => Version(),
     "validate" => StandardsValidator.Run(rest),
     "provisions" => ProvisionsCommand.Run(rest),
+    "changelog" => ProvisionDiffCommand.Run(rest),
     _ => Unknown(args[0]),
 };
 

@@ -87,12 +87,13 @@ Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https
 
 ## Command Locations
 
-Two commands belong to the LiteSpec repository, and the rest belong to a consumer.
+Three commands belong to the LiteSpec repository, and the rest belong to a consumer.
 
 | Command | Repository | Reads | Writes |
 |:---|:---|:---|:---|
 | `litespec-maintain validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
 | `litespec-maintain provisions` | LiteSpec | Active standards | `.litespec/reference/provisions.md` |
+| `litespec-maintain changelog` | LiteSpec | Git ref, active standards | Provision changes in `CHANGELOG.md` |
 | `litespec init` | Consumer | Release template and preset | `.litespec/project.json` |
 | `litespec new` | Consumer | Templates, folder rules | One record file |
 | `litespec rename` | Consumer | Records, marks, citations | Rewritten citations |

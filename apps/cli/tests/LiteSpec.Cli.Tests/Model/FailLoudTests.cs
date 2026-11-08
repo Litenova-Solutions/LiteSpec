@@ -20,7 +20,7 @@ public sealed class FailLoudTests
 
         Assert.Equal(
             Path.GetFullPath(Path.Combine(temp.Path, "apps", "api", "src", "Shop.Worker")),
-            config.WorkerRoot);
+            Assert.Single(config.WorkerRoots));
     }
 
     /// <summary>Worker Root Follows The Declared Path.</summary>
@@ -33,7 +33,7 @@ public sealed class FailLoudTests
 
         var config = ConsumerConfig.Load(temp.Path);
 
-        Assert.Equal(Path.GetFullPath(Path.Combine(temp.Path, "src", "Worker")), config.WorkerRoot);
+        Assert.Equal(Path.GetFullPath(Path.Combine(temp.Path, "src", "Worker")), Assert.Single(config.WorkerRoots));
     }
 
     /// <summary>Job In Worker Is Discovered.</summary>

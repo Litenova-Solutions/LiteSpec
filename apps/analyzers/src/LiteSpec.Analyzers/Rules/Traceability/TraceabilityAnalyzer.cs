@@ -10,9 +10,12 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     The base of every traceability rule: loads the consumer's records once per
-///     compilation, stays silent without them, and hands the rule its context.
+///     compilation, stays silent without them, and hands the rule its context
+///     with the conformance level the project claims. The layer base gates the
+///     rule by that level before this base loads any record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 public abstract class TraceabilityAnalyzer : LayerAnalyzer
 {
     /// <summary>Loads the records for the compilation and hands the rule its traceability context.</summary>
@@ -36,6 +39,7 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
             context.Compilation,
             FileScope.DeclaredLayout(context.Options),
             FileScope.DeclaredLayer(context.Options),
+            ConformanceGate.Declared(context.Options),
             store);
 
         RegisterTraceability(context, state);

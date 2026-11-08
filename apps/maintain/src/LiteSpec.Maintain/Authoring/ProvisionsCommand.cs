@@ -3,7 +3,8 @@ namespace LiteSpec.Authoring;
 /// <summary>
 ///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>
 ///     and <c>docs/reference/provisions.json</c> from the active standards, with each provision's
-///     inline verification mark, scope, and strength.
+///     inline verification mark, scope, conformance level, and strength, and the checked share
+///     of rules for each page in the index.
 /// </summary>
 /// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
 static class ProvisionsCommand
@@ -13,7 +14,9 @@ static class ProvisionsCommand
         Usage: litespec-maintain provisions [--root <path>] [--check] [--help]
 
         Writes docs/reference/provisions.md and docs/reference/provisions.json from the active
-        standards in root, which defaults to the LiteSpec checkout this tool belongs to.
+        standards in root, which defaults to the LiteSpec checkout this tool belongs to. Each
+        provision carries its conformance level, and the index states the checked share of
+        rules for each page.
 
           --root    The repository root. Defaults to the LiteSpec checkout.
           --check   Compare the tracked files with the generated ones and write nothing.

@@ -160,7 +160,7 @@ public sealed class OperationsCheckTests
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3", "up == 0"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = Cli.Run("model", "check", "--root", temp.Path, "--all");
         var drift = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 

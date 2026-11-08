@@ -84,6 +84,28 @@ describe("book", () => {
     expect(book.securityItems()).toEqual([]);
   });
 
+  it("reads the conformance level and the Intent coverage from the manifest", async () => {
+    const book = await fixtureBook();
+    expect(book.conformance()).toBe("full");
+    expect(book.intentCoverage()).toEqual({
+      reached: 1, total: 2, share: 0.5,
+      requirements: { reached: 1, total: 1 },
+      steps: { reached: 0, total: 1 },
+      entries: [
+        { id: "requirement/borrow-book.main", kind: "requirement", reached: true, reachedBy: ["use-case/library.borrowing.borrow"] },
+        { id: "journey/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
+      ],
+    });
+  });
+
+  it("hides proof and lacks at the records conformance level", async () => {
+    const book = await fixtureBook("", { conformance: "records" });
+    expect(book.conformance()).toBe("records");
+    expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe(null);
+    expect(book.lacks("use-case/library.borrowing.borrow")).toBe("");
+    expect(book.intentCoverage()?.total).toBe(2);
+  });
+
   it("shows both identifiers, the short one and the qualified one", async () => {
     const book = await fixtureBook();
     expect(book.qualifiedId("use-case/library.borrowing.borrow")).toBe("library/borrowing/use-case/borrow");

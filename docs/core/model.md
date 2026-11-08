@@ -401,6 +401,10 @@ A goal reaches a journey or a quality requirement. A problem reaches a feature o
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 
+Intent that is written but not yet served is planned, not blocked. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one reports on a local run and blocks only in the pull-request check, the run whose environment marks it continuous integration. An exception with `expiresOn` parks any of them for its subject or paths until it expires. The rule holds at every conformance level: a planned record is not a failure of the level the project claims.
+
+Intent coverage states, for each Intent requirement and each journey step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage at every conformance level, first on the Intent part of the book.
+
 ### Completion Stages
 
 The builder computes one completion stage for every requirement, use case, journey, feature and goal, and writes it as `completion` with `stage`, `proof`, `heldBy` and `counts`. The stages run from least to most complete: `unfulfilled`, `specified`, `implemented` and `proven`. A parent is only as far as its weakest in-scope child, and `heldBy` names the children at that weakest stage, at most ten, with a `held by` count in `counts` naming the full number when the list is capped. `counts` holds the labelled done and of pairs behind the stage. `proof` reads `known` when the model holds a test run and `unknown` when it holds none; with no test run, an implemented record stays `implemented` with proof `unknown`, and proof unknown never reads as a failure. The book leads with completion.
@@ -452,11 +456,11 @@ Qualification is per reader, never global: a finding takes the qualification of 
 
 `litespec model check` prints the level beside each finding.
 
-`litespec model check` reports `intent-unreached` locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks reachability for that record until it expires.
+`litespec model check` runs only the findings of the conformance level the project claims. At `records` no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. At `traced` the readers run and the check adds the mark and proof findings, except the layout group: `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout. At `full` the check adds the layout group, the stack, analyzer and operations findings. The [model command page](../tools/model.md) lists every finding code with its level, its conformance level and its meaning.
+
+`litespec model check` reports the planned-Intent findings locally and blocks on them in the pull-request check. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks the finding for that record until it expires. The rule holds at every conformance level.
 
 Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block: `use-case-unverified`. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
-
-The [model command page](../tools/model.md) lists every finding code with its level and meaning.
 
 ### The Book
 
@@ -654,11 +658,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every goal, problem, feature, requirement, constraint, research, and decision MUST reach Behavior through the links the Reachability section states.
 
-**Rationale:** The folder fixes where a record sits, and reachability fixes that it leads to software. A record that reaches no Behavior is either unfinished work, which belongs on the backlog, or not software. A branch may be incomplete, so a local run reports unreached records while the pull-request check blocks on them. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+**Rationale:** The folder fixes where a record sits, and reachability fixes that it leads to software. A record that reaches no Behavior is either unfinished work, which belongs on the backlog, or not software. A branch may be incomplete, so a local run reports unreached records while the pull-request check blocks on them. The same planned-Intent rule covers `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`: each reports locally and blocks only in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
 
 **Example:** In Claimwick, `problem/expenses-wait-weeks` reaches Behavior through `feature/approval-reminders` and its requirements; a problem no feature or requirement addresses is reported.
 
-**Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior; a local run reports it and the pull-request check blocks on it.
+**Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior; a local run reports it and the pull-request check blocks on it. The planned-Intent findings `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached` take the same outcome.
 
 ### Serve Every Journey Step
 
@@ -1053,7 +1057,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records an exception of kind `departure` citing `litespec/core/system#point-code-and-tests-up-to-records`.
 
-**Reviewed for:** Which project-wide severity lowerings in `.editorconfig` lack an exception record? Look at every `.editorconfig` in the repository beside the exception records.
+**Checked by:** `litespec model check` reports `analyzer-lowering-unrecorded` (level S) for a project-wide lowering in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable` or `[SuppressMessage]` that no live exception covers.
 
 ### Organize the Book by the Record Layers
 

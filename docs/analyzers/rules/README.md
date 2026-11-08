@@ -2,11 +2,11 @@
 
 ## Intent
 
-This index lists the 44 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 45 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
-Rules `LS1001` to `LS1012` run in Domain only.
+Rules `LS1001` to `LS1013` run in Domain only.
 
 - [LS1001: Domain References an Outer-Layer Concern](ls1001.md): reports a Domain use of an outer-layer namespace.
 - [LS1002: Domain Declares an Enum](ls1002.md): reports an enum declared in Domain.
@@ -20,6 +20,7 @@ Rules `LS1001` to `LS1012` run in Domain only.
 - [LS1010: Repository Exposes a Query Surface](ls1010.md): reports a repository that exposes a query surface.
 - [LS1011: Public Domain Contract Is Undocumented](ls1011.md): reports a public contract without XML documentation.
 - [LS1012: Identifier Is Not a Strongly Typed Value](ls1012.md): reports an identifier that is not a strongly typed value.
+- [LS1013: Switch Leaves a Sealed Case to Its Discard Arm](ls1013.md): reports a switch that leaves a sealed case to its discard arm.
 
 ## Outer-Layer Rules
 

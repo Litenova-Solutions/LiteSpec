@@ -48,6 +48,15 @@ static class ElementKindCorrection
             {
                 kind = null;
             }
+            else if (!element.IsType
+                && element.Kind is null
+                && methods.TryGetValue(element.Span, out var markedMethod)
+                && markedMethod.Parent is TypeDeclarationSyntax markedParent
+                && CorrectKind(markedParent, CodeKind.AggregateRoot, qualified) == CodeKind.AggregateRoot
+                && markedMethod.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
+            {
+                kind = CodeKind.AggregateMethod;
+            }
 
             corrected.Add(kind == element.Kind
                 ? element
@@ -75,7 +84,8 @@ static class ElementKindCorrection
             && declared.Parent is not TypeDeclarationSyntax
             && declared.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
-        if (resolved.Any(parent => DotnetNames.SimpleName(parent).StartsWith("AggregateRoot", StringComparison.Ordinal))
+        if (qualified.MarkedAggregateRoots.Contains(qualifiedName)
+            || resolved.Any(parent => DotnetNames.SimpleName(parent).StartsWith("AggregateRoot", StringComparison.Ordinal))
             || resolved.Any(parent => qualified.AggregateRoots.Contains(parent))
             || (otherPart && qualified.AggregateRoots.Contains(qualifiedName)))
         {

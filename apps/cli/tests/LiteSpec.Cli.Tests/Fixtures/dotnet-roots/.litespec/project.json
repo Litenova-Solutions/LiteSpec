@@ -1,0 +1,1 @@
+{"stacks": ["dotnet"], "conformance": "traced", "stackConfig": {"dotnet": {"modules": "src/App", "webapi": ["src/First.WebApi", "src/Second.WebApi"], "worker": ["src/First.Worker", "src/Second.Worker"]}}}

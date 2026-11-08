@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Schemas;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Init;
@@ -7,6 +8,13 @@ namespace LiteSpec.Tests.Init;
 public sealed class InitCommandTests
 {
     const string FixtureVersion = "9.9.9";
+
+    /// <summary>
+    ///     The project schema, loaded once for every preset case. The JSON schema
+    ///     registry is process-wide and the evaluator caches its compilation per
+    ///     schema node, so reusing this one node registers the schema once.
+    /// </summary>
+    static readonly Lazy<JsonNode?> ProjectSchema = new(LoadProjectSchema);
 
     /// <summary>Init keeps the shared UI package only for a controlled web frontend.</summary>
     /// <param name="preset">The preset name that selects the stack combination.</param>
@@ -17,6 +25,7 @@ public sealed class InitCommandTests
     [InlineData("dotnet-svelte", true)]
     [InlineData("blazor-client", false)]
     [InlineData("android-client", false)]
+    [InlineData("records", false)]
     public void InitKeepsTheUiPackageOnlyForControlledFrontends(string preset, bool expected)
     {
         using var consumer = Cli.Temp("init-ui");
@@ -27,6 +36,52 @@ public sealed class InitCommandTests
         var paths = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json")))!["paths"]!.AsObject();
         Assert.Equal(expected, paths.ContainsKey("uiPackage"));
         Assert.Equal(expected, paths.ContainsKey("uiPatterns"));
+    }
+
+    /// <summary>Init writes a project file that validates against the project schema for each preset.</summary>
+    /// <param name="preset">The preset name that selects the stack combination.</param>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    [Theory(DisplayName = "init writes a project file that validates against the project schema for each preset")]
+    [InlineData("android-client")]
+    [InlineData("blazor-client")]
+    [InlineData("dotnet-react")]
+    [InlineData("dotnet-svelte")]
+    [InlineData("records")]
+    public void InitOutputValidatesAgainstTheProjectSchema(string preset)
+    {
+        using var consumer = Cli.Temp("init-schema");
+
+        var result = Cli.Run("init", "--preset", preset, "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var project = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json")));
+        var schemaFile = Path.Combine(Cli.Repository, "schemas", "litespec-project.schema.json");
+        var problems = JsonSchema.Problems(schemaFile, project, ".litespec/project.json", _ => ProjectSchema.Value);
+        Assert.True(problems.Count == 0, string.Join("\n", problems));
+    }
+
+    /// <summary>Init with the records preset writes a records project with no stacks and no frontends.</summary>
+    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    [Fact(DisplayName = "init with the records preset writes a records project with no stacks and no frontends")]
+    public void InitWithTheRecordsPresetWritesNoStacksOrFrontends()
+    {
+        using var consumer = Cli.Temp("init-records");
+
+        var result = Cli.Run("init", "--preset", "records", "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var project = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.json")))!.AsObject();
+        Assert.Equal("records", project["conformance"]!.GetValue<string>());
+        Assert.Equal("server", project["shape"]!.GetValue<string>());
+        Assert.False(project.ContainsKey("stacks"));
+        var paths = project["paths"]!.AsObject();
+        Assert.False(paths.ContainsKey("frontends"));
+        Assert.False(paths.ContainsKey("uiPackage"));
+        Assert.False(paths.ContainsKey("uiPatterns"));
+        var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
+        Assert.Contains("stacks none", agents, StringComparison.Ordinal);
+        Assert.Contains("/select/server/llms.txt", agents, StringComparison.Ordinal);
     }
 
     /// <summary>Init fills the project name and leaves no placeholder to fill.</summary>
@@ -327,7 +382,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown preset 'nope'", result.Stderr);
-        Assert.Contains("android-client, blazor-client, dotnet-react, dotnet-svelte", result.Stderr);
+        Assert.Contains("android-client, blazor-client, dotnet-react, dotnet-svelte, records", result.Stderr);
         Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec/project.json")));
     }
 
@@ -393,6 +448,14 @@ public sealed class InitCommandTests
         Assert.Contains("Usage: litespec init", result.Stdout);
     }
 
+    /// <summary>Loads the project schema the preset outputs validate against.</summary>
+    /// <returns>The parsed project schema.</returns>
+    static JsonNode? LoadProjectSchema()
+    {
+        var schemaFile = Path.Combine(Cli.Repository, "schemas", "litespec-project.schema.json");
+        return JsonNode.Parse(File.ReadAllText(schemaFile));
+    }
+
     /// <summary>
     ///     Builds a self-contained LiteSpec checkout: a manifest with a version no
     ///     release ships, a minimal consumer template, the repository's scaffold
@@ -439,7 +502,7 @@ public sealed class InitCommandTests
 
         var presetDir = Path.Combine(home, "templates", "presets");
         Directory.CreateDirectory(presetDir);
-        foreach (var name in new[] { "dotnet-react", "dotnet-svelte", "blazor-client", "android-client" })
+        foreach (var name in new[] { "dotnet-react", "dotnet-svelte", "blazor-client", "android-client", "records" })
         {
             File.Copy(
                 Path.Combine(Cli.Repository, "templates", "presets", $"{name}.json"),

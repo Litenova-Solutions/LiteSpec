@@ -136,7 +136,7 @@ static class RulesCommand
             var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
             var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
 
-            Print(context, results, parsed.Has("--full"));
+            Print(context, results, parsed.Has("--full"), config.Conformance);
             return 0;
         }
         catch (Exception exception)
@@ -162,11 +162,19 @@ static class RulesCommand
         }
     }
 
-    /// <summary>Prints the retrieved provisions grouped by strength, one line each.</summary>
+    /// <summary>
+    ///     Prints the retrieved provisions. Without full, the provisions that need
+    ///     judgment and match the file kind or its record print as statements grouped
+    ///     by strength, the checked provisions print as one line each with their
+    ///     finding codes and analyzer IDs, and the layer-wide provisions print by
+    ///     identifier under their own heading. With full, every provision prints as
+    ///     a statement with its rationale and example.
+    /// </summary>
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
-    /// <param name="full">Whether to print rationale and example under each item.</param>
-    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full)
+    /// <param name="full">Whether to print every provision with rationale and example.</param>
+    /// <param name="conformance">The conformance level the project claims.</param>
+    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, ConformanceLevel conformance)
     {
         var parts = new List<string>();
 
@@ -191,10 +199,72 @@ static class RulesCommand
 
         if (results.Count == 0)
         {
-            Console.WriteLine("No provisions apply.");
+            Console.WriteLine(conformance == ConformanceLevel.Records && context.IsCodePath
+                ? "No provisions apply at the records conformance level for a code path: the project claims the record model only, so provisions about code do not apply. Query a record id for the provisions about records."
+                : "No provisions apply.");
             return;
         }
 
+        if (full)
+        {
+            PrintFull(results);
+            return;
+        }
+
+        foreach (var group in ProvisionEntry.GroupOrder)
+        {
+            var items = results
+                .Where(result => result.Entry.Group == group && !result.IsChecked && !result.IsLayerWide)
+                .ToList();
+
+            if (items.Count == 0)
+            {
+                continue;
+            }
+
+            Console.WriteLine($"{group}:");
+
+            foreach (var item in items)
+            {
+                Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
+            }
+        }
+
+        var checkedItems = results
+            .Where(result => result.IsChecked)
+            .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
+            .ToList();
+
+        if (checkedItems.Count > 0)
+        {
+            Console.WriteLine("Checked by a tool:");
+
+            foreach (var item in checkedItems)
+            {
+                Console.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+            }
+        }
+
+        var layerItems = results
+            .Where(result => result.IsLayerWide)
+            .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
+            .ToList();
+
+        if (layerItems.Count > 0)
+        {
+            Console.WriteLine("Layer-wide:");
+
+            foreach (var item in layerItems)
+            {
+                Console.WriteLine($"- {item.Entry.Id}");
+            }
+        }
+    }
+
+    /// <summary>Prints every retrieved provision as a statement grouped by strength, with rationale and example.</summary>
+    /// <param name="results">The retrieved provisions in print order.</param>
+    static void PrintFull(IReadOnlyList<RuleResult> results)
+    {
         foreach (var group in ProvisionEntry.GroupOrder)
         {
             var items = results.Where(result => result.Entry.Group == group).ToList();
@@ -210,29 +280,39 @@ static class RulesCommand
             {
                 Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
 
-                if (full)
+                if (item.Departure is not null)
                 {
-                    if (item.Departure is not null)
+                    if (item.Rationale.Length > 0)
                     {
-                        if (item.Rationale.Length > 0)
-                        {
-                            Console.WriteLine($"    Consequences: {item.Rationale}");
-                        }
+                        Console.WriteLine($"    Consequences: {item.Rationale}");
                     }
-                    else
+                }
+                else
+                {
+                    if (item.Rationale.Length > 0)
                     {
-                        if (item.Rationale.Length > 0)
-                        {
-                            Console.WriteLine($"    Rationale: {item.Rationale}");
-                        }
+                        Console.WriteLine($"    Rationale: {item.Rationale}");
+                    }
 
-                        if (item.Example.Length > 0)
-                        {
-                            Console.WriteLine($"    Example: {item.Example}");
-                        }
+                    if (item.Example.Length > 0)
+                    {
+                        Console.WriteLine($"    Example: {item.Example}");
                     }
                 }
             }
         }
+    }
+
+    /// <summary>The checked display of one provision: its finding codes and analyzer IDs, or its checking command when it names no code.</summary>
+    /// <param name="entry">The checked provision.</param>
+    /// <returns>The checked display.</returns>
+    static string CheckedDisplay(ProvisionEntry entry)
+    {
+        if (entry.CheckedCodes.Count > 0)
+        {
+            return string.Join(", ", entry.CheckedCodes.Select(code => $"`{code}`"));
+        }
+
+        return entry.CheckedCommand.Length > 0 ? $"`{entry.CheckedCommand}`" : "a tool";
     }
 }

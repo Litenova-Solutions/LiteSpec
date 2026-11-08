@@ -436,6 +436,142 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(code.Reactions);
     }
 
+    /// <summary>Aggregate Root By Mark And State Record Is Read At Traced.</summary>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    [Fact]
+    public void Aggregate_Root_By_Mark_And_State_Record_Is_Read_At_Traced()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteTracedProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Loan.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            /// <implements>aggregate/lending.loan</implements>
+            public sealed class Loan
+            {
+                public LoanState State { get; private set; } = new LoanActiveState();
+
+                /// <implements>use-case/lending.borrow-copy</implements>
+                public void Borrow()
+                {
+                    State = new LoanBorrowedState();
+                }
+            }
+
+            public abstract record LoanState;
+
+            public sealed record LoanActiveState : LoanState;
+
+            public sealed record LoanBorrowedState : LoanState;
+            """);
+
+        var code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
+        var element = Assert.Single(code.Elements, found => found.Kind == CodeKind.AggregateRoot);
+
+        Assert.Equal("Loan", element.Class);
+        var method = Assert.Single(code.AggregateMethods);
+        Assert.Equal("Loan", method.Aggregate);
+        Assert.Equal("Borrow", method.Method);
+        Assert.Equal("use-case/lending.borrow-copy", Assert.Single(method.UseCases));
+    }
+
+    /// <summary>Aggregate With Mark But No State Record Is Not An Aggregate Root At Traced.</summary>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    [Fact]
+    public void Aggregate_With_Mark_But_No_State_Record_Is_Not_An_Aggregate_Root_At_Traced()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteTracedProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Loan.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            /// <implements>aggregate/lending.loan</implements>
+            public sealed class Loan
+            {
+                public void Borrow()
+                {
+                }
+            }
+            """);
+
+        var code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
+
+        Assert.DoesNotContain(code.Elements, element => element.Kind == CodeKind.AggregateRoot);
+        Assert.Empty(code.AggregateMethods);
+    }
+
+    /// <summary>Aggregate With State Record But No Mark Is Not An Aggregate Root At Traced.</summary>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    [Fact]
+    public void Aggregate_With_State_Record_But_No_Mark_Is_Not_An_Aggregate_Root_At_Traced()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteTracedProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Loan.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public sealed class Loan
+            {
+                public LoanState State { get; private set; } = new LoanActiveState();
+
+                public void Borrow()
+                {
+                }
+            }
+
+            public abstract record LoanState;
+
+            public sealed record LoanActiveState : LoanState;
+            """);
+
+        var code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
+
+        Assert.DoesNotContain(code.Elements, element => element.Kind == CodeKind.AggregateRoot);
+    }
+
+    /// <summary>Aggregate Root On Its Own Base By Mark And State Record Is Read At Traced.</summary>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    [Fact]
+    public void Aggregate_Root_On_Its_Own_Base_By_Mark_And_State_Record_Is_Read_At_Traced()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteTracedProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Loan.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public abstract class ProductAggregate
+            {
+            }
+
+            /// <implements>aggregate/lending.loan</implements>
+            public sealed class Loan : ProductAggregate
+            {
+                public LoanState State { get; private set; } = new LoanActiveState();
+
+                public void Borrow()
+                {
+                }
+            }
+
+            public abstract record LoanState;
+
+            public sealed record LoanActiveState : LoanState;
+            """);
+
+        var element = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Elements, found => found.Kind == CodeKind.AggregateRoot);
+
+        Assert.Equal("Loan", element.Class);
+    }
+
+    static void WriteTracedProject(string root) =>
+        File.WriteAllText(
+            Path.Combine(root, ".litespec/project.json"),
+            """
+            {"stacks": ["dotnet"], "conformance": "traced", "stackConfig": {"dotnet": {
+              "modules": "src/App", "domain": "src/Domain",
+              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+            """);
+
     static void WriteSource(string root, string project, string file, string text)
     {
         var folder = Path.Combine(root, "src", project);

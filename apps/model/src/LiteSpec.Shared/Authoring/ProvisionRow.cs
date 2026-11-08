@@ -13,6 +13,7 @@ namespace LiteSpec.Authoring;
 /// <param name="Stack">The page stack values, comma-separated, or empty when the page declares none.</param>
 /// <param name="Layer">The page layer values, comma-separated, or empty when the page declares none.</param>
 /// <param name="Artifact">The narrowed artifact values, comma-separated, or empty when the provision carries none.</param>
+/// <param name="Conformance">The conformance level the provision belongs to: <c>records</c>, <c>traced</c>, or <c>full</c>.</param>
 /// <param name="Strength">The named strength, or empty when the provision carries none.</param>
 /// <param name="Statement">The assertive line: the Statement, or the Default of a convention or pattern.</param>
 /// <param name="Rationale">The Rationale paragraph, or empty when the provision carries none.</param>
@@ -28,6 +29,7 @@ public sealed record ProvisionRow(
     string Stack,
     string Layer,
     string Artifact,
+    string Conformance,
     string Strength,
     string Statement,
     string Rationale,

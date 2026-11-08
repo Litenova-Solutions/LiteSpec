@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -225,15 +226,30 @@ static class BookEnrichSources
         return byRecord;
     }
 
-    /// <summary>Groups open and known findings by their subject record id.</summary>
+    /// <summary>Groups open and known findings by their subject record id at the full conformance level.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
     /// <returns>The findings per record id.</returns>
-    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index)
+    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index) =>
+        FindingsBySubject(model, index, ConformanceLevel.Full);
+
+    /// <summary>Groups open and known findings by their subject record id, leaving out level S findings at the records level.</summary>
+    /// <param name="model">The parsed model.</param>
+    /// <param name="index">The model index.</param>
+    /// <param name="level">The conformance level the project claims.</param>
+    /// <returns>The findings per record id.</returns>
+    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, ConformanceLevel level)
     {
         var bySubject = new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
         void Add(JsonObject finding, bool known)
         {
+            if (level == ConformanceLevel.Records
+                && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), "S", StringComparison.Ordinal)
+                    || string.Equals(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier"), "S", StringComparison.Ordinal)))
+            {
+                return;
+            }
+
             var subject = BookRender.StrProp(finding, "subject");
             if (string.IsNullOrEmpty(subject))
             {

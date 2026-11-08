@@ -124,7 +124,7 @@ internal static class PlacementChecks
                 // carries its mark without a use case folder.
                 if (element.Kind == CodeKind.Endpoint
                     && record.Type != RecordTypes.UseCase
-                    && (SourceRoots.IsUnder(model.Config.WebApiRoot, element.File) || SourceRoots.IsUnder(model.Config.WorkerRoot, element.File)))
+                    && SourceRoots.IsUnderHost(model.Config, element.File))
                 {
                     continue;
                 }
@@ -783,7 +783,7 @@ internal static class PlacementChecks
         // layout; under layer-projects their module folders name declared modules.
         if (!SourceRoots.IsProductRoot(model.Config.ModulesRoot))
         {
-            foreach (var root in new[] { model.Config.WebApiRoot, model.Config.WorkerRoot })
+            foreach (var root in model.Config.WebApiRoots.Concat(model.Config.WorkerRoots))
             {
                 if (root.Length > 0 && Directory.Exists(root))
                 {
@@ -1246,7 +1246,7 @@ internal static class PlacementChecks
     private static bool IsHostEndpoint(ConsumerConfig config, string file) =>
         !SourceRoots.IsProductRoot(config.ModulesRoot)
             ? false
-            : SourceRoots.IsUnder(config.WebApiRoot, file) || SourceRoots.IsUnder(config.WorkerRoot, file);
+            : SourceRoots.IsUnderHost(config, file);
 
     /// <summary>The test path segments under the test project, or null when the file sits outside every test root or in a project root.</summary>
     /// <param name="config">The project configuration that holds each test root.</param>

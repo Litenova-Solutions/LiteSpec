@@ -12,6 +12,7 @@ namespace LiteSpec.Consumer;
 /// </summary>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
+/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 /// <follows>litespec/core/scope#record-selected-extensions</follows>
 static class ManifestSelectionChecks
 {
@@ -112,9 +113,13 @@ static class ManifestSelectionChecks
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
 
+            // At the records conformance level stacks are informational, so a
+            // project may name none; every other level selects its stacks here.
+            var recordsLevel = JsonRead.PropString(project, "conformance") == "records";
+
             // A server project names exactly one backend stack; a client-only
             // project names none, and reads the backend pages its shape lists.
-            if (shape == "client-only")
+            if (!recordsLevel && shape == "client-only")
             {
                 foreach (var backend in backends)
                 {
@@ -126,7 +131,7 @@ static class ManifestSelectionChecks
                         null));
                 }
             }
-            else if (backends.Count != 1)
+            else if (!recordsLevel && backends.Count != 1)
             {
                 run.Err(new Finding(
                     "stack-invalid",

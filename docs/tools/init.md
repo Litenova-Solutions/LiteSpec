@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec init` starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends.
+`litespec init` starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records conformance level with no stacks.
 
 ## Synopsis
 
@@ -12,11 +12,11 @@ litespec init --preset <name> --size <small|large> [--root <path>] [--name <proj
 
 ## Description
 
-This command writes `.litespec/project.json` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, then writes the project size, name, and `reviewedLiteSpecVersion`. It refuses to overwrite an existing project file.
+This command writes `.litespec/project.json` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the conformance level when the preset declares one, and then writes the project size, name, and `reviewedLiteSpecVersion`. A preset that names no stacks or no frontends writes a project with none, so a server project with no frontend omits `paths.frontends`. It refuses to overwrite an existing project file.
 
 It also copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the example cast at `.litespec/example-cast.md` into the LiteSpec folder, leaving existing files alone, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. A fresh `AGENTS.md` carries the `## LiteSpec` block filled with the release, size, shape, stacks, and selection index of the new project. It writes `.config/dotnet-tools.json` pinning the `LiteSpec.Cli` tool at the release, leaving an existing tool manifest alone.
 
-Four presets ship with the release:
+Five presets ship with the release:
 
 | Preset | Shape | Stacks | Frontend |
 |:---|:---|:---|:---|
@@ -24,6 +24,9 @@ Four presets ship with the release:
 | `dotnet-svelte` | `server` | `dotnet`, `svelte` | `web` at `apps/web` on `svelte` |
 | `blazor-client` | `client-only` | `blazor` | `app` at `apps/app` on `blazor` |
 | `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` |
+| `records` | `server` | none | none |
+
+The `records` preset declares `"conformance": "records"` and names no stacks and no frontends, so the written project claims the records conformance level. Every other preset keeps the template conformance level, `full`. Every written project file validates against `schemas/litespec-project.schema.json`.
 
 Run this command once in an empty folder, then run `litespec model check` to validate the new project.
 
@@ -35,7 +38,7 @@ None.
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--preset <name>` | required | Selects the preset: `android-client`, `blazor-client`, `dotnet-react`, or `dotnet-svelte`. |
+| `--preset <name>` | required | Selects the preset: `android-client`, `blazor-client`, `dotnet-react`, `dotnet-svelte`, or `records`. |
 | `--size <size>` | required | Sets the project size: `small` or `large`. |
 | `--root <path>` | the working directory | Selects the consumer repository to write into. |
 | `--name <project>` | the root folder's name | Sets the project name. |
@@ -61,6 +64,12 @@ Start a large Blazor client and name the project:
 
 ```bash
 litespec init --preset blazor-client --size large --name shop
+```
+
+Start a small records-only project with no stacks:
+
+```bash
+litespec init --preset records --size small --root ./shop
 ```
 
 ## Underneath

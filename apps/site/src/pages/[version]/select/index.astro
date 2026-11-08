@@ -34,16 +34,19 @@ const shapes = Object.keys(manifest.shapes);
 
 interface PresetFile {
   shape: string;
-  stacks: string[];
+  stacks?: string[];
 }
 
+// The form picks the stack pages a project applies, so it offers the presets that name stacks;
+// the records preset names none and is set up by `litespec init` alone.
 const presets = fs
   .readdirSync(path.join(root, "templates/presets"))
   .filter((file) => file.endsWith(".json"))
   .map((file) => {
     const parsed = JSON.parse(fs.readFileSync(path.join(root, "templates/presets", file), "utf8")) as PresetFile;
-    return { name: file.slice(0, -".json".length), shape: parsed.shape, stacks: parsed.stacks };
+    return { name: file.slice(0, -".json".length), shape: parsed.shape, stacks: parsed.stacks ?? [] };
   })
+  .filter((preset) => preset.stacks.length > 0)
   .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 
 const extensions = Object.entries(manifest.extensions)

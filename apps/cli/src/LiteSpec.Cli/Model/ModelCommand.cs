@@ -13,7 +13,7 @@ static class ModelCommand
     /// <summary>The usage text for the model command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec model check --root <consumer> [--format json] [--release] [--since <ref>]
+          litespec model check --root <consumer> [--format json] [--release] [--since <ref>] [--all]
           litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
@@ -39,7 +39,7 @@ static class ModelCommand
             args[1..],
             command switch
             {
-                "check" => ["--release"],
+                "check" => ["--release", "--all"],
                 "format" => ["--check"],
                 _ => [],
             },
@@ -123,6 +123,9 @@ static class ModelCommand
                     // The consumer pass reads the project file, the record pages,
                     // the glossary and the controlled UI into the same finding
                     // shape, so one command and one CI step hold the whole consumer.
+                    // Its findings take the same level filter as the model
+                    // findings, so a project claims the same part of the contract
+                    // in both passes.
                     try
                     {
                         var consumerRun = new ConsumerRun(root);
@@ -135,9 +138,12 @@ static class ModelCommand
                         return fail.Code;
                     }
 
+                    findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, config.Conformance));
+
                     model.Ledger.Save(config);
                     var json = parsed.Json;
                     var release = parsed.Has("--release");
+                    var all = parsed.Has("--all");
                     var sinceRef = parsed.Value("--since");
                     StagedScope.Scope? since = null;
                     IReadOnlyList<Finding> breaks = [];
@@ -176,8 +182,9 @@ static class ModelCommand
                         .ToList();
 
                     // A breaking contract change is the point of --since, so it
-                    // always stands: the scope never demotes it to reported.
-                    foreach (var breaking in breaks)
+                    // always stands: the scope never demotes it to reported. It
+                    // runs only at the level its code claims, like every finding.
+                    foreach (var breaking in breaks.Where(finding => ConformanceLevels.Runs(finding.Code, config.Conformance)))
                     {
                         shown.Add((breaking, Decide(model, config, breaking, release), false));
                     }
@@ -206,11 +213,18 @@ static class ModelCommand
                             Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                         }
 
-                        // Each finding prints once. The open blocking findings come first, so the lines
-                        // that fail the run lead the output however many advisory findings follow.
+                        // Each listed finding prints once. The open blocking findings come first, so the lines
+                        // that fail the run lead the output however many advisory findings follow. By default
+                        // the level A findings are summarized by code in the counts below and not listed one
+                        // by one, so a passing check with many advisories stays readable; --all lists them.
                         var blocking = shown.Where(entry => entry.Severity.Outcome == Outcome.Blocking).ToList();
+                        var advisoryCount = shown.Count(entry => entry.Finding.Tier == "A");
+                        var listed = all
+                            ? shown
+                            : shown.Where(entry => entry.Finding.Tier != "A").ToList();
 
-                        foreach (var entry in blocking.Concat(shown.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
+                        foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
+                                     .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                         {
                             Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                         }
@@ -234,6 +248,11 @@ static class ModelCommand
                             {
                                 Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
                             }
+                        }
+
+                        if (!all && advisoryCount > 0)
+                        {
+                            Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
                         }
 
                         Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {known.Count} known.");
@@ -386,6 +405,17 @@ static class ModelCommand
     static string LevelLabel(Finding finding, bool demoted) =>
         demoted ? finding.Tier + " unchanged" : finding.Tier;
 
+    /// <summary>The JSON severity name of a finding tier, for annotation tools that read error, warning and note.</summary>
+    /// <param name="finding">The finding whose tier is named.</param>
+    /// <returns>error for level G, warning for level S and note for level A.</returns>
+    static string SeverityName(Finding finding) => finding.Tier switch
+    {
+        "G" => "error",
+        "S" => "warning",
+        "A" => "note",
+        _ => "error",
+    };
+
     /// <summary>One standing finding as its JSON object.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The finding to project.</param>
@@ -396,6 +426,7 @@ static class ModelCommand
     {
         code = finding.Code,
         level = finding.Tier,
+        severity = SeverityName(finding),
         outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
         reason = demoted ? "unchanged" : null,
         message = finding.Message,
@@ -412,6 +443,7 @@ static class ModelCommand
     {
         code = finding.Code,
         level = finding.Tier,
+        severity = SeverityName(finding),
         outcome = "known",
         reason = (string?)null,
         message = finding.Message,

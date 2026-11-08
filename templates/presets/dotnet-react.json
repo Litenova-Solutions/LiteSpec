@@ -6,7 +6,10 @@
       {
         "name": "web",
         "path": "apps/web",
-        "platform": "react"
+        "platform": "react",
+        "ui": {
+          "profile": "application-balanced"
+        }
       }
     ]
   }

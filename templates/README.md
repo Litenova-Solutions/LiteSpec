@@ -28,7 +28,7 @@ Each record template is a YAML record file shaped like [record.schema.json](../s
 
 ### Presets
 
-`presets/` holds four JSON files: `android-client.json`, `blazor-client.json`, `dotnet-react.json`, and `dotnet-svelte.json`. Each one names the shape, the stacks, and the frontends a new project starts from. `android-client` and `blazor-client` select the `client-only` shape, and `dotnet-react` and `dotnet-svelte` select `server`. `litespec init --preset <name> --size <small|large>` reads the preset, merges it over `consumer/project.json`, and stamps the release version. A preset adds no rule: switching presets changes the starting file only.
+`presets/` holds five JSON files: `android-client.json`, `blazor-client.json`, `dotnet-react.json`, `dotnet-svelte.json`, and `records.json`. Each one names the shape, the stacks, and the frontends a new project starts from. `android-client` and `blazor-client` select the `client-only` shape, and `dotnet-react` and `dotnet-svelte` select `server`. `litespec init --preset <name> --size <small|large>` reads the preset, merges it over `consumer/project.json`, and stamps the release version. A preset adds no rule: switching presets changes the starting file only.
 
 ### Standard Seeds
 

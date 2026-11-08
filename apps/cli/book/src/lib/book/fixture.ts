@@ -107,6 +107,16 @@ const manifest = {
   project: { id: "product/library", title: "Riverside Library" },
   roots: { consumer: "C:/work/shop", litespec: "C:/work/litespec" },
   editor: "vscode://file/{root}/{path}:{line}",
+  conformance: "full",
+  intentCoverage: {
+    reached: 1, total: 2, share: 0.5,
+    requirements: { reached: 1, total: 1 },
+    steps: { reached: 0, total: 1 },
+    entries: [
+      { id: "requirement/borrow-book.main", kind: "requirement", reached: true, reachedBy: ["use-case/library.borrowing.borrow"] },
+      { id: "journey/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
+    ],
+  },
   testRun: null,
   totals: { product: 1, goal: 1, feature: 2, "use-case": 1, scenario: 1 },
   layers: [
@@ -135,9 +145,10 @@ const shards: Record<string, unknown> = {
 };
 
 /** A book over the fixture shards, booted and ready for assertions. */
-export async function fixtureBook(hash = "", opts: { editor?: string } = {}) {
+export async function fixtureBook(hash = "", opts: { editor?: string; conformance?: string } = {}) {
   const data: Record<string, unknown> = structuredClone(shards);
   if (opts.editor !== undefined) (data.manifest as Manifest).editor = opts.editor;
+  if (opts.conformance !== undefined) (data.manifest as Manifest).conformance = opts.conformance;
   const book = new Book({ load: async (key: string) => structuredClone(data[key]) } as any);
   await book.boot(hash);
   return book;

@@ -32,41 +32,56 @@ static partial class ModelBuilder
         var applied = AppliedSelectionOf(config, model.Problems);
         model.AppliedPages = applied.Pages;
         model.AppliedProvisions = applied.Provisions;
-        var stacks = StackReaders.For(config);
-        model.Problems.AddRange(stacks.Problems);
-        var backendRead = Timed("code", () => stacks.Backend.Read(config));
 
-        model.Code = backendRead.Code;
-        model.Problems.AddRange(backendRead.Problems);
+        // At records no stack reader runs: the project claims the record model
+        // alone, so code, screens, tests, test runs, coverage and measure
+        // results stay unread and every traced or full finding stays silent
+        // through the level filter in the checker. The proof ledger still
+        // loads, because it states hashes the next traced build compares.
+        if (config.Conformance == ConformanceLevel.Records)
+        {
+            model.Code = new CodeModel();
+            model.Ledger = ProofLedger.Load(config);
+            model.Problems.AddRange(model.Ledger.Problems);
+        }
+        else
+        {
+            var stacks = StackReaders.For(config);
+            model.Problems.AddRange(stacks.Problems);
+            var backendRead = Timed("code", () => stacks.Backend.Read(config));
 
-        var screens = Timed("screens", () => ReadScreens(config, stacks, model.Code));
+            model.Code = backendRead.Code;
+            model.Problems.AddRange(backendRead.Problems);
 
-        model.Screens.AddRange(screens.Screens);
-        model.ScreenComments.AddRange(screens.Comments);
-        model.BrowserTests.AddRange(screens.BrowserTests);
-        model.Problems.AddRange(screens.Findings);
-        model.TypeScriptQualified = screens.TypeScriptQualified;
+            var screens = Timed("screens", () => ReadScreens(config, stacks, model.Code));
 
-        var scenarioRead = Timed("tests", () => stacks.Scenarios.Read(config));
-        var tests = scenarioRead.Tests;
+            model.Screens.AddRange(screens.Screens);
+            model.ScreenComments.AddRange(screens.Comments);
+            model.BrowserTests.AddRange(screens.BrowserTests);
+            model.Problems.AddRange(screens.Findings);
+            model.TypeScriptQualified = screens.TypeScriptQualified;
 
-        model.Problems.AddRange(scenarioRead.Problems);
-        model.Tests.AddRange(tests.Scenarios);
-        model.Code.Elements.AddRange(tests.Elements);
-        model.Code.StrayMarks.AddRange(tests.StrayMarks);
-        model.StepCalls = tests.StepCalls;
-        model.StepFacts = tests.StepFacts;
-        model.ProbeRoutes = tests.ProbeRoutes;
-        model.TestComments.AddRange(tests.Comments);
-        model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
-        model.Ledger = ProofLedger.Load(config);
-        model.Problems.AddRange(model.Ledger.Problems);
+            var scenarioRead = Timed("tests", () => stacks.Scenarios.Read(config));
+            var tests = scenarioRead.Tests;
 
-        var coverage = Timed("coverage", () => CoverageReader.Read(config));
+            model.Problems.AddRange(scenarioRead.Problems);
+            model.Tests.AddRange(tests.Scenarios);
+            model.Code.Elements.AddRange(tests.Elements);
+            model.Code.StrayMarks.AddRange(tests.StrayMarks);
+            model.StepCalls = tests.StepCalls;
+            model.StepFacts = tests.StepFacts;
+            model.ProbeRoutes = tests.ProbeRoutes;
+            model.TestComments.AddRange(tests.Comments);
+            model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
+            model.Ledger = ProofLedger.Load(config);
+            model.Problems.AddRange(model.Ledger.Problems);
 
-        model.UnreachedCode.AddRange(coverage.Gaps);
-        model.CoverageRead = coverage.Read;
-        model.Measures.AddRange(Timed("measures", () => MeasureReader.Read(config)));
+            var coverage = Timed("coverage", () => CoverageReader.Read(config));
+
+            model.UnreachedCode.AddRange(coverage.Gaps);
+            model.CoverageRead = coverage.Read;
+            model.Measures.AddRange(Timed("measures", () => MeasureReader.Read(config)));
+        }
 
         Timed("compute", () =>
         {

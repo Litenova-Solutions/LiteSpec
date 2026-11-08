@@ -253,7 +253,6 @@
   },
   "packages": {
     "nuget": {
-      "ArchUnitNET": "0.13.5",
       "Aspire.Hosting.AppHost": "13.6.1",
       "Aspire.Hosting.JavaScript": "13.6.1",
       "Aspire.Hosting.PostgreSQL": "13.6.1",

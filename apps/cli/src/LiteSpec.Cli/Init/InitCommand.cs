@@ -8,11 +8,12 @@ namespace LiteSpec.Init;
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
+/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 static class InitCommand
 {
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>
-    static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte"];
+    static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte", "records"];
 
     /// <summary>The setup templates copied beside the project file: the release file and its consumer path.</summary>
     static readonly (string Template, string Target)[] Scaffold =
@@ -32,11 +33,13 @@ static class InitCommand
         block filled with the release, size, shape, stacks, and selection index of the
         new project. The command also writes .config/dotnet-tools.json pinning the
         LiteSpec.Cli tool at the release. The preset selects the shape, the stacks
-        and the frontends; --size and --name complete the project record. The command
-        never overwrites an existing file: it writes each missing file and leaves
-        existing ones alone.
+        and the frontends; a preset that declares a conformance level writes that
+        level instead of the template level, and a preset that names no stacks or
+        no frontends writes a project with none. --size and --name complete the
+        project record. The command never overwrites an existing file: it writes
+        each missing file and leaves existing ones alone.
 
-          --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte.
+          --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
           --size     The project size: small or large.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.
@@ -142,8 +145,7 @@ static class InitCommand
             }
 
             if (CliJson.TryRead(Path.Combine(home, "templates", "presets", $"{preset}.json")) is not JsonObject presetJson
-                || presetJson["shape"] is null
-                || presetJson["stacks"] is null)
+                || presetJson["shape"] is null)
             {
                 Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.json.");
                 return 1;
@@ -176,7 +178,25 @@ static class InitCommand
         }
 
         project["shape"] = overlay["shape"]!.DeepClone();
-        project["stacks"] = overlay["stacks"]!.DeepClone();
+
+        // A preset that names no stacks writes a project with none, so the
+        // template stacks do not survive into a records-level project.
+        if (overlay["stacks"] is not null)
+        {
+            project["stacks"] = overlay["stacks"]!.DeepClone();
+        }
+        else
+        {
+            project.Remove("stacks");
+        }
+
+        // A preset that declares a conformance level writes that level; every
+        // other preset keeps the template level.
+        if (overlay["conformance"] is not null)
+        {
+            project["conformance"] = overlay["conformance"]!.DeepClone();
+        }
+
         project["size"] = size;
 
         var paths = project["paths"] as JsonObject;
@@ -187,9 +207,15 @@ static class InitCommand
             project["paths"] = paths;
         }
 
+        // A preset that names no frontends writes a project with none, so a
+        // server project with no frontend omits paths.frontends.
         if ((overlay["paths"] as JsonObject)?["frontends"] is not null)
         {
             paths["frontends"] = overlay["paths"]!["frontends"]!.DeepClone();
+        }
+        else
+        {
+            paths.Remove("frontends");
         }
 
         // The shared UI package and its pattern catalog belong to the controlled web
@@ -337,17 +363,17 @@ static class InitCommand
     /// <param name="shape">The project shape, server or client-only.</param>
     /// <param name="stacks">The stack identifiers the preset selects, in list order.</param>
     /// <returns>The template text with each selection placeholder replaced by its value.</returns>
-    static string FillAgents(string text, string version, string size, string shape, IReadOnlyList<string> stacks) =>
+    static string FillAgents(string text, string version, string size, string shape, List<string> stacks) =>
         text.Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
             .Replace("__SHAPE__", shape, StringComparison.Ordinal)
             .Replace("__STACKS__", JoinList(stacks), StringComparison.Ordinal)
-            .Replace("__SELECTION_KEY__", $"{shape}.{string.Join(".", stacks)}", StringComparison.Ordinal);
+            .Replace("__SELECTION_KEY__", stacks.Count == 0 ? shape : $"{shape}.{string.Join(".", stacks)}", StringComparison.Ordinal);
 
     /// <summary>The stacks as prose, the way the selection page joins them: none, one, or joined with commas and and.</summary>
     /// <param name="items">The stack names to join as prose.</param>
     /// <returns>The prose form of the list: none for an empty list, the single name alone, two names joined with and, or a comma list ending with and.</returns>
-    static string JoinList(IReadOnlyList<string> items) => items.Count switch
+    static string JoinList(List<string> items) => items.Count switch
     {
         0 => "none",
         1 => items[0],

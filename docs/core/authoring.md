@@ -250,7 +250,7 @@ Many authors, often agents, write records in parallel. `litespec new` scaffolds 
 
 Each LiteSpec release is a complete contract that states every active provision. LiteSpec publishes no compatibility guarantee, migration path, deprecation period, or identifier alias between its own releases. A consumer pins one release, keeps it for as long as it chooses, and adopts a later release by accepting that release's whole contract.
 
-Version numbers name complete pinned contracts. A patch release corrects a narrow area, a minor release makes one coherent change, and a major release replaces scope, method, or a stack.
+Version numbers name complete pinned contracts. A patch release corrects a narrow area, a minor release makes one coherent change, and a major release replaces scope, method, or a stack. Within a major version, provision identifiers stay stable: a minor release adds provisions and changes wording, and removes or renames no identifier. A major release may remove or rename identifiers, and its changelog carries the generated list of every added, removed and renamed identifier as the one piece of history material the release keeps.
 
 This model governs LiteSpec itself. A consumer product has its own users, so its API compatibility, migration, deprecation and rollback provisions still apply.
 
@@ -921,9 +921,9 @@ The figures below render from the retention schedule at build time.
 
 **Strength:** rule
 
-**Statement:** Current standards material MUST NOT contain history-specific paths, IDs, terms, aliases, replacement maps, release migration material, compatibility rules, or transition checks.
+**Statement:** Current standards material MUST NOT contain history-specific paths, IDs, terms, aliases, replacement maps, release migration material, compatibility rules, or transition checks other than the generated provision identifier list in the changelog.
 
-**Rationale:** A snapshot that carries aliases, maps, migration notes, or transition checks for other releases forces every reader to learn releases they did not pin. The published snapshot states its own contract and nothing else. An extension's `Baseline Relationship` section names a provision it replaces inside this release, which is a current replacement rather than history.
+**Rationale:** A snapshot that carries aliases, maps, migration notes, or transition checks for other releases forces every reader to learn releases they did not pin. The published snapshot states its own contract and nothing else. An extension's `Baseline Relationship` section names a provision it replaces inside this release, which is a current replacement rather than history. The changelog's generated list of added, removed and renamed provision identifiers states a fact about the release it ships in; it offers no alias, mapping or migration path, so it stands as the one exception this provision allows.
 
 **Reviewed for:** Which active files carry history-specific paths, aliases, or migration material? Look at the files the change adds.
 
@@ -950,6 +950,20 @@ The figures below render from the retention schedule at build time.
 **Rationale:** LiteSpec is a pinned contract, not a running service: consumers adopt a release whole, on their own schedule. Compatibility guarantees, migration paths, deprecation periods, and identifier aliases between LiteSpec releases would promise a continuity the model does not offer. A consumer product keeps its own API compatibility, migration, deprecation, and rollback provisions for its own users.
 
 **Reviewed for:** Which pages promise migration, mapping, or alias between releases? Look at the release material the change adds.
+
+### Generate the Provision Diff for Each Release
+
+**ID:** `litespec/core/authoring#generate-the-provision-diff-for-each-release`
+
+**Strength:** rule
+
+**Statement:** The changelog for each LiteSpec release MUST list the provision identifiers the release adds, removes, and renames, generated from the provision index at the previous tag and the provision index of the release.
+
+**Rationale:** A consumer cites provision identifiers in code marks, records, and exceptions, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
+
+**Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#declare-the-conformance-level` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
+
+**Reviewed for:** Which changelog identifiers were typed by hand, or name an identifier that a comparison of the provision index at the previous tag with the provision index of the release does not produce? Look at the changelog entry beside the two provision indexes.
 
 ### Keep a Pinned Release for as Long as It Serves
 

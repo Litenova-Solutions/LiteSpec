@@ -132,7 +132,9 @@ internal sealed class ConventionStore
             labels.GetValueOrDefault("Rationale", ""),
             labels.GetValueOrDefault("Example", ""),
             labels.GetValueOrDefault("Reviewed for", labels.GetValueOrDefault("Checked by", "")),
-            ProvisionEntry.ConventionSource);
+            ProvisionEntry.ConventionSource,
+            "",
+            labels.ContainsKey("Checked by") ? "checkable" : "guidance");
     }
 
     /// <summary>Strips backticks and whitespace from a convention field.</summary>

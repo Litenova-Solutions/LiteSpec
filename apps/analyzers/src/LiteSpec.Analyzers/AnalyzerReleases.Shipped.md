@@ -19,6 +19,7 @@ LS1009 | LiteSpec.Domain | Error | Descriptors
 LS1010 | LiteSpec.Domain | Error | Descriptors
 LS1011 | LiteSpec.Domain | Error | Descriptors
 LS1012 | LiteSpec.Domain | Error | Descriptors
+LS1013 | LiteSpec.Domain | Error | Descriptors
 LS2001 | LiteSpec.Layers | Error | Descriptors
 LS2003 | LiteSpec.Layers | Error | Descriptors
 LS2004 | LiteSpec.Layers | Error | Descriptors

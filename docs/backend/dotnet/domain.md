@@ -212,7 +212,7 @@ Application supplies the lines and passes the returned `Money` to `Order.Confirm
 
 **Statement:** An aggregate MUST expose its lifecycle only through one `State` property backed by an abstract `{Aggregate}State` record with sealed per-state records.
 
-**Rationale:** An enum, status string, boolean flag, parallel nullable field, or computed state cannot carry state-specific data, and the compiler cannot prove a branch over them is exhaustive. A missed case then fails at run time instead of at build time. State records hold each state's data, aggregate methods own the transitions, and even a one-state aggregate defines its hierarchy so later states have a home. The sealed set matches the aggregate's declared `states`, which is the link the builder follows. This provision binds `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types` for .NET.
+**Rationale:** An enum, status string, boolean flag, parallel nullable field, or computed state cannot carry state-specific data. State records hold each state's data, aggregate methods own the transitions, and even a one-state aggregate defines its hierarchy so later states have a home. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. The sealed set matches the aggregate's declared `states`, which is the link the builder follows. This provision binds `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types` for .NET.
 
 **Example:**
 
@@ -233,7 +233,7 @@ public abstract record ProfileState;
 public sealed record ProfileActiveState : ProfileState;
 ```
 
-**Checked by:** `dotnet build` reports `LS1003` for an aggregate with no `State` property and `LS1004` for a state case left unsealed.
+**Checked by:** `dotnet build` reports `LS1003` for an aggregate with no `State` property, `LS1004` for a state case left unsealed, and `LS1013` for a switch that leaves a sealed state case to its discard arm.
 
 ### Model Every Closed Set of Domain Values Without Enums
 
@@ -243,7 +243,7 @@ public sealed record ProfileActiveState : ProfileState;
 
 **Statement:** Domain code MUST model every closed set as an abstract record base with sealed cases exposing one stable `Code`, converting labels through `FromCode`.
 
-**Rationale:** An enum is a named integer: it carries no case data, admits undefined values through a cast, and forces parallel fields when a case later gains data. A closed hierarchy lets the compiler check exhaustiveness, and a boundary converts a label through `FromCode` instead of `ToString`, so an unrecognized label becomes a validation failure rather than a silent default. This provision binds `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` for .NET.
+**Rationale:** An enum is a named integer: it carries no case data, admits undefined values through a cast, and forces parallel fields when a case later gains data. A record hierarchy carries each case's data in its own sealed record, and a boundary converts a label through `FromCode` instead of `ToString`, so an unrecognized label becomes a validation failure rather than a silent default. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. This provision binds `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` for .NET.
 
 **Example:**
 
@@ -300,7 +300,7 @@ public sealed record MerchantWarehouseStaffRole : MerchantRole
 }
 ```
 
-Callers branch with a `switch` expression on the case type. A `switch` that omits a case surfaces at review as a missing arm rather than a silent default. A case that carries data exposes it directly instead of through a separate nullable field:
+Callers branch with a `switch` expression on the case type. The discard arm stays after every sealed case has its own arm: it handles a value outside the sealed set, and `LS1013` reports any sealed case left to it. A case that carries data exposes it directly instead of through a separate nullable field:
 
 ```csharp
 var next = outcome switch
@@ -343,7 +343,7 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 ![The Domain hierarchy MerchantRole with sealed cases exposing Code and FromCode, and the same set at three layers: a mirrored union in Application, a string enum in Transport for a label-only set, and one string discriminator per case in Persistence.](../../assets/diagrams/dotnet-closed-set.svg)
 
-**Checked by:** `dotnet build` reports `LS1002` for an enum declared in Domain.
+**Checked by:** `dotnet build` reports `LS1002` for an enum declared in Domain and `LS1013` for a switch that leaves a sealed case to its discard arm.
 
 ### Use Strongly Typed Version 7 Identifiers
 

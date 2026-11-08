@@ -44,9 +44,12 @@ static class SourceRoots
             return FolderName(config.DomainRoot);
         }
 
-        if (IsUnder(config.WebApiRoot, file))
+        foreach (var root in config.WebApiRoots)
         {
-            return FolderName(config.WebApiRoot);
+            if (IsUnder(root, file))
+            {
+                return FolderName(root);
+            }
         }
 
         if (IsUnder(config.InfrastructureRoot, file))
@@ -54,9 +57,12 @@ static class SourceRoots
             return FolderName(config.InfrastructureRoot);
         }
 
-        if (IsUnder(config.WorkerRoot, file))
+        foreach (var root in config.WorkerRoots)
         {
-            return FolderName(config.WorkerRoot);
+            if (IsUnder(root, file))
+            {
+                return FolderName(root);
+            }
         }
 
         return null;
@@ -68,10 +74,19 @@ static class SourceRoots
     public static IReadOnlyList<string> BackendRoots(ConsumerConfig config)
     {
         var roots = new List<string>();
-
-        foreach (var root in new[] { config.ModulesRoot, config.ModulesRoot + ".Abstractions", config.SharedKernelRoot, config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        var candidates = new List<string>
         {
-            if (root.Length > 0 && root != ".Abstractions")
+            config.ModulesRoot, config.ModulesRoot + ".Abstractions", config.SharedKernelRoot, config.DomainRoot,
+        };
+
+        candidates.AddRange(config.WebApiRoots);
+        candidates.Add(config.InfrastructureRoot);
+        candidates.AddRange(config.WorkerRoots);
+
+        foreach (var root in candidates)
+        {
+            if (root.Length > 0 && root != ".Abstractions"
+                && !roots.Contains(root, StringComparer.OrdinalIgnoreCase))
             {
                 roots.Add(root);
             }
@@ -79,6 +94,14 @@ static class SourceRoots
 
         return roots;
     }
+
+    /// <summary>Whether the file sits under any WebApi or worker host root.</summary>
+    /// <param name="config">The consumer configuration naming the host roots.</param>
+    /// <param name="file">The file path.</param>
+    /// <returns>True when the file sits under a WebApi or worker host root.</returns>
+    public static bool IsUnderHost(ConsumerConfig config, string file) =>
+        config.WebApiRoots.Any(root => IsUnder(root, file))
+        || config.WorkerRoots.Any(root => IsUnder(root, file));
 
     /// <summary>
     ///     The layer of one backend file, read from the shared resolver: under layer-projects from its
@@ -92,8 +115,16 @@ static class SourceRoots
     {
         var abstractions = config.ModulesRoot + ".Abstractions";
         string? root = null;
+        var candidates = new List<string>
+        {
+            abstractions, config.ModulesRoot, config.SharedKernelRoot, config.DomainRoot,
+        };
 
-        foreach (var candidate in new[] { abstractions, config.ModulesRoot, config.SharedKernelRoot, config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
+        candidates.AddRange(config.WebApiRoots);
+        candidates.Add(config.InfrastructureRoot);
+        candidates.AddRange(config.WorkerRoots);
+
+        foreach (var candidate in candidates)
         {
             if (candidate.Length > 0 && candidate != ".Abstractions" && IsUnder(candidate, file))
             {
@@ -167,11 +198,14 @@ static class SourceRoots
             return UnderLayerRoot(config.DomainRoot, file, skipEndpoints: false, skipPersistence: false);
         }
 
-        if (IsUnder(config.WebApiRoot, file))
+        foreach (var host in config.WebApiRoots)
         {
-            return productLayout || !HasLayerSuffix(FolderName(config.WebApiRoot))
-                ? null
-                : UnderLayerRoot(config.WebApiRoot, file, skipEndpoints: true, skipPersistence: false);
+            if (IsUnder(host, file))
+            {
+                return productLayout || !HasLayerSuffix(FolderName(host))
+                    ? null
+                    : UnderLayerRoot(host, file, skipEndpoints: true, skipPersistence: false);
+            }
         }
 
         if (IsUnder(config.InfrastructureRoot, file))
@@ -179,11 +213,14 @@ static class SourceRoots
             return UnderLayerRoot(config.InfrastructureRoot, file, skipEndpoints: false, skipPersistence: true);
         }
 
-        if (IsUnder(config.WorkerRoot, file))
+        foreach (var host in config.WorkerRoots)
         {
-            return productLayout || !HasLayerSuffix(FolderName(config.WorkerRoot))
-                ? null
-                : UnderLayerRoot(config.WorkerRoot, file, skipEndpoints: false, skipPersistence: false);
+            if (IsUnder(host, file))
+            {
+                return productLayout || !HasLayerSuffix(FolderName(host))
+                    ? null
+                    : UnderLayerRoot(host, file, skipEndpoints: false, skipPersistence: false);
+            }
         }
 
         return null;

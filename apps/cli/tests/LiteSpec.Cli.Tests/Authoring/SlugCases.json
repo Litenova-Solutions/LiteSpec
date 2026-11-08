@@ -408,10 +408,6 @@
         "slug":  "ask-only-unanswered-questions"
     },
     {
-        "heading":  "Assert Architecture Boundaries with Tests",
-        "slug":  "assert-architecture-boundaries-with-tests"
-    },
-    {
         "heading":  "Assert Each Declared Refusal by Its Code",
         "slug":  "assert-each-declared-refusal-by-its-code"
     },

@@ -24,7 +24,7 @@ A provision moves from draft to active when its verification line is written, an
 
 ### The Identifier
 
-Every provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, as `litespec/core/authoring#use-the-declared-identifier-grammar` states. The ID line is the provision's identity: a heading may change without changing the ID. An identifier rename replaces the ID outright: the repository keeps no alias and no map from the old identifier to the new one. That is why an identifier rename replaces every citation in the same change.
+Every provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, as `litespec/core/authoring#use-the-declared-identifier-grammar` states. The ID line is the provision's identity: a heading may change without changing the ID. Within a major version, identifiers stay stable: a minor release adds provisions and changes wording, and removes or renames no identifier, so every citation written against that major version keeps resolving. A major release may remove or rename identifiers, and its changelog carries the generated list of every change. An identifier rename replaces the ID outright: the repository keeps no alias and no map from the old identifier to the new one. That is why an identifier rename replaces every citation in the same change.
 
 ### Citations
 
@@ -72,6 +72,20 @@ These checks report a manifest or schema the release cannot ship, so they are li
 **Example:** Renaming a provision identifier changes its ID line and every citation together.
 
 **Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
+### Keep Provision Identifiers Stable Within a Major Version
+
+**ID:** `litespec/core/maintaining#keep-provision-identifiers-stable-within-a-major-version`
+
+**Strength:** rule
+
+**Statement:** A minor LiteSpec release MUST keep every provision identifier of its major version, adding provisions and rewording provision text without removing or renaming an identifier.
+
+**Rationale:** Consumers cite provision identifiers in code marks, records, and exceptions, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
+
+**Example:** A release in the 4.x line adds `litespec/core/scope#declare-the-conformance-level` and rewords a neighboring provision; both keep their identifiers, so every mark and exception written against the 4.x line still resolves.
+
+**Reviewed for:** Which provision identifiers did a minor release remove or rename? Compare the provision index at the previous tag with the provision index of the release, beside the changelog entry that lists the generated diff.
 
 ### Publish a LiteSpec Release from a Tag
 

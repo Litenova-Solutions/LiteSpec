@@ -10,6 +10,7 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="LiteSpecLayer" />
         <CompilerVisibleProperty Include="LiteSpecLayout" />
+        <CompilerVisibleProperty Include="LiteSpecConformance" />
     </ItemGroup>
 
     <!--
@@ -74,6 +75,16 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(LiteSpecLayout)' == ''">
         <LiteSpecLayout>modules</LiteSpecLayout>
+    </PropertyGroup>
+
+    <!--
+        Names the conformance level the analyzers follow from the project file:
+        records, traced or full. A project states its own level by setting
+        LiteSpecConformance itself. With no value in reach, or a value that names
+        no level, the analyzers read full.
+    -->
+    <PropertyGroup Condition="'$(LiteSpecConformance)' == '' and '$(LiteSpecProjectFile)' != ''">
+        <LiteSpecConformance>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '&quot;conformance&quot;\s*:\s*&quot;(records|traced|full)&quot;').Groups[1].Value)</LiteSpecConformance>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != ''">

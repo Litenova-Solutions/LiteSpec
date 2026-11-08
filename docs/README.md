@@ -23,7 +23,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 
 - [Core overview](core/README.md): the system all projects share, and how its pages fit together.
 - [LiteSpec](core/system.md): what LiteSpec coordinates and the parts it combines.
-- [Supported Scope](core/scope.md): the size, shape, and stacks each project selects, the extensions and constraints it declares, and what claiming conformance means.
+- [Supported Scope](core/scope.md): the size, shape, and stacks each project selects, the extensions and constraints it declares, the conformance level it claims (`records`, `traced` or `full`), and what claiming conformance means.
 - [Technology Stacks](core/stacks.md): what selecting a stack applies, and what each stack folder holds.
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
@@ -192,7 +192,7 @@ The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET
 
 - [Analyzers overview](analyzers/README.md): what the analyzers check, how a rule runs, and where each rule is documented.
 - [Check .NET Code with the Analyzers](analyzers/check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, and raise enforced rules to build errors.
-- [Analyzer rules overview](analyzers/rules/README.md): find the reference page for each of the 25 rules, grouped by layer.
+- [Analyzer rules overview](analyzers/rules/README.md): the index of analyzer rules, grouped by layer; that index states how many rules ship.
 
 ### Reference
 
@@ -222,7 +222,7 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 - [Records and the Project Model](learn/records-and-the-model.md): the four layers, what those records are, where they live, and what the model builder works out from them.
 - [Reading Tracks](learn/reading-tracks.md): which records to read in which order: why before how, one journey end to end, one module end to end, and the structural words.
 - [How the Tools Fit Together](learn/the-tooling.md): the CLI, the analyzers, and the site, in the order one change moves through them.
-- [How LiteSpec Compares](learn/how-litespec-compares.md): LiteSpec beside ten other approaches to spec-driven development, and when each fits.
+- [How LiteSpec Compares](learn/how-litespec-compares.md): LiteSpec beside fourteen other approaches to spec-driven development, and when each fits.
 - [Lineage](learn/lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](learn/working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
 - [Adopt LiteSpec](learn/adopting-litespec.md): what changes for a team, in the order teams usually do it.

@@ -41,6 +41,50 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Checked by:** `litespec model check` reports its level beside each level S finding read from C# code and test results.
 
+### Read Every Declared Web and Worker Host
+
+**ID:** `litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host`
+
+**Strength:** rule
+
+**Statement:** The .NET stack reader MUST read every project that `stackConfig.dotnet.webapi` and `stackConfig.dotnet.worker` name, whether each field holds one glob string or a list of glob strings.
+
+**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root: it names its surface under `paths.surfaces` instead.
+
+**Example:** Claimwick serves member requests from one web host and partner requests from a second web host, so `webapi` lists both host projects and the reader reads the endpoints of each.
+
+**Checked by:** `litespec model check` reports `reader-missing` (level S) for a named host folder that does not exist, and reads the handlers, endpoints and jobs of each named host that does.
+
+### Report a Stack Root That Matches No Folder
+
+**ID:** `litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder`
+
+**Strength:** rule
+
+**Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, and the default Domain and Infrastructure roots under the layer-projects layout, when that default matches no folder in a project that selects the .NET reader.
+
+**Rationale:** A root that matches no folder reads no source, so the records that source would implement are not gaps in the product: the tool read nothing where it expected code. Reporting the missing root beside the unimplemented findings lets a reader tell a reader gap from a product gap. The WebApi, worker and shared kernel defaults name hosts and a kernel that a valid project may omit, so a missing default for those roots stays silent and only a configured host or kernel path reports.
+
+**Example:** A library project that keeps its code under a product folder and names no stack root reports `reader-missing` for the default modules root, instead of reporting every aggregate and use case as unimplemented.
+
+**Checked by:** `litespec model check` reports `reader-missing` (level S) naming the field, the written pattern and the resolved folder that does not exist.
+
+### Identify an Aggregate Root by Its Mark and State Record at Traced
+
+**ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced`
+
+**Strength:** rule
+
+**Applies to:** conformance: traced
+
+**Statement:** At the traced conformance level, the .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
+
+**Rationale:** A project at traced keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements and the state record states its lifecycle, and together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the traced reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
+
+**Example:** The library loan type carries `/// <implements>aggregate/lending.loan</implements>` and a `LoanState State` property backed by the abstract `LoanState` record, so the reader reads it as the loan aggregate root and reads its public methods as aggregate methods.
+
+**Checked by:** `litespec model check` reports `aggregate-unimplemented` (level S) for an aggregate record that no type with its mark and its state record, and no type deriving the aggregate root base, implements.
+
 ### Write Each Mark in the Declared Style
 
 **ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
@@ -127,7 +171,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 
-**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes.
+**Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes. A JUnit `testcase` proves a Behavior scenario without a `proves` mark by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value; the case proves each id it names with the same rules as a `proves` mark on a test method.
 
 **Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.json`.
 

@@ -6,7 +6,7 @@
 
 ## Intent
 
-Backend tests prove behavior at four separate boundaries: domain logic with no dependencies, use-case coordination with test stand-ins, real persistence and HTTP behavior through the production host, and structural rules with architecture tests. This page states which suites each project size keeps, what each suite runs with, and how tests prove the scenarios and rules the specification records. Separate boundaries keep fast tests fast and point each failure at the layer that broke.
+Backend tests prove behavior at four separate boundaries: domain logic with no dependencies, use-case coordination with test stand-ins, real persistence and HTTP behavior through the production host, and structural rules that no analyzer or `model check` finding covers with architecture tests. This page states which suites each project size keeps, what each suite runs with, and how tests prove the scenarios and rules the specification records. Separate boundaries keep fast tests fast and point each failure at the layer that broke.
 
 ## Concepts
 
@@ -19,7 +19,7 @@ Each suite proves one boundary and runs with one set of tools. A test belongs to
 | Domain | Factories, lifecycles, invariants, and value behavior | Explicit inputs only, with no database, host, container, clock, or mock |
 | Application | Handler coordination: what was loaded, called, staged, and returned | Substituted repositories, clocks, actor accessors, and ports |
 | Integration | Real persistence and HTTP behavior through the production host | The pinned PostgreSQL and the real application host |
-| Architecture | Layer references, visibility, folders, and inheritance | Static checks over the compiled code |
+| Architecture | Structural boundaries that no analyzer or `model check` finding covers | Static checks over the compiled code |
 | Acceptance | End-to-end behavior for large projects | The executable BDD extension and its host |
 
 ### Scenario Proof
@@ -101,18 +101,6 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 The default strategy is one database per test class, cloned from a migrated template. The harness applies the schema once per run to a template database. Each test class then receives its own database cloned from that template and drops that database when the class finishes. A clone takes milliseconds, so every class starts from an empty migrated schema without a second container. A project that resets tables between tests instead records that strategy in its testing documentation.
 
 **Reviewed for:** Which integration tests share mutable business state across runs, or which reset strategies stay undocumented? Look at the tests beside the testing documentation.
-
-### Assert Architecture Boundaries with Tests
-
-**ID:** `litespec/backend/testing#assert-architecture-boundaries-with-tests`
-
-**Strength:** rule
-
-**Statement:** An architecture test MUST assert the structural boundaries that `litespec/backend/architecture#test-structural-boundaries` names.
-
-**Rationale:** The compiler does not enforce layer references, visibility, or folder placement, so a review miss on any of them lands in the main branch silently. An architecture test turns each structural boundary into a failure the suite reports on the change that broke it.
-
-**Reviewed for:** Which structural boundaries lack an architecture test? Look at the architecture test files beside the compiled code.
 
 ### Mark the Test That Proves Each Scenario
 

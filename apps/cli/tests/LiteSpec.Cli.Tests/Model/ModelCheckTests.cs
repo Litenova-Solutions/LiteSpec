@@ -121,6 +121,19 @@ public sealed class ModelCheckTests
         Assert.Contains(code, result.Output);
     }
 
+    /// <summary>Every listed code takes a conformance level, so each broken case runs at its claimed level and above.</summary>
+    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    [Fact]
+    public void Finding_Codes_Take_A_Conformance_Level()
+    {
+        foreach (var code in FindingCodeList)
+        {
+            Assert.True(
+                ConformanceLevels.Lowest.ContainsKey(code),
+                $"Finding code '{code}' takes no conformance level.");
+        }
+    }
+
     /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]

@@ -62,14 +62,14 @@ sealed class ConsumerConfig
     /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string DomainRoot { get; private set; } = "";
 
-    /// <summary>Gets the WebApi host project.</summary>
-    public string WebApiRoot { get; private set; } = "";
+    /// <summary>Gets the WebApi host projects, in declaration order.</summary>
+    public IReadOnlyList<string> WebApiRoots { get; private set; } = [];
 
     /// <summary>Gets the Infrastructure project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
     public string InfrastructureRoot { get; private set; } = "";
 
-    /// <summary>Gets the background worker host project.</summary>
-    public string WorkerRoot { get; private set; } = "";
+    /// <summary>Gets the background worker host projects, in declaration order.</summary>
+    public IReadOnlyList<string> WorkerRoots { get; private set; } = [];
 
     /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
     public bool IsLayerProjects { get; private set; }
@@ -171,6 +171,23 @@ sealed class ConsumerConfig
 
         var problems = new List<Finding>();
         var layerProjects = SelectsExtension(document.RootElement, "layer-projects");
+        var selectsDotnet = SelectsDotnet(document.RootElement);
+
+        void ReportMissing(string field, string pattern, string resolved, bool declared)
+        {
+            problems.Add(new Finding(
+                "reader-missing",
+                declared
+                    ? $"Stack root '{field}' declared as '{pattern}' resolves to '{resolved}', which does not exist; source under that root was not read."
+                    : $"Stack root '{field}' defaulted to '{pattern}' resolves to '{resolved}', which does not exist; source under that root was not read.",
+                resolved,
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+        }
 
         string DeclaredRootOrEmpty(string field)
         {
@@ -179,13 +196,13 @@ sealed class ConsumerConfig
                 && value.ValueKind == JsonValueKind.String
                 && value.GetString() is { Length: > 0 } pattern)
             {
-                return DeclaredRoot(field, pattern);
+                return DeclaredRoot(field, pattern, reportDefault: false);
             }
 
             return "";
         }
 
-        string DeclaredRoot(string field, string fallback)
+        string DeclaredRoot(string field, string fallback, bool reportDefault)
         {
             if (dotnet is not null
                 && dotnet.Value.TryGetProperty(field, out var value)
@@ -196,22 +213,75 @@ sealed class ConsumerConfig
 
                 if (!Directory.Exists(resolved))
                 {
-                    problems.Add(new Finding(
-                        "reader-missing",
-                        $"Stack root '{field}' declared as '{pattern}' resolves to '{resolved}', which does not exist; source under that root was not read.",
-                        resolved,
-                        1,
-                        null)
-                    {
-                        Reader = Finding.RoslynReader,
-                        ReaderIsQualified = true,
-                    });
+                    ReportMissing(field, pattern, resolved, declared: true);
                 }
 
                 return resolved;
             }
 
-            return Resolve(config.Root, fallback);
+            var fallbackResolved = Resolve(config.Root, fallback);
+
+            if (reportDefault && selectsDotnet && !Directory.Exists(fallbackResolved))
+            {
+                ReportMissing(field, fallback, fallbackResolved, declared: false);
+            }
+
+            return fallbackResolved;
+        }
+
+        IReadOnlyList<string> DeclaredRoots(string field, string fallback)
+        {
+            if (dotnet is not null && dotnet.Value.TryGetProperty(field, out var value))
+            {
+                if (value.ValueKind == JsonValueKind.String
+                    && value.GetString() is { Length: > 0 } single)
+                {
+                    var roots = new List<string>();
+
+                    foreach (var resolved in Expand(config.Root, single))
+                    {
+                        if (!Directory.Exists(resolved))
+                        {
+                            ReportMissing(field, single, resolved, declared: true);
+                        }
+
+                        roots.Add(resolved);
+                    }
+
+                    return roots;
+                }
+
+                if (value.ValueKind == JsonValueKind.Array)
+                {
+                    var roots = new List<string>();
+
+                    foreach (var entry in value.EnumerateArray())
+                    {
+                        if (entry.ValueKind != JsonValueKind.String
+                            || entry.GetString() is not { Length: > 0 } pattern)
+                        {
+                            continue;
+                        }
+
+                        foreach (var resolved in Expand(config.Root, pattern))
+                        {
+                            if (!Directory.Exists(resolved))
+                            {
+                                ReportMissing(field, pattern, resolved, declared: true);
+                            }
+
+                            if (!roots.Contains(resolved, StringComparer.OrdinalIgnoreCase))
+                            {
+                                roots.Add(resolved);
+                            }
+                        }
+                    }
+
+                    return roots;
+                }
+            }
+
+            return [Resolve(config.Root, fallback)];
         }
 
         // Records live under the record roots that paths.docs names, which default
@@ -219,12 +289,12 @@ sealed class ConsumerConfig
         config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
         config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
         config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
-        config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules");
-        config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain") : DeclaredRootOrEmpty("domain");
-        config.WebApiRoot = DeclaredRoot("webapi", "apps/api/src/*.WebApi");
-        config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure") : DeclaredRootOrEmpty("infrastructure");
-        config.WorkerRoot = DeclaredRoot("worker", "apps/api/src/*.Worker");
-        config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel");
+        config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules", reportDefault: true);
+        config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
+        config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
+        config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure", reportDefault: true) : DeclaredRootOrEmpty("infrastructure");
+        config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
+        config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel", reportDefault: false);
 
         if (dotnet is not null
             && dotnet.Value.TryGetProperty("templateStore", out var store)
@@ -410,6 +480,29 @@ sealed class ConsumerConfig
                 && entry.TryGetProperty("id", out var named)
                 && named.ValueKind == JsonValueKind.String
                 && string.Equals(named.GetString(), id, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the declaration selects a stack whose sources the .NET reader reads.</summary>
+    /// <param name="root">The declaration root object.</param>
+    /// <returns>True when the stacks array names dotnet, blazor or android.</returns>
+    private static bool SelectsDotnet(JsonElement root)
+    {
+        if (!root.TryGetProperty("stacks", out var stacks)
+            || stacks.ValueKind != JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        foreach (var entry in stacks.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.String
+                && entry.GetString() is "dotnet" or "blazor" or "android")
             {
                 return true;
             }
@@ -613,6 +706,61 @@ sealed class ConsumerConfig
             }
 
             current = match;
+        }
+
+        return current;
+    }
+
+    /// <summary>
+    ///     Resolves one host pattern to every matching folder, in ordinal order.
+    /// </summary>
+    /// <param name="root">The absolute root the pattern resolves against.</param>
+    /// <param name="pattern">The path pattern, with at most one wildcard per segment.</param>
+    /// <returns>Every matching absolute path, or one path with an unmatched wildcard segment emptied when no folder matches.</returns>
+    private static List<string> Expand(string root, string pattern)
+    {
+        if (!pattern.Contains('*'))
+        {
+            return [Combine(root, pattern)];
+        }
+
+        var parts = pattern.Replace('/', Path.DirectorySeparatorChar)
+                           .Split(Path.DirectorySeparatorChar);
+        var current = new List<string> { root };
+
+        foreach (var part in parts)
+        {
+            var next = new List<string>();
+
+            foreach (var folder in current)
+            {
+                if (!part.Contains('*'))
+                {
+                    next.Add(Path.Combine(folder, part));
+                    continue;
+                }
+
+                if (!Directory.Exists(folder))
+                {
+                    next.Add(Path.Combine(folder, part.Replace("*", "")));
+                    continue;
+                }
+
+                var matches = Directory.EnumerateDirectories(folder, part)
+                                       .Order(StringComparer.Ordinal)
+                                       .ToList();
+
+                if (matches.Count == 0)
+                {
+                    next.Add(Path.Combine(folder, part.Replace("*", "")));
+                }
+                else
+                {
+                    next.AddRange(matches);
+                }
+            }
+
+            current = next;
         }
 
         return current;

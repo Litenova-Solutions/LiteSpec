@@ -28,6 +28,12 @@ sealed class QualifiedKinds(IReadOnlyDictionary<string, List<DeclaredType>> bySi
     /// <summary>Gets the namespace-qualified names of known aggregate roots.</summary>
     public HashSet<string> AggregateRoots { get; private set; } = new(StringComparer.Ordinal);
 
+    /// <summary>
+    ///     Gets the namespace-qualified names of aggregate roots found by their aggregate mark and their state
+    ///     record, for a project at the traced conformance level that keeps its own aggregate base.
+    /// </summary>
+    public HashSet<string> MarkedAggregateRoots { get; } = new(StringComparer.Ordinal);
+
     /// <summary>Gets the namespace-qualified names of known domain exceptions.</summary>
     public HashSet<string> DomainExceptions { get; private set; } = new(StringComparer.Ordinal);
 

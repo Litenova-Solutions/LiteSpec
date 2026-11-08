@@ -22,9 +22,21 @@ A project describes itself with records: written statements of fixed types, join
 | Implementation | The code and screens that carry the behavior. |
 | Proof | The tests and checks that show the code matches the records. |
 
-The `litespec` tool reads the records and the code, builds a project model, and reports where the two disagree. Each check has a level.
+The `litespec` tool reads the records and the code, builds a project model, and reports where the two disagree.
 
-| Level | Meaning |
+A project states the part of the contract it claims in the `conformance` field of `.litespec/project.json`. A conformance level is that claim. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims.
+
+| Conformance level | What the project claims |
+|:---|:---|
+| `records` | Its Intent, Behavior, governance and glossary records follow the record model. |
+| `traced` | Also: code and tests point to their records with marks, and test runs prove scenarios, in a code layout of the project's own. |
+| `full` | Also: the selected stacks, LiteSpec's code layout, the analyzers and the operations provisions. |
+
+`litespec model check`, the book, `litespec rules` and the analyzers report only the part the claimed level covers.
+
+Each check also has a check level. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched; the .NET reader stays qualified.
+
+| Check level | Meaning |
 |:---|:---|
 | G | Reads records only. Always blocks. |
 | S | Reads code through a stack reader. Blocks where the reader is qualified, and reports otherwise. |
@@ -60,7 +72,7 @@ Run the model check from the consumer root after `init` writes the project file.
 dotnet litespec model check
 ```
 
-`dotnet litespec model check` validates the project file, the record files, and the language of the explanation files and documents, builds the project model, and reports each finding with its level, code, and location. See [Model Builder](docs/tools/model.md) for the exit codes and options.
+`dotnet litespec model check` validates the project file, the record files, and the language of the explanation files and documents, builds the project model, and reports each finding with its check level, code, and location. See [Model Builder](docs/tools/model.md) for the exit codes and options.
 
 ## Commands
 

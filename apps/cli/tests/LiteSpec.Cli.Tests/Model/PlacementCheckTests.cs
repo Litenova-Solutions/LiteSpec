@@ -177,6 +177,39 @@ public sealed class PlacementCheckTests
         Assert.Empty(Run(model));
     }
 
+    /// <summary>An endpoint in the second declared WebApi host carries its mark without a use case folder.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    [Fact]
+    public void Module_Layout_Second_WebApi_Host_Endpoint_Is_Accepted()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = PlacementModel(temp.Path, webapi: "[\"apps/api/src/Library.WebApi\", \"apps/api/src/Library.Search.WebApi\"]");
+        var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Search.WebApi", "Protocol", "SignOutEndpoint.cs");
+        model.Code.Elements.Add(Element(CodeKind.Endpoint, "SignOutEndpoint", file, "use-case/lending.borrow-copy"));
+
+        Assert.Equal(2, model.Config.WebApiRoots.Count);
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A folder in the second declared WebApi host under layer projects that names no declared module reports the folder.</summary>
+    /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
+    [Fact]
+    public void Layer_Projects_Second_WebApi_Host_Folder_Naming_No_Declared_Module_Reports_Placement_Drift()
+    {
+        using var temp = Cli.Temp("placement");
+        var model = PlacementModel(
+            temp.Path,
+            modules: "apps/api/src/Library.Application",
+            webapi: "[\"apps/api/src/Library.WebApi\", \"apps/api/src/Library.Search.WebApi\"]");
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Search.WebApi", "Archive"));
+
+        var placed = Run(model);
+
+        Assert.Contains(
+            placed,
+            finding => finding.Message == "Folder 'apps/api/src/Library.Search.WebApi/Archive' names no declared module.");
+    }
+
     /// <summary>A frontend module folder that names no declared module reports the module folder.</summary>
     /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
     [Fact]
@@ -259,8 +292,10 @@ public sealed class PlacementCheckTests
     /// <summary>A model with the modules root, the host, the test root and the records the placement cases mark.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="withFrontend">Whether the model declares a frontend with a modules root.</param>
+    /// <param name="modules">The modules root the model declares.</param>
+    /// <param name="webapi">The webapi field the model declares, as JSON.</param>
     /// <returns>The project model holding the records.</returns>
-    static ProjectModel PlacementModel(string root, bool withFrontend = false)
+    static ProjectModel PlacementModel(string root, bool withFrontend = false, string modules = "apps/api/src/Library.Modules", string webapi = "\"apps/api/src/Library.WebApi\"")
     {
         var frontends = withFrontend
             ? """, "frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}]"""
@@ -268,7 +303,7 @@ public sealed class PlacementCheckTests
 
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"modules\": \"" + modules + "\", \"webapi\": " + webapi + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec(RecordTypes.Module, "module/lending", "lending", root));
