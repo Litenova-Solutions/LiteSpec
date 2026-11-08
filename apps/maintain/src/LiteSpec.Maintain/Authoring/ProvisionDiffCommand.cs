@@ -105,11 +105,10 @@ static class ProvisionDiffCommand
         {
             var newJson = ReadInput(root, Provisions.JsonPath, " Run: litespec-maintain provisions");
             var newManifest = ReadInput(root, LiteSpecHome.ManifestFile, "");
-            var oldJson = ProvisionDiff.ShowAtRef(root, fromRef, Provisions.JsonPath);
             var oldManifest = ProvisionDiff.ShowAtRef(root, fromRef, LiteSpecHome.ManifestFile);
             changelog = ReadInput(root, ProvisionDiff.ChangelogPath, "");
             diff = ProvisionDiff.Compare(
-                ProvisionDiff.ReadRows(oldJson, $"'{fromRef}:{Provisions.JsonPath}'"),
+                ProvisionDiff.RowsAtRef(root, fromRef),
                 ProvisionDiff.ReadRows(newJson, Provisions.JsonPath),
                 ProvisionDiff.ReadExtensions(oldManifest, $"'{fromRef}:{LiteSpecHome.ManifestFile}'"),
                 ProvisionDiff.ReadExtensions(newManifest, LiteSpecHome.ManifestFile));

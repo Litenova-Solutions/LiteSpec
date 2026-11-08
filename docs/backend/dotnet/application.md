@@ -58,6 +58,8 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Strength:** rule
 
+**Applies to:** artifact: validator
+
 **Statement:** A validator MUST report its findings as Validity, with each ValidationFailure carrying a member, a code, and a message, and no HTTP status.
 
 **Rationale:** Every validator for the message runs, and the pipeline merges the findings before it refuses the request, so the caller fixes the whole form at once. The member tells the caller which input failed, the stable code lets a client branch on the reason, and the message explains the problem in words safe to show. Validity values come from the pinned mediator's abstractions, named in `litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`, so every project reports the same shape. This provision binds `litespec/backend/application#report-input-problems-as-validity-findings` for .NET.
@@ -86,6 +88,8 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Strength:** rule
 
+**Applies to:** artifact: reaction, job
+
 **Statement:** An event handler MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and each declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the aggregate raises each declared `emits` effect as a domain event the outbox stages in the same commit.
 
 **Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`. An `inline` `runs` entry states whether it shares the caller's transaction. A scheduled or manual job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision binds `litespec/backend/application#dispatch-only-declared-effect-edges` for .NET.
@@ -104,6 +108,8 @@ outbox.StageCollectedEvents();
 **ID:** `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`
 
 **Strength:** rule
+
+**Applies to:** artifact: reaction
 
 **Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
@@ -152,6 +158,8 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
 
 **Rationale:** One pinned binding per position keeps every project's pipeline identical. The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`. Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-audit-values-beside-the-message`. Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`. Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`. Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change. The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message`.
@@ -165,6 +173,8 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 **ID:** `litespec/backend/dotnet/application#use-the-use-case-folder-layout`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Place each use case flat in a folder named for its use case inside the `UseCases/` folder of its module and aggregate, with the files this provision names.
 
@@ -239,6 +249,8 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
 **ID:** `litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`
 
 **Strength:** default
+
+**Applies to:** artifact: reaction, endpoint, job
 
 **Default:** Dispatch a command through `ICommandMediator.SendAsync` and a query through `IQueryMediator.QueryAsync`, from the LiteBus version the manifest pins.
 

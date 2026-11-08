@@ -65,6 +65,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST query the project model for the records that cover the request, and read the generated agent context, before editing.
 
 **Rationale:** Without the query, an agent reads either too little and invents the missing rules, or half the repository and buries the task in unrelated guidance. The query returns the smallest record set that covers the request, with the links the builder joined between records, so the agent starts from decided Intent.
@@ -78,6 +80,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A change touching no permission that carries `risk` MAY skip the model query, reading the agent context and neighboring code instead.
 
@@ -93,6 +97,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST load selected project extensions and selected applicable local extensions before editing code or prose inside the extension's boundary.
 
 **Rationale:** An extension replaces baseline guidance inside its boundary. An agent that edits there without loading the extension follows the baseline the extension replaced, and the change contradicts the project's own selection.
@@ -106,6 +112,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#load-applicable-provisions-before-editing`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each returned provision's Reviewed for question before reporting done.
 
@@ -121,6 +129,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST apply the project exception, the extension, the deeper page, and the shallower page in that order.
 
 **Rationale:** Overlapping guidance is normal: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
@@ -132,6 +142,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#replace-only-declared-conventions`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MAY apply a replacement for a convention only when the project documentation records that replacement.
 
@@ -145,6 +157,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST stop when applicable provisions disagree without declared precedence and quote both provision IDs and paths.
 
 **Rationale:** When two provisions disagree and no precedence decides, any continuation invents a compromise neither provision states. Stopping with both provision identifiers and paths hands the decision to a person with exactly the evidence the decision needs.
@@ -156,6 +170,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#inspect-existing-work-before-editing`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST read `git status` before editing and preserve user changes, untracked files, and unrelated generated output.
 
@@ -169,6 +185,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST NOT act without approval on packages, migrations, authentication, a public API, production data, releases, spending, or outside calls that change state.
 
 **Rationale:** The listed changes alter project boundaries beyond an ordinary implementation edit: they move money or data, open security boundaries, or change state outside the repository. None of them can be judged from the task text alone, so the task authorizer approves each one before the agent acts.
@@ -180,6 +198,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#make-coherent-scoped-changes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST make the smallest coherent change that satisfies the authorized request.
 
@@ -209,6 +229,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST verify a refusal or calculation implementation against example rows held back from the agent that wrote it.
 
 **Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result.
@@ -222,6 +244,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#write-pages-below-decided-intent`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST write every page below decided Intent.
 
@@ -237,6 +261,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An agent MUST NOT decide a figure the owner sets.
 
 **Rationale:** The Specify rule reserves the figures the owner sets for Intent, because each one binds the product to buyers, markets, or law; the [Intent page](intent.md) states the Specify boundary. An agent that picks a figure silently takes a decision that belongs to the owner. Each undecided figure becomes a question to the owner with a recommendation, or a backlog item.
@@ -250,6 +276,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#raise-open-figures-to-the-owner`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST raise each open figure to the owner with a recommendation, or place it on the backlog board.
 
@@ -265,6 +293,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A completion report MUST name each provision the agent judged and how it judged it.
 
 **Rationale:** The report shows which rules, defaults, and advice the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
@@ -278,6 +308,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#advise-without-gating`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST report its findings as advice with evidence, never as a decision.
 
@@ -293,6 +325,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Read the full record, the record file with its explanation file, before generating a file, changing a public boundary, or choosing between patterns.
 
 **Replacement:** A consumer records a boundary-reading convention naming which changes need the full record.
@@ -307,6 +341,8 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Inspect neighboring consumer files after loading applicable standards.
 
 **Replacement:** A consumer records an inspection convention naming which neighboring files an agent reads.
@@ -320,6 +356,8 @@ A running project takes new intent through this one sequence. Other pages link t
 **ID:** `litespec/core/agent#keep-agent-working-files-under-agents`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep agent working files under `.agents/`, with tracked `skills/` and `records/` folders and ignored `scratch/` and `delegate/` folders.
 

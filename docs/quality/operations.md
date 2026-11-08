@@ -45,6 +45,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A workspace MUST start WebApi, PostgreSQL, configured frontends, and its Worker where one exists, with one local command named in the consumer `AGENTS.md`.
 
 **Rationale:** A stack that needs several terminals and a wiki page starts differently for every developer, and the differences become bug reports nobody can reproduce. One named command brings WebApi, PostgreSQL, the frontends, and the background Worker up together, so every developer and every agent starts from the same running system. The baseline command is Aspire's `AppHost`, with `ServiceDefaults` supplying the shared discovery, health, resilience, and telemetry defaults its resources rely on. A workspace that orchestrates the same set another way satisfies this rule with its own command: the obligation is that one command brings the stack up, not that one tool does.
@@ -57,6 +59,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A host MUST emit structured logs, traces, and metrics, with correlation identifiers on logs and traces and service labels on metrics.
 
 **Rationale:** Each running service is a host, and one request often crosses several. Logs and traces carry timestamp, level, service, environment, trace identifier, and span identifier, and metrics carry service and environment labels. The correlation identifiers let one request be followed across every host it touched, which is the only trail a cross-host failure leaves. Stable event names keep dashboards working across releases instead of breaking each time a message is reworded.
@@ -68,6 +72,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#point-every-runtime-record-at-its-use-case`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A host MUST carry the use-case identity of every mediated message, resolved from the generated registry, as `litespec.use_case` on its span, its log scope, and its error report.
 
@@ -83,6 +89,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
 
 **Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states for projects that select the Delivery extension.
@@ -96,6 +104,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:requirement
 
 **Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a gap exception.
 
@@ -111,6 +121,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, exception, or provision it carries out.
 
 **Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
@@ -125,6 +137,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A host MUST read and write trace context as the [W3C Trace Context](https://www.w3.org/TR/trace-context/) `traceparent` and `tracestate` headers, using one configured propagator.
 
 **Rationale:** An identifier that each host formats its own way correlates nothing across the boundary between them. `traceparent` is the format OpenTelemetry implements and every managed backend accepts, so a trace crosses a frontend, an API, a background host, and a provider without translation. One propagator, the component that reads and writes the headers, is the part that matters: two configured propagators produce two identifiers for one request, and the trace splits at whichever hop reads the other one.
@@ -138,6 +152,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#separate-liveness-and-readiness`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A host MUST expose `/health/live` without dependency checks and `/health/ready` including its critical dependencies.
 
@@ -165,6 +181,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A Worker MUST publish its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior.
 
 **Rationale:** A Worker fails on its own schedule: its queue grows, its retries climb, its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident. WebApi readiness otherwise hides a failed Worker while the queue grows unobserved.
@@ -176,6 +194,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#bound-external-calls`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every network call MUST declare an explicit timeout and cancellation path, with retries only for idempotent operations named by a bounded retry policy.
 
@@ -189,6 +209,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: record:actor
+
 **Statement:** A release MUST call only providers the generated sub-processor list names from the project's provider actors.
 
 **Rationale:** Customers ask which providers touch their data, and the sub-processor list is the answer. The model builder renders it from the provider actor records, so a provider added in code but missing from the list answers that question wrong. Generating the list from records keeps the answer and the code in step.
@@ -200,6 +222,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:runbook
 
 **Statement:** Every runbook record MUST be named by at least one alert, job, reaction or failure policy.
 
@@ -215,6 +239,8 @@ The sub-processor list names every provider that processes personal data for the
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Production environment values MUST live on the host, never in the repository.
 
 **Rationale:** A secret committed once lives in history after deletion, readable to everyone the repository ever reaches. Keeping production values on the host and only placeholders in a repository example file keeps the values with the deployment that needs them and out of every clone.
@@ -228,6 +254,8 @@ The sub-processor list names every provider that processes personal data for the
 **ID:** `litespec/quality/operations#keep-runbooks-near-project-documentation`
 
 **Strength:** default
+
+**Applies to:** artifact: record:runbook
 
 **Default:** Place a runbook under `.litespec/implementation/runbooks/` when it answers product-wide failures, or under `.litespec/implementation/modules/<module>/runbooks/` when every record naming it sits in one module, stating trigger, impact, prerequisites, procedure, verification, recovery, and escalation, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
 

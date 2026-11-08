@@ -89,6 +89,8 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An error response MUST use [RFC 9457](https://datatracker.ietf.org/doc/html/rfc9457) Problem Details carrying a stable application `code`, the current `traceId`, and an `errors` entry for each field failure.
 
 **Rationale:** A stable machine-readable code lets a client branch on the failure without parsing prose, and the trace identifier connects the response to its diagnostics. One entry per field failure tells the caller everything wrong with the request in one answer. RFC 9457 defines the Problem Details media type the contract uses.
@@ -145,6 +147,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 **ID:** `litespec/backend/api#use-consistent-status-codes`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A WebApi operation MUST return the status the outcome table assigns to its result.
 
@@ -207,6 +211,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, endpoint
+
 **Statement:** File storage for an upload MUST live in Infrastructure.
 
 **Rationale:** Storing a file is provider work, like storing an aggregate, so the endpoint stays a transport adapter and the handler stays on behavior. Infrastructure owns the storage provider, its configuration, and its errors, so a project can change where files live without touching an endpoint or a handler.
@@ -221,6 +227,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** A caller MUST reach a stored file only through a download use case authorized from the access that use case declares.
 
 **Rationale:** A stored file carries the data of the record it belongs to, so a direct storage address would serve that data to anyone holding the address and skip the owning use case's grant and tenant scope. Routing each download through its owning use case keeps one authorization decision for the file and for the record it belongs to.
@@ -234,6 +242,8 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 **ID:** `litespec/backend/api#require-the-marker-header-on-cookie-authenticated-writes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The API MUST refuse a cookie-authenticated write without the project's marker header.
 
@@ -336,6 +346,8 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An application MUST generate its OpenAPI document during the Release build.
 
 **Rationale:** A handwritten contract drifts from the code it describes with the first unmirrored change. Generating the document during the Release build keeps the contract a function of the code, so the file the pinned generator reads stays current.
@@ -361,6 +373,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and a summary.
 
 **Rationale:** Generated clients name their methods from `operationId`, so an unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.
@@ -372,6 +386,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 **ID:** `litespec/backend/api#name-the-use-case-on-every-published-operation`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** Every operation in the generated contract MUST carry `x-litespec-use-case` naming the use case its endpoint implements.
 
@@ -387,6 +403,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An application MUST commit its generated OpenAPI artifact when a frontend or external consumer reads it.
 
 **Rationale:** A committed artifact makes every contract change visible in review and lets CI fail when the document was not regenerated. Without the committed file, a breaking contract change hides inside a code change. Consumers read the artifact through the generated client, model, schema, and query-option packages.
@@ -398,6 +416,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 **ID:** `litespec/backend/api#reflect-enforced-authentication-in-the-contract`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A generated OpenAPI document MUST declare the security scheme and per-operation security requirement for every endpoint that enforces authentication.
 
@@ -412,6 +432,8 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 **ID:** `litespec/backend/api#publish-precise-complete-schemas`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A generated schema MUST declare the closed value set, bounds, format, and required control headers of each field and parameter it describes.
 
@@ -429,6 +451,8 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An application MUST map its API exploration and diagnostic endpoints only when the host runs in the Development environment.
 
 **Rationale:** Development tooling exposes the full API surface for exploration, which is what development needs and what a hosted environment leaves unoffered. Mapping it in Development only keeps exploration local while hosted environments serve only the API.
@@ -440,6 +464,8 @@ An operation requiring a control header declares it as a required parameter, for
 **ID:** `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A WebApi transport model for a Domain closed set MUST preserve the shape of that set.
 
@@ -455,6 +481,8 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** A transport model for a label-only set MUST publish its values as an OpenAPI string `enum`.
 
 **Rationale:** A label-only set carries no case data, so its labels are the complete contract and a string enum carries them exactly. The permission to use a plain enum for this one situation lives in `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`.
@@ -466,6 +494,8 @@ An operation requiring a control header declares it as a required parameter, for
 **ID:** `litespec/backend/api#mark-polymorphic-models-with-discriminators`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A data-bearing set MUST map to a polymorphic model with one case per variant, published as `oneOf` with a string discriminator.
 
@@ -487,6 +517,8 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** A WebApi transport model MUST NOT collapse a data-bearing set into an `enum` or reuse a Domain or Application type as the wire contract.
 
 **Rationale:** Collapsing a data-bearing set into an enum discards the data that distinguishes its cases, and reusing a Domain or Application type as the wire contract couples the public contract to inner shapes. Each layer owns its own contract type per `litespec/backend/architecture#own-each-layers-contract-types`, so the wire contract is always a dedicated transport model. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`.
@@ -498,6 +530,8 @@ An operation requiring a control header declares it as a required parameter, for
 **ID:** `litespec/backend/api#keep-one-name-for-a-use-case-across-layers`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint, use-case
 
 **Statement:** Each use case MUST carry its name unchanged in its message type, operation id, and audit action.
 
@@ -551,6 +585,8 @@ Module nesting, including the single-aggregate flat form, follows `litespec/back
 **ID:** `litespec/backend/api#name-transport-types-by-their-boundary-role`
 
 **Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Transport types take the names the suffix table assigns their roles.
 
@@ -616,6 +652,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: endpoint
+
 **Default:** Emit a plain numeric schema for an `int32` or `double` field, and reserve a string-or-number union for `int64` values beyond the JSON safe integer range.
 
 **Replacement:** A project names its numeric wire shapes in its backend documentation.
@@ -629,6 +667,8 @@ POST   /api/holds/{holdId}/cancel
 **ID:** `litespec/backend/api#model-a-monetary-value-as-one-object`
 
 **Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Carry a monetary value as one `Money` object in a response model and in a request where the caller chooses the currency.
 
@@ -646,6 +686,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: endpoint
+
 **Default:** Boolean fields use the same condition names as code, in camel case.
 
 **Replacement:** A project names its boolean wire shape in its backend documentation.
@@ -661,6 +703,8 @@ POST   /api/holds/{holdId}/cancel
 **ID:** `litespec/backend/api#name-time-fields-with-at`
 
 **Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** Time fields end in `At`, following [AIP-142](https://google.aip.dev/142).
 
@@ -678,6 +722,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: endpoint
+
 **Default:** Field names use `created` over `placed`, `languageTag` over `locale`, and `displayName` over `keyName`.
 
 **Replacement:** A project names its field vocabulary in its backend documentation.
@@ -693,6 +739,8 @@ POST   /api/holds/{holdId}/cancel
 **ID:** `litespec/backend/api#name-failure-pairs-code-and-reason`
 
 **Strength:** default
+
+**Applies to:** artifact: endpoint
 
 **Default:** A request body names a failure with `code` for the class and `reason` for the explanation.
 
@@ -726,6 +774,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: endpoint
+
 **Default:** Field names carry no type prefix and no noise word.
 
 **Replacement:** A project names its field name rules in its backend documentation.
@@ -742,6 +792,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: record:use-case
+
 **Default:** A use case with stricter needs declares its smaller maximum in its record's `paging` and states the reason on its use-case record.
 
 **Replacement:** A project names its collection limit shape in its backend documentation.
@@ -756,6 +808,8 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
+**Applies to:** artifact: record:use-case
+
 **Default:** A collection over a proven bounded dataset declares offset paging in its record while the public contract stays cursor-shaped.
 
 **Replacement:** A project names its paging shape in its backend documentation.
@@ -769,6 +823,8 @@ POST   /api/holds/{holdId}/cancel
 **ID:** `litespec/backend/api#generate-the-contract-without-hosted-dependencies`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** The generation run contacts no hosted dependency and runs no schema change, and the project records its chosen answer.
 

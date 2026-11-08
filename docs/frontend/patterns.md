@@ -180,6 +180,8 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A workspace with a controlled frontend MUST keep one pattern catalog at `paths.uiPatterns` in `.litespec/project.json`, valid against the schema.
 
 **Rationale:** An interface decision kept in one catalog is found before it is remade: the next author reads the entry and builds the chosen option. A decision kept in chat, in a review thread, or in one author's memory is decided again on the next page, and the two answers differ. One catalog at the configured path, valid against the schema, keeps every decision searchable and every choice comparable.
@@ -198,6 +200,8 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each pattern MUST record at least two options with rationale and cost, and name the chosen option.
 
 **Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of repeating the research from nothing. An option recorded without its cost gives them no basis to compare.
@@ -211,6 +215,8 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 **ID:** `litespec/frontend/patterns#record-who-chose`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each pattern decision MUST record its source as `owner` or `recommended`.
 
@@ -238,6 +244,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 **ID:** `litespec/frontend/patterns#declare-the-compact-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each pattern MUST name one breakpoint and state whether the chosen option reflows below it or a named option replaces it.
 
@@ -269,6 +277,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A change that switches option, adds an option, or extends a pattern MUST update the catalog entry in the same change as its implementation.
 
 **Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.
@@ -283,6 +293,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each platform entry MUST state one status and the gap when that status is `partial` or `pending`.
 
 **Rationale:** The status tells a reader what is built and what is missing on each platform, so a team adopting the catalog knows which options exist in code and which are still drawings. A partial or pending entry states its gap, so the missing work is named rather than discovered. The Concepts section defines the four values.
@@ -296,6 +308,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 **ID:** `litespec/frontend/patterns#keep-the-catalog-platform-neutral`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A pattern MUST name behavior and structure, never a component library.
 
@@ -313,6 +327,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Review LiteSpec options on the pattern's page on the LiteSpec site, and draw only product-specific options in a product registry at compact and full widths.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -326,6 +342,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 **ID:** `litespec/frontend/patterns#report-pattern-feedback-after-the-work`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Finish the task on the chosen pattern, then report a proposal in the completion report with pattern id, change, reason, and affected option.
 
@@ -341,6 +359,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Start each catalog entry from its LiteSpec pattern, through `library`, and keep the pattern's option IDs, option names, and default.
 
 **Replacement:** Start an entry without `library` and record why no LiteSpec pattern fits.
@@ -354,6 +374,8 @@ The entry names the pattern's default option and records `owner` as the source, 
 **ID:** `litespec/frontend/patterns#promote-pattern-improvements`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Send an accepted proposal that is not specific to one product to the LiteSpec pattern page, as a new option or a refined one.
 

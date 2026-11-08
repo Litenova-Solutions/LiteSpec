@@ -69,6 +69,8 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **Strength:** rule
 
+**Applies to:** artifact: state-record, domain-event, use-case, command-handler, query-handler, validator, reaction, repository, endpoint, job
+
 **Statement:** An architectural type MUST carry the suffix its role assigns in the Role Suffixes table.
 
 **Example:**
@@ -91,6 +93,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** rule
 
+**Applies to:** artifact: use-case
+
 **Statement:** Each type nested in a use-case result MUST be named after the result it belongs to, as `{UseCase}QueryResult{Part}` or `{UseCase}CommandResult{Part}`.
 
 **Rationale:** A result part named for its own shape instead of its result collides with every other use case shaping the same thing: two summaries named `PostSummary` answer different queries with different fields. Leading with the full result name keeps each part beside the result it belongs to in every listing, and keeps command coordination apart from query projection without opening the file.
@@ -104,6 +108,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 **ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
 **Strength:** rule
+
+**Applies to:** artifact: reaction
 
 **Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the `UseCases/` folder of the subscriber module, and be named `{Action}On{Fact}Handler`.
 
@@ -119,6 +125,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, job
+
 **Statement:** Each repository parameter, field or local MUST be named after its interface without the `I` prefix, ending in `Repository`.
 
 **Rationale:** A short plural name hides which aggregate the variable guards: `orders` could be a list, a query, or the repository, and each reader guesses. Naming the variable after its interface keeps one name per repository at every use site, so a reviewer reads the dependency from the name alone.
@@ -133,6 +141,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
+
 **Statement:** An asynchronous operation MUST reveal its asynchrony in its name and accept cancellation explicitly when the operation is cancelable.
 
 **Rationale:** A caller decides from the signature whether to await and what to cancel. Naming the asynchrony and accepting cancellation explicitly put both answers in the signature. An operation is cancelable when it performs I/O or awaits; anything else has nothing to cancel.
@@ -144,6 +154,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 **ID:** `litespec/workspace/naming#name-exceptions-by-failed-rule`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** An exception name MUST state the rule that failed, using `{DomainType}{Reason}Exception` for a Domain rejection.
 
@@ -157,6 +169,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** advice
 
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
+
 **Statement:** A boolean property or method MUST use `Is`, `Has`, `Can`, or a precise verb.
 
 **Rationale:** A boolean answers a yes-or-no question, so its name asks one. `Is`, `Has`, `Can`, or a precise verb make the question explicit: `HasLines` and `CanPublish` state a condition. `LinesPresent` and `CheckPublish` state neither a question nor an answer, so the caller reads the body to learn the polarity.
@@ -169,6 +183,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** advice
 
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
+
 **Statement:** Production code MUST target the pinned language version and use its current construct over an older equivalent.
 
 **Rationale:** A pinned language version gives every writer the same constructs. Using the current construct over its older equivalent keeps one idiom across the codebase instead of one per author. In the dotnet stack, collection expressions, pattern matching, and primary constructors express the same intent with less incidental code.
@@ -180,6 +196,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 **ID:** `litespec/workspace/naming#use-predictable-frontend-names`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route, form
 
 **Statement:** A frontend folder MUST use kebab-case, a component file and its export PascalCase, and a React hook file `use-{name}`.
 
@@ -195,6 +213,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** default
 
+**Applies to:** artifact: record:module
+
 **Default:** Use one business name for a module across Domain, Application, endpoints, features, and documentation.
 
 **Replacement:** A project whose module carries different names per layer records its own per-layer names in its project documentation.
@@ -208,6 +228,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 **ID:** `litespec/workspace/naming#keep-namespaces-aligned-with-folders`
 
 **Strength:** default
+
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
 **Default:** Start a namespace with the product name and follow the folders beneath the project root.
 
@@ -223,6 +245,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Strength:** advice
 
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
+
 **Default:** Avoid `Manager`, `Helper`, `Processor`, `Common`, `Utility`, `BaseService`, `DataService`, `MessageBus`, `Engine`, `Facade`, `Wrapper`, and `Factory` when a narrower name exists.
 
 **Replacement:** A project that keeps a listed name records the name and its reason in its project documentation.
@@ -236,6 +260,8 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 **ID:** `litespec/workspace/naming#derive-boundary-names-from-the-ubiquitous-term`
 
 **Strength:** default
+
+**Applies to:** artifact: use-case, endpoint
 
 **Default:** Derive route segments and JSON field names from the current aggregate or ubiquitous term.
 

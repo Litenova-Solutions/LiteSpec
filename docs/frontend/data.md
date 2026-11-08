@@ -53,6 +53,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend MUST generate its client, types, schemas, and operation options from the API's published OpenAPI document.
 
 **Rationale:** A handwritten copy of a request, a response, or a schema drifts from the contract silently: the API changes, the copy still compiles, and the page sends a request the API no longer accepts. A generated client turns the same contract change into a compile error in every application at once, at every call site the change affects.
@@ -64,6 +66,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#use-one-configured-client-per-application`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** A frontend MUST configure the generated client once, and route every read and write through it.
 
@@ -77,6 +81,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The API MUST hold the browser session in an HTTP-only cookie, with frontend code holding no token.
 
 **Rationale:** Every value a script can read is a value any script on the page can read, including a script an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the reader is not signed in.
@@ -88,6 +94,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#set-the-write-marker-on-every-request`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** A client MUST send its marker header on every write, with the API accepting a cookie-authenticated write only when it carries that header.
 
@@ -101,6 +109,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A frontend MUST convert every failure into one problem type, deciding from its code and showing its trace identifier in copyable form.
 
 **Rationale:** A raw response body carries whatever the API included: field names, internals, sometimes data kept from the reader. Rendering it leaks that content and gives the reader no consistent recovery path, because each failure looks different. One problem type gives every failure the same shape: the page branches on the published code, so its decision survives a reworded message, and the trace identifier in the detail lets support find the request the reader saw fail. The identifier stays out of the headline, which says what happened in words the team wrote.
@@ -112,6 +122,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#place-a-refusal-beside-what-was-refused`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** A refusal MUST render beside the record or control that was refused, in the sentence the application holds for that code.
 
@@ -155,6 +167,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A successful command MUST invalidate every query whose answer it changed, and no other query.
 
 **Rationale:** The query cache owns freshness: a page renders the cached answer, not a new request. A command that changes a record but leaves its cache entry therefore shows the old record until something else happens to refetch, so the reader's own write appears to have no effect. Invalidating exactly the queries the command changed refreshes what changed; invalidating more costs a needless request per affected page.
@@ -169,6 +183,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route, form
+
 **Statement:** A value MUST live with the narrowest owner that can hold it: server data, then the address, then form state, then the component's own state.
 
 **Rationale:** Server data belongs in the query cache, shareable values in the address, input in form state, and the rest in the component's own state. A value kept above its narrowest owner, typically in a shared store, makes unrelated components re-render when it changes and hides where the change came from. The order gives each value the smallest audience that can use it.
@@ -180,6 +196,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#route-use-cases-through-application`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** A frontend MUST invoke an Application handler carrying a `Command` or `Query` role suffix for each use case rather than compose Domain calls or write storage.
 
@@ -211,6 +229,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A value naming a person MUST travel in a request header rather than the query string, with the contract declaring the header each operation reads.
 
 **Rationale:** A query string leaks: proxies log it, the browser keeps it in history, and the next page the reader opens receives it as the referrer. A value naming a person therefore travels in a request header the contract declares per operation, where it reaches the API without landing in those three places. The address keeps its own copy for filters and paging, so a filtered list stays a link somebody can share.
@@ -237,6 +257,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A formatter rendering a timestamp MUST receive an explicit IANA time zone, resolved by the caller from the record the screen shows.
 
 **Rationale:** An instant from the API carries no zone, so a formatter left to pick one shows the reader's own zone: a payout cut-off reads as midnight in the reader's city instead of the office's. The caller resolves the zone from the record the screen shows: a record with its own zone states it, otherwise the account's zone applies, and an account that chooses none falls back to UTC. Passing the zone explicitly makes each timestamp name whose day it belongs to.
@@ -248,6 +270,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#keep-secrets-out-of-browser-storage`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A frontend MUST NOT store a refresh token, a provider secret, or a privileged credential in browser storage or a browser-visible variable.
 
@@ -261,6 +285,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** An optimistic update MUST declare its stable client identity, its conflict behavior, its failure rollback, and its reconciliation path.
 
 **Rationale:** An optimistic update shows a value the server has not confirmed. Without a stable client identity the retry after a failure creates a duplicate; without declared conflict behavior two writers overwrite each other silently; without a rollback path a failed update leaves the shown value wrong. Declaring identity, conflict behavior, rollback, and reconciliation up front makes each of those cases designed instead of improvised. Money, irreversible actions, and uncertain authorization skip optimism entirely and wait for the server result.
@@ -273,6 +299,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** An optimistic update MUST announce its reconciled outcome through a live region when the server result differs from the value shown.
 
 **Rationale:** A rollback is a silent visual change: the shown value changes back with no event a screen reader announces. The reader heard the optimistic value confirmed and hears nothing when it is withdrawn, so they act on a value the server refused. Announcing the reconciled outcome through a live region tells them what actually holds. [The ARIA live-region technique](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA19) is the mechanism, and a test of the route asserts the announcement.
@@ -284,6 +312,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#localize-copy-through-locale-dictionaries`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route, form
 
 **Statement:** Copy MUST resolve through locale dictionaries with fill and plural support, one chunk per language, and typed keys with a declared fallback.
 
@@ -301,6 +331,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Place the client configuration, problem mapping, and download helpers in the frame root, keeping them out of every use-case folder.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -315,6 +347,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Regenerate the client from the document, and edit nothing under the generated directory.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -328,6 +362,8 @@ The problem carries the trace identifier the API returns for the request, so sup
 **ID:** `litespec/frontend/data#keep-schemas-use-case-specific`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep a form schema or a view model in its owning use-case folder until a second use case needs it.
 

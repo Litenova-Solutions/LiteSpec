@@ -85,6 +85,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST write each record layer from the record layer above it, from Intent down to Proof.
 
 **Rationale:** A record layer written from the record layer above inherits decided promises instead of inventing its own: Behavior fulfills Intent, Implementation builds Behavior, and Proof checks Implementation. A record layer written from below restates guesses as rules, and the next upper record-layer change leaves two versions of one promise.
@@ -98,6 +100,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#take-every-name-from-the-intent-above-it`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every layer below a record MUST carry the name that record gives an act, a name chosen for what the act does in the business.
 
@@ -113,6 +117,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST NOT compute a record above Implementation from code.
 
 **Rationale:** A record computed from code turns what exists into what is promised, so drift becomes the plan and the record restates what the code already does. Records above Implementation state decided promises, and code points up to the record it serves through a mark naming that record.
@@ -125,6 +131,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A record MUST take each derived value from another record.
 
 **Rationale:** Derivation between records keeps one authored source behind every value: the source changes once and each derived view follows. Generic refusals derive from access and input, and each view derives from the records it lists, so readers trace every derived value to the record that states it.
@@ -136,6 +144,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#enter-facts-from-the-world-as-research-or-constraints`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer MUST enter each fact learned from the world as research or a constraint, cited and dated.
 
@@ -151,6 +161,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, to the owner as a question or to the backlog board, never quietly in the lower record layer.
 
 **Rationale:** A need that goes to the owner reaches the person who decides it, and a need placed on the backlog board stays visible outside the repository. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust.
@@ -165,6 +177,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Behavior and Implementation MUST follow Intent where Intent states the promise.
 
 **Rationale:** Intent holds the decided promises, so Behavior that fulfills them and code that builds them keep one chain from promise to product. Where Intent states the promise, code that disagrees is the defect, and the fix changes the code.
@@ -176,6 +190,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#treat-code-beyond-silent-intent-as-evidence-for-an-owner-question`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer MUST treat working code that Intent does not cover as evidence for a question to the owner, not as a defect to delete and not as a source to copy into Intent.
 
@@ -191,6 +207,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems on the record that holds it.
 
 **Rationale:** An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.
@@ -205,6 +223,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An effect graph MUST NOT hold a cycle except through a domain event with a stated end condition.
 
 **Rationale:** A cycle without an end condition runs until something outside the records stops it, so no reader can state when the work finishes. Routing each cycle through a domain event with a stated end condition names the loop and its exit in the records the graph checks.
@@ -216,6 +236,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An inline edge MUST state whether it shares the caller's transaction.
 
@@ -261,6 +283,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A project that keeps a stricter edge rule MUST record it as a cited convention.
 
 **Rationale:** LiteSpec checks declared edges and leaves stricter taste to each project. A stricter rule recorded as a cited convention stays visible and checkable beside the records it constrains, instead of living as habit in a few heads.
@@ -272,6 +296,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#cover-other-mechanisms-with-extensions`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A mechanism outside modules, aggregates, domain events, use cases, reactions, and jobs MUST live in an extension.
 
@@ -285,6 +311,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST author each record once in its home file and derive every other appearance from the model.
 
 **Rationale:** Two homes for one fact become two facts with the next edit: each copy changes on its own schedule while readers guess which one rules. Deriving every other appearance from the model keeps the authored record as the single place a change lands. Completion computed from the model stays true without anyone typing it by hand.
@@ -296,6 +324,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#locate-package-versions-in-the-manifest`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer MUST resolve the standards-selected stack versions from `litespec.manifest.json`.
 
@@ -323,6 +353,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST treat a record in the repository as decided, with the pull request that changes it as its review.
 
 **Rationale:** A record in git is the decision, and the pull request that changes it is its review. A record nobody wants is deleted, and git keeps who changed what and when. Records carry no history of their own.
@@ -336,6 +368,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#build-only-what-the-specification-states`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer MUST build what the specification states and nothing more.
 
@@ -351,6 +385,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every record MUST state what the application does, holds, refuses at runtime, or runs on.
 
 **Rationale:** Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure. Running the company stays out; it enters only as a constraint or as dated research.
@@ -364,6 +400,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#compute-completion-from-code-and-tests`
 
 **Strength:** rule
+
+**Applies to:** artifact: any; conformance: traced
 
 **Statement:** A consumer MUST NOT write completion by hand, because the model computes it from code, tests, and passing scenarios.
 
@@ -379,6 +417,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every provision MUST state whether it is a rule, a default, or advice, and where it applies.
 
 **Rationale:** Strength words work only when each one means exactly one thing: an agent tells binding from advisory without a check existing. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
@@ -390,6 +430,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#keep-tools-small`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A command, check, generated file, or package MUST exist only while the owner approves it and something uses it.
 
@@ -405,6 +447,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** What merges MUST be complete.
 
 **Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
@@ -418,6 +462,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#prove-enforceable-boundaries-mechanically`
 
 **Strength:** rule
+
+**Applies to:** artifact: any; conformance: traced
 
 **Statement:** A consumer MUST prove each enforceable boundary mechanically: a reference, visibility, an architecture test, a behavior test, or a lint rule.
 
@@ -433,6 +479,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement.
 
 **Rationale:** Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader must learn. A current use case, decision, or requirement names the activation criterion that justifies that cost. Preference and possible future need justify nothing, so speculative machinery stays out.
@@ -445,6 +493,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A consumer MUST use business operation names, specific command and query mediators, and business-action external ports at boundaries.
 
 **Rationale:** Boundaries are where components meet and where future readers orient themselves. Business operation names, specific command and query mediators, and business-action external ports state the purpose at that meeting point. A precise name lets a newcomer place the interaction without opening either side.
@@ -456,6 +506,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#avoid-generic-boundary-names`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer MUST NOT use generic `bus`, `manager`, `helper`, `processor`, or `service` names when a narrower name exists.
 
@@ -473,6 +525,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Use a selected framework type directly inside the architecture layer that owns it until an architectural boundary exists.
 
 **Replacement:** A consumer records a wrapping convention naming the architecture layers that use project-owned abstractions.
@@ -486,6 +540,8 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **ID:** `litespec/core/principles#prefer-local-code-until-reuse-is-real`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep operation-specific code in its operation folder until two real consumers need the same precise behavior.
 

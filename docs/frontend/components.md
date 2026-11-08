@@ -31,6 +31,8 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A workspace MUST hold its shared primitives and its composites in one shared UI package, with no copy in an application.
 
 **Rationale:** When two applications each hold a copy of one primitive, the first upstream update changes one copy and misses the other. Both copies still compile, so nothing reports the split, and the two applications drift into two visual languages. One package gives every application the same component, so one update reaches every screen.
@@ -142,6 +144,8 @@ Each stack page names the class and style bindings this rule covers for its stac
 **ID:** `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** Interactive UI MUST support keyboard operation, visible focus, semantic elements, programmatic labels, and asynchronous status announcements.
 
@@ -306,6 +310,8 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 **ID:** `litespec/frontend/components#keep-error-boundaries-scoped`
 
 **Strength:** default
+
+**Applies to:** artifact: component, route
 
 **Default:** Use the route error surface for route failure, and a component boundary only where recovery keeps the page usable.
 

@@ -91,6 +91,8 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A reference MUST point inward, so Domain references no outer layer and WebApi composes the process.
 
 **Rationale:** Inner code names no outer code, so business rules compile and test without adapters or hosting. An outward reference would drag technical concerns into Domain or coordination into Infrastructure. Application coordinates Domain, Infrastructure implements the boundaries both declare, and the reference matrix in [Dependencies](../workspace/dependencies.md) applies exactly.
@@ -107,6 +109,8 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A layer MUST define its own outward contracts rather than reuse an inner layer's type, except for shared-kernel values and aggregate typed identifiers.
 
 **Rationale:** When each layer defines its own outward contracts, a change to an inner shape stops at the boundary instead of rippling through every outer layer. Shared-kernel values cross because the kernel is shared by definition, and aggregate typed identifiers cross because messages need to name their targets.
@@ -118,6 +122,8 @@ Behavior records map onto code one way: each code element carries a mark naming 
 **ID:** `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every module MUST organize its code as the module tree with one folder per declared aggregate, one `UseCases/` folder per aggregate and module, one folder per declared use case inside its `UseCases/` folder, and one `On{Fact}/` folder per reaction inside the module `UseCases/` folder, using only the folder names its level allows.
 
@@ -172,6 +178,8 @@ fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A type MUST live at the lowest folder containing every consumer that names it.
 
 **Rationale:** Counting consumers gives each type exactly one folder, so placement needs no judgment call. The lowest folder is the use case folder when one use case names the type, the aggregate layer folder when several use cases of one aggregate name it, the module layer folder when several aggregates of one module name it, and the product layer folder when several modules name it with no module between them. A type another module names is published by its owning module in `Contracts/`; across modules a type is never shared. A use case file's layer comes from its role suffix, and a type only Infrastructure names is an Infrastructure type.
@@ -190,6 +198,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, endpoint, query-handler, reaction, repository, validator
+
 **Statement:** An application MUST keep each handler, validator, definition, persistence implementation, and endpoint implementation inside its own layer and closed to extension.
 
 **Rationale:** Hidden implementations keep each layer's surface to the contracts other layers actually use. A public handler invites direct construction that bypasses the pipeline, and an inheritable one invites overrides that split behavior across subclasses. Messages, results, and ports stay public only when another layer uses them, and automatic discovery is not a reason to widen visibility.
@@ -201,6 +211,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 **ID:** `litespec/backend/architecture#keep-business-invariants-in-domain`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate, command-handler, job, query-handler, reaction, value-object
 
 **Statement:** An aggregate or value object MUST be the only place that enforces a state transition or invariant.
 
@@ -214,6 +226,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler
+
 **Statement:** A command MUST mutate one aggregate through its domain repository while a query projects read results without loading an aggregate or writing.
 
 **Rationale:** Reads that load aggregates pay for invariant enforcement no read needs, and writes that read from projections enforce rules against stale shapes. Commands mutate one aggregate through its domain repository, following `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, with a use case declaring `consistency: atomic` over several aggregates as the declared exception. Queries project read results without loading an aggregate and write nothing, following `litespec/backend/application#keep-query-handlers-free-of-writes`. An enabled persistence extension may replace the read boundary for named aggregate paths, but a command still enforces no invariant from a read projection.
@@ -225,6 +239,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 **ID:** `litespec/backend/architecture#read-another-module-only-through-its-contracts`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, port, query-handler
 
 **Statement:** A module needing another module's data MUST read it only through a read port in the owner's `Contracts/Ports/` folder that returns contract results keyed by typed id, or through its own query.
 
@@ -240,6 +256,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler
+
 **Statement:** A command MUST change only the aggregates of its own module, so an act on another module's aggregate runs as that module's use case, dispatched or triggered by an integration event.
 
 **Rationale:** Each module guards its own consistency boundaries, so a command from another module that wrote its aggregates would bypass the owning module's rules. An act on another module's aggregate is that module's use case: the caller dispatches it or triggers it through a published integration event, and the owning module enforces its own invariants.
@@ -254,6 +272,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **Strength:** rule
 
+**Applies to:** artifact: reaction
+
 **Statement:** A reaction to another module's fact MUST subscribe only to the published integration event.
 
 **Rationale:** A domain event stays inside the module that raised it, while the published integration event carries the fact outside. A reaction that subscribed to another module's domain event would couple to the owner's internals and break when they change. The integration event is the stable cross-module fact, so cross-module reactions answer it.
@@ -267,6 +287,8 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 **ID:** `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** An application MUST declare the execution host that runs its durable dispatch, queue consumption, and scheduled work.
 
@@ -285,6 +307,8 @@ The host is a composition decision, not a code-placement decision. The hosted op
 **ID:** `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An application MUST create a Worker project when background work needs independent scaling, independent deployment, or isolation from request-path resource limits.
 
@@ -331,6 +355,8 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A host MUST register its own transport services and call the Infrastructure entry point without building a second provider.
 
 **Rationale:** Each host registers its own services and calls the shared Infrastructure entry point, so the full composition of a process is visible in one place. A second provider built mid-registration would resolve a different object graph than the host runs. WebApi and Worker are the only composition roots: Domain contains no registration code, and Application exposes contracts without resolving services.
@@ -344,6 +370,8 @@ The host is a composition decision, not a code-placement decision. The hosted op
 **ID:** `litespec/backend/architecture#keep-service-registration-in-hosts`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep service registration in host entry points and host registration modules.
 

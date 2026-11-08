@@ -53,6 +53,8 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** WebApi code MUST NOT route requests through MVC controllers or `ControllerBase`.
 
 **Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. One model means one place defines how requests reach handlers and how failures reach clients.
@@ -79,6 +81,8 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** WebApi MUST map each refusal code to its HTTP status in one global handler.
 
 **Rationale:** The specification records each refusal with its stable `code` and no transport status, so the stack derives the status its transport needs. The handler uses ASP.NET Core `AddProblemDetails` with one `IExceptionHandler`: validation failures answer 400, missing targets answer through the operation's 404 policy, forbidden failures answer 403 or the declared 404 disclosure policy, conflicts and state rejections answer 409, and unexpected failures answer 500 with code `internal_error`. The derived `invalid-input` refusal answers 400 under the project's `refusals.invalidInput` code, and the derived `forbidden` refusal answers 403 or the declared 404 under the project's `refusals.forbidden` code. Known Domain exception types map individually, and a cancellation from a disconnected request is not reported as an application error. The outcome-to-status assignment lives in `litespec/backend/api#use-consistent-status-codes`; this provision binds it for .NET.
@@ -99,6 +103,8 @@ The handler maps each known exception type to its status and code, and answers 5
 **ID:** `litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
 
@@ -177,6 +183,8 @@ The handler maps each known exception type to its status and code, and answers 5
 **ID:** `litespec/backend/dotnet/api#keep-programcs-as-composition`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** `Program.cs` holds module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup, ending with an empty partial `Program` class.
 

@@ -40,6 +40,8 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every type in the shared kernel and modules projects MUST live in the namespace tree that starts with the product name and follows the folders below the project root.
 
 **Rationale:** The namespace reads like the qualified identifier, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
@@ -60,6 +62,8 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 **ID:** `litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each level of the shared kernel and modules projects MUST hold only the folders the closed set table in this section allows.
 
@@ -108,6 +112,8 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An application MUST place commands queries results handlers validators and module ports in Application folders and cross-module contracts in the sorted kind folders of its Contracts folder.
 
 **Rationale:** One use case stays flat in its folder, with its command query result handler validator endpoint and transport models side by side. Types used by two or more use cases of one aggregate live in the aggregate Application folder, types used by two or more aggregates in the module Application folder, and product-wide plumbing in the shared kernel Application folder. A module publishes its typed identifiers in `Contracts/Identifiers/`, its refusals in `Contracts/Exceptions/`, its integration events in `Contracts/IntegrationEvents/` and its cross-module ports in `Contracts/Ports/`, so the public surface of a module stays visible at the module.
@@ -119,6 +125,8 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 **ID:** `litespec/backend/dotnet/architecture#keep-implementation-types-internal`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, endpoint
 
 **Statement:** A handler, validator, definition, persistence implementation, or endpoint implementation MUST be declared `internal sealed`.
 
@@ -133,6 +141,8 @@ This provision binds `litespec/backend/architecture#keep-implementation-types-hi
 **ID:** `litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A type MUST reference only the layers its own layer allows under the layer table in this section.
 
@@ -157,6 +167,8 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Strength:** rule
 
+**Applies to:** artifact: use-case, command-handler, query-handler, validator, endpoint, reaction
+
 **Statement:** A use case folder MUST reference no type in another use case folder, except the message and result of a use case it runs.
 
 **Rationale:** A use case folder holds one use case flat, so a reference between two such folders couples two slices that change for different reasons. A reaction or a use case that runs another use case sends that use case's command or query and reads its result, which is the published way in, so those types stay nameable. A type named by two use cases belongs in the aggregate module or shared kernel layer folder that holds every consumer naming it, under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. The rule applies to files and to global usings alike.
@@ -169,6 +181,8 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A module MUST reach another module only through types its Contracts folder publishes.
 
 **Rationale:** The Contracts folder is the public surface of a module, sorted by kind: typed identifiers in `Identifiers/`, the refusals of rules other modules enforce in `Exceptions/`, integration events in `IntegrationEvents/`, the commands and queries other modules send with their results in `Commands/`, and ports that other modules call in `Ports/`. Domain may name the typed identifiers and refusals; ports and integration events stay outside Domain. A module that needs another module data reads it through a read port in the owner `Contracts/Ports/` folder that returns contract results keyed by typed identifier, or answers with its own query; it loads no foreign aggregate or repository. A command changes only its own module aggregates, and an act on another module aggregate runs as that module use case, dispatched or triggered by an integration event. A reaction to another module fact subscribes to the published integration event and never to the domain event.
@@ -180,6 +194,8 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 **ID:** `litespec/backend/dotnet/architecture#follow-declared-module-dependencies`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A module MUST reference only modules its record names in dependsOn.
 
@@ -209,6 +225,8 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Use a `{Product}.SharedKernel` project for what every module builds on and a `{Product}.Modules` project for the modules, with WebApi and optional Worker hosts, at every size.
 
 **Replacement:** A project records its own project layout in its host documentation.
@@ -231,6 +249,8 @@ apps/api/src/{Product}.Worker/     only when background work needs its own proce
 **ID:** `litespec/backend/dotnet/architecture#keep-composition-in-hosts`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep service registration in `Program.cs` and host registration modules.
 
@@ -257,6 +277,8 @@ AddWebApi(...)
 **ID:** `litespec/backend/dotnet/architecture#use-one-public-assembly-marker`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Expose one public static assembly marker in the modules project for host endpoint discovery and scanning.
 

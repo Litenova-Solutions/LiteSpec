@@ -478,6 +478,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A project MUST keep every record in the home its type names.
 
 **Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it.
@@ -492,6 +494,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every written record MUST carry its type, identifier, and title.
 
 **Rationale:** Type, identifier, and title are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to terms, and the model falls apart into loose pages. A record adds `terms` when it uses glossary terms and `records` when it holds entries.
@@ -503,6 +507,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#write-every-record-in-its-record-file`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every record page MUST live in one record file holding one YAML mapping with its entries in `records`.
 
@@ -518,6 +524,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An explanation file MUST sit beside its record file with the same name and hold plain Markdown with no frontmatter.
 
 **Rationale:** The file name is the link: no field joins the two files, so a rename moves both and nothing else. Plain Markdown with no frontmatter keeps the explanation readable in any reader and tells every check to read fields from the record file only. The file opens with the record title and uses H2 sections, so each explanation has one shape.
@@ -531,6 +539,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#split-record-fields-from-explanation`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A fact a check reads MUST live as a field in the record file rather than in the explanation file.
 
@@ -546,6 +556,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: record:research, record:decision
+
 **Statement:** A research or decision page MUST carry its explanation file with the required H2 sections.
 
 **Rationale:** An article is read as prose: the Answer of a research and the Context of a decision are what the reader comes for. The required sections keep each article complete: Answer for research, and Context, Options Considered, Decision, and What Would Reopen It for decision.
@@ -559,6 +571,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#write-every-record-file-in-canonical-form`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every record file MUST match the canonical text the record writer produces for it.
 
@@ -574,6 +588,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every record except the product MUST have exactly one parent from the Placement Table on this page.
 
 **Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
@@ -588,6 +604,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A record that moves to another module MUST change the module segment of its identifier and every citation in the same change.
 
 **Rationale:** The folder wins: an identifier whose home segment disagrees with its folder names a home the record left. Only identifiers whose first segment names a module change with a module move. A rule identifier keeps its home segment, because the segment names the aggregate or module the rule is about rather than the folder that holds it. A move between product and module level changes no identifier, so no citation changes.
@@ -601,6 +619,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#keep-each-name-unique-in-the-product`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each name segment MUST stay unique in the product.
 
@@ -632,6 +652,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A link MUST live as a field on the record it starts from, with the Links table stating how it reads in both directions.
 
 **Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
@@ -644,6 +666,8 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Strength:** rule
 
+**Applies to:** artifact: record:use-case, record:reaction, record:job, record:notification, record:setting
+
 **Statement:** A use case, reaction, job, notification, or setting MUST carry serves, fulfills, or both.
 
 **Rationale:** A use case, reaction, job, notification, or setting with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case, reaction, job, notification, or setting carrying neither. A use case is background-only when a reaction or job runs it, so `use-case-journey-missing` skips it.
@@ -655,6 +679,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#reach-behavior-from-every-intent-record`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:goal, record:problem, record:feature, record:requirement, record:constraint, record:research, record:decision
 
 **Statement:** Every goal, problem, feature, requirement, constraint, research, and decision MUST reach Behavior through the links the Reachability section states.
 
@@ -683,6 +709,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#connect-across-modules-only-through-declared-dependencies`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Within one layer, a record under a module MUST be linked from another module only along a declared module dependency or through an integration event.
 
@@ -745,6 +773,8 @@ The book renders the in-memory model only and judges nothing itself.
 **ID:** `litespec/core/model#follow-the-authority-order`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A conflict MUST resolve toward the higher authority.
 
@@ -835,6 +865,8 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every Markdown link outside code in a record field, an explanation file, or a document MUST resolve to an existing file or to a written record identifier.
 
 **Rationale:** A link that points at a moved file or an unknown identifier reads as navigation and leads nowhere. A link whose target is a record identifier, with an optional `#<step-id>`, cites that record: link checks resolve it against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
@@ -848,6 +880,8 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 **ID:** `litespec/core/model#declare-size-and-stacks`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A project MUST declare its size and stacks.
 
@@ -919,6 +953,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: any; conformance: traced
+
 **Statement:** Implemented, verified, met, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.
 
 **Rationale:** Handwritten state drifts: a record marked implemented stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from `.litespec/proof/proofs.json`. A requirement reads met when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
@@ -948,6 +984,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#compute-completion-in-the-builder`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:use-case, record:requirement, record:journey, record:feature, record:goal; conformance: traced
 
 **Statement:** The builder MUST compute one completion stage for every requirement, use case, journey, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy` and `counts`, with a parent only as far as its weakest in-scope child and `heldBy` naming at most ten children at that stage.
 
@@ -979,6 +1017,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every check MUST carry its level and block or report as that level states.
 
 **Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.
@@ -990,6 +1030,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#declare-one-mark-style`
 
 **Strength:** rule
+
+**Applies to:** artifact: any; conformance: traced
 
 **Statement:** A project MUST write each C# mark in the one style that `marks` in `.litespec/project.json` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
 
@@ -1004,6 +1046,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#match-each-backend-mark-to-its-folder`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, query-handler, endpoint, reaction, job, aggregate; conformance: full
 
 **Statement:** A backend handler, endpoint, event handler, job host or aggregate root MUST carry a mark naming a use case, reaction, job, or aggregate in the module and folder it sits in.
 
@@ -1035,6 +1079,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: record:aggregate, record:reaction, record:job, record:external-system, record:use-case; conformance: traced
+
 **Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
 **Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
@@ -1065,6 +1111,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name.
 
 **Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
@@ -1078,6 +1126,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#name-book-labels-with-litespec-terms`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every label in the book MUST be a record type, a field name, a computed state, a glossary term, or the reads-as phrase the Links table states for a connection.
 
@@ -1093,6 +1143,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.
 
 **Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
@@ -1106,6 +1158,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#show-only-computed-judgements-in-the-book`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every status, count, order and finding the book shows MUST be one the builder or a check computes.
 
@@ -1121,6 +1175,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A fact the book needs that LiteSpec does not define MUST become a record field, a computed status, or a check in LiteSpec before the book shows it.
 
 **Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
@@ -1134,6 +1190,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#point-every-book-entry-to-its-source`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every record, code element, test and finding the book shows MUST link to the file and line it comes from.
 
@@ -1150,6 +1208,8 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **ID:** `litespec/core/model#render-generated-regions-from-the-model`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** A generated region renders only facts derived from records.
 

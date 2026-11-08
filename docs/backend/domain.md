@@ -29,6 +29,8 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The Domain code MUST reference only the language standard library and project-owned Domain types.
 
 **Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all. Each banned reference would drag one outer concern into the business model: persistence metadata couples a rule to a store format, and dispatch plumbing couples it to delivery. Infrastructure registers a persisted discriminator instead, so Domain carries no serialization metadata.
@@ -40,6 +42,8 @@ A closed set is a fixed menu of values where the type system knows every case, s
 **ID:** `litespec/backend/domain#use-one-ubiquitous-language`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A Domain name MUST match a term in the project glossary.
 
@@ -100,6 +104,8 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 **ID:** `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`
 
 **Strength:** rule
+
+**Applies to:** artifact: value-object
 
 **Statement:** Domain code MUST model a closed set as one type hierarchy whose cases the type system can enumerate.
 
@@ -217,7 +223,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Strength:** rule
 
-**Applies to:** artifact: aggregate
+**Applies to:** artifact: aggregate, value-object
 
 **Statement:** An aggregate identity MUST be a dedicated type wrapping one version 7 UUID, with no conversion, alias, or creation path that bypasses its validation.
 
@@ -305,6 +311,8 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Strength:** rule
 
+**Applies to:** artifact: value-object
+
 **Statement:** A domain service MUST be stateless, accept and return Domain values, and perform no persistence, messaging, logging, clock, authorization, or provider call.
 
 **Rationale:** Some calculations span concepts with no natural aggregate owner; forcing them into one aggregate couples it to another's data. A stateless service holds that calculation, accepting and returning Domain values with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior.
@@ -320,6 +328,8 @@ A domain service is stateless and takes no port, so its tests are Domain tests. 
 **ID:** `litespec/backend/domain#expose-repositories-for-one-aggregate-only`
 
 **Strength:** rule
+
+**Applies to:** artifact: repository
 
 **Statement:** A domain repository MUST serve exactly one aggregate root, exposing only aggregate and Domain types, with no composable query, session, or generic CRUD surface.
 
@@ -338,6 +348,8 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 **ID:** `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A Domain constituent type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the `Domain/` folder of the aggregate it belongs to, or in the product `Domain/` folder.
 
@@ -383,6 +395,8 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate, value-object
+
 **Statement:** A rejected business rule MUST end its use case in a dedicated refusal carrying its stable code.
 
 **Rationale:** One refusal per rejected rule lets each boundary map outcomes without parsing messages: the refusal names the failed rule and the stable code travels to the caller. The name leads with the aggregate root. Domain raises no standard library, validation, transport, or provider failure for a business rejection, and carries no transport status. Refusal names follow `litespec/workspace/naming#name-exceptions-by-failed-rule`; this provision owns the one-refusal-per-rule shape and the code each refusal carries.
@@ -415,6 +429,8 @@ Application validators handle malformed caller input through validity findings. 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Domain behavior MUST receive time, randomness, and new identifiers as arguments rather than read them, and read no clock.
 
 **Rationale:** Domain behavior that read a clock or generated identifiers would return different results for the same call, which makes tests nondeterministic. Receiving time, randomness, and new identifiers as arguments keeps every Domain call a pure function of its inputs: a test supplies explicit values and stays deterministic. Application obtains each value through an owned port and passes it in. A method that needs more than one value receives a clock or a generator through its arguments, and version 7 identifiers come from the caller-supplied generator.
@@ -426,6 +442,8 @@ Application validators handle malformed caller input through validity findings. 
 **ID:** `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every public Domain type and member MUST carry documentation stating the business constraint, result, or refusal it represents.
 
@@ -440,6 +458,8 @@ Application validators handle malformed caller input through validity findings. 
 **ID:** `litespec/backend/domain#organize-a-module-by-aggregate-and-concept`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding its own states, events, refusals, and concepts.
 
@@ -520,6 +540,8 @@ Each aggregate's domain repository stays with the aggregate it loads. The module
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Name each Domain type from the aggregate root it belongs to, following the workspace naming provisions cited below.
 
 **Replacement:** A project names its own Domain naming rules in its documentation.
@@ -535,6 +557,8 @@ Each aggregate's domain repository stays with the aggregate it loads. The module
 **ID:** `litespec/backend/domain#reuse-the-shared-domain-contracts-across-modules`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Declare the shared Domain contracts once in the product `Domain/` folder and reuse them across every module.
 
@@ -553,6 +577,8 @@ Event clearing is delivery mechanics, not a business mutation. Infrastructure ca
 **ID:** `litespec/backend/domain#align-id-representations-at-every-boundary`
 
 **Strength:** default
+
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event
 
 **Default:** Represent an identifier the same way in Domain, persistence, transport, and generated clients.
 

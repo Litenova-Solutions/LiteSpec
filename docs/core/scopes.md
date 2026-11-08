@@ -120,7 +120,7 @@ Each page that owns provisions declares `stack` and `layer` once, in a `**Stack:
 **Layer:** domain
 ```
 
-A provision adds `**Applies to:**` only when it is narrower than its page, or when its conformance level differs from its page level, naming `stack`, `layer`, `artifact`, or `conformance` in that order, separated by `; `, for example `artifact: aggregate` or `artifact: aggregate; conformance: traced`. An `artifact` field names one kind, several kinds separated by a comma, `any`, or one `record:<type>` value. Narrower means each named field holds a subset of the page values; `artifact` always narrows because the page names none. The value `any` holds the page layer scope in the field, so a provision that governs every file of its layer states `artifact: any` on a page where another provision names a kind, and carries no line on a page where no provision names a kind. A provision states `conformance` only when its level differs from its page level, and names exactly one level. Every provision carries its `**Strength:**` line directly after its ID line, before `Applies to`. The [authoring standard](authoring.md) states the full provision layout.
+A provision adds `**Applies to:**` only when it is narrower than its page, or when its conformance level differs from its page level, naming `stack`, `layer`, `artifact`, or `conformance` in that order, separated by `; `, for example `artifact: aggregate` or `artifact: aggregate; conformance: traced`. An `artifact` field names one kind, several kinds separated by a comma, `any`, or one or more `record:<type>` values separated by a comma. Narrower means each named field holds a subset of the page values; `artifact` always narrows because the page names none. The value `any` holds the page layer scope in the field, so a provision that governs every file of its layer states `artifact: any` on a page where another provision names a kind, and carries no line on a page where no provision names a kind. A provision states `conformance` only when its level differs from its page level, and names exactly one level. Every provision carries its `**Strength:**` line directly after its ID line, before `Applies to`. The [authoring standard](authoring.md) states the full provision layout.
 
 `litespec-maintain provisions` writes the scope, conformance level, and strength of every provision into the provision index and its data file, with the conformance level right after the artifact, and states the checked share of rules for each page in the index, so the CLI reads one file instead of parsing every page.
 
@@ -130,6 +130,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 | Code | Meaning |
 |:---|:---|
+| `SCOPE_ARTIFACT` | A provision names no artifact on a page where another provision names one. |
 | `SCOPE_BLOCK` | A page that owns provisions carries no Scope block, or the block names no stack or no layer. |
 | `SCOPE_VALUE` | A Scope block or an Applies to line names a value outside this page's tables, an Applies to line names a `conformance` value outside `records`, `traced`, and `full` or more than one level, or a provision carries no conformance level. |
 | `SCOPE_NARROW` | An Applies to line is as wide as its page, widens it, repeats it, or states the conformance level of its page. |
@@ -176,6 +177,20 @@ These checks report scope defects that no single provision owns, so they are lis
 **Example:** On a page scoped to `layer: domain`, a provision for aggregates carries `**Applies to:** artifact: aggregate`, while a provision for the whole domain layer carries no line. On an application page where a provision names `artifact: validator`, a provision for the whole application layer carries `**Applies to:** artifact: any`. On a record-model page, a provision about marks carries `**Applies to:** conformance: traced`.
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_NARROW` diagnostic.
+
+### Name the Artifact of Every Provision on a Page That Names One
+
+**ID:** `litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one`
+
+**Strength:** rule
+
+**Statement:** On a page where one provision names an `artifact`, every provision MUST name the kinds of file it governs, or `artifact: any` when it governs every file of its layer.
+
+**Rationale:** `litespec rules` matches a provision to a file by the kind of file it names. A provision that names none on a page of named kinds matches every file of the layer, so a handler receives the validator and port provisions beside its own and an agent reads provisions that do not govern the file in front of it.
+
+**Example:** On the application page, the provision for validators names `artifact: validator` and the provision for the whole application layer names `artifact: any`, so `litespec rules` on a command handler returns the second and leaves out the first.
+
+**Checked by:** `litespec-maintain validate` emits no `SCOPE_ARTIFACT` diagnostic.
 
 ### Give Every Provision a Conformance Level
 

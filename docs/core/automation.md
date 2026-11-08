@@ -84,6 +84,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:reaction, record:job
+
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
 **Rationale:** A reaction or job with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `runs`, `sends`, `emits`, or `calls` keeps every consequence of the reaction or job beside its trigger, under one grammar for every record that has edges, as the [use-cases page](use-cases.md) states.
@@ -96,6 +98,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:reaction, record:job
+
 **Statement:** A reaction or job MUST NOT write an aggregate except through the use case it runs.
 
 **Rationale:** A reaction or job writing directly splits the write path: the same aggregate changes through a reviewed command and through an unreviewed reaction or job, each with its own guards. Running a small command keeps every write behind a use case with its access, consistency, results, and scenarios.
@@ -107,6 +111,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 **ID:** `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:reaction, record:job
 
 **Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
@@ -152,6 +158,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:reaction, record:job
+
 **Statement:** Each reaction and each job MUST declare its `onFailure` in the one failure shape and its idempotency.
 
 **Rationale:** A failed reaction or job without handling retries forever or drops silently: notices double-send, holds never clear. Declaring `onFailure` states the failure shape beside the trigger: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `then` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure and `runbook` the recovery procedure. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeats collapse.
@@ -163,6 +171,8 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 **ID:** `litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:reaction, record:job
 
 **Statement:** Each scenario on a reaction or job MUST end in a result of a use case its effects run.
 

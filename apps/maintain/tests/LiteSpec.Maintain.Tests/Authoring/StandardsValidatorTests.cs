@@ -418,6 +418,7 @@ public sealed partial class StandardsValidatorTests
             "VERIFY_TEMPLATED_EVIDENCE",
             "VALUE_STYLE",
             "GENERATED_STALE",
+            "SCOPE_ARTIFACT",
             "SCOPE_BLOCK",
             "SCOPE_NARROW",
             "SCOPE_VALUE",

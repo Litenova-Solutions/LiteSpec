@@ -329,6 +329,8 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Strength:** rule
 
+**Applies to:** artifact: record:use-case
+
 **Statement:** A value shown by a query and recorded by a command MUST cite the same calculation rule in `computedBy` on both use cases.
 
 **Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code carries a mark naming the rule, and never the reverse.

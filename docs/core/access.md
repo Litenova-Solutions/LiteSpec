@@ -75,6 +75,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Strength:** rule
 
+**Applies to:** artifact: record:actor, record:role, record:permission, record:entry-point, record:external-system
+
 **Statement:** An access record MUST live in the home its type names.
 
 **Rationale:** One home per type tells a reader where to open a record and tells the book where to render it. A record kept anywhere else looks written while readers open the home and find nothing there.
@@ -303,6 +305,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Strength:** rule
 
+**Applies to:** artifact: record:use-case, record:aggregate
+
 **Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil`, held on an aggregate the access model reads and granted and revoked by its own use cases.
 
 **Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant.
@@ -316,6 +320,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 **ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A grant that acts across tenants through delegation MUST declare its delegation grant on both sides.
 
@@ -394,6 +400,8 @@ An actor, role, or external system page carries a `summary` field stating what t
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:actor, record:role
 
 **Statement:** An actor or role page MUST carry a `summary` field.
 

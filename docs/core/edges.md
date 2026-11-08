@@ -88,6 +88,8 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
+**Applies to:** artifact: record:use-case, record:reaction, record:job
+
 **Statement:** Each use case, reaction, or job emitting an integration event MUST declare it in its effects as `emits`.
 
 **Rationale:** An emitted fact no edge declares is a hidden coupling: downstream readers depend on a promise the records never made, and the promise breaks without a diff. Declaring each emission as an `emits` effect states the coupling beside the behavior causing it. The `effect-undeclared` check reports an emitted event no record declares.
@@ -222,6 +224,8 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
+**Applies to:** artifact: route, record:screen; conformance: traced
+
 **Statement:** Every route a browser or device entry point serves MUST be the implementation of exactly one screen record.
 
 **Rationale:** A page is where a person meets the product, and an unrecorded page offers use cases nobody reviewed as a page: what it lets someone start, which journey step it carries, which refusal it shows. One record per page, with one mark on the route, makes the page a reviewable promise and lets every other link (calls, results, journey coverage) be computed from it.
@@ -284,6 +288,8 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
+**Applies to:** artifact: record:screen
+
 **Statement:** Every journey step a use case serves through a browser or device entry point MUST be served by at least one screen.
 
 **Rationale:** A step a person achieves in a browser happens on some page. A step no screen serves is either carried by a page nobody recorded or not reachable at all, and the book cannot tell the reader where it happens. The pair sits side by side: `step-use-case-missing` names a step no use case serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
@@ -298,6 +304,8 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
+**Applies to:** artifact: record:screen, test; conformance: traced
+
 **Statement:** Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in `refusalDictionary` or a browser test that asserts its code.
 
 **Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `paths.frontends[]` entry, so the check reads that frontend's words rather than a convention.
@@ -311,6 +319,8 @@ An external system is one system outside the bounded context the product exchang
 **ID:** `litespec/core/edges#serve-static-content-through-served-content`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:entry-point
 
 **Statement:** A static script or legal text MUST be served content with its path, content type, cache control, and versioning, never a use case.
 

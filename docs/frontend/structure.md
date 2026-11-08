@@ -29,6 +29,8 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend MUST organize its code into a frame, routes, and use-case modules.
 
 **Rationale:** Three parts give every file one home by answering one question: is it cross-cutting, is it an address, or does it serve one use case. Without the split, shared values hide inside routes, use-case code hides inside shared folders, and no author can tell where a new file belongs. The three parts make the answer mechanical.
@@ -49,6 +51,8 @@ Imports point one way: routes import modules, modules import the frame, and the 
 **ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/use-cases/{use-case}/` for a query describing no one aggregate, resolving to the one backend use case folder of the same names inside its `UseCases/` folder.
 
@@ -84,6 +88,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A folder named for one use case MUST hold files and no subfolder.
 
 **Rationale:** A subfolder inside a use case folder names a grouping the backend does not have, so the one-to-one mirror between the two trees stops at that point. Past the subfolder, the reader can no longer translate names by rule, and nothing reports where the translation broke. Files directly in the use case folder keep the mirror checkable to the bottom.
@@ -95,6 +101,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 **ID:** `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A file read by several use cases of one aggregate MUST sit flat in that aggregate's folder.
 
@@ -109,6 +117,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 **ID:** `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A folder under an application's `src` MUST NOT be named `shared`, `common`, `utils`, `util`, `helpers`, `misc`, `components`, `hooks`, `types`, or `services`.
 
@@ -156,6 +166,8 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An import MUST point from a route to a module to the frame to a shared package, and never in the reverse direction.
 
 **Rationale:** Imports pointing from routes to modules to the frame to shared packages keep addresses, use-case code, cross-route values, and shared code in separate layers. A reverse import collapses two layers: a module importing a route ties use-case code to one address, and a shared package importing an application ties every application to one application's choices. One direction keeps each layer usable without the layers above it.
@@ -176,6 +188,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend MUST NOT import source from another frontend.
 
 **Rationale:** Each application owns its routes, its environment, its session handling, its words, its tests, and its deployment, so it can change, test, and ship on its own. An import from another application's source ties the two together: a change to one breaks or redeploys the other. Code two applications genuinely share moves down into a shared package, which names neither application.
@@ -188,6 +202,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A shared package MUST NOT contain page composition, feature state, authentication policy, or application components.
 
 **Rationale:** Shared packages hold what serves every frontend and names none of them: the generated client, the shared UI package, the locale dictionaries, and the frontend tooling. Page composition, feature state, authentication policy, or application components kept there would bind every application to one application's choices. Application-specific code stays in the application, where it can change without touching the rest.
@@ -199,6 +215,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 **ID:** `litespec/frontend/structure#locate-cross-route-values-in-the-frame`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A frontend MUST place cross-route values in its frame: client configuration, session read, language choice, permissions, formatting, and shell data.
 
@@ -213,6 +231,8 @@ The direction refuses three imports: a module reaching a route, a shared package
 **ID:** `litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Expose a shared package only through its documented public entry points.
 

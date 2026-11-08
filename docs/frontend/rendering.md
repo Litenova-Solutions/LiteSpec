@@ -121,6 +121,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** Actor-specific data MUST declare its cache key, partition, invalidation owner, and security review before caching, beside the read definition setting the key.
 
 **Rationale:** A cache entry that ignores whose data it holds serves one actor's answer to another reader: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.
@@ -132,6 +134,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 **ID:** `litespec/frontend/rendering#keep-proxy-behavior-at-the-edge`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A development or edge proxy rule MUST route only, and never decide who the actor is or what the actor may read.
 
@@ -146,6 +150,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 **ID:** `litespec/frontend/rendering#build-the-server-data-cache-per-request`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A server-rendered frontend MUST construct its data cache inside each request.
 
@@ -192,6 +198,8 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 **ID:** `litespec/frontend/rendering#keep-server-only-code-identifiable`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep a module reading a request header, a cookie, or a server secret in a file whose name and place show the server ownership.
 

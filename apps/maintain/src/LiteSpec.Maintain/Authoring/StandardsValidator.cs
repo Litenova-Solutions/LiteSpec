@@ -122,6 +122,7 @@ internal static class StandardsValidator
         "LAYER_UNLISTED",
 
         "GENERATED_STALE",
+        "SCOPE_ARTIFACT",
         "SCOPE_BLOCK",
         "SCOPE_NARROW",
         "SCOPE_VALUE",

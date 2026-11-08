@@ -50,6 +50,101 @@ static class ProvisionDiff
         IReadOnlyList<string> ExtensionsAdded,
         IReadOnlyList<string> ExtensionsRemoved);
 
+    /// <summary>
+    ///     Reads the provision rows at a git ref: the generated index when the ref holds one,
+    ///     otherwise the index rebuilt from the standards pages at that ref, so a release that
+    ///     predates the generated index still compares.
+    /// </summary>
+    /// <param name="root">The repository root the command runs in.</param>
+    /// <param name="fromRef">The git tag or commit to read from.</param>
+    /// <returns>The provision identities at the ref, in index order.</returns>
+    public static List<Row> RowsAtRef(string root, string fromRef)
+    {
+        try
+        {
+            return ReadRows(ShowAtRef(root, fromRef, Provisions.JsonPath), $"'{fromRef}:{Provisions.JsonPath}'");
+        }
+        catch (InvalidOperationException exception) when (exception.Message.Contains(" not in ", StringComparison.Ordinal)
+            || exception.Message.Contains("does not exist in", StringComparison.Ordinal))
+        {
+            var folder = Path.Combine(Path.GetTempPath(), "litespec-changelog-" + Guid.NewGuid().ToString("N"));
+            var archive = folder + ".zip";
+
+            try
+            {
+                RunGit(root, $"Cannot read the pages at '{fromRef}'", "archive", "--format=zip", "-o", archive, fromRef, "docs");
+                System.IO.Compression.ZipFile.ExtractToDirectory(archive, folder);
+
+                return Provisions.Collect(folder)
+                    .Select(row => new Row(row.Id, row.Page, row.Statement))
+                    .ToList();
+            }
+            finally
+            {
+                if (File.Exists(archive))
+                {
+                    File.Delete(archive);
+                }
+
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
+            }
+        }
+    }
+
+    /// <summary>Runs one git command in the repository and fails with its first error line.</summary>
+    /// <param name="root">The repository root the command runs in.</param>
+    /// <param name="failure">The message that opens the failure.</param>
+    /// <param name="arguments">The git arguments.</param>
+    static void RunGit(string root, string failure, params string[] arguments)
+    {
+        var start = new ProcessStartInfo
+        {
+            FileName = "git",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            WorkingDirectory = root,
+        };
+
+        foreach (var argument in arguments)
+        {
+            start.ArgumentList.Add(argument);
+        }
+
+        Process process;
+
+        try
+        {
+            process = Process.Start(start)!;
+        }
+        catch (Exception exception) when (exception is Win32Exception or InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Cannot run git: {exception.Message}", exception);
+        }
+
+        using (process)
+        {
+            var stderr = process.StandardError.ReadToEndAsync();
+            process.StandardOutput.ReadToEnd();
+
+            if (!process.WaitForExit(TimeSpan.FromMinutes(2)))
+            {
+                process.Kill(entireProcessTree: true);
+                throw new InvalidOperationException($"{failure}: git did not finish in two minutes.");
+            }
+
+            if (process.ExitCode != 0)
+            {
+                var detail = stderr.Result.Split('\n').Select(line => line.Trim()).FirstOrDefault(line => line.Length > 0)
+                    ?? $"git exited {process.ExitCode}.";
+                throw new InvalidOperationException($"{failure}: {detail}");
+            }
+        }
+    }
+
     /// <summary>Reads the file at a git ref with <c>git show</c>.</summary>
     /// <param name="root">The repository root the command runs in.</param>
     /// <param name="fromRef">The git tag or commit to read from.</param>

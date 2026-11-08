@@ -31,6 +31,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API change reviewer MUST classify each contract change that affects an independently deployed consumer.
 
 **Rationale:** Every contract change reaches consumers the project does not deploy. Classifying each one decides whether consumers need a new version, a review, or nothing at all. An unclassified change ships the decision to consumers as a surprise.
@@ -42,6 +44,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#classify-breaking-contract-changes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API change reviewer MUST classify removal, rename, required input, narrowed value, response, status, or authentication changes as breaking.
 
@@ -55,6 +59,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API change reviewer MUST classify removal of a query output field, a refusal code, or an integration-event payload field as breaking.
 
 **Rationale:** Consumers read query output fields, branch on refusal codes, and parse integration-event payloads, so a removed field breaks every consumer that relied on it while the route stays green. Calling each such removal breaking routes it to versioning and notice instead of silent release.
@@ -66,6 +72,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#classify-compatible-additions`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API change reviewer MUST classify an optional field, endpoint, or query parameter as compatible when existing clients retain behavior.
 
@@ -79,6 +87,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API change reviewer MUST require consumer review for an added enum value or polymorphic subtype.
 
 **Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server now sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
@@ -90,6 +100,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#preserve-stable-error-codes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API change reviewer MUST classify removal or reassignment of a stable Problem Details code as breaking.
 
@@ -103,6 +115,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API change reviewer MUST classify an unclear contract change as breaking and require consumer review.
 
 **Rationale:** A structural diff cannot prove every change compatible: some changes need a person to judge their effect on consumers. Classifying the unclear ones as breaking routes them to consumer review instead of release. The cost of a needless review is smaller than the cost of a broken consumer.
@@ -114,6 +128,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#record-breaking-behavior-changes-as-decisions`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** After production, a breaking Behavior change MUST travel as a decision naming its consumer impact.
 
@@ -127,6 +143,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API owner MUST store each release OpenAPI document as a retained baseline artifact.
 
 **Rationale:** Each release stores its OpenAPI document as an immutable baseline. Later changes diff against it instead of against memory or a mutable file. Without a retained baseline, the project cannot prove what changed between two releases.
@@ -139,6 +157,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The project MUST compare the current OpenAPI document with the selected supported baseline, both locally and in continuous integration.
 
 **Rationale:** The diff against the supported baseline runs both locally and in continuous integration. The local run catches a breaking change while it is cheap to rework. The CI run catches it when the local run was skipped.
@@ -150,6 +170,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#reject-breaking-diffs-without-authorization`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Continuous integration MUST fail a breaking diff unless a new API version or a recorded consumer decision authorizes it.
 
@@ -221,6 +243,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API owner MUST keep the previous version available for its declared support window.
 
 **Rationale:** A consumer the project does not deploy moves on its own release cadence. The declared support window states how long the previous version stays available for that move. Removing it early strands consumers that kept to the published plan.
@@ -232,6 +256,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#record-version-retirement`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** A versioning decision MUST name each affected consumer, the deadline, and the removal condition, with the decision recorded before any removal.
 
@@ -259,6 +285,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A public operation scheduled for removal MUST appear in the consumer `CHANGELOG.md`.
 
 **Rationale:** Headers announce the removal on the operation, but consumers plan from release notes. The consumer `CHANGELOG.md` names each operation scheduled for removal in the one place consumers already read. A deprecation missing from the changelog reaches only the consumers that inspect headers.
@@ -270,6 +298,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#record-deprecation-conditions`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:decision
 
 **Statement:** A deprecation decision MUST record the sunset date and replacement operation, with nothing removed before the decision is recorded.
 
@@ -283,6 +313,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An API owner MUST treat Problem Details type, code, field-error codes, and documented statuses as versioned contract elements.
 
 **Rationale:** Error handling is consumer code: it branches on Problem Details type, code, field-error codes, and documented statuses. Versioning those elements with the contract keeps error handling working across releases. An error shape that changes outside versioning breaks the consumer's failure path, which is the path least tested.
@@ -294,6 +326,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#gate-new-error-outcomes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API owner MUST add an error outcome only when existing consumers safely handle an unknown code.
 
@@ -321,6 +355,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: record:integration-event
+
 **Statement:** A fact consumed outside the product MUST be declared as an integration event with its direction, payload, and trust.
 
 **Rationale:** A consumer outside the product reads the fact without reading the product's code, so the integration-event record states what the consumer may rely on: the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record. An undeclared fact reaches outside consumers as an implementation detail that changes without notice.
@@ -332,6 +368,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#classify-integration-event-changes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API change reviewer MUST classify each integration-event change as breaking, compatible, or needing consumer review under `litespec/ext/compat#classify-breaking-contract-changes`, `litespec/ext/compat#classify-compatible-additions`, and `litespec/ext/compat#review-exhaustive-consumer-changes`.
 
@@ -345,6 +383,8 @@ This extension switches on no optional record type.
 
 **Strength:** rule
 
+**Applies to:** artifact: record:integration-event
+
 **Statement:** An API owner MUST carry a breaking integration-event change in a new event version beside the retained version.
 
 **Rationale:** Outside consumers move on their own release cadence, so the breaking change ships beside the retained version instead of replacing it. Each consumer moves to the new version on its own schedule. Without the retained version, one event serves two incompatible expectations.
@@ -356,6 +396,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#retire-integration-events-with-notice`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An API owner MUST retire an integration event version only after its declared support window with a deprecation notice to its consumers.
 
@@ -371,6 +413,8 @@ This extension switches on no optional record type.
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Store the current source artifact at `apps/api/openapi/{ProjectName}.json`.
 
 **Replacement:** A consumer records a contract-source convention naming where its current OpenAPI artifact lives.
@@ -384,6 +428,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#keep-baseline-references-immutable`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Store each supported baseline beside its contract owner or under an immutable retained-release reference.
 
@@ -399,6 +445,8 @@ This extension switches on no optional record type.
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Use the same OpenAPI diff tool in local verification and continuous integration.
 
 **Replacement:** A consumer records a diff-tool convention naming the OpenAPI diff tool its local run and continuous integration share.
@@ -412,6 +460,8 @@ This extension switches on no optional record type.
 **ID:** `litespec/ext/compat#keep-problem-details-codes-stable`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep Problem Details error codes stable across compatible versions.
 

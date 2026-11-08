@@ -30,6 +30,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Strength:** rule
 
+**Applies to:** artifact: record:requirement
+
 **Statement:** A consumer selecting `plans` MUST record each plan once with its name and entitlements.
 
 **Rationale:** A plan named in two places disagrees the day one updates without the other: one record promises what the gate refuses. One record per plan holds the name and the entitlements, so a plan change is one edit in one place.
@@ -88,6 +90,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The product MUST resolve the acting plan from verified subscription state, never from caller input.
 
 **Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
@@ -115,6 +119,8 @@ It switches on no record type: plans live as policy requirements, gated behavior
 **ID:** `litespec/ext/plans#resolve-the-acting-plan-in-the-authorization-pipeline`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Resolve the acting plan where the pipeline authorizes the use case.
 

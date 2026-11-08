@@ -44,6 +44,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Strength:** rule
 
+**Applies to:** artifact: record:use-case
+
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
 **Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
@@ -57,6 +59,8 @@ This extension switches on no optional record type. Each provider is recorded as
 **ID:** `litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs`
 
 **Strength:** advice
+
+**Applies to:** artifact: reaction, job
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
@@ -74,6 +78,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Strength:** rule
 
+**Applies to:** artifact: port
+
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
 **Rationale:** The use case needs a behavior, such as sending a payout, not a provider. A public interface named for that business action states the need with no provider in sight. Application then depends on the behavior while providers come and go behind it.
@@ -87,6 +93,8 @@ This extension switches on no optional record type. Each provider is recorded as
 **ID:** `litespec/ext/integrations#isolate-provider-implementations`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Infrastructure MUST own provider clients, SDKs, authentication, and transport models.
 
@@ -102,6 +110,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An external client MUST bind its base address, credentials, timeout, and policy through validated options.
 
 **Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Binding them through validated options checks each value at startup. A missing or invalid value fails fast instead of misdirecting the first live call.
@@ -113,6 +123,8 @@ This extension switches on no optional record type. Each provider is recorded as
 **ID:** `litespec/ext/integrations#use-managed-http-clients`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An HTTP integration MUST use `HttpClientFactory` and applicable service discovery.
 
@@ -126,6 +138,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An HTTP integration MUST NOT construct a new HTTP client for each request.
 
 **Rationale:** A new HTTP client per request skips the central handler configuration and opens sockets the process never reuses. Under load, the exhausted sockets fail calls that the provider would have served. Managed clients reuse what per-request construction throws away.
@@ -137,6 +151,8 @@ This extension switches on no optional record type. Each provider is recorded as
 **ID:** `litespec/ext/integrations#bound-transient-retries`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An external client MUST retry transient failures with bounded attempts and jitter.
 
@@ -150,6 +166,8 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An external client MUST NOT retry a non-idempotent provider call without provider idempotency and documented replay behavior.
 
 **Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
@@ -161,6 +179,8 @@ This extension switches on no optional record type. Each provider is recorded as
 **ID:** `litespec/ext/integrations#translate-provider-failure-outcomes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An integration MUST map provider errors to project-owned results and stable diagnostics.
 
@@ -177,6 +197,8 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 **ID:** `litespec/ext/integrations#exclude-provider-internals`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** An API MUST NOT expose provider bodies, credentials, headers, exception types, or internal account identifiers.
 
@@ -204,6 +226,8 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing.
 
 **Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open.
@@ -220,6 +244,8 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** An inbound provider handler MUST store or process duplicate events idempotently.
 
 **Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
@@ -231,6 +257,8 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 **ID:** `litespec/ext/integrations#reject-formula-leading-import-values`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A CSV or spreadsheet import MUST reject or neutralize a value that begins with a formula-leading character.
 
@@ -278,6 +306,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Place provider code under `Infrastructure/Integrations/{Provider}/`.
 
 **Replacement:** A project names another root for provider code in its documentation.
@@ -292,6 +322,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep one options class, client, transport models, mappings, and registration module in each provider folder.
 
 **Replacement:** A project names another grouping for provider components in its documentation.
@@ -305,6 +337,8 @@ An unexpected response shape is the mode a provider produces without failing. A 
 **ID:** `litespec/ext/integrations#keep-ports-near-use-cases`
 
 **Strength:** default
+
+**Applies to:** artifact: port
 
 **Default:** Keep business-action ports with their Application use cases.
 

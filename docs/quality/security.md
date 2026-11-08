@@ -29,6 +29,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A backend MUST validate issuer, audience, signature, lifetime, and required claims through OIDC and JWT Bearer.
 
 **Rationale:** The backend accepts one thing: a token whose issuer, audience, signature, lifetime, and required claims validate through OIDC and JWT Bearer. Provider-specific login and session behavior belongs to a frontend or an extension, because the API cannot recheck a login flow it cannot see. An unsigned token, an unvalidated decode, or a client-supplied identity header is never accepted: each one lets a caller mint its own identity.
@@ -41,6 +43,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler, endpoint
+
 **Statement:** Actor resolution MUST follow `litespec/quality/security#use-one-current-actor-abstraction`.
 
 **Rationale:** Actor resolution has one home: the WebApi boundary, which maps verified claims to identity, roles, and scopes through the one current-actor accessor. Request data never supplies the current actor, because anything the caller sends can name anyone. One resolution path keeps every operation answering "who acts" from the same verified source.
@@ -52,6 +56,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#authorize-each-target-resource`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case, command-handler, query-handler
 
 **Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/backend/application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
 
@@ -81,6 +87,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** A trust boundary MUST validate transport shape and file metadata before use, leaving message checks to application validators as `litespec/backend/application#separate-input-validation-from-invariants` states.
 
 **Rationale:** Message shape, required values, length, range, format, and pagination bounds stay with the application validators that `litespec/backend/application#separate-input-validation-from-invariants` names, and business invariants stay with Domain. Each layer then answers only the questions it can see. Database content, provider responses, file contents, and generated text stay untrusted when they cross into a new output context, because validation for one context proves nothing about the next.
@@ -92,6 +100,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A secret MUST NOT appear in source, logs, traces, exception messages, generated files, URLs, snapshots, container layers, or browser storage.
 
@@ -105,6 +115,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: repository
+
 **Statement:** An external value reaching the database MUST travel through a provider query API or a parameterized SQL parameter.
 
 **Rationale:** String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. The provider query API is Marten's under the baseline and EF Core's under its extension, and both parameterize. The reporting extension owns the reviewed raw SQL patterns.
@@ -116,6 +128,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#limit-public-error-detail`
 
 **Strength:** rule
+
+**Applies to:** artifact: endpoint
 
 **Statement:** A public error MUST use the error contract `litespec/backend/api#return-stable-problem-details` defines.
 
@@ -129,6 +143,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route, form
+
 **Statement:** A frontend MUST apply framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content.
 
 **Rationale:** The browser is hostile ground: injected scripts, forged requests, malicious redirects, and hostile markup all arrive as ordinary page content. Framework escaping, a documented Content Security Policy, secure headers, redirect validation, forgery protection, and sanitization of allowed rich content each blocks one of those attacks. A route guard or hidden control is presentation, so it never replaces API authorization.
@@ -140,6 +156,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#minimize-sensitive-data`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case, command-handler, query-handler
 
 **Statement:** A use case MUST collect, return, log, export, and retain only the fields its input and results declare.
 
@@ -153,6 +171,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A platform holding personal data MUST keep a personal-data inventory per store naming the fields, purposes, and retention of each store.
 
 **Rationale:** Export, erasure, and breach answers each ask the same opening question: which stores hold this person's data, which fields, for which purposes, and for how long. An inventory the team can read answers it in one place. Without it, each request starts with a search across logs, indexes, and outboxes, and the store nobody remembers stays out of the answer.
@@ -164,6 +184,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#apply-erasure-and-export-to-every-store`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case
 
 **Statement:** Erasure and export MUST reach every store holding personal data, with backups expiring inside the retention bound the retention schedule states.
 
@@ -177,6 +199,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A log, trace, or diagnostic record MUST NOT carry personal data in clear.
 
 **Rationale:** Logs flow to stores the product does not control: collectors, dashboards, long-term archives. Redaction at the sink fails once, in one pipeline, and the cleartext is already downstream. A field never emitted fails nowhere.
@@ -188,6 +212,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#treat-an-unsalted-digest-as-personal-data`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An unsalted digest of personal data MUST receive the same handling as the data itself.
 
@@ -201,6 +227,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A breach-notification procedure MUST name the person who acts and a backup person and meet the deadline the applicable constraint record states.
 
 **Rationale:** A breach deadline starts running at discovery. The applicable constraint record states the deadline the outside rule sets. A deadline with nobody named to meet it slips past the team, and one named person fails on the first absence. Naming both before anything happens keeps the procedure starting on time.
@@ -212,6 +240,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#protect-live-data-at-rest`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Live data at rest MUST carry encryption or a departure exception covering this provision.
 
@@ -239,6 +269,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A deployment running more than one replica MUST hold its rate and concurrency counters in one store that every replica reads.
 
 **Rationale:** A per-process counter multiplies the declared limit by the replica count, so the limit the specification states is not the limit the system applies. The multiplier also changes whenever the deployment scales, which makes the effective limit unstated and unreviewable. One store every replica reads keeps the applied limit equal to the declared one.
@@ -250,6 +282,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#restrict-cross-origin-access`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A cross-origin policy MUST list its allowed origins, methods, headers, and credential mode without using a wildcard origin.
 
@@ -263,6 +297,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A security audit event MUST record actor, action, target, outcome, timestamp, trace identifier, and available reason.
 
 **Rationale:** An incident review reconstructs who did what to which target, with what outcome and why. Without actor, action, target, outcome, timestamp, trace identifier, and reason on each security event, the reconstruction is guesswork. Audit records follow a documented retention and access policy, exclude secrets, and stay available for incident review. A consumer that activates the audit extension records the event through that extension instead, which states a wider field set, a classification rule, and a tamper-evidence rule.
@@ -274,6 +310,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#rotate-production-secrets`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A production secret MUST have a secret-inventory entry naming its storage location and next rotation date, with revocation and recovery in a runbook.
 
@@ -287,6 +325,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: record:requirement
+
 **Statement:** A consumer MUST set an ASVS 5.0 level as its security target.
 
 **Rationale:** ASVS 5.0 defines three levels, L1, L2, and L3, with each requirement verifiable to pass or fail, and the organization picks one by risk. The level lives on a quality requirement with its measure, as `litespec/core/intent#state-the-measure-on-a-counted-requirement` states, so the target is checked rather than declared. The level choice and any accepted finding are each decided once by a person.
@@ -299,6 +339,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** CI MUST scan the running API with the ZAP baseline on every pull request.
 
 **Rationale:** The ZAP baseline runs the spider with passive scanning and no active attacks, so it is safe on every pull request, with a WARN, FAIL, and IGNORE config file. Its JSON report feeds the model with the other measured results, and the scan passes with no medium or high alert. ZAP is free and maintained under Apache-2.0.
@@ -310,6 +352,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** CI MUST scan every pull request for security findings with a free static analyzer.
 
@@ -325,6 +369,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Expose one narrow current-actor accessor in WebApi that maps verified claims to typed identity, roles, and scopes.
 
 **Replacement:** A consumer records a current-actor convention naming its accessor and mapping.
@@ -338,6 +384,8 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 **ID:** `litespec/quality/security#keep-secure-headers-in-host-configuration`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Define Content Security Policy, frame restrictions, content-type protection, referrer policy, and transport security in one host location.
 

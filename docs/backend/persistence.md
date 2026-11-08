@@ -68,6 +68,8 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Exactly one global command post-handler MUST commit the session for a command pipeline.
 
 **Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
@@ -90,6 +92,8 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
 **Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the job resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
@@ -103,6 +107,8 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 **ID:** `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`
 
 **Strength:** rule
+
+**Applies to:** artifact: repository
 
 **Statement:** A repository MUST register each touched aggregate with the internal scoped event buffer that the post-handler drains.
 
@@ -146,6 +152,8 @@ Registration covers the types this store actually persists. The store that write
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate
+
 **Statement:** A rename, removal, type change, member move, or discriminator change MUST have a reviewed data transformation or an expand-and-contract rollout.
 
 **Rationale:** Stored JSON member names, required values, and discriminator values are database schema: old documents stay on disk after the code changes. Without a reviewed transformation or an expand-and-contract rollout, a rename or type change makes old documents unreadable. An additive member still defines its behavior for documents written earlier.
@@ -173,6 +181,8 @@ An additive change is the only kind that needs no transformation, and it is addi
 **ID:** `litespec/backend/persistence#use-database-naming-conventions`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A PostgreSQL schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
 
@@ -232,6 +242,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, repository
+
 **Statement:** Each legal document number MUST allocate from a per-owner sequence taken in the command transaction.
 
 **Rationale:** A number computed from a count plus one hands two concurrent issues the same legal number. A per-owner counter row taken in the command transaction allocates each number once, whatever races it.
@@ -245,6 +257,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 **ID:** `litespec/backend/persistence#enforce-uniqueness-in-the-store`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each uniqueness rule MUST be enforced by the store, through a unique index over the stored value or, for a record that exists at most once per owner, through an identity derived from its owner.
 
@@ -276,6 +290,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Strength:** rule
 
+**Applies to:** artifact: repository
+
 **Statement:** A uniqueness rule that no single-record constraint can express MUST be declared by the aggregate as a key and claimed and released by persistence in the commit that changes the aggregate.
 
 **Rationale:** Some rules fit no single-record constraint: a value held in a list inside the aggregate, or a value that is unique across two record kinds. For those, the aggregate declares its current keys through `UniquenessKeys` (see `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`), and persistence compares the keys at load with the keys at commit, inserting the added keys and deleting the removed ones in the same transaction, so the database still arbitrates the race.
@@ -305,6 +321,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 **ID:** `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
 
@@ -337,6 +355,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 **ID:** `litespec/backend/persistence#use-one-persistence-folder`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Place store setup in the product `Infrastructure/` folder and each module's repositories, mappings, and serialization in its own `Infrastructure/` folders.
 
@@ -382,6 +402,8 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Resolve one session for the repositories and the commit handler in one command.
 
 **Replacement:** A project names its session scope in its backend documentation.
@@ -396,6 +418,8 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **Strength:** advice
 
+**Applies to:** artifact: any
+
 **Default:** Add an index only from an accepted query or a measured operating need, and inspect its plan on representative data.
 
 **Replacement:** A project names its index review in its backend documentation.
@@ -409,6 +433,8 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 **ID:** `litespec/backend/persistence#add-read-documents-for-query-shaped-data`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Add a module-owned read document for repeated cross-aggregate composition, deep traversal, or a distorting index shape.
 

@@ -186,6 +186,8 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** rule
 
+**Applies to:** artifact: record:requirement
+
 **Statement:** The literal sentence the subject reads about an erasure MUST stand in Intent before the erasure ships.
 
 **Rationale:** The sentence on the confirmation screen is the promise: what goes, what stays, and for how long. Behavior cannot word it, because only the product team decides what the product promises. Stating it in Intent puts the exact sentence readers see beside the requirement it fulfils.

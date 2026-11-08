@@ -81,6 +81,8 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Exactly one global command post-handler MUST call `SaveChangesAsync` for a command pipeline.
 
 **Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds `litespec/backend/persistence#commit-each-command-pipeline-once` for .NET.
@@ -94,6 +96,8 @@ The obligation is one commit for one pipeline, not one named method. Under the b
 **ID:** `litespec/backend/dotnet/persistence#enforce-uniqueness-with-marten-unique-indexes`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each Marten aggregate document MUST enforce its uniqueness rules through a unique index over the stored value or an identity derived from its owner.
 
@@ -123,6 +127,8 @@ session.Store(new PayoutDocument(expense.Id, payoutNumber));
 
 **Strength:** rule
 
+**Applies to:** artifact: repository
+
 **Statement:** Each cross-record uniqueness key MUST be claimed through a claims document keyed by the key text and written with `session.Insert`, never with `Store`.
 
 **Rationale:** `Store` upserts, so it overwrites a competing claim instead of colliding with it; `Insert` fails when the key document already exists, which is the arbitration the rule needs. The repository compares the aggregate keys at load with the keys at commit, inserts the added key documents and deletes the removed ones in the same transaction. Marten cannot index elements of a list inside a document, cannot enforce uniqueness across document types, and computed indexes do not work on `DateTime` or `DateTimeOffset` members; those cases use the claims document. This provision binds `litespec/backend/persistence#claim-a-cross-record-key-at-commit` for .NET.
@@ -145,6 +151,8 @@ session.Insert(new BarcodeClaim(barcode));
 **ID:** `litespec/backend/dotnet/persistence#map-constraint-violations-with-the-postgresql-refusal-classifier`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each Marten unique index MUST map by name to its conflict refusal code in `PostgreSqlConstraintRefusalClassifier`.
 
@@ -169,6 +177,8 @@ services.UseFaultRefusalClassifierInstance(
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate
+
 **Statement:** Each Marten aggregate document type MUST enable optimistic concurrency.
 
 **Rationale:** The store compares the version each command loaded with the version it commits against, so a stale write fails the commit instead of silently overwriting newer work. Each aggregate document type enables it with `UseOptimisticConcurrency(true)`, or one `Policies.ForAllDocuments` policy covers every aggregate document type at once; no aggregate document type is left without it. This provision binds `litespec/backend/persistence#version-every-aggregate` for .NET.
@@ -187,6 +197,8 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A classifier MUST translate Marten's `ConcurrencyException` into the use case conflict refusal.
 
 **Rationale:** A `ConcurrencyException` names a provider type that Application does not expose. The registered classifier translates it into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, so a version race and a uniqueness race reach the caller through the same refusal path. This provision binds `litespec/backend/application#refuse-a-lost-race-as-a-conflict` for .NET.
@@ -202,6 +214,8 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 **ID:** `litespec/backend/dotnet/persistence#use-the-persistence-layer-folder-layout`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Place Marten configuration, repositories, commit behavior, and serialization in the shared kernel and module Infrastructure folders this provision names.
 
@@ -248,6 +262,8 @@ Aggregate-specific configuration stays beside its aggregate, while session and c
 **ID:** `litespec/backend/dotnet/persistence#register-one-scoped-session`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Register `IDocumentSession` with the WebApi request or Worker operation scope.
 

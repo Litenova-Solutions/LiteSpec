@@ -27,6 +27,8 @@ The structure rules for thin route entries, import direction, public entry point
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend MUST use the frame, routes, and modules layout its stack page states.
 
 **Rationale:** The frame, routes, and modules layout gives every file one predictable home: cross-route values in the frame, one address per route file or folder, and use-case code under the module that owns it. A reader moves from a use case to its code by path alone, on either stack. This realizes litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules.
@@ -77,6 +79,8 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
 
 **Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/use-cases/{use-case}/` mirrors a use case with no one aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
@@ -109,6 +113,8 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend's generated `litespec-records.ts` MUST sit in its frame folder and hold only the use cases and screens of that frontend's own entry points.
 
 **Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds on both stacks: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper browser tests annotate with.
@@ -123,6 +129,8 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A React folder MUST NOT be named `lib`, nor a Svelte folder under `src/lib` be named `stores`.
 
 **Rationale:** A `lib` folder on React would sit beside `src/app` as a second frame, and `src/app` already holds the frame. A `stores` folder on Svelte would gather shared state in one place, while the rules put shared state in the frame or beside its readers. Refusing both names stops the second home before anything moves into it.
@@ -134,6 +142,8 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 **ID:** `litespec/frontend/web/structure#locate-the-frame-in-the-app-folder`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A frontend MUST place cross-route values in the frame folder its stack page states: client configuration, session read, language choice, permissions, formatting, and shell data.
 

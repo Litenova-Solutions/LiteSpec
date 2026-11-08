@@ -30,7 +30,7 @@ The block names the messages the entry point exchanges, the version rule devices
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point
+**Applies to:** artifact: record:entry-point; conformance: records
 
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
@@ -57,7 +57,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point
+**Applies to:** artifact: record:entry-point; conformance: records
 
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
@@ -71,7 +71,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point
+**Applies to:** artifact: record:entry-point; conformance: records
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
@@ -87,7 +87,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point
+**Applies to:** artifact: record:entry-point; conformance: records
 
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
@@ -103,6 +103,8 @@ protocol:
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler
+
 **Statement:** An offline upload with `simulate` MUST return its outcome without writing.
 
 **Rationale:** A device back online after a week holds uploads the world outgrew: prices changed, holds lapsed, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
@@ -116,6 +118,8 @@ protocol:
 **ID:** `litespec/ext/devices#apply-forced-uploads-over-newer-state`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler
 
 **Statement:** An offline upload with `force` MUST apply over newer server state and record the overwrite.
 
@@ -133,6 +137,8 @@ protocol:
 
 **Strength:** default
 
+**Applies to:** artifact: record:entry-point; conformance: records
+
 **Default:** Protocol versions use calendar numbering of the form `YYYY.N`.
 
 **Replacement:** A project names its protocol numbering scheme in its device documentation.
@@ -146,6 +152,8 @@ protocol:
 **ID:** `litespec/ext/devices#replay-uploads-in-queue-order`
 
 **Strength:** default
+
+**Applies to:** artifact: command-handler
 
 **Default:** The server applies an offline queue in the order the device queued it.
 

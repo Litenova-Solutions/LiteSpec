@@ -402,6 +402,24 @@ internal sealed partial class ProvisionValidator
         var pageStacks = ScopeValues(page, "stack");
         var pageLayers = ScopeValues(page, "layer");
         var pageConformance = Provisions.PageConformance(relative);
+
+        // On a page where one provision names the kind of file it governs, every provision
+        // names one, so litespec rules can match each provision to its files.
+        var artifactNamed = provisions
+            .Select(provision => (provision, named: provision.Body
+                .Where(item => PageReader.TryParseAppliesToLine(item.Line, out _))
+                .Take(1)
+                .Any(item => PageReader.TryParseAppliesToLine(item.Line, out var line)
+                    && Scopes.ParseScopeFields(line).Any(field => field.Name == "artifact" && field.Values.Count > 0))))
+            .ToList();
+        if (artifactNamed.Any(entry => entry.named))
+        {
+            foreach (var (provision, named) in artifactNamed.Where(entry => !entry.named))
+            {
+                add(relative, provision.Line, "SCOPE_ARTIFACT", $"provision '{provision.Id}' names no artifact on a page where another provision names one; name the kinds of file it governs, or `artifact: any` when it governs every file of its layer");
+            }
+        }
+
         foreach (var provision in provisions)
         {
             // A pattern's fields end at its first option; everything below that

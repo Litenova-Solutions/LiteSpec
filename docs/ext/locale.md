@@ -44,6 +44,8 @@ This extension switches on no record type. The Decision that records the locale 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A product MUST NOT infer supported locales from catalog files alone.
 
 **Rationale:** A catalog file proves only that someone wrote translations; it says nothing about routes, fallback, selection, or detection. A product that counts locales by counting files announces a language its routes cannot serve and its fallback never reaches.
@@ -100,6 +102,8 @@ This extension switches on no record type. The Decision that records the locale 
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A localized application MUST store user-facing copy in locale catalogs.
 
 **Rationale:** Copy in source code reaches translators only through developers, and each wording change becomes a code change with a review, a build, and a deployment. Catalogs hold every user-facing sentence in one place per locale, so translators edit wording while developers edit behavior.
@@ -111,6 +115,8 @@ This extension switches on no record type. The Decision that records the locale 
 **ID:** `litespec/ext/locale#name-messages-by-meaning`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A locale catalog MUST use semantic keys that cite glossary terms rather than source-language sentences.
 
@@ -125,6 +131,8 @@ This extension switches on no record type. The Decision that records the locale 
 **ID:** `litespec/ext/locale#complete-or-fall-back-catalog-values`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each supported locale MUST contain required keys or use its declared fallback.
 
@@ -141,6 +149,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 **ID:** `litespec/ext/locale#follow-the-validation-message-grammar`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A validation catalog MUST state the field label, what is wrong, and what is accepted, without technical wording.
 
@@ -172,6 +182,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A localized interface MUST format dates, times, numbers, currency, plurals, lists, and relative time by active locale.
 
 **Rationale:** Dates, numbers, currency, plurals, lists, and relative time each follow the reader's conventions, and a date the reader misreads becomes a missed appointment or a wrong payment. The platform supplies all of them.
@@ -188,6 +200,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Strength:** rule
 
+**Applies to:** artifact: value-object, endpoint
+
 **Statement:** Domain values and API contracts MUST remain locale-neutral unless a use case explicitly exchanges localized content.
 
 **Rationale:** An expense state or a price stored in Dutch breaks the moment an English speaker opens it, and an API contract that shifts per language forces every consumer to negotiate wording before reading data. Business values and wire contracts stay in one neutral form, and only the interface translates them for display. A use case that genuinely exchanges localized content, such as a product description the merchant writes per language, names that exchange explicitly.
@@ -200,6 +214,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route, form
+
 **Statement:** Public metadata, form labels, validation messages, and user-safe errors MUST follow the active locale.
 
 **Rationale:** A Dutch page with an English title, English form labels, or an English error tells the reader the translation stopped halfway and tells a search engine the page serves two languages. Metadata, labels, validation messages, and user-safe errors follow the active locale with the page around them.
@@ -211,6 +227,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 **ID:** `litespec/ext/locale#keep-stable-error-codes-locale-neutral`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case, endpoint
 
 **Statement:** A stable API error code MUST NOT change by locale.
 
@@ -226,6 +244,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep catalogs under one application-owned locale root.
 
 **Replacement:** A project names another root for locale catalogs in its documentation.
@@ -239,6 +259,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 **ID:** `litespec/ext/locale#split-catalogs-by-module-when-needed`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Split catalogs by module only when catalog size requires it.
 
@@ -254,6 +276,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Use BCP 47 locale identifiers.
 
 **Replacement:** A project names another identifier form for locales in its documentation.
@@ -267,6 +291,8 @@ A key missing from the default locale fails the build. No fallback exists for it
 **ID:** `litespec/ext/locale#keep-locale-selection-explicit`
 
 **Strength:** default
+
+**Applies to:** artifact: route
 
 **Default:** Keep locale selection in the URL or documented session preference.
 

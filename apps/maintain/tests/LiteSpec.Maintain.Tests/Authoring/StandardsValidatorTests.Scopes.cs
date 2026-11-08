@@ -54,7 +54,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToRecordArtifact() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: record:use-case\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: record:use-case\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: record:use-case\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -79,10 +79,21 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToArtifactNarrows() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
+
+    /// <summary>A provision with no artifact on a page where another provision names one.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
+    [Fact(DisplayName = "provision with no artifact beside one that names an artifact")]
+    public void ArtifactMissingBesideANamedArtifact() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"));
+            StandardsFixture.RebuildIndex(root);
+        },
+        ["SCOPE_ARTIFACT"]);
 
     /// <summary>Applies to line narrowing a page stack of any.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
@@ -132,7 +143,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToArtifactAndConformance() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; conformance: traced\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; conformance: traced\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);

@@ -231,6 +231,15 @@ public sealed class Scopes
             }
 
             var name = cleaned[..colon].Trim();
+
+            // A record:<type> value after a comma continues the artifact field, so one
+            // provision can name several record types.
+            if (current == "artifact" && name == "record")
+            {
+                values[fields.FindIndex(field => field.Name == current)].Add(cleaned);
+                continue;
+            }
+
             current = name;
             var value = Unquote(cleaned[(colon + 1)..]);
             var index = fields.FindIndex(field => field.Name == name);

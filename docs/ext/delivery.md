@@ -29,6 +29,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST show green G checks, verified scenarios, and green S checks where the reader is qualified.
 
 **Rationale:** The three parts prove the three risks are closed: G checks prove the record graph holds, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged. `litespec model check --release` makes the release-readiness findings block, so the gate is a command.
@@ -43,6 +45,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST provide repeatable schema creation or upgrade, backup instructions, and a tested restore.
 
 **Rationale:** A product that cannot recreate its schema, back up its data, and restore from backup holds customer data it cannot recover. Repeatable setup plus a tested restore turns recovery from a hope into a rehearsed procedure.
@@ -54,6 +58,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#provide-release-operating-visibility`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release MUST provide liveness, readiness, trace-correlated diagnostics, and secrets outside source control.
 
@@ -67,6 +73,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST provide CI, tested deployment and rollback paths, current operating limits, and the runbooks those limits name.
 
 **Rationale:** CI, tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without them, each deployment improvises and each incident starts from scratch.
@@ -78,6 +86,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#record-release-evidence`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release record MUST list build, test, contract, security, journey, schema, backup, deployment, readiness, diagnostics, smoke-test, and rollback results.
 
@@ -91,6 +101,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release record MUST list operating limits, alerts, runbooks, known operating conditions, and skipped checks.
 
 **Rationale:** Limits, alerts, runbooks, known conditions, and skipped checks tell the maintainer what to watch, what to run, and what remains unverified after release. Without them, the release hands over an artifact with no operating instructions.
@@ -102,6 +114,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#keep-a-first-release-readiness-record`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A consumer before its first production release MUST keep a readiness record with dated rehearsals, green gates, and a rehearsal owner.
 
@@ -115,6 +129,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: migration
+
 **Statement:** A persistence change MUST publish a schema artifact that lists every destructive operation with its reason.
 
 **Rationale:** A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.
@@ -126,6 +142,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#enforce-the-supply-chain-gate`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** CI MUST enforce the supply-chain gate on every pull request.
 
@@ -141,6 +159,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** CI MUST publish a preview of the book for every change.
 
 **Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The reader clicks from the comment into the preview for full context.
@@ -152,6 +172,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#promote-verified-artifacts`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** CI MUST build one immutable artifact and promote that same artifact through staging and production.
 
@@ -165,6 +187,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The default branch MUST require the jobs table entries for the project's size, a reviewed pull request, and a clean merge state.
 
 **Rationale:** The default branch is the source every environment deploys from, so an unreviewed or unchecked commit there reaches production with no further review. Requiring the jobs table entries, a reviewed pull request, and a clean merge state keeps every commit on the branch reviewed and verified. A direct push or a bypassed check is permitted only during a documented repository recovery action.
@@ -176,6 +200,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#record-every-branch-protection-bypass`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A direct push or bypassed check on the default branch MUST produce a record naming the actor, the reason, and the change it admitted.
 
@@ -191,6 +217,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Consumer CI MUST use the job names and responsibilities the jobs table on the [Continuous Integration page](../quality/ci.md) states.
 
 **Rationale:** The release job reruns the table's jobs by name, and the branch protection settings require them by name. When a consumer renames a job or moves its checks elsewhere, those references point at a job that no longer exists, and the gate stops checking without failing. Fixed names and responsibilities keep every reference resolving to the checks the table states.
@@ -202,6 +230,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An alert rule MUST state every number its requirement's `measure` names in its own expression or threshold.
 
@@ -217,6 +247,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A drill or measuring harness that checks a quality requirement MUST write each run as a check result naming the requirement's `check`, kept under the project's `paths.checkResults`.
 
 **Rationale:** A drill rehearses a procedure against a running deployment, and a harness measures from outside: neither is a test, and neither runs in the test job, so their outcome lives only in a terminal or a pasted note that no tool reads. Writing each run as a small result file in Proof gives the quality requirement the same evidence a measured check gives it, under the same `check` name, with the date it ran and the value it saw.
@@ -231,6 +263,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST document backup owner, schedule, retention, encryption, location, restore command, and recovery objectives.
 
 **Rationale:** A backup is only as good as its restore: without a named owner, a schedule, a retention bound, encryption, a location, a restore command, and recovery objectives, nobody knows what is kept, who restores it, or how much loss is accepted. Writing all seven down before production data arrives leaves nothing to decide during the incident.
@@ -243,6 +277,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A project MUST rehearse a restore on representative data before its first deployment holds production data.
 
 **Rationale:** Backups fail in ways only a restore reveals: a missing key, a wrong permission, a dump the new version cannot read. Rehearsing on representative data before production data arrives finds those failures while they cost nothing. The first restore attempt is the wrong time to learn the backup cannot restore.
@@ -254,6 +290,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **ID:** `litespec/ext/delivery#use-a-repeatable-deployment`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A deployment MUST use versioned artifacts, declared configuration, a schema step, readiness checks, and a passing release job.
 
@@ -295,6 +333,8 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A baseline alert MUST declare owner, threshold, evaluation window, severity, and runbook before a production release.
 
 **Rationale:** Each declared field answers one failure mode:
@@ -314,6 +354,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Baseline coverage MUST include sustained readiness failures, unexpected HTTP errors, release-flow latency, PostgreSQL outages, and failed deployments.
 
 **Rationale:** Five failures end a release when nobody observes them: readiness that never recovers, HTTP errors the code did not expect, a slowing release flow, a lost database, and a deployment that failed partway. Naming them as the minimum coverage keeps a team from declaring alerts only for the failure it just survived.
@@ -325,6 +367,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#route-each-severity-to-a-declared-destination`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An alert inventory MUST state, for each severity it uses, the destination that receives the alert and the response time expected of it.
 
@@ -354,6 +398,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A production release MUST state its availability and latency objectives as OpenSLO files compiled by Sloth.
 
 **Rationale:** OpenSLO files state objectives as code, and Sloth validates them in CI and compiles them into Prometheus recording rules and burn-rate alerts. OpenTelemetry supplies the signals the objectives read, as `litespec/quality/operations#emit-correlated-diagnostics` states. Sloth and OpenTelemetry are free and maintained under Apache-2.0, and availability stays evidenced in production only.
@@ -366,6 +412,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each production objective MUST link to its dashboard in the book.
 
 **Rationale:** The book states intent while dashboards show production truth, and the link joins them: a reviewer clicks from the objective to the numbers behind it. Copying numbers into the page instead would freeze production truth at commit time.
@@ -377,6 +425,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#match-every-shipped-package-to-its-pin`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every direct package in the project's generated bill of materials that the manifest pins MUST ship at the pinned version.
 
@@ -392,6 +442,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every direct package in the project's generated bill of materials MUST carry a license the project accepts in `dependencies.licenses`, or one its `admits` entry names.
 
 **Rationale:** A copyleft or commercial license binds the product the day the package ships, and a license nobody accepted is found at an audit rather than at the change that brought it. Listing the accepted licenses once, and naming any other on the admitting decision, keeps the license choice a decision with a person's name on it.
@@ -406,6 +458,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release image MUST use multi-stage builds and pinned base-image digests.
 
 **Rationale:** Build tooling has no place in a runtime image: each compiler and package cache widens the attack surface of every deployment. Multi-stage builds leave that tooling in the build stage. A pinned base-image digest fixes the exact reviewed base, so a rebuild months later starts from the same bytes.
@@ -417,6 +471,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#run-images-as-non-root`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release image MUST run its application with a non-root runtime user.
 
@@ -430,6 +486,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A runtime image MUST contain only files required to run the deployed application.
 
 **Rationale:** Every file in the runtime image ships to every replica and waits for an attacker to read it. Copying only the files the application needs keeps the image small to transfer and to inspect. Each extra file is cost with no runtime purpose.
@@ -441,6 +499,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#exclude-build-material-from-runtime-images`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A runtime image MUST NOT contain source, tests, package caches, or local configuration.
 
@@ -454,6 +514,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A deployment platform MUST supply connection strings, OIDC settings, exporter endpoints, and secrets outside the image.
 
 **Rationale:** Connection strings, OIDC settings, exporter endpoints, and secrets differ by environment. Supplying them outside the image lets one image serve every environment. Baking them in would rebuild and re-test the image for each environment it enters.
@@ -465,6 +527,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#exclude-environment-configuration-from-images`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release image MUST NOT contain environment-specific configuration.
 
@@ -478,6 +542,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release job MUST apply reviewed schema changes before traffic shifts to new application replicas, under `litespec/backend/persistence#control-production-schema-changes`.
 
 **Rationale:** New application replicas expect the schema their release reviewed. The release job applies those schema changes before traffic shifts, under `litespec/backend/persistence#control-production-schema-changes`. Traffic first would send new code against an old schema.
@@ -489,6 +555,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#keep-schema-work-out-of-startup`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An application replica MUST NOT alter the production schema during startup, under `litespec/backend/persistence#control-production-schema-changes`.
 
@@ -502,6 +570,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A deployment controller MUST start new replicas and wait for readiness before shifting traffic.
 
 **Rationale:** New replicas need time to load before they serve: a replica that receives traffic mid-startup fails its first requests. The controller starts them, waits for readiness, and only then shifts traffic. Readiness proves the new version serves before it becomes the version.
@@ -513,6 +583,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#test-released-traffic`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release deployment MUST run the release's recorded end-to-end suite after traffic reaches the new version.
 
@@ -526,6 +598,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A deployment MUST use a read-only filesystem when the application permits it and drop unnecessary capabilities.
 
 **Rationale:** A read-only filesystem and dropped capabilities shrink what a compromised process can do next: no writes outside declared paths, no privileged calls it never needed. The limits apply where the application permits them. Each kept capability is an action an attacker inherits.
@@ -537,6 +611,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#declare-writable-paths-and-limits`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A deployment MUST declare writable paths and record CPU and memory bounds as setting records.
 
@@ -550,6 +626,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A container MUST run the application as its entry process.
 
 **Rationale:** The platform stops a container by signaling its entry process. An application running as PID 1 receives that signal and shuts down on purpose. A wrapper that swallows the signal leaves the platform waiting until it kills the container mid-work.
@@ -561,6 +639,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#set-sufficient-shutdown-time`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A deployment MUST set a shutdown grace period longer than measured request or Worker stop time.
 
@@ -574,6 +654,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A containerized application MUST write logs to standard output or standard error.
 
 **Rationale:** Container filesystems vanish with their replicas, so a log file inside the container dies with the evidence it holds. Standard output and standard error hand each line to the platform's log collection. The platform then keeps logs past the life of any one replica.
@@ -585,6 +667,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#keep-mutable-data-external`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A containerized application MUST keep mutable data outside its container filesystem.
 
@@ -598,6 +682,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release image MUST include OCI source, revision, version, and created-time labels.
 
 **Rationale:** Source, revision, version, and created-time labels in the OCI standard form connect each image to the commit and release that produced it. An incident responder reads the running image's labels and opens the exact source. Images without labels force that join through guesswork.
@@ -609,6 +695,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#record-image-digests`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release record MUST store the deployed image digest rather than only an image tag.
 
@@ -622,6 +710,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A published OpenAPI document or generated client MUST NOT contain a build timestamp.
 
 **Rationale:** A generated-at field or a build-time comment changes the OpenAPI document and generated clients on every build. The diff then reports change where no contract changed, which buries real breaks. Contracts carry version identity instead of build time.
@@ -633,6 +723,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#separate-frontend-configuration-classes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A frontend image build MUST distinguish public build-time configuration from server-only runtime secrets.
 
@@ -646,6 +738,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A frontend image build MUST use secret mounts or runtime injection for secrets.
 
 **Rationale:** Secret mounts and runtime injection hand secrets to the build without writing them into a layer. Nothing secret then persists in the image history. A pulled image reveals its layers to anyone, so image history stays free of secrets.
@@ -657,6 +751,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#exclude-insecure-frontend-secret-carriers`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A frontend image build MUST NOT use `ARG`, copied environment files, or image layers for secrets.
 
@@ -672,6 +768,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Treat build and lint warnings as failures unless the build configuration records a narrow suppression with its reason.
 
 **Replacement:** A consumer records a warnings convention naming which warnings fail its build.
@@ -685,6 +783,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#apply-the-documented-defaults`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep one workflow per job the jobs table lists and use the job names the jobs table states.
 
@@ -700,6 +800,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep service, resource, meter, and trace-source names identical across environments.
 
 **Replacement:** A consumer records a service-naming convention naming how its services, resources, meters, and trace sources are named.
@@ -713,6 +815,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#keep-deployment-descriptors-together`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep compose files, proxy configuration, the environment example, database setup, observability, DNS records, alert definitions, service definitions, and bootstrap scripts under one `deploy/` tree.
 
@@ -728,6 +832,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep bootstrap, release, and CI helper scripts under root `scripts/`.
 
 **Replacement:** A project that organizes scripts per application records its own script layout in its project documentation.
@@ -742,6 +848,8 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep one Dockerfile beside each deployable application.
 
 **Replacement:** A consumer records a dockerfile-layout convention naming where its Dockerfiles live.
@@ -755,6 +863,8 @@ Declaring all five before production makes each alert answerable the first time 
 **ID:** `litespec/ext/delivery#build-from-the-workspace-root`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Build images from the workspace root when shared project or package files are required.
 

@@ -32,6 +32,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:rule
+
 **Statement:** A lifecycle record MUST name classification, retention, deletion trigger, hold, export, restore, and backup.
 
 **Rationale:** A lifecycle record names every choice the team makes about a record's lifetime in one place: what kind of data it is, how long it stays, what triggers deletion, and how holds, exports, restores, and backups behave. Without that record, the choices scatter across tickets and memory, and a deletion runs before anyone checks the retention bound. Retention bounds live in setting records.
@@ -43,6 +45,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#default-to-hard-delete`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A lifecycle implementation MUST use hard delete when no accepted retention or restore requirement applies.
 
@@ -58,6 +62,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: state-record
+
 **Statement:** A soft-deleted or archived record MUST have a business reason and explicit state transition.
 
 **Rationale:** A record that stays after deletion or moves to an archive still affects the product: it appears in some reads, skips others, and can return. A named state with a named transition shows that behavior in the aggregate itself, so a reader sees which transitions exist and which checks each one runs. Without the transition, the retained data is a row the code treats specially in scattered places.
@@ -71,6 +77,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#reject-hidden-lifecycle-flags`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A lifecycle implementation MUST NOT use a hidden boolean as its sole lifecycle behavior.
 
@@ -98,6 +106,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, job
+
 **Statement:** A lifecycle operation MUST apply its documented authorization.
 
 **Rationale:** Deleting or restoring the wrong record harms a customer or breaks a legal duty, so each lifecycle operation checks that the actor may perform it.
@@ -110,6 +120,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, job
+
 **Statement:** A lifecycle operation MUST record its audit as an audit record when audit is selected and a standalone record otherwise.
 
 **Rationale:** The audit entry lets a reviewer answer who deleted what and when, which a subject-access or legal-hold dispute asks for first.
@@ -121,6 +133,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#exclude-persistence-only-lifecycle-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A lifecycle rule MUST NOT rely only on persistence filters or property setters.
 
@@ -162,6 +176,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:rule
+
 **Statement:** A lifecycle specification MUST define post-deletion behavior for cross-aggregate references, exports, and unique constraints.
 
 **Rationale:** Other records can point at the deleted one, exports can carry its values, and a unique value such as an expense reference number can become available again. When the specification stays silent, each developer guesses: one nulls the reference, another keeps it, and a duplicate value slips through or a report breaks. Writing the behavior down gives every reference, export, and constraint one answer.
@@ -174,6 +190,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: repository
+
 **Statement:** A Marten lifecycle implementation MUST define document state, filtered queries, indexes, purge transformations, and contract evolution.
 
 **Rationale:** A document store keeps whatever the aggregate writes, so the team states how each lifecycle state lands in the document: which state the document carries, which queries filter it, which indexes serve those queries, how a purge rewrites the document, and how the contract changes when the shape does. Without those choices, the business transition lands in storage by accident and each query invents its own filter.
@@ -185,6 +203,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#define-relational-lifecycle-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: migration, repository
 
 **Statement:** An EF Core lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.
 
@@ -211,6 +231,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#bound-purge-and-archive-work`
 
 **Strength:** rule
+
+**Applies to:** artifact: job
 
 **Statement:** A purge or archive operation MUST be resumable, bounded, cancellation-aware, and observable.
 
@@ -252,6 +274,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler
+
 **Statement:** A legal-hold release MUST record actor, data covered, reason, and resumed retention: an audit record when audit is selected, a standalone record otherwise.
 
 **Rationale:** A hold suspends the duty to erase, and releasing it resumes that duty from a date the team can name. Without a release record, nobody can state when the suspension ended, so a subject's [erasure request](https://gdpr-info.eu/art-17-gdpr/) has no answer date and the next retention run cannot tell which data is deletable again. The record also tells the retention job exactly which data resumed which retention date.
@@ -265,6 +289,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#align-backup-deletion-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Backup and replica operations MUST follow the documented deletion guarantee.
 
@@ -280,6 +306,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Use `deleted_at_utc` when a soft-delete timestamp is required.
 
 **Replacement:** A project names another column for the soft-delete timestamp in its documentation.
@@ -294,6 +322,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep archive records under the owning module.
 
 **Replacement:** A project keeps archive records in one shared archive area.
@@ -307,6 +337,8 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 **ID:** `litespec/ext/lifecycle#separate-query-shaped-history`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Use a separate read model when archived history is query-shaped instead of an aggregate invariant.
 

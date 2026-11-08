@@ -130,6 +130,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** rule
 
+**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
+
 **Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
 
 **Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
@@ -156,6 +158,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An Intent or Behavior record MUST state only behavior the application performs, data it holds, a refusal it raises at runtime, infrastructure it runs on, or a limit it enforces.
 
 **Rationale:** LiteSpec specifies the product, not the company. Prices as an offer, markets, hiring, sales actions, launch calendars, company goals and founder concerns can be checked only against a bank account, a diary or a contract, so they sit outside the records a reader reviews as the product. A company fact that binds the product still enters: as a constraint when an authority or a limit binds the application, and as dated research when a choice rests on it. [The Software Test](#the-software-test) names what belongs for each record type: a goal states a software outcome, a problem states a user pain the software answers, a feature states a capability the software has, and a module names a product area, never a company function. Plan entitlements the software enforces stay, as settings and permissions; the price list as a company offer leaves.
@@ -169,6 +173,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 **ID:** `litespec/core/intent#reach-every-intent-record-with-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Each Intent record MUST reach Behavior through its stated path.
 
@@ -618,6 +624,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An Intent record MUST NOT describe states, results, codes, transactions, edges, consistency modes, Behavior field names, or code.
 
 **Rationale:** An Intent record that names Behavior detail becomes a second specification, and it drifts from the first with the next Behavior change. Two specifications force every reader to ask which one the code follows. Behavior records own behavior and point up to the requirements and steps they serve, so each fact has one home.
@@ -629,6 +637,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 **ID:** `litespec/core/intent#treat-generated-research-as-source-material`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An agent MUST treat records generated outside `docs/` as source material until a research record or a decision states the claim.
 
@@ -707,6 +717,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 **ID:** `litespec/core/intent#group-product-records-by-module`
 
 **Strength:** default
+
+**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
 
 **Default:** Keep the product record at `.litespec/intent/product.yaml`, product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
 

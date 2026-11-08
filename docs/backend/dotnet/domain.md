@@ -32,6 +32,8 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Domain code MUST reference only the .NET base class library and product-owned Domain types.
 
 **Rationale:** A package reference is a direction: once Domain names a persistence or web type, business rules start depending on the framework instead of the framework depending on them. Keeping Domain to the base class library and product-owned types means a provider change cannot reach business behavior. Infrastructure registers persisted discriminators and mappings, so Domain carries no serialization attribute. This provision binds `litespec/backend/domain#keep-domain-independent-of-outer-layers` for .NET.
@@ -57,6 +59,8 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 **ID:** `litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate, value-object
 
 **Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`.
 
@@ -178,6 +182,8 @@ If order is not part of the value, creation normalizes to the documented compari
 
 **Strength:** rule
 
+**Applies to:** artifact: value-object
+
 **Statement:** A domain service MUST be a stateless sealed class accepting and returning Domain values.
 
 **Rationale:** Some calculations span concepts with no natural aggregate owner, and a stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. The service carries a mark naming its rule, so the builder links it to the rule it computes. This provision binds `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules` for .NET.
@@ -240,6 +246,8 @@ public sealed record ProfileActiveState : ProfileState;
 **ID:** `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`
 
 **Strength:** rule
+
+**Applies to:** artifact: value-object
 
 **Statement:** Domain code MUST model every closed set as an abstract record base with sealed cases exposing one stable `Code`, converting labels through `FromCode`.
 
@@ -351,6 +359,8 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate, value-object
+
 **Statement:** An aggregate identity MUST be a `readonly record struct` wrapping one version 7 `Guid`, declaring no implicit conversion, primitive alias, or public parameterless creation path.
 
 **Rationale:** A bare `Guid` parameter accepts any identifier, including an empty one and one meant for another aggregate. The typed struct rejects `Guid.Empty` and the struct default in every factory, implements `IStronglyTypedId` and `IParsable<TId>`, and declares no implicit conversion or parameterless creation, so a wrong identifier fails at the boundary. New values arrive from the caller: a factory takes its identifier as an argument, and a method that needs several takes a generator. Domain reads no clock and calls no static source of time or randomness, which keeps business behavior deterministic and testable. This provision binds `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values` for .NET.
@@ -411,6 +421,8 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Strength:** rule
 
+**Applies to:** artifact: value-object
+
 **Statement:** A monetary amount MUST use `decimal` inside one shared `Money` value object carrying an ISO 4217 currency code and serializing as `{ "amount": "12.50", "currency": "EUR" }`.
 
 **Rationale:** Binary floating point cannot represent most decimal amounts exactly, so money computed in `double` drifts by cents. The shared `Money` object keeps a `decimal` amount with an ISO 4217 currency code, and the owning module record defines supported currencies, scale, rounding, sign rules, and cross-currency arithmetic. Infrastructure maps that precision explicitly, and a use case fixed to one currency accepts an amount alone while stating that currency in its record. This provision binds `litespec/backend/domain#model-money-with-exact-decimal-values` for .NET.
@@ -449,6 +461,8 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 **ID:** `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`
 
 **Strength:** rule
+
+**Applies to:** artifact: repository
 
 **Statement:** A repository interface MUST expose only aggregate and Domain types for exactly one aggregate root, without `IQueryable`, a session, or a generic CRUD surface.
 
@@ -523,6 +537,8 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate, value-object
+
 **Statement:** A rejected business rule MUST throw a `DomainException` subclass named `{DomainType}{Reason}Exception`, carrying the refusal `code` and one mark naming its rule.
 
 **Rationale:** One exception type per rule puts the stable code and the message in the type, and its `Code` comes from the refusal result its rule names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`. The call site passes only domain values and two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. An invariant rule is checked in the root's factory and methods, and a precondition rule is checked in the use-case validator or the root's method. Each exception's code equals the refusal `code` on the result record it answers. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`; this provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection, and carries no transport status. This provision binds `litespec/backend/domain#reject-business-violations-with-dedicated-refusals` for .NET.
@@ -573,6 +589,8 @@ Application validators handle malformed caller input through validation errors. 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Every public Domain type and member MUST carry XML documentation stating the business constraint, result, or failure it represents.
 
 **Rationale:** A public Domain member is a business promise, and its XML documentation is where a reader learns the constraint, result, or failure it represents. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. Without that, callers infer the contract from the implementation and miss the rule. This provision binds `litespec/backend/domain#describe-every-public-domain-contract-in-documentation` for .NET.
@@ -584,6 +602,8 @@ Application validators handle malformed caller input through validation errors. 
 **ID:** `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`
 
 **Strength:** rule
+
+**Applies to:** artifact: aggregate
 
 **Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
 
@@ -602,6 +622,8 @@ Application validators handle malformed caller input through validation errors. 
 **ID:** `litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Declare the shared Domain contracts once in the shared kernel Domain folder and reuse them across every module.
 
@@ -687,6 +709,8 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 
 **Strength:** default
 
+**Applies to:** artifact: aggregate, state-record, value-object, domain-event
+
 **Default:** Represent an identifier the same way in Domain, persistence, transport, and generated clients.
 
 **Replacement:** A project names its identifier representations in its Domain documentation.
@@ -724,6 +748,8 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 **ID:** `litespec/backend/dotnet/domain#use-the-domain-layer-folder-layout`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Give each aggregate Domain folder its states, events, exceptions, and concepts in the files this provision names.
 

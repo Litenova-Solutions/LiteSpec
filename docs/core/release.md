@@ -82,6 +82,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release change MUST run every check selected by its changed backend, frontend, journey, Intent, Behavior, and extension boundaries.
 
 **Rationale:** Each boundary carries failures the others cannot see: frontend checks say nothing about migrations, and backend suites say nothing about rendered screens. Running every check the changed boundaries select keeps each change evidenced where its failure lives. A narrow category that passes alone certifies only part of the change.
@@ -94,6 +96,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any; conformance: full
+
 **Statement:** A backend change MUST pass the release build and the backend test suites.
 
 **Rationale:** The release build compiles the solution in release mode, catching the conditional and optimization-gated breaks a debug build hides. The architecture, integration, and acceptance suites the size requires prove architecture layering, wiring, and behavior in turn. Skipping any of them ships backend code the project's own suites do not fully prove.
@@ -105,6 +109,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#run-frontend-release-checks`
 
 **Strength:** rule
+
+**Applies to:** artifact: any; conformance: full
 
 **Statement:** A frontend change MUST run frozen installation, lint, type checking, tests, and production build checks.
 
@@ -132,6 +138,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An Intent or Behavior change MUST pass the G checks with the book.
 
 **Rationale:** G checks read records only: shape, references, links, reachability, coverage, and the Behavior rules the check list names. Without them, a renamed record or a moved file silently breaks the references other pages rely on, and the book renders a graph that no longer holds. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
@@ -143,6 +151,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#run-extension-checks`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A selected project or applicable local extension MUST run its stated verification when affected.
 
@@ -156,6 +166,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any; conformance: full
+
 **Statement:** A source change MUST regenerate OpenAPI and frontend API types when it changes their source contract.
 
 **Rationale:** OpenAPI and frontend API types derive from a source contract. A source change that leaves the committed copies stale ships clients built against a contract the server no longer honors.
@@ -168,6 +180,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any; conformance: full
+
 **Statement:** A generated application contract MUST be stable and exclude timestamps, machine paths, and nondeterministic ordering.
 
 **Rationale:** Timestamps, machine paths, and unstable ordering make every regeneration look like a behavior change. Deterministic output keeps contract diffs reviewable, so a reviewer sees only the changes that matter.
@@ -179,6 +193,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#qualify-the-checker-with-known-good-and-known-bad-fixtures`
 
 **Strength:** rule
+
+**Applies to:** artifact: any; conformance: full
 
 **Statement:** A stack reader MUST pass its known good and known bad fixtures before it gates with S checks.
 
@@ -194,6 +210,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any; conformance: full
+
 **Statement:** A release with restricted access MUST provide authentication and authorization.
 
 **Rationale:** Restricted behavior without authentication accepts callers nobody identified, and without authorization it accepts actions nobody permitted. Both decisions call for a trusted identity and a declared permission before the behavior ships.
@@ -205,6 +223,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#record-the-release-artifact`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release MUST create one release record for its immutable artifact.
 
@@ -218,6 +238,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST settle every expired exception and every external claim it depends on, or exclude the affected behavior from every owning record.
 
 **Rationale:** An expired exception is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. `exception-expired` reports every expired exception.
@@ -229,6 +251,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#report-verification-exactly`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A completion report MUST name exact commands, outcomes, evidence scope, skipped checks, generated differences, scope limits, and covered use cases.
 
@@ -242,6 +266,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release record MUST name source commit and immutable artifact reference.
 
 **Rationale:** The source commit names the verified input and the artifact reference names the deployed output. Together they bind the record to one build, so evidence from another build cannot stand in for it.
@@ -254,6 +280,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release record MUST list included journeys, use cases, and selected applicable extensions.
 
 **Rationale:** The behavior boundary of an artifact is exactly its journeys, use cases, and extensions. Listing them tells operators and reviewers what the artifact contains and, by omission, what it does not.
@@ -265,6 +293,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#keep-release-records-non-authoritative`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A release record MUST NOT restate a specification or copy a scenario.
 
@@ -294,6 +324,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release record MUST state its complete behavior and evidence without depending on an earlier release record.
 
 **Rationale:** A release judged from fragments is judged by archaeology: the reader digs through other records to fill the gaps. A complete record lets one reader judge one release from one page, with no upgrade guide filling in.
@@ -307,6 +339,8 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **ID:** `litespec/core/release#store-release-records-together`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep release records under `.litespec/releases/`.
 

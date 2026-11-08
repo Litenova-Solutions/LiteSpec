@@ -128,6 +128,8 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Strength:** default
 
+**Applies to:** artifact: query-handler
+
 **Default:** Each model run writes its prompt hash, the tools called, and the outcome to the run log.
 
 **Replacement:** A project names its model-run evidence in its AI documentation.

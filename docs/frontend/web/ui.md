@@ -55,6 +55,8 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The shared package MUST publish a registry whose build exits zero and which lists one item per floorplan the design contract declares.
 
 **Rationale:** Without an installable page for each floorplan, an author invents a page from primitives and the next author invents another. One registry item per floorplan the design contract declares gives every page type a reference the author installs before writing. A registry build that exits zero proves every item still builds.
@@ -83,6 +85,8 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A Tailwind class MUST use a semantic token rather than an arbitrary value, a raw palette value, or an important modifier.
 
 **Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value answers to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
@@ -94,6 +98,8 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 **ID:** `litespec/frontend/web/ui#track-source-changes`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The shared package's source lock MUST record the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive.
 
@@ -108,6 +114,8 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 **ID:** `litespec/frontend/web/ui#use-the-source-update-procedure`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Update the primitive source on a branch that pins the CLI, starts clean, and reviews the regenerated files and the local composites separately.
 

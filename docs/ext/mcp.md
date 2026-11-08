@@ -44,6 +44,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An MCP server MUST pass an `instructions` value at initialize stating its transport, its audience, its write surface, and its refusal behavior.
 
 **Rationale:** The MCP initialize response carries server instructions that the client loads once per session, while each tool description loads per call. Scope and policy therefore belong at the server level, where they hold for every call: the transport, the audience, the write surface, and the refusal behavior. Tool mechanics stay in the tool descriptions, which the model reads when it chooses a tool. Without server-level instructions, each tool repeats the policy differently or omits it, and the model plans calls the server refuses.
@@ -57,6 +59,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 **ID:** `litespec/ext/mcp#write-one-tool-description-for-one-decision`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An MCP tool MUST title its action imperatively, describe its behavior declaratively, use positive parameter polarity, and state its side effects.
 
@@ -85,6 +89,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each tool MUST name the use cases and permissions it reaches.
 
 **Rationale:** Each tool opens product behavior to a model acting for the user, so the team names exactly which use cases and permissions each tool reaches. Without the named scope, a reviewer cannot tell whether a tool reads one account or writes across many, and a broad tool ships without the scrutiny its reach needs.
@@ -96,6 +102,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 **ID:** `litespec/ext/mcp#confirm-every-writing-tool`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Every tool that writes MUST refuse until the person confirms the write.
 
@@ -109,6 +117,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Tool descriptions and logs MUST exclude secrets and personal data from every field they carry.
 
 **Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond the consent that collected it. Descriptions and logs name the fields without carrying the values.
@@ -120,6 +130,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 **ID:** `litespec/ext/mcp#state-the-distribution-and-update-path`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The server documentation MUST state how a user installs and updates the server.
 
@@ -134,6 +146,8 @@ This extension switches on no record type. Authentication, authorization, and pe
 **ID:** `litespec/ext/mcp#state-the-refusing-side-on-each-refusal`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Prefix an input-shape refusal with `Needs:`, a human-confirmation refusal with `Needs confirmation:`, and a server-side refusal with `Refused:`.
 

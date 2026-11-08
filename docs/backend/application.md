@@ -33,6 +33,8 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each command or query MUST own one use case folder inside the `UseCases/` folder of its module and aggregate holding its message, result, validator, handler, mapping, and definition of pipeline-read values.
 
 **Rationale:** One use case folder inside its `UseCases/` folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and pipeline-read values, with its endpoint and transport models beside them. Grouping by technical type scatters one use case across the module, so a change touches six folders and review misses one. Type names share the use-case prefix and follow the suffix table under `litespec/workspace/naming#use-architectural-suffixes`. Pipeline-read values are declared beside the message under `litespec/backend/application#declare-every-pipeline-position-beside-the-message`.
@@ -44,6 +46,8 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 **ID:** `litespec/backend/application#dispatch-commands-and-queries-through-separate-entry-points`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, endpoint, job, reaction
 
 **Statement:** An application MUST dispatch a command and a query through two separate Application-facing entry points rather than one message bus abstraction.
 
@@ -58,6 +62,8 @@ The rule states the property rather than the package. Each stack binding pins on
 **ID:** `litespec/backend/application#separate-input-validation-from-invariants`
 
 **Strength:** rule
+
+**Applies to:** artifact: validator
 
 **Statement:** A validator MUST limit its checks to structural input, leaving aggregate state decisions to Domain.
 
@@ -74,6 +80,8 @@ Whether the expense above the threshold carries a receipt is an aggregate state 
 **ID:** `litespec/backend/application#report-input-problems-as-validity-findings`
 
 **Strength:** rule
+
+**Applies to:** artifact: validator
 
 **Statement:** A validator MUST report its findings as validity findings, with each finding carrying a member, a code, and a message, and no transport status.
 
@@ -98,6 +106,8 @@ The caller learns the whole form in one answer, and the pipeline refuses the req
 
 **Strength:** rule
 
+**Applies to:** artifact: use-case
+
 **Statement:** An expected use-case refusal MUST carry its result code and a caller-safe message, with no transport status.
 
 **Rationale:** An expected refusal is part of the use case's contract: a missing resource, a forbidden act, or a conflicting write, carrying the refusal result's stable code and a caller-safe message. The refusal carries no transport result, provider detail, or stack detail, so the same refusal maps correctly at any transport, and handlers do not catch it.
@@ -111,6 +121,8 @@ The use case lists every result it returns, and each refusal result carries its 
 **ID:** `litespec/backend/application#enforce-target-authorization-in-the-pipeline`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The authorization guard, not the handler, MUST authorize every message from the `access` its use-case record declares.
 
@@ -182,6 +194,8 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler
+
 **Statement:** A handler MUST return only the results, refusals, and codes its use-case record declares.
 
 **Rationale:** An observable outcome no result declares is behavior the specification hides, so the stack reader fails `result-undeclared` on it. Refusals return in the precedence order the record lists, first match wins, and a success carrying `codes` returns only those codes. Generic refusals derive from `access` and `input` and need no declaration.
@@ -242,6 +256,8 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Strength:** rule
 
+**Applies to:** artifact: use-case
+
 **Statement:** An Application result carrying a Domain closed set MUST model that set with the same shape as its own union or code value.
 
 **Rationale:** Each case of a closed set can carry different data, and that data needs to survive to the caller. Mirroring the Domain shape in the result keeps the layers aligned; flattening case data into an enumeration with nullable fields loses which fields belong to which case. Application exposes no Domain union type. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`, and the set itself follows `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`. The wire carries the same shape under `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`.
@@ -256,6 +272,8 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint, use-case
+
 **Statement:** A layer MUST NOT narrow a Domain closed set without a recorded decision and an updated specification.
 
 **Rationale:** Narrowing silently drops cases the Domain can produce, so a caller meeting a dropped case gets a shape the contract left undescribed. A recorded decision with an updated specification makes the dropped cases visible and owned. The decision follows `litespec/core/model#record-each-technical-choice-as-a-decision`.
@@ -268,6 +286,8 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Strength:** rule
 
+**Applies to:** artifact: port
+
 **Statement:** Application MUST declare each external port as a public interface with a noun or verb name, one method or one purpose, and project-owned types.
 
 **Rationale:** A port is the seam where a provider change stops: one method or one purpose, named as a noun for the capability (`PostArchive`) or a verb for the act (`ArchivePosts`), typed with project-owned types. If provider names or transport models entered the interface, replacing the provider would rewrite Application. Keeping them in Infrastructure confines the change to the adapter.
@@ -279,6 +299,8 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 **ID:** `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 
 **Strength:** rule
+
+**Applies to:** artifact: port
 
 **Statement:** A port MUST be declared at the lowest folder holding every consumer that names it, following `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`.
 
@@ -294,6 +316,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, job, reaction
+
 **Statement:** Each `calls` effect MUST run in an event handler or job through the port operation its record names, after the commit of the command that raised its trigger.
 
 **Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a provider call runs in an event handler or job after the commit. The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`. A provider call whose result the command needs before it can answer is a departure: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records an exception naming the compensation that undoes it.
@@ -307,6 +331,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#send-notifications-through-the-messenger-port`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, reaction
 
 **Statement:** Each `sends` effect MUST run in an event handler through the messenger port, after the commit of the command that raised its trigger.
 
@@ -322,6 +348,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate
+
 **Statement:** Each `emits` effect MUST leave the commit as a domain event the aggregate raised, staged in the outbox with the business work.
 
 **Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so an `emits` effect is a domain event the aggregate raises, which persistence stages in the outbox in the same commit. The `emits` entry names the integration event with its timing, and the outbox extension stages the message with the business work so both commit together and delivery follows. An emit no entry declares fails `effect-undeclared`. Emitting outside the outbox delivers facts the commit did not store.
@@ -335,6 +363,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#expose-store-state-through-ports`
 
 **Strength:** rule
+
+**Applies to:** artifact: port
 
 **Statement:** A `store` aggregate MUST reach code only through a port naming its owner, with no aggregate root.
 
@@ -350,6 +380,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler
+
 **Statement:** A handler MUST read a setting record through a typed options value, or through stored tenant data where the record's `setBy` is `tenant`.
 
 **Rationale:** A setting record owns its type, its default, its range, its unit, and what happens at the bound. Decider-set and operator-set values bind to typed options the host validates at startup, so a bad value fails before traffic arrives. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant. A raw configuration lookup bypasses the type, the range, and the bound, so no handler uses one.
@@ -364,6 +396,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: use-case
+
 **Statement:** A message MUST declare a value or an exemption for every pipeline position the baseline and the selected extensions require.
 
 **Rationale:** A pipeline stage that guesses a message's position guesses differently per message. Declaring a value or an exemption beside the message makes each position explicit, and composition refuses to start when a message states neither. The baseline holds one position: authorization, declared from the record's `access` on the message itself. The audit extension adds the audit selection position under `litespec/ext/audit#declare-audit-selection-on-every-command`.
@@ -375,6 +409,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#keep-reaction-implementations-explicit`
 
 **Strength:** rule
+
+**Applies to:** artifact: reaction
 
 **Statement:** A reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.
 
@@ -422,6 +458,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, job, reaction
+
 **Statement:** A command handler MUST change only its aggregate, leaving every declared `runs`, `sends`, `calls`, and `emits` edge to an event handler or job after the commit.
 
 **Rationale:** An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare. An `emits` effect is a domain event the aggregate raises, staged in the outbox in the same commit under `litespec/backend/application#emit-declared-integration-events-after-commit`; `sends`, `calls`, and `runs` effects run in an event handler or job after the commit. A `sends` or `calls` effect is `after-commit` or `async`, never `inline`. An `inline` `runs` entry states whether it shares the caller's transaction, and `consistency: atomic` never spans an `async` edge. The effect graph holds no cycles except through domain events with a stated end condition. A saga carried by a workflow engine maps each engine step to exactly one use case with its compensation through the `workflow-engine` extension.
@@ -435,6 +473,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#declare-audit-values-beside-the-message`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case
 
 **Statement:** Each audited command MUST declare beside the message the audit target and reason that the message carries, leaving the handler to add only the values it learns while running.
 
@@ -450,6 +490,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, query-handler
+
 **Statement:** Each handler MUST read the message timestamp from the scoped clock the pipeline stamps once per message.
 
 **Rationale:** A handler that reads the clock two or three times in one decision records different times for one act, sometimes around an outside call. One timestamp per message fixes the moment the message starts, and every decision in the handling answers to the same time. The shared clock stays for infrastructure only.
@@ -463,6 +505,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#declare-exclusive-holds-beside-the-message`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case
 
 **Statement:** Each command needing exclusive access MUST declare its hold beside the message, with its key and its patience.
 
@@ -478,6 +522,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler
+
 **Statement:** Each command that loses a race at commit MUST end with its use case's conflict refusal.
 
 **Rationale:** A duplicate key or a stale version reaches the commit as a store fault, and the pipeline classifies it as the use case's named conflict refusal, so the caller learns what happened and may retry. No reservation, re-read, or retry lives in the handler. The store enforces uniqueness under `litespec/backend/persistence#enforce-uniqueness-in-the-store` and versions every aggregate under `litespec/backend/persistence#version-every-aggregate`.
@@ -491,6 +537,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#load-a-required-record-or-refuse-it`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, query-handler
 
 **Statement:** Each handler needing a record MUST load it through the getter that throws the aggregate not-found refusal, and use the finder only for optional records.
 
@@ -506,6 +554,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: validator
+
 **Statement:** Each validator MUST parse every value object in the input, so the handler construction cannot fail on input.
 
 **Rationale:** A validator that checks presence only leaves parsing to the handler, so one input is judged in two layers and the handler throws on caller data. Parsing in the validator keeps business refusals in the domain and input failures in validation, where each belongs.
@@ -519,6 +569,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#validate-query-input`
 
 **Strength:** rule
+
+**Applies to:** artifact: use-case
 
 **Statement:** Each query carrying paging, filters, or ranges MUST declare a query validator run by the pipeline.
 
@@ -534,6 +586,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, reaction
+
 **Statement:** Each command MUST send its messages from an event handler after the commit, never from the command handler.
 
 **Rationale:** A message that leaves before its transaction commits promises work even when the transaction then fails. The aggregate raises its fact, and an event handler for that fact sends, so no message leaves for a write that never landed. A `sends` effect is `after-commit` or `async`, never `inline`.
@@ -548,6 +602,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler, job, query-handler, reaction
+
 **Statement:** Each handler needing a collaborator MUST take it through the constructor from the container, never build it with `new`.
 
 **Rationale:** A step class built with `new` hides its dependencies, and a handler that looks small is really hundreds of lines behind its helpers. Injected collaborators keep their dependencies visible in the constructor.
@@ -561,6 +617,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#read-no-repository-inside-a-loop`
 
 **Strength:** rule
+
+**Applies to:** artifact: command-handler, job, query-handler
 
 **Statement:** Each handler and job MUST read no repository inside a loop body.
 
@@ -577,6 +635,8 @@ You review a port declared beside its aggregate with that aggregate's specificat
 **ID:** `litespec/backend/application#use-this-use-case-layout`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Place each use case in a folder named for it inside the `UseCases/` folder of its module and aggregate, with the use case files flat inside and shared types in the node layer folders.
 
@@ -628,6 +688,8 @@ Only a use case or an event handler folder gets a folder below its `UseCases/` f
 
 **Strength:** default
 
+**Applies to:** artifact: use-case
+
 **Default:** Declare commands, queries, results, and validation errors as immutable values.
 
 **Replacement:** A project names its own message-shape rules in its documentation.
@@ -641,6 +703,8 @@ Only a use case or an event handler folder gets a folder below its `UseCases/` f
 **ID:** `litespec/backend/application#return-use-case-results`
 
 **Strength:** default
+
+**Applies to:** artifact: use-case
 
 **Default:** Return only the values the caller needs from an Application result.
 
@@ -656,6 +720,8 @@ Only a use case or an event handler folder gets a folder below its `UseCases/` f
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Own domain-to-result projection in Application, transport mapping in WebApi, and view models in the frontend.
 
 **Replacement:** A project names its own mapping homes in its documentation.
@@ -669,6 +735,8 @@ Only a use case or an event handler folder gets a folder below its `UseCases/` f
 **ID:** `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`
 
 **Strength:** default
+
+**Applies to:** artifact: command-handler, job
 
 **Default:** Record the request behind a command that assembles a large artifact, and let a job build the artifact for the requester to read back.
 

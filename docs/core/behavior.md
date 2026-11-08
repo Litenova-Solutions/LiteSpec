@@ -65,6 +65,8 @@ The specification names only what carries business meaning. Child entities and v
 
 **Strength:** rule
 
+**Applies to:** artifact: aggregate, value-object, record:term
+
 **Statement:** Child entities and value objects MUST appear only in code and the glossary, never as records.
 
 **Rationale:** The records name what carries business meaning; the design inside an aggregate changes without changing that meaning. Recording each child and value as its own record would triple the tree while adding no decision a reviewer judges. Code and the glossary carry them, where builders and readers meet them.
@@ -80,6 +82,8 @@ The specification names only what carries business meaning. Child entities and v
 **ID:** `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`
 
 **Strength:** default
+
+**Applies to:** artifact: record:use-case, record:module, record:aggregate
 
 **Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no walk adds to the records.
 

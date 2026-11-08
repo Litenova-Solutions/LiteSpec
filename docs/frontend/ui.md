@@ -92,6 +92,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A workspace MUST record one shared UI package in `.litespec/project.json`.
 
 **Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `.litespec/project.json` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
@@ -104,6 +106,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package.
 
 **Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.
@@ -115,6 +119,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#publish-a-design-contract`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Brand, Tokens, Vocabulary, Patterns, Do, Do not, Motion, Voice.
 
@@ -140,6 +146,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#declare-a-closed-floorplan-set`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The `Patterns` section of the design contract MUST list every floorplan the package provides, each with a when-to-use rule.
 
@@ -223,6 +231,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A state indicator MUST take one tone from the closed set, each application declaring its state-to-tone mapping once as an exhaustive table of glossary terms.
 
 **Rationale:** A page that picks its own color picks a meaning nobody agreed to: the same red celebrates on one screen and warns on another. One state-to-tone mapping per application, declared once as an exhaustive table of glossary terms, makes the same state read the same way on every screen. A new state fails to compile until its tone and its word exist, so no state ships uncolored or mislabeled.
@@ -234,6 +244,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#keep-tokens-in-one-definition`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An application MUST use the shared token definition and declare no value, with no literal color in any shipped definition.
 
@@ -247,6 +259,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded exception.
 
 **Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks intentional. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded exception keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
@@ -258,6 +272,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#keep-separators-at-the-subtle-step`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A structural separator or input border MUST NOT be darker than the border step the declared base color publishes.
 
@@ -271,6 +287,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: component, route
+
 **Statement:** A command MUST use the surface the Concepts table assigns to its input.
 
 **Rationale:** The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command costs the reader attention the command has no use for.
@@ -282,6 +300,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#show-the-trace-id-in-error-detail`
 
 **Strength:** rule
+
+**Applies to:** artifact: component, route
 
 **Statement:** Every visible error MUST show its trace identifier in copyable form in the error detail, from the problem body or the `X-Trace-Id` header.
 
@@ -325,6 +345,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A style MUST use a semantic token rather than a raw value.
 
 **Rationale:** A raw value in a style answers to no token: the theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the authoritative style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product's visual language by construction.
@@ -337,6 +359,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A behavior package MUST name the decision record justifying it for the capability it supplies, and render through baseline components and tokens.
 
 **Rationale:** A behavior package adds a capability the design baseline lacks, such as a chart or a rich editor, and naming the decision record that justifies it for that capability keeps the decision tied to the need. The decision follows the capability rather than the visual catalog, so no package duplicates a component the design baseline already provides. Rendering through baseline components and tokens keeps the new capability inside the product's look.
@@ -348,6 +372,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A primitive, composite, token, source, floorplan, or route change MUST name the evidence in the matrix in this section.
 
@@ -371,6 +397,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** rule
 
+**Applies to:** artifact: record:entry-point
+
 **Statement:** A frontend outside the controlled platforms MUST declare an entry point record naming that platform and the boundaries replacing this contract.
 
 **Rationale:** A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract's checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend report as one with nothing to check.
@@ -385,6 +413,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Select one density profile from `public-light`, `application-balanced`, or `admin-dense` for each controlled frontend.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
@@ -398,6 +428,8 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 **ID:** `litespec/frontend/ui#keep-a-blocked-command-visible-with-its-reason`
 
 **Strength:** default
+
+**Applies to:** artifact: component, route
 
 **Default:** Leave a command blocked only by the current state or role visible and disabled, with the reason beside it.
 

@@ -33,6 +33,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: command-handler
+
 **Statement:** A use case declaring `after-commit` `emits` or `runs` effects MUST stage each effect in the outbox in the same transaction as its changes.
 
 **Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. An `emits` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
@@ -59,6 +61,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A durable-delivery specification MUST document delivery guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook.
 
 **Rationale:** Delivery crosses a system boundary, so the team agrees up front on the guarantee, the boundary, the duplicate behavior, the retry horizon, and the runbook that recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. The agreement lands before the first message does.
@@ -70,6 +74,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#exclude-manually-repeatable-reactions-and-jobs`
 
 **Strength:** rule
+
+**Applies to:** artifact: reaction, job
 
 **Statement:** A project MUST NOT activate outbox for a reaction or job whose loss the operators accept and which they can repeat manually.
 
@@ -83,6 +89,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: reaction, job
+
 **Statement:** A reaction or job the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
 
 **Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the reaction or job emits immediately after its commit succeeds and accepts the gap. Emitting before the commit risks worse: it fires for a change the database then rolls back.
@@ -94,6 +102,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#stage-messages-with-business-work`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A command post-handler MUST stage pending durable messages in the same scoped business session as its aggregate changes.
 
@@ -107,6 +117,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox writer MUST serialize each pending durable message into an outbox record.
 
 **Rationale:** The command scope ends when the request ends, while dispatch happens later in a Worker that never saw the request. Serializing the message into an outbox record gives that Worker everything it needs after the scope is gone.
@@ -119,6 +131,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox record MUST contain message identity, kind, stable type, schema version, time, payload, tenant, state, attempt, and next-attempt data.
 
 **Rationale:** The dispatcher, the retry logic, and the operator each read the record: identity and type route it, the schema version selects its reader, time and tenant scope it, and state, attempt, and next-attempt data drive the retry. A field stored nowhere forces one of those readers to guess.
@@ -130,6 +144,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#store-failure-and-completion-evidence`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An outbox record MUST retain its last error summary and completion time.
 
@@ -157,6 +173,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox writer MUST NOT use another connection or independent commit for required durable delivery.
 
 **Rationale:** Two commits on two connections can split around a crash: the business change persists while the message rolls back, or the message persists for a change that never happened. Sharing one PostgreSQL database does not make separate transactions atomic, so the message joins the business transaction instead.
@@ -168,6 +186,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#dispatch-claimed-records-in-worker`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A Worker MUST claim pending outbox records, dispatch a bounded batch, and record success or retry information.
 
@@ -181,6 +201,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** WebApi MUST NOT dispatch a durable message inside the request transaction.
 
 **Rationale:** A network call inside the request transaction holds database locks while the outside world answers, and a slow target slows every request behind it. The request commits only to make the message eligible; the Worker performs the delivery later.
@@ -192,6 +214,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#define-claim-ownership`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An outbox claim MUST use a short transaction with the lease owner, lease expiry, and fencing value that `litespec/ext/jobs#store-execution-leases` defines.
 
@@ -205,6 +229,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A Worker MUST NOT hold an outbox claim transaction open during a network call.
 
 **Rationale:** A network call to a slow target can last seconds or minutes. Holding the claim transaction open across that call pins database locks and connection slots, starving the Workers behind it; releasing the claim first lets the database serve other work while the call runs.
@@ -216,6 +242,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#restrict-completion-to-current-lease-owners`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A Worker MUST update an outbox record only while it owns the matching lease and fencing value.
 
@@ -229,6 +257,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox store MUST return expired claims to eligible work.
 
 **Rationale:** A Worker can die between claiming a record and dispatching it. Returning expired claims to eligible work lets a live Worker pick them up, so one crash delays a message instead of losing it.
@@ -240,6 +270,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#accept-repeated-delivery`
 
 **Strength:** rule
+
+**Applies to:** artifact: reaction
 
 **Statement:** An event handler that receives an outbox delivery MUST handle the same message more than once.
 
@@ -253,6 +285,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: reaction
+
 **Statement:** An event handler that receives an outbox delivery MUST use message ID or a business idempotency key at its Command or side-effect boundary.
 
 **Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the event handler a stable identity to check at its command or side-effect boundary. Without that key, the handler processes the repeat as new work and pays, notifies, or ships twice.
@@ -264,6 +298,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** The outbox MUST deliver an event to each of its handlers as a separate delivery with its own retries and dead letter.
 
@@ -279,6 +315,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A Worker MUST NOT mark an outbox record complete before the target boundary accepts it.
 
 **Rationale:** Marking a record complete before the target accepts it declares a delivery that never happened, and no retry follows because the record looks done. The Worker waits for the target boundary's acceptance before recording completion.
@@ -290,6 +328,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#bound-delivery-retries`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An outbox dispatcher MUST use bounded exponential backoff with jitter.
 
@@ -303,6 +343,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox dispatcher MUST classify permanent failures, stop automatic retry at its retry bound, and retain safe investigation and replay data.
 
 **Rationale:** Some failures never clear on retry: a deleted destination, a rejected payload, a revoked credential. Retrying those forever burns resources and buries the real backlog, so the dispatcher classifies them, stops at its retry bound, and keeps the evidence an operator needs to investigate and replay safely.
@@ -314,6 +356,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#distinguish-dependency-outage`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A dispatcher MUST distinguish an unavailable outbox store from a failed claimed message.
 
@@ -327,6 +371,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A Worker MUST apply bounded backoff and rate-limited logging when its outbox store is unavailable.
 
 **Rationale:** A Worker that polls a dead store on a tight loop writes an exception per iteration and fills disks and log quotas before anyone reads the first one. Bounded backoff with rate-limited logging keeps the Worker alive and quiet until the store returns.
@@ -338,6 +384,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#restrict-message-retry-to-claimed-records`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A Worker MUST apply message retry and poison handling only to claimed outbox records.
 
@@ -351,6 +399,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A Worker host exposing readiness MUST gate dispatch and stop polling stores that cannot serve requests.
 
 **Rationale:** A host that reports unready still serves traffic it cannot finish when its Workers keep polling dead stores. Gating dispatch on readiness stops the polling, so the host fails fast and recovers instead of churning against storage that cannot answer.
@@ -363,6 +413,8 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox message MUST use a stable type name and explicit schema version.
 
 **Rationale:** An outbox record outlives the deployment that wrote it, so the dispatcher meets records written by several versions at once. A stable type name with an explicit schema version tells the dispatcher which reader parses each record; without the pair, one shape change breaks every record written before it.
@@ -374,6 +426,8 @@ One-way notifications travel over server-sent events, which need no added packag
 **ID:** `litespec/ext/outbox#support-coexisting-message-producers`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** A deployed dispatcher MUST process records from every application version that can coexist during rollout or rollback.
 
@@ -389,6 +443,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox deployment MUST publish pending count, failed count, oldest pending age, attempts, dispatch duration, and success rate.
 
 **Rationale:** Pending count, failed count, oldest pending age, attempts, dispatch duration, and success rate together show whether delivery keeps up: growth in the backlog or age reveals a stall, while duration and success rate reveal a struggling target. Without these indicators, the first sign of failure is a customer asking where their message went.
@@ -401,6 +457,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** rule
 
+**Applies to:** artifact: record:setting
+
 **Statement:** An outbox deployment MUST set alert thresholds as setting records from its use-case delivery target.
 
 **Rationale:** A shipment notice delayed an hour and a receipt delayed a week carry different business consequences, so each use case sets alert thresholds from its own delivery target. Setting records hold those thresholds, so the alert fires when delay passes what the business accepted.
@@ -412,6 +470,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 **ID:** `litespec/ext/outbox#model-outbox-lifecycle-states`
 
 **Strength:** rule
+
+**Applies to:** artifact: state-record
 
 **Statement:** An outbox record MUST model its lifecycle as an abstract state base with one sealed record for each of pending, processing, dispatched, and dead-letter.
 
@@ -427,6 +487,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** An outbox dispatcher MUST preserve message ID across retry and replay.
 
 **Rationale:** The target suppresses a repeat by recognizing its identity, which works only when every retry and replay carries the same message ID. A dispatcher that mints a new ID per attempt turns each retry into a new message the target processes again.
@@ -438,6 +500,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 **ID:** `litespec/ext/outbox#audit-outbox-replay`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** An outbox replay MUST record actor, reason, time, and failure without editing the payload: an audit record when audit is selected, a standalone record otherwise.
 
@@ -451,6 +515,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** rule
 
+**Applies to:** artifact: endpoint
+
 **Statement:** New WebApi code MUST emit a message only after every active Worker can read its type and schema version.
 
 **Rationale:** WebApi writers and Worker dispatchers deploy independently, so a writer can run ahead of the oldest active Worker. When the writer emits a shape that Worker cannot read, those messages dead-letter on arrival through no fault of their own.
@@ -463,6 +529,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A release MUST deploy compatible readers before writers for additive event versions.
 
 **Rationale:** In a mixed-version rollout, old and new records sit in one store. Deploying compatible readers before the writers that emit new shapes keeps every record dispatchable at every step; the reverse order strands new records until the readers catch up.
@@ -474,6 +542,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 **ID:** `litespec/ext/outbox#plan-undispatched-rollback-records`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:runbook
 
 **Statement:** A rollback Runbook MUST include records created by the new writer but not yet dispatched.
 
@@ -657,6 +727,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep outbox record, storage, claim, and dispatch infrastructure under `Infrastructure/Messaging/Outbox/`.
 
 **Replacement:** A project names another home for outbox infrastructure in its documentation.
@@ -670,6 +742,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 **ID:** `litespec/ext/outbox#isolate-the-worker-host`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Keep the outbox Worker host in its own project.
 
@@ -685,6 +759,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Keep Integration Event-to-provider mapping in the integration that owns the side effect.
 
 **Replacement:** A project keeps provider mapping in the shared dispatch path.
@@ -699,6 +775,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Strength:** default
 
+**Applies to:** artifact: any
+
 **Default:** Dispatch a journey-step command through `ICommandMediator` in a fresh Worker scope.
 
 **Replacement:** A project runs journey-step commands inline in the dispatcher scope.
@@ -712,6 +790,8 @@ Each message record therefore carries its own shape version, and the dispatcher 
 **ID:** `litespec/ext/outbox#avoid-automatic-durable-bus-adoption`
 
 **Strength:** default
+
+**Applies to:** artifact: any
 
 **Default:** Use project-owned Marten records and Worker dispatch unless a manifest-pinned durable package passes a shared-transaction integration test.
 

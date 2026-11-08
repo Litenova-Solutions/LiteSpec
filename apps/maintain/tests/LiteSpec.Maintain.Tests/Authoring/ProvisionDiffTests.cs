@@ -423,6 +423,33 @@ public sealed class ProvisionDiffTests
         Assert.Contains("CHANGELOG.md is current.", current.Stdout, StringComparison.Ordinal);
     }
 
+    /// <summary>Changelog rebuilds the index from the pages at a ref that predates the generated index.</summary>
+    /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
+    [Fact]
+    public void Changelog_Reads_The_Pages_At_A_Ref_Without_A_Generated_Index()
+    {
+        using var folder = Cli.Temp("changelog");
+        Git(folder.Path, "-c", "init.defaultBranch=main", "init");
+        StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
+        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "docs/core/topic.md", StandardsFixture.TopicPage);
+        Git(folder.Path, "add", "-A");
+        Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
+        Git(folder.Path, "tag", "v0.1.0");
+        StandardsFixture.Write(
+            folder.Path,
+            "docs/reference/provisions.json",
+            IndexJson(new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary.")));
+
+        var written = Cli.Run("changelog", "--from", "v0.1.0", "--root", folder.Path);
+
+        Assert.Equal(0, written.Status);
+        var changelog = File.ReadAllText(Path.Combine(folder.Path, "CHANGELOG.md"));
+        Assert.Contains("- `litespec/core/topic#use-the-default-location`", changelog, StringComparison.Ordinal);
+        Assert.Contains("Removed (1):", changelog, StringComparison.Ordinal);
+        Assert.DoesNotContain("- `litespec/core/topic#keep-the-topic-bounded`", changelog, StringComparison.Ordinal);
+    }
+
     /// <summary>Builds a minimal provision data text from the rows.</summary>
     /// <param name="rows">The provision identities.</param>
     /// <returns>The provision data text.</returns>

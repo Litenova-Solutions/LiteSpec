@@ -352,6 +352,8 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** The effect graph MUST hold no cycle except through a domain event carrying its end condition.
 
 **Rationale:** A cycle without an end condition runs until something breaks: a reaction runs a use case raising the event triggering the reaction. Forbidding cycles except through a domain event with a stated end condition keeps every loop a loop with an exit. The `effect-loop-invalid` check reports a cycle with no stated end.

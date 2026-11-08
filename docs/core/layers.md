@@ -43,6 +43,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
 **Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. An agent either writes the missing record above such code or removes the code, so the specification wins where Intent has spoken.
@@ -56,6 +58,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **ID:** `litespec/core/layers#add-behavior-detail-when-specifying-intent`
 
 **Strength:** rule
+
+**Applies to:** artifact: any
 
 **Statement:** Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
@@ -71,6 +75,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** rule
 
+**Applies to:** artifact: record:setting, record:rule
+
 **Statement:** Behavior that meets a figure the owner sets MUST send it to the owner instead of fixing it.
 
 **Rationale:** The [model page](model.md) holds the one list of figures the owner sets: prices, fees, rates, terms, markets, payers, retention periods, freshness, and figures that differ by tenant, market, or date. Each figure is a business choice, and only an accountable person makes it. An agent that fixed one would bury a commitment in a Behavior record nobody chose. The figure becomes a question to the owner or a backlog item, never a silent default.
@@ -84,6 +90,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **ID:** `litespec/core/layers#implement-only-declared-behavior`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:use-case, record:reaction, record:job; conformance: traced
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
@@ -113,6 +121,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** rule
 
+**Applies to:** artifact: any
+
 **Statement:** A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a question to the owner or a backlog item, never as code.
 
 **Rationale:** The lower record layer does not decide what the upper record layer left unstated, so the need travels up with its context instead of turning into a guess. A question to the owner settles what only an accountable person decides, and a backlog item holds the rest where it stays visible. The specification is closed: an agent builds what it states and nothing more.
@@ -126,6 +136,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **ID:** `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:research, record:constraint
 
 **Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
 
@@ -154,6 +166,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **ID:** `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
 
 **Strength:** rule
+
+**Applies to:** artifact: record:research, record:constraint
 
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.
 
