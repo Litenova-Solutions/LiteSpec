@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="smoke" tests="2" failures="0" timestamp="2026-11-01T09:00:00">
+    <testcase classname="Library.Smoke.Tests.BorrowSmokeTests" name="test_borrowing_an_available_copy_succeeds" time="0.1">
+      <properties>
+        <property name="litespec.proves" value="scenario/borrow-copy.borrowing-an-available-copy-succeeds" />
+      </properties>
+    </testcase>
+    <testcase classname="Library.Smoke.Tests.ReturnSmokeTests" name="test_returning_a_borrowed_copy_succeeds" time="0.1">
+      <properties>
+        <property name="litespec.proves" value="scenario/return-copy.returning-a-borrowed-copy-succeeds" />
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
