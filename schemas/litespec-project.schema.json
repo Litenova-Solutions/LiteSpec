@@ -1,10 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
+  "$id": "https://litespec.dev/4.1.0/schemas/litespec-project.schema.json",
   "title": "LiteSpec Consumer Project",
   "type": "object",
   "additionalProperties": false,
-  "required": ["project", "size", "stacks", "reviewedLiteSpecVersion", "paths", "selectedExtensions"],
+  "required": ["project", "size", "conformance", "reviewedLiteSpecVersion", "paths", "selectedExtensions"],
+  "allOf": [
+    {
+      "if": { "properties": { "conformance": { "enum": ["traced", "full"] } }, "required": ["conformance"] },
+      "then": { "required": ["stacks"] }
+    },
+    {
+      "if": { "properties": { "shape": { "const": "client-only" } }, "required": ["shape"] },
+      "then": { "properties": { "paths": { "required": ["frontends"] } } }
+    }
+  ],
   "properties": {
     "$schema": { "type": "string" },
     "project": {
@@ -20,6 +30,11 @@
       "type": "string",
       "enum": ["small", "large"]
     },
+    "conformance": {
+      "description": "The conformance level this project claims. records: the Intent, Behavior, governance and glossary records follow the record model. traced: also, code and tests mark the records they serve and test runs prove scenarios, in the project's own code layout. full: also, the selected stacks, LiteSpec's code layout, the analyzers and the operations provisions.",
+      "type": "string",
+      "enum": ["records", "traced", "full"]
+    },
     "shape": {
       "description": "The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.",
       "type": "string",
@@ -27,7 +42,7 @@
       "default": "server"
     },
     "stacks": {
-      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android).",
+      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android). Required at the traced and full conformance levels; at records a stack is informational.",
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -61,12 +76,12 @@
               "$ref": "#/$defs/projectPath"
             },
             "webapi": {
-              "description": "The WebApi host project the model builder reads. Defaults to apps/api/src/*.WebApi.",
-              "$ref": "#/$defs/projectPath"
+              "description": "The web host projects the model builder reads: one path, or a list for a backend with several web hosts. Defaults to apps/api/src/*.WebApi.",
+              "$ref": "#/$defs/projectPaths"
             },
             "worker": {
-              "description": "The Worker host project the model builder reads. Defaults to apps/api/src/*.Worker.",
-              "$ref": "#/$defs/projectPath"
+              "description": "The worker host projects the model builder reads: one path, or a list for a backend with several workers. Defaults to apps/api/src/*.Worker.",
+              "$ref": "#/$defs/projectPaths"
             },
             "apiSolution": {
               "description": "Path to the API solution. A consumer with no backend omits it and records the decision that it has none.",
@@ -188,7 +203,7 @@
     "paths": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["behaviorDocs", "frontends"],
+      "required": ["behaviorDocs"],
       "properties": {
         "docs": {
           "description": "Root of the specification tree. Every Markdown file under it carries a metadata block unless the path is listed in unstructuredDocs.",
@@ -400,6 +415,12 @@
     }
   },
   "$defs": {
+    "projectPaths": {
+      "anyOf": [
+        { "$ref": "#/$defs/projectPath" },
+        { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/projectPath" } }
+      ]
+    },
     "projectPath": {
       "type": "string",
       "minLength": 1,

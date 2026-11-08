@@ -46,7 +46,7 @@ static class Checker
         "explanation-orphaned", "explanation-missing", "format-drift",
         "source-link-bare", "source-key-unknown", "source-unused",
         "problem-sufferer-invalid", "problem-evidence-missing", "actor-unused", "goal-mover-missing", "term-missing",
-        "runbook-unused",
+        "runbook-unused", "analyzer-lowering-unrecorded",
     };
 
     /// <summary>Fields the semantic hash skips: identity and nested entries, which carry their own hash.</summary>
@@ -143,6 +143,10 @@ static class Checker
         Time("exercises", () => GraphChecks.RunExercises(model, findings));
         Time("doors", () => GraphChecks.RunDoors(model, findings));
         Time("scope", () => ScopeChecks.Run(model, findings));
+
+        // A project reports only the findings of the conformance level it claims.
+        var claimed = model.Config.Conformance;
+        findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, claimed));
 
         findings.Sort((left, right) =>
         {

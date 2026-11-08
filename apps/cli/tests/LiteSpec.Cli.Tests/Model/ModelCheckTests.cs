@@ -1,3 +1,4 @@
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -110,7 +111,12 @@ public sealed class ModelCheckTests
     public void Broken_Overlay_Exits_1(string code)
     {
         using var fixture = ModelFixture.Prepare("large", code);
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+
+        // Planned Intent blocks only in the pull-request check, so its cases run there.
+        var environment = Severity.PlannedIntent.Contains(code)
+            ? new Dictionary<string, string> { ["CI"] = "true" }
+            : null;
+        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
     }

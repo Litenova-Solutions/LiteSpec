@@ -1,7 +1,7 @@
 {
   "$schema": "./schemas/litespec-manifest.schema.json",
   "schemaVersion": 5,
-  "version": "4.0.0",
+  "version": "4.1.0",
   "name": "litespec",
   "agentsEntry": "AGENTS.md",
   "stacks": {
@@ -278,7 +278,7 @@
       "LiteBus.Queries.Abstractions": "7.0.0",
       "LiteBus.Storage.PostgreSql": "7.0.0",
       "LiteBus.Testing.Mediation": "7.0.0",
-      "LiteSpec.Analyzers": "4.0.0",
+      "LiteSpec.Analyzers": "4.1.0",
       "Marten": "9.50.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
       "Microsoft.AspNetCore.DataProtection": "10.0.13",
@@ -330,7 +330,7 @@
       "@modelcontextprotocol/server": "2.3.1",
       "@playwright/test": "1.64.1",
       "@sveltejs/adapter-node": "6.0.0",
-      "@sveltejs/adapter-static": "4.0.0",
+      "@sveltejs/adapter-static": "4.1.0",
       "@sveltejs/kit": "3.0.1",
       "@sveltejs/vite-plugin-svelte": "7.3.1",
       "@tailwindcss/cli": "4.3.3",

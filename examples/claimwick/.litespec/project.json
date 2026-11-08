@@ -1,5 +1,5 @@
 {
-  "$schema": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
+  "$schema": "https://litespec.dev/4.1.0/schemas/litespec-project.schema.json",
   "project": {
     "name": "Claimwick"
   },
@@ -9,7 +9,8 @@
     "dotnet",
     "svelte"
   ],
-  "reviewedLiteSpecVersion": "4.0.0",
+  "conformance": "full",
+  "reviewedLiteSpecVersion": "4.1.0",
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",

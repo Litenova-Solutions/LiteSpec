@@ -13,7 +13,7 @@ public sealed class SeverityTests
     [InlineData(false)]
     public void Advisory_Finding_Reports_And_Never_Blocks(bool readerQualified)
     {
-        var decided = Severity.Of(At("prose-missing", "use-case/lending.list-loans"), readerQualified);
+        var decided = Severity.Of(At("prose-missing", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
         Assert.Equal(Outcome.Reported, decided.Outcome);
     }
@@ -26,7 +26,7 @@ public sealed class SeverityTests
     [InlineData(false)]
     public void General_Finding_Blocks_Under_Any_Reader(bool readerQualified)
     {
-        var decided = Severity.Of(At("record-invalid", "use-case/lending.list-loans"), readerQualified);
+        var decided = Severity.Of(At("record-invalid", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
         Assert.Equal(Outcome.Blocking, decided.Outcome);
     }
@@ -40,7 +40,7 @@ public sealed class SeverityTests
     [InlineData(false, Outcome.Reported)]
     public void Stack_Finding_Follows_Reader_Qualification(bool readerQualified, Outcome outcome)
     {
-        var decided = Severity.Of(At("use-case-unimplemented", "use-case/lending.list-loans"), readerQualified);
+        var decided = Severity.Of(At("use-case-unimplemented", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
         Assert.Equal(outcome, decided.Outcome);
     }
@@ -54,7 +54,7 @@ public sealed class SeverityTests
     [InlineData(false, Outcome.Reported)]
     public void Missing_Subject_Follows_The_Tier(bool readerQualified, Outcome outcome)
     {
-        var decided = Severity.Of(At("behavior-unrecorded", null), readerQualified);
+        var decided = Severity.Of(At("behavior-unrecorded", null), readerQualified, continuousIntegration: false);
 
         Assert.Equal(outcome, decided.Outcome);
     }
@@ -64,8 +64,8 @@ public sealed class SeverityTests
     [Fact]
     public void Tier_Override_Decides_The_Severity()
     {
-        var lifted = Severity.Of(Graded("result-scenario-missing", "G"), true);
-        var lowered = Severity.Of(Graded("requirement-measure-missing", "A"), true);
+        var lifted = Severity.Of(Graded("result-scenario-missing", "G"), true, continuousIntegration: false);
+        var lowered = Severity.Of(Graded("requirement-measure-missing", "A"), true, continuousIntegration: false);
 
         Assert.Equal(Outcome.Blocking, lifted.Outcome);
         Assert.Equal(Outcome.Reported, lowered.Outcome);

@@ -252,7 +252,7 @@ public sealed class FollowsCheckTests
         {
             Write(temp.Path, ".litespec/project.json", """
                 {"project": {"name": "Marks Follows Attribute Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "reviewedLiteSpecVersion": "4.0.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "conformance": "full", "reviewedLiteSpecVersion": "4.1.0", "owners": ["lending-team"],
                   "marks": "attribute",
                   "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []},
                   "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Application"}}}

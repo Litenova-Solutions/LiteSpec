@@ -82,6 +82,20 @@ The diagram shows the three project choices and what each decides.
 
 **Checked by:** `litespec model check` refuses a shape whose backend stack count is wrong and a platform that names no frontend stack.
 
+### Declare the Conformance Level
+
+**ID:** `litespec/core/scope#declare-the-conformance-level`
+
+**Strength:** rule
+
+**Statement:** A consumer MUST declare in `.litespec/project.json` the conformance level it claims: `records`, `traced` or `full`.
+
+**Rationale:** A project can take the record model without LiteSpec's code layout, or trace its code to its records in a layout of its own. The level tells every tool which part of the contract the project claims, so `model check`, the book, `rules` and the analyzers report that part and nothing else. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims.
+
+**Example:** The running Claimwick example declares `"conformance": "full"`. A product that keeps its own folder layout and proves its records only through result files declares `"conformance": "traced"`.
+
+**Checked by:** `litespec model check` reports `project-invalid` for a project file that names no level or a value other than `records`, `traced` or `full`.
+
 ### Keep One Bounded Context
 
 **ID:** `litespec/core/scope#keep-one-bounded-context`

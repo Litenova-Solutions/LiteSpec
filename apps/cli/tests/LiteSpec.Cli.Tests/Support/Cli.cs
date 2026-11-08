@@ -41,6 +41,10 @@ static class Cli
 
         start.Environment["LITESPEC_HOME"] = Repository;
 
+        // The check blocks on planned Intent and on a missing reader only in continuous
+        // integration, so every run starts outside it; a test that needs CI sets it.
+        start.Environment["CI"] = "";
+
         foreach (var (key, value) in environment ?? new Dictionary<string, string>())
         {
             start.Environment[key] = value;

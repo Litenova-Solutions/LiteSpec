@@ -61,7 +61,7 @@ For example, if the shop team removed the cancel-order handler without deleting 
 
 You and your agent read the same release in different forms.
 
-You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/4.0.0/select/) that shows which pages your shape and stacks apply. An agent starts from the provisions that apply to the files it will touch:
+You read the HTML pages, starting from the [standard overview](reading-the-standard.md) and the [selection page](https://litespec.dev/4.1.0/select/) that shows which pages your shape and stacks apply. An agent starts from the provisions that apply to the files it will touch:
 
 ```bash
 dotnet litespec rules apps/api/src/Shop.Modules/Orders/Order/UseCases/CancelOrder/CancelOrderCommandHandler.cs
@@ -70,20 +70,20 @@ dotnet litespec rules apps/api/src/Shop.Modules/Orders/Order/UseCases/CancelOrde
 That command lists the provisions grouped by strength, as one-line statements, and `--full` adds rationale and example. For reading pages, the agent starts from the selection index for your project:
 
 ```text
-https://litespec.dev/4.0.0/select/server.dotnet.react/llms.txt
+https://litespec.dev/4.1.0/select/server.dotnet.react/llms.txt
 ```
 
 That index lists the pages the `server.dotnet.react` selection applies, grouped by layer, with a raw Markdown link for each one. Your project `AGENTS.md` carries the block the index suggests, so the agent fetches only the pages a task touches:
 
 ```markdown
 ## LiteSpec
-This project follows LiteSpec 4.0.0: size small, shape server, stacks dotnet and react, extensions none.
-Before a task, read https://litespec.dev/4.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 4.1.0: size small, shape server, stacks dotnet and react, extensions none.
+Before a task, read https://litespec.dev/4.1.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 ```
 
-Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https://litespec.dev/4.0.0/backend/domain.md`, and every layer ships as one bundle at `/<version>/layers/<key>.md`. The schemas in `schemas/` ship as JSON at `/<version>/schemas/<file>`, so a tool reads the same contracts the validators enforce. An agent that needs one fact queries the model instead of reading pages: `dotnet litespec model query <id>` prints one record with its links in both directions.
+Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https://litespec.dev/4.1.0/backend/domain.md`, and every layer ships as one bundle at `/<version>/layers/<key>.md`. The schemas in `schemas/` ship as JSON at `/<version>/schemas/<file>`, so a tool reads the same contracts the validators enforce. An agent that needs one fact queries the model instead of reading pages: `dotnet litespec model query <id>` prints one record with its links in both directions.
 
 ## Command Locations
 

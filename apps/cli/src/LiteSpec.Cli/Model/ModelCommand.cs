@@ -346,7 +346,8 @@ static class ModelCommand
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,
                 _ => true,
-            });
+            },
+            config.IsContinuousIntegration);
 
         return release && severity.Outcome == Outcome.Reported && IsReleaseReadiness(finding)
             ? new Severity(Outcome.Blocking)

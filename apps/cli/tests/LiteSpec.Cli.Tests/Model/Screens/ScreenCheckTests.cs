@@ -357,8 +357,8 @@ public sealed class ScreenCheckTests
             ReaderIsQualified = true,
         };
 
-        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, unqualified.ReaderIsQualified).Outcome);
-        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, qualified.ReaderIsQualified).Outcome);
+        Assert.Equal(Outcome.Reported, Severity.Of(unqualified, unqualified.ReaderIsQualified, continuousIntegration: false).Outcome);
+        Assert.Equal(Outcome.Blocking, Severity.Of(qualified, qualified.ReaderIsQualified, continuousIntegration: false).Outcome);
     }
 
     static List<Finding> WithCode(ProjectModel model, string code) =>

@@ -175,6 +175,7 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["project-invalid"] = "G",
             ["project-path-invalid"] = "G",
             ["contract-break"] = "S",
+            ["analyzer-lowering-unrecorded"] = "S",
         };
 
     /// <summary>Gets the finding tier: G blocks, S blocks where qualified, A reports.</summary>

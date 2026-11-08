@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1559 provisions in 4 groups across 6 areas.
+The active release states 1560 provisions in 4 groups across 6 areas.
 
 ## Standard
 
@@ -645,6 +645,7 @@ The active release states 1559 provisions in 4 groups across 6 areas.
 | litespec/core/scope#answer-the-constraints-question | [Answer the Constraints Question](../core/scope.md#answer-the-constraints-question) | rule | any | workspace | - | rule | guidance | `.litespec/project.json` states which outside constraints apply, or records an empty answer. |
 | litespec/core/scope#claim-conformance-only-when-every-applicable-provision-holds | [Claim Conformance Only When Every Applicable Provision Holds](../core/scope.md#claim-conformance-only-when-every-applicable-provision-holds) | rule | any | workspace | - | rule | guidance | `.litespec/project.json` names the selected size, shape, stacks, and extensions; each departure from an applied page resolves to an exception record under `.litespec/governance/exceptions/`, and the selected checks pass. |
 | litespec/core/scope#declare-a-consumer-that-has-no-backend | [Declare a Consumer That Has No Backend](../core/scope.md#declare-a-consumer-that-has-no-backend) | rule | any | workspace | - | rule | checkable | `litespec model check` refuses a `client-only` project that names a backend stack. |
+| litespec/core/scope#declare-the-conformance-level | [Declare the Conformance Level](../core/scope.md#declare-the-conformance-level) | rule | any | workspace | - | rule | checkable | `litespec model check` reports `project-invalid` for a project file that names no level or a value other than `records`, `traced` or `full`. |
 | litespec/core/scope#keep-every-litespec-file-under-one-folder | [Keep Every LiteSpec File Under One Folder](../core/scope.md#keep-every-litespec-file-under-one-folder) | rule | any | workspace | - | rule | guidance | Which files created, read, or governed by LiteSpec sit outside `.litespec/`, or at the repository root? Look at the repository tree beside the project's `.litespec/` folder. |
 | litespec/core/scope#keep-every-record-about-the-software | [Keep Every Record About the Software](../core/scope.md#keep-every-record-about-the-software) | rule | any | workspace | - | rule | checkable | `litespec model check` reports a blocking finding for a folder under `intent/modules/` naming no declared module and for a record reaching no Behavior. |
 | litespec/core/scope#keep-one-bounded-context | [Keep One Bounded Context](../core/scope.md#keep-one-bounded-context) | rule | any | workspace | - | rule | guidance | Module pages and `.litespec/project.json` name one business language and one deployment boundary, with no second of either. |

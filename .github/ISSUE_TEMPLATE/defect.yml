@@ -47,6 +47,6 @@ body:
     attributes:
       label: Release
       description: The LiteSpec release this was found against.
-      placeholder: v4.0.0
+      placeholder: v4.1.0
     validations:
       required: true

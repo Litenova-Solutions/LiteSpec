@@ -285,7 +285,8 @@ static class BookCommand
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,
                 _ => true,
-            });
+            },
+            config.IsContinuousIntegration);
 
     /// <summary>One standing finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>

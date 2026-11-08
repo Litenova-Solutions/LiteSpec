@@ -8,7 +8,8 @@
     "dotnet",
     "svelte"
   ],
-  "reviewedLiteSpecVersion": "4.0.0",
+  "conformance": "full",
+  "reviewedLiteSpecVersion": "4.1.0",
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",

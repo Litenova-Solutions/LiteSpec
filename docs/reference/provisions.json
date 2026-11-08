@@ -10017,6 +10017,22 @@
       "example": "\u0060litespec/quality/ci#run-applicable-gates-on-every-pull-request\u0060 already permits skipping a gate whose surface does not exist, so a missing backend gate is a recorded consequence rather than an unexplained absence."
     },
     {
+      "id": "litespec/core/scope#declare-the-conformance-level",
+      "heading": "Declare the Conformance Level",
+      "page": "docs/core/scope.md",
+      "anchor": "declare-the-conformance-level",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060project-invalid\u0060 for a project file that names no level or a value other than \u0060records\u0060, \u0060traced\u0060 or \u0060full\u0060.",
+      "stack": "any",
+      "layer": "workspace",
+      "artifact": "",
+      "strength": "rule",
+      "statement": "A consumer MUST declare in \u0060.litespec/project.json\u0060 the conformance level it claims: \u0060records\u0060, \u0060traced\u0060 or \u0060full\u0060.",
+      "rationale": "A project can take the record model without LiteSpec\u0027s code layout, or trace its code to its records in a layout of its own. The level tells every tool which part of the contract the project claims, so \u0060model check\u0060, the book, \u0060rules\u0060 and the analyzers report that part and nothing else. The levels nest: \u0060traced\u0060 claims everything \u0060records\u0060 claims, and \u0060full\u0060 claims everything \u0060traced\u0060 claims.",
+      "example": "The running Claimwick example declares \u0060\u0022conformance\u0022: \u0022full\u0022\u0060. A product that keeps its own folder layout and proves its records only through result files declares \u0060\u0022conformance\u0022: \u0022traced\u0022\u0060."
+    },
+    {
       "id": "litespec/core/scope#keep-every-litespec-file-under-one-folder",
       "heading": "Keep Every LiteSpec File Under One Folder",
       "page": "docs/core/scope.md",

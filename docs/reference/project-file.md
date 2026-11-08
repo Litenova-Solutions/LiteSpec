@@ -26,8 +26,9 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `$schema` | string | no | none |
 | `project` | object | yes | none |
 | `size` | string | yes | none |
+| `conformance` | string | yes | none |
 | `shape` | string | no | `"server"` |
-| `stacks` | array of string | yes | none |
+| `stacks` | array of string | at `traced` and `full` | none |
 | `proof` | object | no | none |
 | `marks` | string | no | `"xml"` |
 | `dependencies` | object | no | none |
@@ -43,14 +44,15 @@ What each field means and what reads it:
 - `$schema` holds the editor hint that points at the project schema. Only the editor reads it.
 - `project` names the project. `litespec model check` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
+- `conformance` is the conformance level the project claims: `records`, `traced` or `full`. At `records` the project claims its Intent, Behavior, governance and glossary records; at `traced` it also claims marks in its code and tests and proof from its test runs, in a code layout of its own; at `full` it also claims the selected stacks, LiteSpec's code layout, the analyzers and the operations provisions. `litespec model check`, the book, `litespec rules` and the analyzers report only the part the level claims.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
-- `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. `litespec model check` refuses an id the pinned release does not ship.
+- `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. It is required at `traced` and `full`; at `records` a stack is informational. `litespec model check` refuses an id the pinned release does not ship.
 - `proof` tunes how the model builder confirms proof claims for the project. See the `proof` object below.
 - `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
 - `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision. See the `dependencies` object below.
 - `screenshots` names the screenshot galleries the model builder reads for screen captures. See the `screenshots` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
-- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"4.0.0"`. `litespec model check` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
+- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"4.1.0"`. `litespec model check` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `selectedExtensions` lists the extensions the project selected, each with its criterion. See the extension entry below.
 - `stackConfig` holds per-stack configuration keyed by stack id. See the `stackConfig.dotnet` object below.
@@ -135,7 +137,7 @@ What each field means and what reads it:
 | `surfaces` | array of object | no | none |
 | `uiPackage` | object | no | none |
 | `uiPatterns` | string | no | none |
-| `frontends` | array of object | yes | none |
+| `frontends` | array of object | for a `client-only` project | none |
 | `sites` | array of object | no | none |
 
 What each field means and what reads it:
@@ -167,8 +169,8 @@ What each field means and what reads it:
 | `sharedKernel` | string | no | `apps/api/src/*.SharedKernel` |
 | `domain` | string | no | `apps/api/src/*.Domain` under `layer-projects`, none otherwise |
 | `infrastructure` | string | no | `apps/api/src/*.Infrastructure` under `layer-projects`, none otherwise |
-| `webapi` | string | no | `apps/api/src/*.WebApi` |
-| `worker` | string | no | `apps/api/src/*.Worker` |
+| `webapi` | string or array of string | no | `apps/api/src/*.WebApi` |
+| `worker` | string or array of string | no | `apps/api/src/*.Worker` |
 | `apiSolution` | string | no | none |
 | `templateStore` | string | no | none |
 
@@ -177,7 +179,7 @@ What each field means and what reads it:
 - `modules` is the code root the model builder reads: the modules project holding every module. A `*` in one segment expands to the first matching folder.
 - `sharedKernel` names the shared kernel project holding what every module builds on, where reasonless names are allowed. When omitted, the default applies and `litespec model check` reports `name-reason-missing` for every reasonless folder or type outside it.
 - `domain` and `infrastructure` name the Domain and Infrastructure projects the model builder reads, under `layer-projects` only. Without that extension they default to none.
-- `webapi` and `worker` name the WebApi and Worker host projects the model builder reads.
+- `webapi` and `worker` name the web and worker host projects the model builder reads: one path, or a list for a backend with several hosts.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
 - `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
 
@@ -259,11 +261,11 @@ A preset without a controlled web frontend, such as `blazor-client` or `android-
 
 ### A Complete Example
 
-This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `4.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
+This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `4.1.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
 
 ```json
 {
-  "$schema": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
+  "$schema": "https://litespec.dev/4.1.0/schemas/litespec-project.schema.json",
   "project": {
     "name": "shop"
   },
@@ -273,7 +275,7 @@ This example shows the file `litespec init --preset dotnet-react --size small --
     "dotnet",
     "react"
   ],
-  "reviewedLiteSpecVersion": "4.0.0",
+  "reviewedLiteSpecVersion": "4.1.0",
   "paths": {
     "docs": "docs",
     "behaviorDocs": ".litespec/behavior",
@@ -323,8 +325,8 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 | Mistake | Message |
 |:---|:---|
 | A placeholder is left in the file | `.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '4.0.0' does not match the installed LiteSpec tool release 4.0.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 4.0.0' and run 'dotnet tool restore', or re-review the contract and record 4.0.0` |
-| The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.0.0` |
+| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '4.1.0' does not match the installed LiteSpec tool release 4.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 4.1.0' and run 'dotnet tool restore', or re-review the contract and record 4.1.0` |
+| The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.1.0` |
 | A stack id is unknown | `.litespec/project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A client-only project names a backend stack | `.litespec/project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A server names zero or two backend stacks | `.litespec/project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |

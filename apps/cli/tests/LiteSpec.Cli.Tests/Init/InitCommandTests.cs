@@ -417,6 +417,7 @@ public sealed class InitCommandTests
               },
               "size": "small",
               "stacks": [],
+              "conformance": "full",
               "reviewedLiteSpecVersion": "0.0.0-template",
               "paths": {
                 "docs": ".litespec",

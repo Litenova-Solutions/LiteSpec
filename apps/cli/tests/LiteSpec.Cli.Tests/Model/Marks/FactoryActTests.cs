@@ -50,7 +50,8 @@ public sealed class FactoryActTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "conformance": "full",
+                  "reviewedLiteSpecVersion": "4.1.0",
                   "owners": [
                     "lending-team"
                   ],

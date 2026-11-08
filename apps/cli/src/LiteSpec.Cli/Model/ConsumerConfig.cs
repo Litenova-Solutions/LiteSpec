@@ -110,6 +110,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the committed OpenAPI document, or null when the project names none.</summary>
     public string? ContractPath { get; private set; }
 
+    /// <summary>Gets the conformance level the project claims; full when the project file names none, which the schema check reports.</summary>
+    public ConformanceLevel Conformance { get; private set; } = ConformanceLevel.Full;
+
     /// <summary>Gets the project size: small or large.</summary>
     public string Size { get; private set; } = "large";
 
@@ -252,6 +255,13 @@ sealed class ConsumerConfig
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
         config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
+
+        if (document.RootElement.TryGetProperty("conformance", out var conformance)
+            && conformance.ValueKind == JsonValueKind.String
+            && ConformanceLevels.TryParse(conformance.GetString(), out var level))
+        {
+            config.Conformance = level;
+        }
 
         if (document.RootElement.TryGetProperty("size", out var size)
             && size.ValueKind == JsonValueKind.String

@@ -39,7 +39,8 @@ public sealed class ScreenCaptureTests
               "shape": "server",
               "packs": ["lite"],
               "stacks": ["dotnet"],
-              "reviewedLiteSpecVersion": "4.0.0",
+              "conformance": "full",
+              "reviewedLiteSpecVersion": "4.1.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }
             """);

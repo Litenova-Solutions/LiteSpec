@@ -15,7 +15,7 @@ Your project does not adopt all of LiteSpec. It makes four choices in `.litespec
 | Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
 
-`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/4.0.0/select/) on the site does the same in a form and shows which pages apply.
+`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/4.1.0/select/) on the site does the same in a form and shows which pages apply.
 
 The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.json`:
 
@@ -30,7 +30,7 @@ The Claimwick example in `examples/claimwick/` declares its own selection in `.l
 
 Read it as four answers: size large, shape server, the dotnet and svelte stacks, and no extensions. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
 
-The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team pinned, `4.0.0`. The [project file page](../reference/project-file.md) lists every field.
+The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team pinned, `4.1.0`. The [project file page](../reference/project-file.md) lists every field.
 
 ## The Page Arrangement
 
