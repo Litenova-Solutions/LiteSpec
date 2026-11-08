@@ -422,9 +422,22 @@ internal sealed record PathContext(
             return "query-handler";
         }
 
-        if (name.EndsWith("CommandValidator.cs", StringComparison.Ordinal)
-            || name.EndsWith("QueryValidator.cs", StringComparison.Ordinal)
-            || name.Contains("CommandResult", StringComparison.Ordinal)
+        if (name.EndsWith("Validator.cs", StringComparison.Ordinal))
+        {
+            return "validator";
+        }
+
+        if (name.EndsWith("Repository.cs", StringComparison.Ordinal))
+        {
+            return "repository";
+        }
+
+        if (HasSegment(segments, "Ports") || name.EndsWith("Port.cs", StringComparison.Ordinal))
+        {
+            return "port";
+        }
+
+        if (name.Contains("CommandResult", StringComparison.Ordinal)
             || name.Contains("QueryResult", StringComparison.Ordinal)
             || name.EndsWith("Command.cs", StringComparison.Ordinal)
             || name.EndsWith("Query.cs", StringComparison.Ordinal))
@@ -448,11 +461,6 @@ internal sealed record PathContext(
         }
 
         if (name.EndsWith("Exception.cs", StringComparison.Ordinal))
-        {
-            return "aggregate";
-        }
-
-        if (name.EndsWith("Repository.cs", StringComparison.Ordinal))
         {
             return "aggregate";
         }

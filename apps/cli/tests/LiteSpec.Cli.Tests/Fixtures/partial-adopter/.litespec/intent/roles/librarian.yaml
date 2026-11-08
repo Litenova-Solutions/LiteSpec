@@ -1,0 +1,7 @@
+type: role
+id: role/librarian
+title: Librarian
+summary: Librarians manage the whole collection.
+scope: platform
+allows:
+- permission/borrow-copy

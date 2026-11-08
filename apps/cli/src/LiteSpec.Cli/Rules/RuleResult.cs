@@ -1,3 +1,5 @@
+using LiteSpec.Authoring;
+
 namespace LiteSpec.Rules;
 
 /// <summary>
@@ -31,7 +33,7 @@ internal sealed record RuleResult(
     public bool IsLayerWide => Departure is null
         && !Entry.IsChecked
         && Entry.Source == ProvisionEntry.LiteSpecSource
-        && Entry.AppliesTo.Length == 0
+        && (Entry.AppliesTo.Length == 0 || Scopes.ArtifactValues(Entry.AppliesTo).All(value => Scopes.IsLayerWide(value)))
         && Reasons.Count > 0
         && Reasons.All(reason => reason.StartsWith("layer ", StringComparison.Ordinal));
 }

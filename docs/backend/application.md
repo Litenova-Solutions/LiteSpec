@@ -122,7 +122,7 @@ A collection query has no single target record, so a scope owner lookup has noth
 
 WebApi enforces coarse authenticated, role, or scope policies first under `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`, which replaces no decision that depends on business data.
 
-**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal; the guard authorizes every message from its record's `access`.
+**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal or that takes the authorization guard; the guard authorizes every message from its record's `access`.
 
 ### Keep Command Handlers to Load, Call and Stage
 

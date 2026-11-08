@@ -1,0 +1,7 @@
+type: role
+id: role/reader
+title: Reader
+summary: Readers act on their own loans.
+scope: self
+allows:
+- permission/borrow-copy

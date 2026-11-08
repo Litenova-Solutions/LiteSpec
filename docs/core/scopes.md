@@ -17,7 +17,7 @@ Each provision carries five scope fields. The page declares the first two once; 
 |:---|:---|:---|
 | `stack` | Which technology | `dotnet`, `react`, `svelte`, `blazor`, `android`, `any` |
 | `layer` | Which part of the system | `domain`, `application`, `infrastructure`, `web-api`, `frontend-ui`, `frontend-data`, `tests`, `records`, `workspace`, `operations` |
-| `artifact` | Which kind of thing is made | One code kind, or `record:<type>` for one record of that type |
+| `artifact` | Which kind of thing is made | `any`, one code kind, several code kinds separated by a comma, or `record:<type>` for one record of that type |
 | `conformance` | Which part of the contract | `records`, `traced`, `full` |
 | `strength` | How binding it is | `rule`, `default`, `advice` |
 
@@ -55,8 +55,13 @@ Each provision carries five scope fields. The page declares the first two once; 
 | `state-record` | One named state of an aggregate and its data |
 | `value-object` | One immutable type defined by its values |
 | `domain-event` | One fact completed inside the bounded context |
+| `use-case` | The message and result types of one use case |
 | `command-handler` | The execution path of one command use case |
 | `query-handler` | The execution path of one query use case |
+| `validator` | The input validation of one command or query use case |
+| `reaction` | The handler class of one reaction |
+| `port` | One declared port interface |
+| `repository` | One aggregate repository, its interface or its store implementation |
 | `endpoint` | One route operation and the class serving it |
 | `migration` | One storage schema change |
 | `job` | Scheduled or manual background work in code |
@@ -64,9 +69,10 @@ Each provision carries five scope fields. The page declares the first two once; 
 | `route` | One frontend address and its page file |
 | `form` | One data-entry form |
 | `test` | One test |
+| `any` | Every file of the provision layer |
 | `record:<type>` | One record of that type, such as `record:use-case`. The types are the Type column of the placement table on the [model page](model.md) |
 
-`record:aggregate` names the aggregate record while `aggregate` names its code, and `record:job` names the job record while `job` names its code.
+`record:aggregate` names the aggregate record while `aggregate` names its code, and `record:job` names the job record while `job` names its code. A provision names several code kinds separated by a comma when one rule governs several kinds, for example `artifact: command-handler, query-handler`; a file matches when its kind is one of the named kinds. The value `any` stands alone: it names no kind, and a file matches when its layer is the provision layer, so `artifact: any` states the layer-wide scope on a page where another provision names a kind. Each code kind names files the CLI classifies from the path, so a kind with no classifiable files earns no value here.
 
 ### Conformance Values
 
@@ -114,7 +120,7 @@ Each page that owns provisions declares `stack` and `layer` once, in a `**Stack:
 **Layer:** domain
 ```
 
-A provision adds `**Applies to:**` only when it is narrower than its page, or when its conformance level differs from its page level, naming `stack`, `layer`, `artifact`, or `conformance` in that order, separated by `; `, for example `artifact: aggregate` or `artifact: aggregate; conformance: traced`. Narrower means each named field holds a subset of the page values; `artifact` always narrows because the page names none. A provision states `conformance` only when its level differs from its page level, and names exactly one level. Every provision carries its `**Strength:**` line directly after its ID line, before `Applies to`. The [authoring standard](authoring.md) states the full provision layout.
+A provision adds `**Applies to:**` only when it is narrower than its page, or when its conformance level differs from its page level, naming `stack`, `layer`, `artifact`, or `conformance` in that order, separated by `; `, for example `artifact: aggregate` or `artifact: aggregate; conformance: traced`. An `artifact` field names one kind, several kinds separated by a comma, `any`, or one `record:<type>` value. Narrower means each named field holds a subset of the page values; `artifact` always narrows because the page names none. The value `any` holds the page layer scope in the field, so a provision that governs every file of its layer states `artifact: any` on a page where another provision names a kind, and carries no line on a page where no provision names a kind. A provision states `conformance` only when its level differs from its page level, and names exactly one level. Every provision carries its `**Strength:**` line directly after its ID line, before `Applies to`. The [authoring standard](authoring.md) states the full provision layout.
 
 `litespec-maintain provisions` writes the scope, conformance level, and strength of every provision into the provision index and its data file, with the conformance level right after the artifact, and states the checked share of rules for each page in the index, so the CLI reads one file instead of parsing every page.
 
@@ -163,11 +169,11 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **Strength:** rule
 
-**Statement:** A provision MUST carry an Applies to line only when its scope is narrower than its page scope, or its conformance level differs from its page level.
+**Statement:** A provision MUST carry an Applies to line only when its scope is narrower than its page scope, its conformance level differs from its page level, or it marks its layer-wide scope with `artifact: any` on a page where another provision names a kind.
 
-**Rationale:** The page scope already governs every provision on it: repeating it on each provision doubles the homes for one fact, and the copies disagree at the next edit. An Applies to line that widens the page scope misfiles the provision under situations the page never governed. One line, only when narrower or at a different level, keeps retrieval exact.
+**Rationale:** The page scope already governs every provision on it: repeating it on each provision doubles the homes for one fact, and the copies disagree at the next edit. An Applies to line that widens the page scope misfiles the provision under situations the page never governed. One line, only when narrower, at a different level, or marking the layer-wide scope beside a named kind, keeps retrieval exact.
 
-**Example:** On a page scoped to `layer: domain`, a provision for aggregates carries `**Applies to:** artifact: aggregate`, while a provision for the whole domain layer carries no line. On a record-model page, a provision about marks carries `**Applies to:** conformance: traced`.
+**Example:** On a page scoped to `layer: domain`, a provision for aggregates carries `**Applies to:** artifact: aggregate`, while a provision for the whole domain layer carries no line. On an application page where a provision names `artifact: validator`, a provision for the whole application layer carries `**Applies to:** artifact: any`. On a record-model page, a provision about marks carries `**Applies to:** conformance: traced`.
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_NARROW` diagnostic.
 

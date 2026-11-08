@@ -292,6 +292,23 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** region: core\n\n**Statement:**")),
         ["SCOPE_VALUE"]);
 
+    /// <summary>Scope vocabulary page naming the settled artifact kinds.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "scope vocabulary page naming the settled artifact kinds")]
+    public void ScopesVocabularyNamesArtifacts()
+    {
+        var vocabulary = Scopes.Load(Cli.Repository);
+        Assert.Contains("any", vocabulary.Artifacts);
+        Assert.Contains("use-case", vocabulary.Artifacts);
+        Assert.Contains("validator", vocabulary.Artifacts);
+        Assert.Contains("reaction", vocabulary.Artifacts);
+        Assert.Contains("port", vocabulary.Artifacts);
+        Assert.Contains("repository", vocabulary.Artifacts);
+        Assert.True(vocabulary.IsArtifact("any"));
+        Assert.True(Scopes.IsLayerWide("any"));
+        Assert.Equal(["command-handler", "query-handler"], Scopes.ArtifactValues("command-handler, query-handler"));
+    }
+
     static string BaseReadme(string root) =>
         File.ReadAllText(Path.Combine(root, "docs", "README.md")).Replace("\r\n", "\n");
 }

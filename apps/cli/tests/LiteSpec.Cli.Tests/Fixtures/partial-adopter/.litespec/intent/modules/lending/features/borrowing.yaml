@@ -1,0 +1,23 @@
+type: feature
+id: feature/borrowing
+title: Borrowing
+offering: Readers borrow and return copies, and every copy keeps one home shelf.
+solves:
+- problem/slow-desk-loans
+records:
+- type: requirement
+  id: requirement/borrowing.max-active-loans
+  title: Max active loans
+  kind: functional
+  statement: A reader holds at most five active loans.
+  rationale: Readers borrow enough for a term without starving holds.
+  cites:
+  - decision/0001-loan-period
+- type: requirement
+  id: requirement/borrowing.loan-period-days
+  title: Loan period days
+  kind: functional
+  statement: A loan lasts 21 days.
+  rationale: Three weeks lets most readers finish while copies keep moving.
+  cites:
+  - decision/0001-loan-period

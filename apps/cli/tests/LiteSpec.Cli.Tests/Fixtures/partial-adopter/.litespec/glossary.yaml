@@ -1,0 +1,34 @@
+schemaVersion: 2
+terms:
+- id: term/loan
+  term: loan
+  meaning: A copy lent to a reader until its due date.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: lening
+    de: Leihe
+  rejected:
+  - word: checkout
+    reason: Checkout names the desk action.
+- id: term/copy
+  term: copy
+  meaning: One physical item the library lends.
+  layer: behavior
+  aliases: []
+  labels:
+    nl: exemplaar
+    de: Exemplar
+  rejected: []
+- id: term/reader
+  term: reader
+  meaning: A person holding a library card.
+  layer: intent
+  aliases: []
+  labels:
+    nl: lezer
+    de: Leser
+  rejected: []
+mannered:
+- term: one-way-door
+  instead: irreversible

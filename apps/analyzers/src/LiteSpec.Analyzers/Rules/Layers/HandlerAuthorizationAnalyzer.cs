@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
-/// <summary>LS2012: a command or query handler never authorizes itself by throwing an access refusal.</summary>
+/// <summary>LS2012: a command or query handler never authorizes itself by throwing an access refusal or taking the authorization guard.</summary>
 /// <follows>litespec/backend/application#enforce-target-authorization-in-the-pipeline</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
@@ -33,6 +33,7 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
     {
         var scope = FileScope.For(context.Compilation, context.Options, AppliesTo);
         context.RegisterOperationAction(c => AnalyzeThrow(c, scope), OperationKind.Throw);
+        context.RegisterSymbolAction(c => AnalyzeParameter(c, scope), SymbolKind.Parameter);
     }
 
     /// <summary>Analyzes the throw.</summary>
@@ -71,6 +72,49 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
             Descriptors.LS2012, location, handler.Name, thrown.Type.Name));
     }
 
+    /// <summary>Analyzes the parameter.</summary>
+    /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
+    /// <param name="scope">Whether the rule applies to each file.</param>
+    private static void AnalyzeParameter(SymbolAnalysisContext context, FileScope scope)
+    {
+        if (!scope.AppliesTo(context.Symbol))
+        {
+            return;
+        }
+
+        var parameter = (IParameterSymbol)context.Symbol;
+        if (parameter.IsImplicitlyDeclared)
+        {
+            return;
+        }
+
+        if (!(parameter.ContainingSymbol is IMethodSymbol method) || method.MethodKind != MethodKind.Constructor)
+        {
+            return;
+        }
+
+        if (!IsCommandOrQueryHandler(method.ContainingType))
+        {
+            return;
+        }
+
+        var type = Unwrap(parameter.Type);
+        if (!IsAuthorizationGuard(type))
+        {
+            return;
+        }
+
+        foreach (var declaration in parameter.DeclaringSyntaxReferences)
+        {
+            if (declaration.GetSyntax() is ParameterSyntax syntax && syntax.Type != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Descriptors.LS2012, syntax.Type.GetLocation(), method.ContainingType.Name, type.Name));
+                return;
+            }
+        }
+    }
+
     /// <summary>Returns true when the type is command or query handler; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
     /// <returns>True when the type is command or query handler; otherwise false.</returns>
@@ -105,6 +149,56 @@ public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
         type.Name.EndsWith("ForbiddenException", StringComparison.Ordinal)
         || type.Name.EndsWith("UnauthorizedException", StringComparison.Ordinal)
         || type.Name.EndsWith("AccessDeniedException", StringComparison.Ordinal);
+
+    /// <summary>Returns true when the type is authorization guard; otherwise false.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>True when the type is authorization guard; otherwise false.</returns>
+    private static bool IsAuthorizationGuard(ITypeSymbol type)
+    {
+        if (IsAuthorizationGuardName(type.Name))
+        {
+            return true;
+        }
+
+        foreach (var contract in type.AllInterfaces)
+        {
+            if (IsAuthorizationGuardName(contract.Name))
+            {
+                return true;
+            }
+        }
+
+        for (var current = type.BaseType; current != null; current = current.BaseType)
+        {
+            if (IsAuthorizationGuardName(current.Name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Returns true when the name is authorization guard name; otherwise false.</summary>
+    /// <param name="name">The name under inspection.</param>
+    /// <returns>True when the name is authorization guard name; otherwise false.</returns>
+    private static bool IsAuthorizationGuardName(string name) =>
+        name.EndsWith("AuthorizationGuard", StringComparison.Ordinal);
+
+    /// <summary>Returns the i type symbol.</summary>
+    /// <param name="type">The type under inspection.</param>
+    /// <returns>The i type symbol.</returns>
+    private static ITypeSymbol Unwrap(ITypeSymbol type)
+    {
+        if (type is INamedTypeSymbol named
+            && named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+            && named.TypeArguments.Length == 1)
+        {
+            return named.TypeArguments[0];
+        }
+
+        return type;
+    }
 
     /// <summary>Returns the type.</summary>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>

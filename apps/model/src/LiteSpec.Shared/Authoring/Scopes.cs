@@ -20,6 +20,9 @@ public sealed class Scopes
     /// <summary>The scope vocabulary page, relative to the repository root.</summary>
     public const string PagePath = "docs/core/scopes.md";
 
+    /// <summary>The artifact value that governs every file of the provision layer.</summary>
+    public const string AnyArtifact = "any";
+
     /// <summary>Gets the Strength values a Strength line names.</summary>
     public static readonly IReadOnlySet<string> StrengthValues = new HashSet<string>(
         ["rule", "default", "advice"],
@@ -79,6 +82,21 @@ public sealed class Scopes
     public bool IsArtifact(string value) =>
         Artifacts.Contains(value)
         || ArtifactPrefixes.Any(prefix => value.StartsWith(prefix, StringComparison.Ordinal) && value.Length > prefix.Length);
+
+    /// <summary>Reports whether a value is the layer-wide artifact, governing every file of its layer.</summary>
+    /// <param name="value">The artifact value.</param>
+    /// <returns>True when the value is <see cref="AnyArtifact"/>.</returns>
+    public static bool IsLayerWide(string value) =>
+        string.Equals(value.Trim(), AnyArtifact, StringComparison.Ordinal);
+
+    /// <summary>Splits one artifact field into its values, in written order.</summary>
+    /// <param name="artifact">The artifact field text, with values separated by a comma.</param>
+    /// <returns>The artifact values, each trimmed, with no empty value.</returns>
+    public static IReadOnlyList<string> ArtifactValues(string artifact) =>
+        artifact.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(value => value.Trim())
+            .Where(value => value.Length > 0)
+            .ToList();
 
     /// <summary>
     ///     Loads the vocabulary from the scope page under <paramref name="root"/>. A missing or

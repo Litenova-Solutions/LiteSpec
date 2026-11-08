@@ -1,0 +1,3 @@
+# Borrowing
+
+Borrowing covers loans.

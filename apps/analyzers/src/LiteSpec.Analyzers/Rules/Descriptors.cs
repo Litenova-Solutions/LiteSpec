@@ -226,8 +226,8 @@ internal static class Descriptors
     /// <summary>The LS2012 descriptor: Handler authorizes itself.</summary>
     public static readonly DiagnosticDescriptor LS2012 = Create("LS2012", LayersCategory, TargetAuthorization,
         "Handler authorizes itself",
-        "Handler '{0}' throws '{1}'; the authorization guard authorizes every message",
-        "A command or query handler never throws the forbidden refusal itself; the authorization guard authorizes every message from the access its record declares.");
+        "Handler '{0}' authorizes itself with '{1}'; the authorization guard authorizes every message",
+        "A command or query handler never throws the forbidden refusal itself and never takes the authorization guard; the authorization guard authorizes every message from the access its record declares.");
 
     /// <summary>The LS2013 descriptor: Audit value read from the message in the handler.</summary>
     public static readonly DiagnosticDescriptor LS2013 = Create("LS2013", LayersCategory, AuditValues,

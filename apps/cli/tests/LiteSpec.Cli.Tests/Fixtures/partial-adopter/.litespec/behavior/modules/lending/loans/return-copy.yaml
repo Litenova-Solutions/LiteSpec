@@ -1,0 +1,38 @@
+type: use-case
+id: use-case/lending.return-copy
+title: Return copy
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+fulfills:
+- requirement/borrowing.loan-period-days
+reachedThrough:
+- entry-point/library-app
+raises:
+- event/loan.loan-returned
+idempotency:
+  mode: none
+  reason: Each call returns its own copy, and returning an inactive loan is refused.
+audit:
+  level: none
+  target: No audit trail; the loan record shows each return.
+records:
+- type: result
+  id: result/return-copy.returned
+  title: Returned
+  outcome: success
+  meaning: The copy is returned.
+- type: result
+  id: result/return-copy.loan-inactive
+  title: Loan inactive
+  outcome: refusal
+  code: lending.loan-not-active
+  meaning: The loan is inactive.
+- type: scenario
+  id: scenario/return-copy.returning-a-borrowed-copy-succeeds
+  title: Returning a borrowed copy succeeds
+  given: A loan stands active on a copy.
+  when: The reader returns the copy.
+  then: The loan is returned.
+  result: result/return-copy.returned

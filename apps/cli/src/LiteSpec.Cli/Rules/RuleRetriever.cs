@@ -1,14 +1,16 @@
+using LiteSpec.Authoring;
 using LiteSpec.Model;
 
 namespace LiteSpec.Rules;
 
 /// <summary>
 ///     Retrieves the provisions that govern a target: artifact-scoped provisions match
-///     the target artifact and the marked records, page-scope provisions match the
-///     target layer, and conventions match their scope glob. A live departure whose
-///     subject or paths cover the target replaces the provision its covers names.
-///     Only provisions at or below the conformance level the project claims are
-///     retrieved, and a code path in a records project retrieves none.
+///     the target artifact and the marked records, a provision naming the artifact
+///     <c>any</c> and page-scope provisions match the target layer, and conventions
+///     match their scope glob. A live departure whose subject or paths cover the
+///     target replaces the provision its covers names. Only provisions at or below
+///     the conformance level the project claims are retrieved, and a code path in a
+///     records project retrieves none.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class RuleRetriever
@@ -91,9 +93,18 @@ internal static class RuleRetriever
             reasons.Add($"record {entry.Id}");
         }
 
-        if (entry.AppliesTo.Length > 0)
+        var artifacts = Scopes.ArtifactValues(entry.AppliesTo);
+
+        if (artifacts.Count > 0 && artifacts.All(value => Scopes.IsLayerWide(value)))
         {
-            if (target.Artifact.Length > 0 && entry.AppliesTo == target.Artifact)
+            if (entry.Layer.Length > 0 && entry.Layer == target.Layer)
+            {
+                reasons.Add($"layer {target.Layer}");
+            }
+        }
+        else if (artifacts.Count > 0)
+        {
+            if (target.Artifact.Length > 0 && artifacts.Contains(target.Artifact, StringComparer.Ordinal))
             {
                 reasons.Add(target.IsRecord ? $"record {target.Display}" : $"path match (artifact {target.Artifact})");
             }
@@ -101,7 +112,7 @@ internal static class RuleRetriever
             foreach (var marked in target.Marked)
             {
                 if (PathContext.ArtifactOf(marked) is { Length: > 0 } artifact
-                    && artifact == entry.AppliesTo
+                    && artifacts.Contains(artifact, StringComparer.Ordinal)
                     && !reasons.Any(reason => reason == $"record {marked}"))
                 {
                     reasons.Add($"record {marked}");

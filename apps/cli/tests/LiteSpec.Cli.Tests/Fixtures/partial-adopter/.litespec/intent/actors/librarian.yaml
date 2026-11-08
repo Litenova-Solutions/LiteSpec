@@ -1,0 +1,9 @@
+type: actor
+id: actor/librarian
+title: Librarian
+summary: A librarian keeps the shelves in order and helps readers borrow.
+kind: person
+belongsToTeam: false
+holds:
+- role: role/librarian
+  scope: platform

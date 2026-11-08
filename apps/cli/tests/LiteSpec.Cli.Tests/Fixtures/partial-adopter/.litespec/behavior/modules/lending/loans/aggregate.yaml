@@ -1,0 +1,40 @@
+type: aggregate
+id: aggregate/lending.loan
+title: Loan
+kind: entity
+states:
+- name: Active
+  meaning: The loan is open.
+- name: Returned
+  meaning: The copy came back.
+- name: Overdue
+  meaning: The loan passed its due date.
+transitions:
+- from: "-"
+  to: Active
+  by: use-case/lending.borrow-copy
+- from: Active
+  to: Overdue
+- from: Active
+  to: Returned
+  by: use-case/lending.return-copy
+- from: Overdue
+  to: Returned
+  by: use-case/lending.return-copy
+records:
+- type: event
+  id: event/loan.loan-borrowed
+  title: Loan borrowed
+  meaning: A copy was lent.
+  carries:
+  - loanId
+  - copyId
+  - readerId
+  - dueDate
+- type: event
+  id: event/loan.loan-returned
+  title: Loan returned
+  meaning: A copy was returned.
+  carries:
+  - loanId
+  - returnedAt

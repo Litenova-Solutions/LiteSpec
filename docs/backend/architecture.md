@@ -319,8 +319,9 @@ The host is a composition decision, not a code-placement decision. The hosted op
 | An aggregate exposes no `State` property typed as an abstract record, or a state case is not sealed | `LS1003` and `LS1004` from `dotnet build` |
 | Domain declares an enum for a closed set | `LS1002` from `dotnet build` |
 | A command handler holds or calls through a document session or database context | `LS2004` from `dotnet build` |
+| A handler throws a forbidden refusal or takes the authorization guard | `LS2012` from `dotnet build` |
 
-**Example:** In the Claimwick product, no architecture test repeats `LS1001`, `LS1002`, or `LS2004`: the build reports a Domain file that names a Marten type, an enum declared in Domain, and a command handler that holds a document session. The architecture suite keeps a test that no handler takes an authorizer of its own, which `LS2012` does not report because it reports only a thrown access refusal, and a test that no module reaches another module outside its `dependsOn`, which `LS2020` allows when the named type sits in the other module's `Contracts/` folder.
+**Example:** In the Claimwick product, no architecture test repeats `LS1001`, `LS1002`, `LS2004`, or `LS2012`: the build reports a Domain file that names a Marten type, an enum declared in Domain, a command handler that holds a document session, and a handler that throws a forbidden refusal or takes the authorization guard. The architecture suite keeps a test that no module reaches another module outside its `dependsOn`, which `LS2020` allows when the named type sits in the other module's `Contracts/` folder.
 
 **Reviewed for:** Which structural boundaries have no LiteSpec analyzer or `model check` finding in the table and no architecture test, or which architecture tests repeat a boundary the table covers? Look at the architecture tests beside the analyzer and `model check` runs.
 

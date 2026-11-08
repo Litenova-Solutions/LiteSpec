@@ -1,0 +1,26 @@
+type: rule-set
+title: Loan rules
+summary: Each loan has one borrower and returns while active.
+records:
+- type: rule
+  id: rule/loan.has-one-borrower
+  title: Has one borrower
+  kind: invariant
+  statement: A loan has one borrower.
+  governs:
+  - use-case/lending.borrow-copy
+  refusal: result/borrow-copy.copy-unavailable
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.max-active-loans
+- type: rule
+  id: rule/loan.returned-while-active
+  title: Returned while active
+  kind: precondition
+  statement: A loan returns only while active.
+  governs:
+  - use-case/lending.return-copy
+  refusal: result/return-copy.loan-inactive
+  basedOn: []
+  fulfills:
+  - requirement/borrowing.loan-period-days

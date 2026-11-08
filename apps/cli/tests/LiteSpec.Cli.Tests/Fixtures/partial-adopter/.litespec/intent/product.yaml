@@ -1,0 +1,8 @@
+type: product
+id: product/library
+title: Library
+summary: The library lends copies to readers and keeps every copy on one home shelf.
+boundary: The library lends copies to readers.
+addresses:
+- actor/reader
+- actor/librarian
