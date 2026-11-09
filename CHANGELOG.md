@@ -4,6 +4,26 @@
 
 LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Windows, Linux and macOS, so a project runs it with or without .NET. The records, provisions and schemas are those of 4.0.0 at the new release address. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together.
 
+### Part A: A Native Command Line on Every Platform
+
+- The CLI compiles ahead of time with .NET Native AOT for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` and `osx-arm64`. The binary needs no .NET runtime, and a full `model check` of the Claimwick example takes about half the time it took on the .NET runtime.
+- `LiteSpec.Cli` on NuGet is a per-platform tool package: `dotnet tool install`, `dotnet tool restore` and `dotnet litespec` work unchanged and pick the native package for the machine. Every other platform gets a framework-dependent package that runs on the .NET 10 runtime.
+- Each GitHub release carries a standalone archive per platform, a `SHA256SUMS` file, and `install.sh` and `install.ps1`, which install an archive without .NET. Every archive and package carries a build provenance attestation that `gh attestation verify` checks. The packages publish to nuget.org alone, so the release no longer attaches them.
+- The Linux glibc binaries run on glibc 2.28 and later, such as RHEL 8, Debian 10 and Ubuntu 20.04, and the musl binaries on Alpine 3.21 and later.
+
+### Part B: Running the CLI Without .NET
+
+- `litespec init --install standalone` writes a project that runs the CLI as `litespec`: no `.config/dotnet-tools.json`, and an agent context that names `litespec <command>`. The default, `--install tool`, writes the .NET tool manifest and names `dotnet litespec <command>` as before.
+- Run in a consumer root, the install scripts install the release that `.litespec/project.json` reviews, so `reviewedLiteSpecVersion` pins a standalone install the way the tool manifest pins a .NET tool.
+- The `release-mismatch` finding names both ways to install the reviewed release.
+- The CLI overview documents every way to install and run the CLI: the local .NET tool, the global tool, `dnx`, the install scripts, a manual download, a source checkout, and CI.
+
+### Part C: Proof on Every Platform
+
+- CI builds the native binary on each platform, runs the CLI test suite against it on Windows, Linux and macOS on x64 and arm64, and runs the standalone binary on a set of Linux distributions.
+- The CLI builds every JSON document it writes as a JSON node tree, and `dotnet build` fails on reflection-based serialization in the CLI and its shared library.
+- `global.json` sets SDK 10.0.114, the lowest SDK whose bundled runtime has no published advisory, because the native build restores the ILCompiler package at that runtime version.
+
 ## v4.0.0
 
 LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.

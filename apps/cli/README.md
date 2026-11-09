@@ -62,7 +62,7 @@ The entry file sits at the top of `apps/cli/src/LiteSpec.Cli/`. Each command liv
 | `Init/` | The `init` command. `InitCommand.cs` reads the preset from `templates/presets/`, merges it over `templates/consumer/project.json`, stamps the release version, fills the project name, and writes `.litespec/project.json` without overwriting an existing file. |
 | `Rules/` | The `rules` command. `RulesCommand.cs` lists the provisions that govern a path or record id grouped by strength, `PathContext.cs` derives the target's stack, layer, and artifact, `ProvisionCatalog.cs` reads the provisions from the carried release, and `RuleRetriever.cs` matches them with the project's conventions and live departures. |
 
-The solution file `LiteSpec.slnx` lists the CLI, the CLI tests, the maintainer tool, the shared library, the analyzers, and their tests. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Microsoft.CodeAnalysis.CSharp`, `Markdig`, and `xunit.v3`. `global.json` selects `Microsoft.Testing.Platform` as the test runner and pins no SDK.
+The solution file `LiteSpec.slnx` lists the CLI, the CLI tests, the maintainer tool, the shared library, the analyzers, and their tests. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Microsoft.CodeAnalysis.CSharp`, `Markdig`, and `xunit.v3`. `global.json` selects `Microsoft.Testing.Platform` as the test runner and sets the lowest SDK, `10.0.114`, rolling forward to any later feature band.
 
 ## Dispatch and Option Parsing
 
@@ -92,7 +92,7 @@ Two roots meet in most commands: the LiteSpec release the tool carries, and the 
 
 ## Test Harness and Fixtures
 
-The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project targets the CLI binary as a project reference, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. One folder covers each area: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`. `Support/Cli.cs` runs the built `litespec.dll` with `dotnet` as its own process, the way a consumer runs the tool, and asserts the exit code with both streams. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.json`, and offers `Fixture` for a path under `Fixtures/` and `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message and a documented exit code, never an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
+The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project targets the CLI binary as a project reference, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. One folder covers each area: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`. `Support/Cli.cs` runs the built `litespec.dll` with `dotnet` as its own process, the way a consumer runs the tool, and asserts the exit code with both streams. With `LITESPEC_TEST_EXECUTABLE` set to a native `litespec` executable, it runs that executable instead, so the same suite proves a native build; CI sets it on every platform. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.json`, and offers `Fixture` for a path under `Fixtures/` and `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message and a documented exit code, never an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
 
 Model tests start from `Model/ModelFixture.cs` and `Fixtures/Model/`. `small/` is a library loans system at size small with one module, three business records, eight use cases, and one open known gap; seven use cases have handlers and the eighth is covered by the gap. `large/` holds the same records plus problems, features, journeys, one case per use case, constraints, research, limits, runbooks, and a frontend route that imports a generated client operation. Both fixtures exit 0 under `model check`. `Fixtures/Model/README.md` documents the contents, the finding codes, and the overlay mechanism. `broken/<code>/` holds one overlay per finding code with only the files that differ from `large/`; `Prepare` copies `large/` to a temp folder, copies the overlay over it, deletes the paths in `DELETES.txt` when present, and returns the folder. `ModelCheckTests.cs` runs one theory row per code and expects exit 1 with that code. `WriteKnownGap` adds a covering gap for the suppression tests. `junit/` and `trx/` hold sample test results the proof checks read.
 
@@ -108,7 +108,7 @@ To add a fixture repository for a new case, follow the harness the area already 
 2. Add the dispatch arm in `Program.cs` and route unknown subcommands to exit 2 with the usage text.
 3. Parse the tail with `CliArgs.Parse`, declaring every flag and value option. Print `Usage` on `--help` with exit 0 and on any parse error with exit 2.
 4. Resolve roots through `LiteSpecHome` for the release and `CliArgs.Root` for the consumer. Convert a missing release into exit 2 with the usage text.
-5. Write human lines to standard output or error and one JSON object to standard output under `--format json`, using `CliJson`.
+5. Write human lines to standard output or error and one JSON object to standard output under `--format json`, using `CliJson`. Build the object as a `JsonObject`, never as an anonymous object or a type the serializer reads by reflection: the native build has no reflection, and the build fails on a call that needs it.
 6. Document the command on a new page under `docs/tools/` with the command page sections, and link it from `docs/tools/README.md`.
 
 ### Add a Model Finding
@@ -125,9 +125,32 @@ To add a fixture repository for a new case, follow the harness the area already 
 2. Update every test that asserts the old text, including `Support/InputErrorTests.cs` when the message covers user error.
 3. Check that JSON output needs no change: messages stay inside `message` fields, and codes, paths, and field names stay stable. Rename a code only as a new code with a new overlay, never by editing the old string in place.
 
+## Native Build
+
+The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` sets `PublishAot`, which also runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.Shared` sets `IsAotCompatible` for the same analyzers. A call that needs runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture.
+
+Native AOT compiles only for the operating system it runs on, with the platform linker: the Visual Studio C++ build tools on Windows, Xcode on macOS, and `clang` with `zlib` on Linux. Build and test a native executable for this machine:
+
+```bash
+dotnet publish apps/cli/src/LiteSpec.Cli -c Release -r win-x64 -o artifacts/native
+LITESPEC_TEST_EXECUTABLE=artifacts/native/litespec.exe dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests
+```
+
+The SDK adds `Microsoft.DotNet.ILCompiler` and `Microsoft.NET.ILLink.Tasks` at the runtime version it bundles, so `global.json` sets the lowest SDK whose bundled runtime has no published advisory, and a newer SDK patch updates those two entries in `packages.lock.json`; commit that update. A publish for a platform adds that platform's packages to the lock file; leave that change out of a commit.
+
 ## Packing
 
-`LiteSpec.Cli.csproj` sets `PackAsTool` to `true` with `ToolCommandName` `litespec`, so packing produces the `LiteSpec.Cli` tool package described as `The LiteSpec command line: consumer and UI validation, the project model, and the project book.` `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -o artifacts/packages` produces `LiteSpec.Cli.<version>.nupkg` with the release under `tools/net10.0/any/`, as the [CLI overview](../../docs/tools/README.md) shows. A consumer installs it with `dotnet tool install LiteSpec.Cli --version <version>`, adding `--add-source <folder>` for a local package folder. Keep `PackageId`, `ToolCommandName`, and `Description` stable: install scripts and the consumer docs name them.
+`LiteSpec.Cli.csproj` sets `PackAsTool` to `true` with `ToolCommandName` `litespec`, so packing produces the `LiteSpec.Cli` tool packages described as `The LiteSpec command line: consumer and UI validation, the project model, and the project book.` `ToolPackageRuntimeIdentifiers` names the platforms. Three pack commands make the packages:
+
+| Command | Package |
+|:---|:---|
+| `dotnet pack apps/cli/src/LiteSpec.Cli -c Release` | `LiteSpec.Cli.<version>.nupkg`, which names one package per platform and holds no executable |
+| `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -r <rid>` | `LiteSpec.Cli.<rid>.<version>.nupkg`, the native executable with the release under `tools/any/<rid>/`, packed on a machine of that operating system |
+| `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -r any -p:PublishAot=false` | `LiteSpec.Cli.any.<version>.nupkg`, the framework-dependent build under `tools/net10.0/any/` for every other platform |
+
+A consumer installs `LiteSpec.Cli`, and the SDK picks the package for the machine; `--add-source <folder>` installs from a local package folder holding all of them. Keep `PackageId`, `ToolCommandName`, and `Description` stable: install scripts and the consumer docs name them.
+
+`.github/scripts/build-native.sh <rid> <folder>` packs one platform and writes its release archive, `litespec-<version>-<rid>.tar.gz`, or `.zip` on Windows. The archive holds one folder with the executable, the release, and the licence. A Linux build runs in a container through `.github/scripts/build-native-container.sh`: AlmaLinux 8 links against glibc 2.28, the oldest glibc the binary supports, and Alpine against musl. `apps/cli/install/install.sh` and `install.ps1` install an archive from a GitHub release after checking it against `SHA256SUMS`; `.github/scripts/install-native.sh` runs them against a local copy of the release, and `.github/scripts/smoke.sh` runs one consumer scenario against any install: `--tool`, `--binary`, or `--dll`. The CI workflow builds every platform, tests each installed binary, and runs the standalone binary on stock Linux distributions; the release workflow attests and publishes what CI built, pushing the platform packages before `LiteSpec.Cli`.
 
 ## Limits
 

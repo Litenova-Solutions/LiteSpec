@@ -15,7 +15,7 @@ LiteSpec has four parts. Each one answers a different question.
 | The model | What `litespec model check` and `litespec model query` compute from your records and the marks in code and tests | Does what we built match what we wrote? |
 | The tools | The `litespec` command line | Is everything consistent, and what is missing? |
 
-Your project installs one LiteSpec release as a local .NET tool. The installed release never changes under you. When you want a newer one, you move the version.
+Your project installs one LiteSpec release, as a local .NET tool or as the standalone binary. The installed release never changes under you. When you want a newer one, you move the version.
 
 The diagram below shows how the four parts connect, with each layer written from the layer above it and the checks sending their findings back to the records.
 

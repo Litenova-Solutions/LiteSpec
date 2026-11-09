@@ -52,7 +52,7 @@ It loads record context through `litespec model query <record-id>`, which return
 
 ## Installation
 
-LiteSpec runs as a local .NET tool. Run these commands from the root of a consumer repository, the folder that will hold `.litespec/project.json`.
+The `litespec` command line is a native executable for Windows, Linux and macOS that needs no .NET runtime. A repository with the .NET SDK installs it as a local .NET tool; run these commands from the root of a consumer repository, the folder that will hold `.litespec/project.json`.
 
 ```bash
 dotnet new tool-manifest
@@ -62,7 +62,17 @@ dotnet litespec init --preset dotnet-react --size small
 
 Run `dotnet new tool-manifest` only when the repository has no `.config/dotnet-tools.json` yet. `dotnet tool install` records `LiteSpec.Cli` in that manifest at the release named above.
 
-`dotnet litespec init` writes `.litespec/project.json` for the project. Both options are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, and `android-client`. See [Initialize Consumer](docs/tools/init.md) for every option.
+A repository without .NET installs the standalone binary from the GitHub release instead, and runs it as `litespec`:
+
+```bash
+curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh
+export PATH="$HOME/.litespec/bin:$PATH"
+litespec init --preset dotnet-svelte --size small --install standalone
+```
+
+On Windows, `irm https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.ps1 | iex` installs it. The [CLI overview](docs/tools/README.md#install-the-cli) lists every install method, how each pins the release, and the platform requirements.
+
+`init` writes `.litespec/project.json` for the project. Both `--preset` and `--size` are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, `android-client`, and `records`. See [Initialize Consumer](docs/tools/init.md) for every option.
 
 ## First Check
 

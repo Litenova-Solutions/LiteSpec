@@ -2,6 +2,8 @@
 
 The `litespec` command line for applications that follow [LiteSpec](https://litespec.dev), the specification standard for one bounded-context business application built by people and agents. The package carries the LiteSpec release it checks against, so a project needs no copy of the standard.
 
+The tool installs as a native executable for the machine: `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` or `osx-arm64`. Any other platform gets a framework-dependent build that runs on the .NET 10 runtime. Installing needs the .NET 10 SDK; running the native executable needs no .NET runtime.
+
 ## Install
 
 Install the tool in the project, at the release the project follows:
@@ -11,7 +13,7 @@ dotnet new tool-manifest
 dotnet tool install LiteSpec.Cli --local --version 4.1.0
 ```
 
-A teammate or a build restores it with `dotnet tool restore`.
+A teammate or a build restores it with `dotnet tool restore`. A machine without .NET installs the same executable from the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) with the install script; [installing the CLI](https://litespec.dev/4.1.0/tools/#install-the-cli) lists every method.
 
 ## Use
 

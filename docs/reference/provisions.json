@@ -8684,7 +8684,7 @@
       "conformance": "records",
       "strength": "rule",
       "statement": "A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.",
-      "rationale": "A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing.",
+      "rationale": "A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing. Each release publishes the CLI as one native executable per platform, in the tool packages and in standalone archives, so the version reaches a consumer with or without .NET, settled by [decision/0021-native-command-line](decision/0021-native-command-line) on the evidence in [research/native-command-line-evidence](research/native-command-line-evidence).",
       "example": ""
     },
     {

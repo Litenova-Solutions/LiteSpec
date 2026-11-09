@@ -34,7 +34,7 @@ dotnet tool install LiteSpec.Cli --version 4.1.0
 dotnet tool restore
 ```
 
-Run the first command only when the project has no `.config/dotnet-tools.json` yet. The installed release is the contract: it carries the manifest, schemas, docs, and templates the version names, and it never changes until the version moves, so a new LiteSpec release never breaks the build by surprise. The team adopts a newer release when it chooses, by moving the version and reading the new release.
+Run the first command only when the project has no `.config/dotnet-tools.json` yet. A team without the .NET SDK installs the standalone binary from the GitHub release instead, which `reviewedLiteSpecVersion` pins; the [CLI overview](../tools/README.md#install-the-cli) lists every install method. The installed release is the contract: it carries the manifest, schemas, docs, and templates the version names, and it never changes until the version moves, so a new LiteSpec release never breaks the build by surprise. The team adopts a newer release when it chooses, by moving the version and reading the new release.
 
 ### 2. Describe the Project at Records
 

@@ -20,7 +20,7 @@ An agent finds the rules in two places: the installed tool and the published sit
 
 ### The Installed Tool
 
-The project installs the `litespec` command line as a local .NET tool at the adopted release. The tool carries its whole release, manifest, schemas, docs, and templates, so every check reads the same contract the team pinned. The project's `AGENTS.md` carries the `## LiteSpec` block that names the release and its selection index, and the agent reads only the pages a task touches.
+The project installs the `litespec` command line at the adopted release, as a local .NET tool or as the standalone binary. Either carries its whole release, manifest, schemas, docs, and templates, so every check reads the same contract the team pinned. The project's `AGENTS.md` carries the `## LiteSpec` block that names the release and its selection index, and the agent reads only the pages a task touches.
 
 Before editing a file, the agent asks which provisions govern it:
 

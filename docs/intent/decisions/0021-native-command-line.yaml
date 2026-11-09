@@ -1,0 +1,21 @@
+type: decision
+id: decision/0021-native-command-line
+title: Native Command Line
+options:
+  - name: Native AOT executables as per-platform .NET tool packages and standalone archives
+    pros: One executable serves both installs, needs no .NET runtime, finishes a model check in half the time, and runs for a consumer without the .NET SDK.
+    cons: Each operating system builds its own executable, every JSON document is built as a node tree, CI gains a job per platform, and a browser download of the unsigned executable meets a macOS or Windows prompt.
+  - name: Native AOT executables as per-platform .NET tool packages only
+    pros: Consumers keep one install path, and nothing downloads outside NuGet.
+    cons: A consumer without the .NET SDK still cannot install the CLI.
+  - name: Keep the framework-dependent .NET tool
+    pros: No build matrix and no packaging change.
+    cons: Every consumer needs the .NET 10 runtime, and a client-only web project installs a .NET SDK only to run LiteSpec.
+  - name: Self-contained executables on the .NET runtime
+    pros: Reflection keeps working, so no JSON code changes.
+    cons: The executable keeps the start-up and compile cost of the .NET runtime build, and still needs one build per platform.
+choice: Native AOT executables as per-platform .NET tool packages and standalone archives
+consequences: The LiteSpec.Cli package names one native package per platform and a framework-dependent package for every other platform. Each GitHub release carries an archive per platform, SHA256SUMS, a build provenance attestation per file, and the install scripts. `litespec init --install standalone` writes a project that runs the binary. The CLI builds every JSON document as a node tree, and `dotnet build` rejects reflection-based serialization. CI builds, installs and tests the executable on every platform and runs it on stock Linux distributions. global.json sets SDK 10.0.114 as the lowest SDK.
+reopenedWhen: A library the CLI needs stops compiling ahead of time, or a platform consumers run has no Native AOT support.
+basedOn:
+  - research/native-command-line-evidence
