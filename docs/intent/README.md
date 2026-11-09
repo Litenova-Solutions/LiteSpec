@@ -6,7 +6,7 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
 
 ## Research and Decisions
 
-- Research (`research/`): the fourteen research records behind this release.
+- Research (`research/`): the fifteen research records behind this release.
   - [Intent Hierarchy Evidence](research/intent-hierarchy-evidence.md): which Intent links LiteSpec requires and checks.
   - [Behavior Containment Evidence](research/behavior-containment-evidence.md): how Behavior records find their parent.
   - [Cross-Layer Trace Evidence](research/cross-layer-trace-evidence.md): where the trace from a goal to a test breaks.
@@ -21,4 +21,5 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
   - [Lower Layers Practice](research/lower-layers-practice.md): the outside review and the measured consumer counts behind D25 to D46.
   - [Record Format Evidence](research/record-format-evidence.md): the format comparison and the measured consumer counts behind records in YAML.
   - [Native Command Line Evidence](research/native-command-line-evidence.md): the trial build, the distribution runs and the timings behind the native command line.
-- Decisions (`decisions/`): the seventeen decision records this release settles, written beside these research records. Decisions 0001 to 0009 record the hierarchy, naming and book shape; decisions 0011, 0012 and 0014 to 0018 record the record language and the lower-layer designs; decision 0020 records records in YAML with explanation files; decision 0021 records the native command line and its installs.
+  - [Schema Evaluator Evidence](research/schema-evaluator-evidence.md): the licence terms, the library survey and the message comparison behind LiteSpec's own schema evaluator.
+- Decisions (`decisions/`): the eighteen decision records this release settles, written beside these research records. Decisions 0001 to 0009 record the hierarchy, naming and book shape; decisions 0011, 0012 and 0014 to 0018 record the record language and the lower-layer designs; decision 0020 records records in YAML with explanation files; decision 0021 records the native command line and its installs; decision 0022 records LiteSpec's own schema evaluator.

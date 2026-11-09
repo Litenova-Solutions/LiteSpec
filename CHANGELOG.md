@@ -25,6 +25,13 @@ LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Wind
 - `model check --since` and the contract diff against a git revision read the changed files in the form of the root they were given, so a root reached through a symbolic link or a junction, such as a macOS temporary folder, or one in a subfolder of its repository, scopes the right files.
 - `global.json` sets SDK 10.0.114, the lowest SDK whose bundled runtime has no published advisory, because the native build restores the ILCompiler package at that runtime version.
 
+### Part D: One Schema Evaluator With No Fee
+
+- The CLI and the maintainer tool check every schema with LiteSpec's own JSON Schema evaluator. JsonSchema.Net, whose binaries charge a maintenance fee to revenue-generating users from version 9.0.0, leaves the repository and every shipped binary.
+- The evaluator implements JSON Schema draft 2020-12 without dynamic references, anchors, `unevaluatedProperties`, `unevaluatedItems` and `contentSchema`; `litespec-maintain validate` fails a schema that uses one of those with `SCHEMA_UNSUPPORTED_KEYWORD`.
+- A passing `oneOf` or `anyOf` no longer reports the shapes it rejected, such as a missing `url` on a research source that names its `path`. A `false` subschema reports the value as not allowed, a property-name failure names the property, and a percent-encoded reference resolves.
+- A plain build restores no Native AOT compiler, so the lock files stay the same on every SDK feature band and operating system.
+
 ## v4.0.0
 
 LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.

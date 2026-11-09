@@ -836,6 +836,79 @@ public sealed partial class StandardsValidatorTests
         Assert.Equal("value.json: string does not match ^a", error);
     }
 
+    /// <summary>A passing oneOf reports nothing from the shape it rejected, so a valid alternative never reads as missing.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a passing oneOf reports nothing from its rejected shapes")]
+    public void PassingOneOfReportsNothingFromItsRejectedShapes()
+    {
+        var errors = ValidateJson(
+            "{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"url\":{},\"path\":{}},\"oneOf\":[{\"required\":[\"url\"]},{\"required\":[\"path\"]}]}",
+            "{\"path\":\"notes.md\",\"extra\":1}");
+
+        Assert.Equal(["value.json: unknown property 'extra'"], errors);
+    }
+
+    /// <summary>A false subschema outside additionalProperties reports the value as not allowed.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a false subschema reports the value as not allowed")]
+    public void FalseSubschemaReportsTheValue()
+    {
+        var error = Assert.Single(ValidateJson("{\"properties\":{\"legacy\":false}}", "{\"legacy\":1}"));
+
+        Assert.Equal("value.json/legacy: value is not allowed", error);
+    }
+
+    /// <summary>A reference is a URI fragment, so a percent-encoded name resolves.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a percent-encoded reference resolves")]
+    public void PercentEncodedReferenceResolves()
+    {
+        var error = Assert.Single(ValidateJson("{\"$defs\":{\"a%b\":{\"type\":\"string\"}},\"$ref\":\"#/$defs/a%25b\"}", "1"));
+
+        Assert.Equal("value.json: expected string", error);
+    }
+
+    /// <summary>A property name that breaks propertyNames reports at that property.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "property names report at the property")]
+    public void PropertyNamesReportAtTheProperty()
+    {
+        var error = Assert.Single(ValidateJson("{\"propertyNames\":{\"pattern\":\"^[a-z]+$\"}}", "{\"Bad\":1}"));
+
+        Assert.Equal("value.json/Bad: string does not match ^[a-z]+$", error);
+    }
+
+    /// <summary>Numbers compare by value, so 1.0 is the integer 1 and equals the constant 1.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "numbers compare by value")]
+    public void NumbersCompareByValue()
+    {
+        Assert.Empty(ValidateJson("{\"type\":\"integer\",\"const\":1,\"enum\":[1],\"minimum\":1}", "1.0"));
+        Assert.Equal(["value.json: array items are not unique"], ValidateJson("{\"uniqueItems\":true}", "[1,1.0]"));
+    }
+
+    /// <summary>The gate flags the keywords the evaluator leaves out, so a schema that relies on one fails instead of passing unread.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "gate flags the keywords the evaluator leaves out")]
+    public void GateFlagsTheKeywordsTheEvaluatorLeavesOut()
+    {
+        var found = new List<string>();
+        JsonSchema.UnsupportedKeywords(
+            JsonNode.Parse("{\"unevaluatedProperties\":false,\"$dynamicRef\":\"#a\",\"$anchor\":\"a\",\"contentSchema\":{}}"),
+            "s.json",
+            "#",
+            (_, _, _, message) => found.Add(message));
+
+        Assert.Equal(
+            [
+                "unsupported JSON Schema keyword 'unevaluatedProperties' at '#'",
+                "unsupported JSON Schema keyword '$dynamicRef' at '#'",
+                "unsupported JSON Schema keyword '$anchor' at '#'",
+                "unsupported JSON Schema keyword 'contentSchema' at '#'",
+            ],
+            found);
+    }
+
     /// <summary>Gate flags an unknown keyword.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "gate flags an unknown keyword")]
@@ -860,7 +933,7 @@ public sealed partial class StandardsValidatorTests
     {
         var found = new List<string>();
         JsonSchema.UnsupportedKeywords(
-            JsonNode.Parse("{\"type\":\"object\",\"unevaluatedProperties\":false,\"dependentSchemas\":{\"a\":{\"type\":\"string\"}},\"properties\":{\"a\":{\"contentEncoding\":\"base64\",\"contentMediaType\":\"text/plain\",\"readOnly\":true},\"b\":{\"minContains\":1}},\"$vocabulary\":{}}"),
+            JsonNode.Parse("{\"type\":\"object\",\"additionalProperties\":false,\"dependentSchemas\":{\"a\":{\"type\":\"string\"}},\"properties\":{\"a\":{\"contentEncoding\":\"base64\",\"contentMediaType\":\"text/plain\",\"readOnly\":true},\"b\":{\"contains\":{},\"minContains\":1,\"maxContains\":2}}}"),
             "s.json",
             "#",
             (relative, line, code, message) => found.Add($"{relative}:{line}:{code}:{message}"));

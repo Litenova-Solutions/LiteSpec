@@ -30,7 +30,7 @@ The command checks each `$id` against the manifest version, validates the manife
 | `ui-pattern-catalog.schema.json` | `docs/ui/pattern-catalog.json` | `litespec model check` |
 | `ui-source-lock.schema.json` | `packages/ui/ui-source-lock.json` | `litespec model check` |
 
-The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema.cs`. Every reader above calls it, so one validation path serves all seven schemas through the JsonSchema.Net library.
+The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/`: `JsonSchema.cs` is the entry every reader above calls, `SchemaGate.cs` rejects any keyword the evaluator does not implement, and `SchemaEvaluator.cs` validates, so one validation path serves all seven schemas.
 
 ### Litespec Manifest Schema
 
@@ -62,12 +62,12 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ## How It Works
 
-Each reader loads its schema file and passes values to the shared evaluator. The evaluator validates the value against full JSON Schema draft 2020-12 through the JsonSchema.Net library and reports each mismatch with its location. The readers add the checks JSON Schema cannot express: the manifest `$id` home and version, the project selection rules, the explanation and document sections, the glossary prose check, the design contract implementation check, the catalog cross-property references, and the lock digest check.
+Each reader loads its schema file and passes values to the shared evaluator. The evaluator validates the value against JSON Schema draft 2020-12 and reports each mismatch with its location. The readers add the checks JSON Schema cannot express: the manifest `$id` home and version, the project selection rules, the explanation and document sections, the glossary prose check, the design contract implementation check, the catalog cross-property references, and the lock digest check.
 
 ## How to Change One Safely
 
 - Read the readers first: the validator files named in the table and their tests under `apps/cli/tests/LiteSpec.Cli.Tests/` (`Consumer/`, `Ui/`) and `apps/maintain/tests/LiteSpec.Maintain.Tests/` (`Authoring/StandardsValidatorTests.Schemas.cs`), with fixtures under `Fixtures/`.
-- Use any draft 2020-12 keyword. The evaluator implements the full vocabulary through the shared library, so a new shape needs no evaluator change.
+- Use the draft 2020-12 keywords `JsonSchema.Keywords` lists: every assertion and applicator except `unevaluatedProperties`, `unevaluatedItems` and `contentSchema`, with `$ref` to a local `#/` pointer and no `$anchor` or `$dynamicRef`. `litespec-maintain validate` fails a schema that uses any other keyword (`SCHEMA_UNSUPPORTED_KEYWORD`). A `pattern` is a .NET regular expression, which names a Unicode category by its short name, such as `\p{L}`.
 - Update every consumer of the shape in the same change: the shipped template in [templates/](../templates/README.md), the CLI reader, and the fixtures that cover it.
 - Keep the `$id` on the published home with the manifest version. Change the `schemaVersion` const only together with the template, reader, and fixture updates the new shape needs.
 - Run the verification steps in [CONTRIBUTING.md](../CONTRIBUTING.md).

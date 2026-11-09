@@ -29,7 +29,8 @@ internal static class SchemaReferences
 
         foreach (var segment in reference[2..].Split('/'))
         {
-            var key = segment.Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal);
+            // A reference is a URI fragment, so its pointer is percent-decoded before its JSON Pointer escapes.
+            var key = Uri.UnescapeDataString(segment).Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal);
 
             if (current is JsonObject currentObject)
             {

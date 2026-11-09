@@ -6321,7 +6321,7 @@
       "conformance": "records",
       "strength": "rule",
       "statement": "A standards change MUST pass the repository validator, the test suite, and \u0060git diff --check\u0060.",
-      "rationale": "The repository validator, the test suite, and \u0060git diff --check\u0060 each catch what the others miss: structure, behavior, and whitespace. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command.",
+      "rationale": "The repository validator, the test suite, and \u0060git diff --check\u0060 each catch what the others miss: structure, behavior, and whitespace. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The tools check every schema with LiteSpec\u0027s own evaluator, so running them needs no paid licence, settled by [decision/0022-own-schema-evaluator](decision/0022-own-schema-evaluator) on the evidence in [research/schema-evaluator-evidence](research/schema-evaluator-evidence). The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command.",
       "example": ""
     },
     {

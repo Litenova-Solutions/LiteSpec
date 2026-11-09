@@ -127,7 +127,7 @@ To add a fixture repository for a new case, follow the harness the area already 
 
 ## Native Build
 
-The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` sets `PublishAot`, which also runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.Shared` sets `IsAotCompatible` for the same analyzers. A call that needs runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release; `Sha256Tests` fails on any use of that namespace in the CLI or the shared library.
+The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.Shared` sets `IsAotCompatible` for the same analyzers. `PublishAot` itself applies only to a pack or publish for a platform and to the top-level package, so a plain build restores no compiler. A call that needs runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release; `Sha256Tests` fails on any use of that namespace in the CLI or the shared library.
 
 Native AOT compiles only for the operating system it runs on, with the platform linker: the Visual Studio C++ build tools on Windows, Xcode on macOS, and `clang` with `zlib` on Linux. Build and test a native executable for this machine:
 
@@ -136,7 +136,7 @@ dotnet publish apps/cli/src/LiteSpec.Cli -c Release -r win-x64 -o artifacts/nati
 LITESPEC_TEST_EXECUTABLE=artifacts/native/litespec.exe dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests
 ```
 
-The SDK adds `Microsoft.DotNet.ILCompiler` and `Microsoft.NET.ILLink.Tasks` at the runtime version it bundles, so `global.json` sets the lowest SDK whose bundled runtime has no published advisory, and a newer SDK patch updates those two entries in `packages.lock.json`; commit that update. A publish for a platform adds that platform's packages to the lock file; leave that change out of a commit.
+A pack or publish for a platform restores `Microsoft.DotNet.ILCompiler` at the runtime version the SDK bundles, so `global.json` sets the lowest SDK whose bundled runtime has no published advisory. That restore also adds the platform's packages to the lock file; run `dotnet restore LiteSpec.slnx --force-evaluate` before committing, which leaves only `Microsoft.NET.ILLink.Tasks`, the analyzers' package, at the bundled runtime version.
 
 ## Packing
 
@@ -144,7 +144,7 @@ The SDK adds `Microsoft.DotNet.ILCompiler` and `Microsoft.NET.ILLink.Tasks` at t
 
 | Command | Package |
 |:---|:---|
-| `dotnet pack apps/cli/src/LiteSpec.Cli -c Release` | `LiteSpec.Cli.<version>.nupkg`, which names one package per platform and holds no executable |
+| `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -p:TopLevelToolPackage=true` | `LiteSpec.Cli.<version>.nupkg`, which names one package per platform and holds no executable |
 | `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -r <rid>` | `LiteSpec.Cli.<rid>.<version>.nupkg`, the native executable with the release under `tools/any/<rid>/`, packed on a machine of that operating system |
 | `dotnet pack apps/cli/src/LiteSpec.Cli -c Release -r any -p:PublishAot=false` | `LiteSpec.Cli.any.<version>.nupkg`, the framework-dependent build under `tools/net10.0/any/` for every other platform |
 

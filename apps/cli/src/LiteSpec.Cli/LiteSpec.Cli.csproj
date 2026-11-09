@@ -21,24 +21,33 @@
 
     <!--
         The tool compiles ahead of time into one native executable per platform, which needs no
-        .NET runtime. PublishAot also runs the trim and AOT analyzers in every build, so a call
-        that needs runtime code, such as reflection-based JSON, fails the build at once.
+        .NET runtime. The trim, AOT and single-file analyzers run in every build, so a call that
+        needs runtime code, such as reflection-based JSON, fails the build at once. PublishAot
+        itself applies only to a pack or publish for a platform and to the top-level package, so
+        a plain build restores no compiler and the lock file does not change with the SDK or the
+        machine that builds it.
         The CLI compares text ordinally and formats with the invariant culture, so it carries no
         ICU, and it hashes with its own SHA-256 rather than OpenSSL, so the Linux binary needs
         only the C library.
-        dotnet pack makes the LiteSpec.Cli package that points to one package per platform;
-        dotnet pack -r <rid> makes each platform's native package on a machine of that operating
-        system, and dotnet pack -r any -p:PublishAot=false the framework-dependent package that
-        serves every other platform.
+        dotnet pack -p:TopLevelToolPackage=true makes the LiteSpec.Cli package that points to one
+        package per platform; dotnet pack -r <rid> makes each platform's native package on a
+        machine of that operating system; and dotnet pack -r any -p:PublishAot=false makes the
+        framework-dependent package that serves every other platform.
         IL3000: Roslyn's command-line compiler driver, CommonCompiler.GetAssemblyLocation, reads
         Assembly.Location. The CLI only parses syntax trees and never runs that driver, and it
         finds its own folder through AppContext.BaseDirectory.
     -->
     <PropertyGroup>
-        <PublishAot>true</PublishAot>
+        <EnableAotAnalyzer>true</EnableAotAnalyzer>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
         <InvariantGlobalization>true</InvariantGlobalization>
         <ToolPackageRuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;linux-musl-x64;linux-musl-arm64;osx-x64;osx-arm64;any</ToolPackageRuntimeIdentifiers>
         <NoWarn>$(NoWarn);IL3000</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' != '' or '$(TopLevelToolPackage)' == 'true'">
+        <PublishAot>true</PublishAot>
     </PropertyGroup>
 
     <!-- A platform build ships the executable and its release, not the debug symbols or the XML documentation. -->

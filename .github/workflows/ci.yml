@@ -185,7 +185,7 @@ jobs:
       - name: Pack the analyzers and the tool packages for every platform
         run: |
           dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration ${{ inputs.configuration }} --output artifacts
-          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --output artifacts
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} -p:TopLevelToolPackage=true --output artifacts
           dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --runtime any -p:PublishAot=false --output artifacts
 
       # The framework-dependent package runs on the .NET runtime wherever no native build exists.
