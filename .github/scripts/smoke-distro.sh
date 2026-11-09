@@ -7,19 +7,19 @@
 #     debian:12 sh /src/.github/scripts/smoke-distro.sh
 set -eu
 
-# OpenSSL backs the SHA-256 hashes the CLI computes; the rest is what install.sh and smoke.sh call.
+# These are the tools install.sh and smoke.sh call. No OpenSSL: the executable needs only the C library.
 if command -v apt-get >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq >/dev/null
-  apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip openssl tar >/dev/null
+  apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip tar >/dev/null
 elif command -v dnf >/dev/null 2>&1; then
   # Some images ship curl-minimal, which serves install.sh and conflicts with the curl package.
-  dnf install -y -q bash diffutils findutils gawk gzip openssl tar >/dev/null
+  dnf install -y -q bash diffutils findutils gawk gzip tar >/dev/null
 elif command -v zypper >/dev/null 2>&1; then
-  zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip openssl tar >/dev/null
+  zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip tar >/dev/null
 elif command -v apk >/dev/null 2>&1; then
   # Alpine keeps BusyBox wget, so install.sh downloads without curl there.
-  apk add --no-cache -q bash coreutils diffutils findutils openssl >/dev/null
+  apk add --no-cache -q bash coreutils diffutils findutils >/dev/null
 else
   echo "smoke-distro.sh supports apt, dnf, zypper and apk distributions." >&2
   exit 2

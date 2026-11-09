@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
@@ -68,7 +67,7 @@ static class Checker
 
         CanonicalJson.WriteTopLevel(record.Raw, built, HashExcluded);
 
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
+        var bytes = Sha256.Hash(Encoding.UTF8.GetBytes(built.ToString()));
 
         return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
     }

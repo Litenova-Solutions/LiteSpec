@@ -24,7 +24,8 @@
         .NET runtime. PublishAot also runs the trim and AOT analyzers in every build, so a call
         that needs runtime code, such as reflection-based JSON, fails the build at once.
         The CLI compares text ordinally and formats with the invariant culture, so it carries no
-        ICU, and the Linux binary needs only libc and OpenSSL.
+        ICU, and it hashes with its own SHA-256 rather than OpenSSL, so the Linux binary needs
+        only the C library.
         dotnet pack makes the LiteSpec.Cli package that points to one package per platform;
         dotnet pack -r <rid> makes each platform's native package on a machine of that operating
         system, and dotnet pack -r any -p:PublishAot=false the framework-dependent package that

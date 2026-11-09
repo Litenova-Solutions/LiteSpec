@@ -9,7 +9,7 @@ LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Wind
 - The CLI compiles ahead of time with .NET Native AOT for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` and `osx-arm64`. The binary needs no .NET runtime, and a full `model check` of the Claimwick example takes about half the time it took on the .NET runtime.
 - `LiteSpec.Cli` on NuGet is a per-platform tool package: `dotnet tool install`, `dotnet tool restore` and `dotnet litespec` work unchanged and pick the native package for the machine. Every other platform gets a framework-dependent package that runs on the .NET 10 runtime.
 - Each GitHub release carries a standalone archive per platform, a `SHA256SUMS` file, and `install.sh` and `install.ps1`, which install an archive without .NET. Every archive and package carries a build provenance attestation that `gh attestation verify` checks. The packages publish to nuget.org alone, so the release no longer attaches them.
-- The Linux glibc binaries run on glibc 2.28 and later, such as RHEL 8, Debian 10 and Ubuntu 20.04, and the musl binaries on Alpine 3.21 and later.
+- The Linux glibc binaries run on glibc 2.28 and later, such as RHEL 8, Debian 10 and Ubuntu 20.04, and the musl binaries on Alpine 3.21 and later. A Linux binary needs only the C library: the CLI computes SHA-256 itself rather than through OpenSSL, so it also runs where .NET finds no OpenSSL it loads, such as Fedora 45 with OpenSSL 4 alone or a bare container image.
 
 ### Part B: Running the CLI Without .NET
 
@@ -22,6 +22,7 @@ LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Wind
 
 - CI builds the native binary on each platform, runs the CLI test suite against it on Windows, Linux and macOS on x64 and arm64, and runs the standalone binary on a set of Linux distributions.
 - The CLI builds every JSON document it writes as a JSON node tree, and `dotnet build` fails on reflection-based serialization in the CLI and its shared library.
+- `model check --since` and the contract diff against a git revision read the changed files in the form of the root they were given, so a root reached through a symbolic link or a junction, such as a macOS temporary folder, or one in a subfolder of its repository, scopes the right files.
 - `global.json` sets SDK 10.0.114, the lowest SDK whose bundled runtime has no published advisory, because the native build restores the ILCompiler package at that runtime version.
 
 ## v4.0.0

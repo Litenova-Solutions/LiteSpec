@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -656,7 +655,7 @@ sealed class UiSession
         string value;
         try
         {
-            value = "sha256:" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(NormalizeSource(File.ReadAllText(key)))));
+            value = "sha256:" + Convert.ToHexStringLower(Sha256.Hash(Encoding.UTF8.GetBytes(NormalizeSource(File.ReadAllText(key)))));
         }
         catch (Exception cause) when (cause is IOException or UnauthorizedAccessException)
         {

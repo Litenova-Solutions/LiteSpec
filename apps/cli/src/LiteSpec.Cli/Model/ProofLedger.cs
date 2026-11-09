@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -109,21 +108,21 @@ sealed class ProofLedger
     /// <returns>The sixteen-hex-character identity of the run.</returns>
     public static string RunOf(ConsumerConfig config, TestRun run)
     {
-        using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var hasher = new Sha256();
 
         foreach (var file in run.Files.OrderBy(file => file, StringComparer.Ordinal))
         {
-            hasher.AppendData(Encoding.UTF8.GetBytes(file + "\n"));
+            hasher.Append(Encoding.UTF8.GetBytes(file + "\n"));
 
             var full = Path.Combine(config.Root, file);
 
             if (File.Exists(full))
             {
-                hasher.AppendData(File.ReadAllBytes(full));
+                hasher.Append(File.ReadAllBytes(full));
             }
         }
 
-        return Convert.ToHexString(hasher.GetHashAndReset()).ToLowerInvariant()[..16];
+        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
     }
 
     /// <summary>
@@ -164,7 +163,7 @@ sealed class ProofLedger
             }
         }
 
-        using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var hasher = new Sha256();
 
         foreach (var file in files)
         {
@@ -173,7 +172,7 @@ sealed class ProofLedger
                 .Replace(Path.DirectorySeparatorChar, '/')
                 .Replace(Path.AltDirectorySeparatorChar, '/');
 
-            hasher.AppendData(Encoding.UTF8.GetBytes(relative + "\n"));
+            hasher.Append(Encoding.UTF8.GetBytes(relative + "\n"));
 
             if (File.Exists(full))
             {
@@ -181,11 +180,11 @@ sealed class ProofLedger
                     .Replace("\r\n", "\n", StringComparison.Ordinal)
                     .Replace("\r", "\n", StringComparison.Ordinal);
 
-                hasher.AppendData(Encoding.UTF8.GetBytes(text));
+                hasher.Append(Encoding.UTF8.GetBytes(text));
             }
         }
 
-        return Convert.ToHexString(hasher.GetHashAndReset()).ToLowerInvariant()[..16];
+        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
     }
 
     /// <summary>

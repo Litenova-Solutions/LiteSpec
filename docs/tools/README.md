@@ -113,10 +113,10 @@ The release builds a native executable for these runtime identifiers:
 |:---|:---|
 | `win-x64`, `win-arm64` | The Windows versions .NET 10 supports |
 | `osx-x64`, `osx-arm64` | The macOS versions .NET 10 supports |
-| `linux-x64`, `linux-arm64` | Linux with glibc 2.28 or later, such as RHEL 8, Debian 10 and Ubuntu 20.04, and OpenSSL 1.1 or 3 |
-| `linux-musl-x64`, `linux-musl-arm64` | Alpine 3.21 or later, with OpenSSL 3 |
+| `linux-x64`, `linux-arm64` | Linux with glibc 2.28 or later, such as RHEL 8, Debian 10 and Ubuntu 20.04 |
+| `linux-musl-x64`, `linux-musl-arm64` | Alpine 3.21 or later |
 
-The [.NET 10 supported OS list](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md) names the Windows and macOS versions. Any other platform runs the framework-dependent .NET tool on the .NET 10 runtime. A project with a React or Svelte frontend also needs Node at the version the manifest pins (`stack.node`), because the CLI reads those frontends with a bundled Node reader, and `model check --since` needs `git`.
+The [.NET 10 supported OS list](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md) names the Windows and macOS versions. A Linux executable needs only the C library: no ICU, no OpenSSL, and no .NET runtime. Any other platform runs the framework-dependent .NET tool on the .NET 10 runtime. A project with a React or Svelte frontend also needs Node at the version the manifest pins (`stack.node`), because the CLI reads those frontends with a bundled Node reader, and `model check --since` needs `git`.
 
 ## Run the CLI
 

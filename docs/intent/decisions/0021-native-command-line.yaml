@@ -15,7 +15,7 @@ options:
     pros: Reflection keeps working, so no JSON code changes.
     cons: The executable keeps the start-up and compile cost of the .NET runtime build, and still needs one build per platform.
 choice: Native AOT executables as per-platform .NET tool packages and standalone archives
-consequences: The LiteSpec.Cli package names one native package per platform and a framework-dependent package for every other platform. Each GitHub release carries an archive per platform, SHA256SUMS, a build provenance attestation per file, and the install scripts. `litespec init --install standalone` writes a project that runs the binary. The CLI builds every JSON document as a node tree, and `dotnet build` rejects reflection-based serialization. CI builds, installs and tests the executable on every platform and runs it on stock Linux distributions. global.json sets SDK 10.0.114 as the lowest SDK.
+consequences: The LiteSpec.Cli package names one native package per platform and a framework-dependent package for every other platform. Each GitHub release carries an archive per platform, SHA256SUMS, a build provenance attestation per file, and the install scripts. `litespec init --install standalone` writes a project that runs the binary. The CLI builds every JSON document as a node tree, and `dotnet build` rejects reflection-based serialization. CI builds, installs and tests the executable on every platform and runs it on stock Linux distributions. The CLI computes SHA-256 in managed code, so a Linux executable needs only the C library. global.json sets SDK 10.0.114 as the lowest SDK.
 reopenedWhen: A library the CLI needs stops compiling ahead of time, or a platform consumers run has no Native AOT support.
 basedOn:
   - research/native-command-line-evidence
