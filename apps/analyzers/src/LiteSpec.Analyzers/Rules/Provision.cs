@@ -5,7 +5,7 @@ namespace LiteSpec.Analyzers.Rules;
 internal sealed class Provision
 {
     /// <summary>The release the help links point at.</summary>
-    public const string Release = "4.1.0";
+    public const string Release = "4.0.0";
 
     /// <summary>Initializes a new instance of the <see cref="Provision"/> class.</summary>
     /// <param name="page">The docs page path under docs/, such as backend/dotnet/domain.</param>

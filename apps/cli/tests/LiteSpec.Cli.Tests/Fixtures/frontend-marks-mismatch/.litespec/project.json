@@ -8,7 +8,7 @@
     "svelte"
   ],
   "conformance": "full",
-  "reviewedLiteSpecVersion": "4.1.0",
+  "reviewedLiteSpecVersion": "4.0.0",
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",

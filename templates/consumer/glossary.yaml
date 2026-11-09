@@ -1,4 +1,4 @@
-$schema: https://litespec.dev/4.1.0/schemas/glossary.schema.json
+$schema: https://litespec.dev/4.0.0/schemas/glossary.schema.json
 schemaVersion: 2
 terms:
   - id: term/<name>

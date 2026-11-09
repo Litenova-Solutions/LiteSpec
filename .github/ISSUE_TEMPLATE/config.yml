@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation
-    url: https://litespec.dev/4.1.0/
+    url: https://litespec.dev/4.0.0/
     about: Read the documentation for this release before opening an issue.
   - name: Security policy
     url: https://github.com/Litenova-Solutions/LiteSpec/blob/main/SECURITY.md

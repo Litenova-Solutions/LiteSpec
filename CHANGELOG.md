@@ -1,8 +1,8 @@
 # Changelog
 
-## v4.1.0
+## v4.0.0
 
-LiteSpec 4.1.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.1.0` tag.
+LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.
 
 ### Part A: The Nature of LiteSpec
 

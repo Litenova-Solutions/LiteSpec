@@ -157,7 +157,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.1.0",
+                  "reviewedLiteSpecVersion": "4.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -404,7 +404,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.1.0",
+                  "reviewedLiteSpecVersion": "4.0.0",
                   "owners": [
                     "lending-team"
                   ],

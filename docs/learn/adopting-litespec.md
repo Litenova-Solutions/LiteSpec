@@ -26,11 +26,11 @@ At `records` the project takes the record model alone. Its code keeps its own la
 
 ### 1. Install the Release
 
-Install the `litespec` command line as a local .NET tool at the release the team adopts, such as `4.1.0`:
+Install the `litespec` command line as a local .NET tool at the release the team adopts, such as `4.0.0`:
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 4.1.0
+dotnet tool install LiteSpec.Cli --version 4.0.0
 dotnet tool restore
 ```
 
@@ -46,12 +46,12 @@ Write `.litespec/project.json` with the size, the shape, and the level. The size
   "shape": "server",
   "stacks": [],
   "conformance": "records",
-  "reviewedLiteSpecVersion": "4.1.0",
+  "reviewedLiteSpecVersion": "4.0.0",
   "paths": { "behaviorDocs": ".litespec/behavior" }
 }
 ```
 
-Fill in the paths, name the refusal codes in `refusals`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.1.0/select/) shows which pages the choices apply. For an existing project, set `conformance` in the project file it already has and leave its code where it is.
+Fill in the paths, name the refusal codes in `refusals`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.0.0/select/) shows which pages the choices apply. For an existing project, set `conformance` in the project file it already has and leave its code where it is.
 
 ### 3. Tell the Agents
 
@@ -106,7 +106,7 @@ Set `conformance` to `full` and name each stack the project uses. Build each use
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="4.1.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="4.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
