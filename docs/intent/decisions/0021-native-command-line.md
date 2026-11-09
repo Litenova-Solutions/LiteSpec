@@ -10,4 +10,4 @@ The CLI compiles ahead of time into one native executable per platform: `win-x64
 
 ## Evidence with Confidence
 
-`research/native-command-line-evidence` holds the trial build, the output comparison, the distribution runs and the timings behind this choice, high confidence for Windows and Linux on x64, where each claim was run. The macOS and arm64 builds rest on the cross-compilation documentation until CI runs them, medium confidence.
+`research/native-command-line-evidence` holds the trial build, the output comparison, the distribution and CI runs and the timings behind this choice, high confidence: CI built, installed and tested the executable on every platform it ships for.
