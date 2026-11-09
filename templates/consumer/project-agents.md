@@ -8,13 +8,13 @@ UI work: the pattern pages listed in that index.
 
 Read `.litespec/project.json` before changing the project. (litespec/core/agent#select-task-context)
 
-Run `dotnet litespec rules <path>` before editing a file. (litespec/core/agent#select-task-context)
+Run `__LITESPEC_COMMAND__ rules <path>` before editing a file. (litespec/core/agent#select-task-context)
 
 Answer each returned provision's "Reviewed for" question before reporting done. (litespec/core/agent#select-task-context)
 
 Query the model builder for the records a task touches, with their links and the tool-read code and test state, instead of reading page lists. (litespec/core/agent#select-task-context, litespec/core/scope#record-selected-extensions)
 
-`dotnet litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
+`__LITESPEC_COMMAND__ model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
 
 Write each layer from the layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. Never compute a record from code.
 
@@ -49,6 +49,6 @@ Compose each route from one floorplan in the frontend `DESIGN.md`, or name the d
 
 Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/frontend/ui#prove-every-result-a-route-calls)
 
-Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
+Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 
 Record an exception before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)

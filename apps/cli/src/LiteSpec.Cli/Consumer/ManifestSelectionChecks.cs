@@ -76,7 +76,7 @@ static class ManifestSelectionChecks
             {
                 run.Err(new Finding(
                     "release-mismatch",
-                    $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}",
+                    $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record {JsonValues.Text(version)}",
                     projectFile,
                     1,
                     null));

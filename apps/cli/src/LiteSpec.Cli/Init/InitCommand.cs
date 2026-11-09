@@ -15,6 +15,17 @@ static class InitCommand
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>
     static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte", "records"];
 
+    /// <summary>
+    ///     The ways a project installs the LiteSpec command line, with the command that runs it:
+    ///     a local .NET tool runs as <c>dotnet litespec</c>, and the standalone binary from the
+    ///     GitHub release runs as <c>litespec</c> on the PATH.
+    /// </summary>
+    static readonly Dictionary<string, string> Installs = new(StringComparer.Ordinal)
+    {
+        ["tool"] = "dotnet litespec",
+        ["standalone"] = "litespec",
+    };
+
     /// <summary>The setup templates copied beside the project file: the release file and its consumer path.</summary>
     static readonly (string Template, string Target)[] Scaffold =
     [
@@ -25,14 +36,17 @@ static class InitCommand
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec init --preset <name> --size <small|large> [--root <path>] [--name <project>] [--help]
+        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--help]
 
         Writes .litespec/project.json into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
         glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the LiteSpec
         block filled with the release, size, shape, stacks, and selection index of the
-        new project. The command also writes .config/dotnet-tools.json pinning the
-        LiteSpec.Cli tool at the release. The preset selects the shape, the stacks
+        new project, and names the command that runs the CLI. With --install tool, the
+        command also writes .config/dotnet-tools.json pinning the LiteSpec.Cli tool at
+        the release, and the agent context runs the CLI as dotnet litespec. With
+        --install standalone, the project runs the native binary as litespec, and
+        reviewedLiteSpecVersion pins the release. The preset selects the shape, the stacks
         and the frontends; a preset that declares a conformance level writes that
         level instead of the template level, and a preset that names no stacks or
         no frontends writes a project with none. --size and --name complete the
@@ -41,6 +55,7 @@ static class InitCommand
 
           --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
           --size     The project size: small or large.
+          --install  How the project installs the CLI: tool, a local .NET tool (the default), or standalone, the native binary.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.
           --help     Print this text and exit.
@@ -53,7 +68,7 @@ static class InitCommand
     /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, and 2 when the project file exists or an option is invalid.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--preset", "--size", "--root", "--name"]);
+        var parsed = CliArgs.Parse(args, [], ["--preset", "--size", "--install", "--root", "--name"]);
 
         if (parsed.Help)
         {
@@ -86,6 +101,15 @@ static class InitCommand
             Console.Error.WriteLine(preset is null
                 ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}."
                 : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.");
+            Console.Error.WriteLine(Usage);
+            return 2;
+        }
+
+        var install = parsed.Value("--install") ?? "tool";
+
+        if (!Installs.TryGetValue(install, out var command))
+        {
+            Console.Error.WriteLine($"Unknown install '{install}'; use tool or standalone.");
             Console.Error.WriteLine(Usage);
             return 2;
         }
@@ -280,7 +304,7 @@ static class InitCommand
             }
 
             var contents = file == "project-agents.md"
-                ? FillAgents(scaffold[file], version, size, shapeText, stackNames)
+                ? FillAgents(scaffold[file], version, size, shapeText, stackNames, command)
                 : scaffold[file];
 
             try
@@ -320,26 +344,30 @@ static class InitCommand
             Console.WriteLine($"Wrote {gitignore}.");
         }
 
-        var toolManifest = Path.Combine(root, ".config", "dotnet-tools.json");
-
-        if (File.Exists(toolManifest))
+        // A standalone project pins the release in reviewedLiteSpecVersion alone, so only a tool install writes the tool manifest.
+        if (install == "tool")
         {
-            Console.WriteLine($"'{toolManifest}' already exists; left alone.");
-        }
-        else
-        {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(toolManifest)!);
-                File.WriteAllText(toolManifest, ToolManifest(version));
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                Console.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
-                return 1;
-            }
+            var toolManifest = Path.Combine(root, ".config", "dotnet-tools.json");
 
-            Console.WriteLine($"Wrote {toolManifest}.");
+            if (File.Exists(toolManifest))
+            {
+                Console.WriteLine($"'{toolManifest}' already exists; left alone.");
+            }
+            else
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(toolManifest)!);
+                    File.WriteAllText(toolManifest, ToolManifest(version));
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    Console.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
+                    return 1;
+                }
+
+                Console.WriteLine($"Wrote {toolManifest}.");
+            }
         }
 
         if (unfilled.Count > 0)
@@ -352,7 +380,7 @@ static class InitCommand
             Console.WriteLine("Fill every <placeholder> in the copied files before validating.");
         }
 
-        Console.WriteLine("Next step: dotnet litespec model check");
+        Console.WriteLine($"Next step: {command} model check");
         return 0;
     }
 
@@ -362,9 +390,11 @@ static class InitCommand
     /// <param name="size">The project size, small or large.</param>
     /// <param name="shape">The project shape, server or client-only.</param>
     /// <param name="stacks">The stack identifiers the preset selects, in list order.</param>
+    /// <param name="command">The command that runs the CLI in the project: <c>dotnet litespec</c> or <c>litespec</c>.</param>
     /// <returns>The template text with each selection placeholder replaced by its value.</returns>
-    static string FillAgents(string text, string version, string size, string shape, List<string> stacks) =>
-        text.Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
+    static string FillAgents(string text, string version, string size, string shape, List<string> stacks, string command) =>
+        text.Replace("__LITESPEC_COMMAND__", command, StringComparison.Ordinal)
+            .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
             .Replace("__SHAPE__", shape, StringComparison.Ordinal)
             .Replace("__STACKS__", JoinList(stacks), StringComparison.Ordinal)

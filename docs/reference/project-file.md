@@ -325,7 +325,7 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 | Mistake | Message |
 |:---|:---|
 | A placeholder is left in the file | `.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 4.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and run 'dotnet tool restore', or re-review the contract and record 4.1.0` |
+| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 4.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record 4.1.0` |
 | The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.1.0` |
 | A stack id is unknown | `.litespec/project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A client-only project names a backend stack | `.litespec/project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |

@@ -185,6 +185,66 @@ public sealed class InitCommandTests
         Assert.Equal("litespec", manifest["tools"]!["LiteSpec.Cli"]!["commands"]![0]!.GetValue<string>());
     }
 
+    /// <summary>Init for a tool install names the local tool command in the agent context.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact(DisplayName = "init for a tool install names the local tool command in the agent context")]
+    public void NamesTheToolCommandForAToolInstall()
+    {
+        using var home = Cli.Temp("init-home");
+        using var consumer = Cli.Temp("init-consumer");
+        FixtureHome(home.Path);
+
+        var result = Cli.Run(
+            ["init", "--preset", "dotnet-react", "--size", "small", "--install", "tool", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
+        Assert.Contains("Run `dotnet litespec rules <path>` before editing a file.", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".config", "dotnet-tools.json")));
+        Assert.Contains("Next step: dotnet litespec model check", result.Stdout, StringComparison.Ordinal);
+    }
+
+    /// <summary>Init for a standalone install writes no tool manifest and names the binary in the agent context.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact(DisplayName = "init for a standalone install writes no tool manifest and names the binary in the agent context")]
+    public void NamesTheBinaryForAStandaloneInstall()
+    {
+        using var home = Cli.Temp("init-home");
+        using var consumer = Cli.Temp("init-consumer");
+        FixtureHome(home.Path);
+
+        var result = Cli.Run(
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--install", "standalone", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
+        Assert.Contains("Run `litespec rules <path>` before editing a file.", agents, StringComparison.Ordinal);
+        Assert.Contains("`litespec model query <record-id>` returns one record with its links.", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("dotnet litespec", agents, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(consumer.Path, ".config", "dotnet-tools.json")));
+        Assert.Contains("Next step: litespec model check", result.Stdout, StringComparison.Ordinal);
+
+        var project = JsonNode.Parse(File.ReadAllText(Path.Combine(consumer.Path, ".litespec", "project.json")))!;
+        Assert.Equal(FixtureVersion, project["reviewedLiteSpecVersion"]!.GetValue<string>());
+    }
+
+    /// <summary>Init refuses an unknown install with exit code two.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init refuses an unknown install with exit code two")]
+    public void RefusesAnUnknownInstall()
+    {
+        using var consumer = Cli.Temp("init-consumer");
+
+        var result = Cli.Run("init", "--preset", "dotnet-react", "--size", "small", "--install", "global", "--root", consumer.Path);
+
+        Assert.Equal(2, result.Status);
+        Assert.Contains("Unknown install 'global'; use tool or standalone.", result.Stderr, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec", "project.json")));
+    }
+
     /// <summary>Init leaves an existing tool manifest alone and still exits zero.</summary>
     /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "init leaves an existing tool manifest alone and still exits zero")]
