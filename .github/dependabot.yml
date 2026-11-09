@@ -40,3 +40,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  # The SDK in global.json sets the ILCompiler and runtime packs the native CLI builds with,
+  # and NuGet audit fails a build on an SDK with a published advisory, so the SDK stays patched.
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

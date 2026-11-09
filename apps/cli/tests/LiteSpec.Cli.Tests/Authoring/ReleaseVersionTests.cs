@@ -157,6 +157,7 @@ public sealed class ReleaseVersionTests
         };
         files.AddRange(FilesUnder("docs", "*.md"));
         files.AddRange(FilesUnder(".github", "*"));
+        files.AddRange(FilesUnder(Path.Combine("apps", "cli", "install"), "*"));
 
         foreach (var file in files.OrderBy(candidate => candidate, StringComparer.Ordinal))
         {

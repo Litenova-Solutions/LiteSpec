@@ -1,13 +1,19 @@
 name: CI
 
-# The four gates every change passes. The pull request, branch and release
+# The gates every change passes. The pull request, branch and release
 # workflows all call this one, so every gate runs the same jobs.
 #
 # The dotnet job builds and tests the solution. The standards job checks the
 # generated provision index, validates the repository and checks whitespace.
 # The web job checks, tests and builds the book client and tests and builds
-# the site. The package job packs the tool and the analyzers and installs the
-# tool the way a consumer does.
+# the site. The package job packs the analyzers and the two tool packages that
+# serve every platform. The native job builds the CLI ahead of time on each
+# platform, installs it with the install script, and runs the smoke scenario
+# and the CLI suite against the installed binary. The release-assets job
+# gathers the archives, their checksums and the install scripts a release
+# publishes. The distros job installs the standalone binary on stock Linux
+# distributions, and the tool job installs the .NET tool from the packages on
+# each operating system, both the way a consumer does.
 on:
   workflow_call:
     inputs:
@@ -136,7 +142,10 @@ jobs:
       - name: Build the site
         run: pnpm --dir apps/site build
 
-  # Packs the tool and the analyzers and installs the tool the way a consumer does.
+
+  # Packs the analyzers and the two tool packages that serve every platform: LiteSpec.Cli, which
+  # points to one package per platform, and the framework-dependent package for the platforms
+  # with no native build. The native job packs the platform packages.
   package:
     runs-on: ubuntu-24.04
     # The default step timeout is six hours. A hung check would hold a runner
@@ -173,15 +182,18 @@ jobs:
       - name: Build the CLI and the analyzers
         run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
 
-      - name: Pack the tool and the analyzers
+      - name: Pack the analyzers and the tool packages for every platform
         run: |
-          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --output artifacts
           dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration ${{ inputs.configuration }} --output artifacts
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --output artifacts
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --runtime any -p:PublishAot=false --output artifacts
 
-      # A consumer installs the tool from a package and runs it outside this repository,
-      # where nothing but the release inside the package can answer.
-      - name: Run the packed tool the way a consumer installs it
-        run: .github/scripts/smoke-tool.sh artifacts
+      # The framework-dependent package runs on the .NET runtime wherever no native build exists.
+      - name: Run the framework-dependent package the way a consumer runs it
+        run: |
+          mkdir -p framework-dependent
+          unzip -q artifacts/LiteSpec.Cli.any.*.nupkg -d framework-dependent
+          .github/scripts/smoke.sh --dll framework-dependent/tools/net10.0/any/litespec.dll
 
       - name: Keep the packages for the publishing jobs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -189,3 +201,232 @@ jobs:
           name: packages
           path: artifacts/*.nupkg
           if-no-files-found: error
+
+  # Builds the CLI ahead of time on each platform, because Native AOT compiles only for the
+  # operating system it runs on. A Linux binary builds in a container whose C library sets
+  # the oldest distribution it runs on: AlmaLinux 8 for glibc 2.28, and Alpine for musl. Each
+  # build installs its archive with the install script and runs the smoke scenario and the
+  # CLI suite against the installed binary, on a runner of the same architecture.
+  native:
+    name: native (${{ matrix.rid }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: linux-x64, runner: ubuntu-24.04, container: "almalinux:8", test: true }
+          - { rid: linux-arm64, runner: ubuntu-24.04-arm, container: "almalinux:8", test: true }
+          # A glibc runner cannot start a musl binary; the distros job runs these on Alpine.
+          - { rid: linux-musl-x64, runner: ubuntu-24.04, container: "alpine:3.21", test: false }
+          - { rid: linux-musl-arm64, runner: ubuntu-24.04-arm, container: "alpine:3.21", test: false }
+          - { rid: win-x64, runner: windows-2025, container: "", test: true }
+          - { rid: win-arm64, runner: windows-11-arm, container: "", test: true }
+          - { rid: osx-x64, runner: macos-15-intel, container: "", test: true }
+          - { rid: osx-arm64, runner: macos-15, container: "", test: true }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Configure Node.js for the frontend reader
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Build the frontend reader and the book client
+        run: |
+          npm install --global pnpm@11.28.5
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+          pnpm --dir apps/cli/book install --frozen-lockfile
+          pnpm --dir apps/cli/book build
+
+      - name: Build the native CLI in the ${{ matrix.container }} build container
+        if: matrix.container != ''
+        run: |
+          mkdir -p native
+          docker run --rm -v "$PWD:/src:ro" -v "$PWD/native:/out" -e OWNER="$(id -u):$(id -g)" \
+            "${{ matrix.container }}" sh /src/.github/scripts/build-native-container.sh "${{ matrix.rid }}"
+
+      - name: Build the native CLI
+        if: matrix.container == ''
+        run: .github/scripts/build-native.sh "${{ matrix.rid }}" native
+
+      - name: Install the archive with the install script
+        if: matrix.test
+        run: .github/scripts/install-native.sh native/archives "$RUNNER_TEMP/litespec"
+
+      - name: Run the smoke scenario against the installed binary
+        if: matrix.test
+        run: .github/scripts/smoke.sh --binary "$LITESPEC_INSTALLED"
+
+      - name: Run the CLI suite against the installed binary
+        if: matrix.test
+        run: |
+          dotnet build apps/cli/tests/LiteSpec.Cli.Tests --configuration Release
+          LITESPEC_TEST_EXECUTABLE="$LITESPEC_INSTALLED" dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests --configuration Release --no-build
+
+      - name: Keep the platform package and the archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-${{ matrix.rid }}
+          path: |
+            native/packages/*.nupkg
+            native/archives/*
+          if-no-files-found: error
+
+  # Gathers what a GitHub release publishes beside the packages: every archive, the
+  # SHA256SUMS file the install scripts check them against, and the install scripts.
+  release-assets:
+    needs: native
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Fetch the native builds
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: native-*
+          path: native
+          merge-multiple: true
+
+      - name: Gather the archives, the checksums and the install scripts
+        run: |
+          mkdir -p release
+          cp native/archives/* release/
+          cp apps/cli/install/install.sh apps/cli/install/install.ps1 release/
+          (cd release && sha256sum litespec-* install.sh install.ps1 > SHA256SUMS)
+          cat release/SHA256SUMS
+
+      - name: Keep the release assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: release/*
+          if-no-files-found: error
+
+  # Installs the standalone binary with install.sh on stock distributions, from a local copy
+  # of the release assets. AlmaLinux 8 holds glibc 2.28, the oldest the glibc build supports.
+  distros:
+    name: distro (${{ matrix.image }} on ${{ matrix.runner }})
+    needs: release-assets
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: "almalinux:8", runner: ubuntu-24.04 }
+          - { image: "almalinux:9", runner: ubuntu-24.04 }
+          - { image: "amazonlinux:2023", runner: ubuntu-24.04 }
+          - { image: "debian:11", runner: ubuntu-24.04 }
+          - { image: "debian:12", runner: ubuntu-24.04 }
+          - { image: "debian:13", runner: ubuntu-24.04 }
+          - { image: "fedora:latest", runner: ubuntu-24.04 }
+          - { image: "opensuse/leap:15.6", runner: ubuntu-24.04 }
+          - { image: "ubuntu:20.04", runner: ubuntu-24.04 }
+          - { image: "ubuntu:22.04", runner: ubuntu-24.04 }
+          - { image: "ubuntu:24.04", runner: ubuntu-24.04 }
+          - { image: "alpine:3.21", runner: ubuntu-24.04 }
+          - { image: "alpine:3.22", runner: ubuntu-24.04 }
+          - { image: "almalinux:8", runner: ubuntu-24.04-arm }
+          - { image: "debian:12", runner: ubuntu-24.04-arm }
+          - { image: "ubuntu:24.04", runner: ubuntu-24.04-arm }
+          - { image: "alpine:3.22", runner: ubuntu-24.04-arm }
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Fetch the release assets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: release
+
+      - name: Install and run the binary in ${{ matrix.image }}
+        run: |
+          version="$(jq -r .version litespec.manifest.json)"
+          mkdir -p "site/v$version"
+          cp release/* "site/v$version/"
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory site >/dev/null 2>&1 &
+          for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:8000/v$version/SHA256SUMS" >/dev/null && break; sleep 0.25; done
+          docker run --rm --network host -e LITESPEC_DOWNLOAD_URL=http://127.0.0.1:8000 -v "$PWD:/src:ro" \
+            "${{ matrix.image }}" sh /src/.github/scripts/smoke-distro.sh
+
+  # Installs LiteSpec.Cli as a local .NET tool from the packages, the way a consumer restores
+  # it: the top-level package picks the native package of the machine. The Alpine arm64 row
+  # runs in the .NET SDK container, where the linux-musl-arm64 package must win over the
+  # glibc linux-arm64 one.
+  tool:
+    name: tool (${{ matrix.runner }}${{ matrix.image && format(', {0}', matrix.image) || '' }})
+    needs: [package, native]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: ubuntu-24.04, image: "" }
+          - { runner: ubuntu-24.04-arm, image: "" }
+          - { runner: windows-2025, image: "" }
+          - { runner: macos-15, image: "" }
+          - { runner: ubuntu-24.04-arm, image: "mcr.microsoft.com/dotnet/sdk:10.0-alpine" }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Fetch the platform-neutral packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: packages
+          path: feed
+
+      - name: Fetch the platform packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: native-*
+          path: native
+          merge-multiple: true
+
+      - name: Gather one package feed
+        run: cp native/packages/*.nupkg feed/
+
+      - name: Set up the .NET SDK
+        if: matrix.image == ''
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The check runs the frontend reader of the Claimwick web frontend through Node.
+      - name: Configure Node.js for the frontend reader
+        if: matrix.image == ''
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Install the tool and run the smoke scenario
+        if: matrix.image == ''
+        run: .github/scripts/smoke.sh --tool feed
+
+      - name: Install the tool and run the smoke scenario in ${{ matrix.image }}
+        if: matrix.image != ''
+        run: |
+          docker run --rm -v "$PWD:/src:ro" "${{ matrix.image }}" \
+            sh -c 'apk add --no-cache -q bash coreutils diffutils findutils && bash /src/.github/scripts/smoke.sh --tool /src/feed'

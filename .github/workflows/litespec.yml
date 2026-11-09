@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # The four gates every change passes: dotnet, standards, web and package.
+  # The gates every change passes: dotnet, standards, web, package, the native builds on each platform, and the installs they serve.
   ci:
     uses: ./.github/workflows/ci.yml
 
