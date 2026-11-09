@@ -123,7 +123,8 @@ static class SuppressionReader
         var files = new List<string>();
         var pending = new Stack<string>();
         pending.Push(root);
-        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
+        // Skip no attributes: on Linux and macOS every dotfile, .editorconfig included, counts as hidden.
+        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false, AttributesToSkip = 0 };
 
         while (pending.Count > 0)
         {
