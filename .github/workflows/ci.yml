@@ -231,7 +231,10 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # The runner's SDK builds a Windows or macOS executable and runs the CLI suite; a container
+      # build brings its own SDK, so a musl build that runs no suite here needs none.
       - name: Set up the .NET SDK
+        if: matrix.container == '' || matrix.test
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
