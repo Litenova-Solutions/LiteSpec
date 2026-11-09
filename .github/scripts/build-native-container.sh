@@ -11,17 +11,33 @@ set -eu
 
 rid="$1"
 
+# Runs a command up to three times, so a package mirror that fails once does not fail the job.
+retry() {
+  for attempt in 1 2 3; do
+    if "$@"; then
+      return 0
+    fi
+
+    if [ "$attempt" -lt 3 ]; then
+      echo "Attempt $attempt of '$*' failed; retrying." >&2
+      sleep $((attempt * 15))
+    fi
+  done
+
+  return 1
+}
+
 if command -v dnf >/dev/null 2>&1; then
-  dnf install -y -q bash clang zlib-devel libicu krb5-libs openssl-libs findutils tar gzip which >/dev/null
+  retry dnf install -y -q bash clang zlib-devel libicu krb5-libs openssl-libs findutils tar gzip which >/dev/null
 elif command -v apk >/dev/null 2>&1; then
-  apk add --no-cache -q bash clang build-base zlib-dev icu-libs krb5-libs libgcc libstdc++ curl tar >/dev/null
+  retry apk add --no-cache -q bash clang build-base zlib-dev icu-libs krb5-libs libgcc libstdc++ curl tar >/dev/null
 else
   echo "build-native-container.sh supports AlmaLinux and Alpine build images." >&2
   exit 2
 fi
 
 curl -fsSL --retry 3 https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
-bash /tmp/dotnet-install.sh --jsonfile /src/global.json --install-dir /opt/dotnet >/dev/null
+retry bash /tmp/dotnet-install.sh --jsonfile /src/global.json --install-dir /opt/dotnet >/dev/null
 
 export DOTNET_ROOT=/opt/dotnet
 export PATH="/opt/dotnet:$PATH"
