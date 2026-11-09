@@ -31,11 +31,14 @@ static class StagedScope
     /// <returns>The computed scope, or a null scope with the error that stopped it.</returns>
     public static (Scope? Scope, string Error) Since(ProjectModel model, string revision)
     {
-        var top = RunGit(model.Config.Root, "rev-parse", "--show-toplevel");
+        // The path from the root up to the repository top, such as "../" or "". Git names the top by its
+        // resolved path, which differs from the root's own form when the root runs through a symbolic
+        // link, such as /var on macOS, so the top is reached from the root and keeps the root's form.
+        var up = RunGit(model.Config.Root, "rev-parse", "--show-cdup");
 
-        if (top.Status != 0)
+        if (up.Status != 0)
         {
-            return (null, $"Cannot read changes since '{revision}': {Detail(top, "the root sits outside a git repository")}.");
+            return (null, $"Cannot read changes since '{revision}': {Detail(up, "the root sits outside a git repository")}.");
         }
 
         var known = RunGit(model.Config.Root, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
@@ -59,10 +62,11 @@ static class StagedScope
             return (null, $"Cannot read changes since '{revision}': {Detail(untracked, "git ls-files failed")}.");
         }
 
-        var toplevel = top.Stdout.Trim();
+        // git diff names a path from the repository top, and git ls-files from the folder it runs in, the root.
+        var toplevel = Path.GetFullPath(Path.Combine(model.Config.Root, up.Stdout.Trim()));
         var files = AbsolutePaths(toplevel, diff.Stdout);
 
-        files.UnionWith(AbsolutePaths(toplevel, untracked.Stdout));
+        files.UnionWith(AbsolutePaths(model.Config.Root, untracked.Stdout));
         files.RemoveWhere(path => IsToolOutput(model, path));
 
         return (BuildScope(model, files), "");

@@ -120,14 +120,17 @@ sealed class DiffBase : IDisposable
     {
         string Neither() => $"Base '{baseArg}' is neither a consumer folder nor a git revision.";
 
-        var top = RunGit(headConfig.Root, "rev-parse", "--show-toplevel");
+        // The path from the root up to the repository top. Git names the top by its resolved path, which
+        // differs from the root's own form when the root runs through a symbolic link, such as /var on
+        // macOS, so the top is reached from the root and the root's place inside it stays exact.
+        var up = RunGit(headConfig.Root, "rev-parse", "--show-cdup");
 
-        if (top.Status != 0)
+        if (up.Status != 0)
         {
             throw new InvalidOperationException(Neither());
         }
 
-        var toplevel = top.Stdout.Trim();
+        var toplevel = Path.GetFullPath(Path.Combine(headConfig.Root, up.Stdout.Trim()));
         var resolved = RunGit(toplevel, "rev-parse", "--verify", "--quiet", $"{baseArg}^{{commit}}");
 
         if (resolved.Status != 0 || resolved.Stdout.Trim().Length == 0)

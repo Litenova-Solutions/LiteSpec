@@ -122,6 +122,47 @@ public sealed class ModelCheckSinceTests
         Assert.Contains("Unknown option '--staged'.", result.Output);
     }
 
+    /// <summary>
+    ///     A since check reads the same scope when the root runs through a symbolic link, as a macOS
+    ///     temporary folder does through /var: git names the repository by its resolved path, and the
+    ///     changed files still meet the records under the root as given.
+    /// </summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact]
+    public void Check_Since_Reads_A_Root_Reached_Through_A_Symbolic_Link()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        using var links = Cli.Temp("since-link");
+
+        CommitAll(fixture.Path);
+        ApplyOverlay(fixture.Path, "write-undeclared");
+
+        var linked = Path.Combine(links.Path, "consumer");
+
+        // A symbolic link on Windows needs a privilege a test run does not hold; a junction does not.
+        if (OperatingSystem.IsWindows())
+        {
+            using var junction = Process.Start(new ProcessStartInfo("cmd.exe", ["/c", "mklink", "/J", linked, fixture.Path])
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+            })!;
+            junction.StandardOutput.ReadToEnd();
+            junction.WaitForExit();
+            Assert.Equal(0, junction.ExitCode);
+        }
+        else
+        {
+            Directory.CreateSymbolicLink(linked, fixture.Path);
+        }
+
+        var since = Cli.Run("model", "check", "--root", linked, "--since", "HEAD");
+
+        Assert.Equal(1, since.Status);
+        Assert.Contains("write-undeclared", since.Output);
+        Assert.DoesNotContain("[S unchanged] [write-undeclared]", since.Output);
+    }
+
     /// <summary>A since check blocks on changed findings and reports the rest.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]

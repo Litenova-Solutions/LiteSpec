@@ -267,8 +267,13 @@ public sealed class BookCommandTests
             workingDirectory: Path.Combine(consumer.Path, ".litespec", "behavior"));
         Assert.Equal(0, result.Status);
 
+        // The operating system hands the CLI its working directory resolved, so on macOS a consumer under
+        // /var arrives as /private/var. The reported root is the consumer folder when it carries the
+        // consumer's own folder name and holds its project file, in either form.
         manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
+        var found = manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>();
+        Assert.Equal(Path.GetFileName(Path.GetFullPath(consumer.Path)), Path.GetFileName(found));
+        Assert.True(File.Exists(Path.Combine(found, ".litespec", "project.json")), $"The reported root '{found}' holds no project file.");
     }
 
     /// <summary>A root without a project file exits 2 and names the missing file, the usage error for a root that is not a consumer.</summary>
