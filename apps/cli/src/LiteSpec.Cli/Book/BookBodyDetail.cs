@@ -27,7 +27,7 @@ static class BookBodyDetail
         var items = new JsonArray();
         foreach (var section in split.Items)
         {
-            items.Add(new JsonObject
+            items.Add((JsonNode)new JsonObject
             {
                 ["h"] = section.Heading,
                 ["html"] = HtmlOf(section.Body),

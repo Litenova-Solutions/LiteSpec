@@ -19,6 +19,36 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
+    <!--
+        The tool compiles ahead of time into one native executable per platform, which needs no
+        .NET runtime. PublishAot also runs the trim and AOT analyzers in every build, so a call
+        that needs runtime code, such as reflection-based JSON, fails the build at once.
+        The CLI compares text ordinally and formats with the invariant culture, so it carries no
+        ICU, and the Linux binary needs only libc and OpenSSL.
+        dotnet pack makes the LiteSpec.Cli package that points to one package per platform;
+        dotnet pack -r <rid> makes each platform's native package on a machine of that operating
+        system, and dotnet pack -r any -p:PublishAot=false the framework-dependent package that
+        serves every other platform.
+        IL3000: Roslyn's command-line compiler driver, CommonCompiler.GetAssemblyLocation, reads
+        Assembly.Location. The CLI only parses syntax trees and never runs that driver, and it
+        finds its own folder through AppContext.BaseDirectory.
+    -->
+    <PropertyGroup>
+        <PublishAot>true</PublishAot>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <ToolPackageRuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;linux-musl-x64;linux-musl-arm64;osx-x64;osx-arm64;any</ToolPackageRuntimeIdentifiers>
+        <NoWarn>$(NoWarn);IL3000</NoWarn>
+    </PropertyGroup>
+
+    <!-- A platform build ships the executable and its release, not the debug symbols or the XML documentation. -->
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+        <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+        <PublishDocumentationFile>false</PublishDocumentationFile>
+        <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+        <!-- The referenced libraries are compiled into the executable, so their own symbol files describe nothing that ships. -->
+        <AllowedReferenceRelatedFileExtensions>.dll.config</AllowedReferenceRelatedFileExtensions>
+    </PropertyGroup>
+
     <ItemGroup>
         <!-- The NuGet listing shows this page; it is written for a consumer installing the tool. -->
         <None Include="PACKAGE.md" Pack="true" PackagePath="README.md" />

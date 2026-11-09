@@ -134,7 +134,7 @@ static class BookProofDetail
             : new List<string>();
         foreach (var name in names)
         {
-            states.Add(name);
+            states.Add((JsonNode)name);
         }
 
         detail["reachable"] = states;

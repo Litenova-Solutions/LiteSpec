@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
 
@@ -56,66 +57,79 @@ static class Querier
             }
         }
 
-        object? computed = null;
+        JsonObject? computed = null;
 
         if (model.Completion.TryGetValue(key, out var completion))
         {
             if (record.Type == RecordTypes.UseCase)
             {
-                computed = new
+                computed = new JsonObject
                 {
-                    completion = CompletionJson(completion),
-                    implements = model.Implements.Where(link => link.To == key).Select(link => link.Path).ToList(),
-                    calls = model.Calls.Where(link => link.To == key).Select(link => link.Screen).ToList(),
-                    proves = model.Proves
-                        .Where(link => ScenarioOf(model, link.Claim) == ScenarioName(key))
-                        .Select(link => new { scenario = link.Scenario, claim = link.Claim, confirmed = link.Confirmed, passing = link.Passing })
-                        .ToList(),
+                    ["completion"] = CompletionJson(completion),
+                    ["implements"] = CliJson.Strings(model.Implements.Where(link => link.To == key).Select(link => link.Path)),
+                    ["calls"] = CliJson.Strings(model.Calls.Where(link => link.To == key).Select(link => link.Screen)),
+                    ["proves"] = ProvesJson(model.Proves.Where(link => ScenarioOf(model, link.Claim) == ScenarioName(key))),
                 };
             }
             else
             {
-                computed = new
+                computed = new JsonObject
                 {
-                    completion = CompletionJson(completion),
-                    proves = model.Proves
-                        .Where(link => link.Claim == key)
-                        .Select(link => new { scenario = link.Scenario, claim = link.Claim, confirmed = link.Confirmed, passing = link.Passing })
-                        .ToList(),
+                    ["completion"] = CompletionJson(completion),
+                    ["proves"] = ProvesJson(model.Proves.Where(link => link.Claim == key)),
                 };
             }
         }
 
-        return JsonSerializer.Serialize(
-            new
-            {
-                type = record.Type,
-                id = record.Id,
-                qualifiedId = record.QualifiedId,
-                title = record.Title,
-                file = model.Config.Relative(record.File),
-                line = record.Line,
-                fields = JsonSerializer.Deserialize<JsonElement>(record.Raw.GetRawText()),
-                links = ModelBuilder.ResolvedLinks(model, record),
-                linkedBy = incoming,
-                computed,
-            },
-            QueryOptions);
+        var query = new JsonObject
+        {
+            ["type"] = record.Type,
+            ["id"] = record.Id,
+            ["qualifiedId"] = record.QualifiedId,
+            ["title"] = record.Title,
+            ["file"] = model.Config.Relative(record.File),
+            ["line"] = record.Line,
+            ["fields"] = JsonNode.Parse(record.Raw.GetRawText()),
+            ["links"] = CliJson.StringLists(ModelBuilder.ResolvedLinks(model, record)),
+            ["linkedBy"] = CliJson.StringLists(incoming),
+            ["computed"] = computed,
+        };
+
+        return query.ToJsonString(QueryOptions);
     }
 
     /// <summary>One record's computed completion as its JSON object.</summary>
     /// <param name="completion">The completion to project.</param>
     /// <returns>The JSON object for the completion.</returns>
-    static object CompletionJson(Completion completion) => new
+    static JsonObject CompletionJson(Completion completion)
     {
-        stage = completion.Stage,
-        proof = completion.Proof,
-        heldBy = completion.HeldBy,
-        counts = completion.Counts.ToDictionary(
-            entry => entry.Key,
-            entry => new { done = entry.Value.Done, of = entry.Value.Of },
-            StringComparer.Ordinal),
-    };
+        var counts = new JsonObject();
+
+        foreach (var (label, count) in completion.Counts)
+        {
+            counts[label] = new JsonObject { ["done"] = count.Done, ["of"] = count.Of };
+        }
+
+        return new JsonObject
+        {
+            ["stage"] = completion.Stage,
+            ["proof"] = completion.Proof,
+            ["heldBy"] = CliJson.Strings(completion.HeldBy),
+            ["counts"] = counts,
+        };
+    }
+
+    /// <summary>The proof links of a record as a JSON array, in model order.</summary>
+    /// <param name="links">The proof links to project.</param>
+    /// <returns>The JSON array of proof links.</returns>
+    static JsonArray ProvesJson(IEnumerable<ProvesLink> links) =>
+        new([.. links.Select(link => (JsonNode?)new JsonObject
+        {
+            ["scenario"] = link.Scenario,
+            ["claim"] = link.Claim,
+            ["confirmed"] = link.Confirmed,
+            ["passing"] = link.Passing,
+        })]);
 
     /// <summary>The home name a scenario id belongs to.</summary>
     /// <param name="model">The built project model, kept for symmetry with the other query helpers.</param>

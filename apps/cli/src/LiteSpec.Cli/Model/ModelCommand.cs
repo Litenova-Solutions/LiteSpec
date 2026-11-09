@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Consumer;
 using LiteSpec.Model.Diff;
 
@@ -191,7 +192,7 @@ static class ModelCommand
 
                     if (json)
                     {
-                        var payload = new Dictionary<string, object?>();
+                        var payload = new JsonObject();
 
                         if (since is not null)
                         {
@@ -201,10 +202,10 @@ static class ModelCommand
                             payload["changedRecords"] = since.RecordIds.Count;
                         }
 
-                        payload["findings"] = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity, entry.Demoted)).ToList();
-                        payload["known"] = known.Select(gap => AsKnownJson(config, gap)).ToList();
+                        payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
+                        payload["known"] = new JsonArray([.. known.Select(gap => (JsonNode?)AsKnownJson(config, gap))]);
 
-                        Console.WriteLine(JsonSerializer.Serialize(payload, CliJson.Options));
+                        CliJson.Write(payload);
                     }
                     else
                     {
@@ -422,33 +423,33 @@ static class ModelCommand
     /// <param name="severity">The decided severity of the finding.</param>
     /// <param name="demoted">Whether <c>--since</c> demoted the finding as unchanged.</param>
     /// <returns>The JSON object for the finding.</returns>
-    static object AsJson(ConsumerConfig config, Finding finding, Severity severity, bool demoted = false) => new
+    static JsonObject AsJson(ConsumerConfig config, Finding finding, Severity severity, bool demoted = false) => new()
     {
-        code = finding.Code,
-        level = finding.Tier,
-        severity = SeverityName(finding),
-        outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
-        reason = demoted ? "unchanged" : null,
-        message = finding.Message,
-        path = config.Relative(finding.Path),
-        line = finding.Line,
-        subject = finding.Subject,
+        ["code"] = finding.Code,
+        ["level"] = finding.Tier,
+        ["severity"] = SeverityName(finding),
+        ["outcome"] = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
+        ["reason"] = demoted ? "unchanged" : null,
+        ["message"] = finding.Message,
+        ["path"] = config.Relative(finding.Path),
+        ["line"] = finding.Line,
+        ["subject"] = finding.Subject,
     };
 
     /// <summary>One known-gap finding as its JSON object.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The known-gap finding to project.</param>
     /// <returns>The JSON object for the known-gap finding.</returns>
-    static object AsKnownJson(ConsumerConfig config, Finding finding) => new
+    static JsonObject AsKnownJson(ConsumerConfig config, Finding finding) => new()
     {
-        code = finding.Code,
-        level = finding.Tier,
-        severity = SeverityName(finding),
-        outcome = "known",
-        reason = (string?)null,
-        message = finding.Message,
-        path = config.Relative(finding.Path),
-        line = finding.Line,
-        subject = finding.Subject,
+        ["code"] = finding.Code,
+        ["level"] = finding.Tier,
+        ["severity"] = SeverityName(finding),
+        ["outcome"] = "known",
+        ["reason"] = null,
+        ["message"] = finding.Message,
+        ["path"] = config.Relative(finding.Path),
+        ["line"] = finding.Line,
+        ["subject"] = finding.Subject,
     };
 }

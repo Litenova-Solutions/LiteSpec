@@ -145,8 +145,8 @@ static class BookCommand
             return fail.Code;
         }
 
-        model.FindingsJson = findings.Select(finding => FindingJson(config, model, finding)).ToList();
-        model.KnownJson = known.Select(gap => KnownJson(config, gap)).ToList();
+        model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)FindingJson(config, model, finding))]);
+        model.KnownJson = new JsonArray([.. known.Select(gap => (JsonNode?)KnownJson(config, gap))]);
 
         if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
         {
@@ -226,7 +226,7 @@ static class BookCommand
         {
             var keys = BookShards.WriteLayer(dataDir, layerRoot.Id, layerRoot.Children, shardOf);
             shards += keys.Count;
-            layers.Add(new JsonObject
+            layers.Add((JsonNode)new JsonObject
             {
                 ["key"] = layerRoot.Id,
                 ["label"] = LayerLabel(lexicon, layerRoot.Id),
@@ -315,20 +315,20 @@ static class BookCommand
     /// <param name="model">The built project model the finding belongs to.</param>
     /// <param name="finding">The finding to project.</param>
     /// <returns>The JSON object for the finding.</returns>
-    static object FindingJson(ConsumerConfig config, ProjectModel model, Finding finding)
+    static JsonObject FindingJson(ConsumerConfig config, ProjectModel model, Finding finding)
     {
         var severity = Decide(model, config, finding);
 
-        return new
+        return new JsonObject
         {
-            code = finding.Code,
-            level = finding.Tier,
-            outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
-            reason = (string?)null,
-            message = finding.Message,
-            path = config.Relative(finding.Path),
-            line = finding.Line,
-            subject = finding.Subject,
+            ["code"] = finding.Code,
+            ["level"] = finding.Tier,
+            ["outcome"] = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
+            ["reason"] = null,
+            ["message"] = finding.Message,
+            ["path"] = config.Relative(finding.Path),
+            ["line"] = finding.Line,
+            ["subject"] = finding.Subject,
         };
     }
 
@@ -336,16 +336,16 @@ static class BookCommand
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The known-gap finding to project.</param>
     /// <returns>The JSON object for the known-gap finding.</returns>
-    static object KnownJson(ConsumerConfig config, Finding finding) => new
+    static JsonObject KnownJson(ConsumerConfig config, Finding finding) => new()
     {
-        code = finding.Code,
-        level = finding.Tier,
-        outcome = "known",
-        reason = (string?)null,
-        message = finding.Message,
-        path = config.Relative(finding.Path),
-        line = finding.Line,
-        subject = finding.Subject,
+        ["code"] = finding.Code,
+        ["level"] = finding.Tier,
+        ["outcome"] = "known",
+        ["reason"] = null,
+        ["message"] = finding.Message,
+        ["path"] = config.Relative(finding.Path),
+        ["line"] = finding.Line,
+        ["subject"] = finding.Subject,
     };
 
     /// <summary>One layer's display label from the lexicon, else the layer key itself.</summary>
@@ -405,7 +405,7 @@ static class BookCommand
             var text = qualified is { Length: > 0 } && !string.Equals(qualified, id, StringComparison.Ordinal)
                 ? (excerpt.Length > 0 ? excerpt + " " + qualified : qualified)
                 : excerpt;
-            rows.Add(new JsonArray(
+            rows.Add((JsonNode)new JsonArray(
                 id,
                 StrProp(detail, "title") ?? id,
                 StrProp(detail, "type") ?? "",
@@ -513,7 +513,7 @@ static class BookCommand
                     : null;
                 var text = "Acts across tenants"
                     + (grant is { Length: > 0 } ? ", through " + TitleOf(details, grant) : "");
-                items.Add(new JsonObject
+                items.Add((JsonNode)new JsonObject
                 {
                     ["kind"] = "cross",
                     ["id"] = id,
@@ -528,7 +528,7 @@ static class BookCommand
                     && call.TryGetValue<string>(out var to)
                     && to.Length > 0)
                 {
-                    items.Add(new JsonObject
+                    items.Add((JsonNode)new JsonObject
                     {
                         ["kind"] = "calls",
                         ["id"] = id,
@@ -555,7 +555,7 @@ static class BookCommand
                         text += ", on erasure " + fate;
                     }
 
-                    items.Add(new JsonObject
+                    items.Add((JsonNode)new JsonObject
                     {
                         ["kind"] = "data",
                         ["id"] = id,

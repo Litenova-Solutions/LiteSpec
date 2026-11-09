@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace LiteSpec.Authoring;
 
 /// <summary>
@@ -327,12 +329,18 @@ internal static class StandardsValidator
         // message is reworded, so the tool emits the structure it already holds.
         if (parsed.Json)
         {
-            CliJson.Write(new
+            CliJson.Write(new JsonObject
             {
-                tool = "validate",
-                root,
-                ok = errors.Count == 0,
-                errors = errors.Select(diagnostic => new { file = diagnostic.Relative, line = diagnostic.Line, code = diagnostic.Code, message = diagnostic.Message }).ToList(),
+                ["tool"] = "validate",
+                ["root"] = root,
+                ["ok"] = errors.Count == 0,
+                ["errors"] = new JsonArray([.. errors.Select(diagnostic => (JsonNode?)new JsonObject
+                {
+                    ["file"] = diagnostic.Relative,
+                    ["line"] = diagnostic.Line,
+                    ["code"] = diagnostic.Code,
+                    ["message"] = diagnostic.Message,
+                })]),
             });
             return errors.Count == 0 ? 0 : 1;
         }

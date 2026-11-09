@@ -186,7 +186,7 @@ static class BookEnrich
             {
                 foreach (var source in entry.ReachedBy)
                 {
-                    reachedBy.Add(source);
+                    reachedBy.Add((JsonNode)source);
                 }
             }
 
@@ -205,7 +205,7 @@ static class BookEnrich
                 var reachedBy = new JsonArray();
                 foreach (var source in entry.ReachedBy)
                 {
-                    reachedBy.Add(source);
+                    reachedBy.Add((JsonNode)source);
                 }
 
                 if (entry.Reached)
@@ -213,7 +213,7 @@ static class BookEnrich
                     reached++;
                 }
 
-                steps.Add(new JsonObject
+                steps.Add((JsonNode)new JsonObject
                 {
                     ["id"] = entry.Id,
                     ["reached"] = entry.Reached,
@@ -238,7 +238,7 @@ static class BookEnrich
         var list = new JsonArray();
         foreach (var finding in findings)
         {
-            list.Add(finding);
+            list.Add((JsonNode)finding);
         }
 
         return list;

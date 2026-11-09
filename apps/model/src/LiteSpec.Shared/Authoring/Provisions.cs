@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace LiteSpec.Authoring;
@@ -312,12 +313,35 @@ public static class Provisions
     /// <returns>The provision data text.</returns>
     public static string BuildJson(string root)
     {
-        var rows = Collect(root);
-        return JsonSerializer.Serialize(new { provisions = rows }, JsonOptions);
+        var provisions = new JsonArray();
+
+        foreach (var row in Collect(root))
+        {
+            provisions.Add((JsonNode)new JsonObject
+            {
+                ["id"] = row.Id,
+                ["heading"] = row.Heading,
+                ["page"] = row.Page,
+                ["anchor"] = row.Anchor,
+                ["kind"] = row.Kind,
+                ["mark"] = row.Mark,
+                ["evidence"] = row.Evidence,
+                ["stack"] = row.Stack,
+                ["layer"] = row.Layer,
+                ["artifact"] = row.Artifact,
+                ["conformance"] = row.Conformance,
+                ["strength"] = row.Strength,
+                ["statement"] = row.Statement,
+                ["rationale"] = row.Rationale,
+                ["example"] = row.Example,
+            });
+        }
+
+        return new JsonObject { ["provisions"] = provisions }.ToJsonString(JsonOptions);
     }
 
-    /// <summary>The provision data layout: indented with <c>\n</c> line ends, camel-case property names.</summary>
-    static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, NewLine = "\n", PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    /// <summary>The provision data layout: indented with <c>\n</c> line ends, and the default escaping.</summary>
+    static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, NewLine = "\n" };
 
     /// <summary>Names the index group a top-level docs folder belongs to.</summary>
     /// <param name="area">The top-level docs folder.</param>

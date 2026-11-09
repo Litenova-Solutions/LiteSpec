@@ -17,6 +17,16 @@ static class Cli
     public static string Fixture(string relative) =>
         Path.Combine(Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Fixtures", relative.Replace('/', Path.DirectorySeparatorChar));
 
+    /// <summary>
+    ///     Gets the native <c>litespec</c> executable the suite runs instead of the built
+    ///     <c>litespec.dll</c>, from <c>LITESPEC_TEST_EXECUTABLE</c>, or null to run the build
+    ///     output on the .NET runtime. CI sets it on each platform, so the one suite proves
+    ///     the native binary a consumer installs.
+    /// </summary>
+    public static string? Executable { get; } = Environment.GetEnvironmentVariable("LITESPEC_TEST_EXECUTABLE") is { Length: > 0 } executable
+        ? Path.GetFullPath(executable)
+        : null;
+
     /// <summary>Runs <c>litespec</c> with the arguments, in the working directory when one is given.</summary>
     /// <param name="args">The command arguments.</param>
     /// <param name="workingDirectory">The working directory, or null for the repository root.</param>
@@ -24,7 +34,7 @@ static class Cli
     /// <returns>The exit code and the two output streams of the run.</returns>
     public static CliResult Run(IEnumerable<string> args, string? workingDirectory = null, IDictionary<string, string>? environment = null)
     {
-        var start = new ProcessStartInfo("dotnet")
+        var start = new ProcessStartInfo(Executable ?? "dotnet")
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -32,7 +42,10 @@ static class Cli
             WorkingDirectory = workingDirectory ?? Repository,
         };
 
-        start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "litespec.dll"));
+        if (Executable is null)
+        {
+            start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "litespec.dll"));
+        }
 
         foreach (var arg in args)
         {

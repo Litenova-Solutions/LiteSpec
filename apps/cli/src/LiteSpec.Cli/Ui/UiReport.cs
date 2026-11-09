@@ -60,7 +60,7 @@ sealed record UiReport(
             }
 
             entry["platform"] = frontend.Platform?.DeepClone();
-            skipped.Add(entry);
+            skipped.Add((JsonNode)entry);
         }
 
         var problems = new JsonArray();
@@ -80,7 +80,7 @@ sealed record UiReport(
                 item["subject"] = problem.Subject;
             }
 
-            problems.Add(item);
+            problems.Add((JsonNode)item);
         }
 
         return new JsonObject

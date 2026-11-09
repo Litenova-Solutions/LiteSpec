@@ -47,11 +47,11 @@ static class BookJourneyDetail
             {
                 if (server.StartsWith("screen/", StringComparison.Ordinal))
                 {
-                    onScreen.Add(server);
+                    onScreen.Add((JsonNode)server);
                 }
                 else
                 {
-                    use.Add(server);
+                    use.Add((JsonNode)server);
                 }
             }
 
@@ -59,7 +59,7 @@ static class BookJourneyDetail
             screens[stepId] = onScreen;
             if (index.ExercisedSteps.Contains(full))
             {
-                exercised.Add(stepId);
+                exercised.Add((JsonNode)stepId);
             }
         }
 
@@ -99,7 +99,7 @@ static class BookJourneyDetail
             {
                 if (seen.Add(target))
                 {
-                    called.Add(target);
+                    called.Add((JsonNode)target);
                 }
             }
         }

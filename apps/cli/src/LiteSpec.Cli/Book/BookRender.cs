@@ -159,12 +159,12 @@ static class BookRender
     /// <summary>Serializes a value as compact JSON.</summary>
     /// <param name="value">The JSON value, or null.</param>
     /// <returns>The compact JSON.</returns>
-    public static string JsonCompact(JsonNode? value) => JsonSerializer.Serialize(value, CompactJson);
+    public static string JsonCompact(JsonNode? value) => value?.ToJsonString(CompactJson) ?? "null";
 
     /// <summary>Serializes a value as indented JSON.</summary>
     /// <param name="value">The JSON value, or null.</param>
     /// <returns>The indented JSON.</returns>
-    public static string JsonIndented(JsonNode? value) => JsonSerializer.Serialize(value, CliJson.Options);
+    public static string JsonIndented(JsonNode? value) => CliJson.Serialize(value);
 
     /// <summary>Reads a string property, or null when it is missing or not a string.</summary>
     /// <param name="obj">The object holding the property, or null.</param>

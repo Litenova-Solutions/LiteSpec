@@ -9,6 +9,8 @@
         -->
         <RootNamespace>LiteSpec</RootNamespace>
         <IsPackable>false</IsPackable>
+        <!-- The native CLI compiles this library ahead of time, so the trim and AOT analyzers check it in every build. -->
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

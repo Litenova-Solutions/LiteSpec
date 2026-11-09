@@ -62,7 +62,7 @@ static class BookImplementationDetail
             }
 
             paths.Add(path);
-            impl.Add(new JsonObject
+            impl.Add((JsonNode)new JsonObject
             {
                 ["kind"] = kind,
                 ["path"] = path,
@@ -134,7 +134,7 @@ static class BookImplementationDetail
         var list = new JsonArray();
         foreach (var test in tests)
         {
-            list.Add(test);
+            list.Add((JsonNode)test);
         }
 
         return list;
@@ -243,7 +243,7 @@ static class BookImplementationDetail
         var lacks = new JsonArray();
         if (BookRender.IsTrue(expect["impl"]) && impl.Count == 0)
         {
-            lacks.Add("not implemented");
+            lacks.Add((JsonNode)"not implemented");
         }
 
         if (!BookRender.IsTrue(expect["proof"]))
@@ -270,12 +270,12 @@ static class BookImplementationDetail
 
             if (missing)
             {
-                lacks.Add("scenarios not tested");
+                lacks.Add((JsonNode)"scenarios not tested");
             }
         }
         else if (!tests.TryGetValue(id, out var own) || own.Count == 0)
         {
-            lacks.Add("not tested");
+            lacks.Add((JsonNode)"not tested");
         }
 
         return lacks;

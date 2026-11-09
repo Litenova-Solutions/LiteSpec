@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
 
 namespace LiteSpec.Model;
@@ -372,7 +373,7 @@ static class RecordReader
     /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
     private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code)
     {
-        var json = JsonSerializer.Serialize(new Dictionary<string, string?>(StringComparer.Ordinal)
+        var json = new JsonObject
         {
             [RecordFields.Type] = RecordTypes.Result,
             [RecordFields.Id] = id,
@@ -380,7 +381,7 @@ static class RecordReader
             [RecordFields.Outcome] = "refusal",
             [RecordFields.Code] = code,
             [RecordFields.Meaning] = meaning,
-        });
+        }.ToJsonString();
 
         using var document = JsonDocument.Parse(json);
 

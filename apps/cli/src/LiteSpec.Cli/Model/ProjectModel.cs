@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
 
@@ -15,10 +16,10 @@ sealed class ProjectModel
     public List<Finding> Problems { get; } = [];
 
     /// <summary>Gets or sets the check findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
-    public IReadOnlyList<object>? FindingsJson { get; set; }
+    public JsonArray? FindingsJson { get; set; }
 
     /// <summary>Gets or sets the known findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
-    public IReadOnlyList<object>? KnownJson { get; set; }
+    public JsonArray? KnownJson { get; set; }
     /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
     /// <summary>Gets the explanation and document bodies, for the book and the model JSON.</summary>
@@ -215,7 +216,7 @@ sealed class ProjectModel
                 writer.WritePropertyName("fields");
                 record.Raw.WriteTo(writer);
                 writer.WritePropertyName("links");
-                JsonSerializer.Serialize(writer, ModelBuilder.ResolvedLinks(this, record), options);
+                CliJson.StringLists(ModelBuilder.ResolvedLinks(this, record)).WriteTo(writer, options);
 
                 if (Completion.TryGetValue(record.Id, out var completion))
                 {
@@ -791,7 +792,7 @@ sealed class ProjectModel
             }
             else
             {
-                JsonSerializer.Serialize(writer, FindingsJson, options);
+                FindingsJson.WriteTo(writer, options);
             }
 
             writer.WritePropertyName("known");
@@ -802,7 +803,7 @@ sealed class ProjectModel
             }
             else
             {
-                JsonSerializer.Serialize(writer, KnownJson, options);
+                KnownJson.WriteTo(writer, options);
             }
 
             writer.WriteEndObject();
