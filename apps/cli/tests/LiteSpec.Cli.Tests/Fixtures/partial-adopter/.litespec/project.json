@@ -8,7 +8,7 @@
     "dotnet"
   ],
   "conformance": "records",
-  "reviewedLiteSpecVersion": "4.0.0",
+  "reviewedLiteSpecVersion": "4.1.0",
   "paths": {
     "docs": ".litespec",
     "behaviorDocs": ".litespec/behavior",

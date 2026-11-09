@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://litespec.dev/4.0.0/schemas/record.schema.json",
+  "$id": "https://litespec.dev/4.1.0/schemas/record.schema.json",
   "title": "LiteSpec Project Record",
   "description": "The record file holding a consumer record page: one page record or one container page, with the entry records it carries.",
   "oneOf": [

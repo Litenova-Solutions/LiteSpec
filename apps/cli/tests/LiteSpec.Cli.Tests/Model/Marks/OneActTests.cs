@@ -129,7 +129,7 @@ public sealed class OneActTests
                     "dotnet"
                   ],
                   "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "reviewedLiteSpecVersion": "4.1.0",
                   "owners": [
                     "lending-team"
                   ],

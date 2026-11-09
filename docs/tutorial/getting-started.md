@@ -16,7 +16,7 @@ A LiteSpec consumer is a project built against the LiteSpec standard, and this t
 
 This lesson creates a new project. After the project runs, adding new intent to it follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page, and the check steps below walk that same order for the first slice.
 
-1. Install the LiteSpec release as a local .NET tool: run `dotnet new tool-manifest` when the folder has no `.config/dotnet-tools.json` yet, then `dotnet tool install LiteSpec.Cli --version 4.0.0` and `dotnet tool restore`. From here on, run every command below as `dotnet litespec <command>` from the consumer root. This satisfies `litespec/workspace/structure#use-the-canonical-root-tree`.
+1. Install the LiteSpec release as a local .NET tool: run `dotnet new tool-manifest` when the folder has no `.config/dotnet-tools.json` yet, then `dotnet tool install LiteSpec.Cli --version 4.1.0` and `dotnet tool restore`. From here on, run every command below as `dotnet litespec <command>` from the consumer root. This satisfies `litespec/workspace/structure#use-the-canonical-root-tree`.
 2. Write the project configuration: run `dotnet litespec init --preset dotnet-react --size small`, which writes `.litespec/project.json` with the shape, the stacks, and the adopted release in `reviewedLiteSpecVersion`, with the `## LiteSpec` block in `AGENTS.md`, the glossary, and the example cast beside it. Fill every placeholder. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
 3. Select extensions only when their criteria already hold. Write each selection in the object form with its criterion. This satisfies `litespec/core/scope#select-conditional-extensions-explicitly` and `litespec/core/scope#record-selected-extensions`.
 4. Point the Behavior docs path at the Behavior root in `paths.behaviorDocs`. This satisfies `litespec/core/scope#point-behavior-docs-at-the-behavior-root`.
@@ -25,7 +25,7 @@ This lesson creates a new project. After the project runs, adding new intent to 
 7. Create the API solution. Add the shared kernel and modules projects, the WebApi host, the AppHost, the ServiceDefaults, and the Integration test project. Add the unit test project when unit tests exist, the Architecture test project for what the analyzers do not check, and the Acceptance project for executable specifications at large size. Add the Worker host only when background work needs its own process. Reference `LiteSpec.Analyzers` from the business projects and the hosts, or once in `Directory.Build.props`:
    ```xml
    <ItemGroup>
-     <PackageReference Include="LiteSpec.Analyzers" Version="4.0.0" PrivateAssets="all" />
+     <PackageReference Include="LiteSpec.Analyzers" Version="4.1.0" PrivateAssets="all" />
    </ItemGroup>
    ```
    This satisfies `litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`, `litespec/backend/testing#keep-the-test-suites-the-size-requires`, and `litespec/backend/dotnet/packages#run-litespec-analyzers-in-the-business-projects-and-hosts`.

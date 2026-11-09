@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.1.0
+
+LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Windows, Linux and macOS, so a project runs it with or without .NET. The records, provisions and schemas are those of 4.0.0 at the new release address. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together.
+
 ## v4.0.0
 
 LiteSpec 4.0.0 is a standard for specification-driven development of one bounded-context business application by people and coding agents. It defines a strict specification model of linked records beside graded engineering provisions, with git as the decision record. A consumer pins this release in `reviewedLiteSpecVersion`. The release takes effect as the `v4.0.0` tag.

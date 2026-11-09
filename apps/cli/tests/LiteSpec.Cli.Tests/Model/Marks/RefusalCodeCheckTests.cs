@@ -63,7 +63,7 @@ public sealed class RefusalCodeCheckTests
                     "dotnet"
                   ],
                   "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "reviewedLiteSpecVersion": "4.1.0",
                   "owners": [
                     "lending-team"
                   ],

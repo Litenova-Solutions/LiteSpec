@@ -1,5 +1,5 @@
 {
-  "$schema": "https://litespec.dev/4.0.0/schemas/litespec-project.schema.json",
+  "$schema": "https://litespec.dev/4.1.0/schemas/litespec-project.schema.json",
   "project": {
     "name": "__PROJECT__"
   },
@@ -10,7 +10,7 @@
     "react"
   ],
   "conformance": "full",
-  "reviewedLiteSpecVersion": "4.0.0",
+  "reviewedLiteSpecVersion": "4.1.0",
   "screenshots": {
     "galleries": [
       "apps/web/test-results/gallery"

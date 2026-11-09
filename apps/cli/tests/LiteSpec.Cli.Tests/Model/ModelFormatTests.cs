@@ -97,7 +97,7 @@ public sealed class ModelFormatTests
                 Path.Combine(temp.Path, ".litespec/project.json"),
                 """
                 {"project": {"name": "Format Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "conformance": "full", "reviewedLiteSpecVersion": "4.0.0",
+                  "stacks": ["dotnet"], "conformance": "full", "reviewedLiteSpecVersion": "4.1.0",
                   "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []}}
                 """);
             TestRecords.Write(temp.Path, ".litespec/product/brief.yaml", """

@@ -45,7 +45,7 @@ describe("metaDescription", () => {
 
 describe("absoluteUrl and buildDate", () => {
   it("builds an absolute URL with its trailing slash", () => {
-    assert.strictEqual(absoluteUrl("/4.0.0/learn/"), "https://litespec.dev/4.0.0/learn/");
+    assert.strictEqual(absoluteUrl("/4.1.0/learn/"), "https://litespec.dev/4.1.0/learn/");
   });
 
   it("writes the build date as YYYY-MM-DD", () => {
@@ -58,7 +58,7 @@ describe("breadcrumbs", () => {
     const list = breadcrumbs([
       { name: "LiteSpec", path: "/" },
       { name: "Backend", path: null },
-      { name: "Domain", path: "/4.0.0/backend/domain/" },
+      { name: "Domain", path: "/4.1.0/backend/domain/" },
     ]) as { itemListElement: Record<string, unknown>[] };
     assert.strictEqual(list["@type"], "BreadcrumbList");
     assert.deepStrictEqual(
@@ -67,7 +67,7 @@ describe("breadcrumbs", () => {
     );
     assert.strictEqual(list.itemListElement[0].item, "https://litespec.dev/");
     assert.strictEqual("item" in list.itemListElement[1], false);
-    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/4.0.0/backend/domain/");
+    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/4.1.0/backend/domain/");
   });
 });
 
@@ -76,14 +76,14 @@ describe("techArticle", () => {
     const article = techArticle({
       title: "Domain",
       description: "The domain rules.",
-      path: "/4.0.0/backend/domain/",
+      path: "/4.1.0/backend/domain/",
       modified: "2026-10-31",
       section: "Backend",
     });
     assert.strictEqual(article["@type"], "TechArticle");
     assert.strictEqual(article.headline, "Domain");
     assert.strictEqual(article.dateModified, "2026-10-31");
-    assert.strictEqual(article.url, "https://litespec.dev/4.0.0/backend/domain/");
+    assert.strictEqual(article.url, "https://litespec.dev/4.1.0/backend/domain/");
     assert.deepStrictEqual(article.isPartOf, { "@id": "https://litespec.dev/#website" });
   });
 
@@ -91,7 +91,7 @@ describe("techArticle", () => {
     const article = techArticle({
       title: "Domain",
       description: "The domain rules.",
-      path: "/4.0.0/backend/domain/",
+      path: "/4.1.0/backend/domain/",
       section: "Backend",
     });
     assert.match(article.dateModified as string, /^\d{4}-\d{2}-\d{2}$/);
@@ -100,9 +100,9 @@ describe("techArticle", () => {
 
 describe("webPage and the site objects", () => {
   it("builds a WebPage that is part of the WebSite", () => {
-    const page = webPage({ title: "Use with Agents", description: "Set up an agent.", path: "/4.0.0/select/" });
+    const page = webPage({ title: "Use with Agents", description: "Set up an agent.", path: "/4.1.0/select/" });
     assert.strictEqual(page["@type"], "WebPage");
-    assert.strictEqual(page.url, "https://litespec.dev/4.0.0/select/");
+    assert.strictEqual(page.url, "https://litespec.dev/4.1.0/select/");
     assert.deepStrictEqual(page.isPartOf, { "@id": "https://litespec.dev/#website" });
   });
 
