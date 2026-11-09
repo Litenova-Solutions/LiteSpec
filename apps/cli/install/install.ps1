@@ -80,7 +80,14 @@ if (-not $Version) {
 
 $Version = $Version.TrimStart('v')
 
-$machine = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
+# A process inherits PROCESSOR_ARCHITECTURE from its parent, so a shell that runs emulated on an Arm PC
+# passes AMD64 down. The system's own value names the machine's native architecture.
+$machine = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -ErrorAction SilentlyContinue).PROCESSOR_ARCHITECTURE
+
+if (-not $machine) {
+    $machine = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
+}
+
 $arch = switch ($machine) {
     'AMD64' { 'x64' }
     'ARM64' { 'arm64' }
