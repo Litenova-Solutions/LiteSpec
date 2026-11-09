@@ -8,10 +8,10 @@
     "build": "node build.mjs"
   },
   "dependencies": {
-    "svelte": "5.57.2",
+    "svelte": "5.57.3",
     "typescript": "6.0.3"
   },
   "devDependencies": {
-    "esbuild": "0.25.10"
+    "esbuild": "0.28.2"
   }
 }
