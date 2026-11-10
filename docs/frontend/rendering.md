@@ -1,7 +1,7 @@
 # Frontend Rendering and Routes
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

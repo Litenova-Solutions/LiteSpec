@@ -25,7 +25,7 @@ public sealed class SeverityCheckTests
         Assert.Null(reason);
     }
 
-    /// <summary>The planned-Intent set holds the five reachability codes, each running at records.</summary>
+    /// <summary>The planned-Intent set holds the five reachability codes, each applying under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Planned_Intent_Holds_The_Five_Reachability_Codes()
@@ -33,18 +33,19 @@ public sealed class SeverityCheckTests
         Assert.Equal(
             new[] { "constraint-unreached", "goal-mover-missing", "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing" },
             Severity.PlannedIntent.OrderBy(code => code, StringComparer.Ordinal).ToArray());
+        var claim = new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null);
         Assert.All(
             Severity.PlannedIntent,
-            code => Assert.Equal(ConformanceLevel.Records, ConformanceLevels.LowestOf(code)));
+            code => Assert.True(claim.Covers(code, [])));
     }
 
-    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check at the records level.</summary>
+    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Planned_Intent_Reports_Locally_And_Blocks_In_CI_At_Records()
+    public void Planned_Intent_Reports_Locally_And_Blocks_In_CI_Under_Intent_And_Behavior()
     {
         using var fixture = ModelFixture.Prepare("large", "requirement-fulfillment-missing");
-        SetConformance(fixture.Path, "records");
+        SetClaim(fixture.Path, ConsumerFixture.Layers(null, null));
 
         var local = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         var (localOutcome, _) = OutcomeOf(local.Stdout, "requirement-fulfillment-missing");
@@ -75,14 +76,14 @@ public sealed class SeverityCheckTests
         Assert.Contains("marks", result.Output);
     }
 
-    /// <summary>Writes the claimed conformance level into the fixture project file.</summary>
+    /// <summary>Writes the claimed layers into the fixture project file.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="level">The level name: records, traced or full.</param>
-    static void SetConformance(string root, string level)
+    /// <param name="layers">The layers object the project claims.</param>
+    static void SetClaim(string root, JsonObject layers)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
         var project = DataFile.Read(file)!.AsObject();
-        project["layers"] = ConsumerFixture.Layers(level);
+        project["layers"] = layers;
         File.WriteAllText(file, project.ToJsonString());
     }
 

@@ -1,7 +1,7 @@
 # .NET Packages
 
 **Stack:** dotnet
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 

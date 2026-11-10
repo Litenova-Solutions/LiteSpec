@@ -46,15 +46,15 @@ When a project name does not end in a layer name under `layer-projects`, set the
 
 The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out: opting out turns off the whole package, so no analyzer rule runs and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package sets the layout from `selectedExtensions` in `.litespec/project.yaml`, so no extra wiring is needed. This step implements the shared kernel and modules projects with their hosts in [the .NET architecture page](../backend/dotnet/architecture.md).
 
-The package follows the conformance level the project declares the same way. At `records` the package stays silent: no rule runs, and the generator writes no source and reports no diagnostic, so a project that claims the record model alone sees no findings from this package. At `traced` only the traceability findings `LS5001` to `LS5012` appear, so a project can mark its code and prove its scenarios in its own layout before it takes the layer rules. At `full` every rule runs. To name a level for one project without changing the project file, set the property in the project file:
+The package follows the layers the project claims the same way. A project that claims the record model alone sees no findings from this package, and the generator writes no source. A claim of Implementation with `own` runs only the traceability findings `LS5001` to `LS5012`, so a project can mark its code in its own layout before it takes the layer rules. A claim of Implementation with `litespec` runs every rule. To name a practice for one project without changing the project file, set the property in the project file:
 
 ```xml
 <PropertyGroup>
-  <LiteSpecConformance>traced</LiteSpecConformance>
+  <LiteSpecImplementation>own</LiteSpecImplementation>
 </PropertyGroup>
 ```
 
-An empty or unknown value reads as `full`.
+An absent property reads as `litespec`. An empty property means the layer is not claimed, and any other value reads as `litespec`.
 
 ### 3. Build and Read the First Diagnostics
 
@@ -175,4 +175,4 @@ Confirm the setup with these checks:
 - `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones an exception covers.
 - Add a temporary enum to a Domain folder and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.
-- Set `conformance` to `records` in `.litespec/project.yaml` and rebuild: the build lists no `LS` diagnostics. Set it to `traced` and rebuild with the enum in place: the build still lists no `LS1002`. Set it back to `full` and rebuild: `LS1002` returns.
+- Claim only `intent` and `behavior` in `layers` in `.litespec/project.yaml` and rebuild: the build lists no `LS` diagnostics. Claim `implementation: own` and rebuild with the enum in place: the build still lists no `LS1002`. Set `implementation: litespec` and rebuild: `LS1002` returns.

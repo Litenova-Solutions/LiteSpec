@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec-maintain provisions` writes the provision index and its data file, resolving every identifier to its page, conformance level, and checked share.
+`litespec-maintain provisions` writes the provision index and its data file, resolving every identifier to its page, record layer, trace, and checked share.
 
 ## Synopsis
 
@@ -12,7 +12,7 @@ litespec-maintain provisions [--root <path>] [--check] [--help]
 
 ## Description
 
-This command rebuilds `docs/reference/provisions.md` and `docs/reference/provisions.json` from the active standards, so a citation reaches its heading in one step. The page and the data file carry each provision with its scope, conformance level, strength, and the mark and evidence from its inline verification line, with the conformance level right after the artifact. The page also states the checked share of rules for each page: the provisions at strength `rule` that carry a `Checked by` line, as a share of the provisions at strength `rule` on that page. Each provision takes the conformance level of its page folder, or the level its `conformance` field states when that level differs, as the [Provision Scopes](../core/scopes.md) page states.
+This command rebuilds `docs/reference/provisions.md` and `docs/reference/provisions.json` from the active standards, so a citation reaches its heading in one step. The page and the data file carry each provision with its scope, record layer, trace, strength, and the mark and evidence from its inline verification line, with the layer and trace right after the artifact. The page also states the checked share of rules for each page: the provisions at strength `rule` that carry a `Checked by` line, as a share of the provisions at strength `rule` on that page. Each provision takes the layer its page gives, or the layer its Applies to line states when that layer differs, and its trace is `yes` only where its Applies to line states it, as the [Provision Scopes](../core/scopes.md) page states.
 
 Run it after adding, renaming, or removing a provision. The next run overwrites a hand edit, so never edit the page or the data file directly.
 

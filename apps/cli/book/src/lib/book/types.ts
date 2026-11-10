@@ -177,12 +177,18 @@ export interface IntentCoverage {
   entries: IntentCoverageEntry[];
 }
 
-/** The manifest: project, roots, editor, test run, totals, layers, shard map, search, unplaced and generation date. */
+/** One record layer the project claims, with the practice it follows: litespec or own. */
+export interface LayerClaim {
+  layer: string;
+  practice: string;
+}
+
+/** The manifest: project, roots, editor, test run, totals, layers, claims, shard map, search, unplaced and generation date. */
 export interface Manifest {
   project: { id: string; title: string };
   roots: { consumer: string; litespec: string };
   editor: string;
-  conformance?: string;
+  claims?: LayerClaim[];
   intentCoverage?: IntentCoverage;
   testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
   totals: Record<string, number>;

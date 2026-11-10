@@ -3,20 +3,20 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Conformance;
+namespace LiteSpec.Tests.Model.Claims;
 
-/// <summary>Proves a project in its own code layout, with two web hosts and smoke proof from a JUnit file, checks and renders at the records and traced levels.</summary>
+/// <summary>Proves a project in its own code layout, with two web hosts and smoke proof from a JUnit file, checks and renders under its layer claims.</summary>
 public sealed class PartialAdopterTests
 {
-    /// <summary>The partial adopter reaches no blocking finding at the records and traced levels.</summary>
-    /// <param name="level">The claimed conformance level: records or traced.</param>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <summary>The partial adopter reaches no blocking finding under the intent-and-behavior and own-code-and-proof claims.</summary>
+    /// <param name="claim">The claim name, as <see cref="ConsumerFixture.Claim" /> reads it.</param>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Theory]
-    [InlineData("records")]
-    [InlineData("traced")]
-    public void Partial_Adopter_Check_Has_No_Blocking_Findings(string level)
+    [InlineData("intent-and-behavior")]
+    [InlineData("own-code-and-proof")]
+    public void Partial_Adopter_Check_Has_No_Blocking_Findings(string claim)
     {
-        using var fixture = Prepare(level);
+        using var fixture = Prepare(claim);
 
         var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
@@ -31,12 +31,12 @@ public sealed class PartialAdopterTests
         }
     }
 
-    /// <summary>At traced the partial adopter reads both web hosts and the JUnit smoke proof, so no use case is unimplemented, unreached by an endpoint or unverified.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <summary>Under own code and proof the partial adopter reads both web hosts and the JUnit smoke proof, so no use case is unimplemented, unreached by an endpoint or unverified.</summary>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Traced_Partial_Adopter_Reads_Both_Hosts_And_JUnit_Proof()
+    public void Own_Code_And_Proof_Partial_Adopter_Reads_Both_Hosts_And_JUnit_Proof()
     {
-        using var fixture = Prepare("traced");
+        using var fixture = Prepare("own-code-and-proof");
 
         var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
@@ -54,15 +54,16 @@ public sealed class PartialAdopterTests
         Assert.DoesNotContain("refusal-unimplemented", codes);
     }
 
-    /// <summary>The partial adopter book renders at the records and traced levels and names the claimed level in its manifest.</summary>
-    /// <param name="level">The claimed conformance level: records or traced.</param>
+    /// <summary>The partial adopter book renders under each claim and writes the claims it declares into its manifest.</summary>
+    /// <param name="claim">The claim name, as <see cref="ConsumerFixture.Claim" /> reads it.</param>
+    /// <param name="expected">The claims the manifest must list, as layer=practice pairs.</param>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Theory]
-    [InlineData("records")]
-    [InlineData("traced")]
-    public void Partial_Adopter_Book_Renders(string level)
+    [InlineData("intent-and-behavior", "intent=litespec,behavior=litespec")]
+    [InlineData("own-code-and-proof", "intent=litespec,behavior=litespec,implementation=own,proof=own")]
+    public void Partial_Adopter_Book_Renders(string claim, string expected)
     {
-        using var fixture = Prepare(level);
+        using var fixture = Prepare(claim);
         using var temp = Cli.Temp("partial-adopter-book");
         var outDir = Path.Combine(temp.Path, "out");
 
@@ -72,21 +73,23 @@ public sealed class PartialAdopterTests
         Assert.True(File.Exists(Path.Combine(outDir, "index.html")), "index.html was not written.");
 
         var manifest = ReadShard(Path.Combine(outDir, "data", "manifest.js"), "manifest");
-        Assert.Equal(level, manifest["conformance"]!.GetValue<string>());
+        var claims = manifest["claims"]!.AsArray()
+            .Select(entry => $"{entry!["layer"]!.GetValue<string>()}={entry["practice"]!.GetValue<string>()}");
+        Assert.Equal(expected, string.Join(",", claims));
         Assert.Equal("product/library", manifest["project"]!.AsObject()["id"]!.GetValue<string>());
     }
 
-    /// <summary>Copies the partial-adopter fixture to a fresh temp folder and claims the level in its project file.</summary>
-    /// <param name="level">The claimed conformance level: records or traced.</param>
+    /// <summary>Copies the partial-adopter fixture to a fresh temp folder and claims the layers in its project file.</summary>
+    /// <param name="claim">The claim name, as <see cref="ConsumerFixture.Claim" /> reads it.</param>
     /// <returns>The temp folder holding the prepared fixture; the caller deletes it.</returns>
-    static TempFolder Prepare(string level)
+    static TempFolder Prepare(string claim)
     {
         var temp = Cli.Temp("partial-adopter");
 
         try
         {
             CopyContents(Cli.Fixture("partial-adopter"), temp.Path);
-            SetConformance(temp.Path, level);
+            SetClaim(temp.Path, ConsumerFixture.Claim(claim));
             return temp;
         }
         catch
@@ -114,14 +117,14 @@ public sealed class PartialAdopterTests
         }
     }
 
-    /// <summary>Writes the claimed conformance level into the fixture project file.</summary>
+    /// <summary>Writes the claimed layers into the fixture project file.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="level">The level name: records, traced or full.</param>
-    static void SetConformance(string root, string level)
+    /// <param name="layers">The layers object the project claims.</param>
+    static void SetClaim(string root, JsonObject layers)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
         var project = DataFile.Read(file)!.AsObject();
-        project["layers"] = ConsumerFixture.Layers(level);
+        project["layers"] = layers;
         File.WriteAllText(file, project.ToJsonString());
     }
 

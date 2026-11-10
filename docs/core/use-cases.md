@@ -1,7 +1,7 @@
 # Use Cases
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 

@@ -1,7 +1,7 @@
 # Customer Rules and Hooks
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

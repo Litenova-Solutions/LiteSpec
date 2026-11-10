@@ -1,7 +1,7 @@
 # Executable BDD Acceptance Tests
 
 **Stack:** dotnet
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 

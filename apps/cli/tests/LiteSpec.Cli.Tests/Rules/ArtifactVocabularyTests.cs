@@ -27,9 +27,9 @@ public sealed class ArtifactVocabularyTests
     [Fact]
     public void Layer_Wide_Artifact_Is_The_Value_Any()
     {
-        Assert.True(Scopes.IsLayerWide("any"));
-        Assert.True(Scopes.IsLayerWide(" any "));
-        Assert.False(Scopes.IsLayerWide("aggregate"));
+        Assert.True(Scopes.IsConcernWide("any"));
+        Assert.True(Scopes.IsConcernWide(" any "));
+        Assert.False(Scopes.IsConcernWide("aggregate"));
         Assert.Equal(Scopes.AnyArtifact, "any");
     }
 

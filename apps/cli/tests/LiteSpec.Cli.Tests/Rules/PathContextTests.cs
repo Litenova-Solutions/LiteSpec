@@ -17,7 +17,7 @@ public sealed class PathContextTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandValidator.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: validator", result.Output);
+        Assert.Contains("concern: application, artifact: validator", result.Output);
     }
 
     /// <summary>A repository file derives the repository artifact.</summary>
@@ -32,7 +32,7 @@ public sealed class PathContextTests
             "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: domain, artifact: repository", result.Output);
+        Assert.Contains("concern: domain, artifact: repository", result.Output);
     }
 
     /// <summary>A port file under a Ports folder derives the port artifact.</summary>
@@ -47,7 +47,7 @@ public sealed class PathContextTests
             "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: port", result.Output);
+        Assert.Contains("concern: application, artifact: port", result.Output);
     }
 
     /// <summary>A command message file keeps the use-case artifact.</summary>
@@ -62,7 +62,7 @@ public sealed class PathContextTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommand.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: use-case", result.Output);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
 
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>

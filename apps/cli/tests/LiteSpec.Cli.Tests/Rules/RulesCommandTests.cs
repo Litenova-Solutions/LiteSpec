@@ -68,10 +68,10 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, layer: application, artifact: command-handler)",
+            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
-        Assert.Contains("Layer-wide:", result.Output);
+        Assert.Contains("Concern-wide:", result.Output);
         Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
         Assert.Contains("path match (artifact command-handler)", result.Output);
         Assert.Contains("record use-case/spending.submit-expense", result.Output);
@@ -102,7 +102,7 @@ public sealed class RulesCommandTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Layer-wide:", result.Output);
+        Assert.Contains("Concern-wide:", result.Output);
         Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
         Assert.DoesNotContain("Each command or query MUST own one use case folder", result.Output);
     }
@@ -122,40 +122,40 @@ public sealed class RulesCommandTests
         Assert.Contains("Each command or query MUST own one use case folder", result.Output);
     }
 
-    /// <summary>A code path in a records project returns no provisions and says why.</summary>
+    /// <summary>A code path in a project that claims no code returns no provisions and says why.</summary>
     [Fact]
-    public void Rules_Records_Code_Path_Returns_No_Provisions_And_Says_Why()
+    public void Rules_Intent_And_Behavior_Code_Path_Returns_No_Provisions_And_Says_Why()
     {
-        using var root = CopyFixtureWithConformance("rules-basic", "records");
+        using var root = CopyFixtureWithClaim("rules-basic", "intent-and-behavior");
         var result = Cli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("No provisions apply at the records conformance level for a code path: the project claims the record model only, so provisions about code do not apply. Query a record id for the provisions about records.", result.Output);
+        Assert.Contains("No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records.", result.Output);
         Assert.DoesNotContain("litespec/backend/application#keep-command-handlers-to-load-call-and-stage", result.Output);
         Assert.DoesNotContain("demo/conventions#confirm-large-payouts", result.Output);
     }
 
-    /// <summary>A record identifier in a records project returns the provisions about records and no full provisions.</summary>
+    /// <summary>A record identifier in a project that claims intent and behavior returns the provisions about records and no code provisions.</summary>
     [Fact]
-    public void Rules_Records_Record_Id_Returns_Records_Provisions()
+    public void Rules_Intent_And_Behavior_Record_Id_Returns_Records_Provisions()
     {
-        using var root = CopyFixtureWithConformance("rules-basic", "records");
+        using var root = CopyFixtureWithClaim("rules-basic", "intent-and-behavior");
         var result = Cli.Run("rules", "--root", root.Path, "use-case/billing.send-invoice");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rules for use-case/billing.send-invoice (layer: records, artifact: use-case)", result.Output);
+        Assert.Contains("Rules for use-case/billing.send-invoice (concern: records, artifact: use-case)", result.Output);
         Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
         Assert.DoesNotContain("- litespec/backend/", result.Output);
     }
 
-    /// <summary>A code path in a traced project returns no full provisions.</summary>
+    /// <summary>A code path in a project that claims its own code and proof returns no provisions about LiteSpec's code.</summary>
     [Fact]
-    public void Rules_Traced_Code_Path_Excludes_Full_Provisions()
+    public void Rules_Own_Code_Path_Excludes_LiteSpec_Code_Provisions()
     {
-        using var root = CopyFixtureWithConformance("rules-basic", "traced");
+        using var root = CopyFixtureWithClaim("rules-basic", "own-code-and-proof");
         var result = Cli.Run(
             "rules",
             "--root", root.Path,
@@ -174,7 +174,7 @@ public sealed class RulesCommandTests
         var result = Cli.Run("rules", "--root", root, "use-case/spending.submit-expense");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("Rules for use-case/spending.submit-expense (layer: records, artifact: use-case)", result.Output);
+        Assert.Contains("Rules for use-case/spending.submit-expense (concern: records, artifact: use-case)", result.Output);
         Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);
         Assert.Contains("record use-case/spending.submit-expense", result.Output);
     }
@@ -251,16 +251,16 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Demo.WebApi/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs (stack: dotnet, layer: web-api, artifact: endpoint)",
+            "Rules for apps/api/src/Demo.WebApi/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs (stack: dotnet, concern: web-api, artifact: endpoint)",
             result.Output);
         Assert.Contains("- litespec/backend/api#map-one-operation-per-endpoint:", result.Output);
     }
 
-    /// <summary>Copies one fixture to a temporary root with its conformance level replaced.</summary>
+    /// <summary>Copies one fixture to a temporary root with its layer claim replaced.</summary>
     /// <param name="fixture">The fixture name.</param>
-    /// <param name="level">The conformance level to write.</param>
+    /// <param name="claim">The claim name, as <see cref="LiteSpec.Tests.Consumer.ConsumerFixture.Claim" /> reads it.</param>
     /// <returns>The temporary consumer root.</returns>
-    static TempFolder CopyFixtureWithConformance(string fixture, string level)
+    static TempFolder CopyFixtureWithClaim(string fixture, string claim)
     {
         var source = Cli.Fixture(fixture);
         var temp = Cli.Temp("rules-level");
@@ -274,7 +274,7 @@ public sealed class RulesCommandTests
 
         var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
         var declared = DataFile.Read(project)!.AsObject();
-        declared["layers"] = LiteSpec.Tests.Consumer.ConsumerFixture.Layers(level);
+        declared["layers"] = LiteSpec.Tests.Consumer.ConsumerFixture.Claim(claim);
         File.WriteAllText(project, declared.ToJsonString());
 
         return temp;

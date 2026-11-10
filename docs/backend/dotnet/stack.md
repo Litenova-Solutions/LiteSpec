@@ -1,7 +1,7 @@
 # .NET Stack
 
 **Stack:** dotnet
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -69,17 +69,17 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Checked by:** `litespec model check` reports `reader-missing` (level S) naming the field, the written pattern and the resolved folder that does not exist.
 
-### Identify an Aggregate Root by Its Mark and State Record at Traced
+### Identify an Aggregate Root by Its Mark and State Record
 
-**ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced`
+**ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record`
 
 **Strength:** rule
 
-**Applies to:** conformance: traced
+**Applies to:** trace: yes
 
-**Statement:** At the traced conformance level, the .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
+**Statement:** The .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
 
-**Rationale:** A project at traced keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements and the state record states its lifecycle, and together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the traced reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
+**Rationale:** A project that claims Implementation with `own` keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements and the state record states its lifecycle, and together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the traced reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
 
 **Example:** The library loan type carries `/// <implements>aggregate/lending.loan</implements>` and a `LoanState State` property backed by the abstract `LoanState` record, so the reader reads it as the loan aggregate root and reads its public methods as aggregate methods.
 

@@ -90,7 +90,7 @@ static class BookCommand
             return LastResort.Fail($"Cannot build the model from '{root}': {exception.Message}", json: false, code: 1);
         }
 
-        // The book takes the findings that model check takes, at the claimed level, so the two never disagree.
+        // The book takes the findings that model check takes, under the layer claims, so the two never disagree.
         List<Finding> findings;
         IReadOnlyList<Finding> known;
 
@@ -118,7 +118,7 @@ static class BookCommand
 
         try
         {
-            var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Conformance);
+            var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Layers);
             Console.Out.Write(line + "\n");
             return 0;
         }
@@ -129,8 +129,8 @@ static class BookCommand
     }
 
     /// <summary>
-    ///     Writes the book for a parsed model at the full conformance level:
-    ///     one shell with sharded data under the output folder.
+    ///     Writes the book for a parsed model with every layer claimed: one
+    ///     shell with sharded data under the output folder.
     ///     The command calls it with the model it built in memory; tests call it with a frozen model.
     /// </summary>
     /// <param name="store">The model object that holds the records array.</param>
@@ -141,14 +141,14 @@ static class BookCommand
     /// <param name="outDir">The folder to write the static site to.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
     internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir) =>
-        WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, ConformanceLevel.Full);
+        WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, LayerClaims.All);
 
     /// <summary>
-    ///     Writes the book for a parsed model at one conformance level: one
-    ///     shell with sharded data under the output folder. At
-    ///     <see cref="ConformanceLevel.Records" /> the book leaves out code,
-    ///     proof and level S findings. At every level the manifest and the
-    ///     Intent part carry the computed Intent coverage.
+    ///     Writes the book for a parsed model under the layers the project claims: one
+    ///     shell with sharded data under the output folder. A layer the project does
+    ///     not claim shows as not claimed, and the book leaves out its code, proof and
+    ///     level S findings. At every claim the manifest and the Intent part carry the
+    ///     computed Intent coverage.
     /// </summary>
     /// <param name="store">The model object that holds the records array.</param>
     /// <param name="root">The absolute consumer root for source links and captures.</param>
@@ -156,16 +156,16 @@ static class BookCommand
     /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
     /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
     /// <param name="outDir">The folder to write the static site to.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
-    internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir, ConformanceLevel level)
+    internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir, LayerClaims claims)
     {
         // One pass over the one index: the outline and the details are each
         // built once, then packed into shards. Nothing is recomputed per record.
         var coverage = BookIntentCoverage.Of(store);
         var index = BookIndexBuilder.BuildIndex(store);
-        var outline = BookOutline.Build(store, level);
-        var details = BookEnrich.Build(store, outline, level);
+        var outline = BookOutline.Build(store, claims);
+        var details = BookEnrich.Build(store, outline, claims);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
 
         var dataDir = Path.Combine(outDir, "data");
@@ -200,7 +200,7 @@ static class BookCommand
         BookShards.WriteShard(
             dataDir,
             "manifest",
-            ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn, level, coverage));
+            ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn, claims, coverage));
         shards += 1;
 
         var project = ProjectOf(store);
@@ -313,11 +313,21 @@ static class BookCommand
         return rows;
     }
 
+    /// <summary>The layer claims as the project file writes them: one entry per claimed layer, in layer order.</summary>
+    /// <param name="claims">The record layers the project claims.</param>
+    /// <returns>The entries, each with its layer and its practice.</returns>
+    static JsonArray ClaimsJson(LayerClaims claims) =>
+        new JsonArray([.. claims.Entries().Select(entry => (JsonNode?)new JsonObject
+        {
+            ["layer"] = entry.Key,
+            ["practice"] = entry.Value,
+        })]);
+
     /// <summary>
     ///     The manifest shard value: project, roots, editor template, test run,
     ///     totals, layers with their outline shards, the shard map, the search
-    ///     shards, the unplaced ids, the generation date, the conformance
-    ///     level and the Intent coverage. At the records level the test run
+    ///     shards, the unplaced ids, the generation date, the layer
+    ///     claims and the Intent coverage. Without a Proof claim the test run
     ///     is null, because the book leaves out proof.
     /// </summary>
     /// <param name="store">The model object that holds the records and the test run.</param>
@@ -329,7 +339,7 @@ static class BookCommand
     /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
     /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
     /// <param name="generatedOn">The generation timestamp text in UTC.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <param name="coverage">The computed Intent coverage status.</param>
     /// <returns>The manifest shard value.</returns>
     static JsonObject ManifestJson(
@@ -342,7 +352,7 @@ static class BookCommand
         string liteSpecRoot,
         string editor,
         string generatedOn,
-        ConformanceLevel level,
+        LayerClaims claims,
         IntentCoverage coverage)
     {
         var project = ProjectOf(store);
@@ -372,9 +382,9 @@ static class BookCommand
                 ["litespec"] = liteSpecRoot,
             },
             ["editor"] = editor,
-            ["conformance"] = ConformanceLevels.Name(level),
+            ["claims"] = ClaimsJson(claims),
             ["intentCoverage"] = BookIntentCoverage.ToJson(coverage),
-            ["testRun"] = level == ConformanceLevel.Records ? JsonNode.Parse("null")! : store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
+            ["testRun"] = claims.Proof is null ? JsonNode.Parse("null")! : store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["totals"] = totals,
             ["layers"] = layers,
             ["shardOf"] = map,

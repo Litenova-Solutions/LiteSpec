@@ -1,7 +1,7 @@
 # Workspace Structure
 
 **Stack:** `any`
-**Layer:** `workspace`
+**Concern:** `workspace`
 
 ## Intent
 

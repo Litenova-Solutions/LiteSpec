@@ -84,9 +84,10 @@ describe("book", () => {
     expect(book.securityItems()).toEqual([]);
   });
 
-  it("reads the conformance level and the Intent coverage from the manifest", async () => {
+  it("reads the layer claims and the Intent coverage from the manifest", async () => {
     const book = await fixtureBook();
-    expect(book.conformance()).toBe("full");
+    expect(book.claims().map((claim) => claim.layer)).toEqual(["intent", "behavior", "implementation", "proof"]);
+    expect(book.claimed("proof")).toBe(true);
     expect(book.intentCoverage()).toEqual({
       reached: 1, total: 2, share: 0.5,
       requirements: { reached: 1, total: 1 },
@@ -98,12 +99,35 @@ describe("book", () => {
     });
   });
 
-  it("hides proof and lacks at the records conformance level", async () => {
-    const book = await fixtureBook("", { conformance: "records" });
-    expect(book.conformance()).toBe("records");
+  it("hides proof and lacks in the layers the project does not claim", async () => {
+    const book = await fixtureBook("", { claims: [{ layer: "intent", practice: "litespec" }, { layer: "behavior", practice: "litespec" }] });
+    expect(book.claimed("implementation")).toBe(false);
+    expect(book.claimed("proof")).toBe(false);
     expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe(null);
     expect(book.lacks("use-case/library.borrowing.borrow")).toBe("");
     expect(book.intentCoverage()?.total).toBe(2);
+  });
+
+  it("drops the test gap when only implementation is claimed", async () => {
+    const book = await fixtureBook("", { claims: [
+      { layer: "intent", practice: "litespec" },
+      { layer: "behavior", practice: "litespec" },
+      { layer: "implementation", practice: "own" },
+    ] });
+    expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe(null);
+    expect(book.lacks("use-case/library.borrowing.borrow")).toBe("");
+    expect(book.lacks("scenario/library.borrowing.borrow.main")).toBe("");
+  });
+
+  it("keeps the test gap and drops the code gap when only proof is claimed", async () => {
+    const book = await fixtureBook("", { claims: [
+      { layer: "intent", practice: "litespec" },
+      { layer: "behavior", practice: "litespec" },
+      { layer: "proof", practice: "own" },
+    ] });
+    expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe("unproved");
+    expect(book.lacks("scenario/library.borrowing.borrow.main")).toBe("not tested");
+    expect(book.lacks("use-case/library.borrowing.borrow")).toBe("scenarios not tested");
   });
 
   it("shows both identifiers, the short one and the qualified one", async () => {

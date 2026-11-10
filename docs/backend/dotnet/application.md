@@ -2,7 +2,7 @@
 
 **Stack:** dotnet
 
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

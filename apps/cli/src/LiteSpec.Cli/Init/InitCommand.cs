@@ -9,7 +9,7 @@ namespace LiteSpec.Init;
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
-/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
+/// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 static class InitCommand
 {
@@ -48,8 +48,8 @@ static class InitCommand
         the release, and the agent context runs the CLI as dotnet litespec. With
         --install standalone, the project runs the native binary as litespec, and
         reviewedLiteSpecVersion pins the release. The preset selects the shape, the stacks
-        and the frontends; a preset that declares a conformance level writes that
-        level instead of the template level, and a preset that names no stacks or
+        and the frontends; a preset that declares layers writes that claim
+        instead of the template claim, and a preset that names no stacks or
         no frontends writes a project with none. --size and --name complete the
         project record. The command never overwrites an existing file: it writes
         each missing file and leaves existing ones alone.

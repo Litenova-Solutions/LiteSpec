@@ -1,7 +1,7 @@
 # Privacy and Retention
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 

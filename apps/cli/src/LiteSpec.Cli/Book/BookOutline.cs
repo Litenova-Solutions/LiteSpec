@@ -45,21 +45,21 @@ static class BookOutline
     /// <summary>The record types in the governance layer, in display order.</summary>
     static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
 
-    /// <summary>Builds the outline over a parsed model object at the full conformance level.</summary>
+    /// <summary>Builds the outline over a parsed model object with every layer claimed.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
     /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
-    public static BookOutlineResult Build(JsonObject model) => Build(model, ConformanceLevel.Full);
+    public static BookOutlineResult Build(JsonObject model) => Build(model, LayerClaims.All);
 
     /// <summary>
-    ///     Builds the outline over a parsed model object at one conformance
-    ///     level. At <see cref="ConformanceLevel.Records" /> the outline leaves
-    ///     out the code and test leaves and the level S findings, because a
-    ///     project at that level claims no code or proof.
+    ///     Builds the outline over a parsed model object under the layers the
+    ///     project claims. An unclaimed Implementation or Proof layer leaves
+    ///     out its code or test leaves, and the level S findings leave out too
+    ///     when the project claims neither layer.
     /// </summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The built outline with the parent of each record, the layer trees and the unplaced identifiers.</returns>
-    public static BookOutlineResult Build(JsonObject model, ConformanceLevel level)
+    public static BookOutlineResult Build(JsonObject model, LayerClaims claims)
     {
         var entries = model["records"] is JsonArray records
             ? records.OfType<JsonObject>().ToList()
@@ -168,13 +168,17 @@ static class BookOutline
             nodes[parent].Children.Add(nodes[id]);
         }
 
-        if (level != ConformanceLevel.Records)
+        if (claims.Implementation is not null)
         {
             AttachImplementation(model, byId, attached, nodes);
+        }
+
+        if (claims.Proof is not null)
+        {
             AttachProof(model, byId, attached, nodes);
         }
 
-        AttachFindings(model, byId, attached, nodes, level);
+        AttachFindings(model, byId, attached, nodes, claims);
 
         SortTrees(layers);
         unplaced.Sort(StringComparer.Ordinal);
@@ -337,18 +341,18 @@ static class BookOutline
         }
     }
 
-    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings at the records level.</summary>
+    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
     /// <param name="model">The parsed model object that holds the open and known findings.</param>
     /// <param name="byId">The record object for each record identifier.</param>
     /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
     /// <param name="nodes">The outline node for each record identifier, which receives the finding leaves.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     static void AttachFindings(
         JsonObject model,
         Dictionary<string, JsonObject> byId,
         Dictionary<string, bool> attached,
         Dictionary<string, BookOutlineNode> nodes,
-        ConformanceLevel level)
+        LayerClaims claims)
     {
         var entries = new List<JsonObject>();
         entries.AddRange(FindingEntries(model["findings"]));
@@ -358,7 +362,7 @@ static class BookOutline
         foreach (var finding in entries)
         {
             at++;
-            if (level == ConformanceLevel.Records && IsLevelS(finding))
+            if (claims.Implementation is null && claims.Proof is null && IsLevelS(finding))
             {
                 continue;
             }

@@ -1,7 +1,7 @@
 # Mobile Structure
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

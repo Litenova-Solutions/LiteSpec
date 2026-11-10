@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -30,7 +30,7 @@ The block names the messages the entry point exchanges, the version rule devices
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
@@ -57,7 +57,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
@@ -71,7 +71,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
@@ -87,7 +87,7 @@ protocol:
 
 **Strength:** rule
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
@@ -137,7 +137,7 @@ protocol:
 
 **Strength:** default
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Default:** Protocol versions use calendar numbering of the form `YYYY.N`.
 

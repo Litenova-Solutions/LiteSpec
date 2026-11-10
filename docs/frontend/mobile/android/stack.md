@@ -1,7 +1,7 @@
 # Android Stack
 
 **Stack:** android
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

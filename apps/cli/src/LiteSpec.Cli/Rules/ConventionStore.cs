@@ -127,13 +127,14 @@ internal sealed class ConventionStore
                 _ => "default",
             },
             "",
+            RecordLayer.Any,
+            false,
             Strip(labels.GetValueOrDefault("Applies to", "")),
             statement,
             labels.GetValueOrDefault("Rationale", ""),
             labels.GetValueOrDefault("Example", ""),
             labels.GetValueOrDefault("Reviewed for", labels.GetValueOrDefault("Checked by", "")),
             ProvisionEntry.ConventionSource,
-            "",
             labels.ContainsKey("Checked by") ? "checkable" : "guidance");
     }
 

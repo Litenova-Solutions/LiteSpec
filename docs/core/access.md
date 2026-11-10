@@ -1,7 +1,7 @@
 # Access
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 

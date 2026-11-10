@@ -213,6 +213,7 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Exception_Reports_Known()
     {
         using var temp = ModelFixture.Prepare("small");
+        SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         WriteRecord(temp.Path, ExceptionFile, ExceptionJson, ExceptionExplanation);
@@ -231,6 +232,7 @@ public sealed class OperationsCheckTests
     public void Quality_With_No_Alert_Or_Check_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
+        SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
 
@@ -395,7 +397,18 @@ public sealed class OperationsCheckTests
         Write(root, AlertFile, alert);
         Write(root, ResultFile, ResultPassing);
         Write(root, CaddyFile, CaddyPassing);
+        SelectDelivery(root);
         SetPaths(root, alerts: [AlertDir], operations: [CaddyFile], checkResults: CheckResultsDir);
+    }
+
+    /// <summary>Selects the delivery extension, whose alert and runbook codes the layer claim gates.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    static void SelectDelivery(string root)
+    {
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "delivery", ["criterion"] = "The project runs alerts and runbooks in production." });
+        File.WriteAllText(projectFile, project.ToJsonString());
     }
 
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)

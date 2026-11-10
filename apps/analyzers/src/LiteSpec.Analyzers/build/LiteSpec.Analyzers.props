@@ -10,7 +10,8 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="LiteSpecLayer" />
         <CompilerVisibleProperty Include="LiteSpecLayout" />
-        <CompilerVisibleProperty Include="LiteSpecConformance" />
+        <CompilerVisibleProperty Include="LiteSpecImplementation" />
+        <CompilerVisibleProperty Include="LiteSpecProof" />
     </ItemGroup>
 
     <!--
@@ -78,25 +79,23 @@
     </PropertyGroup>
 
     <!--
-        Names the conformance level the analyzers follow from the layers the project
-        file claims. Until the rules read the layers themselves, the level maps from
-        them: neither implementation nor proof claimed is records; both claimed as
-        litespec is full; any other claim is traced. A project file with no layers reads as full, as the CLI reads it. A project states its own level by
-        setting LiteSpecConformance itself. With no value in reach, the analyzers read full.
+        Names the record layer practices the project claims, from the layers its project file
+        declares: LiteSpecImplementation and LiteSpecProof each read litespec or own. A project
+        file with no layers claims every layer as litespec, as the CLI reads it, and so does a
+        build with no project file in reach. A layer the file leaves out reads empty, so the
+        analyzers for that layer run nothing. A project sets either property itself to override
+        the file.
     -->
-    <PropertyGroup Condition="'$(LiteSpecConformance)' == '' and '$(LiteSpecProjectFile)' != ''">
-        <_LiteSpecImplementation>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '(?m)^layers:(?:\r?\n[ \t]+[^\r\n]*)*?\r?\n[ \t]+implementation:[ \t]*(litespec|own)').Groups[1].Value)</_LiteSpecImplementation>
+    <PropertyGroup Condition="'$(LiteSpecProjectFile)' != ''">
         <_LiteSpecLayers>$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '(?m)^layers:'))</_LiteSpecLayers>
-        <_LiteSpecProof>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '(?m)^layers:(?:\r?\n[ \t]+[^\r\n]*)*?\r?\n[ \t]+proof:[ \t]*(litespec|own)').Groups[1].Value)</_LiteSpecProof>
+        <_LiteSpecImplementation>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '(?m)^layers:(?:\r?\n[ \t]+[^\r\n]*)*?\r?\n[ \t]+implementation:[ \t]*[\x22\x27]?(litespec|own)').Groups[1].Value)</_LiteSpecImplementation>
+        <_LiteSpecProof>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(LiteSpecProjectFile)')), '(?m)^layers:(?:\r?\n[ \t]+[^\r\n]*)*?\r?\n[ \t]+proof:[ \t]*[\x22\x27]?(litespec|own)').Groups[1].Value)</_LiteSpecProof>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(LiteSpecConformance)' == '' and '$(LiteSpecProjectFile)' != '' and '$(_LiteSpecLayers)' == 'True' and '$(_LiteSpecImplementation)' == '' and '$(_LiteSpecProof)' == ''">
-        <LiteSpecConformance>records</LiteSpecConformance>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(LiteSpecConformance)' == '' and '$(LiteSpecProjectFile)' != '' and '$(_LiteSpecImplementation)' == 'litespec' and '$(_LiteSpecProof)' == 'litespec'">
-        <LiteSpecConformance>full</LiteSpecConformance>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(LiteSpecConformance)' == '' and '$(LiteSpecProjectFile)' != '' and '$(_LiteSpecLayers)' == 'True'">
-        <LiteSpecConformance>traced</LiteSpecConformance>
+    <PropertyGroup>
+        <LiteSpecImplementation Condition="'$(LiteSpecImplementation)' == '' and '$(_LiteSpecLayers)' != 'True'">litespec</LiteSpecImplementation>
+        <LiteSpecImplementation Condition="'$(LiteSpecImplementation)' == '' and '$(_LiteSpecLayers)' == 'True'">$(_LiteSpecImplementation)</LiteSpecImplementation>
+        <LiteSpecProof Condition="'$(LiteSpecProof)' == '' and '$(_LiteSpecLayers)' != 'True'">litespec</LiteSpecProof>
+        <LiteSpecProof Condition="'$(LiteSpecProof)' == '' and '$(_LiteSpecLayers)' == 'True'">$(_LiteSpecProof)</LiteSpecProof>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != ''">

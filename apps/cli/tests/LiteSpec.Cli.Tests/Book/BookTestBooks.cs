@@ -19,9 +19,9 @@ static class BookTestBooks
     /// <param name="root">The consumer root for source links and captures.</param>
     /// <param name="outDir">The folder to write the static site to.</param>
     /// <param name="editor">The editor link template, or null for the default template.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims, every layer with LiteSpec's practice by default.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
-    public static string Write(JsonObject model, string root, string outDir, string? editor = null, ConformanceLevel level = ConformanceLevel.Full) =>
+    public static string Write(JsonObject model, string root, string outDir, string? editor = null, LayerClaims? claims = null) =>
         BookCommand.WriteBook(
             model,
             root,
@@ -29,5 +29,5 @@ static class BookTestBooks
             Cli.Repository,
             editor ?? BookCommand.DefaultEditor,
             outDir,
-            level);
+            claims ?? LayerClaims.All);
 }

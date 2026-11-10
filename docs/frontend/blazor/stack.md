@@ -1,7 +1,7 @@
 # Blazor Stack
 
 **Stack:** blazor
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

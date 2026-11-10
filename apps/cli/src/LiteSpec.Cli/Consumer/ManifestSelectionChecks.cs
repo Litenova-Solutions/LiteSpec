@@ -12,7 +12,7 @@ namespace LiteSpec.Consumer;
 /// </summary>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
-/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
+/// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
 /// <follows>litespec/core/scope#record-selected-extensions</follows>
 static class ManifestSelectionChecks
 {
@@ -100,14 +100,14 @@ static class ManifestSelectionChecks
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
 
-            // At the records level stacks are informational, so a project may name none;
-            // every other level selects its stacks here.
-            var claims = project?["layers"] as JsonObject;
-            var recordsLevel = ProjectSettings.LevelOf(JsonValues.PropString(claims, "implementation"), JsonValues.PropString(claims, "proof")) == ConformanceLevel.Records;
+            // Without an Implementation or Proof claim stacks are informational, so a project may
+            // name none; a claim of either one selects its stacks here.
+            var claims = ProjectSettings.TryParse(File.ReadAllText(projectFile), out var settings, out _) ? settings.Layers : LayerClaims.All;
+            var readsCode = claims.Implementation is not null || claims.Proof is not null;
 
             // A server project names exactly one backend stack; a client-only
             // project names none, and reads the backend pages its shape lists.
-            if (!recordsLevel && shape == "client-only")
+            if (readsCode && shape == "client-only")
             {
                 foreach (var backend in backends)
                 {
@@ -119,7 +119,7 @@ static class ManifestSelectionChecks
                         null));
                 }
             }
-            else if (!recordsLevel && backends.Count != 1)
+            else if (readsCode && backends.Count != 1)
             {
                 run.Err(new Finding(
                     "stack-invalid",

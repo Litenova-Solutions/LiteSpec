@@ -1,7 +1,7 @@
 # Automation
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

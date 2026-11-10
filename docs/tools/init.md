@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec init` starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records conformance level with no stacks.
+`litespec init` starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records preset, which claims the record model with no stacks.
 
 ## Synopsis
 
@@ -12,7 +12,7 @@ litespec init --preset <name> --size <small|large> [--install <tool|standalone>]
 
 ## Description
 
-This command writes `.litespec/project.yaml` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the conformance level when the preset declares one, and then writes the project size, name, and `reviewedLiteSpecVersion`. A preset that names no stacks or no frontends writes a project with none, so a server project with no frontend omits `frontends`. It refuses to overwrite an existing project file.
+This command writes `.litespec/project.yaml` into the consumer root. It reads the consumer template and the named preset from the release the tool carries, overlays the preset's shape, stacks, and frontends, writes the layers when the preset declares them, and then writes the project size, name, and `reviewedLiteSpecVersion`. A preset that names no stacks or no frontends writes a project with none, so a server project with no frontend omits `frontends`. It refuses to overwrite an existing project file.
 
 It also copies the starting agent context, the glossary at `.litespec/glossary.yaml`, and the example cast at `.litespec/example-cast.md` into the LiteSpec folder, leaving existing files alone, and writes `.litespec/.gitignore` listing the generated `model/` and `book/` folders. A fresh `AGENTS.md` carries the `## LiteSpec` block filled with the release, size, shape, stacks, and selection index of the new project, and names the command that runs the CLI in the project.
 
@@ -28,7 +28,7 @@ Five presets ship with the release:
 | `android-client` | `client-only` | `android` | `android` at `apps/mobile/src/{name}.Android` on `android` |
 | `records` | `server` | none | none |
 
-The `records` preset declares `"conformance": "records"` and names no stacks and no frontends, so the written project claims the records conformance level. Every other preset keeps the template conformance level, `full`. Every written project file validates against `schemas/litespec-project.schema.yaml`.
+The `records` preset claims `intent` and `behavior` in `layers` and names no stacks and no frontends. Every other preset keeps the layers of the template, which claims all four. Every written project file validates against `schemas/litespec-project.schema.yaml`.
 
 Run this command once in an empty folder, then run `litespec model check` to validate the new project.
 

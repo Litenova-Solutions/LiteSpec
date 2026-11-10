@@ -6,22 +6,22 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Book;
 
-/// <summary>Proves the book follows the conformance level and shows the computed Intent coverage at every level.</summary>
-public sealed class BookLevelTests
+/// <summary>Proves the book follows the layers the project claims and shows the computed Intent coverage under every claim.</summary>
+public sealed class BookClaimTests
 {
-    /// <summary>At the records level the book leaves out code, proof and level S findings, and carries no test run.</summary>
+    /// <summary>Under intent and behavior alone the book leaves out code, proof and level S findings, and carries no test run.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_At_Records_Leaves_Out_Code_Proof_And_Level_S_Findings()
+    public void Book_Under_Intent_And_Behavior_Leaves_Out_Code_Proof_And_Level_S_Findings()
     {
-        using var temp = Cli.Temp("book-level");
+        using var temp = Cli.Temp("book-claim");
         var model = ModelWithLevelSAndLevelGFindings();
         var outDir = Path.Combine(temp.Path, "out");
-        BookTestBooks.Write(model, temp.Path, outDir, level: ConformanceLevel.Records);
+        BookTestBooks.Write(model, temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null));
 
         var data = Path.Combine(outDir, "data");
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-        Assert.Equal("records", Str(manifest, "conformance"));
+        Assert.Equal("intent=litespec,behavior=litespec", ClaimsText(manifest));
         Assert.Null(manifest["testRun"]);
         Assert.NotNull(manifest["intentCoverage"]);
 
@@ -59,48 +59,124 @@ public sealed class BookLevelTests
         Assert.Contains("Intent coverage:", shell, StringComparison.Ordinal);
     }
 
-    /// <summary>At the traced and full levels the book adds code and proof status and the level S findings.</summary>
+    /// <summary>Under own code and proof the book adds code and proof status and the level S findings.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_At_Traced_And_Full_Adds_Code_Proof_And_Level_S_Findings()
+    public void Book_Under_Own_Code_And_Proof_Adds_Code_Proof_And_Level_S_Findings()
     {
-        foreach (var (level, name) in new[] { (ConformanceLevel.Traced, "traced"), (ConformanceLevel.Full, "full") })
-        {
-            using var temp = Cli.Temp("book-level");
-            var model = ModelWithLevelSAndLevelGFindings();
-            var outDir = Path.Combine(temp.Path, "out");
-            BookTestBooks.Write(model, temp.Path, outDir, level: level);
-
-            var data = Path.Combine(outDir, "data");
-            var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
-            Assert.Equal(name, Str(manifest, "conformance"));
-            Assert.NotNull(manifest["intentCoverage"]);
-
-            var details = ReadRecords(data);
-            var scenario = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
-            Assert.NotNull(scenario["proof"]);
-
-            var findings = details.Values
-                .SelectMany(detail => Arr(detail, "findings").OfType<JsonObject>())
-                .ToList();
-            Assert.Contains(findings, finding => Str(finding, "code") == "reader-missing");
-
-            var outlineText = string.Join("\n", Directory.GetFiles(data, "outline-*.js").Select(File.ReadAllText));
-            Assert.Contains("\"kind\":\"code\"", outlineText, StringComparison.Ordinal);
-            Assert.Contains("\"kind\":\"test\"", outlineText, StringComparison.Ordinal);
-        }
+        AssertCodeAndProofBook(
+            new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.Own, Proof: LayerPractice.Own),
+            "intent=litespec,behavior=litespec,implementation=own,proof=own");
     }
 
-    /// <summary>The manifest Intent coverage counts each requirement and journey step and the share reached, at every level.</summary>
+    /// <summary>Under LiteSpec's code and proof the book adds code and proof status and the level S findings.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Book_Under_LiteSpec_Code_And_Proof_Adds_Code_Proof_And_Level_S_Findings()
+    {
+        AssertCodeAndProofBook(
+            new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.LiteSpec, Proof: LayerPractice.LiteSpec),
+            "intent=litespec,behavior=litespec,implementation=litespec,proof=litespec");
+    }
+
+    /// <summary>Writes the book under a code and proof claim and checks the claims, the proof and code data, and the level S finding it keeps.</summary>
+    /// <param name="claims">The layer claims the book is written under.</param>
+    /// <param name="expected">The claims the manifest must list, as layer=practice pairs.</param>
+    static void AssertCodeAndProofBook(LayerClaims claims, string expected)
+    {
+        using var temp = Cli.Temp("book-claim");
+        var model = ModelWithLevelSAndLevelGFindings();
+        var outDir = Path.Combine(temp.Path, "out");
+        BookTestBooks.Write(model, temp.Path, outDir, claims: claims);
+
+        var data = Path.Combine(outDir, "data");
+        var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
+        Assert.Equal(expected, ClaimsText(manifest));
+        Assert.NotNull(manifest["intentCoverage"]);
+
+        var details = ReadRecords(data);
+        var scenario = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
+        Assert.NotNull(scenario["proof"]);
+
+        var findings = details.Values
+            .SelectMany(detail => Arr(detail, "findings").OfType<JsonObject>())
+            .ToList();
+        Assert.Contains(findings, finding => Str(finding, "code") == "reader-missing");
+
+        var outlineText = string.Join("\n", Directory.GetFiles(data, "outline-*.js").Select(File.ReadAllText));
+        Assert.Contains("\"kind\":\"code\"", outlineText, StringComparison.Ordinal);
+        Assert.Contains("\"kind\":\"test\"", outlineText, StringComparison.Ordinal);
+    }
+
+    /// <summary>The claims a manifest lists, as layer=practice pairs joined by commas.</summary>
+    /// <param name="manifest">The manifest object.</param>
+    /// <returns>The claims text.</returns>
+    static string ClaimsText(JsonObject manifest) =>
+        string.Join(",", manifest["claims"]!.AsArray()
+            .Select(entry => $"{entry!["layer"]!.GetValue<string>()}={entry["practice"]!.GetValue<string>()}"));
+
+    /// <summary>Code without proof: the book shows the code, and it reads no test, proof status or missing test for an unclaimed proof layer.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Book_Under_Code_Without_Proof_Leaves_Out_Proof()
+    {
+        using var temp = Cli.Temp("book-claim");
+        var outDir = Path.Combine(temp.Path, "out");
+        BookTestBooks.Write(ModelWithLevelSAndLevelGFindings(), temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.Own, Proof: null));
+
+        var data = Path.Combine(outDir, "data");
+        var details = ReadRecords(data);
+        var scenario = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
+        Assert.Null(scenario["proof"]);
+        var borrow = details["use-case/lending.borrow-copy"];
+        Assert.Empty(borrow["tests"]!.AsArray());
+        Assert.False(BoolOf(Obj(borrow, "expect")["proof"]));
+        Assert.Null(Obj(borrow, "completion")["hasTests"]);
+        Assert.DoesNotContain("not tested", string.Join(",", borrow["lacks"]!.AsArray().Select(node => node!.GetValue<string>())), StringComparison.Ordinal);
+
+        var outlineText = string.Join("\n", Directory.GetFiles(data, "outline-*.js").Select(File.ReadAllText));
+        Assert.Contains("\"kind\":\"code\"", outlineText, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"kind\":\"test\"", outlineText, StringComparison.Ordinal);
+    }
+
+    /// <summary>Proof without code: the book shows the tests, and it reads no code or missing code for an unclaimed implementation layer.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Book_Under_Proof_Without_Code_Leaves_Out_Code()
+    {
+        using var temp = Cli.Temp("book-claim");
+        var outDir = Path.Combine(temp.Path, "out");
+        BookTestBooks.Write(ModelWithLevelSAndLevelGFindings(), temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: LayerPractice.Own));
+
+        var data = Path.Combine(outDir, "data");
+        var details = ReadRecords(data);
+        var borrow = details["use-case/lending.borrow-copy"];
+        Assert.Empty(borrow["impl"]!.AsArray());
+        Assert.False(BoolOf(Obj(borrow, "expect")["impl"]));
+        Assert.Null(Obj(borrow, "completion")["hasCode"]);
+        Assert.DoesNotContain("not implemented", string.Join(",", borrow["lacks"]!.AsArray().Select(node => node!.GetValue<string>())), StringComparison.Ordinal);
+
+        var outlineText = string.Join("\n", Directory.GetFiles(data, "outline-*.js").Select(File.ReadAllText));
+        Assert.DoesNotContain("\"kind\":\"code\"", outlineText, StringComparison.Ordinal);
+        Assert.Contains("\"kind\":\"test\"", outlineText, StringComparison.Ordinal);
+    }
+
+    /// <summary>The manifest Intent coverage counts each requirement and journey step and the share reached, under every claim.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Intent_Coverage_Counts_Requirements_And_Journey_Steps_And_The_Share_Reached()
     {
-        foreach (var level in new[] { ConformanceLevel.Records, ConformanceLevel.Traced, ConformanceLevel.Full })
+        foreach (var claims in new[]
         {
-            using var temp = Cli.Temp("book-level");
+            new LayerClaims(Intent: true, Behavior: false, Implementation: null, Proof: null),
+            new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null),
+            new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.Own, Proof: LayerPractice.Own),
+            new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.LiteSpec, Proof: LayerPractice.LiteSpec),
+        })
+        {
+            using var temp = Cli.Temp("book-claim");
             var outDir = Path.Combine(temp.Path, "out");
-            BookTestBooks.Write(CoverageModel(), temp.Path, outDir, level: level);
+            BookTestBooks.Write(CoverageModel(), temp.Path, outDir, claims: claims);
 
             var data = Path.Combine(outDir, "data");
             var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");

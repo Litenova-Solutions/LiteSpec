@@ -14,7 +14,7 @@ static class StandardsFixture
         # Topic Standard
 
         **Stack:** any
-        **Layer:** records
+        **Concern:** records
 
         ## Intent
 
@@ -54,7 +54,7 @@ static class StandardsFixture
         # Sample Patterns
 
         **Stack:** any
-        **Layer:** frontend-ui
+        **Concern:** frontend-ui
 
         ## Intent
 
@@ -111,7 +111,7 @@ static class StandardsFixture
         # Sample Extension
 
         **Stack:** any
-        **Layer:** operations
+        **Concern:** operations
 
         ## Intent
 
@@ -155,7 +155,7 @@ static class StandardsFixture
         # Sample Stack
 
         **Stack:** dotnet
-        **Layer:** domain
+        **Concern:** domain
 
         ## Intent
 
@@ -188,15 +188,17 @@ static class StandardsFixture
 
         ## Concepts
 
-        ### The Four Fields
+        ### The Six Fields
 
-        Each provision carries four scope fields.
+        Each provision carries six scope fields.
 
         | Field | Answers | Values |
         |:---|:---|:---|
         | `stack` | Which technology | `any`, `dotnet`, `react` |
-        | `layer` | Which part of the system | `records`, `domain`, `application`, `operations`, `frontend-ui`, `tests` |
+        | `concern` | Which part of the system | `records`, `domain`, `application`, `operations`, `frontend-ui`, `tests` |
         | `artifact` | Which kind of thing is made | `aggregate`, `test`, `record:<type>` |
+        | `layer` | Which record layer | `any`, `intent`, `behavior`, `implementation`, `proof` |
+        | `trace` | Whether it ties the layer to the records | `yes`, `no` |
         | `strength` | How binding it is | `rule`, `default`, `advice` |
 
         ### Stack Values
@@ -207,7 +209,7 @@ static class StandardsFixture
         | `dotnet` | The .NET backend stack. |
         | `react` | The React web stack. |
 
-        ### Layer Values
+        ### Concern Values
 
         | Value | Meaning |
         |:---|:---|
@@ -217,6 +219,16 @@ static class StandardsFixture
         | `operations` | Releases, deployment, and support. |
         | `frontend-ui` | Components, routes, and rendering. |
         | `tests` | The suites that prove behavior. |
+
+        ### Layer Values
+
+        | Value | Meaning |
+        |:---|:---|
+        | `any` | Every record layer. |
+        | `intent` | The Intent records. |
+        | `behavior` | The Behavior records. |
+        | `implementation` | The code that serves the Behavior records. |
+        | `proof` | The tests and runs that prove the Behavior scenarios. |
 
         ### Artifact Values
 

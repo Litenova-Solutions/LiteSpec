@@ -384,12 +384,12 @@ internal sealed partial class ProvisionValidator
         scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values).ToList();
 
     // Every provision carries its Strength line, and an Applies to line only when it narrows
-    // its page scope or states a conformance level that differs from its page level. Strength
-    // values are the three the scope page fixes; Scope and Applies to values come from the
-    // scope tables, so an unreadable vocabulary skips value checks while presence and
-    // narrowing still run. Conformance values are the three level names in code, so that
-    // check always runs. One line reports one scope defect: a line with a value defect
-    // reports no narrowing defect beside it.
+    // its page scope, states a record layer or trace that differs from its page, or marks its
+    // layer-wide scope. Strength values are the three the scope page fixes; Scope and Applies
+    // to values come from the scope tables, so an unreadable vocabulary skips value checks
+    // while presence and narrowing still run. Layer names are checked against the scope page's
+    // layer table, and trace is yes or no in code. One line reports one scope defect: a line
+    // with a value defect reports no narrowing defect beside it.
     /// <summary>Checks the Strength and Applies to lines of every provision on a page.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
@@ -400,8 +400,7 @@ internal sealed partial class ProvisionValidator
         var vocabulary = Context.Vocabulary;
         var page = Scopes.ReadPageScope(reader);
         var pageStacks = ScopeValues(page, "stack");
-        var pageLayers = ScopeValues(page, "layer");
-        var pageConformance = Provisions.PageConformance(relative);
+        var pageLayer = Provisions.PageLayer(relative, ScopeValues(page, "concern"));
 
         // On a page where one provision names the kind of file it governs, every provision
         // names one, so litespec rules can match each provision to its files.
@@ -446,11 +445,6 @@ internal sealed partial class ProvisionValidator
             var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();
             if (applies.Count == 0)
             {
-                if (Provisions.IsProvisionPage(relative) && !Scopes.ConformanceValues.Contains(pageConformance))
-                {
-                    add(relative, provision.Line, Diagnostics.Codes.ScopeValue, $"provision '{provision.Id}' has no conformance level; its page sits outside the folders docs/core/scopes.md names, or it states no `conformance` field on an Applies to line");
-                }
-
                 continue;
             }
 
@@ -462,14 +456,14 @@ internal sealed partial class ProvisionValidator
             var narrowed = Scopes.ParseScopeFields(rest);
             if (narrowed.Count == 0)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, artifact, or conformance");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, artifact, layer, or trace");
                 continue;
             }
 
-            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name != "stack" && name != "layer" && name != "artifact" && name != "conformance");
+            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name is not ("stack" or "artifact" or "layer" or "trace"));
             if (unknown is not null)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, artifact, or conformance");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, artifact, layer, or trace");
                 continue;
             }
 
@@ -483,18 +477,23 @@ internal sealed partial class ProvisionValidator
                     continue;
                 }
 
-                if (field.Name == "conformance")
+                if (field.Name is "layer" or "trace")
                 {
                     if (field.Values.Count != 1)
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `conformance` with {field.Values.Count} values; name exactly one of `records`, `traced`, or `full`");
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with {field.Values.Count} values; name exactly one value");
                         clean = false;
                         continue;
                     }
 
-                    if (!Scopes.ConformanceValues.Contains(field.Values[0]))
+                    if (field.Name == "trace" && !Scopes.TraceValues.Contains(field.Values[0]))
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `conformance` value '{field.Values[0]}', which is outside `records`, `traced`, and `full`");
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `trace` value '{field.Values[0]}', which is outside `yes` and `no`");
+                        clean = false;
+                    }
+                    else if (field.Name == "layer" && vocabulary.Readable && !vocabulary.Layers.Contains(field.Values[0]))
+                    {
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `layer` value '{field.Values[0]}', which is outside the docs/core/scopes.md vocabulary");
                         clean = false;
                     }
 
@@ -508,12 +507,9 @@ internal sealed partial class ProvisionValidator
 
                 foreach (var value in field.Values)
                 {
-                    var known = field.Name switch
-                    {
-                        "stack" => vocabulary.Stacks.Contains(value),
-                        "layer" => vocabulary.Layers.Contains(value),
-                        _ => vocabulary.IsArtifact(value),
-                    };
+                    var known = field.Name == "stack"
+                        ? vocabulary.Stacks.Contains(value)
+                        : vocabulary.IsArtifact(value);
                     if (!known)
                     {
                         add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
@@ -527,26 +523,38 @@ internal sealed partial class ProvisionValidator
                 continue;
             }
 
-            var conformances = ScopeValues(narrowed, "conformance");
-            var conformanceDiffers = conformances.Count == 1 && conformances[0] != pageConformance;
-            var conformanceRepeats = conformances.Count == 1 && conformances[0] == pageConformance;
+            // A layer or trace that matches its page repeats the page, which the page already states.
+            var layers = ScopeValues(narrowed, "layer");
+            var traces = ScopeValues(narrowed, "trace");
+            var layerDiffers = layers.Count == 1 && layers[0] != pageLayer;
+            var traceDiffers = traces.Count == 1 && traces[0] != "no";
+            var repeated = new List<string>();
+            if (layers.Count == 1 && layers[0] == pageLayer)
+            {
+                repeated.Add($"`layer: {pageLayer}`");
+            }
+
+            if (traces.Count == 1 && traces[0] == "no")
+            {
+                repeated.Add("`trace: no`");
+            }
+
+            var repeats = $"Applies to line for '{provision.Id}' states {string.Join(" and ", repeated)}, which its page already gives; state a layer only when it differs from its page, and trace only when it is yes";
             if (page.Count == 0)
             {
-                if (conformanceRepeats
+                if (repeated.Count > 0
                     && ScopeValues(narrowed, "stack").Count == 0
-                    && ScopeValues(narrowed, "layer").Count == 0
                     && ScopeValues(narrowed, "artifact").Count == 0)
                 {
-                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
+                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, repeats);
                 }
 
                 continue;
             }
 
             var stacks = ScopeValues(narrowed, "stack");
-            var layers = ScopeValues(narrowed, "layer");
             var widened = false;
-            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0 || conformanceDiffers;
+            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0 || layerDiffers || traceDiffers;
             if (stacks.Count > 0 && pageStacks.Count > 0)
             {
                 if (pageStacks.Contains("any"))
@@ -568,25 +576,13 @@ internal sealed partial class ProvisionValidator
                 }
             }
 
-            if (layers.Count > 0 && pageLayers.Count > 0)
-            {
-                if (!layers.All(pageLayers.Contains))
-                {
-                    widened = true;
-                }
-                else if (!pageLayers.All(layers.Contains))
-                {
-                    strictlyNarrower = true;
-                }
-            }
-
             if (widened)
             {
                 add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' widens its page scope");
             }
-            else if (conformanceRepeats)
+            else if (repeated.Count > 0)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, repeats);
             }
             else if (!strictlyNarrower)
             {
@@ -594,6 +590,7 @@ internal sealed partial class ProvisionValidator
             }
         }
     }
+
 
     /// <summary>Checks the inline verification line of every provision on a page.</summary>
     /// <param name="relative">The repository-relative path.</param>

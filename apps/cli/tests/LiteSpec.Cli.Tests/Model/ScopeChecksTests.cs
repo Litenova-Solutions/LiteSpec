@@ -12,6 +12,11 @@ public sealed class ScopeChecksTests
     public void Unnamed_Runbook_Reports()
     {
         using var temp = Cli.Temp("checks");
+
+        // The runbook codes belong to the delivery extension, so the project selects it.
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "selectedExtensions:\n  - id: delivery\n    criterion: The project runs alerts and runbooks in production.\n");
+
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(

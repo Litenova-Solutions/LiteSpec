@@ -1,7 +1,7 @@
 # Jobs and Queues
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

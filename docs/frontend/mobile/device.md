@@ -1,7 +1,7 @@
 # Mobile Device Capabilities
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

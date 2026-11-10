@@ -1,7 +1,7 @@
 # .NET Testing
 
 **Stack:** dotnet
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 

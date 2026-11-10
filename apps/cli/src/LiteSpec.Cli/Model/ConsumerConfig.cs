@@ -111,8 +111,11 @@ sealed class ConsumerConfig
     /// <summary>Gets the committed OpenAPI document, or null when the project names none.</summary>
     public string? ContractPath { get; private set; }
 
-    /// <summary>Gets the conformance level the project claims; full when the project file names none, which the schema check reports.</summary>
-    public ConformanceLevel Conformance { get; private set; } = ConformanceLevel.Full;
+    /// <summary>Gets the record layers the project claims in <c>layers</c>; every layer with LiteSpec's practice when the project file names none, which the schema check reports.</summary>
+    public LayerClaims Layers { get; private set; } = LayerClaims.All;
+
+    /// <summary>Gets a value indicating whether the project claims Implementation or Proof, so the stack readers read code, screens, tests and test runs.</summary>
+    public bool ReadsCode => Layers.Implementation is not null || Layers.Proof is not null;
 
     /// <summary>Gets the project size: small or large.</summary>
     public string Size { get; private set; } = "large";
@@ -156,7 +159,7 @@ sealed class ConsumerConfig
 
         var document = DataFile.Parse(text, DataFile.IsYaml(file)) as JsonObject ?? new JsonObject();
         config.Marks = projectPaths.Settings.Marks;
-        config.Conformance = projectPaths.Settings.Conformance;
+        config.Layers = projectPaths.Settings.Layers;
 
         var paths = ObjectAt(document, "paths");
         var dotnet = ObjectAt(ObjectAt(document, "stackConfig"), "dotnet");

@@ -1,7 +1,7 @@
 # Authoring Standard
 
 **Stack:** any
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -102,7 +102,7 @@ A document carries an optional YAML frontmatter block between `---` lines holdin
 These rules apply to every Markdown page style:
 
 - A LiteSpec page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
-- A page that owns provisions declares its scope in two lines directly under its title, a `**Stack:**` line and a `**Layer:**` line, as [Provision Scopes](scopes.md) states.
+- A page that owns provisions declares its scope in two lines directly under its title, a `**Stack:**` line and a `**Concern:**` line, as [Provision Scopes](scopes.md) states.
 - A Markdown page has one H1.
 - The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
 - A consumer module or aggregate page is `module.yaml` or `aggregate.yaml`, never `README.md`.
@@ -214,12 +214,12 @@ Every provision has the same parts in the same order:
 **Reviewed for:** Which shared primitives or composites live outside the shared package? Look in the workspace packages.
 ```
 
-A provision adds `**Applies to:**` only when it is narrower than its page, for example `artifact: aggregate`.
+A provision adds `**Applies to:**` only when it is narrower than its page, or when its record layer or trace differs from its page, for example `artifact: aggregate` or `layer: implementation; trace: yes`.
 
 1. The heading names the provision.
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
 3. The Strength line grades how binding the provision is: `rule`, `default`, or `advice`, as [Provision Scopes](scopes.md) states.
-4. `Applies to` follows the Strength line only when the provision is narrower than its page; otherwise the page scope applies.
+4. `Applies to` follows the Strength line only when the provision is narrower than its page, or its record layer or trace differs from its page; otherwise the page scope applies.
 5. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
 6. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
 7. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
@@ -961,7 +961,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** A consumer cites provision identifiers in code marks, records, and exceptions, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
 
-**Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#declare-the-conformance-level` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
+**Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#claim-the-record-layers-the-project-uses` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
 
 **Reviewed for:** Which changelog identifiers were typed by hand, or name an identifier that a comparison of the provision index at the previous tag with the provision index of the release does not produce? Look at the changelog entry beside the two provision indexes.
 

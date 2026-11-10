@@ -40,7 +40,7 @@ public sealed class InitCommandTests
     /// <summary>Init writes a project file that validates against the project schema for each preset.</summary>
     /// <param name="preset">The preset name that selects the stack combination.</param>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Theory(DisplayName = "init writes a project file that validates against the project schema for each preset")]
     [InlineData("android-client")]
     [InlineData("blazor-client")]
@@ -61,7 +61,7 @@ public sealed class InitCommandTests
     }
 
     /// <summary>Init with the records preset writes a records project with no stacks and no frontends.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact(DisplayName = "init with the records preset writes a records project with no stacks and no frontends")]
     public void InitWithTheRecordsPresetWritesNoStacksOrFrontends()
     {

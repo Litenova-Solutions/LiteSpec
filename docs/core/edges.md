@@ -1,7 +1,7 @@
 # Edges and Screens
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -224,7 +224,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
-**Applies to:** artifact: route, record:screen; conformance: traced
+**Applies to:** artifact: route, record:screen; layer: implementation; trace: yes
 
 **Statement:** Every route a browser or device entry point serves MUST be the implementation of exactly one screen record.
 
@@ -304,7 +304,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Strength:** rule
 
-**Applies to:** artifact: record:screen, test; conformance: traced
+**Applies to:** artifact: record:screen, test; layer: proof; trace: yes
 
 **Statement:** Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in `refusalDictionary` or a browser test that asserts its code.
 

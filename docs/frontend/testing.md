@@ -1,7 +1,7 @@
 # Frontend Testing
 
 **Stack:** any
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 

@@ -133,20 +133,45 @@ public static class Provisions
     /// <returns>The page path the identifier names.</returns>
     public static string PagePath(string relative) => relative["docs/".Length..^".md".Length];
 
-    // A page takes its conformance level from the folder it sits in: the record-model
-    // pages under docs/core belong to records, and every other standards area belongs
-    // to full. No folder defaults to traced; a provision about marks, proof, or the
-    // model builder states conformance: traced on its Applies to line when its level
-    // differs from its page. docs/core/scopes.md states this table.
-    /// <summary>The conformance level a page gives its provisions by default.</summary>
+    // A page gives its provisions one record layer by default. The pages named here take
+    // the layer their content governs. The other docs/core pages govern every layer, so
+    // they take any. Every other standards page takes the layer its concern governs: tests
+    // are Proof, and the rest are Implementation. A provision whose layer differs states it
+    // on its Applies to line, and a provision whose trace is yes states it there too.
+    // docs/core/scopes.md states this table.
+    /// <summary>The record layer of each page the folder rule does not name.</summary>
+    static readonly Dictionary<string, string> NamedPageLayers = new(StringComparer.Ordinal)
+    {
+        ["docs/core/intent.md"] = "intent",
+        ["docs/core/behavior.md"] = "behavior",
+        ["docs/core/use-cases.md"] = "behavior",
+        ["docs/core/access.md"] = "behavior",
+        ["docs/core/release.md"] = "implementation",
+    };
+
+    /// <summary>The record layer a page gives its provisions by default.</summary>
     /// <param name="relative">The repository-relative page path, with forward slashes.</param>
-    /// <returns>The page conformance level, or empty when the path sits outside <c>docs/</c>.</returns>
-    public static string PageConformance(string relative) =>
-        relative.StartsWith("docs/core/", StringComparison.Ordinal)
-            ? "records"
-            : relative.StartsWith("docs/", StringComparison.Ordinal)
-                ? "full"
-                : "";
+    /// <param name="concerns">The concern values the page declares.</param>
+    /// <returns>The page layer, or empty when the path sits outside <c>docs/</c>.</returns>
+    public static string PageLayer(string relative, IReadOnlyList<string> concerns)
+    {
+        if (NamedPageLayers.TryGetValue(relative, out var named))
+        {
+            return named;
+        }
+
+        if (relative.StartsWith("docs/core/", StringComparison.Ordinal))
+        {
+            return "any";
+        }
+
+        if (relative.StartsWith("docs/", StringComparison.Ordinal))
+        {
+            return concerns.Contains("tests") ? "proof" : "implementation";
+        }
+
+        return "";
+    }
 
     /// <summary>Collects every provision row from the standards pages, sorted by identifier.</summary>
     /// <param name="root">The repository root.</param>
@@ -169,7 +194,7 @@ public static class Provisions
             var marks = CollectInlineMarks(reader, page, relative);
             var scope = Scopes.ReadPageScope(reader);
             var pageStacks = JoinScope(scope, "stack");
-            var pageLayers = JoinScope(scope, "layer");
+            var pageConcerns = ScopeValues(scope, "concern");
             var section = "";
             var headings = reader.Headings;
 
@@ -212,9 +237,10 @@ public static class Provisions
                     verification.Mark,
                     verification.Evidence,
                     body.Stacks.Length > 0 ? body.Stacks : pageStacks,
-                    body.Layers.Length > 0 ? body.Layers : pageLayers,
+                    string.Join(", ", pageConcerns),
                     body.Artifact,
-                    body.Conformance.Length > 0 ? body.Conformance : PageConformance(relative),
+                    body.Layer.Length > 0 ? body.Layer : PageLayer(relative, pageConcerns),
+                    body.Trace == "yes",
                     body.Strength,
                     body.Statement,
                     body.Rationale,
@@ -251,7 +277,7 @@ public static class Provisions
             "",
             "## Intent",
             "",
-            "Use this generated page to resolve a provision ID to its heading, owning page, scope, conformance level, strength, and verification mark, and to read the checked share of rules for each page.",
+            "Use this generated page to resolve a provision ID to its heading, owning page, scope, record layer, trace, strength, and verification mark, and to read the checked share of rules for each page.",
             "",
             "Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.",
             "",
@@ -295,13 +321,13 @@ public static class Provisions
             {
                 lines.Add($"### {area}");
                 lines.Add("");
-                lines.Add("| ID | Provision | Kind | Stack | Layer | Artifact | Conformance | Strength | Mark | Evidence |");
-                lines.Add("|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|");
+                lines.Add("| ID | Provision | Kind | Stack | Concern | Artifact | Layer | Trace | Strength | Mark | Evidence |");
+                lines.Add("|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|");
 
                 foreach (var row in areas[area])
                 {
                     var page = PagePath(row.Page);
-                    lines.Add($"| {row.Id} | [{EscapeCell(row.Heading)}](../{page}.md#{row.Anchor}) | {row.Kind} | {Cell(row.Stack)} | {Cell(row.Layer)} | {Cell(row.Artifact)} | {Cell(row.Conformance)} | {Cell(row.Strength)} | {Cell(row.Mark)} | {Cell(row.Evidence)} |");
+                    lines.Add($"| {row.Id} | [{EscapeCell(row.Heading)}](../{page}.md#{row.Anchor}) | {row.Kind} | {Cell(row.Stack)} | {Cell(row.Concern)} | {Cell(row.Artifact)} | {Cell(row.Layer)} | {(row.Trace ? "yes" : "no")} | {Cell(row.Strength)} | {Cell(row.Mark)} | {Cell(row.Evidence)} |");
                 }
 
                 lines.Add("");
@@ -330,9 +356,10 @@ public static class Provisions
                 ["mark"] = row.Mark,
                 ["evidence"] = row.Evidence,
                 ["stack"] = row.Stack,
-                ["layer"] = row.Layer,
+                ["concern"] = row.Concern,
                 ["artifact"] = row.Artifact,
-                ["conformance"] = row.Conformance,
+                ["layer"] = row.Layer,
+                ["trace"] = row.Trace,
                 ["strength"] = row.Strength,
                 ["statement"] = row.Statement,
                 ["rationale"] = row.Rationale,
@@ -374,18 +401,25 @@ public static class Provisions
     /// <param name="field">The field name.</param>
     /// <returns>The values joined with a comma and a space.</returns>
     static string JoinScope(IReadOnlyList<Scopes.ScopeField> scope, string field) =>
-        string.Join(", ", scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values));
+        string.Join(", ", ScopeValues(scope, field));
+
+    /// <summary>Lists the values of one scope field from a page scope or a provision's Applies to line.</summary>
+    /// <param name="scope">The scope fields.</param>
+    /// <param name="field">The field name.</param>
+    /// <returns>The values in written order.</returns>
+    static List<string> ScopeValues(IReadOnlyList<Scopes.ScopeField> scope, string field) =>
+        scope.Where(entry => entry.Name == field).SelectMany(entry => entry.Values).ToList();
 
     /// <summary>One provision body: its scope, strength, and labeled text.</summary>
     /// <param name="Strength">The named strength, or empty.</param>
     /// <param name="Stacks">The narrowed stack values, or empty.</param>
-    /// <param name="Layers">The narrowed layer values, or empty.</param>
     /// <param name="Artifact">The narrowed artifact values, or empty.</param>
-    /// <param name="Conformance">The conformance level the provision states, or empty when it takes its page level.</param>
+    /// <param name="Layer">The record layer the provision states, or empty when it takes its page layer.</param>
+    /// <param name="Trace">The trace the provision states, <c>yes</c> or <c>no</c>, or empty when it takes its page trace.</param>
     /// <param name="Statement">The assertive line, or empty.</param>
     /// <param name="Rationale">The Rationale paragraph, or empty.</param>
     /// <param name="Example">The Example block, or empty.</param>
-    sealed record ProvisionBody(string Strength, string Stacks, string Layers, string Artifact, string Conformance, string Statement, string Rationale, string Example);
+    sealed record ProvisionBody(string Strength, string Stacks, string Artifact, string Layer, string Trace, string Statement, string Rationale, string Example);
 
     // One provision body: the lines between its heading and the next heading. The Strength and
     // Applies to lines read as frame; the Statement, or the Default of a convention or pattern,
@@ -401,9 +435,9 @@ public static class Provisions
     {
         var strength = "";
         var stacks = "";
-        var layers = "";
         var artifact = "";
-        var conformance = "";
+        var layer = "";
+        var trace = "";
         var statement = "";
         var rationale = "";
         var example = "";
@@ -422,9 +456,9 @@ public static class Provisions
                 appliesRead = true;
                 var fields = Scopes.ParseScopeFields(narrowed);
                 stacks = JoinScope(fields, "stack");
-                layers = JoinScope(fields, "layer");
                 artifact = JoinScope(fields, "artifact");
-                conformance = JoinScope(fields, "conformance");
+                layer = JoinScope(fields, "layer");
+                trace = JoinScope(fields, "trace");
             }
 
             if (statement.Length == 0 && line.StartsWith(assertion, StringComparison.Ordinal))
@@ -443,7 +477,7 @@ public static class Provisions
             }
         }
 
-        return new ProvisionBody(strength, stacks, layers, artifact, conformance, statement, rationale, example);
+        return new ProvisionBody(strength, stacks, artifact, layer, trace, statement, rationale, example);
     }
 
     // One labeled field: its label line rest with the lines below it, until the next label, frame

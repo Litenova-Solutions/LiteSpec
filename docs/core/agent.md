@@ -1,7 +1,7 @@
 # Agent Operating Protocol
 
 **Stack:** any
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 

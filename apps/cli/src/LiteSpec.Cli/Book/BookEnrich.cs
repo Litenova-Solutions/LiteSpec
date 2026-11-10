@@ -17,35 +17,37 @@ static class BookEnrich
         "type", "id", "title", "owner", "status", "decider", "decideBy",
     ];
 
-    /// <summary>Builds one detail object per record id from the model and the outline at the full conformance level.</summary>
+    /// <summary>Builds one detail object per record id from the model and the outline with every layer claimed.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="outline">The built outline.</param>
     /// <returns>The detail object per record id.</returns>
     public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline) =>
-        Build(model, outline, ConformanceLevel.Full);
+        Build(model, outline, LayerClaims.All);
 
     /// <summary>
     ///     Builds one detail object per record id from the model and the outline
-    ///     at one conformance level. At <see cref="ConformanceLevel.Records" />
-    ///     a detail carries no code, no proof status and no level S finding,
-    ///     and its completion holds no code or test judgement. Every detail
-    ///     at every level that is a requirement or a journey carries its
-    ///     Intent coverage.
+    ///     under the layers the project claims. A claimed Implementation layer
+    ///     adds code and its expectation, and a claimed Proof layer adds tests,
+    ///     proof status and scenario proof. The expectation, the completion and
+    ///     the missing marks stop at the claimed layers, so an unclaimed layer
+    ///     never reads as missing. Every detail that is a requirement or a
+    ///     journey carries its Intent coverage.
     /// </summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="outline">The built outline.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The detail object per record id.</returns>
-    public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline, ConformanceLevel level)
+    public static IReadOnlyDictionary<string, JsonObject> Build(JsonObject model, BookOutlineResult outline, LayerClaims claims)
     {
-        var traced = level != ConformanceLevel.Records;
+        var implemented = claims.Implementation is not null;
+        var proven = claims.Proof is not null;
         var coverage = BookIntentCoverage.Of(model);
         var index = BookIndexBuilder.BuildIndex(model);
         var layers = BookEnrichSources.LayerById(outline);
         var kept = BookEnrichSources.KeptBy(index);
         var served = BookEnrichSources.ServedBy(index);
-        var tests = traced ? BookEnrichSources.TestsByRecord(model, index) : new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
-        var findings = BookEnrichSources.FindingsBySubject(model, index, level);
+        var tests = proven ? BookEnrichSources.TestsByRecord(model, index) : new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
+        var findings = BookEnrichSources.FindingsBySubject(model, index, claims);
         var routes = BookEnrichSources.RoutesByScreen(model);
         var calls = BookEnrichSources.CallsByScreen(model);
         var handlers = BookEnrichSources.CodeByKey(model, "handlers", "useCase");
@@ -67,7 +69,7 @@ static class BookEnrich
             var detail = BaseRecord(record, type);
             detail["parent"] = BookDetailValues.StrNode(BookEnrichSources.ParentOf(outline, id));
             detail["layer"] = BookDetailValues.StrNode(layers.GetValueOrDefault(id));
-            if (traced)
+            if (proven)
             {
                 BookProofDetail.Add(detail, index, id, type);
                 BookProofDetail.AddMachine(detail, index, id, type);
@@ -76,7 +78,7 @@ static class BookEnrich
             BookProofDetail.AddReachable(detail, index, id, type);
             BookProofDetail.AddKept(detail, kept, id, type);
             BookJourneyDetail.AddSteps(detail, served, index, record, id, type);
-            if (!traced && type == "journey")
+            if (!proven && type == "journey")
             {
                 detail["exercised"] = new JsonArray();
             }
@@ -89,23 +91,19 @@ static class BookEnrich
                 BookJourneyDetail.AddRoute(detail, routeEntry, calls);
             }
 
-            var impl = traced
+            var impl = implemented
                 ? BookImplementationDetail.ImplFor(index, handlers, endpoints, methods, runnersByPath, routeEntry, id, type)
                 : new JsonArray();
             detail["impl"] = impl;
-            detail["tests"] = traced
+            detail["tests"] = proven
                 ? BookImplementationDetail.TestList(tests.TryGetValue(id, out var ownTests) ? ownTests : [])
                 : new JsonArray();
-            var expect = traced
-                ? BookImplementationDetail.ExpectFor(record, type)
-                : new JsonObject { ["impl"] = false, ["proof"] = false };
+            var expect = BookImplementationDetail.ExpectFor(record, type);
+            expect["impl"] = implemented && BookRender.IsTrue(expect["impl"]);
+            expect["proof"] = proven && BookRender.IsTrue(expect["proof"]);
             detail["expect"] = expect;
-            detail["lacks"] = traced
-                ? BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type)
-                : new JsonArray();
-            detail["completion"] = traced
-                ? BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type)
-                : new JsonObject { ["hasCode"] = null, ["hasTests"] = null, ["scenarios"] = null };
+            detail["lacks"] = BookImplementationDetail.LacksFor(index, tests, impl, expect, id, type);
+            detail["completion"] = BookImplementationDetail.CompletionFor(index, tests, impl, expect, id, type);
             detail["findings"] = FindingList(findings.TryGetValue(id, out var own) ? own : []);
             var body = BookBodyDetail.Render(index, record);
             detail["bodyHtml"] = body.Html;

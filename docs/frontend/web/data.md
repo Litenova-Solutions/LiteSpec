@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** frontend-data
+**Concern:** frontend-data
 
 ## Intent
 

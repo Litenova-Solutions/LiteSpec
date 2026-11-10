@@ -2,7 +2,7 @@
 
 **Stack:** dotnet
 
-**Layer:** web-api
+**Concern:** web-api
 
 ## Intent
 

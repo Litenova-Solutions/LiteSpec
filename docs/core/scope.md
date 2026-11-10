@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -12,7 +12,7 @@ LiteSpec is a standard for specification-driven development of one bounded-conte
 
 ### The Three Project Choices
 
-Three choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it. The conformance level declared beside them decides which part of the contract the project claims, as The Three Conformance Levels below states.
+Three choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it. The layer claims declared beside them decide which part of the contract the project takes, as Layer Claims below states.
 
 Size decides the record set and the test projects. A small project carries the core record types with Architecture and Integration test projects. A large project adds goals, problems, features, journeys, and scenarios with the Acceptance project. A project with one web frontend and no journeys fits small; the running Claimwick example, which needs journeys, selects large.
 
@@ -20,20 +20,18 @@ Shape decides the deployment boundary: `server` for a project with its own backe
 
 Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
 
-### The Three Conformance Levels
+### Layer Claims
 
-A conformance level is the part of the LiteSpec contract a project claims. The levels nest: `traced` includes everything `records` claims, and `full` includes everything `traced` claims. A project declares one level in `.litespec/project.yaml` and may move to a higher level by meeting the provisions that level adds. Extensions keep working within a level as they do at every other level.
+A project claims the record layers it uses in `layers` in `.litespec/project.yaml`, and the practice each claimed layer follows. Each layer is written from the one above it and points up to it, so a project leaves layers out from the bottom: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Implementation and Proof both point at Behavior, not at each other, so either can be left out on its own.
 
-|  | `records` | `traced` | `full` |
+| Layer | Values | With `litespec` | With `own` |
 |:---|:---|:---|:---|
-| What the project claims | Its Intent, Behavior, technical decisions, glossary and exceptions follow the record model | Also: code and tests point to their records with marks, and test runs prove scenarios | Also: LiteSpec's stacks, code layout, analyzers and operations rules |
-| Size | Required; sets which record types must exist | Required | Required |
-| Stacks | Optional, informational only | Required for the code reader. A project on a stack with no LiteSpec reader proves through result files only | Required |
-| Code layout | The project's own | The project's own | LiteSpec's |
-| `model check` | Record checks (level G) | Adds the mark and proof checks (level S), except the layout checks | Every check |
-| Book | Intent, Behavior and governance, plus how much Intent the Behavior records reach | Adds code and proof status | Everything |
-| `rules` | Provisions about records | Adds provisions about marks and proof | Everything that applies |
-| Analyzers | Not used; the package does nothing at this level | Only the traceability rules, `LS5001` to `LS5012` | All rules |
+| `intent` | `litespec` | The Intent records follow the record model | Not offered |
+| `behavior` | `litespec` | The Behavior records follow the record model | Not offered |
+| `implementation` | `litespec` or `own` | Code marks its records, and the stack, workspace and code layout pages and the analyzers' architecture rules apply | Code marks its records; the team keeps its own architecture |
+| `proof` | `litespec` or `own` | Tests prove scenarios, and the testing pages and LiteSpec's test projects apply | Tests prove scenarios; the team keeps its own test practice |
+
+Every provision and every finding code governs one record layer, or `any`, and either ties the layer to the records (`trace`) or states LiteSpec's practice for it. A provision or code applies when its layer is `any` or claimed and, for Implementation and Proof, when it ties the layer to the records or the layer follows `litespec`. `model check`, the book, `rules` and the analyzers report only what applies, and the book shows a layer the project does not claim as not claimed, never as missing. Stacks are required when Implementation or Proof is claimed, because the stack selects the code reader. The operations checks belong to the `delivery` extension, so no claim bundles them, and a departure record covers a single provision a project does not follow.
 
 ### One Folder for Every LiteSpec File
 
@@ -63,7 +61,7 @@ Some architectures fall outside what LiteSpec supports: microservices, multiple 
 
 ### What Claiming Conformance Means
 
-A consumer claims conformance at its declared conformance level when it meets every provision that applies at that level, selects every extension whose criteria hold, records each exception it relies on with its reason and expiry date, and passes the checks that run at that level. At `records` the claim covers the record model alone; at `traced` it also covers marks and proof; at `full` it also covers the stacks, code layout, analyzers and operations rules the project's size, shape and stacks select. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips a provision or a check that applies at its claimed level, makes no conformance claim at that level.
+A consumer claims conformance to the layers it names in `layers` in `.litespec/project.yaml`. It meets every provision that applies to those layers, selects every extension whose criteria hold, records each departure it relies on with its reason, and passes the checks that run for those layers. A claim covers only the layers it names: a claim of `intent` and `behavior` covers the record model, a claim of `implementation` adds the code marks and, with `litespec`, the stack, workspace and code layout pages, and a claim of `proof` adds the test pages and scenario proof. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips a provision or a check that applies to a layer it claims, makes no conformance claim for that layer.
 
 ## Standards
 
@@ -73,7 +71,7 @@ A consumer claims conformance at its declared conformance level when it meets ev
 
 **Strength:** rule
 
-**Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the declared conformance level is `records`.
+**Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the project claims neither `implementation` nor `proof` in `layers`.
 
 **Rationale:** One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. At `records` a project may leave the stacks empty or absent, or name them for information alone, since no code reader runs at that level; at `traced` and `full` the stacks name the code the reader and the checks govern.
 
@@ -100,21 +98,21 @@ The diagram shows the three project choices and what each decides.
 
 ![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)
 
-**Checked by:** `litespec model check` refuses, at `traced` and `full`, a shape whose backend stack count is wrong and a platform that names no frontend stack.
+**Checked by:** `litespec model check` refuses, when the project claims Implementation or Proof, a shape whose backend stack count is wrong and a platform that names no frontend stack.
 
-### Declare the Conformance Level
+### Claim the Record Layers the Project Uses
 
-**ID:** `litespec/core/scope#declare-the-conformance-level`
+**ID:** `litespec/core/scope#claim-the-record-layers-the-project-uses`
 
 **Strength:** rule
 
-**Statement:** A consumer MUST declare in `.litespec/project.yaml` the conformance level it claims: `records`, `traced` or `full`.
+**Statement:** A consumer MUST name in `layers` in `.litespec/project.yaml` each record layer it claims, with `litespec` or `own` for Implementation and Proof, leaving layers out only from the bottom.
 
-**Rationale:** A project can take the record model without LiteSpec's code layout, or trace its code to its records in a layout of its own. The level tells every tool which part of the contract the project claims, so `model check`, the book, `rules` and the analyzers report that part and nothing else. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims. The table in The Three Conformance Levels states what each level claims, what each tool runs at that level, and what the book and `rules` show.
+**Rationale:** Teams adopt LiteSpec in parts: the record model alone, records with marked code, records with acceptance tests, or all of it, and with their own architecture or test practice where they have one. Naming each layer lets every tool check exactly the part the team uses, so a missing test project is not a finding for a team that claims no Proof, and a team that keeps its own code layout still gets its marks checked. Leaving layers out from the bottom keeps every remaining link whole, because each layer points up to the one above it.
 
-**Example:** The running Claimwick example declares `"conformance": "full"`. A product that keeps its own folder layout and proves its records only through result files declares `"conformance": "traced"`. A product that takes the record model alone and keeps its own layout and tooling declares `"conformance": "records"`.
+**Example:** The running Claimwick example claims all four layers with `litespec`. A product that marks its code in its own layout and proves no scenarios yet claims `intent`, `behavior` and `implementation: own`, and `model check` reports no `use-case-unverified` finding for it.
 
-**Checked by:** `litespec model check` reports `project-invalid` for a project file that names no level or a value other than `records`, `traced` or `full`.
+**Checked by:** `litespec model check` reports `project-invalid` for a project file without `layers`, with a value other than those the table allows, or with a layer whose parent is not claimed.
 
 ### Keep One Bounded Context
 
@@ -222,13 +220,13 @@ The diagram shows the three project choices and what each decides.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST meet every provision that applies at its declared conformance level before claiming conformance to LiteSpec at that level.
+**Statement:** A consumer MUST meet every provision that applies to each layer it claims in `layers` before claiming conformance to LiteSpec for those layers.
 
-**Rationale:** A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. At `records` that part is the provisions about records; at `traced` it also takes in the provisions about marks and proof; at `full` it takes in every provision that applies. A recorded exception whose expiry date has not passed outranks the provision or findings it covers, so a project that records its exceptions still meets this provision; an unrecorded departure at the claimed level breaks the claim at that level and leaves any lower level the project does meet untouched.
+**Rationale:** A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of `intent` and `behavior` takes in the provisions about the record model; a claim of `implementation` or `proof` also takes in the provisions that tie each layer to the records. A recorded departure whose expiry date has not passed outranks the provision or findings it covers, so a project that records its departures still meets this provision; an unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.
 
-**Example:** A consumer that selects the dotnet stack and the caching extension and declares `full` claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as an exception. A consumer that declares `records` claims conformance when the provisions about records hold, while its own code layout and tooling stay outside the claim.
+**Example:** A consumer that claims all four layers with `litespec`, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each departure recorded. A consumer that claims `intent` and `behavior` claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim.
 
-**Reviewed for:** `.litespec/project.yaml` names the declared conformance level beside the selected size, shape, stacks, and extensions; each departure from a provision that applies at that level resolves to an exception record under `.litespec/governance/exceptions/`, and the checks that run at that level pass.
+**Reviewed for:** `.litespec/project.yaml` names each claimed layer in `layers`, beside the selected size, shape, stacks, and extensions; each departure from a provision that applies to a claimed layer resolves to a departure record under `.litespec/governance/departures/`, and the checks that run for those layers pass.
 
 ### Point Behavior Docs at the Behavior Root
 

@@ -1,7 +1,7 @@
 # .NET Configuration
 
 **Stack:** dotnet
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 

@@ -54,7 +54,7 @@ The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` throu
 | `src/LiteSpec.Analyzers/README.md` | Package README that ships on NuGet. Its Rules table is the user-facing rule list. |
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Unshipped.md` | No pending rules: every rule the package reports ships in the current release. |
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md` | Shipped rules: the 45 rules of Release 4.0.0. |
-| `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. It maps the project file's `layers` to the conformance level until the rules read the layers themselves. |
+| `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. It passes the project file's `layers` as `LiteSpecImplementation` and `LiteSpecProof` (`litespec`, `own`, or empty when the layer is not claimed); a file with no `layers` reads as `litespec` for both. A project sets either property itself to override the file. |
 | `src/LiteSpec.Analyzers/Layers/FileScope.cs` | Decides whether a rule applies to one file, from the rule's layer predicate over the file's layer. |
 | `src/LiteSpec.Analyzers/Layers/CodeMap.cs` | Maps every source file of one compilation to its layer, module, and use case, reaction, or job folder. |
 | `src/LiteSpec.Analyzers/Layers/References.cs` | Resolves the type one written name refers to, skipping names an enclosing construct covers. |

@@ -125,6 +125,30 @@ public sealed class FindingCodesTests
         Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
 
+    /// <summary>Each code states the record layer it governs, whether it ties that layer to the records, and the extension that adds it.</summary>
+    /// <param name="code">The finding code under test.</param>
+    /// <param name="layer">The record layer the code must govern.</param>
+    /// <param name="trace">Whether the code must tie its layer to the records.</param>
+    /// <param name="extension">The extension the code must name, or null for a core code.</param>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
+    [Theory]
+    [InlineData("intent-unreached", RecordLayer.Behavior, false, null)]
+    [InlineData("mark-missing", RecordLayer.Implementation, true, null)]
+    [InlineData("code-placement-drift", RecordLayer.Implementation, false, null)]
+    [InlineData("use-case-unverified", RecordLayer.Proof, true, null)]
+    [InlineData("ui-route-suite-missing", RecordLayer.Proof, false, null)]
+    [InlineData("record-invalid", RecordLayer.Any, false, null)]
+    [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
+    [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
+    public void Codes_State_Their_Layer_Trace_And_Extension(string code, RecordLayer layer, bool trace, string? extension)
+    {
+        var row = FindingCodes.Of(code);
+
+        Assert.Equal(layer, row.Layer);
+        Assert.Equal(trace, row.Trace);
+        Assert.Equal(extension, row.Extension);
+    }
+
     /// <summary>The backend folder drift code blocks where its reader is qualified.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]

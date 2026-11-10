@@ -2,15 +2,15 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The check settings a host reads from .litespec/project.yaml: the mark style and the
-///     conformance level the layer claims map to.
+///     record layers the project claims.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
-/// <param name="Conformance">The level the declared layer claims read as.</param>
-public sealed record ProjectSettings(MarkStyle Marks, ConformanceLevel Conformance)
+/// <param name="Layers">The declared layer claims.</param>
+public sealed record ProjectSettings(MarkStyle Marks, LayerClaims Layers)
 {
     /// <summary>
     ///     Reads the settings from the project file text. A missing or unknown value reads as
-    ///     its default: xml marks, and the full level when no layer is claimed. The project
+    ///     its default: xml marks, and every layer with LiteSpec's practice when the file has no layers. The project
     ///     schema reports a value of the wrong shape, so this reader never reports one.
     /// </summary>
     /// <param name="text">The project file text.</param>
@@ -19,7 +19,7 @@ public sealed record ProjectSettings(MarkStyle Marks, ConformanceLevel Conforman
     /// <returns>Whether the text holds a mapping the settings read from.</returns>
     public static bool TryParse(string text, out ProjectSettings settings, out string? error)
     {
-        settings = new ProjectSettings(MarkStyle.Xml, ConformanceLevel.Full);
+        settings = new ProjectSettings(MarkStyle.Xml, LayerClaims.All);
         error = null;
 
         JsonText root;
@@ -40,7 +40,7 @@ public sealed record ProjectSettings(MarkStyle Marks, ConformanceLevel Conforman
             return false;
         }
 
-        settings = new ProjectSettings(ReadMarks(root), ReadConformance(root));
+        settings = new ProjectSettings(ReadMarks(root), LayerClaims.Read(root));
         return true;
     }
 
@@ -53,39 +53,6 @@ public sealed record ProjectSettings(MarkStyle Marks, ConformanceLevel Conforman
         && MarkStyleParser.TryParse(text, out var marks)
             ? marks
             : MarkStyle.Xml;
-
-    /// <summary>
-    ///     Maps the implementation and proof claims to a level. Neither claimed is
-    ///     <see cref="ConformanceLevel.Records"/>; both claimed as LiteSpec's own practice is
-    ///     <see cref="ConformanceLevel.Full"/>; any other claim is <see cref="ConformanceLevel.Traced"/>.
-    /// </summary>
-    /// <param name="implementation">The implementation claim, or null when the layer is not claimed.</param>
-    /// <param name="proof">The proof claim, or null when the layer is not claimed.</param>
-    /// <returns>The level the claims read as.</returns>
-    public static ConformanceLevel LevelOf(string? implementation, string? proof) =>
-        implementation is null && proof is null
-            ? ConformanceLevel.Records
-            : implementation == "litespec" && proof == "litespec" ? ConformanceLevel.Full : ConformanceLevel.Traced;
-
-    /// <summary>Reads the level the layer claims map to; full when the file claims no layer.</summary>
-    /// <param name="root">The project file mapping.</param>
-    /// <returns>The level.</returns>
-    private static ConformanceLevel ReadConformance(JsonText root)
-    {
-        if (!root.TryGetProperty("layers", out var layers) || layers.Kind != JsonKind.Object)
-        {
-            return ConformanceLevel.Full;
-        }
-
-        return LevelOf(Claim(layers, "implementation"), Claim(layers, "proof"));
-    }
-
-    /// <summary>The claim a layer makes, or null when the layer is not claimed.</summary>
-    /// <param name="layers">The layers mapping.</param>
-    /// <param name="layer">The layer name.</param>
-    /// <returns>The claim text, or null.</returns>
-    private static string? Claim(JsonText layers, string layer) =>
-        layers.TryGetProperty(layer, out var value) ? value.GetString() : null;
 
     /// <summary>Lowercases the first letter of a message.</summary>
     /// <param name="message">The message to read.</param>

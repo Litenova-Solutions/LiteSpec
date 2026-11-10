@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -91,7 +91,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** rule
 
-**Applies to:** artifact: record:use-case, record:reaction, record:job; conformance: traced
+**Applies to:** artifact: record:use-case, record:reaction, record:job; layer: implementation; trace: yes
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 

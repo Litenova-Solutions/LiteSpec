@@ -31,12 +31,12 @@ static partial class ModelBuilder
         model.AppliedPages = applied.Pages;
         model.AppliedProvisions = applied.Provisions;
 
-        // At records no stack reader runs: the project claims the record model
-        // alone, so code, screens, tests, test runs, coverage and measure
-        // results stay unread and every traced or full finding stays silent
-        // through the level filter in the checker. The proof ledger still
-        // loads, because it states hashes the next traced build compares.
-        if (config.Conformance == ConformanceLevel.Records)
+        // Without an Implementation or Proof claim no stack reader runs: the
+        // project claims the record model alone, so code, screens, tests, test
+        // runs, coverage and measure results stay unread and every finding
+        // about them stays silent through the claim filter in the checker. The
+        // proof ledger still loads, because it states hashes the next build compares.
+        if (!config.ReadsCode)
         {
             model.Code = new CodeModel();
             model.Ledger = ProofLedger.Load(config);

@@ -137,8 +137,8 @@ static class ModelCommand
 
                 // A breaking contract change is the point of --since, so it
                 // always stands: the scope never demotes it to reported. It
-                // runs only at the level its code claims, like every finding.
-                foreach (var breaking in breaks.Where(finding => ConformanceLevels.Runs(finding.Code, config.Conformance)))
+                // runs only when the layer claims cover its code, like every finding.
+                foreach (var breaking in breaks.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
                 {
                     shown.Add((breaking, Decide(model, config, breaking, release), false));
                 }
@@ -290,10 +290,10 @@ static class ModelCommand
     }
 
     /// <summary>
-    ///     Collects a project's findings at its claimed conformance level: the model checks, then the consumer
+    ///     Collects a project's findings that its layer claims cover: the model checks, then the consumer
     ///     pass, which reads the project file, the record pages, the glossary and the controlled UI into the same
     ///     finding shape. <c>model check</c> and the book both take their findings here, so they hold the same
-    ///     level filter and the same severity rule.
+    ///     claim filter and the same severity rule.
     /// </summary>
     /// <param name="model">The built project model to check.</param>
     /// <param name="root">The absolute consumer root the consumer pass reads.</param>
@@ -308,9 +308,9 @@ static class ModelCommand
         consumerRun.Execute();
         findings.AddRange(consumerRun.Errors);
 
-        // Consumer findings take the same level filter as the model findings, so a project
+        // Consumer findings take the same claim filter as the model findings, so a project
         // claims the same part of the contract in both passes.
-        findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, model.Config.Conformance));
+        findings.RemoveAll(finding => !model.Config.Layers.Covers(finding.Code, model.Config.Extensions));
 
         return (findings, known);
     }

@@ -121,16 +121,16 @@ public sealed class ModelCheckTests
         Assert.Contains(code, result.Output);
     }
 
-    /// <summary>Every listed code takes a conformance level, so each broken case runs at its claimed level and above.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <summary>Every listed code has a row in the finding code table, which states the layer, trace and extension its claim gate reads.</summary>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Finding_Codes_Take_A_Conformance_Level()
+    public void Finding_Codes_Have_A_Claim_Row()
     {
         foreach (var code in FindingCodeList)
         {
             Assert.True(
-                ConformanceLevels.Lowest.ContainsKey(code),
-                $"Finding code '{code}' takes no conformance level.");
+                FindingCodes.IsKnown(code),
+                $"Finding code '{code}' has no row in the finding code table.");
         }
     }
 

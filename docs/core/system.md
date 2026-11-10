@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -92,7 +92,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
@@ -108,7 +108,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or exception that shapes it.
 

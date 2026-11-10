@@ -15,7 +15,7 @@ The Learn pages explain LiteSpec, the standard for building one business applica
 - [How LiteSpec Compares](how-litespec-compares.md): LiteSpec beside ten other approaches to spec-driven development, and when each fits.
 - [Lineage](lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
-- [Adopt LiteSpec in Steps](adopting-litespec.md): adopting LiteSpec by conformance level: the record model at `records`, traceability at `traced`, and the full contract at `full`, with the records path through the tutorial.
+- [Adopt LiteSpec in Steps](adopting-litespec.md): adopting LiteSpec by record layer: the record model first, then code traced to records, then LiteSpec's layers, with the records path through the tutorial.
 
 ## Next
 

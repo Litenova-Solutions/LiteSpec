@@ -12,7 +12,7 @@ namespace LiteSpec.Rules;
 /// <param name="Root">The consumer root.</param>
 /// <param name="RelativePath">The root-relative path with forward slashes, or empty for a record.</param>
 /// <param name="Stack">The owning stack id, or empty when no stack owns the target.</param>
-/// <param name="Layer">The derived layer, or empty when the path names none.</param>
+/// <param name="Concern">The derived concern, such as domain or tests, or empty when the path names none.</param>
 /// <param name="Artifact">The derived artifact, or empty when the path names none.</param>
 /// <param name="Marked">The record and provision identifiers the file marks, in file order.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -22,12 +22,12 @@ internal sealed record PathContext(
     string Root,
     string RelativePath,
     string Stack,
-    string Layer,
+    string Concern,
     string Artifact,
     IReadOnlyList<string> Marked)
 {
     /// <summary>Gets a value indicating whether the target names code rather than a record or a record file.</summary>
-    public bool IsCodePath => !IsRecord && Layer != "records";
+    public bool IsCodePath => !IsRecord && Concern != "records";
 
     /// <summary>The record type to artifact map: the artifact whose provisions govern the record.</summary>
     static readonly Dictionary<string, string> RecordArtifacts = new(StringComparer.Ordinal)

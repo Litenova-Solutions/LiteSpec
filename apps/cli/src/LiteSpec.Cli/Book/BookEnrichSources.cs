@@ -230,25 +230,25 @@ static class BookEnrichSources
         return byRecord;
     }
 
-    /// <summary>Groups open and known findings by their subject record id at the full conformance level.</summary>
+    /// <summary>Groups open and known findings by their subject record id with every layer claimed.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
     /// <returns>The findings per record id.</returns>
     public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index) =>
-        FindingsBySubject(model, index, ConformanceLevel.Full);
+        FindingsBySubject(model, index, LayerClaims.All);
 
-    /// <summary>Groups open and known findings by their subject record id, leaving out level S findings at the records level.</summary>
+    /// <summary>Groups open and known findings by their subject record id, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The findings per record id.</returns>
-    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, ConformanceLevel level)
+    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, LayerClaims claims)
     {
         var bySubject = new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
         (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
         void Add(JsonObject finding, bool known)
         {
-            if (level == ConformanceLevel.Records
+            if (claims.Implementation is null && claims.Proof is null
                 && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), "S", StringComparison.Ordinal)
                     || string.Equals(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier"), "S", StringComparison.Ordinal)))
             {

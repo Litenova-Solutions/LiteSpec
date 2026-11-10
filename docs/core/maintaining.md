@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -83,7 +83,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Rationale:** Consumers cite provision identifiers in code marks, records, and exceptions, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
 
-**Example:** A release in the 4.x line adds `litespec/core/scope#declare-the-conformance-level` and rewords a neighboring provision; both keep their identifiers, so every mark and exception written against the 4.x line still resolves.
+**Example:** A release in the 4.x line adds `litespec/core/scope#claim-the-record-layers-the-project-uses` and rewords a neighboring provision; both keep their identifiers, so every mark and exception written against the 4.x line still resolves.
 
 **Reviewed for:** Which provision identifiers did a minor release remove or rename? Compare the provision index at the previous tag with the provision index of the release, beside the changelog entry that lists the generated diff.
 

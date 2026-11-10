@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -401,9 +401,9 @@ A goal reaches a journey or a quality requirement. A problem reaches a feature o
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 
-Intent that is written but not yet served is planned, not blocked. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one reports on a local run and blocks only in the pull-request check, the run whose environment marks it continuous integration. An exception with `expiresOn` parks any of them for its subject or paths until it expires. The rule holds at every conformance level: a planned record is not a failure of the level the project claims.
+Intent that is written but not yet served is planned, not blocked. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. Each one reports on a local run and blocks only in the pull-request check, the run whose environment marks it continuous integration. An exception with `expiresOn` parks any of them for its subject or paths until it expires. The rule holds in every claim: a planned record is not a failure of the layers the project claims.
 
-Intent coverage states, for each Intent requirement and each journey step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage at every conformance level, first on the Intent part of the book.
+Intent coverage states, for each Intent requirement and each journey step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record fulfills it, and a step is reached when a use case, reaction or job serves it. The builder computes the share from the records alone, so the book shows Intent coverage in every claim, first on the Intent part of the book.
 
 ### Completion Stages
 
@@ -456,9 +456,9 @@ Qualification is per reader, never global: a finding takes the qualification of 
 
 `litespec model check` prints the level beside each finding.
 
-`litespec model check` runs only the findings of the conformance level the project claims. At `records` no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. At `traced` the readers run and the check adds the mark and proof findings, except the layout group: `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout. At `full` the check adds the layout group, the stack, analyzer and operations findings. The [model command page](../tools/model.md) lists every finding code with its level, its conformance level and its meaning.
+`litespec model check` runs only the findings of the layers the project claims. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings. The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace and its meaning.
 
-`litespec model check` reports the planned-Intent findings locally and blocks on them in the pull-request check. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks the finding for that record until it expires. The rule holds at every conformance level.
+`litespec model check` reports the planned-Intent findings locally and blocks on them in the pull-request check. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks the finding for that record until it expires. The rule holds in every claim.
 
 Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
@@ -953,7 +953,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** Implemented, verified, met, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.
 
@@ -985,7 +985,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
-**Applies to:** artifact: record:use-case, record:requirement, record:journey, record:feature, record:goal; conformance: traced
+**Applies to:** artifact: record:use-case, record:requirement, record:journey, record:feature, record:goal; layer: implementation; trace: yes
 
 **Statement:** The builder MUST compute one completion stage for every requirement, use case, journey, feature and goal, and write it as `completion` with `stage`, `proof`, `heldBy` and `counts`, with a parent only as far as its weakest in-scope child and `heldBy` naming at most ten children at that stage.
 
@@ -1031,7 +1031,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** A project MUST write each C# mark in the one style that `marks` in `.litespec/project.yaml` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
 
@@ -1047,7 +1047,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
-**Applies to:** artifact: command-handler, query-handler, endpoint, reaction, job, aggregate; conformance: full
+**Applies to:** artifact: command-handler, query-handler, endpoint, reaction, job, aggregate; layer: implementation
 
 **Statement:** A backend handler, endpoint, event handler, job host or aggregate root MUST carry a mark naming a use case, reaction, job, or aggregate in the module and folder it sits in.
 
@@ -1079,7 +1079,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Strength:** rule
 
-**Applies to:** artifact: record:aggregate, record:reaction, record:job, record:external-system, record:use-case; conformance: traced
+**Applies to:** artifact: record:aggregate, record:reaction, record:job, record:external-system, record:use-case; layer: implementation; trace: yes
 
 **Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 

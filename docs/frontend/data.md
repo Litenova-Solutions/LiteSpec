@@ -1,7 +1,7 @@
 # Frontend Data and State
 
 **Stack:** any
-**Layer:** frontend-data
+**Concern:** frontend-data
 
 ## Intent
 

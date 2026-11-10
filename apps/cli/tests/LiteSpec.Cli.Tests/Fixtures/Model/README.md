@@ -23,7 +23,7 @@ Both fixtures exit 0 under `check`. Each names the same owner, reviews every Beh
 
 ## Finding Codes
 
-The [Model Builder](../../../../../../docs/tools/model.md) page lists every finding code with its check level, its conformance level, its meaning, and its fix.
+The [Model Builder](../../../../../../docs/tools/model.md) page lists every finding code with its check level, its record layer and trace, its meaning, and its fix.
 
 ## Broken Overlays
 

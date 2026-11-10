@@ -1,7 +1,7 @@
 # Controlled UI Governance
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

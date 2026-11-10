@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
+using LiteSpec.Model;
 
 namespace LiteSpec.Rules;
 
@@ -33,8 +34,8 @@ internal sealed class ProvisionCatalog
     public static ProvisionCatalog Load(
         string home, JsonObject manifest, string shape, IReadOnlyList<string> stacks, IReadOnlyList<string> extensions)
     {
-        var applied = new HashSet<string>(Layout.AppliedPages(home, manifest, shape, stacks, extensions), StringComparer.Ordinal);
-        var replaced = new HashSet<string>(Layout.ReplacedProvisions(manifest, extensions), StringComparer.Ordinal);
+        var applied = new HashSet<string>(LiteSpec.Authoring.Layout.AppliedPages(home, manifest, shape, stacks, extensions), StringComparer.Ordinal);
+        var replaced = new HashSet<string>(LiteSpec.Authoring.Layout.ReplacedProvisions(manifest, extensions), StringComparer.Ordinal);
 
         if (LoadJson(home) is { Count: > 0 } json)
         {
@@ -71,7 +72,7 @@ internal sealed class ProvisionCatalog
         return new ProvisionCatalog(entries);
     }
 
-    /// <summary>One page's provision fields by provision identifier, with the page layer under the empty key.</summary>
+    /// <summary>One page's provision fields by provision identifier, with the page concern under the empty key.</summary>
     /// <param name="file">The page file.</param>
     /// <returns>The fields by provision identifier.</returns>
     static Dictionary<string, Dictionary<string, string>> ReadPageFields(string file)
@@ -90,9 +91,9 @@ internal sealed class ProvisionCatalog
 
         foreach (var line in lines)
         {
-            if (line.StartsWith("**Layer:**", StringComparison.Ordinal))
+            if (line.StartsWith("**Concern:**", StringComparison.Ordinal))
             {
-                fields[""][""] = NormalizeLayer(line["**Layer:**".Length..]);
+                fields[""][""] = NormalizeConcern(line["**Concern:**".Length..]);
                 break;
             }
         }
@@ -204,21 +205,16 @@ internal sealed class ProvisionCatalog
 
     /// <summary>One catalog entry from its index row and its parsed fields.</summary>
     /// <param name="row">The provision index row.</param>
-    /// <param name="page">The page fields, with the layer under the empty key.</param>
+    /// <param name="page">The page fields, with the concern under the empty key.</param>
     /// <param name="found">The provision fields by label.</param>
     /// <returns>The catalog entry.</returns>
     static ProvisionEntry EntryOf(ProvisionRow row, Dictionary<string, string> page, Dictionary<string, string> found)
     {
         var strength = NormalizeStrength(found.GetValueOrDefault("Strength", ""));
-        var scope = ParseScope(found.GetValueOrDefault("Applies to", ""));
-        var appliesTo = scope.Artifact;
-        var conformance = NormalizeConformance(row.Conformance);
+        var appliesTo = ParseScope(found.GetValueOrDefault("Applies to", ""));
 
-        if (conformance.Length == 0)
-        {
-            conformance = scope.Conformance;
-        }
-
+        // The page file alone does not state the record layer, so a fallback entry governs every claim.
+        // The generated index holds the layer and trace, and every normal read uses it.
         var mark = row.Mark.Trim().ToLowerInvariant();
 
         if (mark.Length == 0)
@@ -262,13 +258,14 @@ internal sealed class ProvisionCatalog
                 _ => "pattern",
             },
             page.GetValueOrDefault("", ""),
+            LayerOf(row.Layer),
+            row.Trace,
             appliesTo,
             statement,
             found.GetValueOrDefault("Rationale", ""),
             found.GetValueOrDefault("Example", ""),
             reviewedFor,
             ProvisionEntry.LiteSpecSource,
-            conformance,
             mark);
     }
 
@@ -331,14 +328,15 @@ internal sealed class ProvisionCatalog
                         "pattern" => "pattern",
                         _ => "rule",
                     },
-                    NormalizeLayer(Text(item, "layer")),
+                    NormalizeConcern(Text(item, "concern")),
+                    LayerOf(Text(item, "layer")),
+                    item.TryGetProperty("trace", out var trace) && trace.ValueKind == JsonValueKind.True,
                     NormalizeScope(Text(item, "artifact")),
                     Text(item, "statement"),
                     Text(item, "rationale"),
                     Text(item, "example"),
                     Text(item, "evidence"),
                     ProvisionEntry.LiteSpecSource,
-                    NormalizeConformance(Text(item, "conformance")),
                     Text(item, "mark").Trim().ToLowerInvariant()));
             }
 
@@ -359,10 +357,16 @@ internal sealed class ProvisionCatalog
             ? value.GetString() ?? ""
             : "";
 
-    /// <summary>Normalizes a layer value: backticks stripped, trimmed, lowercased.</summary>
+    /// <summary>Normalizes a concern value: backticks stripped, trimmed, lowercased.</summary>
     /// <param name="value">The raw value.</param>
-    /// <returns>The normalized layer.</returns>
-    static string NormalizeLayer(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant();
+    /// <returns>The normalized concern, such as domain or tests.</returns>
+    static string NormalizeConcern(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant();
+
+    /// <summary>Reads a record layer name, any when it names none or an unknown layer.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The record layer.</returns>
+    static RecordLayer LayerOf(string value) =>
+        LayerClaims.TryParse(value.Trim().Trim('`').Trim().ToLowerInvariant(), out var layer) ? layer : RecordLayer.Any;
 
     /// <summary>Normalizes a strength value to rule, default or advice, or empty.</summary>
     /// <param name="value">The raw value.</param>
@@ -378,33 +382,21 @@ internal sealed class ProvisionCatalog
     /// <summary>Normalizes an Applies to value to its artifact, or empty.</summary>
     /// <param name="value">The raw value.</param>
     /// <returns>The normalized artifact.</returns>
-    static string NormalizeScope(string value) => ParseScope(value).Artifact;
+    static string NormalizeScope(string value) => ParseScope(value);
 
-    /// <summary>Normalizes a conformance value to records, traced or full, or empty.</summary>
+    /// <summary>Reads the artifact field of an Applies to value.</summary>
     /// <param name="value">The raw value.</param>
-    /// <returns>The normalized conformance level.</returns>
-    static string NormalizeConformance(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant() switch
-    {
-        "records" => "records",
-        "traced" => "traced",
-        "full" => "full",
-        _ => "",
-    };
-
-    /// <summary>Reads the artifact and conformance fields of an Applies to value.</summary>
-    /// <param name="value">The raw value.</param>
-    /// <returns>The normalized artifact and conformance level.</returns>
-    static (string Artifact, string Conformance) ParseScope(string value)
+    /// <returns>The normalized artifact, or empty.</returns>
+    static string ParseScope(string value)
     {
         var text = value.Trim().Trim('`').Trim();
 
         if (text.Length == 0)
         {
-            return ("", "");
+            return "";
         }
 
         var artifact = "";
-        var conformance = "";
 
         foreach (var part in text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
@@ -413,10 +405,6 @@ internal sealed class ProvisionCatalog
             if (segment.StartsWith("artifact:", StringComparison.OrdinalIgnoreCase))
             {
                 artifact = StripArtifact(segment["artifact:".Length..]);
-            }
-            else if (segment.StartsWith("conformance:", StringComparison.OrdinalIgnoreCase))
-            {
-                conformance = NormalizeConformance(segment["conformance:".Length..]);
             }
             else if (segment.StartsWith("record:", StringComparison.OrdinalIgnoreCase))
             {
@@ -433,7 +421,7 @@ internal sealed class ProvisionCatalog
             artifact = StripArtifact(text);
         }
 
-        return (artifact, conformance);
+        return artifact;
     }
 
     /// <summary>Strips the artifact and record prefixes from an artifact value.</summary>

@@ -78,6 +78,12 @@ Checks on the shape of a command or query, run before business behavior runs.
 
 Source: LiteSpec.
 
+### Layer Claim
+
+The record layer a project claims in `layers`, with the practice it follows in that layer: `intent` and `behavior` take `litespec`, and `implementation` and `proof` take `litespec` or `own`.
+
+Source: LiteSpec.
+
 ### Layer Projects
 
 The backend layout with one project per architecture layer, selected through the layer-projects extension.
@@ -893,12 +899,6 @@ Source: LiteSpec.
 The claim that a project meets the LiteSpec contract it pins.
 
 Source: the W3C QA Framework.
-
-### Conformance Level
-
-The part of the LiteSpec contract a project claims: `records`, `traced` or `full`, each level including the one below it.
-
-Source: LiteSpec.
 
 ### Consumer
 

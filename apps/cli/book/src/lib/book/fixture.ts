@@ -2,7 +2,7 @@
 // use case with a scenario, and the lexicon words the explanations read.
 
 import { Book } from "./book.svelte";
-import type { Lexicon, Manifest, OutlineNode, SecurityItem } from "./types";
+import type { LayerClaim, Lexicon, Manifest, OutlineNode, SecurityItem } from "./types";
 
 const records: Record<string, Record<string, any>> = {
   "product/library": {
@@ -107,7 +107,12 @@ const manifest = {
   project: { id: "product/library", title: "Riverside Library" },
   roots: { consumer: "C:/work/shop", litespec: "C:/work/litespec" },
   editor: "vscode://file/{root}/{path}:{line}",
-  conformance: "full",
+  claims: [
+    { layer: "intent", practice: "litespec" },
+    { layer: "behavior", practice: "litespec" },
+    { layer: "implementation", practice: "litespec" },
+    { layer: "proof", practice: "litespec" },
+  ],
   intentCoverage: {
     reached: 1, total: 2, share: 0.5,
     requirements: { reached: 1, total: 1 },
@@ -145,10 +150,10 @@ const shards: Record<string, unknown> = {
 };
 
 /** A book over the fixture shards, booted and ready for assertions. */
-export async function fixtureBook(hash = "", opts: { editor?: string; conformance?: string } = {}) {
+export async function fixtureBook(hash = "", opts: { editor?: string; claims?: LayerClaim[] } = {}) {
   const data: Record<string, unknown> = structuredClone(shards);
   if (opts.editor !== undefined) (data.manifest as Manifest).editor = opts.editor;
-  if (opts.conformance !== undefined) (data.manifest as Manifest).conformance = opts.conformance;
+  if (opts.claims !== undefined) (data.manifest as Manifest).claims = opts.claims;
   const book = new Book({ load: async (key: string) => structuredClone(data[key]) } as any);
   await book.boot(hash);
   return book;

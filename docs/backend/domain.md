@@ -1,7 +1,7 @@
 # Domain Layer
 
 **Stack:** any
-**Layer:** domain
+**Concern:** domain
 
 ## Intent
 

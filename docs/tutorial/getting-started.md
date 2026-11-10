@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the `dotnet` backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records conformance level follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.
+A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the `dotnet` backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records claims only the record model follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ A LiteSpec consumer is a project built against the LiteSpec standard, and this t
 - Read the [extension catalog](../ext/README.md) to learn which capabilities stay inactive at the start.
 - Install the .NET SDK and Node.js releases the adopted release pins under `stack` in its `litespec.manifest.yaml`.
 - Ship the `dotnet` backend with a React frontend: this tutorial follows that pair from the `dotnet-react` preset. When the product ships another frontend, follow this tutorial first, then declare that frontend with its own how-to, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) or [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md).
-- Follow the records path at the end of the Lesson when the project claims the records conformance level and keeps its own code layout. That path selects no backend stack and no frontend.
+- Follow the records path at the end of the Lesson when the project claims only the record model, `intent` and `behavior`, and keeps its own code layout. That path selects no backend stack and no frontend.
 
 ## Lesson
 
@@ -50,10 +50,10 @@ This lesson creates a new project. The `litespec new` commands below write each 
 
 ### Records Path
 
-A project at the records conformance level claims that its Intent, Behavior, technical decision, glossary, and exception records follow the record model. It keeps its own code layout, and no code, test, or layout check runs against it. A team that starts here holds checked records before it commits to any stack, and it raises its claim later by declaring a higher conformance level and naming the stacks that level requires.
+A project that claims `intent` and `behavior` in `layers` states that its Intent, Behavior, technical decision, glossary, and exception records follow the record model. It keeps its own code layout, and no code, test, or layout check runs against it. A team that starts here holds checked records before it commits to any stack, and it raises its claim later by adding `implementation` and `proof` to `layers` and naming the stacks those layers require.
 
 1. Install the LiteSpec release as step 1 states, and run every command below as `dotnet litespec <command>` from the consumer root.
-2. Write the project configuration: run `dotnet litespec init --preset records --size small`, which writes `.litespec/project.yaml` with `"conformance": "records"`, the `server` shape, and no stacks, with no `frontends`, beside the `## LiteSpec` block in `AGENTS.md`, the glossary, and the example cast. Fill every placeholder. This satisfies `litespec/core/scope#declare-the-conformance-level`.
+2. Write the project configuration: run `dotnet litespec init --preset records --size small`, which writes `.litespec/project.yaml` with the `intent` and `behavior` layers claimed, the `server` shape, and no stacks, with no `frontends`, beside the `## LiteSpec` block in `AGENTS.md`, the glossary, and the example cast. Fill every placeholder. This satisfies `litespec/core/scope#claim-the-record-layers-the-project-uses`.
 3. Write the Intent records as steps 9 to 14 state: the product record, one module with its first feature and its requirements, the constraints answer, the first decision, the people records, and one journey.
 4. Specify the module from Intent as step 16 states, following [Model a Behavior Module](model-domain.md) for the module terms, the aggregates, the rules, the use cases, the results, the scenarios, the events, and the entry points.
 5. Check the records. Run `dotnet litespec model check` from the consumer root and fix every finding before continuing. The run reports only the findings of the records level, and a clean run prints the output below.
@@ -64,11 +64,11 @@ A project at the records conformance level claims that its Intent, Behavior, tec
 
 6. Read the book. Run `dotnet litespec book` and open the Intent and Behavior parts, the way product reviewers read the records.
 
-Stop here. The records path creates no toolchain configuration, no API solution, no frontend, and no operating records, and it runs no gate that reads code. To claim the traced or full conformance level later, declare that level in `.litespec/project.yaml`, name the stacks the project builds with, and follow the remaining steps of this Lesson from the point where the chosen level starts to apply.
+Stop here. The records path creates no toolchain configuration, no API solution, no frontend, and no operating records, and it runs no gate that reads code. To claim Implementation and Proof later, add those layers to `layers` in `.litespec/project.yaml`, name the stacks the project builds with, and follow the remaining steps of this Lesson from the point where the claimed layers start to apply.
 
 ## What You Built
 
 - A consumer repository at small size that the model check accepts.
 - One implemented use case with Intent, Behavior, code, tests, and generated contracts.
-- The records path leaves a consumer repository at the records conformance level: its Intent and Behavior records pass the model check, and its book renders, with no stack, code, or frontend yet.
+- The records path leaves a consumer repository claiming `intent` and `behavior`: its Intent and Behavior records pass the model check, and its book renders, with no stack, code, or frontend yet.
 - When the product ships another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md); all commands are listed on the [command index](../tools/README.md).

@@ -1,7 +1,7 @@
 # Backend Architecture
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

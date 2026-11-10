@@ -437,7 +437,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void Aggregate_Root_By_Mark_And_State_Record_Is_Read_At_Traced()
     {
@@ -476,7 +476,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With Mark But No State Record Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void Aggregate_With_Mark_But_No_State_Record_Is_Not_An_Aggregate_Root_At_Traced()
     {
@@ -501,7 +501,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With State Record But No Mark Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void Aggregate_With_State_Record_But_No_Mark_Is_Not_An_Aggregate_Root_At_Traced()
     {
@@ -530,7 +530,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root On Its Own Base By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced</proves>
+    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void Aggregate_Root_On_Its_Own_Base_By_Mark_And_State_Record_Is_Read_At_Traced()
     {

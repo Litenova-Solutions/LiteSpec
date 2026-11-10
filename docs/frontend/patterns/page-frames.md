@@ -1,7 +1,7 @@
 # Page Frame Patterns
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

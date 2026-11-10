@@ -481,8 +481,8 @@ internal sealed partial class PageValidator
         }
     }
 
-    // Each page that owns provisions declares its stack and layer once, in a `**Stack:**`
-    // line and a `**Layer:**` line directly under its title. A page without provisions
+    // Each page that owns provisions declares its stack and concern once, in a `**Stack:**`
+    // line and a `**Concern:**` line directly under its title. A page without provisions
     // carries no block and faces no check; a page with no single title leaves the block
     // position to the title check.
     /// <summary>Checks that a page owning provisions declares its scope under its title.</summary>
@@ -519,21 +519,21 @@ internal sealed partial class PageValidator
 
         if (blocks.Count == 0)
         {
-            add(relative, titles[0].Line, Diagnostics.Codes.ScopeBlock, "page owns provisions but carries no Scope block directly under its title; write a `**Stack:**` line and a `**Layer:**` line");
+            add(relative, titles[0].Line, Diagnostics.Codes.ScopeBlock, "page owns provisions but carries no Scope block directly under its title; write a `**Stack:**` line and a `**Concern:**` line");
             return;
         }
 
         var parsed = blocks.Select(block => (block.Number, Fields: Scopes.ParseScopeFields(block.Values))).ToList();
         var stacks = parsed.SelectMany(entry => entry.Fields.Where(field => field.Name == "stack").SelectMany(field => field.Values)).ToList();
-        var layers = parsed.SelectMany(entry => entry.Fields.Where(field => field.Name == "layer").SelectMany(field => field.Values)).ToList();
+        var concerns = parsed.SelectMany(entry => entry.Fields.Where(field => field.Name == "concern").SelectMany(field => field.Values)).ToList();
         if (stacks.Count == 0)
         {
             add(relative, blocks[0].Number, Diagnostics.Codes.ScopeBlock, "Scope block names no stack; write a `**Stack:**` line");
         }
 
-        if (layers.Count == 0)
+        if (concerns.Count == 0)
         {
-            add(relative, blocks[0].Number, Diagnostics.Codes.ScopeBlock, "Scope block names no layer; write a `**Layer:**` line");
+            add(relative, blocks[0].Number, Diagnostics.Codes.ScopeBlock, "Scope block names no concern; write a `**Concern:**` line");
         }
 
         var vocabulary = Context.Vocabulary;
@@ -544,11 +544,11 @@ internal sealed partial class PageValidator
 
         foreach (var (number, fields) in parsed)
         {
-            foreach (var field in fields.Where(field => field.Name is "stack" or "layer"))
+            foreach (var field in fields.Where(field => field.Name is "stack" or "concern"))
             {
                 foreach (var value in field.Values)
                 {
-                    var known = field.Name == "stack" ? vocabulary.Stacks.Contains(value) : vocabulary.Layers.Contains(value);
+                    var known = field.Name == "stack" ? vocabulary.Stacks.Contains(value) : vocabulary.Concerns.Contains(value);
                     if (!known)
                     {
                         add(relative, number, Diagnostics.Codes.ScopeValue, $"Scope block names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");

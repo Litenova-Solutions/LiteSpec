@@ -1232,7 +1232,7 @@
       "style": "standard",
       "area": "core",
       "title": "Provision Scopes",
-      "intent": "Provisions are filed by concern: each page states the rules for one concern, while an agent changing one file needs every rule for that situation. This page states the shared situation vocabulary each provision carries: its stack, its layer, its artifact, its conformance level, and its strength. Authors write these values when they write or grade a provision, and the provision index carries them so the CLI lists the provisions that apply to one path and the part of the contract each provision belongs to.",
+      "intent": "Provisions are filed by concern: each page states the rules for one concern, while an agent changing one file needs every rule for that situation. This page states the shared situation vocabulary each provision carries: its stack, its concern, its artifact, the record layer it governs, its trace, and its strength. Authors write these values when they write or grade a provision, and the provision index carries them so the CLI lists the provisions that apply to one path and the record layer each provision belongs to.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2961,16 +2961,16 @@
       "style": "explanation",
       "area": "learn",
       "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, describing the project, writing the first records, and building to the standard with the checks in place. A team adopts it in steps by conformance level: it starts at the level it can meet today and moves up when it is ready for the next part of the contract. Technical leads read this page when they plan the rollout, so the team starts small and every departure stays visible instead of silent.",
+      "intent": "Adopting LiteSpec means pinning one release, describing the project, writing the first records, and building to the standard with the checks in place. A team adopts it in steps by record layer: it claims the layers it can meet today and adds the next layer when it is ready for the next part of the contract. Technical leads read this page when they plan the rollout, so the team starts small and every departure stays visible instead of silent.",
       "sections": [
         "Intent",
         "Fit Check",
-        "Choose a Level to Start",
-        "Step 1: Take the Record Model at Records",
-        "Step 2: Trace Code to Records at Traced",
-        "Step 3: Take the Full Contract at Full",
+        "Choose the Layers to Start",
+        "Step 1: Claim the Record Model",
+        "Step 2: Trace Code to Records",
+        "Step 3: Take LiteSpec\u0027s Layers",
         "The Records Path Through the Tutorial",
-        "Departures at Any Level",
+        "Departures at Any Layer",
         "Next Steps"
       ]
     },
@@ -3011,7 +3011,7 @@
       "style": "command",
       "area": "maintain",
       "title": "Generate Provisions",
-      "intent": "\u0060litespec-maintain provisions\u0060 writes the provision index and its data file, resolving every identifier to its page, conformance level, and checked share.",
+      "intent": "\u0060litespec-maintain provisions\u0060 writes the provision index and its data file, resolving every identifier to its page, record layer, trace, and checked share.",
       "sections": [
         "Name",
         "Synopsis",
@@ -3198,7 +3198,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Provisions",
-      "intent": "Use this generated page to resolve a provision ID to its heading, owning page, scope, conformance level, strength, and verification mark, and to read the checked share of rules for each page.",
+      "intent": "Use this generated page to resolve a provision ID to its heading, owning page, scope, record layer, trace, strength, and verification mark, and to read the checked share of rules for each page.",
       "sections": [
         "Intent",
         "Checked Share by Page",
@@ -3259,7 +3259,7 @@
       "style": "command",
       "area": "tools",
       "title": "Initialize Consumer",
-      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records conformance level with no stacks.",
+      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records preset, which claims the record model with no stacks.",
       "sections": [
         "Name",
         "Synopsis",
@@ -3331,7 +3331,7 @@
       "style": "command",
       "area": "tools",
       "title": "Rules Query",
-      "intent": "\u0060litespec rules\u0060 lists the provisions that govern a path or a record identifier at the conformance level the project claims.",
+      "intent": "\u0060litespec rules\u0060 lists the provisions that govern a path or a record identifier at the record layers the project claims in [layers](../core/scope.md#layer-claims).",
       "sections": [
         "Name",
         "Synopsis",
@@ -3349,7 +3349,7 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Start a Consumer Repository",
-      "intent": "A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the \u0060dotnet\u0060 backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records conformance level follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.",
+      "intent": "A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the \u0060dotnet\u0060 backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records claims only the record model follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.",
       "sections": [
         "Purpose",
         "Prerequisites",

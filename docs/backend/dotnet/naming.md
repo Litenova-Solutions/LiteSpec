@@ -1,7 +1,7 @@
 # .NET Naming and Code Style
 
 **Stack:** dotnet
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 

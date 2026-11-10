@@ -108,9 +108,8 @@ static class Checker
         GraphChecks.RunDoors(model, findings);
         ScopeChecks.Run(model, findings);
 
-        // A project reports only the findings of the conformance level it claims.
-        var claimed = model.Config.Conformance;
-        findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, claimed));
+        // A project reports only the findings its layer claims cover.
+        findings.RemoveAll(finding => !model.Config.Layers.Covers(finding.Code, model.Config.Extensions));
 
         findings.Sort((left, right) =>
         {

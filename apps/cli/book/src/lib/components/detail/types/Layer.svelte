@@ -10,10 +10,12 @@
 
   // A layer page: what the layer answers, who writes it, and its
   // record types with the question each answers. The Intent page opens
-  // with the Intent coverage, at every conformance level.
+  // with the Intent coverage, whatever layers the project claims. A layer
+  // the project does not claim reads as not claimed, never as missing.
   let { id, r }: { id: string; r: BookRecord } = $props();
   const f = $derived(r.fields ?? {});
   const key = $derived(id.slice(6));
+  const unclaimed = $derived(["intent", "behavior", "implementation", "proof"].includes(key) && !book.claimed(key));
   const ids = $derived(book.order.filter((x) => book.layerOf[x] === key && book.isReal(x)));
   const types = $derived(uniq(ids.map((x) => book.typeOf(x))));
   const lead = $derived(f.question ? inline(book, String(f.question), null) : "");
@@ -23,6 +25,11 @@
   const percent = $derived(coverage && coverage.total > 0 ? Math.round((coverage.share ?? coverage.reached / coverage.total) * 100) : 100);
 </script>
 
+{#if unclaimed}
+  <p class="mb-6 max-w-[72ch] text-sm leading-relaxed text-muted-foreground">
+    Not claimed. This project does not claim the {key} layer, so its records are not checked here.
+  </p>
+{/if}
 {#if coverage && coverage.total > 0}
   <Block blockKey="intent-coverage" heading="Intent coverage" count={coverage.total}>
     <p class="mt-0 mb-3 text-sm leading-relaxed">

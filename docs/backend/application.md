@@ -1,7 +1,7 @@
 # Application Layer
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 

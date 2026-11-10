@@ -1,7 +1,7 @@
 # Mobile Screens and Navigation
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

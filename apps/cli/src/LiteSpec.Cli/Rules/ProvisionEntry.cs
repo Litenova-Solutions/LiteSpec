@@ -13,14 +13,15 @@ namespace LiteSpec.Rules;
 /// <param name="Page">The owning page relative to the release root, or empty for a convention.</param>
 /// <param name="Kind">The assertion class: rule, convention or pattern.</param>
 /// <param name="Strength">The display strength: rule, default, advice or pattern.</param>
-/// <param name="Layer">The owning page layer, or empty when the page names none.</param>
+/// <param name="Concern">The page concern the provision belongs to, such as domain or tests, or empty when the page names none.</param>
+/// <param name="Layer">The record layer the provision governs: any, intent, behavior, implementation or proof.</param>
+/// <param name="Trace">Whether the provision ties its layer to the records rather than stating LiteSpec's practice for it.</param>
 /// <param name="AppliesTo">The artifact the provision governs, or empty for a page-scope provision.</param>
 /// <param name="Statement">The one-line assertion: the Statement, the Default, or the pattern Default.</param>
 /// <param name="Rationale">The reason the provision exists, printed by --full.</param>
 /// <param name="Example">What following the provision looks like, printed by --full.</param>
 /// <param name="ReviewedFor">The verification question or check a reviewer answers.</param>
 /// <param name="Source">Where the entry comes from: litespec or convention.</param>
-/// <param name="Conformance">The conformance level the provision belongs to: records, traced or full, or empty when it names none.</param>
 /// <param name="Mark">The verification mark: checkable when a tool checks the provision, guidance when a person judges it, or empty.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal sealed record ProvisionEntry(
@@ -29,14 +30,15 @@ internal sealed record ProvisionEntry(
     string Page,
     string Kind,
     string Strength,
-    string Layer,
+    string Concern,
+    RecordLayer Layer,
+    bool Trace,
     string AppliesTo,
     string Statement,
     string Rationale,
     string Example,
     string ReviewedFor,
     string Source,
-    string Conformance,
     string Mark)
 {
     /// <summary>The source of a LiteSpec provision from the carried release.</summary>
@@ -57,14 +59,10 @@ internal sealed record ProvisionEntry(
         _ => "Patterns",
     };
 
-    /// <summary>Gets the conformance level the provision belongs to; full when it names none, as a provision without a level runs only at full.</summary>
-    public ConformanceLevel Level
-    {
-        get
-        {
-            return ConformanceLevels.TryParse(Conformance, out var level) ? level : ConformanceLevel.Full;
-        }
-    }
+    /// <summary>Whether the record layers a project claims cover the provision.</summary>
+    /// <param name="claims">The layers the project claims.</param>
+    /// <returns>True when the provision applies to the project.</returns>
+    public bool Covered(LayerClaims claims) => claims.Covers(Layer, Trace);
 
     /// <summary>Gets a value indicating whether a tool checks the provision, so the build already enforces it.</summary>
     public bool IsChecked => string.Equals(Mark, "checkable", StringComparison.Ordinal);

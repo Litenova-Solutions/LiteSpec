@@ -23,7 +23,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 
 - [Core overview](core/README.md): the system all projects share, and how its pages fit together.
 - [LiteSpec](core/system.md): what LiteSpec coordinates and the parts it combines.
-- [Supported Scope](core/scope.md): the size, shape, and stacks each project selects, the extensions and constraints it declares, the conformance level it claims (`records`, `traced` or `full`), and what claiming conformance means.
+- [Supported Scope](core/scope.md): the size, shape, and stacks each project selects, the extensions and constraints it declares, the record layers it claims in `layers`, and what claiming conformance means.
 - [Technology Stacks](core/stacks.md): what selecting a stack applies, and what each stack folder holds.
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.

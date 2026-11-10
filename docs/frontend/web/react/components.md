@@ -2,7 +2,7 @@
 
 **Stack:** react
 
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

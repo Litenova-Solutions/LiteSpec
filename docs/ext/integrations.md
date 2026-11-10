@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** infrastructure
+**Concern:** infrastructure
 
 ## Intent
 

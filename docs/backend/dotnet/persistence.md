@@ -2,7 +2,7 @@
 
 **Stack:** dotnet
 
-**Layer:** infrastructure
+**Concern:** infrastructure
 
 ## Intent
 

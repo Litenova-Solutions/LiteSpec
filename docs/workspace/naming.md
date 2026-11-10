@@ -1,7 +1,7 @@
 # Naming and Code Style
 
 **Stack:** `any`
-**Layer:** `workspace`
+**Concern:** `workspace`
 
 ## Intent
 

@@ -181,7 +181,7 @@ static class BookImplementationDetail
         bool? hasTests = null;
         JsonObject? scenarios = null;
 
-        if (type is "use-case" or "reaction" or "job")
+        if (BookRender.IsTrue(expect["proof"]) && type is "use-case" or "reaction" or "job")
         {
             var children = BookModelQueries.UseCaseChildren(index, id);
             if (children.Scenarios.Count > 0)

@@ -1,7 +1,7 @@
 # Configuration
 
 **Stack:** `any`
-**Layer:** `workspace`
+**Concern:** `workspace`
 
 ## Intent
 

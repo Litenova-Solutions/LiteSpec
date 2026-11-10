@@ -1,7 +1,7 @@
 # Continuous Integration
 
 **Stack:** any
-**Layer:** operations
+**Concern:** operations
 
 ## Intent
 

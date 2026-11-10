@@ -2,7 +2,7 @@
 
 **Stack:** dotnet
 
-**Layer:** domain
+**Concern:** domain
 
 ## Intent
 

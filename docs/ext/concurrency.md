@@ -1,7 +1,7 @@
 # Concurrency and Idempotency
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -31,7 +31,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Strength:** rule
 
-**Applies to:** artifact: record:use-case; conformance: records
+**Applies to:** artifact: record:use-case; layer: behavior
 
 **Statement:** A conflicting-write use case MUST document conflicting operations, invalid combined result, expected winner behavior, and user-visible conflict response.
 
@@ -257,7 +257,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Strength:** rule
 
-**Applies to:** artifact: record:use-case; conformance: records
+**Applies to:** artifact: record:use-case; layer: behavior
 
 **Statement:** An idempotent use case MUST define whether a concurrent request waits, reports in-progress, or returns a stable conflict.
 
@@ -327,7 +327,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Strength:** rule
 
-**Applies to:** artifact: record:setting; conformance: records
+**Applies to:** artifact: record:setting; layer: behavior
 
 **Statement:** An idempotency owner MUST record key retention as a setting record set from the caller retry window and business risk.
 
@@ -355,7 +355,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Strength:** rule
 
-**Applies to:** artifact: record:setting; conformance: records
+**Applies to:** artifact: record:setting; layer: behavior
 
 **Statement:** An idempotency owner MUST NOT expire a key before callers can safely retry.
 
@@ -369,7 +369,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Strength:** rule
 
-**Applies to:** artifact: record:use-case; conformance: records
+**Applies to:** artifact: record:use-case; layer: behavior
 
 **Statement:** An idempotent use case MUST list the statuses and headers stored for replay.
 

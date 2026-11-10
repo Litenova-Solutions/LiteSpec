@@ -51,14 +51,14 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Records server project with no stacks and no frontends.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
-    [Fact(DisplayName = "records server project with no stacks and no frontends")]
-    public void RecordsServerProjectWithNoStacksOrFrontends()
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
+    [Fact(DisplayName = "intent and behavior server project with no stacks and no frontends")]
+    public void IntentAndBehaviorServerProjectWithNoStacksOrFrontends()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["layers"] = ConsumerFixture.Layers("records");
+            project["layers"] = ConsumerFixture.Layers(implementation: null, proof: null);
             project.Remove("stacks");
             project.Remove("frontends");
         });

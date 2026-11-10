@@ -92,7 +92,7 @@ static class RulesCommand
         var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
         var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
 
-        Print(context, results, parsed.Has("--full"), config.Conformance);
+        Print(context, results, parsed.Has("--full"), config.Layers);
         return 0;
     }
 
@@ -122,8 +122,8 @@ static class RulesCommand
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
-    /// <param name="conformance">The conformance level the project claims.</param>
-    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, ConformanceLevel conformance)
+    /// <param name="claims">The record layers the project claims.</param>
+    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, LayerClaims claims)
     {
         var parts = new List<string>();
 
@@ -132,9 +132,9 @@ static class RulesCommand
             parts.Add($"stack: {context.Stack}");
         }
 
-        if (context.Layer.Length > 0)
+        if (context.Concern.Length > 0)
         {
-            parts.Add($"layer: {context.Layer}");
+            parts.Add($"concern: {context.Concern}");
         }
 
         if (context.Artifact.Length > 0)
@@ -148,8 +148,8 @@ static class RulesCommand
 
         if (results.Count == 0)
         {
-            Console.WriteLine(conformance == ConformanceLevel.Records && context.IsCodePath
-                ? "No provisions apply at the records conformance level for a code path: the project claims the record model only, so provisions about code do not apply. Query a record id for the provisions about records."
+            Console.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
+                ? "No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records."
                 : "No provisions apply.");
             return;
         }
@@ -163,7 +163,7 @@ static class RulesCommand
         foreach (var group in ProvisionEntry.GroupOrder)
         {
             var items = results
-                .Where(result => result.Entry.Group == group && !result.IsChecked && !result.IsLayerWide)
+                .Where(result => result.Entry.Group == group && !result.IsChecked && !result.IsConcernWide)
                 .ToList();
 
             if (items.Count == 0)
@@ -195,13 +195,13 @@ static class RulesCommand
         }
 
         var layerItems = results
-            .Where(result => result.IsLayerWide)
+            .Where(result => result.IsConcernWide)
             .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
             .ToList();
 
         if (layerItems.Count > 0)
         {
-            Console.WriteLine("Layer-wide:");
+            Console.WriteLine("Concern-wide:");
 
             foreach (var item in layerItems)
             {

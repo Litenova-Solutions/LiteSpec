@@ -2,7 +2,7 @@
 
 **Stack:** svelte
 
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 

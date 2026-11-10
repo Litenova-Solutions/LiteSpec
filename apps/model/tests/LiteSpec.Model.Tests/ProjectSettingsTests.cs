@@ -2,10 +2,10 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the project file settings read their defaults, the declared values, and the level the layer claims map to.</summary>
+/// <summary>Proves the project file settings read their defaults, the declared values, and the layers the project claims.</summary>
 public sealed class ProjectSettingsTests
 {
-    /// <summary>A file naming no setting reads the xml style and the full level.</summary>
+    /// <summary>A file naming no setting reads the xml style and every layer with LiteSpec's practice.</summary>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact]
     public void Missing_Settings_Read_Defaults()
@@ -13,7 +13,7 @@ public sealed class ProjectSettingsTests
         Assert.True(ProjectSettings.TryParse("schemaVersion: 1\n", out var settings, out var error));
 
         Assert.Equal(MarkStyle.Xml, settings.Marks);
-        Assert.Equal(ConformanceLevel.Full, settings.Conformance);
+        Assert.Equal(LayerClaims.All, settings.Layers);
         Assert.Null(error);
     }
 
@@ -48,24 +48,53 @@ public sealed class ProjectSettingsTests
         Assert.Null(error);
     }
 
-    /// <summary>Each layer claim set reads as the level it maps to.</summary>
+    /// <summary>Each layer claim set reads as the layers and practices it declares; a layer left out is not claimed.</summary>
     /// <param name="layers">The layers mapping the project file declares.</param>
-    /// <param name="level">The level the claims must read as.</param>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <param name="implementation">The Implementation practice the claims must read: none, litespec or own.</param>
+    /// <param name="proof">The Proof practice the claims must read: none, litespec or own.</param>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Theory]
-    [InlineData("intent: litespec\n  behavior: litespec", ConformanceLevel.Records)]
-    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: own\n  proof: own", ConformanceLevel.Traced)]
-    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec", ConformanceLevel.Full)]
-    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: own", ConformanceLevel.Traced)]
-    public void Layer_Claims_Read_As_Their_Level(string layers, ConformanceLevel level)
+    [InlineData("intent: litespec\n  behavior: litespec", "none", "none")]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: own\n  proof: own", "own", "own")]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec", "litespec", "litespec")]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: own", "litespec", "own")]
+    [InlineData("intent: litespec\n  behavior: litespec\n  proof: own", "none", "own")]
+    public void Layer_Claims_Read_As_Declared(string layers, string implementation, string proof)
     {
         var text = "layers:\n  " + layers + "\n";
 
         Assert.True(ProjectSettings.TryParse(text, out var settings, out var error));
 
-        Assert.Equal(level, settings.Conformance);
+        Assert.True(settings.Layers.Intent);
+        Assert.True(settings.Layers.Behavior);
+        Assert.Equal(PracticeOf(implementation), settings.Layers.Implementation);
+        Assert.Equal(PracticeOf(proof), settings.Layers.Proof);
         Assert.Null(error);
     }
+
+    /// <summary>A project file claiming only Intent claims no Behavior, Implementation or Proof.</summary>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
+    [Fact]
+    public void Intent_Only_Claim_Leaves_Every_Other_Layer_Unclaimed()
+    {
+        Assert.True(ProjectSettings.TryParse("layers:\n  intent: litespec\n", out var settings, out var error));
+
+        Assert.True(settings.Layers.Intent);
+        Assert.False(settings.Layers.Behavior);
+        Assert.Null(settings.Layers.Implementation);
+        Assert.Null(settings.Layers.Proof);
+        Assert.Null(error);
+    }
+
+    /// <summary>The practice a declared name reads as, or null when the layer is not claimed.</summary>
+    /// <param name="name">none, litespec or own.</param>
+    /// <returns>The practice, or null.</returns>
+    static LayerPractice? PracticeOf(string name) => name switch
+    {
+        "none" => null,
+        "own" => LayerPractice.Own,
+        _ => LayerPractice.LiteSpec,
+    };
 
     /// <summary>Text that is no YAML and YAML that is no mapping are errors naming the file.</summary>
     /// <param name="text">The project file text under test.</param>

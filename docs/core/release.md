@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** operations
+**Concern:** operations
 
 ## Intent
 
@@ -96,7 +96,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A backend change MUST pass the release build and the backend test suites.
 
@@ -110,7 +110,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A frontend change MUST run frozen installation, lint, type checking, tests, and production build checks.
 
@@ -166,7 +166,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A source change MUST regenerate OpenAPI and frontend API types when it changes their source contract.
 
@@ -180,7 +180,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A generated application contract MUST be stable and exclude timestamps, machine paths, and nondeterministic ordering.
 
@@ -194,7 +194,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A stack reader MUST pass its known good and known bad fixtures before it gates with S checks.
 
@@ -210,7 +210,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: full
+**Applies to:** artifact: any
 
 **Statement:** A release with restricted access MUST provide authentication and authorization.
 

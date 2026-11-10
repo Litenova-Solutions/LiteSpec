@@ -1,7 +1,7 @@
 # Principles
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -401,7 +401,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** A consumer MUST NOT write completion by hand, because the model computes it from code, tests, and passing scenarios.
 
@@ -463,7 +463,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Strength:** rule
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** A consumer MUST prove each enforceable boundary mechanically: a reference, visibility, an architecture test, a behavior test, or a lint rule.
 

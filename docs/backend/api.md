@@ -1,7 +1,7 @@
 # HTTP API
 
 **Stack:** any
-**Layer:** web-api
+**Concern:** web-api
 
 ## Intent
 

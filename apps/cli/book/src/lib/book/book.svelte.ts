@@ -10,7 +10,7 @@ import { formatLabel } from "../utils";
 import { createSearch, type BookSearch } from "./search";
 import type { ShardLoader } from "$lib/data/shards";
 import type {
-  BookRecord, Edge, Fields, Lexicon, LexiconLayer, Manifest, OutlineNode, ProofState, SearchRow, SecurityItem,
+  BookRecord, Edge, Fields, LayerClaim, Lexicon, LexiconLayer, Manifest, OutlineNode, ProofState, SearchRow, SecurityItem,
 } from "./types";
 
 export type View = "outline" | "list" | "security";
@@ -463,13 +463,16 @@ export class Book {
   screensOf(id: string) { return this.listField(id, "screens") ?? this.ins(base(id), "offers"); }
   shownByOf(id: string) { return this.listField(id, "shownBy") ?? this.kidsByType(id, "scenario"); }
 
-  // ---------- conformance and Intent coverage ----------
-  conformance(): string { return this.man?.conformance ?? "full"; }
+  // ---------- layer claims and Intent coverage ----------
+  /** The record layers the project claims, as the project file writes them. */
+  claims(): LayerClaim[] { return this.man?.claims ?? []; }
+  /** Whether the project claims a record layer; a layer it does not claim reads as not claimed. */
+  claimed(layer: string): boolean { return this.claims().some((claim) => claim.layer === layer); }
   intentCoverage() { return this.man?.intentCoverage ?? null; }
 
   // ---------- completion and proof ----------
   proofState(id: string): ProofState | null {
-    if (this.conformance() === "records") return null;
+    if (!this.claimed("proof")) return null;
     const r = this.get(id);
     if (!r) return null;
     if (r.proof) return r.proof.state as ProofState;
@@ -483,23 +486,25 @@ export class Book {
     if (r.type === "requirement" && r.machine) return r.machine.met ? "passing" : "awaiting";
     return null;
   }
-  /** What a record is still missing: implementation, or tests on itself or its scenarios. */
+  /** What a record is still missing in the layers it claims: implementation, or tests on itself or its scenarios. */
   lacks(id: string) {
-    if (this.conformance() === "records") return "";
     const r = this.get(id);
     if (!r) return "";
-    if (Array.isArray(r.lacks)) return r.lacks.join(", ");
-    if (typeof r.lacks === "string") return r.lacks;
+    if (Array.isArray(r.lacks)) return this.claimedLacks(r.lacks).join(", ");
     if (!r.expect) return "";
     const miss: string[] = [];
-    if (r.expect.impl && !(r.impl ?? []).length) miss.push("not implemented");
-    if (r.expect.proof) {
+    if (this.claimed("implementation") && r.expect.impl && !(r.impl ?? []).length) miss.push("not implemented");
+    if (this.claimed("proof") && r.expect.proof) {
       if (r.type === "use-case" || r.type === "reaction" || r.type === "job") {
         const sc = this.scenariosOf(id).filter((x) => this.get(x));
         if (!sc.length || sc.some((x) => !(this.get(x)?.tests ?? []).length)) miss.push("scenarios not tested");
       } else if (!(r.tests ?? []).length) miss.push("not tested");
     }
     return miss.join(", ");
+  }
+  /** Keeps the missing marks whose layer the project claims: code for not implemented, tests for the rest. */
+  private claimedLacks(items: string[]) {
+    return items.filter((item) => this.claimed(item === "not implemented" ? "implementation" : "proof"));
   }
   /** Whether a record is complete: it has the code and tests it expects, and its scenarios pass. A record expecting nothing is complete. */
   completeOf(id: string) {

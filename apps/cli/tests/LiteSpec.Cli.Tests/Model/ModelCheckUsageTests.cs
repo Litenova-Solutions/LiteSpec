@@ -22,7 +22,7 @@ public sealed class ModelCheckUsageTests
     }
 
     /// <summary>The check accepts <c>--all</c> and names it in the usage text.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
     public void Check_All_Option_Is_Accepted()
     {
