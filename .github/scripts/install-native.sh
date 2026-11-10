@@ -12,38 +12,20 @@ archives="$(cd "$1" && pwd)"
 mkdir -p "$2"
 install_dir="$(cd "$2" && pwd)"
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
-version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' "$repository/litespec.manifest.json" | head -n 1)"
+. "$repository/.github/scripts/lib.sh"
+version="$(manifest_version "$repository/litespec.manifest.json")"
 site="$(mktemp -d)"
 
 mkdir -p "$site/v$version"
 cp "$archives"/litespec-* "$site/v$version/"
-
-if command -v sha256sum >/dev/null 2>&1; then
-  (cd "$site/v$version" && sha256sum litespec-* | sed 's/ \*/  /' > SHA256SUMS)
-else
-  (cd "$site/v$version" && shasum -a 256 litespec-* > SHA256SUMS)
-fi
+(cd "$site/v$version" && $(sha256_command) litespec-* | sed 's/ \*/  /' > SHA256SUMS)
 
 # The server lets the system pick a free port, since Windows reserves port ranges that differ by machine.
 log="$(mktemp)"
-node "$repository/.github/scripts/serve.mjs" "$site" >"$log" 2>&1 &
-server=$!
-trap 'kill "$server" 2>/dev/null || true; rm -rf "$site" "$log"' EXIT
-port=""
+trap 'kill "${SERVER_PID:-}" 2>/dev/null || true; rm -rf "$site" "$log"' EXIT
+serve_folder "$site" "$log" "$repository/.github/scripts/serve.mjs"
 
-for _ in $(seq 1 80); do
-  port="$(sed -n 's/^port \([0-9][0-9]*\).*/\1/p' "$log" | head -n 1)"
-
-  if [ -n "$port" ] && curl -fsS "http://127.0.0.1:$port/v$version/SHA256SUMS" >/dev/null 2>&1; then
-    break
-  fi
-
-  sleep 0.25
-done
-
-test -n "$port"
-
-export LITESPEC_DOWNLOAD_URL="http://127.0.0.1:$port"
+export LITESPEC_DOWNLOAD_URL="http://127.0.0.1:$SERVER_PORT"
 
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*)

@@ -727,7 +727,6 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 | JSON | UUID string | WebApi converter |
 | OpenAPI | `type: string`, `format: uuid` | WebApi schema transformer |
 | Marten | Native UUID identity plus explicit typed-ID mapping | Infrastructure |
-| EF Core extension | Explicit value converter to UUID | Infrastructure |
 | Generated TypeScript | `string` from OpenAPI | Generated client |
 
 For multiple IDs, WebApi uses one converter factory restricted to `IStronglyTypedId` implementations. The OpenAPI transformer applies the same restriction. The factory does not convert every `IParsable<T>` type into a UUID schema.

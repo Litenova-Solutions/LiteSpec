@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="292" viewBox="0 0 720 292" role="img" aria-labelledby="core-record-status-title core-record-status-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="core-record-status-title">Record statuses and the computed states</title>
-  <desc id="core-record-status-desc">Three written statuses in order: draft, approved, retired. A draft awaits its decider and names its decider and decide-by date. Approved holds; a decision is replaced, never edited. Retired means a replacement holds and the old record stands beside the new one. The builder computes four states: implemented when code exists for the use case, rule, event, or state; verified when every scenario is proven and every requirement is fulfilled and checked; reachable when a transition leads into the state; and effective status, draft when the record, a deciding decision, or a fulfilled requirement is draft.</desc>
+  <desc id="core-record-status-desc">Three written statuses in order: draft, approved, retired. A draft awaits its decider and names its decider and decide-by date. Approved holds; a later decision edits the record in place, and git keeps the earlier text. Retired means the record no longer holds, and git keeps its last text. The builder computes four states: implemented when code exists for the use case, rule, event, or state; verified when every scenario is proven and every requirement is fulfilled and checked; reachable when a transition leads into the state; and effective status, draft when the record, a deciding decision, or a fulfilled requirement is draft.</desc>
   <defs>
     <marker id="core-record-status-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -36,11 +36,11 @@
     <text x="120" y="80">names decider and</text>
     <text x="120" y="98">decide-by date</text>
     <text x="360" y="62">holds;</text>
-    <text x="360" y="80">a decision is replaced,</text>
-    <text x="360" y="98">never edited</text>
-    <text x="600" y="62">a replacement holds;</text>
-    <text x="600" y="80">kept beside the</text>
-    <text x="600" y="98">new record</text>
+    <text x="360" y="80">a later decision edits</text>
+    <text x="360" y="98">it in place</text>
+    <text x="600" y="62">no longer holds;</text>
+    <text x="600" y="80">git keeps its</text>
+    <text x="600" y="98">final text</text>
     <text x="100" y="184">code exists for</text>
     <text x="100" y="202">use case, rule,</text>
     <text x="100" y="220">event, or state</text>

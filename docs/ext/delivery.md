@@ -133,7 +133,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Statement:** A persistence change MUST publish a schema artifact that lists every destructive operation with its reason.
 
-**Rationale:** A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.
+**Rationale:** A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or a generated relational migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.
 
 **Reviewed for:** Each persistence change carries a schema artifact with every destructive operation and its reason.
 

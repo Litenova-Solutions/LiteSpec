@@ -40,4 +40,4 @@ Selected per record, for the use cases, entry points, jobs, journeys, modules, r
 
 Extensions that bind to one stack live beside that stack:
 
-- [.NET extensions overview](../backend/dotnet/ext/README.md): the BDD scenarios and EF Core persistence only a .NET backend offers.
+- [.NET extensions overview](../backend/dotnet/ext/README.md): the BDD scenarios and the layer projects only a .NET backend offers.

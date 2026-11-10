@@ -22,7 +22,8 @@ if [ -z "$mode" ] || [ -z "$target" ]; then
 fi
 
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
-version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' "$repository/litespec.manifest.json" | head -n 1)"
+. "$repository/.github/scripts/lib.sh"
+version="$(manifest_version "$repository/litespec.manifest.json")"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 unset LITESPEC_HOME
@@ -98,21 +99,12 @@ grep -q '"id": "use-case/spending.submit-expense"' "$work/query.json"
 
 litespec rules apps/api/src/Claimwick.SharedKernel/Domain/Money.cs > /dev/null
 
-# The hash of every file in a folder, in a stable order; macOS has shasum where Linux has sha256sum.
-hash_tree() {
-  if command -v sha256sum >/dev/null 2>&1; then
-    (cd "$1" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum)
-  else
-    (cd "$1" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256)
-  fi
-}
-
 # Rename a record and rename it back; the copy must end byte for byte as it started.
-hash_tree "$claimwick" > "$work/claimwick-before.sha256"
+sha256_tree "$claimwick" > "$work/claimwick-before.sha256"
 litespec rename use-case/spending.submit-expense use-case/spending.submit-expense-smoke
 litespec model query use-case/spending.submit-expense-smoke > /dev/null
 litespec rename use-case/spending.submit-expense-smoke use-case/spending.submit-expense
-hash_tree "$claimwick" > "$work/claimwick-after.sha256"
+sha256_tree "$claimwick" > "$work/claimwick-after.sha256"
 diff "$work/claimwick-before.sha256" "$work/claimwick-after.sha256"
 
 echo "LiteSpec $version passed the smoke run ($mode)."

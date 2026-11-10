@@ -7,8 +7,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ensureDir } from "./files.js";
-import { READER_VERSION } from "./protocol.js";
+import { ensureDir } from "./files";
+import { READER_VERSION } from "./protocol";
 
 interface CacheEntry {
   reader: string;

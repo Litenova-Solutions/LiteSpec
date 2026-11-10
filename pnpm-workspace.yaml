@@ -1,5 +1,18 @@
+packages:
+  - apps/site
+  - apps/cli/book
+  - apps/cli/fe-reader
+
+# The versions the packages share. A package names one with "catalog:" and holds no version of its own.
+catalog:
+  svelte: 5.57.2
+  typescript: 6.0.3
+  vitest: 5.1.0
+
 allowBuilds:
   esbuild: true
+  workerd: true
+
 minimumReleaseAgeExclude:
   - '@lucide/svelte@1.67.0'
   - '@tailwindcss/node@4.3.4'

@@ -65,9 +65,9 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("svelte");
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" });
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" });
         });
-        AssertProblem(RunConsumer(folder.Path), "extensions 'efcore' supports only the dotnet stack, which the project does not name in stacks");
+        AssertProblem(RunConsumer(folder.Path), "extensions 'bdd' supports only the dotnet stack, which the project does not name in stacks");
     }
 
     /// <summary>Stack-scoped extension with its stack.</summary>
@@ -77,7 +77,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" }));
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" }));
         AssertAbsent(RunConsumer(folder.Path), "supports only the dotnet stack");
     }
 

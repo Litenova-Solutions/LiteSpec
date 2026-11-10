@@ -54,11 +54,11 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 ## Decision Records
 
-**Takes:** one record per significant decision, with its context, the options considered, the choice, and its consequences; a decision is removed, never edited, and git keeps its history.
+**Takes:** one record per significant decision, with its context, the options considered, the choice, and its consequences.
 
 **Words:** decision, with options, choice, and consequences.
 
-**Differs:** Options are entries with `pros` and `cons`, so the choice is structured, not prose. A decision links what it decides and names what would change it.
+**Differs:** Options are entries with `pros` and `cons`, so the choice is structured, not prose. A decision links what it decides and names what would change it. A later decision edits the record in place, and git keeps the earlier text.
 
 ## Role-Based Access Control
 

@@ -206,7 +206,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **Applies to:** artifact: migration, repository
 
-**Statement:** An EF Core lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.
+**Statement:** A relational lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.
 
 **Rationale:** A relational table keeps retained rows beside active ones, so the team states which columns mark the state, which query filters hide retained rows, which partial indexes keep active values unique, which migrations add all of it, and what each named filter means. Without those choices, a unique constraint blocks a legitimate reuse or a query returns rows the lifecycle retired.
 

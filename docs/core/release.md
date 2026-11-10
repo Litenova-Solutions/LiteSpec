@@ -20,7 +20,7 @@ Completion is computed from proof: has code, has tests, scenarios pass. The buil
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its scenarios are verified, its S checks are green where the reader is qualified, and every exception it relies on is live. An exception is live while it is present and unexpired. G checks read records only and always block; every missing required link is G. S checks read code through a stack reader: they block where that reader is qualified and report otherwise. A checks report without blocking. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
+The gate admits a release when its G checks are green, its scenarios are verified, its S checks are green where the reader is qualified, and every exception it relies on is live. An exception is live while it is present and unexpired. G checks read records only and always block; every missing required link is G. S checks read code through a stack reader: they block where that reader is qualified and report otherwise. A checks report without blocking, except the release-readiness findings `--release` names. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
 
 ### The Verification Report
 

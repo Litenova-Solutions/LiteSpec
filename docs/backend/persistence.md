@@ -28,7 +28,7 @@ Provider-neutral provisions state the boundary, the transaction shape, and the o
 
 Provider-specific provisions name the member names and configuration surface the pinned provider supplies, such as the document alias, the JSON contract ownership, and the session registration. The [.NET persistence binding](dotnet/persistence.md) names the baseline provider and the calls that perform each obligation.
 
-The EF Core extension states in its own Baseline relationship section which provisions it replaces for the aggregates it owns. Each aggregate runs under exactly one provider.
+Each aggregate runs under exactly one provider.
 
 The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.json` records which choices a consumer made.
 
@@ -186,7 +186,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **Statement:** A PostgreSQL schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
 
-**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: under the baseline provider the store configuration sets the casing, and under the `efcore` extension a naming plugin applies it, so no configuration repeats the rule per entity.
+**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: the store configuration sets the casing, so no configuration repeats the rule per entity.
 
 **Reviewed for:** Which generated database identifiers break `snake_case`? Look at the schemas, tables, columns, and indexes.
 

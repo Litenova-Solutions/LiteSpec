@@ -158,11 +158,13 @@ dotnet test --solution LiteSpec.slnx
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 git diff --check
-pnpm --dir apps/cli/book install --frozen-lockfile && pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book test && pnpm --dir apps/cli/book build
-pnpm --dir apps/site install --frozen-lockfile && pnpm --dir apps/site test && pnpm --dir apps/site build
+pnpm install --frozen-lockfile
+pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book test && pnpm --dir apps/cli/book build
+pnpm --dir apps/cli/fe-reader check
+pnpm --dir apps/site test && pnpm --dir apps/site build
 ```
 
-The last two lines are the web jobs CI runs; a change that passes the .NET checks and fails them is not done.
+The pnpm lines are the web jobs CI runs; a change that passes the .NET checks and fails them is not done.
 
 `litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links and verification marks.
 

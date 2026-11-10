@@ -3,119 +3,9 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the wave 6 contract checks: saga steps and drivers, typed inputs and payloads, scenario exercises, and door auth.</summary>
+/// <summary>Proves the contract checks: typed inputs and payloads, scenario exercises, and door auth.</summary>
 public sealed class BehaviorContractCheckTests
 {
-    [Fact]
-    public void Saga_Step_Running_No_Record_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            Saga(temp.Path, """{"id": "release", "runs": "use-case/booking.no-such-use-case", "compensation": {"mode": "none", "reason": "Nothing was written."}}"""));
-
-        Assert.True(Reports(model, "reference-unknown", "runs 'use-case/booking.no-such-use-case' from step 'release'"));
-    }
-
-    [Fact]
-    public void Saga_Step_Without_Compensation_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            Saga(temp.Path, """{"id": "release", "runs": "use-case/booking.release-hold"}"""));
-
-        Assert.True(Reports(model, "field-invalid", "holds step 'release' with no compensation"));
-    }
-
-    [Fact]
-    public void Saga_Step_With_None_Compensation_And_No_Reason_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            Saga(temp.Path, """{"id": "release", "runs": "use-case/booking.release-hold", "compensation": {"mode": "none"}}"""));
-
-        Assert.True(Reports(model, "field-invalid", "with a none compensation naming no reason"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_No_Record_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            DrivenSaga(temp.Path, """{"job": "job/booking.no-such-job"}"""));
-
-        Assert.True(Reports(model, "reference-unknown", "is driven by 'job/booking.no-such-job'"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_A_Job_Of_Another_Type_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            DrivenSaga(temp.Path, """{"job": "use-case/booking.release-hold"}"""));
-
-        Assert.True(Reports(model, "field-invalid", "is driven by 'use-case/booking.release-hold', which is a use-case"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_A_Job_And_A_Reaction_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            DrivenSaga(temp.Path, """{"job": "job/booking.refund-on-cancellation", "reaction": "reaction/booking.refund-on-cancellation"}"""));
-
-        Assert.True(Reports(model, "field-invalid", "naming no single job, reaction or person"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_A_Reaction_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/booking.refund-on-cancellation", Path.Combine(temp.Path, "refund.yaml"), """{"triggeredBy": ["event/booking.stay-cancelled"]}"""),
-            DrivenSaga(temp.Path, """{"reaction": "reaction/booking.refund-on-cancellation"}"""));
-
-        Assert.False(Reports(model, "reference-unknown", "is driven by"));
-        Assert.False(Reports(model, "field-invalid", "driven"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_A_Person_Without_A_Runbook_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            DrivenSaga(temp.Path, """{"person": "actor/clerk", "dueWithin": "P1D"}"""));
-
-        Assert.True(Reports(model, "field-invalid", "is driven by a person with no runbook"));
-    }
-
-    [Fact]
-    public void Saga_Driven_By_A_Person_With_A_Bad_Duration_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/booking.release-hold", Path.Combine(temp.Path, "release.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("runbook", "runbook/refund-stay", Path.Combine(temp.Path, "refund.yaml"), """{"trigger": "A guest cancels after payment."}"""),
-            DrivenSaga(temp.Path, """{"person": "actor/clerk", "runbook": "runbook/refund-stay", "dueWithin": "one day"}"""));
-
-        Assert.True(Reports(model, "field-invalid", "with dueWithin 'one day', which is not an ISO 8601 duration"));
-    }
-
     [Fact]
     public void Use_Case_Input_Without_A_Type_Reports()
     {
@@ -241,28 +131,6 @@ public sealed class BehaviorContractCheckTests
 
         Assert.False(Reports(model, "field-invalid", "holds auth"));
     }
-
-    /// <summary>A saga holding one step entry.</summary>
-    /// <param name="root">The fixture root folder the record file sits under.</param>
-    /// <param name="step">The step entry JSON placed in the saga steps array.</param>
-    /// <returns>The saga record holding the step.</returns>
-    static LiteSpec.Model.Record Saga(string root, string step) =>
-        TestModel.Record(
-            "aggregate",
-            "aggregate/booking.refund-stay",
-            Path.Combine(root, "refund.md"),
-            """{"kind": "saga", "states": [{"name": "Open", "meaning": "The saga runs."}], "steps": [""" + step + """], "exits": [{"name": "refunded"}], "drivenBy": {"job": "job/booking.refund-on-cancellation"}}""");
-
-    /// <summary>A saga holding one step and the drivenBy entry.</summary>
-    /// <param name="root">The fixture root folder the record file sits under.</param>
-    /// <param name="drivenBy">The drivenBy entry JSON placed on the saga.</param>
-    /// <returns>The saga record holding the entry.</returns>
-    static LiteSpec.Model.Record DrivenSaga(string root, string drivenBy) =>
-        TestModel.Record(
-            "aggregate",
-            "aggregate/booking.refund-stay",
-            Path.Combine(root, "refund.md"),
-            """{"kind": "saga", "states": [{"name": "Open", "meaning": "The saga runs."}], "steps": [{"id": "release", "runs": "use-case/booking.release-hold", "compensation": {"mode": "none", "reason": "Nothing was written."}}], "exits": [{"name": "refunded"}], "drivenBy": """ + drivenBy + "}");
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>
     /// <param name="model">The model to run the check against.</param>

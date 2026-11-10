@@ -5,13 +5,12 @@
   "type": "module",
   "description": "TypeScript frontend facts reader for the LiteSpec CLI. Parses Svelte, React and Playwright sources and reports facts over stdin/stdout JSON.",
   "scripts": {
-    "build": "node build.mjs"
-  },
-  "dependencies": {
-    "svelte": "5.57.2",
-    "typescript": "6.0.3"
+    "build": "node build.mjs",
+    "check": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "esbuild": "0.25.10"
+    "esbuild": "0.25.10",
+    "svelte": "catalog:",
+    "typescript": "catalog:"
   }
 }

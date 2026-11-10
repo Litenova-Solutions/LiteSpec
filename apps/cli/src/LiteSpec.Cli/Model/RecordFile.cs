@@ -70,11 +70,6 @@ static class RecordFile
     /// <summary>Writes a record in its canonical form.</summary>
     /// <param name="root">The record value.</param>
     /// <returns>The record file text.</returns>
-    public static string Write(JsonElement root) => YamlWriter.Write(JsonText.Parse(root.GetRawText()), RecordKeyOrder.For);
-
-    /// <summary>Writes a record in its canonical form.</summary>
-    /// <param name="root">The record value.</param>
-    /// <returns>The record file text.</returns>
     public static string Write(JsonNode root) => YamlWriter.Write(JsonText.Parse(root.ToJsonString()), RecordKeyOrder.For);
 
     /// <summary>

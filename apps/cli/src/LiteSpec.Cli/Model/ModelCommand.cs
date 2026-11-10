@@ -55,13 +55,16 @@ static class ModelCommand
                 _ => 0,
             });
 
-        if (parsed.Help)
+        // A usage error is reported before --help is honoured, so an unsupported --format value fails here too.
+        var usageError = parsed.Error ?? parsed.FormatError;
+
+        if (parsed.Help && usageError is null)
         {
             Console.WriteLine(Usage);
             return 0;
         }
 
-        if (parsed.Error is { } error)
+        if (usageError is { } error)
         {
             Console.Error.WriteLine(error);
             Console.Error.WriteLine(Usage);

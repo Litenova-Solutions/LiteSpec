@@ -1,4 +1,4 @@
-# Model fixtures
+# Model Fixtures
 
 Two fixture consumers and one broken overlay per check. The suite in `apps/cli/tests/LiteSpec.Cli.Tests/Model/ModelCheckTests.cs` copies a fixture to a temporary folder, applies an overlay, and runs the model builder check.
 
@@ -21,77 +21,11 @@ litespec model check --root apps/cli/tests/LiteSpec.Cli.Tests/Fixtures/Model/sma
 
 Both fixtures exit 0 under `check`. Each names the same owner, reviews every Behavior record, approves every Intent record, stamps every approval hash, and resolves every citation.
 
-## Finding codes
+## Finding Codes
 
-The builder and the suite use these codes:
+The [Model Builder](../../../../../../docs/tools/model.md) page lists every finding code with its check level, its conformance level, its meaning, and its fix.
 
-- `approval-reopened`
-- `behavior-unrecorded`
-- `calculation-table-missing`
-- `consistency-cites-missing`
-- `decision-decides-missing`
-- `approval-invalid`
-- `decider-missing`
-- `effect-loop-invalid`
-- `effect-undeclared`
-- `erasure-undeclared`
-- `except-fallback-missing`
-- `exemption-expired`
-- `exception-finding-unknown`
-- `identifier-duplicate`
-- `identifier-invalid`
-- `identifier-folder-drift`
-- `name-duplicate`
-- `decision-number-duplicate`
-- `field-invalid`
-- `use-case-journey-missing`
-- `exception-expired`
-- `link-unknown`
-- `link-locality-invalid`
-- `module-dependency-invalid`
-- `event-publisher-invalid`
-- `notification-sender-missing`
-- `job-guard-missing`
-- `owner-unknown`
-- `paging-undeclared`
-- `product-count-invalid`
-- `proves-unreached`
-- `query-output-missing`
-- `reaction-trigger-unknown`
-- `record-link-missing`
-- `record-invalid`
-- `folder-invalid`
-- `module-undeclared`
-- `record-placement-invalid`
-- `reference-unknown`
-- `intent-unreached`
-- `role-orphaned`
-- `permission-orphaned`
-- `decision-decides-duplicate`
-- `refusal-unimplemented`
-- `requirement-fulfillment-missing`
-- `requirement-measure-missing`
-- `reservation-release-missing`
-- `result-undeclared`
-- `retention-enforcement-missing`
-- `risk-acceptance-missing`
-- `rule-name-invalid`
-- `scenario-result-unknown`
-- `schedule-invalid`
-- `setting-requirement-missing`
-- `size-type-missing`
-- `state-unreached`
-- `step-use-case-missing`
-- `transcription-expired`
-- `transcription-status-invalid`
-- `transition-unknown`
-- `use-case-unimplemented`
-- `use-case-scenario-missing`
-- `use-case-success-missing`
-- `widening-cites-missing`
-- `write-undeclared`
-
-## Broken overlays
+## Broken Overlays
 
 `broken/<code>/` holds only the files that differ from `large/`. The suite copies `large/` to a temporary folder, copies the overlay files over it, deletes the paths listed in `DELETES.txt` when that file exists, and removes `DELETES.txt` before running the check. Each overlay exits 1 with its one finding code.
 

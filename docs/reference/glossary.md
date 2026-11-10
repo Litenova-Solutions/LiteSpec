@@ -852,7 +852,7 @@ Source: LiteSpec.
 
 ### Check Level
 
-One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports and never blocks.
+One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports, and blocks only for the release-readiness findings under `litespec model check --release`.
 
 Source: LiteSpec.
 

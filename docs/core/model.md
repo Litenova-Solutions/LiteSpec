@@ -450,7 +450,7 @@ Every check has a level.
 |:--|:--|
 | G | Reads records only. Always blocks. Every missing required link is G. |
 | S | Reads code through a stack reader. Blocks where the reader is qualified, reports otherwise. |
-| A | Advisory. Reports, never blocks. |
+| A | Advisory. Reports by default. `litespec model check --release` makes `use-case-unverified` block. |
 
 Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking. A .NET reader that cannot read or parse a backend, test or screen file, a declared stack root with no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read or parsed, is not SPDX or CycloneDX, or yields no packages each report `reader-missing` (level S) naming the file or path, and the model is built from what could be read.
 
@@ -460,7 +460,7 @@ Qualification is per reader, never global: a finding takes the qualification of 
 
 `litespec model check` reports the planned-Intent findings locally and blocks on them in the pull-request check. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached past a merge carries an exception with `expiresOn`, which then parks the finding for that record until it expires. The rule holds at every conformance level.
 
-Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block: `use-case-unverified`. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
+Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 ### The Book
 
@@ -1021,7 +1021,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every check MUST carry its level and block or report as that level states.
 
-**Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.
+**Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports, blocking only for the release-readiness findings under `--release`. `litespec model check` prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.
 
 **Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, and prints the level beside each finding.
 

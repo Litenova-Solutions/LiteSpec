@@ -1,5 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace LiteSpec.Book;
@@ -14,9 +12,6 @@ namespace LiteSpec.Book;
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookRender
 {
-    /// <summary>Gets the compact JSON options, with no escaping of quotes, apostrophes or angle brackets.</summary>
-    static JsonSerializerOptions CompactJson { get; } = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-
     /// <summary>Compares two strings by code point, so the order is the same on every machine.</summary>
     /// <param name="left">The first string.</param>
     /// <param name="right">The second string.</param>
@@ -134,12 +129,6 @@ static class BookRender
     public static bool IsTrue(JsonNode? value) =>
         value is JsonValue scalar && scalar.TryGetValue<bool>(out var flag) && flag;
 
-    /// <summary>Coerces a value to a string, or returns the fallback when it is falsy.</summary>
-    /// <param name="value">The JSON value, or null for a missing value.</param>
-    /// <param name="fallback">The text for a falsy value.</param>
-    /// <returns>The coerced value or the fallback.</returns>
-    public static string OrStr(JsonNode? value, string fallback) => IsTruthy(value) ? Str(value) : fallback;
-
     /// <summary>Escapes the five HTML metacharacters.</summary>
     /// <param name="value">The text to escape, or null.</param>
     /// <returns>The escaped text.</returns>
@@ -149,22 +138,6 @@ static class BookRender
     /// <param name="value">The JSON value, or null for a missing value.</param>
     /// <returns>The coerced, escaped text.</returns>
     public static string Esc(JsonNode? value) => Esc(Str(value));
-
-    /// <summary>Coerces a value with a fallback and escapes it for HTML.</summary>
-    /// <param name="value">The JSON value, or null for a missing value.</param>
-    /// <param name="fallback">The text for a falsy value.</param>
-    /// <returns>The coerced, escaped text.</returns>
-    public static string EscOr(JsonNode? value, string fallback) => Esc(OrStr(value, fallback));
-
-    /// <summary>Serializes a value as compact JSON.</summary>
-    /// <param name="value">The JSON value, or null.</param>
-    /// <returns>The compact JSON.</returns>
-    public static string JsonCompact(JsonNode? value) => value?.ToJsonString(CompactJson) ?? "null";
-
-    /// <summary>Serializes a value as indented JSON.</summary>
-    /// <param name="value">The JSON value, or null.</param>
-    /// <returns>The indented JSON.</returns>
-    public static string JsonIndented(JsonNode? value) => CliJson.Serialize(value);
 
     /// <summary>Reads a string property, or null when it is missing or not a string.</summary>
     /// <param name="obj">The object holding the property, or null.</param>

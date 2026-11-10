@@ -34,13 +34,13 @@ A project states the part of the contract it claims in the `conformance` field o
 
 `litespec model check`, the book, `litespec rules` and the analyzers report only the part the claimed level covers.
 
-Each check also has a check level. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched; the .NET reader stays qualified.
+Each check also has a check level. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
 
 | Check level | Meaning |
 |:---|:---|
 | G | Reads records only. Always blocks. |
 | S | Reads code through a stack reader. Blocks where the reader is qualified, and reports otherwise. |
-| A | Advisory. Reports and never blocks. |
+| A | Advisory. Reports; `--release` makes the release-readiness findings block. |
 
 The tool renders the model as a book that a reader reads offline. The analyzers apply the same rules inside a .NET build.
 
@@ -135,7 +135,7 @@ The documentation for this release is at [litespec.dev/4.1.0](https://litespec.d
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch, review, and verification steps. Report a defect or propose a change through the issue forms in [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch and review steps, and the [Verification section of AGENTS.md](AGENTS.md#verification) for the checks to run. Report a defect or propose a change through the issue forms in [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/).
 
 ## Security
 

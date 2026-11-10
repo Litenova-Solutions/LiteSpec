@@ -119,7 +119,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** An external value reaching the database MUST travel through a provider query API or a parameterized SQL parameter.
 
-**Rationale:** String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. The provider query API is Marten's under the baseline and EF Core's under its extension, and both parameterize. The reporting extension owns the reviewed raw SQL patterns.
+**Rationale:** String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. The provider query API is Marten's under the baseline, and it parameterizes. The reporting extension owns the reviewed raw SQL patterns.
 
 **Reviewed for:** Each external value reaches the database through a query API call or a SQL parameter.
 

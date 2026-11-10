@@ -101,12 +101,6 @@ sealed class ProjectModel
     /// <summary>Gets per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
     public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets code no scenario test reaches; empty when no scenario-only coverage file was read.</summary>
-    public List<CoverageGap> UnreachedCode { get; } = [];
-
-    /// <summary>Gets or sets a value indicating whether whether a scenario-only coverage file was read, so an empty <see cref="UnreachedCode"/> means something.</summary>
-    public bool CoverageRead { get; set; }
-
     /// <summary>Gets results of measured checks read from tool result files.</summary>
     public List<MeasureResult> Measures { get; } = [];
 
@@ -735,26 +729,6 @@ sealed class ProjectModel
             }
 
             writer.WriteEndObject();
-
-            if (CoverageRead)
-            {
-                writer.WriteStartArray("unreachedCode");
-
-                foreach (var gap in UnreachedCode)
-                {
-                    writer.WriteStartObject();
-                    writer.WriteString("path", Config.Relative(gap.File));
-                    writer.WriteNumber("line", gap.Line);
-                    writer.WriteString("member", gap.Member);
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndArray();
-            }
-            else
-            {
-                writer.WriteNull("unreachedCode");
-            }
 
             writer.WriteStartArray("measures");
 

@@ -30,7 +30,7 @@ Under `layer-projects`, any other assembly name opts the project out, and so doe
 
 Third, a rule runs only on the files whose layer its provision covers. Domain rules run on Domain files. `LS2001` runs on Application, Infrastructure, WebApi, and Worker files. `LS2004`, `LS2005`, `LS2007`, and `LS2009` to `LS2016` run on Application, Infrastructure, and Worker files. `LS2003` and `LS2006` run on WebApi files. `LS2017` reports an unknown declared value in any project. `LS2018` runs on Application and WebApi files. `LS2019` and `LS2020` run on every layer except Test. Style rules run in every production layer. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes permission constants. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
 
-Fourth, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
+Fourth, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` decide at the end of compilation, after every type is known.
 
 Each diagnostic carries a help link of the form `https://litespec.dev/4.1.0/<page>/#<slug>`, which opens the provision the rule enforces.
 

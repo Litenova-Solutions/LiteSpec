@@ -122,6 +122,20 @@ public sealed partial class ModelCheckSummaryTests
         Assert.Contains($"Unknown option '{option}'.", result.Output);
     }
 
+    /// <summary>A format other than json or text is a usage error, not human text.</summary>
+    /// <param name="format">The unsupported format value to pass.</param>
+    [Theory]
+    [InlineData("xml")]
+    [InlineData("yaml")]
+    public void Check_Unsupported_Format_Is_A_Usage_Error(string format)
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", format);
+
+        Assert.Equal(2, result.Status);
+        Assert.Contains($"Unknown format '{format}'; use json or text.", result.Output);
+    }
+
     /// <summary>Writes a scenario for borrow-copy with no proving test, so an advisory finding prints.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)

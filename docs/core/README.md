@@ -6,10 +6,12 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 
 ## Reading Order
 
+- [System](system.md): what LiteSpec coordinates and the parts it combines.
+- [Scope](scope.md): the one size, one shape, and stacks each project selects.
+- [Stacks](stacks.md): what selecting a stack applies, and what each stack folder holds.
+- [Provision Scopes](scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Principles](principles.md): the founding rules that settle choices no narrower page covers.
 - [Model](model.md): the record types, their links, and what the builder computes.
-- [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.
-- [Writing](writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Layers](layers.md): the four record layers and the translation rules between them.
 - [Intent](intent.md): where a project states its business intent and in what form.
 - [Behavior](behavior.md): the overview of the five Behavior pages and the mapping from records to design.
@@ -19,11 +21,9 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Edges and Screens](edges.md): the integration events, notifications, entry points, screens, and external systems.
 - [Privacy and Retention](privacy.md): the data classes and the retention schedule.
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.
-- [System](system.md): what LiteSpec coordinates and the parts it combines.
-- [Release](release.md): what a release ships and what its evidence shows.
-- [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
-- [Scope](scope.md): the one size, one shape, and stacks each project selects.
-- [Stacks](stacks.md): what selecting a stack applies, and what each stack folder holds.
-- [Provision Scopes](scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
+- [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
+- [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.
+- [Writing](writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Maintaining](maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
+- [Release](release.md): what a release ships and what its evidence shows.

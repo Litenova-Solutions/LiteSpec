@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
 static partial class Renderer
 {
-    /// <summary>Renders every known region, returning the changed files.</summary>
+    /// <summary>Renders every generated region the builder writes, returning the changed files.</summary>
     /// <param name="model">The built project model the regions render from.</param>
     /// <returns>The pages rewritten, relative to the root, in read order.</returns>
     public static IReadOnlyList<string> Render(ProjectModel model)
@@ -47,21 +47,6 @@ static partial class Renderer
 
         return changed;
     }
-
-    /// <summary>Every region name the builder renders.</summary>
-    public static readonly HashSet<string> KnownRegions = new(StringComparer.Ordinal)
-    {
-        "alert-inventory", "operations-log", "runbook-index",
-    };
-
-    /// <summary>One region fence: its name and the offset where it opens.</summary>
-    public sealed record RegionFence(string Name, int Index);
-
-    /// <summary>Every generated-region fence the text carries.</summary>
-    /// <param name="text">The page text to scan.</param>
-    /// <returns>Every fence in text order, with its offset.</returns>
-    public static IReadOnlyList<RegionFence> Regions(string text) =>
-        [.. Region().Matches(text).Select(match => new RegionFence(match.Groups["name"].Value, match.Index))];
 
     /// <summary>The rendered content of one region on one page.</summary>
     /// <param name="model">The built project model the region renders from.</param>

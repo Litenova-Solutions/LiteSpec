@@ -109,7 +109,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **Statement:** The Domain project MUST reference no package beyond the .NET base class library.
 
-**Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, EF Core, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
+**Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
 
 **Reviewed for:** Which Domain project files reference a package beyond the base class library? Look at the Domain project file.
 
@@ -249,7 +249,7 @@ apps/api/src/{ProjectName}.WebApi/
 
 Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.json` states for the property tests that `litespec/backend/testing#prove-every-calculation-with-property-tests` names and the model-based tests that `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test` names.
 
-The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
+The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
 
 **Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
 
@@ -518,6 +518,5 @@ Aggregate-specific configuration stays beside its aggregate, while session and c
 
 Packages: None.
 
-Related extensions: the [EF Core Persistence](efcore.md), for aggregates needing relational storage.
 
 Guides: None.

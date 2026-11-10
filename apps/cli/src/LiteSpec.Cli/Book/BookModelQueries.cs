@@ -4,8 +4,7 @@ namespace LiteSpec.Book;
 
 /// <summary>
 ///     The relationship readings over the index: one scenario's proof state, the
-///     children and use case of a result, why-chains, governing rules and the
-///     first calculation example.
+///     children and use case of a result, and the first calculation example.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookModelQueries
@@ -86,127 +85,6 @@ static class BookModelQueries
             .FirstOrDefault(useCase => BookModel.SplitId(BookRender.StrProp(useCase, "id") ?? "").Name == home);
     }
 
-    /// <summary>One record's why-chain: the steps from the record up to its goal.</summary>
-    /// <param name="index">The model index.</param>
-    /// <param name="record">The record.</param>
-    /// <returns>The why-chain steps.</returns>
-    public static IReadOnlyList<WhyLink> WhyChain(BookIndex index, JsonObject record)
-    {
-        var chain = new List<WhyLink>();
-        void Add(string label, string? id)
-        {
-            if (id is { Length: > 0 } && index.ById.ContainsKey(id))
-            {
-                chain.Add(new WhyLink(label, id));
-            }
-        }
-
-        void AddTail(string? requirementId)
-        {
-            if (requirementId is null || !index.ById.TryGetValue(requirementId, out var requirement))
-            {
-                return;
-            }
-
-            Add("Requirement", requirementId);
-            var feature = FirstCitedOfType(index, requirement, "feature");
-            Add("Feature", feature);
-            if (feature is not null && index.ById.TryGetValue(feature, out var featureRecord))
-            {
-                foreach (var goal in LinksOf(featureRecord, "serves"))
-                {
-                    Add("Goal", goal);
-                }
-            }
-        }
-
-        void AddUseCaseTail(string? useCaseId)
-        {
-            if (useCaseId is null || !index.ById.TryGetValue(useCaseId, out var useCase))
-            {
-                return;
-            }
-
-            Add("Use case", useCaseId);
-            foreach (var rule in GoverningRules(index, useCaseId))
-            {
-                Add("Rule", rule);
-            }
-
-            AddTail(FirstLink(useCase, "fulfills"));
-        }
-
-        var type = BookRender.StrProp(record, "type");
-        var id = BookRender.StrProp(record, "id") ?? "";
-        if (type == "scenario")
-        {
-            var result = FirstLink(record, "result");
-            Add("Result", result);
-            AddUseCaseTail(result is null ? null : UseCaseOf(index, result) is { } holder ? BookRender.StrProp(holder, "id") : null);
-        }
-        else if (type == "result")
-        {
-            AddUseCaseTail(UseCaseOf(index, id) is { } holder ? BookRender.StrProp(holder, "id") : null);
-        }
-        else if (type == "use-case")
-        {
-            foreach (var rule in GoverningRules(index, id))
-            {
-                Add("Rule", rule);
-            }
-
-            AddTail(FirstLink(record, "fulfills"));
-        }
-        else if (type == "rule")
-        {
-            AddTail(FirstLink(record, "fulfills"));
-        }
-        else if (type == "requirement")
-        {
-            var feature = FirstCitedOfType(index, record, "feature");
-            Add("Feature", feature);
-            if (feature is not null && index.ById.TryGetValue(feature, out var featureRecord))
-            {
-                foreach (var goal in LinksOf(featureRecord, "serves"))
-                {
-                    Add("Goal", goal);
-                }
-            }
-        }
-        else if (type == "feature")
-        {
-            foreach (var goal in LinksOf(record, "serves"))
-            {
-                Add("Goal", goal);
-            }
-
-            foreach (var problem in LinksOf(record, "solves"))
-            {
-                Add("Problem", problem);
-            }
-        }
-
-        return chain;
-    }
-
-    /// <summary>The rules governing one use case, through incoming governs links.</summary>
-    /// <param name="index">The model index.</param>
-    /// <param name="useCaseId">The use-case id.</param>
-    /// <returns>The governing rule ids, in identifier order.</returns>
-    public static IReadOnlyList<string> GoverningRules(BookIndex index, string useCaseId)
-    {
-        if (!index.Backlinks.TryGetValue(useCaseId, out var incoming))
-        {
-            return [];
-        }
-
-        return incoming
-            .Where(link => link.Field == "governs" && index.ById.TryGetValue(link.From, out var from) && BookRender.StrProp(from, "type") == "rule")
-            .Select(link => link.From)
-            .OrderBy(from => from, StringComparer.Ordinal)
-            .ToList();
-    }
-
     /// <summary>The first examples table proving a calculation rule, with its scenario, or null.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="rule">The rule record.</param>
@@ -228,42 +106,6 @@ static class BookModelQueries
                 {
                     return (scenario, examples);
                 }
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>The first target of one link field, or null when the record links none.</summary>
-    /// <param name="record">The record.</param>
-    /// <param name="field">The link field.</param>
-    /// <returns>The first target id, or null.</returns>
-    public static string? FirstLink(JsonObject record, string field)
-    {
-        var links = BookRender.Links(record)?[field] as JsonArray ?? [];
-        foreach (var target in links)
-        {
-            if (target is JsonValue scalar && scalar.TryGetValue<string>(out var id) && id is { Length: > 0 })
-            {
-                return id;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>The first cited record of one type, or null when the record cites none.</summary>
-    /// <param name="index">The model index.</param>
-    /// <param name="record">The record.</param>
-    /// <param name="type">The record type to cite.</param>
-    /// <returns>The first cited id of that type, or null.</returns>
-    public static string? FirstCitedOfType(BookIndex index, JsonObject record, string type)
-    {
-        foreach (var id in LinksOf(record, "cites"))
-        {
-            if (index.ById.TryGetValue(id, out var cited) && BookRender.StrProp(cited, "type") == type)
-            {
-                return id;
             }
         }
 

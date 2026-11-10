@@ -6,10 +6,10 @@
 // pattern is a code, every other asserted string is a text.
 
 import * as ts from "typescript";
-import { withCache } from "./cache.js";
-import { canonical, listFilesRecursive, readText, relativeTo, toPosix } from "./files.js";
-import { lineOf, parseTypeScript, plainText, walk } from "./parse.js";
-import { ReaderContext, TestFacts } from "./protocol.js";
+import { withCache } from "./cache";
+import { canonical, listFilesRecursive, readText, relativeTo, toPosix } from "./files";
+import { lineOf, parseTypeScript, plainText, walk } from "./parse";
+import { ReaderContext, TestFacts } from "./protocol";
 
 const CODE_PATTERN = /^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$/;
 

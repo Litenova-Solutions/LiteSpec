@@ -1,14 +1,13 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Model.Readers;
-using LiteSpec.Model.Readers.Coverage;
 using LiteSpec.Model.Readers.Measures;
 
 namespace LiteSpec.Model;
 
 /// <summary>
 ///     Builds the project model: reads records, code, screens, tests, the test run,
-///     scenario coverage and measured-check results, then computes the implements,
+///     and measured-check results, then computes the implements,
 ///     calls and proves links and the proof states.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
@@ -76,10 +75,6 @@ static partial class ModelBuilder
             model.Ledger = ProofLedger.Load(config);
             model.Problems.AddRange(model.Ledger.Problems);
 
-            var coverage = Timed("coverage", () => CoverageReader.Read(config));
-
-            model.UnreachedCode.AddRange(coverage.Gaps);
-            model.CoverageRead = coverage.Read;
             model.Measures.AddRange(Timed("measures", () => MeasureReader.Read(config)));
         }
 
@@ -429,15 +424,6 @@ static partial class ModelBuilder
     /// <param name="useCase">The use case record.</param>
     /// <returns>The permission the grant names, or null when it names none.</returns>
     public static string? GrantedPermission(Record useCase) => UseCaseFacts.GrantedPermission(useCase);
-
-    /// <summary>
-    ///     The refusal code of the rule: the code of the refusal result it names,
-    ///     or its bare refusal code. The shared refusal rule over the model.
-    /// </summary>
-    /// <param name="model">The project model.</param>
-    /// <param name="rule">The rule record.</param>
-    /// <returns>The refusal code of the rule, or null when it refuses with none.</returns>
-    public static string? RefusalResultCode(ProjectModel model, Record rule) => RefusalCodes.ResultCode(model, rule);
 
     /// <summary>Whether any of the use case's inputs carries rules.</summary>
     /// <param name="useCase">The use case record.</param>

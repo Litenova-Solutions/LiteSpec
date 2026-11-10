@@ -12,6 +12,5 @@
       "aliases": { "@": "{case}/app/src" },
       "apiClient": "{case}/app/src/api-client"
     }
-  ],
-  "cache": "{case}/.cache"
+  ]
 }

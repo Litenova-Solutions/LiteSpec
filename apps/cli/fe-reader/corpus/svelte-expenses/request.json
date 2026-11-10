@@ -12,6 +12,5 @@
       "aliases": { "#lib": "{case}/app/src/lib" },
       "apiClient": "{case}/app/src/api-client"
     }
-  ],
-  "cache": "{case}/.cache"
+  ]
 }

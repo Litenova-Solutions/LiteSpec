@@ -70,7 +70,7 @@ Each reader loads its schema file and passes values to the shared evaluator. The
 - Use the draft 2020-12 keywords `JsonSchema.Keywords` lists: every assertion and applicator except `unevaluatedProperties`, `unevaluatedItems` and `contentSchema`, with `$ref` to a local `#/` pointer and no `$anchor` or `$dynamicRef`. `litespec-maintain validate` fails a schema that uses any other keyword (`SCHEMA_UNSUPPORTED_KEYWORD`). A `pattern` is a .NET regular expression, which names a Unicode category by its short name, such as `\p{L}`.
 - Update every consumer of the shape in the same change: the shipped template in [templates/](../templates/README.md), the CLI reader, and the fixtures that cover it.
 - Keep the `$id` on the published home with the manifest version. Change the `schemaVersion` const only together with the template, reader, and fixture updates the new shape needs.
-- Run the verification steps in [CONTRIBUTING.md](../CONTRIBUTING.md).
+- Run the checks in the [Verification section of AGENTS.md](../AGENTS.md#verification).
 
 ## How to Test It
 

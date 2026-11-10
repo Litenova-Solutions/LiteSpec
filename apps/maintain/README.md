@@ -60,9 +60,9 @@ The entry file sits at the top of `apps/maintain/src/LiteSpec.Maintain/`. Each c
 | Path | What it owns |
 |:---|:---|
 | `Program.cs` | Command dispatch and the top-level usage text. It sets UTF-8 console output, handles `--help` and `--version`, and routes `validate`, `provisions`, and `changelog` to their `Run` methods. Unknown commands print usage to standard error and exit 2. |
-| `Authoring/` | The `validate`, `provisions`, and `changelog` commands. `StandardsValidator.cs` holds the usage text, the full `StableDiagnosticCodes` list, and `Run`. `StandardsValidator.Pages.cs`, `.Provisions.cs`, `.Manifest.cs`, and `.Repository.cs` hold the page, provision, manifest, and repository checks. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. `ProvisionDiffCommand.cs` writes or checks the changelog section through `ProvisionDiff`, which compares the index and the manifest at a git ref with the current ones. |
+| `Authoring/` | The `validate`, `provisions`, and `changelog` commands. `StandardsValidator.cs` holds the usage text, the full `StableDiagnosticCodes` list, and `Run`. `PageValidator.cs`, `ProvisionValidator.cs`, `ManifestValidator.cs`, and `RepositoryValidator.cs` hold the page, provision, manifest, and repository checks. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. `ProvisionDiffCommand.cs` writes or checks the changelog section through `ProvisionDiff`, which compares the index and the manifest at a git ref with the current ones. |
 
-The solution file `LiteSpec.slnx` lists the maintainer tool and its tests beside the CLI, the analyzers, and the model library. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Markdig` for the shared page reader and `xunit.v3` for the tests. `global.json` selects `Microsoft.Testing.Platform` as the test runner and pins no SDK.
+The solution file `LiteSpec.slnx` lists the maintainer tool and its tests beside the CLI, the analyzers, and the model library. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Markdig` for the shared page reader and `xunit.v3` for the tests. `global.json` selects `Microsoft.Testing.Platform` as the test runner and pins the SDK to `10.0.114`.
 
 ## Dispatch and Option Parsing
 
@@ -113,4 +113,4 @@ The tool sets `IsPackable` to `false`, so packing the solution produces no maint
 
 ## Limits
 
-The tool reads text and JSON and writes text and JSON. It runs no server, migrates no data, and publishes no package on your behalf. `validate` reads the working tree only; it evaluates current standards material and skips `apps/`, `packages/`, `CHANGELOG.md`, and `LICENSE.md`. Generated regions belong to their owning tool: authoring checks skip the text between `<!-- generated:<name> -->` fences.
+The tool reads text and JSON and writes text and JSON. It runs no server, migrates no data, and publishes no package on your behalf. `validate` reads the working tree only; it evaluates current standards material and skips `apps/`, `packages/`, `CHANGELOG.md`, and `LICENSE`. Generated regions belong to their owning tool: authoring checks skip the text between `<!-- generated:<name> -->` fences.

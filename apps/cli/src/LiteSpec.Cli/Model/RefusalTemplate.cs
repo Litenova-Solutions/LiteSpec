@@ -29,11 +29,6 @@ internal static class RefusalTemplate
             && template.IndexOf(Placeholder, at + Placeholder.Length, StringComparison.Ordinal) < 0;
     }
 
-    /// <summary>The prefix a template's codes carry, the text before its first dot.</summary>
-    /// <param name="template">A well-formed template.</param>
-    /// <returns>The prefix.</returns>
-    public static string PrefixOf(string template) => template[..template.IndexOf('.')];
-
     /// <summary>The key a code carries in place of the template's placeholder, when the code matches it.</summary>
     /// <param name="template">A well-formed template.</param>
     /// <param name="code">The refusal code.</param>

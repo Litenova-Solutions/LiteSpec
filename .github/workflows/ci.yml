@@ -3,17 +3,19 @@ name: CI
 # The gates every change passes. The pull request, branch and release
 # workflows all call this one, so every gate runs the same jobs.
 #
-# The dotnet job builds and tests the solution. The standards job checks the
-# generated provision index, validates the repository and checks whitespace.
-# The web job checks, tests and builds the book client and tests and builds
-# the site. The package job packs the analyzers and the two tool packages that
-# serve every platform. The native job builds the CLI ahead of time on each
-# platform, installs it with the install script, and runs the smoke scenario
-# and the CLI suite against the installed binary. The release-assets job
-# gathers the archives, their checksums and the install scripts a release
-# publishes. The distros job installs the standalone binary on stock Linux
-# distributions, and the tool job installs the .NET tool from the packages on
-# each operating system, both the way a consumer does.
+# The web-assets job builds the frontend reader and the book client once and
+# uploads them. The dotnet, package and native jobs download them instead of
+# building them again. The dotnet job builds and tests the solution. The
+# standards job checks the generated provision index, validates the repository
+# and checks whitespace. The web job checks and tests the book client, checks
+# the frontend reader, and builds the site. The package job packs the
+# analyzers and the two tool packages that serve every platform. The native job
+# builds the CLI ahead of time on each platform, installs it with the install
+# script, and runs the smoke scenario and the CLI suite against the installed
+# binary. The release-assets job gathers the archives, their checksums and the
+# install scripts a release publishes. The distros job installs the standalone
+# binary on stock Linux distributions, and the tool job installs the .NET tool
+# from the packages on each operating system, both the way a consumer does.
 on:
   workflow_call:
     inputs:
@@ -26,35 +28,58 @@ permissions:
   contents: read
 
 jobs:
-  # Builds the solution and runs its tests.
-  dotnet:
+  # Builds the frontend reader and the book client once. The CLI embeds both, so the jobs that
+  # build or test it download this artifact. The artifact keeps the folders it was built in: it
+  # unpacks over apps/cli and restores apps/cli/fe-reader/dist and apps/cli/book/dist.
+  web-assets:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Install the workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the frontend reader
+        run: pnpm --dir apps/cli/fe-reader build
+
+      - name: Build the book client
+        run: pnpm --dir apps/cli/book build
+
+      - name: Keep the bundles for the jobs that build the CLI
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-assets
+          path: |
+            apps/cli/fe-reader/dist
+            apps/cli/book/dist
+          if-no-files-found: error
+
+  # Builds the solution and runs its tests.
+  dotnet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs: web-assets
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: "**/packages.lock.json"
+        uses: ./.github/actions/setup-sdk
 
-      # The CLI runs the frontend reader as a Node bundle and embeds the book client, which the CLI tests call.
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
+      # The CLI runs the frontend reader as a Node bundle, and the CLI tests run it through Node.
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
 
-      - name: Build the frontend reader and the book client
-        run: |
-          npm install --global pnpm@11.28.5
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-          pnpm --dir apps/cli/book install --frozen-lockfile
-          pnpm --dir apps/cli/book build
+      - name: Fetch the frontend reader and the book client
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-assets
+          path: apps/cli
 
       - name: Build the solution
         run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
@@ -73,11 +98,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: "**/packages.lock.json"
+        uses: ./.github/actions/setup-sdk
 
       - name: Build the maintainer tool
         run: dotnet build apps/maintain/src/LiteSpec.Maintain --configuration ${{ inputs.configuration }}
@@ -102,7 +123,8 @@ jobs:
             git diff --check HEAD~1 HEAD
           fi
 
-  # The book client and the site: the client checks, tests and build, then the site tests and build.
+  # The book client, the frontend reader and the site: the checks and tests of the three packages,
+  # then the site build. The book client build is in web-assets.
   web:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -110,18 +132,11 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Configure Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
 
-      - name: Install pnpm
-        run: npm install --global pnpm@11.28.5
-
-      # The book client: types and Svelte checks, its unit tests, and the build the CLI embeds.
-      - name: Install the book client dependencies
-        run: pnpm --dir apps/cli/book install --frozen-lockfile
+      - name: Install the workspace dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Check the book client
         run: pnpm --dir apps/cli/book check
@@ -129,19 +144,15 @@ jobs:
       - name: Test the book client
         run: pnpm --dir apps/cli/book test
 
-      - name: Build the book client
-        run: pnpm --dir apps/cli/book build
+      - name: Check the frontend reader
+        run: pnpm --dir apps/cli/fe-reader check
 
-      - name: Install the site dependencies
-        run: pnpm --dir apps/site install --frozen-lockfile
-
-      - name: Test the site, including the wireframe renderer against the CLI goldens
+      - name: Test the site
         run: pnpm --dir apps/site test
 
       # The same build the release deploys: Astro, then the Pagefind search index.
       - name: Build the site
         run: pnpm --dir apps/site build
-
 
   # Packs the analyzers and the two tool packages that serve every platform: LiteSpec.Cli, which
   # points to one package per platform, and the framework-dependent package for the platforms
@@ -151,32 +162,24 @@ jobs:
     # The default step timeout is six hours. A hung check would hold a runner
     # for that long and report nothing useful at the end of it.
     timeout-minutes: 15
+    needs: web-assets
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: "**/packages.lock.json"
+        uses: ./.github/actions/setup-sdk
 
-      # The CLI runs the frontend reader as a Node bundle and embeds the book client, so
-      # both exist before the pack that ships them.
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
+      # The CLI runs the frontend reader as a Node bundle, so Node must be on the path for the smoke run.
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
 
-      - name: Build the frontend reader and the book client
-        run: |
-          npm install --global pnpm@11.28.5
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-          pnpm --dir apps/cli/book install --frozen-lockfile
-          pnpm --dir apps/cli/book build
+      # The CLI embeds the book client and runs the frontend reader, so both bundles exist before the pack that ships them.
+      - name: Fetch the frontend reader and the book client
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-assets
+          path: apps/cli
 
       # The analyzers package carries the code fixes, which only a solution build produces.
       - name: Build the CLI and the analyzers
@@ -211,6 +214,7 @@ jobs:
     name: native (${{ matrix.rid }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
+    needs: web-assets
     strategy:
       fail-fast: false
       matrix:
@@ -235,25 +239,16 @@ jobs:
       # build brings its own SDK, so a musl build that runs no suite here needs none.
       - name: Set up the .NET SDK
         if: matrix.container == '' || matrix.test
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: "**/packages.lock.json"
+        uses: ./.github/actions/setup-sdk
 
-      - name: Configure Node.js for the frontend reader
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
 
-      - name: Build the frontend reader and the book client
-        run: |
-          npm install --global pnpm@11.28.5
-          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
-          pnpm --dir apps/cli/fe-reader build
-          pnpm --dir apps/cli/book install --frozen-lockfile
-          pnpm --dir apps/cli/book build
+      - name: Fetch the frontend reader and the book client
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-assets
+          path: apps/cli
 
       - name: Build the native CLI in the ${{ matrix.container }} build container
         if: matrix.container != ''
@@ -352,20 +347,28 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Node.js and pnpm
+        uses: ./.github/actions/setup-node
+
       - name: Fetch the release assets
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-assets
           path: release
 
+      # The host serves the release assets with serve.mjs, the server the install script tests use. The
+      # images are tagged, not pinned by digest: Dependabot reads Dockerfiles, not the image names in this
+      # workflow, so a digest here would never be updated. The nightly run reports a tag that moves.
       - name: Install and run the binary in ${{ matrix.image }}
         run: |
-          version="$(jq -r .version litespec.manifest.json)"
-          mkdir -p "site/v$version"
-          cp release/* "site/v$version/"
-          python3 -m http.server 8000 --bind 127.0.0.1 --directory site >/dev/null 2>&1 &
-          for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:8000/v$version/SHA256SUMS" >/dev/null && break; sleep 0.25; done
-          docker run --rm --network host -e LITESPEC_DOWNLOAD_URL=http://127.0.0.1:8000 -v "$PWD:/src:ro" \
+          . .github/scripts/lib.sh
+          version="$(manifest_version litespec.manifest.json)"
+          site="$RUNNER_TEMP/site"
+          mkdir -p "$site/v$version"
+          cp release/* "$site/v$version/"
+          serve_folder "$site" "$RUNNER_TEMP/serve.log" .github/scripts/serve.mjs
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          docker run --rm --network host -e LITESPEC_DOWNLOAD_URL="http://127.0.0.1:$SERVER_PORT" -v "$PWD:/src:ro" \
             "${{ matrix.image }}" sh /src/.github/scripts/smoke-distro.sh
 
   # Installs LiteSpec.Cli as a local .NET tool from the packages, the way a consumer restores
@@ -411,17 +414,12 @@ jobs:
 
       - name: Set up the .NET SDK
         if: matrix.image == ''
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
+        uses: ./.github/actions/setup-sdk
 
       # The check runs the frontend reader of the Claimwick web frontend through Node.
-      - name: Configure Node.js for the frontend reader
+      - name: Set up Node.js and pnpm
         if: matrix.image == ''
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24.22.0"
-          package-manager-cache: false
+        uses: ./.github/actions/setup-node
 
       - name: Install the tool and run the smoke scenario
         if: matrix.image == ''
@@ -431,4 +429,4 @@ jobs:
         if: matrix.image != ''
         run: |
           docker run --rm -v "$PWD:/src:ro" "${{ matrix.image }}" \
-            sh -c 'apk add --no-cache -q bash coreutils diffutils findutils && bash /src/.github/scripts/smoke.sh --tool /src/feed'
+            sh -c 'apk add --no-cache -q bash coreutils diffutils findutils jq && bash /src/.github/scripts/smoke.sh --tool /src/feed'

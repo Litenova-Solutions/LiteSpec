@@ -117,7 +117,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 "holds": [{ "role": "role/employee", "scope": "self" }]
 ```
 
-**Checked by:** `litespec model check` reports `role-orphan` for a role held by no actor.
+**Checked by:** `litespec model check` reports `role-orphaned` for a role held by no actor.
 
 ### Scope Every Role
 

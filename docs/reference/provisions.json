@@ -2854,7 +2854,7 @@
       "strength": "default",
       "statement": "Represent an identifier the same way in Domain, persistence, transport, and generated clients.",
       "rationale": "An identifier crosses every boundary in the table below, and each boundary that invents its own text form forces converters at both ends. One UUID text form everywhere means a value copied from a log, a route, or a JSON payload parses at the next boundary without translation. This provision binds \u0060litespec/backend/domain#align-id-representations-at-every-boundary\u0060 for .NET.",
-      "example": "| Boundary | Representation | Owner |\n|:---|:---|:---|\n| Creation | Caller-supplied value or generator through arguments. | Caller |\n| Domain and Application | \u0060PostId\u0060 | Domain |\n| Minimal API route and query | UUID text parsed through \u0060IParsable\u003CPostId\u003E\u0060 | WebApi |\n| JSON | UUID string | WebApi converter |\n| OpenAPI | \u0060type: string\u0060, \u0060format: uuid\u0060 | WebApi schema transformer |\n| Marten | Native UUID identity plus explicit typed-ID mapping | Infrastructure |\n| EF Core extension | Explicit value converter to UUID | Infrastructure |\n| Generated TypeScript | \u0060string\u0060 from OpenAPI | Generated client |\n\nFor multiple IDs, WebApi uses one converter factory restricted to \u0060IStronglyTypedId\u0060 implementations. The OpenAPI transformer applies the same restriction. The factory does not convert every \u0060IParsable\u003CT\u003E\u0060 type into a UUID schema.\n\n\u0060\u0060\u0060csharp\nif (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))\n{\n    schema.Type = JsonSchemaType.String;\n    schema.Format = \u0022uuid\u0022;\n    schema.Properties?.Clear();\n}\n\u0060\u0060\u0060"
+      "example": "| Boundary | Representation | Owner |\n|:---|:---|:---|\n| Creation | Caller-supplied value or generator through arguments. | Caller |\n| Domain and Application | \u0060PostId\u0060 | Domain |\n| Minimal API route and query | UUID text parsed through \u0060IParsable\u003CPostId\u003E\u0060 | WebApi |\n| JSON | UUID string | WebApi converter |\n| OpenAPI | \u0060type: string\u0060, \u0060format: uuid\u0060 | WebApi schema transformer |\n| Marten | Native UUID identity plus explicit typed-ID mapping | Infrastructure |\n| Generated TypeScript | \u0060string\u0060 from OpenAPI | Generated client |\n\nFor multiple IDs, WebApi uses one converter factory restricted to \u0060IStronglyTypedId\u0060 implementations. The OpenAPI transformer applies the same restriction. The factory does not convert every \u0060IParsable\u003CT\u003E\u0060 type into a UUID schema.\n\n\u0060\u0060\u0060csharp\nif (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))\n{\n    schema.Type = JsonSchemaType.String;\n    schema.Format = \u0022uuid\u0022;\n    schema.Properties?.Clear();\n}\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain",
@@ -3346,7 +3346,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "The Domain project MUST reference no package beyond the .NET base class library.",
-      "rationale": "A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, EF Core, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of \u0060litespec/workspace/dependencies#keep-domain-dependency-free\u0060.",
+      "rationale": "A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of \u0060litespec/workspace/dependencies#keep-domain-dependency-free\u0060.",
       "example": ""
     },
     {
@@ -3534,7 +3534,7 @@
       "strength": "default",
       "statement": "Assign each baseline package to the owning layer named in the table in this section.",
       "rationale": "Without an owner, a package lands in the project that first needs it and spreads from there. The table assigns each baseline package to its one owning project, so review can refuse it anywhere else. This provision states the .NET form of \u0060litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer\u0060.",
-      "example": "| Project | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application.Abstractions | Required LiteBus module abstractions only |\n| Application | Required LiteBus module abstractions; \u0060Marten\u0060 for the selected \u0060IQuerySession\u0060 read boundary; Microsoft abstractions used by public ports |\n| Infrastructure | \u0060Marten\u0060; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |\n| WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |\n| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |\n| ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |\n| AppHost | Aspire AppHost and resource hosting packages |\n| Domain.Tests | xUnit v3, assertions, and FsCheck |\n| Application.Tests | xUnit v3, assertions, and NSubstitute |\n| Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |\n| Architecture.Tests | xUnit v3 and assertions |\n| Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |\n\nTest projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer \u0060global.json\u0060 sets \u0060\u0022test\u0022: { \u0022runner\u0022: \u0022Microsoft.Testing.Platform\u0022 }\u0060, because the .NET 10 \u0060dotnet test\u0060 command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin \u0060litespec.manifest.json\u0060 states for the property tests that \u0060litespec/backend/testing#prove-every-calculation-with-property-tests\u0060 names and the model-based tests that \u0060litespec/backend/testing#prove-every-aggregate-with-a-model-based-test\u0060 names.\n\nThe example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval."
+      "example": "| Project | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application.Abstractions | Required LiteBus module abstractions only |\n| Application | Required LiteBus module abstractions; \u0060Marten\u0060 for the selected \u0060IQuerySession\u0060 read boundary; Microsoft abstractions used by public ports |\n| Infrastructure | \u0060Marten\u0060; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |\n| WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |\n| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |\n| ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |\n| AppHost | Aspire AppHost and resource hosting packages |\n| Domain.Tests | xUnit v3, assertions, and FsCheck |\n| Application.Tests | xUnit v3, assertions, and NSubstitute |\n| Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |\n| Architecture.Tests | xUnit v3 and assertions |\n| Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |\n\nTest projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer \u0060global.json\u0060 sets \u0060\u0022test\u0022: { \u0022runner\u0022: \u0022Microsoft.Testing.Platform\u0022 }\u0060, because the .NET 10 \u0060dotnet test\u0060 command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin \u0060litespec.manifest.json\u0060 states for the property tests that \u0060litespec/backend/testing#prove-every-calculation-with-property-tests\u0060 names and the model-based tests that \u0060litespec/backend/testing#prove-every-aggregate-with-a-model-based-test\u0060 names.\n\nThe example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval."
     },
     {
       "id": "litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout",
@@ -3703,7 +3703,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "Exactly one global command post-handler MUST call \u0060SaveChangesAsync\u0060 for a command pipeline.",
-      "rationale": "Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds \u0060litespec/backend/persistence#commit-each-command-pipeline-once\u0060 for .NET. The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is \u0060IDocumentSession.SaveChangesAsync\u0060. For aggregates the \u0060efcore\u0060 extension names it is \u0060DbContext.SaveChangesAsync\u0060. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under \u0060consistency: atomic\u0060 that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.",
+      "rationale": "Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds \u0060litespec/backend/persistence#commit-each-command-pipeline-once\u0060 for .NET. The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is \u0060IDocumentSession.SaveChangesAsync\u0060. Under \u0060consistency: atomic\u0060 that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.",
       "example": ""
     },
     {
@@ -3771,7 +3771,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "A query handler MUST project through \u0060IQuerySession\u0060, applying filter, scope, ordering, and limit before materialization.",
-      "rationale": "The read session already filters, orders, pages, and projects; a read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that repeats it. Ordering and paging follow \u0060litespec/backend/api#bound-collection-queries\u0060. This provision binds \u0060litespec/backend/persistence#query-through-the-read-session\u0060 for .NET. | Provider | Query surface | |:---|:---| | Marten baseline | \u0060IQuerySession\u0060 | | EF Core extension | The context type the extension declares | The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each. A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, \u0060AdvancedSql.QueryAsync\u003CTRow\u003E\u0060 returns any JSON-serializable type, so the SQL selects one JSON object per row, keyed in the casing the store\u0027s serializer uses, with the filter, ordering and limit in its \u0060WHERE\u0060, \u0060ORDER BY\u0060 and \u0060LIMIT\u0060. The handler keeps no repository for such a table, and the project adds no read interface for it.",
+      "rationale": "The read session already filters, orders, pages, and projects; a read-store interface per aggregate, a generic read repository, or a callback wrapper adds a layer that repeats it. Ordering and paging follow \u0060litespec/backend/api#bound-collection-queries\u0060. This provision binds \u0060litespec/backend/persistence#query-through-the-read-session\u0060 for .NET. | Provider | Query surface | |:---|:---| | Marten baseline | \u0060IQuerySession\u0060 | The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each. A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, \u0060AdvancedSql.QueryAsync\u003CTRow\u003E\u0060 returns any JSON-serializable type, so the SQL selects one JSON object per row, keyed in the casing the store\u0027s serializer uses, with the filter, ordering and limit in its \u0060WHERE\u0060, \u0060ORDER BY\u0060 and \u0060LIMIT\u0060. The handler keeps no repository for such a table, and the project adds no read interface for it.",
       "example": "In the Claimwick product, each spending owner\u0027s running totals live in a \u0060spending_totals\u0060 table that a command updates in place. The read-spending-totals query reads it through the session:\n\n\u0060\u0060\u0060csharp\ninternal sealed record SpendingTotalRow(Guid OwnerId, string Currency, decimal Submitted, decimal Approved);\n\nvar rows = await session.AdvancedSql.QueryAsync\u003CSpendingTotalRow\u003E(\n    \u0022\u0022\u0022\n    select jsonb_build_object(\n        \u0027ownerId\u0027, owner_id, \u0027currency\u0027, currency, \u0027submitted\u0027, submitted, \u0027approved\u0027, approved)\n    from spending_totals\n    where owner_id = ?\n    order by currency\n    limit 100\n    \u0022\u0022\u0022,\n    cancellationToken,\n    query.OwnerId.Value);\n\u0060\u0060\u0060"
     },
     {
@@ -4502,7 +4502,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "A PostgreSQL schema, table, column, index, constraint, document alias, or SQL identifier MUST use \u0060snake_case\u0060.",
-      "rationale": "One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: under the baseline provider the store configuration sets the casing, and under the \u0060efcore\u0060 extension a naming plugin applies it, so no configuration repeats the rule per entity.",
+      "rationale": "One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: the store configuration sets the casing, so no configuration repeats the rule per entity.",
       "example": ""
     },
     {
@@ -5124,7 +5124,7 @@
       "anchor": "record-every-role-hold-with-its-scope",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060role-orphan\u0060 for a role held by no actor.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060role-orphaned\u0060 for a role held by no actor.",
       "stack": "any",
       "layer": "records",
       "artifact": "record:actor",
@@ -8337,14 +8337,14 @@
       "anchor": "name-each-finding-code-by-subject-and-problem",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which finding codes miss the subject-problem form or use a problem word outside the fourteen? Look at the finding codes the change adds, beside the problem-word table.",
+      "evidence": "Which finding codes miss the subject-problem form or end in a word the problem-word table does not hold? Look at the finding codes the change adds, beside the problem-word table.",
       "stack": "any",
       "layer": "records",
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "Every finding code MUST read as \u0060\u003Csubject\u003E-\u003Cproblem\u003E\u0060 with the problem drawn from the fourteen problem words.",
-      "rationale": "A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fourteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.",
+      "statement": "Every finding code MUST read as \u0060\u003Csubject\u003E-\u003Cproblem\u003E\u0060 with the problem drawn from the problem-word table.",
+      "rationale": "A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.",
       "example": "A use case with no scenario takes the code \u0060use-case-scenario-missing\u0060."
     },
     {
@@ -8609,7 +8609,7 @@
       "anchor": "write-each-layer-from-the-layer-above-it",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 emits no \u0060behavior-unrecorded\u0060 finding for a refusal literal, a screen call to no endpoint, or an engine step mapping to no use case, and reports \u0060mark-missing\u0060 for a code element that carries no mark.",
+      "evidence": "\u0060litespec model check\u0060 emits no \u0060behavior-unrecorded\u0060 finding for a refusal literal or a screen call to no endpoint, and reports \u0060mark-missing\u0060 for a code element that carries no mark.",
       "stack": "any",
       "layer": "records",
       "artifact": "any",
@@ -8643,7 +8643,7 @@
       "anchor": "list-every-stack-shape-and-extension-in-the-manifest",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec-maintain validate\u0060 fails when a stack, shape, extension, or pin the release carries is missing from the manifest.",
+      "evidence": "\u0060litespec-maintain validate\u0060 emits \u0060EXTENSION_UNLISTED\u0060 for an extension page no manifest entry lists, \u0060LAYER_UNREACHABLE\u0060 for a page no stack selection reaches, and \u0060MANIFEST_ANALYZER_PIN\u0060 for an analyzer pin that differs from the analyzer project version.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
@@ -8651,7 +8651,7 @@
       "strength": "rule",
       "statement": "The LiteSpec manifest MUST list every stack, shape, extension, and version pin the release carries.",
       "rationale": "The manifest is the release record that tools read: stacks and shapes decide which pages apply, extensions decide which conditional bundles a project selects from, and pins decide which versions build. A stack, shape, extension, or pin the manifest omits is one no consumer selects and no tool resolves. Listing all of them in one file keeps the release reproducible from its tag.",
-      "example": "The Behavior extensions \u0060privacy\u0060, \u0060devices\u0060, \u0060automation\u0060, \u0060workflow-engine\u0060, \u0060pipeline\u0060, \u0060queues\u0060, and \u0060ai\u0060 each appear with their page path and activation scope."
+      "example": "The manifest lists the \u0060cache\u0060 extension with its page path \u0060docs/ext/cache.md\u0060 and its \u0060local\u0060 activation scope."
     },
     {
       "id": "litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow",
@@ -9058,7 +9058,7 @@
       "conformance": "records",
       "strength": "rule",
       "statement": "Every check MUST carry its level and block or report as that level states.",
-      "rationale": "The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. \u0060litespec model check\u0060 prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.",
+      "rationale": "The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports, blocking only for the release-readiness findings under \u0060--release\u0060. \u0060litespec model check\u0060 prints the level beside each finding, so a reader tells a blocking defect from advice at a glance. A missing required link is level G.",
       "example": ""
     },
     {
@@ -9781,8 +9781,8 @@
       "page": "docs/core/principles.md",
       "anchor": "map-each-engine-step-to-one-use-case",
       "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports no \u0060behavior-unrecorded\u0060 finding on engine steps without a use case.",
+      "mark": "guidance",
+      "evidence": "Which engine steps map to no use case, or to a use case with no compensation? Look at the engine step definitions beside the use case records.",
       "stack": "any",
       "layer": "records",
       "artifact": "record:use-case",
@@ -15382,7 +15382,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "A persistence change MUST publish a schema artifact that lists every destructive operation with its reason.",
-      "rationale": "A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.",
+      "rationale": "A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or a generated relational migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.",
       "example": ""
     },
     {
@@ -16887,8 +16887,8 @@
       "page": "docs/ext/jobs.md",
       "anchor": "reject-unmapped-engine-steps",
       "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060behavior-unrecorded\u0060 for an engine step that maps to no use case.",
+      "mark": "guidance",
+      "evidence": "Which engine steps map to no use case? Look at the aggregate record beside the engine definition.",
       "stack": "any",
       "layer": "application",
       "artifact": "aggregate",
@@ -17489,7 +17489,7 @@
       "artifact": "migration, repository",
       "conformance": "full",
       "strength": "rule",
-      "statement": "An EF Core lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.",
+      "statement": "A relational lifecycle implementation MUST define columns, query filters, partial indexes, migrations, and named filter behavior.",
       "rationale": "A relational table keeps retained rows beside active ones, so the team states which columns mark the state, which query filters hide retained rows, which partial indexes keep active values unique, which migrations add all of it, and what each named filter means. Without those choices, a unique constraint blocks a legitimate reuse or a query returns rows the lifecycle retired.",
       "example": ""
     },
@@ -25048,13 +25048,13 @@
       "anchor": "check-documentation-on-every-pull-request",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 fails on a page that breaks the page contract, configuration, language, or prose rules.",
+      "evidence": "\u0060litespec model check\u0060 fails on a page that breaks the page contract, configuration, or prose rules.",
       "stack": "any",
       "layer": "operations",
       "artifact": "",
       "conformance": "full",
       "strength": "rule",
-      "statement": "The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, language, or prose rules.",
+      "statement": "The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, or prose rules.",
       "rationale": "Documentation breaks take many small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix at the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.",
       "example": ""
     },
@@ -25599,7 +25599,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "An external value reaching the database MUST travel through a provider query API or a parameterized SQL parameter.",
-      "rationale": "String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. The provider query API is Marten\u0027s under the baseline and EF Core\u0027s under its extension, and both parameterize. The reporting extension owns the reviewed raw SQL patterns.",
+      "rationale": "String concatenation or interpolation into raw command text makes the value part of the statement, so a crafted value rewrites the query. A provider query API or a parameterized SQL parameter keeps the value as data. The provider query API is Marten\u0027s under the baseline, and it parameterizes. The reporting extension owns the reviewed raw SQL patterns.",
       "example": ""
     },
     {

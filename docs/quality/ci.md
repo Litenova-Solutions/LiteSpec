@@ -20,7 +20,7 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 | test-frontend | Lint, type-check, and route suite pass. | Frontend change. | `pnpm lint`, `pnpm type-check`, and the route suite. | Runs. | Runs. |
 | measure | Each measured check the change names passes. | Backend, frontend, or measured-requirement change. | k6 thresholds, Lighthouse CI assert, and the ZAP baseline; results feed the model. | Runs. | Runs. |
 | model | Model check and every check reading the in-memory model. | Record, code, or test change. | `litespec model check`. | Runs. | Runs. |
-| docs | Page contract, configuration, language, prose. | Documentation change. | `litespec model check`. | Runs. | Runs. |
+| docs | Page contract, configuration, prose. | Documentation change. | `litespec model check`. | Runs. | Runs. |
 | contract | Published document and clients unchanged. | API or contract change. | Regenerate, then `git diff --exit-code`. | Runs. | Runs. |
 
 A project that selects the [Delivery extension](../ext/delivery.md) adds the mutation, supply-chain and release jobs that extension states, with the same selection and promotion rules.
@@ -63,11 +63,11 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **Strength:** rule
 
-**Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, language, or prose rules.
+**Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, or prose rules.
 
 **Rationale:** Documentation breaks take many small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix at the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.
 
-**Checked by:** `litespec model check` fails on a page that breaks the page contract, configuration, language, or prose rules.
+**Checked by:** `litespec model check` fails on a page that breaks the page contract, configuration, or prose rules.
 
 ### Keep Generated Contracts Fresh
 

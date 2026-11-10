@@ -95,7 +95,7 @@ The standard expects departures and gives each one a home:
 - **An exception record** of kind `departure` replaces one provision for your project, naming the records it sets aside with its reason and an expiry date. An agent follows your exception over the standard.
 - **A project convention** is a default you replace by stating your own in the provision shape, under `.litespec/governance/conventions/`.
 - **An exception record** of kind `gap` records a check that stays red until you fix it, with its reason and an expiry date, so the check does not fail on it forever.
-- **An extension** can replace a baseline rule when you select it. The EF Core extension, for example, replaces the default persistence rules with its own.
+- **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
 When guidance overlaps, the most specific source wins: your exception or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the replacement in place of the original.
 

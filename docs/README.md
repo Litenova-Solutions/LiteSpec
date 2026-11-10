@@ -28,6 +28,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, checks, and the book and diffs.
+- [Record Layers](core/layers.md): the four record layers and the translation rules between them.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
 - [Domain Model](core/domain-model.md): the modules, glossary, aggregates, rules, and domain events inside the bounded context.
@@ -39,6 +40,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Agent Operating Protocol](core/agent.md): how agents select context, write below decided Intent, raise questions, and report completion.
 - [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Record Language](core/language.md): the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
+- [Writing](core/writing.md): the prose standard for every record value, title, explanation file, documentation page, comment, changelog, and decision record a project writes.
 - [Maintaining the Standards](core/maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
 - [Product Release](core/release.md): which checks each boundary runs, completion computed from proof, and what the release record and verification report list.
 
@@ -77,7 +79,6 @@ These principles hold for every backend. A backend stack folder states how its t
 - [.NET Naming and Code Style](backend/dotnet/naming.md): C# file and primary-type match, implementation style, and reasoned names.
 - [.NET Packages](backend/dotnet/packages.md): LiteBus module scope and the analyzer setup.
 - [.NET Configuration](backend/dotnet/config.md): SDK, build, package, and tool pins in MSBuild files.
-- [EF Core Persistence](backend/dotnet/ext/efcore.md): relational storage through Entity Framework Core for selected aggregates; an extension for this stack.
 - [Executable BDD Acceptance Tests](backend/dotnet/ext/bdd.md): executable scenarios in Reqnroll or LightBDD; an extension for this stack.
 - [Layer Projects](backend/dotnet/ext/layer-projects.md): the five-project packaging for backends that keep it; an extension for this stack.
 
@@ -248,6 +249,8 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Add a Svelte Frontend](guide/add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
+- [Write a Feature Under a Module](guide/write-a-feature-under-a-module.md): write one feature with its requirement entries under its module.
+- [Folder Reference](guide/folder-reference.md): where each record file lives, with its parent and its identifiers.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 
 ## LiteSpec's Own Records

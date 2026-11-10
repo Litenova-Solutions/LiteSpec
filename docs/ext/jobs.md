@@ -745,7 +745,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** A new engine step added in the console with no use case behind it fails `behavior-unrecorded` at the next check.
 
-**Checked by:** `litespec model check` reports `behavior-unrecorded` for an engine step that maps to no use case.
+**Reviewed for:** Which engine steps map to no use case? Look at the aggregate record beside the engine definition.
 
 ### Keep Engine Retry Configuration in Implementation
 

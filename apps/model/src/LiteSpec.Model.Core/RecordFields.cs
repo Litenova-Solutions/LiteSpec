@@ -136,10 +136,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `codes` field.</summary>
     public const string Codes = "codes";
-
-    /// <summary>Gets the name of the `compensation` field.</summary>
-    public const string Compensation = "compensation";
-
     /// <summary>Gets the name of the `computedBy` field.</summary>
     public const string ComputedBy = "computedBy";
 
@@ -220,10 +216,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `direction` field.</summary>
     public const string Direction = "direction";
-
-    /// <summary>Gets the name of the `dueWithin` field.</summary>
-    public const string DueWithin = "dueWithin";
-
     /// <summary>Gets the name of the `duration` field.</summary>
     public const string Duration = "duration";
 
@@ -364,10 +356,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `input` field.</summary>
     public const string Input = "input";
-
-    /// <summary>Gets the name of the `job` field.</summary>
-    public const string Job = "job";
-
     /// <summary>Gets the name of the `key` field.</summary>
     public const string Key = "key";
 
@@ -493,10 +481,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `period` field.</summary>
     public const string Period = "period";
-
-    /// <summary>Gets the name of the `person` field.</summary>
-    public const string Person = "person";
-
     /// <summary>Gets the name of the `prerequisites` field.</summary>
     public const string Prerequisites = "prerequisites";
 
@@ -526,10 +510,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `reachedThrough` field.</summary>
     public const string ReachedThrough = "reachedThrough";
-
-    /// <summary>Gets the name of the `reaction` field.</summary>
-    public const string Reaction = "reaction";
-
     /// <summary>Gets the name of the `readOn` field.</summary>
     public const string ReadOn = "readOn";
 

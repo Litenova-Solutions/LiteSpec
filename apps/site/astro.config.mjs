@@ -7,7 +7,7 @@ import { defineConfig } from "astro/config";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const { version } = JSON.parse(fs.readFileSync(path.join(root, "litespec.manifest.json"), "utf8"));
 
-// Cloudflare Pages reads _redirects from the output root. Astro ignores route files
+// Workers static assets read _redirects from the output root. Astro ignores route files
 // that start with an underscore, so the build writes it once the pages exist.
 // A release root has no page of its own: it opens the learn overview.
 const latestRedirects = {

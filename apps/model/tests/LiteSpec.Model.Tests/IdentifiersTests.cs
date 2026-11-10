@@ -33,11 +33,11 @@ public sealed class IdentifiersTests
         {
             "citation" => Identifiers.Citation,
             "shared" => Identifiers.SharedCitation(),
-            "event" => Identifiers.EventId(),
+            "event" => Identifiers.EventId,
             "refusal" => Identifiers.RefusalCode(),
-            "implements" => Identifiers.ImplementsTag(),
-            "proves" => Identifiers.ProvesTag(),
-            "heading" => Identifiers.ProvisionHeading(),
+            "implements" => Identifiers.ImplementsTag,
+            "proves" => Identifiers.ProvesTag,
+            "heading" => Identifiers.ProvisionHeading,
             _ => throw new ArgumentOutOfRangeException(nameof(name)),
         };
 

@@ -6,7 +6,7 @@
 
 ## Intent
 
-A Svelte frontend takes one of 3 rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a Svelte frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
+A Svelte frontend takes one of three rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a Svelte frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.
 
 ## Concepts
 

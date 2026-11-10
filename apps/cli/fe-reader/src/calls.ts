@@ -5,9 +5,9 @@
 // route's own folder and the use-case module folders the entry imports
 // directly. The frame and shared packages are never followed.
 
-import { absolute, baseName, canonical, isFile, isWithin, joinPath, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files.js";
-import { FileFacts, FileKind, readFacts } from "./parse.js";
-import { CallFacts, ReaderContext } from "./protocol.js";
+import { absolute, baseName, canonical, isFile, isWithin, joinPath, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
+import { FileFacts, FileKind, readFacts } from "./parse";
+import { CallFacts, ReaderContext } from "./protocol";
 
 export function toPascalCase(name: string): string {
   return name

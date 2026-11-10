@@ -51,7 +51,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Example:** An agent that finds a guard in code with no record above it writes the requirement or rule, or removes the guard.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal, a screen call to no endpoint, or an engine step mapping to no use case, and reports `mark-missing` for a code element that carries no mark.
+**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal or a screen call to no endpoint, and reports `mark-missing` for a code element that carries no mark.
 
 ### Add Behavior Detail When Specifying Intent
 

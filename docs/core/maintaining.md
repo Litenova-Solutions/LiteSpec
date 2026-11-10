@@ -40,7 +40,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
-| `MANIFEST_*` | The manifest is not valid JSON, names a path or anchor that does not exist, or lists a shape page twice. | `MANIFEST_JSON`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH` |
+| `MANIFEST_*` | The manifest is not valid JSON, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_JSON`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
 | `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid JSON, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_JSON`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
 ## Standards
@@ -109,9 +109,9 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Rationale:** The manifest is the release record that tools read: stacks and shapes decide which pages apply, extensions decide which conditional bundles a project selects from, and pins decide which versions build. A stack, shape, extension, or pin the manifest omits is one no consumer selects and no tool resolves. Listing all of them in one file keeps the release reproducible from its tag.
 
-**Example:** The Behavior extensions `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai` each appear with their page path and activation scope.
+**Example:** The manifest lists the `cache` extension with its page path `docs/ext/cache.md` and its `local` activation scope.
 
-**Checked by:** `litespec-maintain validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
+**Checked by:** `litespec-maintain validate` emits `EXTENSION_UNLISTED` for an extension page no manifest entry lists, `LAYER_UNREACHABLE` for a page no stack selection reaches, and `MANIFEST_ANALYZER_PIN` for an analyzer pin that differs from the analyzer project version.
 
 ### Mark the Tools with the Provisions They Follow
 

@@ -6,7 +6,7 @@
 
 ## Intent
 
-A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md); the `efcore` extension names the aggregates that use Entity Framework Core for storage instead of Marten.
+A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md).
 
 ## Concepts
 
@@ -16,7 +16,7 @@ One scoped session serves a whole command: the Domain repositories stage aggrega
 
 ### The Baseline Provider and Its Replacement
 
-Marten is the baseline provider, supplying the session, the read session, and document storage. The `efcore` extension replaces no baseline provision; every provision on this page binds those paths unchanged.
+Marten is the baseline provider, supplying the session, the read session, and document storage.
 
 ## Standards
 
@@ -49,7 +49,6 @@ Marten is the baseline provider, supplying the session, the read session, and do
 | Provider | Query surface |
 |:---|:---|
 | Marten baseline | `IQuerySession` |
-| EF Core extension | The context type the extension declares |
 
 The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each.
 
@@ -87,7 +86,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds `litespec/backend/persistence#commit-each-command-pipeline-once` for .NET.
 
-The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. For aggregates the `efcore` extension names it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
+The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
 
 **Reviewed for:** Which pipelines commit outside one post-handler file calling `SaveChangesAsync`? Look at the `SaveChangesAsync` calls in each pipeline.
 

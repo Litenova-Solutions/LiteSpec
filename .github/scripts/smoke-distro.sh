@@ -7,41 +7,28 @@
 #     debian:12 sh /src/.github/scripts/smoke-distro.sh
 set -eu
 
-# Runs a command up to three times, so a package mirror that fails once does not fail the job.
-retry() {
-  for attempt in 1 2 3; do
-    if "$@"; then
-      return 0
-    fi
+. "$(dirname "$0")/lib.sh"
 
-    if [ "$attempt" -lt 3 ]; then
-      echo "Attempt $attempt of '$*' failed; retrying." >&2
-      sleep $((attempt * 15))
-    fi
-  done
-
-  return 1
-}
-
-# These are the tools install.sh and smoke.sh call. No OpenSSL: the executable needs only the C library.
+# These are the tools install.sh and smoke.sh call, and jq, which smoke.sh reads the manifest with.
+# No OpenSSL: the executable needs only the C library.
 if command -v apt-get >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   retry apt-get update -qq >/dev/null
-  retry apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip tar >/dev/null
+  retry apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip jq tar >/dev/null
 elif command -v dnf >/dev/null 2>&1; then
   # Some images ship curl-minimal, which serves install.sh and conflicts with the curl package.
-  retry dnf install -y -q bash diffutils findutils gawk gzip tar >/dev/null
+  retry dnf install -y -q bash diffutils findutils gawk gzip jq tar >/dev/null
 elif command -v zypper >/dev/null 2>&1; then
-  retry zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip tar >/dev/null
+  retry zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip jq tar >/dev/null
 elif command -v apk >/dev/null 2>&1; then
   # Alpine keeps BusyBox wget, so install.sh downloads without curl there.
-  retry apk add --no-cache -q bash coreutils diffutils findutils >/dev/null
+  retry apk add --no-cache -q bash coreutils diffutils findutils jq >/dev/null
 else
   echo "smoke-distro.sh supports apt, dnf, zypper and apk distributions." >&2
   exit 2
 fi
 
-version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' /src/litespec.manifest.json | head -n 1)"
+version="$(manifest_version /src/litespec.manifest.json)"
 install_dir="$(mktemp -d)"
 
 LITESPEC_INSTALL_DIR="$install_dir" sh /src/apps/cli/install/install.sh --version "$version"

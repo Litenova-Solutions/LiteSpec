@@ -99,7 +99,6 @@ What the field drives:
 | `tenancy` | `docs/ext/tenancy.md` | `project` | none |
 | `plans` | `docs/ext/plans.md` | `project` | none |
 | `outbox` | `docs/ext/outbox.md` | `local` | `event`, `setting`, `runbook` |
-| `efcore` | `docs/backend/dotnet/ext/efcore.md` | `local` | none |
 | `jobs` | `docs/ext/jobs.md` | `local` | `setting`, `runbook` |
 | `stage` | `docs/ext/stage.md` | `project` | none |
 | `delegation` | `docs/ext/delegation.md` | `project` | none |
@@ -107,7 +106,7 @@ What the field drives:
 | `automation` | `docs/ext/automation.md` | `project` | none |
 | `ai` | `docs/ext/ai.md` | `local` | none |
 
-Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `efcore` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `setting`, and `runbook` for `outbox`. The [extensions index](../ext/README.md) states each extension with its activation criterion.
+Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `layer-projects` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `setting`, and `runbook` for `outbox`. The [extensions index](../ext/README.md) states each extension with its activation criterion.
 
 Three extensions replace baseline provisions, and the manifest repeats the list where checks read it:
 
@@ -115,7 +114,6 @@ Three extensions replace baseline provisions, and the manifest repeats the list 
 - `outbox` replaces `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`.
 - `jobs` replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
-`efcore` replaces no baseline provision: its Baseline relationship section names none.
 
 What the field drives:
 

@@ -10,7 +10,7 @@ Start with:
 
 - The `audit` extension selected in the consumer's `.litespec/project.json`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
-- The `audit` field on each command record, set to its reason and target or left at its default of audited with reason `none`.
+- The `audit` field on each command record, which the record schema requires with no default: a level of `required`, `optional`, or `none` with its target, or an exemption with its justification.
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
 - The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.json`.
@@ -166,7 +166,7 @@ Declare that query audited: reading the evidence is itself a sensitive action un
 
 Work through the provisions in [the audit extension](../ext/audit.md); each one this guide implements ends with the evidence to check.
 
-Confirm four behaviors by test before review:
+Confirm three behaviors by test before review:
 
 - A refused authorization leaves one `denied` record after the transaction rolls back.
 - A committed command leaves exactly one `succeeded` record in the same transaction.

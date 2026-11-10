@@ -41,7 +41,7 @@ Every file LiteSpec creates, reads, or governs in a consumer sits under one fold
 
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds. The Behavior extensions are `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai`, beside the existing `tenancy`, `compat`, `jobs`, `outbox`, `audit`, and `stage` extensions. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.json` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.json` whether any constraint applies, and an empty answer records that none does.
 
 LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces; company operation enters only as a constraint or as dated research.
 

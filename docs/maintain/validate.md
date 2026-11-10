@@ -7,7 +7,7 @@
 ## Synopsis
 
 ```bash
-litespec-maintain validate [--root <path>] [--warnings] [--format json] [--help]
+litespec-maintain validate [--root <path>] [--format json] [--help]
 ```
 
 ## Description
@@ -25,8 +25,7 @@ None.
 | Option | Default | Effect |
 |:---|:---|:---|
 | `--root <path>` | the LiteSpec checkout | Selects the LiteSpec repository to read. |
-| `--warnings` | off | Lists every occurrence of the rules that report warnings. |
-| `--format json` | off | Writes one JSON object on standard output, with the errors and warnings as arrays. |
+| `--format json` | off | Writes one JSON object on standard output instead of human-readable lines, with `tool`, `root`, `ok`, and an `errors` array whose entries carry `file`, `line`, `code`, and `message`. |
 | `--help` | off | Prints the synopsis, the options, and the exit codes, then exits zero. |
 
 ## Exit Codes
@@ -45,15 +44,15 @@ Validate the repository from its root:
 litespec-maintain validate
 ```
 
-Validate another checkout and list every warning occurrence:
+Validate another checkout and write the result as JSON:
 
 ```bash
-litespec-maintain validate --root ../standards --warnings
+litespec-maintain validate --root ../standards --format json
 ```
 
 ## Underneath
 
-The provision-index comparison is separately runnable, and reports the same defect this command reports as `PROVISIONS_STALE`:
+The provision-index comparison is separately runnable. It reports a stale page or data file, the condition this command reports as `PROVISIONS_STALE`:
 
 ```bash
 litespec-maintain provisions --check

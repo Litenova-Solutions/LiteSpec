@@ -8,16 +8,16 @@ You maintain the `litespec.dev` site in `apps/site/`. You change its design, its
 
 The site is the static Astro 7 site that publishes the LiteSpec standard at `https://litespec.dev`. It is maintainer tooling, not part of a consumer project, so it lives in `apps/site/` rather than in the CLI. It builds from the standard at the repository root through one loader, `src/lib/spec.ts`. People read HTML pages. Agents read `/llms.txt`, a raw `.md` copy of every page, one index per selection of shape and stacks, and one bundle per layer. The UI is hand-written CSS. Wireframes are drawn by a TypeScript port of the C# renderer, proved byte-identical by golden SVGs.
 
-The project file is `apps/site/package.json`. It names the package `litespec-site`, the package manager `pnpm@11.28.5`, the engine `node >=24`, the dependencies `astro 7.3.5` and `@astrojs/markdown-remark 7.3.1`, and the dev dependency `pagefind 1.5.2`. The workspace file `apps/site/pnpm-workspace.yaml` allows the `esbuild` build. The TypeScript config `apps/site/tsconfig.json` extends the Astro strict config and excludes `dist/`. The ignore file `apps/site/.gitignore` ignores `node_modules/`, `dist/`, and `.astro/`.
+The project file is `apps/site/package.json`. It names the package `@litespec/site`, its dependencies and its scripts. The site is one package of the pnpm workspace at the repository root: the root `package.json` names the package manager and the Node engine for every package, and the root `pnpm-workspace.yaml` names the shared versions. The TypeScript config `apps/site/tsconfig.json` extends the Astro strict config and excludes `dist/`. The ignore file `apps/site/.gitignore` ignores `node_modules/`, `dist/`, and `.astro/`.
 
 ## Quick Start
 
 Run every command in this section from the repository root.
 
-Install the site dependencies:
+Install the workspace dependencies. One install serves the site, the book client and the frontend reader:
 
 ```bash
-pnpm --dir apps/site install
+pnpm install
 ```
 
 Start the dev server:
@@ -38,13 +38,7 @@ Preview the built output:
 pnpm --dir apps/site preview
 ```
 
-Run the site tests:
-
-```bash
-pnpm --dir apps/site test
-```
-
-`dev` runs `astro dev`. `build` runs `astro build && pagefind --site dist`. `preview` runs `astro preview`. `test` runs `node --test "src/**/*.test.ts"`.
+`dev` runs `astro dev`. `build` runs `astro build && pagefind --site dist`. `preview` runs `astro preview`.
 
 ## Layout
 
@@ -53,8 +47,7 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 | Path | What it owns |
 |:---|:---|
 | `astro.config.mjs` | Site origin `https://litespec.dev`, static output, trailing slashes, directory URLs, and the `_redirects` integration that maps `/latest` to the manifest version. |
-| `package.json` | Scripts, engines, and dependencies named above. |
-| `pnpm-workspace.yaml` | The `esbuild` build permission. |
+| `package.json` | Scripts and dependencies named above. |
 | `tsconfig.json` | The Astro strict extension and the `dist/` exclusion. |
 | `public/favicon.svg` | The browser icon. |
 | `src/lib/spec.ts` | The one loader every page and endpoint reads. It finds the repository root, reads `litespec.manifest.json`, parses every page under `docs/`, attaches provisions from the generated `docs/reference/provisions.json` index, and computes selections, layers, and URLs. |
@@ -66,7 +59,6 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 | `src/lib/wireframe/parse.ts` | The wireframe language parser, a port of the CLI parser. |
 | `src/lib/wireframe/render.ts` | The wireframe SVG renderer, a port of the CLI renderer. |
 | `src/lib/wireframe/index.ts` | The wireframe module boundary that re-exports the parser and the renderer. |
-| `src/lib/wireframe/wireframe.test.ts` | The golden tests that lock the parser and the renderer. |
 | `src/lib/wireframe/fixtures/` | One `.wireframe` input per option with its golden `.desktop.svg` and `.phone.svg` outputs, plus `errors.json` for the failure cases. |
 | `src/components/` | The Astro components named under Components. |
 | `src/layouts/Base.astro` | The shared layout with the head, the frame, the header, the footer, and the copy behavior. |
@@ -206,7 +198,7 @@ The build writes `dist/_redirects` (`/latest` to the manifest version) and copie
 
 ## Search Engines
 
-`src/lib/seo.ts` builds the metadata, and `src/lib/seo.test.ts` tests it. `pageTitle` joins a page title, its section and `LiteSpec`, dropping the section when the result would pass 60 characters so the page title is never truncated. `absoluteUrl` builds a canonical link on `https://litespec.dev` with a trailing slash, `metaDescription` trims a description at a sentence or word boundary to 160 characters, and `techArticle`, `breadcrumbs`, `webPage`, `website`, `organization` and `softwareSource` build the schema.org objects. Every page has `<html lang="en">`, one `H1`, a unique title and description, Open Graph tags with the 1200 by 630 `public/og.png` share image (width, height and alt text) and `summary_large_image` Twitter cards. Every page writes the Organization plus its own objects as one JSON-LD graph: docs pages a TechArticle (headline, description, URL, `dateModified` from the last git commit of the page file through `lastModified`, or the build date from `buildDate` when git has no date, and `isPartOf` the WebSite) and a BreadcrumbList that matches the visible breadcrumb, crumbs without a link carrying no `item`; the landing page the WebSite and the SoftwareSourceCode; the selection page a WebPage and a BreadcrumbList. Diagrams are inlined SVG with their own title and description for assistive technology and their Markdown alt text as the figure caption, and icons are `aria-hidden` unless they carry a label. Internal links use trailing slashes, the Geist body font is preloaded with `font-display: swap`, and the only script in the head is the theme read and the JSON-LD. The landing page states in its first sentence what LiteSpec is and links to the learn overview, the getting-started tutorial, the GitHub repository and the NuGet package. `src/pages/sitemap.xml.ts` lists every indexable HTML page (the landing page, the selection page and every docs page) as an absolute URL with a trailing slash and a `lastmod` date, and nothing that redirects or is `noindex`: the release root, the raw Markdown copies, the layer bundles, the `llms.txt` indexes and the 404 page stay out. `public/robots.txt` allows everything and names the sitemap, and the 404 page is `noindex` with no canonical link. A short page intent gains the page title and a sentence about LiteSpec, so every description carries enough for a search snippet.
+`src/lib/seo.ts` builds the metadata. `pageTitle` joins a page title, its section and `LiteSpec`, dropping the section when the result would pass 60 characters so the page title is never truncated. `absoluteUrl` builds a canonical link on `https://litespec.dev` with a trailing slash, `metaDescription` trims a description at a sentence or word boundary to 160 characters, and `techArticle`, `breadcrumbs`, `webPage`, `website`, `organization` and `softwareSource` build the schema.org objects. Every page has `<html lang="en">`, one `H1`, a unique title and description, Open Graph tags with the 1200 by 630 `public/og.png` share image (width, height and alt text) and `summary_large_image` Twitter cards. Every page writes the Organization plus its own objects as one JSON-LD graph: docs pages a TechArticle (headline, description, URL, `dateModified` from the last git commit of the page file through `lastModified`, or the build date from `buildDate` when git has no date, and `isPartOf` the WebSite) and a BreadcrumbList that matches the visible breadcrumb, crumbs without a link carrying no `item`; the landing page the WebSite and the SoftwareSourceCode; the selection page a WebPage and a BreadcrumbList. Diagrams are inlined SVG with their own title and description for assistive technology and their Markdown alt text as the figure caption, and icons are `aria-hidden` unless they carry a label. Internal links use trailing slashes, the Geist body font is preloaded with `font-display: swap`, and the only script in the head is the theme read and the JSON-LD. The landing page states in its first sentence what LiteSpec is and links to the learn overview, the getting-started tutorial, the GitHub repository and the NuGet package. `src/pages/sitemap.xml.ts` lists every indexable HTML page (the landing page, the selection page and every docs page) as an absolute URL with a trailing slash and a `lastmod` date, and nothing that redirects or is `noindex`: the release root, the raw Markdown copies, the layer bundles, the `llms.txt` indexes and the 404 page stay out. `public/robots.txt` allows everything and names the sitemap, and the 404 page is `noindex` with no canonical link. A short page intent gains the page title and a sentence about LiteSpec, so every description carries enough for a search snippet.
 
 ## Diagrams
 
@@ -214,19 +206,7 @@ A diagram is an SVG in `docs/assets/diagrams/`, linked from its page as a Markdo
 
 ## Testing
 
-Run the site tests from the repository root:
-
-```bash
-pnpm --dir apps/site test
-```
-
-The suite runs `node --test "src/**/*.test.ts"`, which covers the wireframe goldens and the parser errors, the standard reader, the trail fence, and the SEO helpers in `src/lib/seo.test.ts` (title building, description trimming, the JSON-LD builders and the build-date fallback). Then build the site from the repository root:
-
-```bash
-pnpm --dir apps/site build
-```
-
-The build renders every docs page, every raw Markdown copy, every layer bundle, every selection index, and the schema copies, then indexes the output with Pagefind. The `web` job in `.github/workflows/ci.yml` runs the same two steps in CI on Node `24.22.0` with `pnpm@11.28.5`: `node --test src/lib/wireframe/wireframe.test.ts` and `pnpm exec astro build` after `pnpm install --frozen-lockfile`.
+The site has no test suite. The build fails on a broken page, a broken link or a broken search index, and a visual check in a browser against the built output covers the layout, the wireframes and the theme in light and dark mode. The `web` job in `.github/workflows/ci.yml` runs the build in CI, after one `pnpm install --frozen-lockfile` at the repository root, on the Node and pnpm versions the repository names once: `.node-version` and the root `package.json`.
 
 ## Limits
 

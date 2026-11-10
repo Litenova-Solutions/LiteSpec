@@ -16,7 +16,8 @@ rid="$1"
 mkdir -p "$2"
 out="$(cd "$2" && pwd)"
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
-version="$(sed -n 's/^  "version": "\([^"]*\)",$/\1/p' "$repository/litespec.manifest.json" | head -n 1)"
+. "$repository/.github/scripts/lib.sh"
+version="$(manifest_version "$repository/litespec.manifest.json")"
 project="$repository/apps/cli/src/LiteSpec.Cli"
 
 # Packing for one runtime identifier publishes the native executable first, into the publish folder the archive reuses.

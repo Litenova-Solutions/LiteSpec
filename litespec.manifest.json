@@ -149,16 +149,6 @@
         "runbook"
       ]
     },
-    "efcore": {
-      "path": "docs/backend/dotnet/ext/efcore.md",
-      "activationScope": "local",
-      "applicableKinds": [
-        "module",
-        "use-case"
-      ],
-      "replaces": [],
-      "switchesOn": []
-    },
     "layer-projects": {
       "path": "docs/backend/dotnet/ext/layer-projects.md",
       "activationScope": "project",

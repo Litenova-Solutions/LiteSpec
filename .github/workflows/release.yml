@@ -38,7 +38,8 @@ jobs:
       - name: Match the tag to the manifest version
         id: version
         run: |
-          version="$(jq -r .version litespec.manifest.json)"
+          . .github/scripts/lib.sh
+          version="$(manifest_version litespec.manifest.json)"
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "The tag $GITHUB_REF_NAME does not name the manifest version $version."
             exit 1
@@ -112,9 +113,7 @@ jobs:
           merge-multiple: true
 
       - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          global-json-file: global.json
+        uses: ./.github/actions/setup-sdk
 
       - name: Sign in to nuget.org
         id: login

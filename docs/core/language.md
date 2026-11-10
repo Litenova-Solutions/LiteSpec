@@ -108,7 +108,7 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of fourteen words, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of the words in the problem-word table below, each with one meaning.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
@@ -118,14 +118,15 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `unrecorded` | true in code but written in no record | `behavior-unrecorded` |
 | `unimplemented` | declared but built nowhere | `use-case-unimplemented` |
 | `unreached` | built but reached by no flow | `use-case-unreached` |
+| `unverified` | a use case holds scenarios with no passing proof | `use-case-unverified` |
 | `drift` | the built thing differs from its record | `setting-key-drift` |
 | `invalid` | a value breaks its form | `field-invalid` |
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
-| `clash` | two names collide | `term-clash` |
 | `expired` | the date passed | `exception-expired` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
+| `break` | a contract the base published no longer holds | `contract-break` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
@@ -265,13 +266,13 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Strength:** rule
 
-**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fourteen problem words.
+**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the problem-word table.
 
-**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fourteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
+**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
-**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the fourteen? Look at the finding codes the change adds, beside the problem-word table.
+**Reviewed for:** Which finding codes miss the subject-problem form or end in a word the problem-word table does not hold? Look at the finding codes the change adds, beside the problem-word table.
 
 ### Write Each Finding Message as a Fact
 

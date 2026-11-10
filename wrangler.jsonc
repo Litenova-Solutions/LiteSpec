@@ -3,9 +3,10 @@
   "name": "litespec-site",
   "compatibility_date": "2026-10-01",
   // `wrangler deploy` and `wrangler preview` build the site first, so the Worker needs no build command of its own.
-  // The build writes apps/site/dist, which the Worker serves as static assets.
+  // The build writes apps/site/dist, which the Worker serves as static assets. It runs at the repository root, where
+  // the workspace lockfile and the root package.json that names pnpm live; corepack reads that version.
   "build": {
-    "command": "npx --yes pnpm@11.28.5 --dir apps/site install --frozen-lockfile && npx --yes pnpm@11.28.5 --dir apps/site build"
+    "command": "corepack enable && pnpm install --frozen-lockfile && pnpm --dir apps/site build"
   },
   "assets": {
     "directory": "./apps/site/dist",

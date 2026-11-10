@@ -272,7 +272,7 @@ in February 2026 and stands behind 25 EUR.
 Finance sees abuse or friction.
 ```
 
-The Context section states the situation, the Decision section states the choice in one line, and Evidence with Confidence cites the finance review of February 2026. The `consequences` field notes that small expenses stay light to submit, and What Would Reopen It states the `reopenedWhen` condition. A later change deletes this record and writes a new one, so the reasoning stays readable in git.
+The Context section states the situation, the Decision section states the choice in one line, and Evidence with Confidence cites the finance review of February 2026. The `consequences` field notes that small expenses stay light to submit, and What Would Reopen It states the `reopenedWhen` condition. A later change edits this record in place, so the reasoning stays readable in git.
 
 ## The Constraint
 

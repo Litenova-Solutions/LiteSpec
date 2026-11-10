@@ -1,11 +1,7 @@
 {
-  "name": "litespec-site",
+  "name": "@litespec/site",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.28.5",
-  "engines": {
-    "node": ">=24"
-  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",

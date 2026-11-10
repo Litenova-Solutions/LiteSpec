@@ -46,7 +46,7 @@ Record authors copy templates by hand into the paths [consumer/README.md](consum
 - For `.litespec/project.json` or a preset, keep both valid against the project schema. `litespec-maintain validate` checks the shipped template. Keep [consumer/README.md](consumer/README.md) rows in sync: every row names a file that exists, and every shipped file appears in a row.
 - For a standard seed, keep it passing its virtual page contract. `litespec-maintain validate` parses each one.
 - Update the CLI reader and its tests when the shape changes, with one passing case and one failing case.
-- Run the verification steps in [CONTRIBUTING.md](../CONTRIBUTING.md).
+- Run the checks in the [Verification section of AGENTS.md](../AGENTS.md#verification).
 
 ## How to Test It
 

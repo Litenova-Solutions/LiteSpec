@@ -2,13 +2,13 @@
 
 ## Purpose
 
-A feature is one capability the software offers against a problem, and it lives under the module that holds that problem: one file at `.litespec/intent/modules/<module>/features/<feature>.yaml` carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file beside it. Each step names the standard it satisfies, and the guide adds no rule of its own.
+A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one file at `.litespec/intent/modules/<module>/features/<feature>.yaml` carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file beside it. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
 Start with:
 
-- A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its product brief written.
+- A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its product record written.
 - The module the feature belongs to, declared at `.litespec/intent/modules/<module>/module.yaml`.
 - The problem the feature answers and the goal it advances, each in its own record file.
 
@@ -18,7 +18,7 @@ Read the [Intent](../core/intent.md) page before this guide: it states the oblig
 
 ### Scaffold the Feature File
 
-Run `litespec new` to scaffold the feature: it copies the feature template to `.litespec/intent/modules/<module>/features/` and reserves the identifier `feature/<name>`. Give the feature a kebab-case name, such as `feature/expense-submission`, and a title in plain words. This satisfies `litespec/core/model#write-every-record-in-its-record-file` and `litespec/core/intent#keep-intent-in-its-homes`.
+Run `litespec new feature <name>` to scaffold the feature and reserve the identifier `feature/<name>`. Give the name in kebab-case, such as `expense-submission`, and the title in plain words. The command writes the file under `.litespec/intent/features/`. Move it to `.litespec/intent/modules/<module>/features/<name>.yaml`, where the module holds it. This satisfies `litespec/core/model#write-every-record-in-its-record-file` and `litespec/core/intent#keep-intent-in-its-homes`.
 
 ### State the Offering and Its Links
 
@@ -34,11 +34,11 @@ terms:
   - term/expense
 ```
 
-Write each link on the feature, the record that points. This satisfies `litespec/core/model#write-links-on-the-record-that-points`.
+Write each link on the feature, the record that points. This satisfies `litespec/core/intent#state-each-feature-with-its-offering` and `litespec/core/model#write-links-on-the-record-that-points`.
 
 ### Write One Entry per Requirement
 
-Write each commitment the feature makes as one requirement entry under `records`. Give each entry an identifier of the form `requirement/<feature>.<name>`, such as `requirement/expense-submission.receipt-over-threshold`, with its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
+Append each commitment the feature makes with `litespec new entry .litespec/intent/modules/<module>/features/<feature>.yaml requirement <name>`, then fill the entry's fields. Give each entry an identifier of the form `requirement/<feature>.<name>`, such as `requirement/expense-submission.receipt-over-threshold`, with its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
 
 ```yaml
 records:
@@ -58,7 +58,7 @@ records:
 
 ### State Each Quality Requirement as a Scenario
 
-A quality requirement carries the scenario that confirms it: the `stimulus` that triggers it, the `environment` it holds in, the `response` the product shows, and the `measure`, `target`, and `conditions` that confirm it. This satisfies `litespec/core/intent#state-each-quality-requirement-as-a-scenario`.
+A quality requirement carries the scenario that confirms it: the `stimulus` that triggers it, the `environment` it holds in, the `response` the product shows, the `measure` that names what is counted, the `target` that names the number aimed for, and the `check` that confirms it, with `conditions`, `runsOn`, and `evidence` where they apply. This satisfies `litespec/core/intent#state-each-quality-requirement-as-a-scenario`.
 
 ```yaml
   - type: requirement
@@ -73,11 +73,17 @@ A quality requirement carries the scenario that confirms it: the `stimulus` that
     measure: Delivery delay per reminder.
     target: Under one hour.
     conditions: Up to ten thousand managers.
+    check: reminder-delivery-probe
+    runsOn: nightly
+    evidence: The nightly reminder delivery run.
+    cites:
+      - goal/faster-reimbursement
+    setBy: product
 ```
 
 ### State Each Exception with Its Fallback
 
-A requirement that bends in a named case carries that case in `except` with its `condition` and the `fallback` requirement that holds instead, as the receipt requirement above shows. Name who sets the requirement values in `setBy`: `product`, `operator`, or `tenant`. This satisfies `litespec/core/intent#state-each-exception-with-its-fallback`.
+A requirement that bends in a named case carries that case in `except` with its `condition` and the `fallback` requirement that holds instead, as the receipt requirement above shows. Write the fallback requirement as its own entry under `records`, so every exception ends in a promise. Name who sets the requirement values in `setBy`: `product`, `operator`, or `tenant`. This satisfies `litespec/core/intent#state-each-exception-with-its-fallback`.
 
 ### Add the Explanation File
 

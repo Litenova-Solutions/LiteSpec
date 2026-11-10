@@ -275,7 +275,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Example:** An engine step that reimburses an expense maps to the reimburse-expense use case, whose compensation voids the payout.
 
-**Checked by:** `litespec model check` reports no `behavior-unrecorded` finding on engine steps without a use case.
+**Reviewed for:** Which engine steps map to no use case, or to a use case with no compensation? Look at the engine step definitions beside the use case records.
 
 ### Record Stricter Edge Rules as Conventions
 
