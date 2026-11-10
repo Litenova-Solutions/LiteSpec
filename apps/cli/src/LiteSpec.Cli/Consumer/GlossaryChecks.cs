@@ -8,7 +8,7 @@ namespace LiteSpec.Consumer;
 ///     The glossary check of the consumer validator: the glossary file against
 ///     its schema.
 /// </summary>
-/// <follows>litespec/core/authoring#record-the-project-vocabulary-as-data</follows>
+/// <follows>litespec/core/language#record-the-project-vocabulary-as-data</follows>
 static class GlossaryChecks
 {
     /// <summary>

@@ -1,11 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model.Checks;
-using LiteSpec.Tests.Model.Marks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Model.Marks;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves the builder extracts the new links, derives results in the written form and exports follows.</summary>
 public sealed class LinkExportTests
@@ -13,9 +13,9 @@ public sealed class LinkExportTests
     /// <summary>Feature Advancing A Goal Passes Link Types.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Feature_Advancing_A_Goal_Passes_Link_Types()
+    public void FeatureAdvancingAGoalPassesLinkTypes()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/shorter-queues", Path.Combine(temp.Path, "goal.yaml"), """{"statement": "Readers wait less.", "measure": "Median wait", "target": "Under two days"}"""),
@@ -27,9 +27,9 @@ public sealed class LinkExportTests
     /// <summary>Feature Advancing A Problem Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Feature_Advancing_A_Problem_Reports_Invalid_Field()
+    public void FeatureAdvancingAProblemReportsInvalidField()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/long-waits", Path.Combine(temp.Path, "problem.yaml"), """{"affects": ["actor/reader"], "statement": "Readers wait weeks."}"""),
@@ -42,7 +42,7 @@ public sealed class LinkExportTests
     /// <summary>Use Case Reads Setting Is Exported As A Link.</summary>
     /// <proves>litespec/core/use-cases#name-the-settings-each-use-case-reads</proves>
     [Fact]
-    public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
+    public void UseCaseReadsSettingIsExportedAsALink()
     {
         using var temp = ModelFixture.Prepare("large");
         TestRecords.Write(temp.Path, ".litespec/operations/reading.yaml", SettingJson);
@@ -67,7 +67,7 @@ public sealed class LinkExportTests
     /// <summary>Derived Results Take The Written Form.</summary>
     /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact]
-    public void Derived_Results_Take_The_Written_Form()
+    public void DerivedResultsTakeTheWrittenForm()
     {
         using var temp = ModelFixture.Prepare("large");
 
@@ -84,7 +84,7 @@ public sealed class LinkExportTests
     /// <summary>Follows Marks Are Exported Beside Implements.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact]
-    public void Follows_Marks_Are_Exported_Beside_Implements()
+    public void FollowsMarksAreExportedBesideImplements()
     {
         using var temp = MarksFixture.Prepare("follows");
 
@@ -100,9 +100,9 @@ public sealed class LinkExportTests
     /// <summary>A Model Without Follows Marks Exports An Empty Array.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact]
-    public void A_Model_Without_Follows_Marks_Exports_An_Empty_Array()
+    public void AModelWithoutFollowsMarksExportsAnEmptyArray()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
         using var document = JsonDocument.Parse(model.ToJson());
@@ -113,7 +113,7 @@ public sealed class LinkExportTests
     /// <summary>Wave5 Objects Export Their Ids As Links.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Wave5_Objects_Export_Their_Ids_As_Links()
+    public void Wave5ObjectsExportTheirIdsAsLinks()
     {
         Assert.Equal(
             ["use-case/lending.release-hold"],
@@ -138,7 +138,7 @@ public sealed class LinkExportTests
     /// <summary>Wave6 Effects Triggers And Steps Export Their Ids As Links.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Wave6_Effects_Triggers_And_Steps_Export_Their_Ids_As_Links()
+    public void Wave6EffectsTriggersAndStepsExportTheirIdsAsLinks()
     {
         Assert.Equal(
             ["use-case/lending.release-hold"],

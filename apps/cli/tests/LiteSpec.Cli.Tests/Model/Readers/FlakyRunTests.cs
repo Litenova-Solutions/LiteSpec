@@ -2,9 +2,9 @@ using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Dotnet;
 using LiteSpec.Model.Readers.JUnit;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the test run readers record a test that both passed and failed as flaky.</summary>
 public sealed class FlakyRunTests
@@ -14,9 +14,9 @@ public sealed class FlakyRunTests
     /// <summary>Same Test Passed And Failed Across Trx Files Is Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Same_Test_Passed_And_Failed_Across_Trx_Files_Is_Flaky()
+    public void SameTestPassedAndFailedAcrossTrxFilesIsFlaky()
     {
-        using var temp = Cli.Temp("reader-flaky");
+        using var temp = TestCli.Temp("reader-flaky");
         WriteProject(temp.Path);
         WriteTrx(temp.Path, "first.trx", Method, "Passed");
         WriteTrx(temp.Path, "second.trx", Method, "Failed");
@@ -30,9 +30,9 @@ public sealed class FlakyRunTests
     /// <summary>Same Test Passed And Failed Across Readers Is Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Same_Test_Passed_And_Failed_Across_Readers_Is_Flaky()
+    public void SameTestPassedAndFailedAcrossReadersIsFlaky()
     {
-        using var temp = Cli.Temp("reader-flaky");
+        using var temp = TestCli.Temp("reader-flaky");
         WriteProject(temp.Path);
         WriteTrx(temp.Path, "results.trx", Method, "Passed");
         WriteJUnit(temp.Path);
@@ -47,9 +47,9 @@ public sealed class FlakyRunTests
     /// <summary>Passed Test Skipped Elsewhere Is Not Flaky.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passed_Test_Skipped_Elsewhere_Is_Not_Flaky()
+    public void PassedTestSkippedElsewhereIsNotFlaky()
     {
-        using var temp = Cli.Temp("reader-flaky");
+        using var temp = TestCli.Temp("reader-flaky");
         WriteProject(temp.Path);
         WriteTrx(temp.Path, "first.trx", Method, "Passed");
         WriteTrx(temp.Path, "second.trx", Method, "Skipped");

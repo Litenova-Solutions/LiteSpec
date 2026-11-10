@@ -12,7 +12,7 @@ namespace LiteSpec.Consumer;
 ///     validates each record file and each document's frontmatter against the record schema,
 ///     and checks the explanation and document sections, headings, and the Example word bound.
 /// </summary>
-/// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class PageChecks
 {

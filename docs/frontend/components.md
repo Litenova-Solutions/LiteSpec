@@ -63,7 +63,7 @@ EntitySection "title"
 
 The section imports only the shared package entry point, so the layout it draws is the one the shared package owns for every other entity page.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/components#compose-composites-in-page-code]` with the file and the refused import. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-import-invalid` with the file and the refused import, tagged `[litespec/frontend/components#compose-composites-in-page-code]`. Run it at the consumer root.
 
 ### Write No Class Name in Page Code
 

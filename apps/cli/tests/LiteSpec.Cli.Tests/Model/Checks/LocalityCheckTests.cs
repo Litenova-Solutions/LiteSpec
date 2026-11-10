@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the locality checks: cross-module links, module cycles and event publishers, at tier G.</summary>
 public sealed class LocalityCheckTests
@@ -9,9 +9,9 @@ public sealed class LocalityCheckTests
     /// <summary>Same Layer Link Across Modules Without Dependency Reports.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void Link_Across_Modules_Without_Dependency_Reports()
+    public void LinkAcrossModulesWithoutDependencyReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -28,9 +28,9 @@ public sealed class LocalityCheckTests
     /// <summary>Same Layer Link Across Modules With Dependency Passes.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void Link_Across_Modules_With_Dependency_Passes()
+    public void LinkAcrossModulesWithDependencyPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -44,9 +44,9 @@ public sealed class LocalityCheckTests
     /// <summary>Link Through Integration Event Passes.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void Link_Through_Integration_Event_Passes()
+    public void LinkThroughIntegrationEventPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -60,9 +60,9 @@ public sealed class LocalityCheckTests
     /// <summary>Link Across Layers May Cross Modules.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void Link_Across_Layers_May_Cross_Modules()
+    public void LinkAcrossLayersMayCrossModules()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -77,9 +77,9 @@ public sealed class LocalityCheckTests
     /// <summary>Link Within Same Module Passes.</summary>
     /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
     [Fact]
-    public void Link_Within_Same_Module_Passes()
+    public void LinkWithinSameModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -92,9 +92,9 @@ public sealed class LocalityCheckTests
     /// <summary>Module Cycle Reports.</summary>
     /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
     [Fact]
-    public void Module_Cycle_Reports()
+    public void ModuleCycleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": ["module/finance"]}"""),
@@ -109,9 +109,9 @@ public sealed class LocalityCheckTests
     /// <summary>Acyclic Modules Pass.</summary>
     /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
     [Fact]
-    public void Module_Acyclic_Passes()
+    public void ModuleAcyclicPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -123,9 +123,9 @@ public sealed class LocalityCheckTests
     /// <summary>Module Depending On Itself Reports.</summary>
     /// <proves>litespec/core/model#keep-module-dependencies-free-of-cycles</proves>
     [Fact]
-    public void Module_Self_Dependency_Reports()
+    public void ModuleSelfDependencyReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": ["module/lending"]}"""));
@@ -139,9 +139,9 @@ public sealed class LocalityCheckTests
     /// <summary>Event With Two Publishers Reports.</summary>
     /// <proves>litespec/core/model#publish-each-integration-event-from-one-module</proves>
     [Fact]
-    public void Event_With_Two_Publishers_Reports()
+    public void EventWithTwoPublishersReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -159,9 +159,9 @@ public sealed class LocalityCheckTests
     /// <summary>Event With One Publisher Passes.</summary>
     /// <proves>litespec/core/model#publish-each-integration-event-from-one-module</proves>
     [Fact]
-    public void Event_With_One_Publisher_Passes()
+    public void EventWithOnePublisherPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),

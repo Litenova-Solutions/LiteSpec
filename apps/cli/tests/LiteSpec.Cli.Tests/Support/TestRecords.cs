@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Cli.Tests.Support;
 
 /// <summary>
 ///     Writes record files and explanation files into a test consumer. A case states a

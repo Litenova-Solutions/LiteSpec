@@ -64,7 +64,7 @@ Each type answers one question.
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
-Each record file holds the fields the [Authoring Standard](authoring.md) names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, and the permission list per module holds permissions. The retention-schedule page holds the retention rows at `.litespec/behavior/retention-schedule.yaml`. The retention schedule is a container page style, not a record type.
+Each record file holds the fields the record schema names for its type. List records hold many entries: a rule-set page holds rules, a setting-set page holds settings, and the permission list per module holds permissions. The retention-schedule page holds the retention rows at `.litespec/behavior/retention-schedule.yaml`. The retention schedule is a container page style, not a record type.
 
 Every record states something the software does, holds, refuses at runtime or runs on, and translates into code, results, tests or infrastructure. The [intent page](intent.md) states the test each Intent type meets.
 
@@ -177,7 +177,7 @@ A record file is one file `<name>.yaml` holding one YAML mapping: the page recor
 
 ### Explanation Files
 
-An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier.
+An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only.
 
 ### Documents
 
@@ -191,9 +191,13 @@ Anything a check reads is a field in the record file. Anything that only helps s
 
 The article types are `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Answer for research, and Context, Options Considered, Decision, and What Would Reopen It for decision.
 
+### YAML Reader
+
+A record file holds one YAML mapping, read by YamlDotNet. The reader accepts the YAML YamlDotNet reads, except it refuses an empty document, a document that does not start at the first column, `---` and `...` markers, tabs in indentation, folded `>` blocks, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
+
 ### Canonical Form
 
-Every record file uses one canonical form: block mappings and sequences with two-space indentation, key order from the record schema, multi-line text in `|` block scalars, and quoting only where a scalar would resolve to a non-string. The [Authoring Standard](authoring.md) states the YAML reader. `litespec model format` rewrites every record file into canonical form, and a record file that differs from its canonical text is a `format-drift` finding.
+`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, and `title`, continue with the type's own fields in schema order, then `terms` where the type carries it, and close with `records`; any other key keeps its written order after these. Only a permission carries `risk`. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. A record file that differs from its canonical text is a `format-drift` finding.
 
 ### Citations in Prose
 
@@ -1082,6 +1086,172 @@ The book renders the in-memory model only and judges nothing itself.
 **Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/expense/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
 
 **Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
+
+### Declare Structured Specification Metadata
+
+**ID:** `litespec/core/model#declare-structured-specification-metadata`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every record file and every document frontmatter block MUST satisfy the record schema for its declared type.
+
+**Rationale:** The record schema owns the field list of every record type and page style. A record file is one YAML mapping with its entries in `records`, holding no Markdown and no frontmatter fences. A document frontmatter block is YAML between two lines that hold only `---`, holding only the page style and its common fields. This page states the record types and their homes.
+
+**Example:** A use-case record file opens with its identity fields.
+
+```yaml
+type: use-case
+id: use-case/spending.submit-expense
+title: Submit Expense
+```
+
+**Checked by:** `litespec model check` reports `record-invalid` for each record file and document frontmatter block that fails the record schema.
+
+### Use One Metadata Carrier
+
+**ID:** `litespec/core/model#use-one-metadata-carrier`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A consumer page MUST use its record file as its only metadata carrier.
+
+**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.
+
+**Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
+
+### Classify Every Specification File
+
+**ID:** `litespec/core/model#classify-every-specification-file`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every file under the consumer documentation root MUST be a record file, an explanation file beside its record file, or a document, or sit under a declared unstructured path.
+
+**Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to be a record file, an explanation, or a document, or to sit under a declared unstructured path, leaves no page unchecked. A directory index that owns no record uses the index style, and a `README.md` with no frontmatter is a document.
+
+**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and fails a `.yaml` file with no record type outside a declared unstructured path.
+
+### Start Each Explanation File with Its Title
+
+**ID:** `litespec/core/model#start-each-explanation-file-with-its-title`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An explanation file MUST open with one H1 title and section its content with H2 sections.
+
+**Rationale:** One shape puts the title and each section in the same place on every explanation. The H1 carries the record title, and each H2 carries one section from the table on this page or a free section; Notes take free `###` headings under their H2.
+
+**Reviewed for:** Which explanation files miss their H1 title or section content outside H2? Look at the explanation files beside the changed record files.
+
+### Derive a Computed Fact Instead of Restating It
+
+**ID:** `litespec/core/model#derive-a-computed-fact-instead-of-restating-it`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A specification MUST name the source or the command that produces any count, census, or membership list derived between records.
+
+**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access` and `input`, and computed completion appears in the book and the model output only.
+
+**Example:** A chapter states where its numbers come from rather than copying them.
+
+```markdown
+The figures below render from the retention schedule at build time.
+```
+
+**Reviewed for:** Which counts, censuses, or membership lists lack a source or command? Look at the numbers the change adds.
+
+### Keep Code Out of Intent and Behavior Fields
+
+**ID:** `litespec/core/model#keep-code-out-of-intent-and-behavior-fields`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** No field on an Intent or Behavior record MUST be filled from code.
+
+**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state becomes a backlog item outside the repository. Derivation between records stays allowed.
+
+**Example:** A positivity guard found in a handler becomes a backlog item for a rule, while the code stays untouched until the rule lands.
+
+**Reviewed for:** Which Intent or Behavior fields copy values from code? Look at the fields the change fills, beside the implementation.
+
+### Scaffold Pages and Reserve Identifiers
+
+**ID:** `litespec/core/model#scaffold-pages-and-reserve-identifiers`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An author MUST scaffold a new page with `litespec new <type> <id>`, which reserves its identifier.
+
+**Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name. For an article type the command also writes the explanation file, and for a document style it writes the document.
+
+**Example:** `litespec new reaction spending.send-receipt-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
+
+**Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
+
+### Rewrite Every Link on a Rename
+
+**ID:** `litespec/core/model#rewrite-every-link-on-a-rename`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
+
+**Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.
+
+**Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
+
+**Checked by:** `litespec rename` leaves no citation of the old identifier, and `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
+### Validate a Single Page Before Committing
+
+**ID:** `litespec/core/model#validate-a-single-page-before-committing`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** An author MUST validate a single page before committing it.
+
+**Rationale:** Full validation walks the whole repository, which grows slow exactly when many authors commit often. A single-page check reports shape and link errors for the page at hand in seconds, so each commit arrives already sound.
+
+**Example:** The author validates the touched page, fixes the reported diagnostics, and commits only when the page passes.
+
+**Reviewed for:** The change report shows each touched page passing single-page validation before commit.
+
+### State What Happens in Every Behavior Statement
+
+**ID:** `litespec/core/model#state-what-happens-in-every-behavior-statement`
+
+**Strength:** advisory
+
+**Applies to:** artifact: any
+
+**Statement:** A rule statement, scenario step, and result meaning SHOULD avoid words that hide behavior.
+
+**Deviation:** A quoted name, an interface label, or a cited source keeps its fixed wording.
+
+**Rationale:** The vague words are handle, handles, handled, process, processes, manage, manages, various, etc., appropriate, appropriately, properly, as needed, and so on: each says that something happens without saying what. A reader cannot check a statement that hides its behavior, so each statement names the act in words a test could assert.
+
+**Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
+
+**Reviewed for:** Which rule statements, scenario steps, or result meanings hide their behavior behind a vague word? Look at the statements the change adds.
 
 ## Conventions
 

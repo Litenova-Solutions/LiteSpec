@@ -986,7 +986,7 @@
       "style": "standard",
       "area": "core",
       "title": "Authoring Standard",
-      "intent": "Every page in LiteSpec, and every record file, explanation file, and document in a project built with it, shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the YAML reader for record files, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.",
+      "intent": "Every page in LiteSpec shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the prose rules the validators enforce on LiteSpec\u0027s own pages, and how each release carries the complete contract. The [Project Model](model.md) and [Record Language](language.md) pages state the rules for the records a project writes, and one shared shape lets readers learn pages once.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1277,7 +1277,7 @@
       "style": "index",
       "area": "example",
       "title": "Overview",
-      "intent": "The example pages show LiteSpec applied instead of described, following Claimwick, one small product in which employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones, from its first Intent record through Behavior, Implementation, and Proof. A record is one piece of product intent held in a short YAML record file, and every product fact on these pages comes from the records of the Claimwick product in \u0060examples/claimwick/\u0060, a real LiteSpec project that \u0060litespec model check\u0060 passes. The pages carry no rules of their own: each rule lives on the standards page the text cites. The library product illustrates single provisions and is not a walkable consumer; Claimwick is the end-to-end example.",
+      "intent": "The example pages show LiteSpec applied to one product, Claimwick, a small application in which employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. Its records live in \u0060examples/claimwick/.litespec/\u0060, and its code, screen and tests sit beside them in the same repository. Every record ID, file path, count and command output on these pages is copied from that repository or from a real run of \u0060litespec\u0060 against it, so a reader can open the same file and see the same text. The pages state no rules of their own: each rule lives on the standards page that the text cites.",
       "sections": [
         "Intent",
         "How to Read the Example",
@@ -1290,15 +1290,14 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Product",
-      "intent": "Claimwick is the small product the example follows: employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones. This page states what that product is and why through 9 Intent records, each stating one piece of product intent: the product brief, the spending module, the goal, the problem, the feature with its requirements, the research, the decision, the constraint, and the journey. Each record below shows the shape a project writes, with YAML taken from \u0060examples/claimwick/.litespec/\u0060, so a team sees what written intent looks like before the example turns it into Behavior, code, and checks.",
+      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its Intent records as they are written in \u0060examples/claimwick/.litespec/intent/\u0060, from the product brief down to the journey that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
       "sections": [
         "Intent",
         "The Product Brief",
         "The Spending Module",
         "The Goal",
         "The Problem",
-        "The Feature",
-        "The Requirements",
+        "The Features and Their Requirements",
         "The Research",
         "The Decision",
         "The Constraint",
@@ -1311,25 +1310,17 @@
       "style": "explanation",
       "area": "example",
       "title": "Modules and Records",
-      "intent": "The spending module is the Claimwick example\u0027s one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record declared in Intent, 4 aggregates for expenses, receipts, the policy store, and the export-request store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and the entry point with its screen and the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the reaction, jobs, notifications, setting, integration event, and retention row around them.",
+      "intent": "The Spending module turns the Intent of [The Claimwick Product](the-product.md) into Behavior: the aggregates that hold each expense, policy and receipt, the rules that guard them, the use cases that change them, and the entry point, screen, reaction, job, notification and setting around them. This page lists those records as they are written in \u0060examples/claimwick/.litespec/behavior/modules/spending/\u0060, with the counts and IDs a reader can check in the folder.",
       "sections": [
         "Intent",
-        "The Spending Module",
-        "Aggregates and Their States",
-        "Expense Transitions and Data",
-        "The Full Expense Record",
+        "The Aggregates",
         "The Rules",
-        "Actors, Roles, and Permissions",
-        "Entry Points",
-        "The External System",
         "The Use Cases",
-        "One Use Case Tying Them Together",
-        "Reactions and Jobs",
-        "The Notifications",
-        "The Settings",
-        "The Query",
-        "The Integration Event",
-        "The Retention Row"
+        "The Entry Point and the Screen",
+        "The Reaction, Job, Notification and Settings",
+        "The Permissions and the Access Chain",
+        "The External System",
+        "Counting the Records"
       ]
     },
     {
@@ -1338,14 +1329,15 @@
       "style": "explanation",
       "area": "example",
       "title": "A Use Case in Code",
-      "intent": "A use case is one command or query with its access, results, and scenarios. Implementing one means turning its written record into code in the layer that owns each part. Claimwick is the example product the docs follow, in which employees submit work expenses with receipts; this page follows its Submit expense use case from the written record into .NET code, naming where each file lives in the shared kernel and modules projects, then showing the Expense aggregate, the command and its handler, the endpoint, and the acceptance scenario that proves the code matches the record.",
+      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/expenses/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
       "sections": [
         "Intent",
-        "Where Each File Lives",
-        "The Expense Aggregate",
-        "The Command and Its Handler",
+        "The Record",
+        "The Rule Behind the Refusal",
         "The Endpoint",
-        "The Acceptance Scenario"
+        "The Handler",
+        "The Acceptance Tests",
+        "What the Model Sees"
       ]
     },
     {
@@ -1354,14 +1346,16 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Screen",
-      "intent": "The expenses screen is one screen of the Claimwick product, the example product these pages follow: it shows each employee their expenses at one address. This page follows that screen from the folder serving its address, through its data read with the API client generated from the published contract, the shared UI package it composes, and the drawn list option it starts from, naming the frontend rule each step applies.",
+      "intent": "The expenses screen is the one screen of Claimwick\u0027s web app that the example builds. It shows an employee their own expenses at the address \u0060/expenses\u0060. This page follows that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.",
       "sections": [
         "Intent",
-        "The Expenses Route",
-        "Reading Through the Generated Client",
+        "The Route",
+        "The Use Case Code",
+        "The Generated Client",
         "The Shared UI Package",
-        "The List Pattern Behind the Screen",
-        "The Frontend Rules the Screen Follows"
+        "The Browser Proof",
+        "The Pattern Catalog",
+        "What the Model Checks"
       ]
     },
     {
@@ -1370,17 +1364,14 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model is the computed join between a project\u0027s written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from \u0060litespec model check\u0060 and \u0060litespec model query\u0060: how a departure (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what \u0060model check --since\u0060 reports for a breaking contract change, and which continuous integration jobs run these checks.",
+      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 26 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
       "sections": [
         "Intent",
-        "Checking the Model",
-        "The Departure for Export Expenses",
-        "The Run with the Approve Expense Handler Removed",
+        "The Full Check",
+        "A Departure That Covers a Finding",
+        "Proof for the Use Cases",
         "Querying One Record",
-        "The Consumer Check",
-        "The Journey Detail",
-        "The Breaking Contract Change",
-        "The Continuous Integration Jobs That Run the Checks"
+        "The Continuous Integration Jobs"
       ]
     },
     {
@@ -2807,13 +2798,16 @@
       "style": "explanation",
       "area": "learn",
       "title": "How LiteSpec Works",
-      "intent": "LiteSpec connects what a team writes down about a product with the code that implements it, and checks that the two still agree. This page shows that connection on Claimwick, the example product in \u0060examples/claimwick/\u0060 where employees submit work expenses with receipts, following the Submit expense use case from its written record to the code that implements it and the check that confirms they match.",
+      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the record layers and the tools, then follows one use case of Claimwick, the example product in \u0060examples/claimwick/\u0060, from its written record to the check that confirms it. The worked example is in [The Claimwick Product](../example/the-product.md) and the pages after it.",
       "sections": [
         "Intent",
         "The Parts",
+        "The Four Layers",
+        "Record Types and Their Homes",
         "A Use Case from Record to Code",
-        "The Provision Identifier",
-        "The Specification Is Closed",
+        "Links Between Records",
+        "Completion Is Computed",
+        "The Tools",
         "Next"
       ]
     },
@@ -2835,34 +2829,12 @@
       ]
     },
     {
-      "file": "docs/learn/records-and-the-model.md",
-      "path": "learn/records-and-the-model",
-      "style": "explanation",
-      "area": "learn",
-      "title": "Records and the Project Model",
-      "intent": "Every LiteSpec project writes its intent (what to build, and why) as small records across four layers, and the model builder joins those records to the code and tests that carry them. This page explains the layers, what those records are, where they live, and what the model builder works out from them. Team members and agents read it before they write their first record, so each piece of intent lands in the right type and home from the start.",
-      "sections": [
-        "Intent",
-        "Small Records of Intent",
-        "The Four Layers",
-        "What Belongs in Intent",
-        "Record Types and Their Homes",
-        "How to Write a Feature Under a Module",
-        "Links Between Records",
-        "The Folder Is the Parent",
-        "Changing a Record When Git Is the Record",
-        "Completion Is Computed",
-        "Uses of the Model",
-        "Next Steps"
-      ]
-    },
-    {
       "file": "docs/learn/reading-tracks.md",
       "path": "learn/reading-tracks",
       "style": "explanation",
       "area": "learn",
       "title": "Reading Tracks",
-      "intent": "A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [Records and the Project Model](records-and-the-model.md), before they open their first record.",
+      "intent": "A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [How LiteSpec Works](how-litespec-works.md), before they open their first record.",
       "sections": [
         "Intent",
         "Why Before How",
@@ -2871,23 +2843,6 @@
         "Structural Words",
         "Which Track to Take",
         "Next"
-      ]
-    },
-    {
-      "file": "docs/learn/the-tooling.md",
-      "path": "learn/the-tooling",
-      "style": "explanation",
-      "area": "learn",
-      "title": "How the Tools Fit Together",
-      "intent": "LiteSpec ships 4 tools: a command line that checks a consumer project, a maintainer command line that checks the standard itself, a set of .NET analyzers that flag rule breaks while code is written and built, and a published site that shows which rules apply. This page explains what each tool checks, the order a team runs them in when a consumer project (an application repository built against one pinned LiteSpec release) changes, and which repository each command belongs to. Developers and agents read it when they set up a project or join one, so every check runs in the right place and nothing goes unchecked.",
-      "sections": [
-        "Intent",
-        "The Four Tools",
-        "One Change from Start to Finish",
-        "Agent and Reader Paths",
-        "Command Locations",
-        "Questions Each Tool Answers",
-        "Next Steps"
       ]
     },
     {
@@ -3001,7 +2956,7 @@
       "style": "command",
       "area": "maintain",
       "title": "Generate Provisions",
-      "intent": "\u0060litespec-maintain provisions\u0060 writes the provision index and its data file, resolving every identifier to its page, record layer, trace, and checked share.",
+      "intent": "\u0060litespec-maintain provisions\u0060 writes the provision index and its data file, resolving every identifier to its page, record layer, trace, and checked share, and writes the finding code table, the record folder table, and the manifest pin table.",
       "sections": [
         "Name",
         "Synopsis",
@@ -3139,6 +3094,32 @@
       "area": "reference",
       "title": "Decision Records",
       "intent": "A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/reference/finding-codes.md",
+      "path": "reference/finding-codes",
+      "style": "reference",
+      "area": "reference",
+      "title": "Finding Codes",
+      "intent": "Use this generated page to read what a finding code means and how to resolve it. A reader who sees a code in \u0060litespec model check\u0060 output, or in a \u0060Checked by\u0060 line of a standards page, looks it up here. The table holds every code the tools emit, with its level, the record layer it governs, whether it ties that layer to the records, and the extension that adds it.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/reference/folders.md",
+      "path": "reference/folders",
+      "style": "reference",
+      "area": "reference",
+      "title": "Record Folders",
+      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A record in any other folder is a \u0060record-placement-invalid\u0060 finding. The Flat module column marks a home that applies only to a module that keeps its records flat.",
       "sections": [
         "Intent",
         "Reference",

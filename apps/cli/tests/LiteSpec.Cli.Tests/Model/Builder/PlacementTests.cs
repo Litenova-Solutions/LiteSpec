@@ -1,8 +1,8 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves the reader places every record from its folder and queries it by identifier.</summary>
 public sealed class PlacementTests
@@ -10,9 +10,9 @@ public sealed class PlacementTests
     /// <summary>Every record carries the folder its file sits in and the module folder above it.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Reader_Sets_Folder_And_Module_From_Placement()
+    public void ReaderSetsFolderAndModuleFromPlacement()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/intent/product.yaml", """
             type: product
@@ -96,9 +96,9 @@ public sealed class PlacementTests
     /// <summary>A screen takes its folder from the entry point folder it sits under.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_Folder_Comes_From_Its_Entry_Point_Folder()
+    public void ScreenFolderComesFromItsEntryPointFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/entry-points/library-app/screens/loans.yaml", """
             type: screen
@@ -114,9 +114,9 @@ public sealed class PlacementTests
     /// <summary>Derived refusal results carry the folder and module of their use case file.</summary>
     /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact]
-    public void Derived_Results_Carry_Their_Use_Case_Placement()
+    public void DerivedResultsCarryTheirUseCasePlacement()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/finance/payouts/request-payout.yaml", """
             type: use-case
@@ -138,9 +138,9 @@ public sealed class PlacementTests
     /// <summary>Model query resolves a record id and shows its folder and module.</summary>
     /// <proves>litespec/core/agent#select-task-context</proves>
     [Fact]
-    public void Model_Query_Shows_Folder_And_Module()
+    public void ModelQueryShowsFolderAndModule()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/spending/expenses/submit-expense.yaml", """
             type: use-case
@@ -165,9 +165,9 @@ public sealed class PlacementTests
     /// <summary>Model JSON shows the folder and the module of every record.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Model_Json_Shows_Folder_And_Module()
+    public void ModelJsonShowsFolderAndModule()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/spending/expenses/aggregate.yaml", """
             type: aggregate

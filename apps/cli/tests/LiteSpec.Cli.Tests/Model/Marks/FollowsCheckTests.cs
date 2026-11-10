@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Tests the follows checks against the marks-follows fixture consumer.</summary>
 public sealed class FollowsCheckTests
@@ -246,7 +246,7 @@ public sealed class FollowsCheckTests
 
     static TempFolder WriteAttributeConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {

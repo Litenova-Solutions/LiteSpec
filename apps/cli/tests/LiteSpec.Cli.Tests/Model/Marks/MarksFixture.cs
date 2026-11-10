@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Copies a marks fixture consumer and checks its model in process.</summary>
 static class MarksFixture
@@ -11,11 +11,11 @@ static class MarksFixture
     /// <returns>The temp folder holding the prepared fixture.</returns>
     public static TempFolder Prepare(string name)
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
-            CopyContents(Cli.Fixture($"marks-{name}"), temp.Path);
+            CopyContents(TestCli.Fixture($"marks-{name}"), temp.Path);
             return temp;
         }
         catch

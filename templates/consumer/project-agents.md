@@ -41,7 +41,7 @@ dotnet test <api-solution> --configuration Release --no-build
 
 Run the root pnpm gates for every changed frontend in `.litespec/project.yaml`. (litespec/core/release#run-boundary-selected-checks)
 
-Run metadata and model checks for each changed record, source, or test. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/authoring#declare-structured-specification-metadata)
+Run metadata and model checks for each changed record, source, or test. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#declare-structured-specification-metadata)
 
 Report every skipped check with its reason, and name the provisions `rules` returned and how each was judged. (litespec/core/release#report-verification-exactly)
 

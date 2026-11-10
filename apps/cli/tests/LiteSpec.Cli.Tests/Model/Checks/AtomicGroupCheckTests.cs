@@ -1,15 +1,15 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the atomic group checks: changes equal to the bound group, and groups above four aggregates.</summary>
 public sealed class AtomicGroupCheckTests
 {
     [Fact]
-    public void Atomic_Changes_Differing_From_Binds_Reports_Drift()
+    public void AtomicChangesDifferingFromBindsReportsDrift()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.yaml"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
@@ -19,9 +19,9 @@ public sealed class AtomicGroupCheckTests
     }
 
     [Fact]
-    public void Atomic_Changes_Equal_To_Binds_Passes()
+    public void AtomicChangesEqualToBindsPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/booking.room-still-free", Path.Combine(temp.Path, "booking.yaml"), """{"kind": "atomicity", "statement": "A booking holds its room night.", "governs": ["aggregate/booking.booking"], "binds": ["aggregate/booking.booking", "aggregate/inventory.room-night"]}"""),
@@ -31,9 +31,9 @@ public sealed class AtomicGroupCheckTests
     }
 
     [Fact]
-    public void Rule_Binding_Five_Aggregates_Reports_Invalid()
+    public void RuleBindingFiveAggregatesReportsInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.yaml"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"]}"""));
@@ -44,9 +44,9 @@ public sealed class AtomicGroupCheckTests
     }
 
     [Fact]
-    public void Rule_Binding_Four_Aggregates_Passes()
+    public void RuleBindingFourAggregatesPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/sales.big-order", Path.Combine(temp.Path, "sales.yaml"), """{"kind": "atomicity", "statement": "A big order ships together.", "governs": ["aggregate/sales.order"], "binds": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment"]}"""));
@@ -55,9 +55,9 @@ public sealed class AtomicGroupCheckTests
     }
 
     [Fact]
-    public void Atomic_Use_Case_Changing_Five_Aggregates_Without_A_Rule_Reports_Invalid()
+    public void AtomicUseCaseChangingFiveAggregatesWithoutARuleReportsInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/sales.place-order", Path.Combine(temp.Path, "order.yaml"), """{"kind": "command", "changes": ["aggregate/sales.order", "aggregate/sales.line", "aggregate/sales.charge", "aggregate/sales.shipment", "aggregate/sales.invoice"], "consistency": {"mode": "atomic"}}"""));

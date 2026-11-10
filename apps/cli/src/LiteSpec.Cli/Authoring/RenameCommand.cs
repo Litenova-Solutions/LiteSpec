@@ -9,7 +9,7 @@ namespace LiteSpec.Authoring;
 ///     the consumer repository, moving its record file and explanation file and
 ///     rewriting every citation.
 /// </summary>
-/// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
+/// <follows>litespec/core/model#rewrite-every-link-on-a-rename</follows>
 static class RenameCommand
 {
     /// <summary>The command's usage text.</summary>

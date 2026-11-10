@@ -16,7 +16,9 @@ static class ProvisionsCommand
         Writes docs/reference/provisions.md, docs/reference/provisions.json and the site's page
         index docs/reference/pages.json from the active standards in root, which defaults to the
         LiteSpec checkout this tool belongs to. Each provision carries its record layer and trace,
-        and the index states the checked share of rules for each page.
+        and the index states the checked share of rules for each page. It also writes the finding
+        code table docs/reference/finding-codes.md, the record folder table docs/reference/folders.md,
+        and the pin table inside docs/reference/manifest.md.
 
           --root    The repository root. Defaults to the LiteSpec checkout.
           --check   Compare the tracked files with the generated ones and write nothing.
@@ -83,12 +85,22 @@ static class ProvisionsCommand
             return 2;
         }
 
-        (string Path, string Text)[] files =
-        [
-            (Provisions.IndexPath, Provisions.BuildIndex(root) + "\n"),
-            (Provisions.JsonPath, Provisions.BuildJson(root) + "\n"),
-            (Provisions.PagesPath, Provisions.BuildPages(root) + "\n"),
-        ];
+        (string Path, string Text)[] files;
+        try
+        {
+            files =
+            [
+                (Provisions.IndexPath, Provisions.BuildIndex(root) + "\n"),
+                (Provisions.JsonPath, Provisions.BuildJson(root) + "\n"),
+                (Provisions.PagesPath, Provisions.BuildPages(root) + "\n"),
+                .. ReferenceTables.Outputs(root),
+            ];
+        }
+        catch (InvalidOperationException exception)
+        {
+            Console.Error.WriteLine(exception.Message);
+            return 2;
+        }
 
         if (parsed.Has("--check"))
         {

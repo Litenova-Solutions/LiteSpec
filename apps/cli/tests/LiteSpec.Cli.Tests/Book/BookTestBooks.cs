@@ -1,9 +1,9 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Writes a book in-process from a parsed model, through the same writer the command uses.</summary>
 static class BookTestBooks
@@ -12,7 +12,7 @@ static class BookTestBooks
     /// <param name="relative">The fixture path with forward-slash segments.</param>
     /// <returns>The parsed model object.</returns>
     public static JsonObject LoadFixture(string relative) =>
-        (JsonObject)DataFile.Read(Cli.Fixture(relative))!;
+        (JsonObject)DataFile.Read(TestCli.Fixture(relative))!;
 
     /// <summary>Writes the book for a parsed model to the folder, with the carried release's own words.</summary>
     /// <param name="model">The parsed model object that holds the records array.</param>
@@ -25,8 +25,8 @@ static class BookTestBooks
         BookCommand.WriteBook(
             model,
             root,
-            BookLexicon.Load(Cli.Repository),
-            Cli.Repository,
+            BookLexicon.Load(TestCli.Repository),
+            TestCli.Repository,
             editor ?? BookCommand.DefaultEditor,
             outDir,
             claims ?? LayerClaims.All);

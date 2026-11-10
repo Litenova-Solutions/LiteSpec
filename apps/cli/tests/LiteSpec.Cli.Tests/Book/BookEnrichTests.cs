@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book enrich step emits computed record details from the model only.</summary>
 public sealed class BookEnrichTests
@@ -10,7 +10,7 @@ public sealed class BookEnrichTests
     /// <summary>Each detail keeps the mockup shape: identity, stripped fields and source, with no status, owner or decider.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Build_Keeps_The_Mockup_Record_Shape()
+    public void BuildKeepsTheMockupRecordShape()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var loan = details["aggregate/lending.loan"];
@@ -38,7 +38,7 @@ public sealed class BookEnrichTests
     /// <summary>Every parent matches the outline parent for the same record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Parent_Matches_The_Outline_Parent_For_Every_Record()
+    public void ParentMatchesTheOutlineParentForEveryRecord()
     {
         var model = LoadFixture("Book/review.json");
         var outline = BookOutline.Build(model);
@@ -53,7 +53,7 @@ public sealed class BookEnrichTests
     /// <summary>Layers follow the outline roots, one of the six known layer keys.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Layer_Follows_The_Outline_Layers()
+    public void LayerFollowsTheOutlineLayers()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.Equal("intent", Str(details["goal/faster-borrowing"], "layer"));
@@ -70,7 +70,7 @@ public sealed class BookEnrichTests
     /// <summary>Scenarios and rules read norun while the model holds no test run.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Proof_Is_Norun_Without_A_Test_Run()
+    public void ProofIsNorunWithoutATestRun()
     {
         var model = LoadFixture("Book/review.json");
         model["testRun"] = null;
@@ -90,7 +90,7 @@ public sealed class BookEnrichTests
     /// <summary>Proof maps passing and unproved states, with the proving test file and line.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Proof_Maps_Passing_And_Unproved_With_Test_Lines()
+    public void ProofMapsPassingAndUnprovedWithTestLines()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var passing = Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof");
@@ -110,7 +110,7 @@ public sealed class BookEnrichTests
     /// <summary>Machine states come from the status maps the builder already writes: verified use cases, met requirements.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Machine_States_Come_From_Status_Maps()
+    public void MachineStatesComeFromStatusMaps()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var borrow = Obj(details["use-case/lending.borrow-copy"], "machine");
@@ -132,7 +132,7 @@ public sealed class BookEnrichTests
     /// <summary>A stored scenario state wins over the proves links; a scenario without one still reads its links.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Stored_Scenario_Status_Wins_Over_Proves_Links()
+    public void StoredScenarioStatusWinsOverProvesLinks()
     {
         var model = NewModel(
             Record("scenario", "scenario/borrow-copy.stored", "Stored"),
@@ -164,7 +164,7 @@ public sealed class BookEnrichTests
     /// <summary>An indirect proof reads indirect, never passing.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Indirect_Proof_Reads_Indirect()
+    public void IndirectProofReadsIndirect()
     {
         var model = NewModel(Record("scenario", "scenario/borrow-copy.background", "Background"));
         model["testRun"] = new JsonObject { ["date"] = "2026-10-20" };
@@ -184,7 +184,7 @@ public sealed class BookEnrichTests
     /// <summary>Tested proof targets read their tested state from the tested map the builder wrote.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tested_Comes_From_Tested_Map()
+    public void TestedComesFromTestedMap()
     {
         var model = NewModel(
             Record("requirement", "requirement/borrowing.fast-desk", "Fast Desk", "approved", "approved", """{"kind": "quality"}"""),
@@ -216,7 +216,7 @@ public sealed class BookEnrichTests
     /// <summary>Aggregates list their reachable states; other types carry no reachable list.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Reachable_Lists_Aggregate_States()
+    public void ReachableListsAggregateStates()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var reachable = Arr(details["aggregate/lending.loan"], "reachable");
@@ -229,7 +229,7 @@ public sealed class BookEnrichTests
     /// <summary>Requirements count the fulfilling records by type.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void KeptBy_Counts_Fulfilling_Types()
+    public void KeptByCountsFulfillingTypes()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var kept = Obj(details["requirement/self-checkout.max-wait"], "keptBy");
@@ -242,7 +242,7 @@ public sealed class BookEnrichTests
     /// <summary>Journey steps list their servers and screens, and the steps a test walked.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Journey_Steps_List_Servers_Screens_And_Exercised()
+    public void JourneyStepsListServersScreensAndExercised()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var journey = details["journey/borrowing"];
@@ -257,7 +257,7 @@ public sealed class BookEnrichTests
     /// <summary>A reaction and a job serving steps read as their servers, and a walked step reads walked.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Reaction_And_Job_Served_And_Exercised_Steps()
+    public void ReactionAndJobServedAndExercisedSteps()
     {
         var model = LoadFixture("Book/review.json");
         var reactionId = "";
@@ -298,7 +298,7 @@ public sealed class BookEnrichTests
     /// <summary>Screens carry their route, called use cases and a route implementation entry.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Screen_Route_And_Calls_Come_From_Screens_And_Links()
+    public void ScreenRouteAndCallsComeFromScreensAndLinks()
     {
         var screen = Record("screen", "screen/library.search", "Search", "approved", "approved", """{"entryPoint": "entry-point/library-app"}""");
         var entry = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
@@ -334,7 +334,7 @@ public sealed class BookEnrichTests
     /// <summary>Mark lines come from model data only; implements links open at the file head.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Impl_Uses_Model_Lines_And_Null_For_Implements()
+    public void ImplUsesModelLinesAndNullForImplements()
     {
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
         var model = NewModel(useCase);
@@ -371,7 +371,7 @@ public sealed class BookEnrichTests
     /// <summary>Expectations and missing marks are computed once from code and tests.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tests_Expect_And_Lacks_Are_Computed_Once()
+    public void TestsExpectAndLacksAreComputedOnce()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "lacks"), "scenarios not tested"));
@@ -402,7 +402,7 @@ public sealed class BookEnrichTests
     /// <summary>Findings group by subject base id, open and known apart, unknown dropped.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Findings_Group_By_Subject_Base()
+    public void FindingsGroupBySubjectBase()
     {
         var model = LoadFixture("Book/review.json");
         model["findings"] = model["findings"] as JsonArray ?? new JsonArray();
@@ -447,7 +447,7 @@ public sealed class BookEnrichTests
     /// <summary>Explanations render to HTML with hash record links, split into intro and sections.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void BodyHtml_Renders_Markdown_With_Hash_Links_And_Sections()
+    public void BodyHtmlRendersMarkdownWithHashLinksAndSections()
     {
         var loan = DetailsOf(LoadFixture("Book/review.json"))["aggregate/lending.loan"];
         var html = Str(loan, "bodyHtml") ?? "";
@@ -468,7 +468,7 @@ public sealed class BookEnrichTests
     /// <summary>Outgoing and incoming edges carry field keys with no wording.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Out_And_In_Edges_Use_Field_Keys()
+    public void OutAndInEdgesUseFieldKeys()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var useOut = Arr(details["use-case/lending.borrow-copy"], "out");
@@ -489,7 +489,7 @@ public sealed class BookEnrichTests
     /// <summary>Nested link fields form dotted keys, and step fragments resolve to the record.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Nested_Effects_Form_Dotted_Keys()
+    public void NestedEffectsFormDottedKeys()
     {
         var caller = Record("use-case", "use-case/lending.borrow-copy", "Borrow", "approved", "approved", """{"effects": [{"calls": "external-system/address-lookup#validate"}]}""");
         var external = Record("external-system", "external-system/address-lookup", "Address Lookup", "approved", "approved");
@@ -501,7 +501,7 @@ public sealed class BookEnrichTests
     /// <summary>Wave-5 link objects resolve to dotted edges, and a mode-only object resolves to none while reaching the client intact.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Wave5_Link_Objects_Form_Record_Edges()
+    public void Wave5LinkObjectsFormRecordEdges()
     {
         var saga = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"kind": "saga", "steps": [{"id": "hold-place", "runs": "use-case/lending.return-copy", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}, "guard": "the hold exists"}]}""");
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved");
@@ -520,7 +520,7 @@ public sealed class BookEnrichTests
     /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, saga runs and drivers, binds, exercises and typed references.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Wave6_Link_Shapes_Form_Record_Edges()
+    public void Wave6LinkShapesFormRecordEdges()
     {
         var loan = Record("aggregate", "aggregate/lending.loan", "Loan", "approved", "approved");
         var room = Record("aggregate", "aggregate/inventory.room", "Room", "approved", "approved");
@@ -603,7 +603,7 @@ public sealed class BookEnrichTests
     /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_Captures_And_Evidence_Strength_With_Computed_Completion()
+    public void DetailsCarryCapturesAndEvidenceStrengthWithComputedCompletion()
     {
         var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
         screen["completion"] = JsonNode.Parse("""{"stage":"coded","proof":"unknown","heldBy":[],"counts":{}}""");
@@ -628,7 +628,7 @@ public sealed class BookEnrichTests
     /// <summary>Each detail carries the qualified identifier the model states beside the record, or the identifier itself when the model states none.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_The_Folder_And_The_Module()
+    public void DetailsCarryTheFolderAndTheModule()
     {
         var placed = Record("problem", "problem/slow-desk", "Slow Desk");
         placed["folder"] = "docs/intent/lending";
@@ -643,7 +643,7 @@ public sealed class BookEnrichTests
     /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Completion_Is_Computed_From_Proof()
+    public void CompletionIsComputedFromProof()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var borrow = Obj(details["use-case/lending.borrow-copy"], "completion");
@@ -665,7 +665,7 @@ public sealed class BookEnrichTests
     }
 
     static JsonObject LoadFixture(string relative) =>
-        (JsonObject)DataFile.Read(Cli.Fixture(relative))!;
+        (JsonObject)DataFile.Read(TestCli.Fixture(relative))!;
 
     static IReadOnlyDictionary<string, JsonObject> DetailsOf(JsonObject model) =>
         BookEnrich.Build(model, BookOutline.Build(model));

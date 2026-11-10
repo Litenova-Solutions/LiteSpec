@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves <c>litespec model check</c> prints blocking findings first, counts each code, and rejects dead options.</summary>
 public sealed partial class ModelCheckSummaryTests
@@ -49,11 +49,11 @@ public sealed partial class ModelCheckSummaryTests
     /// </summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Check_Prints_Blocking_First_Then_Counts_Then_Totals()
+    public void CheckPrintsBlockingFirstThenCountsThenTotals()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         WriteScenario(fixture.Path);
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--all");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
 
         Assert.Equal(1, result.Status);
 
@@ -89,11 +89,11 @@ public sealed partial class ModelCheckSummaryTests
     /// <summary>By default the level A findings are summarized by code and not listed; the counts still name them.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Check_By_Default_Summarizes_Advisory_By_Code()
+    public void CheckByDefaultSummarizesAdvisoryByCode()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         WriteScenario(fixture.Path);
-        var result = Cli.Run("model", "check", "--root", fixture.Path);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(1, result.Status);
         Assert.Contains("[paging-undeclared]", result.Output, StringComparison.Ordinal);
@@ -101,7 +101,7 @@ public sealed partial class ModelCheckSummaryTests
         Assert.Contains("advisory findings summarized by code; run with --all to list them.", result.Output, StringComparison.Ordinal);
         Assert.Contains(CountLines(result.Output), count => count.Code == "use-case-unverified" && count.Level == "A");
 
-        var all = Cli.Run("model", "check", "--root", fixture.Path, "--all");
+        var all = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
 
         Assert.Contains("[use-case-unverified]", all.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("advisory findings summarized by code", all.Output, StringComparison.Ordinal);
@@ -113,10 +113,10 @@ public sealed partial class ModelCheckSummaryTests
     [Theory]
     [InlineData("--level", "G")]
     [InlineData("--out", "model.json")]
-    public void Check_Dead_Option_Is_Rejected(string option, string value)
+    public void CheckDeadOptionIsRejected(string option, string value)
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, option, value);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, option, value);
 
         Assert.Equal(2, result.Status);
         Assert.Contains($"Unknown option '{option}'.", result.Output);
@@ -127,10 +127,10 @@ public sealed partial class ModelCheckSummaryTests
     [Theory]
     [InlineData("xml")]
     [InlineData("yaml")]
-    public void Check_Unsupported_Format_Is_A_Usage_Error(string format)
+    public void CheckUnsupportedFormatIsAUsageError(string format)
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", format);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", format);
 
         Assert.Equal(2, result.Status);
         Assert.Contains($"Unknown format '{format}'; use json or text.", result.Output);

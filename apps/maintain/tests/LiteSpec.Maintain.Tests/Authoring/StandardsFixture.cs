@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>
 ///     The minimal LiteSpec tree every standards case mutates, so each case isolates one rule.
@@ -436,6 +436,26 @@ static class StandardsFixture
         "A reference states exact values, options, and defaults.\n" +
         "A command page documents one command and what it runs underneath.\n";
 
+    /// <summary>The sample pages the base index links, by their path under docs/.</summary>
+    static readonly string[] BasePages =
+    [
+        "core/topic.md", "core/scopes.md", "ext/sample.md", "backend/sample/stack.md", "frontend/patterns/sample.md",
+        "guide/sample.md", "tutorial/sample.md", "reference/sample.md", "tools/sample.md", "reference/glossary.md",
+    ];
+
+    /// <summary>Writes the documentation index: its intent, the routing section, a link to each base page not omitted, and extra text.</summary>
+    /// <param name="intent">The intent sentence.</param>
+    /// <param name="omit">The base pages, by path under docs/, the index does not link.</param>
+    /// <param name="extra">Text appended after the links.</param>
+    /// <returns>The index text.</returns>
+    public static string Readme(string intent = "Use this page to find repository documentation.", string[]? omit = null, string extra = "")
+    {
+        var links = BasePages
+            .Where(page => omit is null || !omit.Contains(page, StringComparer.Ordinal))
+            .Select(page => $"- [{page}]({page})\n");
+        return "# Documentation\n\n## Intent\n\n" + intent + "\n\n" + IndexRouting + "\n## Pages\n\n" + string.Concat(links) + extra;
+    }
+
     /// <summary>Writes a file inside the temporary repository, creating its folder.</summary>
     /// <param name="root">The temporary repository root folder.</param>
     /// <param name="relative">The file path under the root, with forward-slash segments.</param>
@@ -507,6 +527,10 @@ static class StandardsFixture
     {
         Write(root, Provisions.IndexPath, Provisions.BuildIndex(root) + "\n");
         Write(root, Provisions.JsonPath, Provisions.BuildJson(root) + "\n");
+        foreach (var (path, text) in ReferenceTables.Outputs(root))
+        {
+            Write(root, path, text);
+        }
     }
 
     /// <summary>
@@ -523,7 +547,7 @@ static class StandardsFixture
         Write(root, "docs/backend/sample/stack.md", StackPage);
         Write(root, "docs/frontend/patterns/sample.md", PatternPage);
         Write(root, "docs/guide/sample.md", GuidePage);
-        Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n\n" + IndexRouting);
+        Write(root, "docs/README.md", Readme());
         Write(root, "docs/tutorial/sample.md", TutorialPage);
         Write(root, "docs/reference/sample.md", ReferencePage);
         Write(root, "docs/tools/sample.md", CommandPage);

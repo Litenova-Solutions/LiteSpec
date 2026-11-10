@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Claims;
+namespace LiteSpec.Cli.Tests.Model.Claims;
 
 /// <summary>Proves each finding code applies exactly to the layer claims that cover its record layer, trace and extension.</summary>
 public sealed class FindingClaimTests
@@ -28,7 +28,7 @@ public sealed class FindingClaimTests
     [InlineData("litespec-code-own-proof", "ui-route-suite-missing", false)]
     [InlineData("litespec-code-and-proof", "code-placement-drift", true)]
     [InlineData("litespec-code-and-proof", "ui-route-suite-missing", true)]
-    public void Claim_Covers_Its_Codes(string claim, string code, bool applies)
+    public void ClaimCoversItsCodes(string claim, string code, bool applies)
     {
         Assert.Equal(applies, Claim(claim).Covers(code, []));
     }
@@ -41,7 +41,7 @@ public sealed class FindingClaimTests
     [InlineData("alert-link-missing")]
     [InlineData("alert-threshold-drift")]
     [InlineData("runbook-unused")]
-    public void Delivery_Codes_Apply_Only_With_The_Delivery_Extension(string code)
+    public void DeliveryCodesApplyOnlyWithTheDeliveryExtension(string code)
     {
         var claim = Claim("litespec-code-and-proof");
 
@@ -53,7 +53,7 @@ public sealed class FindingClaimTests
     /// <summary>The claim gate reads each code's own row, so a code the table names gates by its layer, trace and extension.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Known_Codes_Gate_By_Their_Row()
+    public void KnownCodesGateByTheirRow()
     {
         var claim = Claim("own-code-and-proof");
 
@@ -65,7 +65,7 @@ public sealed class FindingClaimTests
     /// <summary>An unknown code applies to every claim, so a new code is never silently dropped.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Unknown_Code_Applies_To_Every_Claim()
+    public void UnknownCodeAppliesToEveryClaim()
     {
         Assert.True(Claim("intent-only").Covers("no-such-finding-code", []));
     }

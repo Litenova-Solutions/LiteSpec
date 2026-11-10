@@ -194,7 +194,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** The send-due-notice reaction answers its event with no `selection` and no `guard`.
 
-**Checked by:** `litespec model check` fails a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
+**Checked by:** `litespec model check` reports `record-invalid` for a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
 ### Guard Every Manual Job
 
@@ -226,7 +226,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending team.
 
-**Checked by:** `litespec model check` fails a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
+**Checked by:** `litespec model check` reports `record-invalid` for a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
 
 ## Conventions
 

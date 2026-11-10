@@ -40,7 +40,7 @@ The `breakpoints` map names viewport widths, and `groups` collect related patter
 
 ### Pattern Pages
 
-A pattern page holds one group of patterns, such as the record-detail group in `docs/frontend/patterns/record-detail.md`. The patterns folder names no stack, so its pages apply to every frontend under `docs/frontend/`. Each `###` heading under `## Patterns` names one pattern, and its ID is `litespec/frontend/patterns/<group>#<pattern-slug>`. The heading is a name rather than an action, so the ID survives a change of default.
+A pattern page holds one group of patterns, such as the record-detail group in `docs/frontend/patterns/record-detail.md`, and the [pattern pages index](patterns/README.md) lists every group. The patterns folder names no stack, so its pages apply to every frontend under `docs/frontend/`. Each `###` heading under `## Patterns` names one pattern, and its ID is `litespec/frontend/patterns/<group>#<pattern-slug>`. The heading is a name rather than an action, so the ID survives a change of default.
 
 A pattern carries four labeled fields, then its options.
 
@@ -192,7 +192,7 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 paths: {}
 ```
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/patterns#keep-one-pattern-catalog]` for a missing catalog, a duplicate id, an unknown group, an unknown library pattern, or a renamed option. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-catalog-invalid` tagged `[litespec/frontend/patterns#keep-one-pattern-catalog]` for a missing catalog, a duplicate id, an unknown group, an unknown library pattern, or a renamed option. Run it at the consumer root.
 
 ### Record Every Option Considered
 
@@ -208,7 +208,7 @@ paths: {}
 
 **Example:** An expense list considers two sort options: clickable headers and a menu listing sort fields. The entry records the rationale and cost of each, then names the chosen one.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/patterns#record-every-option-considered]` for a choice or extension naming no recorded option, and the catalog schema requires at least two options with rationale and cost. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-catalog-invalid` tagged `[litespec/frontend/patterns#record-every-option-considered]` for a choice or extension naming no recorded option, and the catalog schema requires at least two options with rationale and cost. Run it at the consumer root.
 
 ### Record Who Chose
 
@@ -253,7 +253,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Example:** The entry names breakpoint `compact`; below it expense rows render as cards.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/patterns#declare-the-compact-behavior]` for a breakpoint outside the breakpoints map or a compact option naming no recorded option. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-catalog-invalid` tagged `[litespec/frontend/patterns#declare-the-compact-behavior]` for a breakpoint outside the breakpoints map or a compact option naming no recorded option. Run it at the consumer root.
 
 ### Implement a Chosen Pattern Once
 
@@ -269,7 +269,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Example:** The catalog names one shared source path per platform, so every expense route composes its platform path.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/patterns#implement-a-chosen-pattern-once]` for a named component path that does not exist or an adopted status with no components. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-catalog-invalid` tagged `[litespec/frontend/patterns#implement-a-chosen-pattern-once]` for a named component path that does not exist or an adopted status with no components. Run it at the consumer root.
 
 ### Update the Catalog with the Code
 
@@ -301,7 +301,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Example:** A `pending` entry for one platform states in `gap` what is missing there.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/patterns#state-the-implementation-status]` for a partial or pending entry with no gap. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-catalog-invalid` tagged `[litespec/frontend/patterns#state-the-implementation-status]` for a partial or pending entry with no gap. Run it at the consumer root.
 
 ### Keep the Catalog Platform Neutral
 

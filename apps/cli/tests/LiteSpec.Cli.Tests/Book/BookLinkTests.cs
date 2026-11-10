@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book renders record links only for allowed schemes and orders records ordinally.</summary>
 public sealed class BookLinkTests
@@ -10,7 +10,7 @@ public sealed class BookLinkTests
     /// <summary>A Markdown link to a data URL renders as plain text with no href.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Markdown_Data_Link_Renders_As_Plain_Text()
+    public void MarkdownDataLinkRendersAsPlainText()
     {
         var html = BookMarkdown.Render("[click](data:text/html,hello)");
 
@@ -22,7 +22,7 @@ public sealed class BookLinkTests
     /// <summary>A Markdown link to a javascript URL renders as plain text with no href.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Markdown_Javascript_Link_Renders_As_Plain_Text()
+    public void MarkdownJavascriptLinkRendersAsPlainText()
     {
         var html = BookMarkdown.Render("[click](javascript:alert)");
 
@@ -34,7 +34,7 @@ public sealed class BookLinkTests
     /// <summary>Allowed targets stay links: http, https, mailto, fragments, relative paths and the editor scheme.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Safe_Href_Allows_The_Listed_Targets()
+    public void SafeHrefAllowsTheListedTargets()
     {
         Assert.True(BookRender.IsSafeHref("https://example.com/page"));
         Assert.True(BookRender.IsSafeHref("http://example.com/page"));
@@ -48,7 +48,7 @@ public sealed class BookLinkTests
     /// <summary>Every other scheme and network path renders as plain text.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Safe_Href_Rejects_Other_Targets()
+    public void SafeHrefRejectsOtherTargets()
     {
         Assert.False(BookRender.IsSafeHref("javascript:alert(1)"));
         Assert.False(BookRender.IsSafeHref("JaVaScRiPt:alert"));
@@ -63,7 +63,7 @@ public sealed class BookLinkTests
     /// <summary>A record explanation with a data Markdown link renders into the book detail with no data href.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Book_Detail_Holds_No_Data_Href()
+    public void BookDetailHoldsNoDataHref()
     {
         var model = JsonNode.Parse(
             """
@@ -88,7 +88,7 @@ public sealed class BookLinkTests
     /// <summary>Records order by ordinal title, then id, so the order does not depend on the machine culture.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Records_Order_By_Ordinal_Title_Then_Id()
+    public void RecordsOrderByOrdinalTitleThenId()
     {
         var model = JsonNode.Parse(
             """

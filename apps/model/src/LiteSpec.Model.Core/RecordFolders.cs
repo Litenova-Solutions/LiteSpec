@@ -83,6 +83,14 @@ public static class RecordFolders
         At("departure", "governance/modules/{module}/departures", "{name}.yaml"),
     ];
 
+    /// <summary>
+    ///     Every home of every record type in table order, as the folder reference page lists them.
+    ///     A type with several homes has one row for each.
+    /// </summary>
+    /// <returns>The type, folder, file and flat flag of each home.</returns>
+    public static IReadOnlyList<(string Type, string Folder, string File, bool Flat)> Homes() =>
+        Table.Select(home => (home.Type, home.Folder, home.File, home.Flat)).ToList();
+
     /// <summary>Whether a record file of the type sits in the folder, given the modules that keep their records flat.</summary>
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="folders">The folders the record file sits in, from its record layer down.</param>

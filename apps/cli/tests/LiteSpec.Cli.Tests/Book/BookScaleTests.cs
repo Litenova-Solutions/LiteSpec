@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book holds a large product: 21,500 records pack under their shard caps with a complete outline and a full shard map.</summary>
 public sealed class BookScaleTests
@@ -16,9 +16,9 @@ public sealed class BookScaleTests
     /// <summary>Every records and search shard stays under the hard cap, the behavior outline splits past its budget, and the manifest counts every record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Scale_Model_Packs_Every_Shard_Under_Its_Cap()
+    public void ScaleModelPacksEveryShardUnderItsCap()
     {
-        using var temp = Cli.Temp("book-scale");
+        using var temp = TestCli.Temp("book-scale");
         var line = BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
@@ -54,9 +54,9 @@ public sealed class BookScaleTests
     /// <summary>First paint stays under 1 MB and every layer outline under 1.5 MB: the shell, the client script and stylesheet with their fonts, the manifest, the lexicon and the Intent outline load first, and each layer outline loads on first open.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Budgets_Hold_First_Paint_And_Layers()
+    public void BudgetsHoldFirstPaintAndLayers()
     {
-        using var temp = Cli.Temp("book-scale");
+        using var temp = TestCli.Temp("book-scale");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var firstPaint = new[]
@@ -82,9 +82,9 @@ public sealed class BookScaleTests
     /// <summary>The outline places every scale record exactly once, with none unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Scale_Outline_Places_Every_Record_Exactly_Once()
+    public void ScaleOutlinePlacesEveryRecordExactlyOnce()
     {
-        using var temp = Cli.Temp("book-scale");
+        using var temp = TestCli.Temp("book-scale");
         BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
@@ -102,9 +102,9 @@ public sealed class BookScaleTests
     /// <summary>Every scale record sits in the records shard the manifest map names, and every outline node and search row reaches it.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Scale_Shard_Map_Reaches_Every_Record()
+    public void ScaleShardMapReachesEveryRecord()
     {
-        using var temp = Cli.Temp("book-scale");
+        using var temp = TestCli.Temp("book-scale");
         BookTestBooks.Write(WriteScaleModel(), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");

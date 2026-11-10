@@ -1,6 +1,6 @@
 using LiteSpec.Authoring;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Identifier, Standard, and Convention cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests
@@ -108,6 +108,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "### Keep the Topic Bounded", "### Keep the Topic Inside Its Boundary"));
             Directory.Delete(Path.Combine(root, "docs", "reference"), true);
+            StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(omit: ["reference/sample.md", "reference/glossary.md"]));
         },
         []);
 
@@ -155,7 +156,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#use-the-declared-identifier-grammar</proves>
     [Fact(DisplayName = "grammar notation is not a citation")]
     public void GrammarNotationIsNotCitation() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nAn identifier uses litespec/<page>#<slug> as its grammar.\n\n" + StandardsFixture.IndexRouting),
+        root => StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme("An identifier uses litespec/<page>#<slug> as its grammar.")),
         []);
 
     /// <summary>Unsupported modal vocabulary.</summary>

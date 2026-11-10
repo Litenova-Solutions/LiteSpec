@@ -8,7 +8,7 @@ public sealed class YamlTextTests
     /// <summary>CRLF line ends, and a block that ends on its last line's carriage return, read like LF.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Reads_Crlf_Line_Ends()
+    public void ReadsCrlfLineEnds()
     {
         var crlf = YamlText.Parse("type: index\r\ntitle: Loans\r\nnote: |\r\n  First line.\r\n  Second line.\r\n");
         var cut = YamlText.Parse("type: index\r\ntitle: Loans\r");
@@ -20,7 +20,7 @@ public sealed class YamlTextTests
     /// <summary>A nested mapping reads through objects, arrays and every scalar with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Block_Mapping_With_Nested_Values()
+    public void ParsesBlockMappingWithNestedValues()
     {
         var root = YamlText.Parse("loan:\n  states:\n    - Active\n    - Returned\n  limit: 25\n  open: true\n  closed: null\n");
 
@@ -63,7 +63,7 @@ public sealed class YamlTextTests
     /// <summary>A top-level sequence reads scalars and dash-line mappings with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Top_Level_Sequence()
+    public void ParsesTopLevelSequence()
     {
         var scalars = YamlText.Parse("- Active\n- Returned\n");
 
@@ -99,7 +99,7 @@ public sealed class YamlTextTests
     /// <summary>Double-quoted scalars unescape JSON escapes and quoted keys read with spaces.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Double_Quoted_Scalars_With_Escapes()
+    public void ParsesDoubleQuotedScalarsWithEscapes()
     {
         var root = YamlText.Parse("text: \"a\\\"b\\\\c\\/d\\b\\f\\n\\r\\t\\u00e9\\uD83D\\uDE00\"\n");
 
@@ -116,7 +116,7 @@ public sealed class YamlTextTests
     /// <summary>Single-quoted scalars read literally with doubled quotes as one quote.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Single_Quoted_Scalars()
+    public void ParsesSingleQuotedScalars()
     {
         var root = YamlText.Parse("text: 'it''s plain'\nempty: ''\nquote: 'a \"b\" c'\n");
 
@@ -132,7 +132,7 @@ public sealed class YamlTextTests
     /// <summary>A clip literal keeps one trailing line end and blank lines inside.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Literal_Block_Clip()
+    public void ParsesLiteralBlockClip()
     {
         var root = YamlText.Parse("text: |\n  line1\n  line2\n");
 
@@ -148,7 +148,7 @@ public sealed class YamlTextTests
     /// <summary>A strip literal drops the trailing line end.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Literal_Block_Strip()
+    public void ParsesLiteralBlockStrip()
     {
         var root = YamlText.Parse("text: |-\n  line1\n  line2\n");
 
@@ -159,7 +159,7 @@ public sealed class YamlTextTests
     /// <summary>A keep literal keeps its content and trailing line ends.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Literal_Block_Keep()
+    public void ParsesLiteralBlockKeep()
     {
         var empty = YamlText.Parse("text: |+\n");
 
@@ -178,7 +178,7 @@ public sealed class YamlTextTests
     /// <summary>Empty brackets read as empty collections.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Empty_Collections()
+    public void ParsesEmptyCollections()
     {
         var root = YamlText.Parse("a: []\nb: {}\n");
 
@@ -196,7 +196,7 @@ public sealed class YamlTextTests
     /// <summary>Nulls, booleans and JSON numbers resolve; quoted lookalikes stay strings.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Resolves_Core_Schema_Scalars()
+    public void ResolvesCoreSchemaScalars()
     {
         var root = YamlText.Parse("nothing: null\ntilde: ~\ntruthy: true\nfalsy: False\ncount: 25\nprice: 1.5\nname: \"true\"\ncode: \"123\"\n");
 
@@ -236,7 +236,7 @@ public sealed class YamlTextTests
     /// <summary>Comments are ignored; a comment-only document is empty.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Ignoring_Comments()
+    public void ParsesIgnoringComments()
     {
         var inline = YamlText.Parse("key: value # comment\n");
 
@@ -260,7 +260,7 @@ public sealed class YamlTextTests
     /// <summary>Plain indicators read as strings; broken anchors and indicator-led values fail with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Handles_Anchors_Aliases_Tags_With_Line()
+    public void HandlesAnchorsAliasesTagsWithLine()
     {
         var anchor = YamlText.Parse("key: &anchor\n");
 
@@ -306,7 +306,7 @@ public sealed class YamlTextTests
     /// <summary>Document markers are refused with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Refuses_Document_Markers_With_Line()
+    public void RefusesDocumentMarkersWithLine()
     {
         var start = Assert.Throws<JsonTextException>(() => YamlText.Parse("---\ntype: use-case\n"));
         Assert.Equal(1, start.Line);
@@ -324,7 +324,7 @@ public sealed class YamlTextTests
     /// <summary>Folded block headers are refused with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Refuses_Folded_Blocks_With_Line()
+    public void RefusesFoldedBlocksWithLine()
     {
         var folded = Assert.Throws<JsonTextException>(() => YamlText.Parse("key: >\n  folded\n"));
         Assert.True(folded.Line == 1 || folded.Line == 2);
@@ -338,7 +338,7 @@ public sealed class YamlTextTests
     /// <summary>Flow collections read with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Flow_Collections()
+    public void ParsesFlowCollections()
     {
         var array = YamlText.Parse("key: [a, b]\n");
 
@@ -373,7 +373,7 @@ public sealed class YamlTextTests
     /// <summary>Continued plain text folds with a space.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Parses_Multiline_Plain_Scalars_Folded()
+    public void ParsesMultilinePlainScalarsFolded()
     {
         var mapping = YamlText.Parse("key: value\n  continued\n");
 
@@ -390,7 +390,7 @@ public sealed class YamlTextTests
     /// <summary>Tab-indented lines are refused with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Refuses_Tabs_In_Indentation_With_Line()
+    public void RefusesTabsInIndentationWithLine()
     {
         var nested = Assert.Throws<JsonTextException>(() => YamlText.Parse("key:\n\tchild: 1\n"));
         Assert.Equal(2, nested.Line);
@@ -404,7 +404,7 @@ public sealed class YamlTextTests
     /// <summary>A second key in one mapping is refused with its line.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Refuses_Duplicate_Keys_With_Line()
+    public void RefusesDuplicateKeysWithLine()
     {
         var top = Assert.Throws<JsonTextException>(() => YamlText.Parse("a: 1\na: 2\n"));
         Assert.Equal(2, top.Line);
@@ -418,7 +418,7 @@ public sealed class YamlTextTests
     /// <summary>Core-schema numbers JSON cannot hold are refused with their lines; quoted ones stay strings.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Refuses_Non_Json_Numbers_With_Line()
+    public void RefusesNonJsonNumbersWithLine()
     {
         var hex = Assert.Throws<JsonTextException>(() => YamlText.Parse("count: 0x1F\n"));
         Assert.Equal(1, hex.Line);
@@ -445,7 +445,7 @@ public sealed class YamlTextTests
     /// <summary>Every value carries the 1-based line where it starts.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Reports_Value_Lines()
+    public void ReportsValueLines()
     {
         var root = YamlText.Parse("a: 1\nb:\n  c: x\nd:\n  - one\n  - two\n");
 
@@ -467,7 +467,7 @@ public sealed class YamlTextTests
     /// <summary>An empty document, a misplaced start and trailing text are refused with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rejects_Empty_And_Misplaced_Document()
+    public void RejectsEmptyAndMisplacedDocument()
     {
         var empty = Assert.Throws<JsonTextException>(() => YamlText.Parse(""));
         Assert.Equal(1, empty.Line);
@@ -489,7 +489,7 @@ public sealed class YamlTextTests
     /// <summary>Unclosed quotes, stray text and bad scalars fail with their lines; a missing key space reads as a string.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rejects_Malformed_Keys_And_Scalars()
+    public void RejectsMalformedKeysAndScalars()
     {
         var doubleOpen = Assert.Throws<JsonTextException>(() => YamlText.Parse("a: \"oops\n"));
         Assert.Equal(1, doubleOpen.Line);
@@ -531,7 +531,7 @@ public sealed class YamlTextTests
     /// <summary>Properties keep file order and write as compact JSON.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Keeps_Property_Order_And_Writes_Json()
+    public void KeepsPropertyOrderAndWritesJson()
     {
         var root = YamlText.Parse("b: 1\na: 2\n");
 

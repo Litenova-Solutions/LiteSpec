@@ -1,8 +1,15 @@
 # LiteSpec.Analyzers
 
+## Audience
+
+Developers who add the LiteSpec analyzers to a .NET application, and who read why a diagnostic appears on a line.
+
+
+## What It Is
+
 Roslyn analyzers that check a .NET application against the [LiteSpec](https://litespec.dev) standard. Each error names the provision it enforces and links to it.
 
-## Install
+## Quick Start
 
 Add the package to each application project, or once in `Directory.Build.props`:
 
@@ -14,7 +21,9 @@ Add the package to each application project, or once in `Directory.Build.props`:
 
 The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later.
 
-## How a File Gets Its Layer
+## Layout
+
+### How a File Gets Its Layer
 
 A rule runs only on the files of the layers its provision covers. Each file's layer comes from its nearest layer folder (`Domain/`, `Application/`, `Infrastructure/`, `WebApi/`, with `Contracts/` reading as `Application`), or, in a use case, reaction, or job folder, from the file's role suffix: `Endpoint`, `RequestModel`, and `ResponseModel` are `WebApi`; `Command`, `Query`, `Result`, `Handler`, `Validator`, `Job`, and `Worker` are `Application`. A host project is `WebApi` or `Worker` by its assembly name, and a test project is `Test`.
 
@@ -30,7 +39,7 @@ To name the layer yourself, set `LiteSpecLayer` in the project file:
 
 The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A declared value applies to every file in the project. `None` turns the whole package off for that project: no analyzer rule runs, and the generator writes no source and reports no diagnostic. A file the rules cannot place stays quiet in the same way. A declared value that names no known layer still reports `LS2017`.
 
-## Rules
+### Rules
 
 | ID | Layer | What it reports | Provision |
 |:---|:---|:---|:---|
@@ -80,7 +89,7 @@ The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastruct
 | LS5011 | Every layer | A message two marked handlers serve with different use cases | [Point code and tests up to records](https://litespec.dev/4.1.0/core/system/#point-code-and-tests-up-to-records) |
 | LS5012 | Domain, Application, Infrastructure, WebApi | A role allowing a permission no record declares | [Generate the registry, permissions, and roles from the records](https://litespec.dev/4.1.0/backend/dotnet/stack/#generate-the-registry-permissions-and-roles-from-the-records) |
 
-## Change a Rule's Severity
+### Change a Rule's Severity
 
 Every rule is an error by default, so a finding fails the build. Lower a rule's severity in `.editorconfig`:
 
@@ -91,3 +100,7 @@ dotnet_diagnostic.LS3004.severity = none
 ```
 
 A project that departs from a Standard records an exception that cites the provision, as the [LiteSpec model page](https://litespec.dev/4.1.0/core/model/) describes.
+
+## Limits
+
+The rules read only the files the layer rules place. Read [How a File Gets Its Layer](#how-a-file-gets-its-layer) before you rely on a rule being silent for a file.

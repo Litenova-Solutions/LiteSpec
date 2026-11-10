@@ -6,7 +6,7 @@ Exceptions are uneven and too wide: a known gap silences a check level G finding
 
 ## Decision
 
-One `exception` record replaces deviation, known gap, `deferredProvisions` and `check.phase: frozen`, with `kind` (`departure` or `gap`), `covers` (a provision or finding codes), `subject` or `paths`, `reason`, `exit` and `expiresOn`. It covers only what it names, and `exception-expired` reports it after its date.
+One `exception` record replaces deviation, known gap, `deferredProvisions` and `check.phase: frozen`, with `kind` (`departure` or `gap`), `covers` (a provision or finding codes), `subject` or `paths`, `reason`, `exit` and `expiresOn`. It covers only what it names and reports when its date has passed.
 
 ## Evidence with Confidence
 

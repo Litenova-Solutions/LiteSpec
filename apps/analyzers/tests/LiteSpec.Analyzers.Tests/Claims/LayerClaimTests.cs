@@ -189,7 +189,7 @@ public sealed class LayerClaimTests
         public sealed class OrderTests
         {
             [Fact]
-            public void Place_WhenDraft_MarksPlaced()
+            public void PlaceWhenDraftMarksPlaced()
             {
                 var order = new Order();
                 order.Place();

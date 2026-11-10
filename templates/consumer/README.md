@@ -13,7 +13,7 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | `project.yaml` | `.litespec/project.yaml` | Selects the size, shape, stacks, reviewed LiteSpec release, paths, and selected extensions. |
 | `project-agents.md` | `AGENTS.md` | Provides the short consumer agent entry point with the `## LiteSpec` block. |
 | `glossary.yaml` | `.litespec/glossary.yaml` | Holds the Term entries prose is checked against, with layers, aliases, rejected words, and mannered terms. |
-| `example-cast.md` | `.litespec/behavior/example-cast.md` | Fixes the people, place, dates, and amounts every `Example` section draws from. |
+| `example-cast.md` | `.litespec/example-cast.md` | Fixes the people, place, dates, and amounts every `Example` section draws from. |
 
 ## Page Records
 

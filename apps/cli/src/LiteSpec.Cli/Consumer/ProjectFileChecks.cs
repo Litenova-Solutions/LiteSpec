@@ -8,7 +8,7 @@ namespace LiteSpec.Consumer;
 ///     The project record checks of the consumer validator: the record against
 ///     its schema, the documentation root, and the extension selections.
 /// </summary>
-/// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 static class ProjectFileChecks
 {

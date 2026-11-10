@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the requirement-measure-missing check against hand-built models.</summary>
 public sealed class MeasuredCheckTests
@@ -10,9 +10,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Measured Without A Check Reports.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Measured_Without_A_Check_Reports()
+    public void MeasuredWithoutACheckReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -27,9 +27,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Unmeasured Requirement Passes.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Unmeasured_Requirement_Passes()
+    public void UnmeasuredRequirementPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -44,9 +44,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Measured With A Check But No Run Reports.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Measured_With_A_Check_But_No_Run_Reports()
+    public void MeasuredWithACheckButNoRunReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Measured(temp.Path));
 
         Assert.Contains("requirement-measure-missing", TestModel.Codes(model));
@@ -55,9 +55,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Failing Run Reports.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Failing_Run_Reports()
+    public void FailingRunReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Measured(temp.Path));
         model.Measures.Add(new MeasureResult("k6", "p95<200", false, "240", "TestResults/k6.json"));
 
@@ -67,9 +67,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Passing Run Passes.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Passing_Run_Passes()
+    public void PassingRunPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Measured(temp.Path, "p95<200"));
         model.Measures.Add(new MeasureResult("k6", "p95<200", true, "180", "TestResults/k6.json"));
 
@@ -79,9 +79,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Passing Run Matches Tool And Check Form.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Passing_Run_Matches_Tool_And_Check_Form()
+    public void PassingRunMatchesToolAndCheckForm()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Measured(temp.Path, "k6 p95<200"));
         model.Measures.Add(new MeasureResult("k6", "p95<200", true, "180", "TestResults/k6.json"));
 
@@ -91,9 +91,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Statement Naming Number Without Measure Reports At Tier A.</summary>
     /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
     [Fact]
-    public void Statement_Naming_Number_Without_Measure_Reports_At_Tier_A()
+    public void StatementNamingNumberWithoutMeasureReportsAtTierA()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
@@ -107,9 +107,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Statement Naming Number Words Without Measure Passes.</summary>
     /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
     [Fact]
-    public void Statement_Naming_Number_Words_Without_Measure_Passes()
+    public void StatementNamingNumberWordsWithoutMeasurePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
@@ -120,9 +120,9 @@ public sealed class MeasuredCheckTests
     /// <summary>Statement Naming Only A Citation Passes.</summary>
     /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
     [Fact]
-    public void Statement_Naming_Only_A_Citation_Passes()
+    public void StatementNamingOnlyACitationPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),

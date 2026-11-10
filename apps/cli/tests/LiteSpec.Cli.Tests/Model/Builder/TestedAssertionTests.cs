@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a proof target is tested only by a passing test that asserts something.</summary>
 public sealed class TestedAssertionTests
@@ -13,12 +13,12 @@ public sealed class TestedAssertionTests
     /// <summary>A passing test with an assertion marks its quality requirement tested.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Test_With_An_Assertion_Tests_Its_Requirement()
+    public void PassingTestWithAnAssertionTestsItsRequirement()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, RequirementPath, RequirementJson);
         Write(temp.Path, ProofPath, AssertingFile);
-        WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_stays_fast");
+        WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.BorrowingStaysFast");
 
         using var document = Build(temp.Path);
         var link = ProvesLink(document.RootElement, Requirement);
@@ -30,12 +30,12 @@ public sealed class TestedAssertionTests
     /// <summary>A passing test without an assertion leaves its quality requirement untested.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Test_Without_An_Assertion_Leaves_Its_Requirement_Untested()
+    public void PassingTestWithoutAnAssertionLeavesItsRequirementUntested()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, RequirementPath, RequirementJson);
         Write(temp.Path, ProofPath, BareFile);
-        WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_runs");
+        WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.BorrowingRuns");
 
         using var document = Build(temp.Path);
         var link = ProvesLink(document.RootElement, Requirement);
@@ -114,7 +114,7 @@ public sealed class TestedAssertionTests
         {
             /// <proves>requirement/performance.borrow-latency</proves>
             [Fact]
-            public async Task Borrowing_stays_fast()
+            public async Task BorrowingStaysFast()
             {
                 var outcome = await gateway.BorrowAsync();
                 Assert.NotNull(outcome);
@@ -129,7 +129,7 @@ public sealed class TestedAssertionTests
         {
             /// <proves>requirement/performance.borrow-latency</proves>
             [Fact]
-            public async Task Borrowing_runs()
+            public async Task BorrowingRuns()
             {
                 await gateway.BorrowAsync();
             }

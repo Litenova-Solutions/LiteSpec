@@ -5,7 +5,7 @@
 
 ## Intent
 
-Every page in LiteSpec, and every record file, explanation file, and document in a project built with it, shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the YAML reader for record files, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
+Every page in LiteSpec shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the prose rules the validators enforce on LiteSpec's own pages, and how each release carries the complete contract. The [Project Model](model.md) and [Record Language](language.md) pages state the rules for the records a project writes, and one shared shape lets readers learn pages once.
 
 ## Concepts
 
@@ -19,11 +19,11 @@ Standards state required boundaries, and Conventions state replaceable defaults.
 
 The [Record Language](language.md) page owns the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 
-### Documentation Layers
+### Documentation Tiers
 
-A reader arrives with one question, and each page answers the one for its documentation layer.
+A reader arrives with one question, and each page answers the one for its documentation tier.
 
-| Documentation layer | Page style | The question it answers |
+| Documentation tier | Page style | The question it answers |
 |:---|:---|:---|
 | 1 | Tutorial | How do I get a first working result? |
 | 2 | How-to | How do I reach this one goal? |
@@ -31,7 +31,7 @@ A reader arrives with one question, and each page answers the one for its docume
 | 3b | Reference, command | What are the exact values and how do I run this? |
 | 4 | The `Underneath` section of a command page | What does the command run, and how do I run it myself? |
 
-An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the documentation layers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a documentation layer. A page links down a documentation layer. Any page may link to the glossary. An explanation page is not the explanation file beside a consumer record.
+An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the documentation tiers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a documentation tier. A page links down a documentation tier. Any page may link to the glossary. An explanation page is not the explanation file beside a consumer record.
 
 ### Page Styles
 
@@ -51,61 +51,12 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Index | A `README.md` | None | Intent, then navigation groups |
 | Glossary | `docs/reference/glossary.md` | None | H2 groups in alphabetical order, each with one intro sentence, then one H3 heading and definition per term |
 
-A consumer holds three kinds of files under its documentation root: a record file, an explanation file, and a document. A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder: plain Markdown with no frontmatter that explains the record. A document is a `.md` file with no `.yaml` of the same name beside it. Anything a check reads is a field in the record file; anything that only helps someone understand goes in the explanation file. The [model page](model.md) states the file rules, the split rule, and the homes; the tables below state the per-type fields and sections.
-
-Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research and decision carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections after the fixed sections its type takes in the [writing standard](writing.md).
-
-| Type | Template | New Fields | Explanation File |
-|:---|:---|:---|:---|
-| product | `templates/consumer/product.yaml` | `summary` | Free sections only |
-| goal | `templates/consumer/goal.yaml` | `summary` | Why It Matters, What Counts as Done, What It Connects To |
-| problem | `templates/consumer/problem.yaml` | `affectsSegment`, `costToday`, `workaroundToday`, `evidence` | Who Has It, What They Do Today, Evidence, What Would Retire It |
-| feature | `templates/consumer/feature.yaml` | `offering` | Who It Serves and Why, What It Offers, What Good Looks Like |
-| constraint | `templates/consumer/constraint.yaml` | `summary` | Free sections only |
-| research | `templates/consumer/research.yaml`, `templates/consumer/research.md` | `key` on each source | Answer, Notes on Sources |
-| decision | `templates/consumer/decision.yaml`, `templates/consumer/decision.md` | `consequences` | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
-| journey | `templates/consumer/journey.yaml` | `summary`, `betweenSteps` | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
-| module | `templates/consumer/module.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
-| aggregate | `templates/consumer/aggregate.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
-| use-case | `templates/consumer/use-case.yaml` | `summary`, `exposure` | optional What Happens, optional Example, optional Notes |
-| rule-set | `templates/consumer/rule-set.yaml` | `summary` | optional Notes |
-| actor | `templates/consumer/actor.yaml` | `summary`, `belongsToTeam` | Who They Are, What They Do, What They Can Reach |
-| role | `templates/consumer/role.yaml` | `summary` | Free sections only |
-| external-system | `templates/consumer/external-system.yaml` | `summary` | Free sections only |
-| permission-list | `templates/consumer/permission-list.yaml` | Entries only | Free sections only |
-| entry-point | `templates/consumer/entry-point.yaml` | `summary` | Free sections only |
-| screen | `templates/consumer/screen.yaml` | `summary` | Free sections only |
-| setting-set | `templates/consumer/setting-set.yaml` | `summary` | optional Notes |
-| reaction | `templates/consumer/reaction.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
-| job | `templates/consumer/job.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
-| notification | `templates/consumer/notification.yaml` | `summary` | optional What Happens, optional Example, optional Notes |
-| integration-event | `templates/consumer/integration-event.yaml` | `summary`, `delivery` | optional Notes |
-| retention-schedule | `templates/consumer/retention-schedule.yaml` | Entries only | Free sections only |
-| runbook | `templates/consumer/runbook.yaml` | `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, `escalation` | What This Runbook Cannot Do Yet |
-| exception | `templates/consumer/exception.yaml` | `exit`, `consequences` | Free sections only |
-
-Each document style scaffolds from its template and keeps its sections in the body.
-
-| Page Style | Template | Sections, in order |
-|:---|:---|:---|
-| glossary | `templates/consumer/glossary.md` | Generated region only |
-| example-cast | `templates/consumer/example-cast.md` | The Organization, The People, The Occasion, The Amounts, Recurring Situations, optional What This Page Does Not Do |
-| tutorial | `templates/consumer/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
-| how-to | `templates/consumer/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
-| reference | `templates/consumer/reference.md` | Intent, Reference, optional Notes |
-| command | `templates/consumer/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
-| configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
-| index | `templates/consumer/index.md` | Intent, then navigation groups |
-
-A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type`. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.yaml`; the glossary document renders from it through a generated region. A module page is `.litespec/intent/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; `behavior/modules/<module>/` holds the same module name. Any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
-
 These rules apply to every Markdown page style:
 
 - A LiteSpec page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
 - A page that owns provisions declares its scope in two lines directly under its title, a `**Stack:**` line and a `**Concern:**` line, as [Provision Scopes](scopes.md) states.
 - A Markdown page has one H1.
 - The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
-- A consumer module or aggregate page is `module.yaml` or `aggregate.yaml`, never `README.md`.
 - A required section with nothing to say contains only `None.`
 - An example sits inside the provision it illustrates, or in a Reference Example that names every provision it demonstrates.
 - A tutorial, how-to, explanation, reference, command, or index page owns no provisions.
@@ -114,18 +65,6 @@ These rules apply to every Markdown page style:
 - A Concepts section holds definitions, diagrams, and vocabulary; obligations belong in Standards.
 - An Activation section states the activation scope, the kinds, and the criterion that selects the extension.
 - A Baseline Relationship section compares against the baseline it replaces; obligations belong in Standards.
-
-### YAML Reader
-
-A record file holds one YAML mapping, read by YamlDotNet. The reader accepts the YAML YamlDotNet reads, except it refuses an empty document, a document that does not start at the first column, `---` and `...` markers, tabs in indentation, folded `>` blocks, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `"0001"`.
-
-### Canonical Record Form
-
-`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, and `title`, continue with the type's own fields in schema order, then `terms` where the type carries it, and close with `records`; any other key keeps its written order after these. Only a permission carries `risk`. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. The [model page](model.md) owns the canonical obligation (`litespec/core/model#write-every-record-file-in-canonical-form`).
-
-### Record Citations in Prose
-
-A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a journey step, as Citations in Prose on the [model page](model.md) states (`litespec/core/model#resolve-every-page-link`). Prose cites a record by its identifier, never by its file path: `[the receipt rule](rule/expense.reimbursed-once)` shows the form.
 
 ### Provisions
 
@@ -156,7 +95,7 @@ A Standard states one testable obligation:
 - Conditions and scope belong in the Statement sentence.
 - Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
 - A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
-- `SHOULD` keeps the standard's rule with a recorded exception; a Convention is a project-owned default the project replaces by naming its own convention, not by recording an exception.
+- `SHOULD` keeps the standard's rule with a recorded departure; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a departure.
 
 A Convention states a default a project may replace:
 
@@ -170,7 +109,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records an exception of kind `departure` whose `covers` names the provision; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not an exception. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the exception record.
+A project that departs from a Standard records a departure whose `covers` names the provision, in `.litespec/governance/departures/`. `rules <path>` shows the departure in place of the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a departure. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [departures page](departures.md) states the departure record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -187,10 +126,6 @@ Every provision ID is `litespec/<page>#<slug>`:
 The `**ID:**` line under each provision heading is the provision's identity. A heading may change without changing the ID, so fixing a heading's wording breaks no citation. Headings keep a stable verb-noun head so readers find the provision, not to protect the ID.
 
 The heading carries no identifier text. No two provisions share an ID. Consumer record identifiers follow [Identifier Forms](language.md#identifier-forms).
-
-### Record Identifiers
-
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](language.md#identifier-forms) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
 
 ### Provision Layout
 
@@ -224,7 +159,7 @@ A provision adds `**Applies to:**` only when it is narrower than its page, or wh
 6. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
 7. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
-A Standard carries Strength `rule` or `advice`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
+A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
 
 ### Validator Diagnostics
 
@@ -240,11 +175,7 @@ These checks report page defects that no single provision owns, so they are list
 
 ### Generated Regions
 
-A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`, in an explanation file or a document. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. A region that renders facts about its record finds the record through the shared file name. Inside Intent and Behavior records, a generated region derives from other records only.
-
-### Authoring at Scale
-
-Many authors, often agents, write records in parallel. `litespec new` scaffolds a record file and reserves its identifier before prose exists, and `litespec rename` rewrites every citation when an identifier changes. Validating one record file before committing keeps each commit sound without walking the whole repository.
+A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`, in an explanation file or a document. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. A region that renders facts about its record finds the record through the shared file name.
 
 ### Release Model
 
@@ -269,18 +200,6 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 **Example:** Write a hyphen or a comma where a typographic dash would go.
 
 **Checked by:** `litespec-maintain validate` emits no `PROSE_NON_ASCII` diagnostic.
-
-### Exclude Declared Content Paths from the ASCII Check
-
-**ID:** `litespec/core/authoring#exclude-declared-content-paths-from-the-ascii-check`
-
-**Strength:** required
-
-**Statement:** An ASCII check MUST exclude only the natural-language content paths that the project record declares.
-
-**Rationale:** A product whose subject is another language carries that language in its content files, where a diacritic is part of a word rather than a styling choice. Excluding only the declared content paths keeps the check strict everywhere else: documents about that content stay in scope, so styled prose filed beside content still meets the check.
-
-**Reviewed for:** Which non-ASCII prose sits outside the paths the project record declares? Look at the content files beside the declaration.
 
 ### Use One Normative Vocabulary
 
@@ -317,71 +236,6 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 **Rationale:** A second name for one concept reads as a second concept: the reader hunts for a distinction the writer did not mean. One term per concept means each term is defined once and checked once. Settled by [decision/0018-one-record-language](decision/0018-one-record-language) on the evidence in [research/naming-grammar-evidence](research/naming-grammar-evidence).
 
 **Reviewed for:** Which concepts appear under more than one name? Look at the terms the change adds, beside the glossary.
-
-### Record the Project Vocabulary as Data
-
-**ID:** `litespec/core/authoring#record-the-project-vocabulary-as-data`
-
-**Strength:** required
-
-**Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.yaml`.
-
-**Rationale:** A glossary column headed "Avoid" speaks to a reader and to nothing else: no tool can check it. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.
-
-**Example:** A rejection carries the scope that binds it, because a word that is right in one module is wrong in another.
-
-```json
-{ "id": "term/customer", "term": "customer", "meaning": "A person or company that buys.",
-  "rejected": [{ "word": "client", "scope": "^domain/modules/orders/",
-    "reason": "client names the API consumer" }] }
-```
-
-**Checked by:** `litespec model check` validates the project glossary against the glossary schema.
-
-### Reject a Recorded Synonym Inside Its Scope
-
-**ID:** `litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope`
-
-**Strength:** required
-
-**Statement:** Authored prose MUST NOT use a synonym that the project glossary rejects for the scope the page sits in.
-
-**Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
-
-**Reviewed for:** Which words on the page are synonyms the project glossary rejects for the scope the page sits in?
-
-### State Mannered Terms Literally
-
-**ID:** `litespec/core/authoring#state-mannered-terms-literally`
-
-**Strength:** required
-
-**Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
-
-**Rationale:** A metaphor or stock phrase reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check points at the flourish and names the plain words to reach for.
-
-**Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
-
-**Reviewed for:** Which mannered terms on the page stand where the glossary asks for the literal word?
-
-### Exclude the Compound That Names Another Concept
-
-**ID:** `litespec/core/authoring#exclude-the-compound-that-names-another-concept`
-
-**Strength:** required
-
-**Statement:** A glossary rejection MUST list, in `except`, every compound in which a rejected word names a concept other than the one the rejection is about.
-
-**Rationale:** A rejection matches a word, and a word can belong to more than one term: Claimwick rejects `docket` in favor of `receipt` for payment proof while a docket still names the shipping list. Without the `except` list, the check would force the project to rename an unrelated concept or drop a sound rejection.
-
-**Example:** The exemption covers the compound only, so the bare word stays rejected.
-
-```json
-{ "word": "docket", "reason": "one word for a payment receipt and a shipping list",
-  "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
-```
-
-**Reviewed for:** Which compounds use a rejected word to name another concept without being listed in the rejection's `except`?
 
 ### Exclude Generated Regions from Prose Checks
 
@@ -471,15 +325,15 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Reviewed for:** Which procedure steps lack a repository command? Look at the steps the change adds.
 
-### State One Layer per Page
+### State One Tier per Page
 
-**ID:** `litespec/core/authoring#state-one-layer-per-page`
+**ID:** `litespec/core/authoring#state-one-tier-per-page`
 
 **Strength:** required
 
 **Statement:** A page MUST NOT describe both a command and the mechanism that command runs, outside an `Underneath` section.
 
-**Rationale:** A reader who wanted the command reads mechanism detail as noise, and a reader who wanted the mechanism reads the command wrapper as an obstacle. One documentation layer per page serves each reader, and the `Underneath` section holds the mechanism for the reader who asks for it.
+**Rationale:** A reader who wanted the command reads mechanism detail as noise, and a reader who wanted the mechanism reads the command wrapper as an obstacle. One documentation tier per page serves each reader, and the `Underneath` section holds the mechanism for the reader who asks for it.
 
 **Reviewed for:** Which command pages mix mechanism into other sections? Look outside the Underneath section of each command page the change touches.
 
@@ -491,7 +345,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A command page MUST state under `Underneath` what the command runs or the sentence `Nothing beneath this command is separately runnable.`.
 
-**Rationale:** A wrapper nobody can see through leaves a failure with no command to run by hand and no documentation layer to inspect. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
+**Rationale:** A wrapper nobody can see through leaves a failure with no command to run by hand and no documentation tier to inspect. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
 
 **Example:** A command with nothing separately runnable writes `Nothing beneath this command is separately runnable.` under `Underneath`.
 
@@ -673,20 +527,6 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Reviewed for:** Which identifiers carry a sequence number? Look at the provision IDs the change adds.
 
-### Use the Declared Record Identifier Grammar
-
-**ID:** `litespec/core/authoring#use-the-declared-record-identifier-grammar`
-
-**Strength:** required
-
-**Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
-
-**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](language.md#identifier-forms) states the name rules and checks.
-
-**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
-
-**Checked by:** `litespec model check` fails a record identifier outside the declared grammar.
-
 ### Place the ID Under Every Provision Heading
 
 **ID:** `litespec/core/authoring#place-the-id-under-every-provision-heading`
@@ -761,136 +601,6 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
-### Declare Structured Specification Metadata
-
-**ID:** `litespec/core/authoring#declare-structured-specification-metadata`
-
-**Strength:** required
-
-**Statement:** Every record file and every document frontmatter block MUST satisfy the record schema for its declared type.
-
-**Rationale:** The record schema owns the field list of every record type and page style. A record file is one YAML mapping with its entries in `records`, holding no Markdown and no frontmatter fences. A document frontmatter block is YAML between two lines that hold only `---`, holding only the page style and its common fields. The [model page](model.md) states the record types and their homes.
-
-**Example:** A use-case record file opens with its identity fields.
-
-```yaml
-type: use-case
-id: use-case/spending.submit-expense
-title: Submit Expense
-```
-
-**Checked by:** `litespec model check` validates each record file and each document frontmatter block against the record schema.
-
-### Use One Metadata Carrier
-
-**ID:** `litespec/core/authoring#use-one-metadata-carrier`
-
-**Strength:** required
-
-**Statement:** A consumer page MUST use its record file as its only metadata carrier.
-
-**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.
-
-**Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
-
-### Classify Every Specification File
-
-**ID:** `litespec/core/authoring#classify-every-specification-file`
-
-**Strength:** required
-
-**Statement:** Every file under the consumer documentation root MUST be a record file, an explanation file beside its record file, or a document, or sit under a declared unstructured path.
-
-**Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to be a record file, an explanation, or a document, or to sit under a declared unstructured path, leaves no page unchecked. A directory index that owns no record uses the index style, and a `README.md` with no frontmatter is a document.
-
-**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and fails a `.yaml` file with no record type outside a declared unstructured path.
-
-### Start Each Explanation File with Its Title
-
-**ID:** `litespec/core/authoring#start-each-explanation-file-with-its-title`
-
-**Strength:** required
-
-**Statement:** An explanation file MUST open with one H1 title and section its content with H2 sections.
-
-**Rationale:** One shape puts the title and each section in the same place on every explanation. The H1 carries the record title, and each H2 carries one section from the table on this page or a free section; Notes take free `###` headings under their H2.
-
-**Reviewed for:** Which explanation files miss their H1 title or section content outside H2? Look at the explanation files beside the changed record files.
-
-### Derive a Computed Fact Instead of Restating It
-
-**ID:** `litespec/core/authoring#derive-a-computed-fact-instead-of-restating-it`
-
-**Strength:** required
-
-**Statement:** A specification MUST name the source or the command that produces any count, census, or membership list derived between records.
-
-**Rationale:** A restated number is right until the next unrelated edit changes the records it counts, and nothing reports when it goes stale. Naming the source or the command gives every reader the current figure instead of the figure from commit day. Derivation between records is allowed: generic refusals derive from `access` and `input`, and computed completion appears in the book and the model output only.
-
-**Example:** A chapter states where its numbers come from rather than copying them.
-
-```markdown
-The figures below render from the retention schedule at build time.
-```
-
-**Reviewed for:** Which counts, censuses, or membership lists lack a source or command? Look at the numbers the change adds.
-
-### Keep Code Out of Intent and Behavior Fields
-
-**ID:** `litespec/core/authoring#keep-code-out-of-intent-and-behavior-fields`
-
-**Strength:** required
-
-**Statement:** No field on an Intent or Behavior record MUST be filled from code.
-
-**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state becomes a backlog item outside the repository. Derivation between records stays allowed.
-
-**Example:** A positivity guard found in a handler becomes a backlog item for a rule, while the code stays untouched until the rule lands.
-
-**Reviewed for:** Which Intent or Behavior fields copy values from code? Look at the fields the change fills, beside the implementation.
-
-### Scaffold Pages and Reserve Identifiers
-
-**ID:** `litespec/core/authoring#scaffold-pages-and-reserve-identifiers`
-
-**Strength:** required
-
-**Statement:** An author MUST scaffold a new page with `litespec new <type> <id>`, which reserves its identifier.
-
-**Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name. For an article type the command also writes the explanation file, and for a document style it writes the document.
-
-**Example:** `litespec new reaction spending.send-receipt-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
-
-**Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
-
-### Rewrite Every Link on a Rename
-
-**ID:** `litespec/core/authoring#rewrite-every-link-on-a-rename`
-
-**Strength:** required
-
-**Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
-
-**Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.
-
-**Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
-
-**Checked by:** `litespec rename` leaves no citation of the old identifier, and `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
-
-### Validate a Single Page Before Committing
-
-**ID:** `litespec/core/authoring#validate-a-single-page-before-committing`
-
-**Strength:** required
-
-**Statement:** An author MUST validate a single page before committing it.
-
-**Rationale:** Full validation walks the whole repository, which grows slow exactly when many authors commit often. A single-page check reports shape and link errors for the page at hand in seconds, so each commit arrives already sound.
-
-**Example:** The author validates the touched page, fixes the reported diagnostics, and commits only when the page passes.
-
-**Reviewed for:** The change report shows each touched page passing single-page validation before commit.
-
 ### Run Repeatable Authoring Checks
 
 **ID:** `litespec/core/authoring#run-repeatable-authoring-checks`
@@ -959,7 +669,7 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** The changelog for each LiteSpec release MUST list the provision identifiers the release adds, removes, and renames, generated from the provision index at the previous tag and the provision index of the release.
 
-**Rationale:** A consumer cites provision identifiers in code marks, records, and exceptions, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
+**Rationale:** A consumer cites provision identifiers in code marks, records, and departures, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
 
 **Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#claim-the-record-layers-the-project-uses` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
 
@@ -985,39 +695,9 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.yaml`.
 
-**Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
+**Rationale:** A provision can gain force while keeping its ID, so a departure written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 
-**Checked by:** `litespec model check` fails when `reviewedLiteSpecVersion` differs from the pinned release.
-
-### Review Each Term for Its Lookalikes
-
-**ID:** `litespec/core/authoring#review-each-term-for-its-lookalikes`
-
-**Strength:** required
-
-**Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
-
-**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
-
-**Example:** The notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
-
-**Reviewed for:** Which terms differ from another term only in hyphenation, spelling, plurality, or a compound split? Look at the terms the change adds, beside the glossary.
-
-### State What Happens in Every Behavior Statement
-
-**ID:** `litespec/core/authoring#state-what-happens-in-every-behavior-statement`
-
-**Strength:** advisory
-
-**Statement:** A rule statement, scenario step, and result meaning SHOULD avoid words that hide behavior.
-
-**Deviation:** A quoted name, an interface label, or a cited source keeps its fixed wording.
-
-**Rationale:** The vague words are handle, handles, handled, process, processes, manage, manages, various, etc., appropriate, appropriately, properly, as needed, and so on: each says that something happens without saying what. A reader cannot check a statement that hides its behavior, so each statement names the act in words a test could assert.
-
-**Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
-
-**Reviewed for:** Which rule statements, scenario steps, or result meanings hide their behavior behind a vague word? Look at the statements the change adds.
+**Checked by:** `litespec model check` reports `release-drift` when `reviewedLiteSpecVersion` names no release or a release other than the installed tool release.
 
 ## Conventions
 

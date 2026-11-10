@@ -1,9 +1,9 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the Node frontend reader: the protocol round trip, its failures, and the call mapping.</summary>
 public sealed class NodeFrontendReaderTests
@@ -11,9 +11,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Reader Returns The Facts Its Response Names.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Reader_Returns_The_Facts_Its_Response_Names()
+    public void ReaderReturnsTheFactsItsResponseNames()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var bundle = WriteFakeReader(temp.Path, CannedResponse);
 
@@ -40,9 +40,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Reader With No Bundle Leaves Empty Facts With The Cause.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Reader_With_No_Bundle_Leaves_Empty_Facts_With_The_Cause()
+    public void ReaderWithNoBundleLeavesEmptyFactsWithTheCause()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
 
         var facts = NodeFrontendReader.Read(ConsumerConfig.Load(temp.Path), null, "node");
@@ -57,9 +57,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Reader Exiting Non Zero Names The Exit Code.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Reader_Exiting_Non_Zero_Names_The_Exit_Code()
+    public void ReaderExitingNonZeroNamesTheExitCode()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var bundle = WriteFakeReader(
             temp.Path,
@@ -81,9 +81,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Reader With A Mismatched Protocol Fails Every Frontend.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Reader_With_A_Mismatched_Protocol_Fails_Every_Frontend()
+    public void ReaderWithAMismatchedProtocolFailsEveryFrontend()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
 
         var facts = NodeFrontendReader.ParseResponse(
@@ -98,9 +98,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Reader With Unparseable Output Fails Every Frontend.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Reader_With_Unparseable_Output_Fails_Every_Frontend()
+    public void ReaderWithUnparseableOutputFailsEveryFrontend()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
 
         var facts = NodeFrontendReader.ParseResponse(
@@ -114,9 +114,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Calls Map A Client Export Through A PascalCase WithName.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Calls_Map_A_Client_Export_Through_A_PascalCase_WithName()
+    public void CallsMapAClientExportThroughAPascalCaseWithName()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var code = CodeWithEndpoints(("ListExpenses", "use-case/spending.list-expenses"));
         var read = FrontendReadBuilder.Build(
@@ -130,9 +130,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Calls Map Through The Endpoints WithName Operation.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Calls_Map_Through_The_Endpoints_WithName_Operation()
+    public void CallsMapThroughTheEndpointsWithNameOperation()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var code = CodeWithEndpoints(("ListExpenses", "use-case/spending.list-expenses"));
         var read = FrontendReadBuilder.Build(
@@ -146,9 +146,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Call Two Endpoints Map To Different Use Cases Is A Diagnostic.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Call_Two_Endpoints_Map_To_Different_Use_Cases_Is_A_Diagnostic()
+    public void CallTwoEndpointsMapToDifferentUseCasesIsADiagnostic()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var code = CodeWithEndpoints(
             ("ListExpenses", "use-case/spending.list-expenses"),
@@ -166,9 +166,9 @@ public sealed class NodeFrontendReaderTests
     /// <summary>Failed Facts Become One Reader Unavailable Finding.</summary>
     /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
-    public void Failed_Facts_Become_One_Reader_Unavailable_Finding()
+    public void FailedFactsBecomeOneReaderUnavailableFinding()
     {
-        using var temp = Cli.Temp("node-reader");
+        using var temp = TestCli.Temp("node-reader");
         WriteProject(temp.Path);
         var read = FrontendReadBuilder.Build(
             ConsumerConfig.Load(temp.Path),

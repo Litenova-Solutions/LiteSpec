@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves <c>litespec model check --since</c> demotes the findings outside the changed scope, and that <c>--staged</c> is rejected.</summary>
 public sealed class ModelCheckSinceTests
@@ -11,7 +11,7 @@ public sealed class ModelCheckSinceTests
     /// <param name="overlayName">The overlay folder name under the fixtures.</param>
     static void ApplyOverlay(string target, string overlayName)
     {
-        var overlay = Cli.Fixture($"Model/broken/{overlayName}");
+        var overlay = TestCli.Fixture($"Model/broken/{overlayName}");
 
         foreach (var file in Directory.GetFiles(overlay, "*", SearchOption.AllDirectories))
         {
@@ -113,10 +113,10 @@ public sealed class ModelCheckSinceTests
 
     /// <summary>A staged check is rejected as an unknown option.</summary>
     [Fact]
-    public void Check_Staged_Is_Rejected()
+    public void CheckStagedIsRejected()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--staged");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--staged");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown option '--staged'.", result.Output);
@@ -129,10 +129,10 @@ public sealed class ModelCheckSinceTests
     /// </summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Check_Since_Reads_A_Root_Reached_Through_A_Symbolic_Link()
+    public void CheckSinceReadsARootReachedThroughASymbolicLink()
     {
         using var fixture = ModelFixture.Prepare("large");
-        using var links = Cli.Temp("since-link");
+        using var links = TestCli.Temp("since-link");
 
         CommitAll(fixture.Path);
         ApplyOverlay(fixture.Path, "write-undeclared");
@@ -156,7 +156,7 @@ public sealed class ModelCheckSinceTests
             Directory.CreateSymbolicLink(linked, fixture.Path);
         }
 
-        var since = Cli.Run("model", "check", "--root", linked, "--since", "HEAD");
+        var since = TestCli.Run("model", "check", "--root", linked, "--since", "HEAD");
 
         Assert.Equal(1, since.Status);
         Assert.Contains("write-undeclared", since.Output);
@@ -166,7 +166,7 @@ public sealed class ModelCheckSinceTests
     /// <summary>A since check blocks on changed findings and reports the rest.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Check_Since_Blocks_Only_Changed_Findings()
+    public void CheckSinceBlocksOnlyChangedFindings()
     {
         using var fixture = ModelFixture.Prepare("large");
 
@@ -175,7 +175,7 @@ public sealed class ModelCheckSinceTests
         CommitWork(fixture.Path, "paging break");
         ApplyOverlay(fixture.Path, "write-undeclared");
 
-        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+        var since = TestCli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
 
         Assert.Equal(1, since.Status);
         Assert.Contains("Since HEAD:", since.Output);
@@ -183,7 +183,7 @@ public sealed class ModelCheckSinceTests
         Assert.Contains("write-undeclared", since.Output);
         Assert.Contains("[G unchanged]", since.Output);
 
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD", "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD", "--format", "json");
         var (pagingOutcome, pagingReason) = OutcomeOf(json.Stdout, "paging-undeclared");
         var (writeOutcome, _) = OutcomeOf(json.Stdout, "write-undeclared");
 
@@ -194,7 +194,7 @@ public sealed class ModelCheckSinceTests
         Assert.Equal("unchanged", pagingReason);
         Assert.Equal("blocking", writeOutcome);
 
-        var full = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var full = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (fullPaging, _) = OutcomeOf(full.Stdout, "paging-undeclared");
 
         Assert.Equal(1, full.Status);
@@ -204,13 +204,13 @@ public sealed class ModelCheckSinceTests
     /// <summary>A since check on a clean tree reports everything and exits 0.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Check_Since_With_Nothing_Changed_Exits_0()
+    public void CheckSinceWithNothingChangedExits0()
     {
         using var fixture = ModelFixture.Prepare("large", "write-undeclared");
 
         CommitAll(fixture.Path);
 
-        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+        var since = TestCli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
 
         // When the scope is not empty, the message names what git sees as changed, so a
         // difference that appears on one operating system only can be read from the log.
@@ -224,7 +224,7 @@ public sealed class ModelCheckSinceTests
     /// <summary>Files the tool writes under <c>.litespec/model</c> while it builds never widen the since scope.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Check_Since_Ignores_The_Tool_Output_Folder()
+    public void CheckSinceIgnoresTheToolOutputFolder()
     {
         using var fixture = ModelFixture.Prepare("large", "write-undeclared");
 
@@ -234,7 +234,7 @@ public sealed class ModelCheckSinceTests
         Directory.CreateDirectory(cache);
         File.WriteAllText(Path.Combine(cache, "svelte-cached.json"), "{}");
 
-        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+        var since = TestCli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
 
         Assert.Contains("Since HEAD: 0 files, 0 records.", since.Output);
     }
@@ -242,13 +242,13 @@ public sealed class ModelCheckSinceTests
     /// <summary>A since check with an unknown revision explains itself and exits 2.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Check_Since_With_Unknown_Revision_Exits_2()
+    public void CheckSinceWithUnknownRevisionExits2()
     {
         using var fixture = ModelFixture.Prepare("large");
 
         CommitAll(fixture.Path);
 
-        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "no-such-ref");
+        var since = TestCli.Run("model", "check", "--root", fixture.Path, "--since", "no-such-ref");
 
         Assert.Equal(2, since.Status);
         Assert.Contains("no-such-ref", since.Output);

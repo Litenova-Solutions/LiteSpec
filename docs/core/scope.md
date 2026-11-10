@@ -106,7 +106,7 @@ The diagram shows the three project choices and what each decides.
 
 ![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)
 
-**Checked by:** `litespec model check` refuses, when the project claims Implementation or Proof, a shape whose backend stack count is wrong and a platform that names no frontend stack.
+**Checked by:** `litespec model check` reports `stack-invalid`, when the project claims Implementation or Proof, for a shape whose backend stack count is wrong and a platform that names no frontend stack.
 
 ### Claim the Record Layers the Project Uses
 
@@ -194,7 +194,7 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request` already permits skipping a gate whose surface does not exist, so a missing backend gate is a recorded consequence rather than an unexplained absence.
 
-**Checked by:** `litespec model check` refuses a `client-only` project that names a backend stack.
+**Checked by:** `litespec model check` reports `stack-invalid` for a `client-only` project that names a backend stack.
 
 ### Record Unsupported Scope Decisions
 

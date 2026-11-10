@@ -1,6 +1,6 @@
 using LiteSpec.Authoring;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Controlled-prose cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests

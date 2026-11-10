@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the use-case-unverified check against hand-built models.</summary>
 public sealed class UseCaseUnverifiedCheckTests
@@ -9,9 +9,9 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case With Unproved Scenarios Reports.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_With_Unproved_Scenarios_Reports()
+    public void UseCaseWithUnprovedScenariosReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
@@ -27,9 +27,9 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Verified Use Case Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Verified_Use_Case_Passes()
+    public void VerifiedUseCasePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
@@ -42,9 +42,9 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case Without Scenarios Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_Without_Scenarios_Passes()
+    public void UseCaseWithoutScenariosPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""));
@@ -56,9 +56,9 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case Without Status Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_Without_Status_Passes()
+    public void UseCaseWithoutStatusPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),

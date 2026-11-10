@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for the shared UI package and API contracts.</summary>
 public sealed partial class ConsumerValidatorTests
@@ -138,7 +138,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a leading byte-order mark.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {

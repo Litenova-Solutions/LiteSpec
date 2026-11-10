@@ -422,6 +422,56 @@ internal sealed partial class RecordsValidator
         return ids;
     }
 
+    // Every identifier the Claimwick example states, at any depth: a record file, an entry
+    // of a list file such as a permission list, and a result or scenario inside a use case.
+    /// <summary>Lists every record identifier the Claimwick example states.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Each identifier the example's record files state.</returns>
+    internal static HashSet<string> ExampleAllRecordIds(string root)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _))
+            {
+                CollectIds(node, ids);
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>Adds every string identifier under a parsed record node.</summary>
+    /// <param name="node">The parsed node.</param>
+    /// <param name="ids">The set to add to.</param>
+    private static void CollectIds(JsonNode? node, HashSet<string> ids)
+    {
+        switch (node)
+        {
+            case JsonObject item:
+                foreach (var (key, value) in item)
+                {
+                    if (key == "id" && JsonString(value) is { } id)
+                    {
+                        ids.Add(id);
+                    }
+                    else
+                    {
+                        CollectIds(value, ids);
+                    }
+                }
+
+                break;
+            case JsonArray items:
+                foreach (var entry in items)
+                {
+                    CollectIds(entry, ids);
+                }
+
+                break;
+        }
+    }
+
     // A decision settles at least one provision, so its Rationale cites it.
     // Research may stand uncited as a basis pool. A record present in git is
     // decided; there is no draft state.

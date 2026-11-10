@@ -181,7 +181,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** `permission/manage-copies` carries `scope: platform`, the same level as the librarian role that grants it.
 
-**Checked by:** `litespec model check` fails a permission entry without `scope`.
+**Checked by:** `litespec model check` reports `record-invalid` for a permission entry without `scope`.
 
 ### Declare Access on Every Use Case
 
@@ -375,7 +375,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
 
-**Checked by:** `litespec model check` fails an actor or role page without `summary`.
+**Checked by:** `litespec model check` reports `prose-missing` for an actor or role page without `summary`.
 
 ### Write a Summary on Every External System Page
 
@@ -389,7 +389,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
 
-**Checked by:** `litespec model check` fails an external system page without `summary`.
+**Checked by:** `litespec model check` reports `prose-missing` for an external system page without `summary`.
 
 ### Keep Permission Lists to Entries
 

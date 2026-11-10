@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>
 ///     Proves the marked-act findings against the act fixture, where two use cases
@@ -11,7 +11,7 @@ public sealed class ActCheckTests
     /// <summary>Handler Calling No Marked Method Reports Use Case Act Uncalled.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void Handler_Calling_No_Marked_Method_Reports_Use_Case_Act_Uncalled()
+    public void HandlerCallingNoMarkedMethodReportsUseCaseActUncalled()
     {
         using var fixture = MarksFixture.Prepare("act");
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-missing");
@@ -24,7 +24,7 @@ public sealed class ActCheckTests
     /// <summary>Handler Calling The Shared Method Passes.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void Handler_Calling_The_Shared_Method_Passes()
+    public void HandlerCallingTheSharedMethodPasses()
     {
         using var fixture = MarksFixture.Prepare("act");
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-missing");
@@ -35,7 +35,7 @@ public sealed class ActCheckTests
     /// <summary>Fan Out Command With No Changes Reports Nothing.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void Fan_Out_Command_With_No_Changes_Reports_Nothing()
+    public void FanOutCommandWithNoChangesReportsNothing()
     {
         using var temp = WritePassConsumer();
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
@@ -46,7 +46,7 @@ public sealed class ActCheckTests
     /// <summary>Store Only Command Reports Nothing.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void Store_Only_Command_Reports_Nothing()
+    public void StoreOnlyCommandReportsNothing()
     {
         using var temp = WritePassConsumer();
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
@@ -57,7 +57,7 @@ public sealed class ActCheckTests
     /// <summary>Entity Command Without A Called Act Still Reports.</summary>
     /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
-    public void Entity_Command_Without_A_Called_Act_Still_Reports()
+    public void EntityCommandWithoutACalledActStillReports()
     {
         using var temp = WritePassConsumer();
         var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
@@ -69,7 +69,7 @@ public sealed class ActCheckTests
     /// <summary>Shared Method Raising An Unlisted Event Reports Act Event Undeclared.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
-    public void Shared_Method_Raising_An_Unlisted_Event_Reports_Act_Event_Undeclared()
+    public void SharedMethodRaisingAnUnlistedEventReportsActEventUndeclared()
     {
         using var fixture = MarksFixture.Prepare("act");
         var undeclared = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-undeclared");
@@ -83,7 +83,7 @@ public sealed class ActCheckTests
     /// <summary>Use Case Sharing The Method Reports No Undeclared For Its Listed Event.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
-    public void Use_Case_Sharing_The_Method_Reports_No_Undeclared_For_Its_Listed_Event()
+    public void UseCaseSharingTheMethodReportsNoUndeclaredForItsListedEvent()
     {
         using var fixture = MarksFixture.Prepare("act");
         var undeclared = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-undeclared");
@@ -94,7 +94,7 @@ public sealed class ActCheckTests
     /// <summary>Listed Event The Shared Method Never Raises Reports Act Event Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
-    public void Listed_Event_The_Shared_Method_Never_Raises_Reports_Act_Event_Unraised()
+    public void ListedEventTheSharedMethodNeverRaisesReportsActEventUnraised()
     {
         using var fixture = MarksFixture.Prepare("act");
         var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unimplemented");
@@ -107,7 +107,7 @@ public sealed class ActCheckTests
     /// <summary>Use Case Whose Shared Method Raises Its Event Reports No Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
-    public void Use_Case_Whose_Shared_Method_Raises_Its_Event_Reports_No_Unraised()
+    public void UseCaseWhoseSharedMethodRaisesItsEventReportsNoUnraised()
     {
         using var fixture = MarksFixture.Prepare("act");
         var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unimplemented");
@@ -118,7 +118,7 @@ public sealed class ActCheckTests
     /// <summary>Use Case With No Marked Method Reports No Act Event Unraised.</summary>
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
-    public void Use_Case_With_No_Marked_Method_Reports_No_Act_Event_Unraised()
+    public void UseCaseWithNoMarkedMethodReportsNoActEventUnraised()
     {
         using var temp = WriteUnmarkedConsumer();
         var unraised = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "act-event-unimplemented");
@@ -129,7 +129,7 @@ public sealed class ActCheckTests
     /// <summary>Unmarked Raising Method Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Unmarked_Raising_Method_Reports_Mark_Missing()
+    public void UnmarkedRaisingMethodReportsMarkMissing()
     {
         using var temp = WriteUnmarkedConsumer();
         var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
@@ -142,7 +142,7 @@ public sealed class ActCheckTests
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WritePassConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
@@ -389,7 +389,7 @@ public sealed class ActCheckTests
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteUnmarkedConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {

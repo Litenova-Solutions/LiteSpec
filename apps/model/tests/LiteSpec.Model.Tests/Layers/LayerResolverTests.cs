@@ -21,7 +21,7 @@ public sealed class LayerResolverTests
     [InlineData("Shop.Integration.Tests", Layer.Test)]
     [InlineData("Shop.Architecture.Test", Layer.Test)]
     [InlineData("Shop.Worker", Layer.Worker)]
-    public void Reads_The_Assembly_Name(string assemblyName, Layer expected) =>
+    public void ReadsTheAssemblyName(string assemblyName, Layer expected) =>
         Assert.Equal(expected, LayerResolver.FromAssemblyName(assemblyName));
 
     /// <summary>A declared layer name parses with or without its dot.</summary>
@@ -38,7 +38,7 @@ public sealed class LayerResolverTests
     [InlineData("None", Layer.None)]
     [InlineData("Worker", Layer.Worker)]
     [InlineData("Staging", Layer.None)]
-    public void Parses_A_Declared_Layer(string value, Layer expected) =>
+    public void ParsesADeclaredLayer(string value, Layer expected) =>
         Assert.Equal(expected, LayerResolver.Parse(value));
 
     /// <summary>A declared layout name parses, and anything else reads as the module layout.</summary>
@@ -54,7 +54,7 @@ public sealed class LayerResolverTests
     [InlineData("Layer-Projects", Layout.LayerProjects)]
     [InlineData("layerprojects", Layout.LayerProjects)]
     [InlineData("slices", Layout.Modules)]
-    public void Parses_A_Declared_Layout(string? value, Layout expected) =>
+    public void ParsesADeclaredLayout(string? value, Layout expected) =>
         Assert.Equal(expected, LayerResolver.ParseLayout(value));
 
     /// <summary>The nearest layer folder names the layer.</summary>
@@ -73,7 +73,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", null)]
     [InlineData("Source.cs", null)]
     [InlineData(null, null)]
-    public void Reads_The_Nearest_Layer_Folder(string? filePath, Layer? expected) =>
+    public void ReadsTheNearestLayerFolder(string? filePath, Layer? expected) =>
         Assert.Equal(expected, LayerResolver.FolderLayer(filePath));
 
     /// <summary>A role suffix names the layer of a use case, reaction or job file.</summary>
@@ -96,7 +96,7 @@ public sealed class LayerResolverTests
     [InlineData("TeamLinks.cs", null)]
     [InlineData("CreateTeamEndpoints.cs", null)]
     [InlineData(null, null)]
-    public void Reads_The_Role_Suffix(string? fileName, Layer? expected) =>
+    public void ReadsTheRoleSuffix(string? fileName, Layer? expected) =>
         Assert.Equal(expected, LayerResolver.RoleLayer(fileName));
 
     /// <summary>A module file reads its layer from its folder or its role suffix.</summary>
@@ -112,7 +112,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/TeamNameRules.cs", Layer.Application)]
     [InlineData("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/WelcomeNoticeText.cs", Layer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", Layer.None)]
-    public void Resolves_A_Module_File(string filePath, Layer expected) =>
+    public void ResolvesAModuleFile(string filePath, Layer expected) =>
         Assert.Equal(expected, LayerResolver.FileLayer(filePath, "Claimwick", Layout.Modules, null));
 
     /// <summary>A host file reads its layer from its assembly.</summary>
@@ -122,13 +122,13 @@ public sealed class LayerResolverTests
     [Theory]
     [InlineData("Claimwick.WebApi", Layer.WebApi)]
     [InlineData("Claimwick.Worker", Layer.Worker)]
-    public void Resolves_A_Host_File_From_Its_Assembly(string assemblyName, Layer expected) =>
+    public void ResolvesAHostFileFromItsAssembly(string assemblyName, Layer expected) =>
         Assert.Equal(expected, LayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, Layout.Modules, null));
 
     /// <summary>A test file stays in the test layer whatever folders it mirrors.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Fact]
-    public void Resolves_A_Test_File_From_Its_Assembly()
+    public void ResolvesATestFileFromItsAssembly()
     {
         var layer = LayerResolver.FileLayer(
             "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", Layout.Modules, null);
@@ -139,7 +139,7 @@ public sealed class LayerResolverTests
     /// <summary>Under layer-projects the assembly names the layer of every file.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Fact]
-    public void Resolves_Every_File_From_Its_Assembly_Under_Layer_Projects()
+    public void ResolvesEveryFileFromItsAssemblyUnderLayerProjects()
     {
         var layer = LayerResolver.FileLayer(
             "Orders/Order.cs", "Shop.Domain", Layout.LayerProjects, null);
@@ -153,7 +153,7 @@ public sealed class LayerResolverTests
     [Theory]
     [InlineData(Layout.Modules)]
     [InlineData(Layout.LayerProjects)]
-    public void Declared_Layer_Wins(Layout layout)
+    public void DeclaredLayerWins(Layout layout)
     {
         var layer = LayerResolver.FileLayer(
             "Claimwick/Organizations/Teams/Domain/Team.cs", "Claimwick", layout, "Application");

@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves that only a use case nothing runs must name an entry point.</summary>
 public sealed class ReachedThroughTests
@@ -9,9 +9,9 @@ public sealed class ReachedThroughTests
     /// <summary>Use Case No Record Runs Must Name An Entry Point.</summary>
     /// <proves>litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case</proves>
     [Fact]
-    public void Use_Case_No_Record_Runs_Must_Name_An_Entry_Point()
+    public void UseCaseNoRecordRunsMustNameAnEntryPoint()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command"}"""));
@@ -23,9 +23,9 @@ public sealed class ReachedThroughTests
     /// <summary>Use Case A Job Runs Needs No Entry Point.</summary>
     /// <proves>litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case</proves>
     [Fact]
-    public void Use_Case_A_Job_Runs_Needs_No_Entry_Point()
+    public void UseCaseAJobRunsNeedsNoEntryPoint()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.send-due-notice", Path.Combine(temp.Path, "notice.yaml"), """{"kind": "command"}"""),

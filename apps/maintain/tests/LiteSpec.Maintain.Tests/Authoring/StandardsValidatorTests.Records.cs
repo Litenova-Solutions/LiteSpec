@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>LiteSpec record cases: one fixture per record code, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests

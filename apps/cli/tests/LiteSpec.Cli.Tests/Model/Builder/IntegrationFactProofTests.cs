@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves an integration fact confirms a rule or a scenario from inside the host.</summary>
 public sealed class IntegrationFactProofTests
@@ -11,7 +11,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A fact resolving a service and sending a governed message confirms its rule claim.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rule_Fact_Sending_A_Governed_Message_Confirms()
+    public void RuleFactSendingAGovernedMessageConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RuleMessageFactTests.cs", RuleMessageFile);
@@ -24,7 +24,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A fact working the governed aggregate's store confirms its rule claim.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rule_Fact_Working_The_Governed_Store_Confirms()
+    public void RuleFactWorkingTheGovernedStoreConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RuleStoreFactTests.cs", RuleStoreFile);
@@ -37,7 +37,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A fact calling the governed aggregate confirms its rule claim.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rule_Fact_Calling_The_Governed_Aggregate_Confirms()
+    public void RuleFactCallingTheGovernedAggregateConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RuleStaticFactTests.cs", RuleStaticFile);
@@ -50,7 +50,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A fact that acts without asserting confirms no rule claim.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Rule_Fact_Without_An_Assertion_Does_Not_Confirm()
+    public void RuleFactWithoutAnAssertionDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RuleSilentFactTests.cs", RuleSilentFile);
@@ -63,7 +63,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A fact pinning the message type with typeof confirms its scenario claim.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Scenario_Fact_Pinning_The_Message_Type_Confirms()
+    public void ScenarioFactPinningTheMessageTypeConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
@@ -77,7 +77,7 @@ public sealed class IntegrationFactProofTests
     /// <summary>A nested value sharing an aggregate's name does not read as constructing it.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Scenario_Fact_Building_A_Nested_Value_Confirms()
+    public void ScenarioFactBuildingANestedValueConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
@@ -135,7 +135,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>rule/loan.has-one-borrower</proves>
             [Fact]
-            public async Task A_loan_keeps_its_single_borrower()
+            public async Task ALoanKeepsItsSingleBorrower()
             {
                 await using var scope = api.Services.CreateAsyncScope();
                 var commands = scope.ServiceProvider.GetRequiredService<ICommandMediator>();
@@ -152,7 +152,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>rule/lending.copy-barcode-unique</proves>
             [Fact]
-            public async Task Barcodes_stay_unique()
+            public async Task BarcodesStayUnique()
             {
                 await using var scope = api.Services.CreateAsyncScope();
                 var copies = scope.ServiceProvider.GetRequiredService<ICopyRepository>();
@@ -169,7 +169,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>rule/lending.copy-barcode-unique</proves>
             [Fact]
-            public async Task Registering_a_copy_keeps_its_barcode()
+            public async Task RegisteringACopyKeepsItsBarcode()
             {
                 await using var scope = api.Services.CreateAsyncScope();
                 var commands = scope.ServiceProvider.GetRequiredService<ICommandMediator>();
@@ -186,7 +186,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>rule/loan.has-one-borrower</proves>
             [Fact]
-            public async Task Acting_without_asserting()
+            public async Task ActingWithoutAsserting()
             {
                 await using var scope = api.Services.CreateAsyncScope();
                 var commands = scope.ServiceProvider.GetRequiredService<ICommandMediator>();
@@ -202,7 +202,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>scenario/borrow-copy.borrowing-an-available-copy-succeeds</proves>
             [Fact]
-            public async Task Borrowing_through_the_host()
+            public async Task BorrowingThroughTheHost()
             {
                 _ = typeof(BorrowCopyCommand);
                 await using var scope = api.Services.CreateAsyncScope();
@@ -220,7 +220,7 @@ public sealed class IntegrationFactProofTests
         {
             /// <proves>scenario/borrow-copy.borrowing-an-available-copy-succeeds</proves>
             [Fact]
-            public async Task Borrowing_beside_a_nested_value()
+            public async Task BorrowingBesideANestedValue()
             {
                 var command = new BorrowCopyCommand { CopyId = "copy-1" };
                 var lookup = new LoanLookup.Loan("loan-1");

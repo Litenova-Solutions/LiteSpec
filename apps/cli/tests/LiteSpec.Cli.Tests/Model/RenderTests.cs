@@ -1,7 +1,7 @@
-using LiteSpec.Tests.Model.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Frontend;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves <c>litespec model render</c> writes every generated output.</summary>
 public sealed class RenderTests
@@ -9,10 +9,10 @@ public sealed class RenderTests
     /// <summary>Render writes the records file into each web frontend frame with the render header.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Writes_The_Records_File_Into_Each_Frame()
+    public void RenderWritesTheRecordsFileIntoEachFrame()
     {
         using var temp = FrontendMarksFixture.Prepare("clean");
-        var result = Cli.Run("model", "render", "--root", temp.Path);
+        var result = TestCli.Run("model", "render", "--root", temp.Path);
         Assert.Equal(0, result.Status);
 
         foreach (var relative in new[]
@@ -34,7 +34,7 @@ public sealed class RenderTests
     /// <summary>Render fills the known fenced regions, leaves unknown fences alone, and touches no text outside the fences.</summary>
     /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
     [Fact]
-    public void Render_Fills_The_Known_Regions_And_Leaves_The_Rest_Untouched()
+    public void RenderFillsTheKnownRegionsAndLeavesTheRestUntouched()
     {
         using var temp = FrontendMarksFixture.Prepare("clean");
 
@@ -62,7 +62,7 @@ public sealed class RenderTests
             <!-- /generated:census -->
             """);
 
-        var result = Cli.Run("model", "render", "--root", temp.Path);
+        var result = TestCli.Run("model", "render", "--root", temp.Path);
         Assert.Equal(0, result.Status);
 
         var rendered = File.ReadAllText(page);

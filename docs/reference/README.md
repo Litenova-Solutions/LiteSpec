@@ -12,11 +12,13 @@ Two pages resolve what other pages cite: [Glossary](glossary.md) defines each Li
 
 - [Glossary](glossary.md): the one term for each LiteSpec concept.
 - [Provisions](provisions.md): every provision ID resolved to its heading, page, and mark.
+- [Finding Codes](finding-codes.md): every finding code the tools emit, with its level, layer, trace, meaning, and fix.
 
 ## Files and Contracts
 
 - [Project File](project-file.md): every field of `.litespec/project.yaml` and what reads it.
-- [Release Manifest](manifest.md): every field of `litespec.manifest.yaml`.
+- [Release Manifest](manifest.md): every field of `litespec.manifest.yaml`, and each pinned version.
+- [Record Folders](folders.md): the folder and file each record type lives in.
 - [Formats](formats.md): every file format, who writes it, its envelope, and the schema and command that check it.
 - [Published URLs](published-urls.md): every URL the site serves for agents and people.
 

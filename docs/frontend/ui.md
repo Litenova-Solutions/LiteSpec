@@ -101,7 +101,7 @@ Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen
 
 **Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `.litespec/project.yaml` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
 
-**Checked by:** `litespec model check` reports controlled frontends with no `ui.package` in `.litespec/project.yaml`, and `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-package-invalid` for controlled frontends with no `ui.package` in `.litespec/project.yaml`, and `ui-dependency-invalid` tagged `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run it at the consumer root.
 
 ### Pin the Baseline in the Shared Package
 
@@ -143,7 +143,7 @@ patterns:
   - entity-page
 ```
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/ui#publish-a-design-contract]` for a missing contract, a missing metadata block, a package mismatch, or a missing required section. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-design-contract-invalid` tagged `[litespec/frontend/ui#publish-a-design-contract]` for a missing contract, a missing metadata block, a package mismatch, or a missing required section. Run it at the consumer root.
 
 ### Declare a Closed Floorplan Set
 
@@ -410,7 +410,7 @@ patterns:
 
 **Rationale:** Density is a property of the audience: `public-light` suits a surface a user meets once, `application-balanced` suits a surface a signed-in staff member works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one design baseline, so choosing per frontend changes density without changing the visual language.
 
-**Checked by:** `litespec model check` reports a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-frontend-invalid` for a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root.
 
 ### Keep a Blocked Command Visible with Its Reason
 

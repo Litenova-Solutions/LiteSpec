@@ -1,10 +1,10 @@
-using LiteSpec.Tests.Consumer;
+using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves check findings block or report by their tier.</summary>
 public sealed class SeverityCheckTests
@@ -12,12 +12,12 @@ public sealed class SeverityCheckTests
     /// <summary>An S finding no reader produced blocks under a project with only web stacks.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Record_Finding_Under_Only_Web_Stacks_Blocks()
+    public void RecordFindingUnderOnlyWebStacksBlocks()
     {
         using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
         SetOnlyWebStacks(fixture.Path);
 
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
 
         Assert.Equal(1, json.Status);
@@ -28,7 +28,7 @@ public sealed class SeverityCheckTests
     /// <summary>The planned-Intent set holds the five reachability codes, each applying under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Planned_Intent_Holds_The_Five_Reachability_Codes()
+    public void PlannedIntentHoldsTheFiveReachabilityCodes()
     {
         Assert.Equal(
             new[] { "constraint-unreached", "goal-mover-missing", "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing" },
@@ -42,18 +42,18 @@ public sealed class SeverityCheckTests
     /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Planned_Intent_Reports_Locally_And_Blocks_In_CI_Under_Intent_And_Behavior()
+    public void PlannedIntentReportsLocallyAndBlocksInCIUnderIntentAndBehavior()
     {
         using var fixture = ModelFixture.Prepare("large", "requirement-fulfillment-missing");
         SetClaim(fixture.Path, ConsumerFixture.Layers(null, null));
 
-        var local = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var local = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         var (localOutcome, _) = OutcomeOf(local.Stdout, "requirement-fulfillment-missing");
 
         Assert.Equal(0, local.Status);
         Assert.Equal("reported", localOutcome);
 
-        var pullRequest = Cli.Run(
+        var pullRequest = TestCli.Run(
             ["model", "check", "--root", fixture.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["CI"] = "true" });
         var (pullOutcome, _) = OutcomeOf(pullRequest.Stdout, "requirement-fulfillment-missing");
@@ -64,12 +64,12 @@ public sealed class SeverityCheckTests
 
     /// <summary>An unknown marks value exits 2 with the file error.</summary>
     [Fact]
-    public void Unknown_Marks_Exits_2()
+    public void UnknownMarksExits2()
     {
         using var fixture = ModelFixture.Prepare("small");
         BreakMarks(fixture.Path, "yaml");
 
-        var result = Cli.Run("model", "check", "--root", fixture.Path);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(1, result.Status);
         Assert.Contains("project-invalid", result.Output);

@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// The route suite coverage cases.
@@ -10,7 +10,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Route With No Route Suite.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Route_With_No_Route_Suite()
+    public void ARouteWithNoRouteSuite()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.SuiteFile);
@@ -22,7 +22,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Second Route Is Reported Beside The First.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Second_Route_Is_Reported_Beside_The_First()
+    public void ASecondRouteIsReportedBesideTheFirst()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.SuiteFile);
@@ -36,7 +36,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Frontend With No Routes Needs No Suite.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Frontend_With_No_Routes_Needs_No_Suite()
+    public void AFrontendWithNoRoutesNeedsNoSuite()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.AppCase);
@@ -47,7 +47,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Router Files Are Not Routes.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void Router_Files_Are_Not_Routes()
+    public void RouterFilesAreNotRoutes()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.AppCase);
@@ -62,7 +62,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Router Ignored Segment Is Not A Route.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Router_Ignored_Segment_Is_Not_A_Route()
+    public void ARouterIgnoredSegmentIsNotARoute()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.AppCase);
@@ -75,7 +75,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Suite Outside The Frontend Does Not Cover Its Routes.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Suite_Outside_The_Frontend_Does_Not_Cover_Its_Routes()
+    public void ASuiteOutsideTheFrontendDoesNotCoverItsRoutes()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.SuiteFile);
@@ -89,7 +89,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Svelte Page With No Route Suite.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Svelte_Page_With_No_Route_Suite()
+    public void ASveltePageWithNoRouteSuite()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
@@ -104,7 +104,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Svelte Page With Its Suite.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Svelte_Page_With_Its_Suite()
+    public void ASveltePageWithItsSuite()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
@@ -116,7 +116,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Svelte Non Page File Is Not A Route.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Svelte_Non_Page_File_Is_Not_A_Route()
+    public void ASvelteNonPageFileIsNotARoute()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
@@ -129,7 +129,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Svelte Server Endpoint Is Not A Route.</summary>
     /// <proves>litespec/frontend/ui#check-every-route</proves>
     [Fact]
-    public void A_Svelte_Server_Endpoint_Is_Not_A_Route()
+    public void ASvelteServerEndpointIsNotARoute()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();

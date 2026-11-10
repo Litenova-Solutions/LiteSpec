@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>A temporary folder deleted on dispose, unless KEEP_FIXTURE is set.</summary>
 sealed class TempFolder : IDisposable

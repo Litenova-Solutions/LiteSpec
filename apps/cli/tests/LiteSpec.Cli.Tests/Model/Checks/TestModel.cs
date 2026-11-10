@@ -2,7 +2,7 @@ using Record = LiteSpec.Model.Record;
 using System.Text.Json;
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Builds project models by hand for check tests.</summary>
 static class TestModel

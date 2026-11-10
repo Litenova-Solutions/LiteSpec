@@ -1,15 +1,15 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the contract checks: typed inputs and payloads, scenario exercises, and door auth.</summary>
 public sealed class BehaviorContractCheckTests
 {
     [Fact]
-    public void Use_Case_Input_Without_A_Type_Reports()
+    public void UseCaseInputWithoutATypeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "required": true}]}"""));
@@ -18,9 +18,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Use_Case_Input_With_An_Unknown_Type_Reports()
+    public void UseCaseInputWithAnUnknownTypeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "nights", "meaning": "The nights to hold.", "type": "count", "required": true}]}"""));
@@ -29,9 +29,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Use_Case_Id_Input_Without_An_Of_Record_Reports()
+    public void UseCaseIdInputWithoutAnOfRecordReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "required": true}]}"""));
@@ -40,9 +40,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Use_Case_Id_Input_Naming_No_Record_Reports()
+    public void UseCaseIdInputNamingNoRecordReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "roomId", "meaning": "The room to hold.", "type": "id", "of": "aggregate/inventory.no-such-room", "required": true}]}"""));
@@ -51,9 +51,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Use_Case_Choice_Input_Without_Choices_Reports()
+    public void UseCaseChoiceInputWithoutChoicesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command", "input": [{"name": "bed", "meaning": "The bed shape.", "type": "choice", "required": true}]}"""));
@@ -62,9 +62,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Typed_Inputs_With_Type_Required_And_Of_Pass()
+    public void TypedInputsWithTypeRequiredAndOfPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/inventory.room", Path.Combine(temp.Path, "room.yaml"), """{"kind": "entity", "states": [{"name": "Free", "meaning": "The room is free."}]}"""),
@@ -74,9 +74,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Integration_Event_With_A_Bad_Dataschema_Reports()
+    public void IntegrationEventWithABadDataschemaReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("integration-event", "integration-event/booking-held", Path.Combine(temp.Path, "held.yaml"), """{"dataschema": "not a url"}"""));
@@ -85,9 +85,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Scenario_Exercising_No_Rule_Reports()
+    public void ScenarioExercisingNoRuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/booking.hold-room", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command"}"""),
@@ -97,9 +97,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Scenario_Exercising_A_Rule_Passes()
+    public void ScenarioExercisingARulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/hold.one-hold-per-room-night", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "invariant", "statement": "A room night holds one hold.", "governs": ["aggregate/booking.hold"]}"""),
@@ -111,9 +111,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Entry_Point_With_Anonymous_Auth_Reports()
+    public void EntryPointWithAnonymousAuthReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["anonymous"]}"""));
@@ -122,9 +122,9 @@ public sealed class BehaviorContractCheckTests
     }
 
     [Fact]
-    public void Entry_Point_With_Door_Auth_Passes()
+    public void EntryPointWithDoorAuthPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.yaml"), """{"kind": "browser", "auth": ["session", "none"]}"""));

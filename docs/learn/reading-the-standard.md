@@ -128,4 +128,4 @@ The pages in `frontend/patterns/` work differently. Each one covers a group of r
 
 ## Next
 
-[Records and the project model](records-and-the-model.md) explains what your project writes down.
+[How LiteSpec Works](how-litespec-works.md) explains what your project writes down.

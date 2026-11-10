@@ -80,7 +80,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A published fact without a direction is read both ways: an outbound notice is answered as an order, an inbound claim is trusted as law. The direction, the CloudEvents type, source, and subject, the payload with classifications and types, and the trust of `trigger-only` or `payload` state what the fact is and how far readers follow it. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation`; an outbound event declares its `translates` domain event and its optional `addresses`.
 
-**Checked by:** `litespec model check` fails an integration event without direction, CloudEvents identity, typed payload, or trust.
+**Checked by:** `litespec model check` reports `record-invalid` for an integration event without direction, CloudEvents identity, typed payload, or trust.
 
 ### Publish Every Outbound Integration Event from Effects
 
@@ -216,7 +216,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A door with no kind is entered any way: a webhook is called as a page, a device as a browser. Declaring the kind of `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, or `served-content` with its auth states how callers arrive and prove themselves.
 
-**Checked by:** `litespec model check` fails an entry point without `kind` or `auth`.
+**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` or `auth`.
 
 ### Give Every Page Its Screen Record
 
@@ -248,7 +248,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Example:** The expense list carries the address `/expenses`; its confirm overlay names the expense list in `host` instead.
 
-**Checked by:** `litespec model check` fails a screen without exactly one of `address` and `host`.
+**Checked by:** `litespec model check` reports `record-invalid` for a screen without exactly one of `address` and `host`.
 
 ### Match a Screen's Offers to Its Calls
 
@@ -340,7 +340,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system stands alone and names no actor.
 
-**Checked by:** `litespec model check` fails an external system operation without direction, timeout, timeout handling, response, or cache.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system operation without direction, timeout, timeout handling, response, or cache.
 
 ## Conventions
 

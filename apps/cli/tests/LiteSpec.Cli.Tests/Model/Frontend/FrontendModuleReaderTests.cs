@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the TypeScript reader records each use-case module's <c>litespec</c> constant.</summary>
 public sealed class FrontendModuleReaderTests
@@ -8,7 +8,7 @@ public sealed class FrontendModuleReaderTests
     /// <summary>Reader Records The Litespec Constant As A Frontend Mark.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Reader_Records_The_Litespec_Constant_As_A_Frontend_Mark()
+    public void ReaderRecordsTheLitespecConstantAsAFrontendMark()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var modules = FrontendMarksFixture.Build(fixture.Path).Code.Elements
@@ -32,7 +32,7 @@ public sealed class FrontendModuleReaderTests
     /// <summary>Reader Reads React Modules Beside Svelte Modules.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Reader_Reads_React_Modules_Beside_Svelte_Modules()
+    public void ReaderReadsReactModulesBesideSvelteModules()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var modules = FrontendMarksFixture.Build(fixture.Path).Code.Elements
@@ -50,7 +50,7 @@ public sealed class FrontendModuleReaderTests
     /// <summary>Reader Records An Unmarked Module With No Marks.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Reader_Records_An_Unmarked_Module_With_No_Marks()
+    public void ReaderRecordsAnUnmarkedModuleWithNoMarks()
     {
         using var fixture = FrontendMarksFixture.Prepare("missing");
         var modules = FrontendMarksFixture.Build(fixture.Path).Code.Elements

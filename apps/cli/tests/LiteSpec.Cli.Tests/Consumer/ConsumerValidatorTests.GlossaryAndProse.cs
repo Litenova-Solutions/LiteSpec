@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for the glossary file.</summary>
 public sealed partial class ConsumerValidatorTests
@@ -6,7 +6,7 @@ public sealed partial class ConsumerValidatorTests
     const string GlossaryFile = ".litespec/glossary.yaml";
 
     /// <summary>Glossary without its version.</summary>
-    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
+    /// <proves>litespec/core/language#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary without its version")]
     public void GlossaryFileWithoutItsVersion()
     {
@@ -16,7 +16,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Glossary with the old version.</summary>
-    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
+    /// <proves>litespec/core/language#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary with the old version")]
     public void GlossaryFileWithTheOldVersion()
     {

@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a reaction or job without a mark links no use case and reports mark-missing.</summary>
 public sealed class ReactionTriggerTests
@@ -11,7 +11,7 @@ public sealed class ReactionTriggerTests
     /// <summary>An unmarked reaction links nothing, whatever its trigger names.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Reaction_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
+    public void ReactionWithoutAMarkLinksNothingAndReportsMarkMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/notify-overdue.yaml", UseCaseJson);
@@ -27,7 +27,7 @@ public sealed class ReactionTriggerTests
         Assert.Equal("unfulfilled", completion.GetProperty("stage").GetString());
         Assert.Equal(0, completion.GetProperty("counts").GetProperty("code found").GetProperty("done").GetInt32());
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("mark-missing") && candidate.Contains("NotifyReaderOnLoanBorrowedHandler.cs"));
 
@@ -38,7 +38,7 @@ public sealed class ReactionTriggerTests
     /// <summary>An unmarked job links nothing, whatever its name names.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Job_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
+    public void JobWithoutAMarkLinksNothingAndReportsMarkMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs", JobFile);
@@ -47,7 +47,7 @@ public sealed class ReactionTriggerTests
 
         Assert.DoesNotContain(document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(), link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("mark-missing") && candidate.Contains("ListLoansJob.cs"));
 

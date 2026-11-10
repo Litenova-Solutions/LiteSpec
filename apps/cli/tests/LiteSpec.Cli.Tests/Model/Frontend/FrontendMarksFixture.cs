@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Copies a frontend-marks fixture consumer and checks its model in process.</summary>
 static class FrontendMarksFixture
@@ -11,11 +11,11 @@ static class FrontendMarksFixture
     /// <returns>The temp folder holding the prepared fixture.</returns>
     public static TempFolder Prepare(string name)
     {
-        var temp = Cli.Temp("frontend-marks");
+        var temp = TestCli.Temp("frontend-marks");
 
         try
         {
-            CopyContents(Cli.Fixture($"frontend-marks-{name}"), temp.Path);
+            CopyContents(TestCli.Fixture($"frontend-marks-{name}"), temp.Path);
             return temp;
         }
         catch

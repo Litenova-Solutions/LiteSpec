@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>
 ///     Proves the frontend facts protocol version is one number in two languages. The TypeScript
@@ -15,9 +15,9 @@ public sealed class ProtocolVersionTests
 {
     /// <summary>The Protocol Version The Reader States Is The One The CLI Checks.</summary>
     [Fact]
-    public void The_Reader_States_The_Protocol_Version_The_CLI_Checks()
+    public void TheReaderStatesTheProtocolVersionTheCLIChecks()
     {
-        var source = FileText.ReadText(Path.Combine(Cli.Repository, "apps", "cli", "fe-reader", "src", "protocol.ts"));
+        var source = FileText.ReadText(Path.Combine(TestCli.Repository, "apps", "cli", "fe-reader", "src", "protocol.ts"));
         var match = Regex.Match(source, @"export const PROTOCOL_VERSION = (\d+);");
 
         Assert.True(match.Success, "apps/cli/fe-reader/src/protocol.ts declares no PROTOCOL_VERSION number.");

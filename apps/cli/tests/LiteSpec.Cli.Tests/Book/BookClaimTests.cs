@@ -2,9 +2,9 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
 using Record = LiteSpec.Model.Record;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book follows the layers the project claims and shows the computed Intent coverage under every claim.</summary>
 public sealed class BookClaimTests
@@ -12,9 +12,9 @@ public sealed class BookClaimTests
     /// <summary>Under intent and behavior alone the book leaves out code, proof and level S findings, and carries no test run.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Under_Intent_And_Behavior_Leaves_Out_Code_Proof_And_Level_S_Findings()
+    public void BookUnderIntentAndBehaviorLeavesOutCodeProofAndLevelSFindings()
     {
-        using var temp = Cli.Temp("book-claim");
+        using var temp = TestCli.Temp("book-claim");
         var model = ModelWithLevelSAndLevelGFindings();
         var outDir = Path.Combine(temp.Path, "out");
         BookTestBooks.Write(model, temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null));
@@ -62,7 +62,7 @@ public sealed class BookClaimTests
     /// <summary>Under own code and proof the book adds code and proof status and the level S findings.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Under_Own_Code_And_Proof_Adds_Code_Proof_And_Level_S_Findings()
+    public void BookUnderOwnCodeAndProofAddsCodeProofAndLevelSFindings()
     {
         AssertCodeAndProofBook(
             new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.Own, Proof: LayerPractice.Own),
@@ -72,7 +72,7 @@ public sealed class BookClaimTests
     /// <summary>Under LiteSpec's code and proof the book adds code and proof status and the level S findings.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Under_LiteSpec_Code_And_Proof_Adds_Code_Proof_And_Level_S_Findings()
+    public void BookUnderLiteSpecCodeAndProofAddsCodeProofAndLevelSFindings()
     {
         AssertCodeAndProofBook(
             new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.LiteSpec, Proof: LayerPractice.LiteSpec),
@@ -84,7 +84,7 @@ public sealed class BookClaimTests
     /// <param name="expected">The claims the manifest must list, as layer=practice pairs.</param>
     static void AssertCodeAndProofBook(LayerClaims claims, string expected)
     {
-        using var temp = Cli.Temp("book-claim");
+        using var temp = TestCli.Temp("book-claim");
         var model = ModelWithLevelSAndLevelGFindings();
         var outDir = Path.Combine(temp.Path, "out");
         BookTestBooks.Write(model, temp.Path, outDir, claims: claims);
@@ -118,9 +118,9 @@ public sealed class BookClaimTests
     /// <summary>Code without proof: the book shows the code, and it reads no test, proof status or missing test for an unclaimed proof layer.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Under_Code_Without_Proof_Leaves_Out_Proof()
+    public void BookUnderCodeWithoutProofLeavesOutProof()
     {
-        using var temp = Cli.Temp("book-claim");
+        using var temp = TestCli.Temp("book-claim");
         var outDir = Path.Combine(temp.Path, "out");
         BookTestBooks.Write(ModelWithLevelSAndLevelGFindings(), temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.Own, Proof: null));
 
@@ -142,9 +142,9 @@ public sealed class BookClaimTests
     /// <summary>Proof without code: the book shows the tests, and it reads no code or missing code for an unclaimed implementation layer.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Under_Proof_Without_Code_Leaves_Out_Code()
+    public void BookUnderProofWithoutCodeLeavesOutCode()
     {
-        using var temp = Cli.Temp("book-claim");
+        using var temp = TestCli.Temp("book-claim");
         var outDir = Path.Combine(temp.Path, "out");
         BookTestBooks.Write(ModelWithLevelSAndLevelGFindings(), temp.Path, outDir, claims: new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: LayerPractice.Own));
 
@@ -164,7 +164,7 @@ public sealed class BookClaimTests
     /// <summary>The manifest Intent coverage counts each requirement and journey step and the share reached, under every claim.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Intent_Coverage_Counts_Requirements_And_Journey_Steps_And_The_Share_Reached()
+    public void IntentCoverageCountsRequirementsAndJourneyStepsAndTheShareReached()
     {
         foreach (var claims in new[]
         {
@@ -174,7 +174,7 @@ public sealed class BookClaimTests
             new LayerClaims(Intent: true, Behavior: true, Implementation: LayerPractice.LiteSpec, Proof: LayerPractice.LiteSpec),
         })
         {
-            using var temp = Cli.Temp("book-claim");
+            using var temp = TestCli.Temp("book-claim");
             var outDir = Path.Combine(temp.Path, "out");
             BookTestBooks.Write(CoverageModel(), temp.Path, outDir, claims: claims);
 
@@ -215,7 +215,7 @@ public sealed class BookClaimTests
     /// <summary>The Intent coverage computation reads the fulfilling and serving links of a built model.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Intent_Coverage_Compute_Reads_Fulfills_And_Serves()
+    public void IntentCoverageComputeReadsFulfillsAndServes()
     {
         var model = new ProjectModel();
         model.Records.Add(new Record
@@ -263,7 +263,7 @@ public sealed class BookClaimTests
     /// <summary>An empty model covers no Intent item and the share holds no division by zero.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Intent_Coverage_Of_No_Intent_Is_Empty()
+    public void IntentCoverageOfNoIntentIsEmpty()
     {
         var coverage = IntentCoverage.Compute(new ProjectModel());
         Assert.Equal(0, coverage.Total);

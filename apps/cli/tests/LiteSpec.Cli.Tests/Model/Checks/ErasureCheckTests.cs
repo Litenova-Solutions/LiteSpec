@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the erasure and retention checks against hand-built models.</summary>
 public sealed class ErasureCheckTests
@@ -10,9 +10,9 @@ public sealed class ErasureCheckTests
     /// <summary>Personal Class Without Erasure Reports.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
-    public void Personal_Class_Without_Erasure_Reports()
+    public void PersonalClassWithoutErasureReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.yaml"), """
@@ -26,9 +26,9 @@ public sealed class ErasureCheckTests
     /// <summary>Personal Field Without Cover Reports.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
-    public void Personal_Field_Without_Cover_Reports()
+    public void PersonalFieldWithoutCoverReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, "personal"));
 
         Assert.Contains("erasure-undeclared", TestModel.Codes(model));
@@ -37,9 +37,9 @@ public sealed class ErasureCheckTests
     /// <summary>Sensitive Field Reports As Personal.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
-    public void Sensitive_Field_Reports_As_Personal()
+    public void SensitiveFieldReportsAsPersonal()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, "sensitive"));
 
         Assert.Contains("erasure-undeclared", TestModel.Codes(model));
@@ -48,9 +48,9 @@ public sealed class ErasureCheckTests
     /// <summary>Public And Internal Fields Pass.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
-    public void Public_And_Internal_Fields_Pass()
+    public void PublicAndInternalFieldsPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var json = """
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}], "data": [
               {"name": "shelf", "meaning": "The home shelf.", "classification": "public"},
@@ -68,9 +68,9 @@ public sealed class ErasureCheckTests
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     /// <proves>litespec/core/privacy#schedule-every-data-class-for-retention</proves>
     [Fact]
-    public void Erasure_Position_With_Enforcement_Covers_The_Data()
+    public void ErasurePositionWithEnforcementCoversTheData()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var json = """
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "data": [{"name": "borrower-email", "meaning": "The address notices go to.", "classification": "personal"}],
@@ -88,9 +88,9 @@ public sealed class ErasureCheckTests
     /// <summary>Per Field Exception Covers The Field.</summary>
     /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
-    public void Per_Field_Exception_Covers_The_Field()
+    public void PerFieldExceptionCoversTheField()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var json = """
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "data": [{"name": "borrower-email", "meaning": "The address notices go to.", "classification": "personal"}],
@@ -108,9 +108,9 @@ public sealed class ErasureCheckTests
     /// <summary>Retention Without Enforcement Reports.</summary>
     /// <proves>litespec/core/privacy#schedule-every-data-class-for-retention</proves>
     [Fact]
-    public void Retention_Without_Enforcement_Reports()
+    public void RetentionWithoutEnforcementReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var json = """
             {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
              "dataClasses": [{"name": "Borrower identity", "classification": "personal",

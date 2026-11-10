@@ -1,7 +1,7 @@
 using System.Text.Json;
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Tables;
+namespace LiteSpec.Cli.Tests.Model.Tables;
 
 /// <summary>Proves page records carry their explanation text while entries carry none.</summary>
 public sealed class BodyTests
@@ -9,7 +9,7 @@ public sealed class BodyTests
     /// <summary>Pages write their explanation; entries write none.</summary>
     /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
-    public void Pages_Write_Bodies_And_Entries_Write_None()
+    public void PagesWriteBodiesAndEntriesWriteNone()
     {
         using var temp = ModelFixture.Prepare("small");
 

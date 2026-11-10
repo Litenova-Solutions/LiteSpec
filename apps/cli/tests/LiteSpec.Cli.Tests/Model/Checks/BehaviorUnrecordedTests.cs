@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the behavior-unrecorded check against hand-built models.</summary>
 public sealed class BehaviorUnrecordedTests
@@ -10,9 +10,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Handler Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Handler_Without_A_Mark_Reports_Mark_Missing()
+    public void HandlerWithoutAMarkReportsMarkMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.Handler, "GhostHandler", null,
@@ -27,9 +27,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Handler With A Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_With_A_Record_Passes()
+    public void HandlerWithARecordPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
@@ -43,9 +43,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Endpoint Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Endpoint_Without_A_Mark_Reports_Mark_Missing()
+    public void EndpointWithoutAMarkReportsMarkMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.Endpoint, "GhostEndpoint", null,
@@ -60,9 +60,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Event Handler Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Event_Handler_Without_A_Mark_Reports_Mark_Missing()
+    public void EventHandlerWithoutAMarkReportsMarkMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
@@ -77,9 +77,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Mark Naming No Record Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
+    public void MarkNamingNoRecordReportsMarkUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "GhostReaction.cs");
         model.Code.Elements.Add(new MarkedElement(
@@ -96,9 +96,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Job Without A Mark Names The Job.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Job_Without_A_Mark_Names_The_Job()
+    public void JobWithoutAMarkNamesTheJob()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.Job, "NightlyJob", null,
@@ -111,9 +111,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Reaction With A Matching Tag Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Reaction_With_A_Matching_Tag_Passes()
+    public void ReactionWithAMatchingTagPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
@@ -126,9 +126,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Domain Event Without A Mark Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Domain_Event_Without_A_Mark_Reports_Mark_Missing()
+    public void DomainEventWithoutAMarkReportsMarkMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.DomainEvent, "GhostEvent", null,
@@ -143,9 +143,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Event With A Record Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Event_With_A_Record_Passes()
+    public void EventWithARecordPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("event", "event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
@@ -158,9 +158,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Surplus Literal Reports Behavior Unrecorded.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Surplus_Literal_Reports_Behavior_Unrecorded()
+    public void SurplusLiteralReportsBehaviorUnrecorded()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Literals.Add(new CodeLiteral(
             "lending.ghost-refusal", Path.Combine(temp.Path, "GhostHandler.cs"), 8, "GhostHandler"));
@@ -171,9 +171,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Rule Refusal Code Declares A Guard.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Rule_Refusal_Code_Declares_A_Guard()
+    public void RuleRefusalCodeDeclaresAGuard()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -190,9 +190,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Declared Literal Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Declared_Literal_Passes()
+    public void DeclaredLiteralPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -209,9 +209,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Screen Call Without An Endpoint Reports Behavior Unrecorded.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Screen_Call_Without_An_Endpoint_Reports_Behavior_Unrecorded()
+    public void ScreenCallWithoutAnEndpointReportsBehaviorUnrecorded()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Screens.Add(new ScreenInfo(
             "catalog",
@@ -226,9 +226,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Screen Call Matching A Route Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Screen_Call_Matching_A_Route_Passes()
+    public void ScreenCallMatchingARoutePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), "{}"));
         model.Code.Endpoints.Add(new EndpointOperation(
@@ -247,9 +247,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Screen Call Matching An Operation Name Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Screen_Call_Matching_An_Operation_Name_Passes()
+    public void ScreenCallMatchingAnOperationNamePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Records.Add(TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), "{}"));
         model.Code.Endpoints.Add(new EndpointOperation(
@@ -268,9 +268,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Screen Calls Are Skipped For Client Only Shape.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Screen_Calls_Are_Skipped_For_Client_Only_Shape()
+    public void ScreenCallsAreSkippedForClientOnlyShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """{"shape": "client-only"}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Screens.Add(new ScreenInfo(
@@ -285,9 +285,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Departure Holds The Findings On The Paths It Names.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Holds_The_Findings_On_The_Paths_It_Names()
+    public void DepartureHoldsTheFindingsOnThePathsItNames()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("departure", "departure/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
@@ -304,9 +304,9 @@ public sealed class BehaviorUnrecordedTests
     /// <summary>Departure Past Its Expires On Holds Nothing.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Past_Its_Expires_On_Holds_Nothing()
+    public void DeparturePastItsExpiresOnHoldsNothing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("departure", "departure/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "exit": "The gap closes.", "expiresOn": "2000-01-01"}"""));

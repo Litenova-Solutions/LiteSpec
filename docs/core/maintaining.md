@@ -41,6 +41,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 | Family | Meaning | Codes |
 |:---|:---|:---|
 | `MANIFEST_*` | The manifest is not valid YAML, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_YAML`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
+| Documentation bindings | A page cites a finding code, template, or example record that does not exist, a `Checked by` line for `litespec model check` names no finding code, the documentation index reaches no path to a page, or a pattern offers more than three options. | `FINDING_CODE_UNKNOWN`, `CHECKED_BY_FINDING_MISSING`, `TEMPLATE_CITED_UNKNOWN`, `EXAMPLE_RECORD_UNKNOWN`, `INDEX_PAGE_MISSING`, `PATTERN_OPTION_COUNT` |
 | `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid YAML, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_YAML`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
 ## Standards

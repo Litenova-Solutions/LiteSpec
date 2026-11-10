@@ -1,7 +1,7 @@
 using Record = LiteSpec.Model.Record;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the reaction-trigger-unknown check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
@@ -9,9 +9,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction Without A Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_Without_A_Trigger_Reports()
+    public void ReactionWithoutATriggerReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
@@ -22,9 +22,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction With An Unresolved Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_With_An_Unresolved_Trigger_Reports()
+    public void ReactionWithAnUnresolvedTriggerReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.no-such-event"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
@@ -35,9 +35,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction With A Non Event Trigger Reports.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_With_A_Non_Event_Trigger_Reports()
+    public void ReactionWithANonEventTriggerReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["use-case/lending.borrow-copy"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
@@ -49,9 +49,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction With An Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_With_An_Event_Trigger_Passes()
+    public void ReactionWithAnEventTriggerPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
@@ -63,9 +63,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction With An Integration Event Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_With_An_Integration_Event_Trigger_Passes()
+    public void ReactionWithAnIntegrationEventTriggerPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"status": "reviewed", "triggeredBy": ["integration-event/loan-exported"], "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
@@ -77,9 +77,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Reaction With Two Event Triggers Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Reaction_With_Two_Event_Triggers_Passes()
+    public void ReactionWithTwoEventTriggersPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.assign-seat-on-seat-sold", Path.Combine(temp.Path, "assign.yaml"), """{"status": "reviewed", "triggeredBy": ["event/ticket.seat-sold", "event/ticket.seat-released"], "effects": [{"runs": "use-case/lending.assign-seat", "timing": "async"}]}"""),
@@ -92,9 +92,9 @@ public sealed class ReactionTriggerCheckTests
     /// <summary>Command Without A Trigger Passes.</summary>
     /// <proves>litespec/core/automation#trigger-every-reaction-from-its-declared-events</proves>
     [Fact]
-    public void Command_Without_A_Trigger_Passes()
+    public void CommandWithoutATriggerPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"status": "reviewed", "kind": "command"}"""));

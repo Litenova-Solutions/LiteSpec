@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the analyzer suppression check against the lowering and suppression places and the departures that cover them.</summary>
 public sealed class AnalyzerSuppressionCheckTests
@@ -10,9 +10,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule lowered in .editorconfig with no covering departure reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void EditorConfig_Lowering_Reports()
+    public void EditorConfigLoweringReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -29,9 +29,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule kept at error in .editorconfig reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void EditorConfig_Error_Severity_Passes()
+    public void EditorConfigErrorSeverityPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = error\n");
 
         Assert.Empty(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -40,9 +40,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule lowered in a nested .editorconfig reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Nested_EditorConfig_Lowering_Reports()
+    public void NestedEditorConfigLoweringReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "src/.editorconfig", "[*.cs]\ndotnet_diagnostic.LS1002.severity = warning\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -54,9 +54,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule lowered in .globalconfig reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void GlobalConfig_Lowering_Reports()
+    public void GlobalConfigLoweringReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".globalconfig", "is_global = true\ndotnet_diagnostic.LS2004.severity = silent\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -69,9 +69,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule named in a Directory.Build.props NoWarn reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Directory_Build_Props_NoWarn_Reports()
+    public void DirectoryBuildPropsNoWarnReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>$(NoWarn);LS5001</NoWarn>\n    </PropertyGroup>\n</Project>\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -85,9 +85,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule named in a project file NoWarn reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Project_File_NoWarn_Reports()
+    public void ProjectFileNoWarnReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "src/Library.csproj", "<Project Sdk=\"Microsoft.NET.Sdk\">\n    <PropertyGroup>\n        <NoWarn>LS3001</NoWarn>\n    </PropertyGroup>\n</Project>\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -99,9 +99,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule named by a pragma warning disable reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Pragma_Warning_Disable_Reports()
+    public void PragmaWarningDisableReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1002\n\nnamespace Fixture;\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -114,9 +114,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>Two analyzer rules named by one pragma warning disable report one finding each.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Pragma_Warning_Disable_With_Two_Rules_Reports_Both()
+    public void PragmaWarningDisableWithTwoRulesReportsBoth()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1001, LS1002\n");
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
@@ -129,9 +129,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule named by a SuppressMessage reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void SuppressMessage_Reports()
+    public void SuppressMessageReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "src/Widget.cs", "using System.Diagnostics.CodeAnalysis;\n\nnamespace Fixture;\n\ninternal sealed class Widget\n{\n    [SuppressMessage(\"LiteSpec\", \"LS2012\")]\n    public string Describe() => \"Widget\";\n}\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
@@ -145,9 +145,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>Suppressions naming no LiteSpec analyzer rule report no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Non_LiteSpec_Suppressions_Pass()
+    public void NonLiteSpecSuppressionsPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.CS1591.severity = none\n");
         Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>CS1591</NoWarn>\n    </PropertyGroup>\n</Project>\n");
         Write(temp.Path, "src/Widget.cs", "#pragma warning disable CS1591\n\nusing System.Diagnostics.CodeAnalysis;\n\nnamespace Fixture;\n\ninternal sealed class Widget\n{\n    [SuppressMessage(\"Design\", \"CA1000\")]\n    public string Describe() => \"Widget\";\n}\n");
@@ -158,9 +158,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An analyzer rule lowered under a skipped build output folder reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Suppression_Under_Bin_Passes()
+    public void SuppressionUnderBinPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, "bin/.editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         Write(temp.Path, "obj/Widget.cs", "#pragma warning disable LS1001\n");
 
@@ -170,9 +170,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>A live departure covering the provision the lowered rule enforces reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Live_Departure_Covering_Provision_Passes()
+    public void LiveDepartureCoveringProvisionPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -184,9 +184,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>A live departure covering this finding code reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Live_Departure_Covering_Finding_Code_Passes()
+    public void LiveDepartureCoveringFindingCodePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -198,9 +198,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>An expired departure covering the provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Expired_Departure_Covering_Provision_Reports()
+    public void ExpiredDepartureCoveringProvisionReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -214,9 +214,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>A live departure covering another provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Departure_Covering_Another_Provision_Reports()
+    public void DepartureCoveringAnotherProvisionReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -231,9 +231,9 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>Every suppression in the analyzer-lowering-unrecorded fixture reports, one per rule and place.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Fixture_Suppressions_Report_Each_Rule()
+    public void FixtureSuppressionsReportEachRule()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         CopyFixture(temp.Path);
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
@@ -249,12 +249,12 @@ public sealed class AnalyzerSuppressionCheckTests
     /// <summary>A model check over a project lowering LS1001 with no departure reports analyzer-lowering-unrecorded as a blocking S finding.</summary>
     /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
     [Fact]
-    public void Model_Check_Reports_Unrecorded_Lowering()
+    public void ModelCheckReportsUnrecordedLowering()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').First(candidate => candidate.Contains("[analyzer-lowering-unrecorded]"));
 
         Assert.Equal(1, check.Status);
@@ -275,7 +275,7 @@ public sealed class AnalyzerSuppressionCheckTests
 
     static void CopyFixture(string root)
     {
-        var fixture = Cli.Fixture("analyzer-lowering-unrecorded");
+        var fixture = TestCli.Fixture("analyzer-lowering-unrecorded");
 
         foreach (var file in Directory.GetFiles(fixture, "*", SearchOption.AllDirectories))
         {

@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Manifest, stack, shape, extension, and vocabulary cases.</summary>
 public sealed partial class StandardsValidatorTests
@@ -547,7 +547,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "lowercase workflow prose passes")]
     public void LowercaseWorkflowPasses() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nThe release workflow runs weekly.\n\n" + StandardsFixture.IndexRouting),
+        root => StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme("The release workflow runs weekly.")),
         []);
 
     static readonly string AnalyzerProjectFile = """

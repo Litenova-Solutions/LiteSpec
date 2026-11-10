@@ -1,8 +1,8 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 using System.Linq;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>
 ///     Standards validator cases: one test per validator rule, in both directions,
@@ -85,6 +85,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "docs/analyzers/rules/sample.md", StandardsFixture.ReferencePage);
             StandardsFixture.Write(root, "docs/analyzers/sample.md", StandardsFixture.GuidePage);
+            StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(extra: "- [Rule](analyzers/rules/sample.md)\n- [Procedure](analyzers/sample.md)\n"));
         },
         []);
 
@@ -378,7 +379,13 @@ public sealed partial class StandardsValidatorTests
             Diagnostics.Codes.IdUnknownReference,
             Diagnostics.Codes.IndexContainsProcedure,
             Diagnostics.Codes.IndexIntent,
+            Diagnostics.Codes.CheckedByFindingMissing,
+            Diagnostics.Codes.ExampleRecordUnknown,
+            Diagnostics.Codes.FindingCodeUnknown,
             Diagnostics.Codes.IndexMissingRouting,
+            Diagnostics.Codes.IndexPageMissing,
+            Diagnostics.Codes.PatternOptionCount,
+            Diagnostics.Codes.TemplateCitedUnknown,
             Diagnostics.Codes.LayerUnlisted,
             Diagnostics.Codes.LinkBroken,
             Diagnostics.Codes.ManifestAnalyzerPin,

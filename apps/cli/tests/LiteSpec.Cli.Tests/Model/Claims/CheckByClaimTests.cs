@@ -1,10 +1,10 @@
-using LiteSpec.Tests.Consumer;
+using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Claims;
+namespace LiteSpec.Cli.Tests.Model.Claims;
 
 /// <summary>Proves <c>litespec model check</c> reports only the findings the project's layer claims cover.</summary>
 public sealed class CheckByClaimTests
@@ -17,12 +17,12 @@ public sealed class CheckByClaimTests
     [InlineData("intent-and-behavior")]
     [InlineData("own-code-and-proof")]
     [InlineData("litespec-code-and-proof")]
-    public void Record_Finding_Blocks_Under_Every_Claim(string claim)
+    public void RecordFindingBlocksUnderEveryClaim(string claim)
     {
         using var fixture = ModelFixture.Prepare("large", "record-invalid");
         SetClaim(fixture.Path, ConsumerFixture.Claim(claim));
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.Equal(1, result.Status);
         Assert.Contains("record-invalid", result.Stdout, StringComparison.Ordinal);
@@ -31,12 +31,12 @@ public sealed class CheckByClaimTests
     /// <summary>An Implementation finding is silent when the project claims no code, and blocks once it claims code.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Implementation_Finding_Is_Silent_Without_Code()
+    public void ImplementationFindingIsSilentWithoutCode()
     {
         using var records = ModelFixture.Prepare("large", "use-case-unimplemented");
         SetClaim(records.Path, ConsumerFixture.Claim("intent-and-behavior"));
 
-        var atRecords = Cli.Run(["model", "check", "--root", records.Path, "--format", "json"]);
+        var atRecords = TestCli.Run(["model", "check", "--root", records.Path, "--format", "json"]);
 
         Assert.Equal(0, atRecords.Status);
         Assert.DoesNotContain("use-case-unimplemented", atRecords.Stdout, StringComparison.Ordinal);
@@ -44,7 +44,7 @@ public sealed class CheckByClaimTests
         using var owned = ModelFixture.Prepare("large", "use-case-unimplemented");
         SetClaim(owned.Path, ConsumerFixture.Claim("own-code-and-proof"));
 
-        var atOwned = Cli.Run(["model", "check", "--root", owned.Path, "--format", "json"]);
+        var atOwned = TestCli.Run(["model", "check", "--root", owned.Path, "--format", "json"]);
 
         Assert.Equal(1, atOwned.Status);
         Assert.Contains("use-case-unimplemented", atOwned.Stdout, StringComparison.Ordinal);
@@ -53,12 +53,12 @@ public sealed class CheckByClaimTests
     /// <summary>Proof without implementation: an Implementation finding is silent, since the project claims no code to mark.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Proof_Without_Implementation_Reports_No_Code_Finding()
+    public void ProofWithoutImplementationReportsNoCodeFinding()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
         SetClaim(fixture.Path, ConsumerFixture.Claim("proof-without-code"));
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("use-case-unimplemented", result.Stdout, StringComparison.Ordinal);
@@ -67,12 +67,12 @@ public sealed class CheckByClaimTests
     /// <summary>Implementation without proof: no Proof finding is reported, so no use case reads as unverified.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Implementation_Without_Proof_Reports_No_Proof_Finding()
+    public void ImplementationWithoutProofReportsNoProofFinding()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
         SetClaim(fixture.Path, ConsumerFixture.Claim("own-code-without-proof"));
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.Equal(1, result.Status);
         Assert.Contains("use-case-unimplemented", result.Stdout, StringComparison.Ordinal);
@@ -89,13 +89,13 @@ public sealed class CheckByClaimTests
     /// <summary>A layout finding is silent for the project's own code and blocks for LiteSpec's code, whatever its proof.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Layout_Finding_Follows_The_Implementation_Practice()
+    public void LayoutFindingFollowsTheImplementationPractice()
     {
         using var owned = ModelFixture.Prepare("large");
         AddStrayFolder(owned.Path);
         SetClaim(owned.Path, ConsumerFixture.Claim("own-code-and-proof"));
 
-        var atOwned = Cli.Run(["model", "check", "--root", owned.Path, "--format", "json"]);
+        var atOwned = TestCli.Run(["model", "check", "--root", owned.Path, "--format", "json"]);
 
         Assert.Equal(0, atOwned.Status);
         Assert.DoesNotContain("code-placement-drift", atOwned.Stdout, StringComparison.Ordinal);
@@ -104,7 +104,7 @@ public sealed class CheckByClaimTests
         AddStrayFolder(litespec.Path);
         SetClaim(litespec.Path, ConsumerFixture.Claim("litespec-code-own-proof"));
 
-        var atLiteSpec = Cli.Run(["model", "check", "--root", litespec.Path, "--format", "json"]);
+        var atLiteSpec = TestCli.Run(["model", "check", "--root", litespec.Path, "--format", "json"]);
 
         Assert.Equal(1, atLiteSpec.Status);
         Assert.Contains("code-placement-drift", atLiteSpec.Stdout, StringComparison.Ordinal);
@@ -113,19 +113,19 @@ public sealed class CheckByClaimTests
     /// <summary>An intent-only project reports no Behavior finding, such as an Intent record that reaches no Behavior.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Intent_Only_Claim_Reports_No_Behavior_Finding()
+    public void IntentOnlyClaimReportsNoBehaviorFinding()
     {
         using var intentOnly = ModelFixture.Prepare("large", "intent-unreached");
         SetClaim(intentOnly.Path, ConsumerFixture.Claim("intent-only"));
 
-        var atIntentOnly = Cli.Run(["model", "check", "--root", intentOnly.Path, "--format", "json"]);
+        var atIntentOnly = TestCli.Run(["model", "check", "--root", intentOnly.Path, "--format", "json"]);
 
         Assert.DoesNotContain("intent-unreached", atIntentOnly.Stdout, StringComparison.Ordinal);
 
         using var behavior = ModelFixture.Prepare("large", "intent-unreached");
         SetClaim(behavior.Path, ConsumerFixture.Claim("intent-and-behavior"));
 
-        var atBehavior = Cli.Run(["model", "check", "--root", behavior.Path, "--format", "json"]);
+        var atBehavior = TestCli.Run(["model", "check", "--root", behavior.Path, "--format", "json"]);
 
         Assert.Contains("intent-unreached", atBehavior.Stdout, StringComparison.Ordinal);
     }
@@ -133,12 +133,12 @@ public sealed class CheckByClaimTests
     /// <summary>A clean small fixture passes under the intent-and-behavior claim, and every finding it reports is one the claim covers.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Intent_And_Behavior_Check_Passes_Without_Code()
+    public void IntentAndBehaviorCheckPassesWithoutCode()
     {
         using var fixture = ModelFixture.Prepare("small");
         SetClaim(fixture.Path, ConsumerFixture.Claim("intent-and-behavior"));
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.True(result.Status == 0, result.Output);
         using var document = JsonDocument.Parse(result.Stdout);

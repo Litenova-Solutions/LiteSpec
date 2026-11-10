@@ -45,6 +45,10 @@ internal sealed partial class RepositoryValidator
         ["tutorial.md"] = "docs/tutorial/template.md",
         ["command.md"] = "docs/tools/template.md",
         ["reference.md"] = "docs/reference/template.md",
+        ["stack.md"] = "docs/backend/template/stack.md",
+        ["pattern.md"] = "docs/frontend/patterns/template.md",
+        ["explanation.md"] = "docs/learn/template.md",
+        ["index.md"] = "docs/template/README.md",
     };
 
     /// <summary>Gets the page paths reserved as authoring template stems.</summary>
@@ -132,7 +136,13 @@ internal sealed partial class RepositoryValidator
         .Replace("{How-To Title}", "How-To Title", StringComparison.Ordinal)
         .Replace("{Tutorial Title}", "Tutorial Title", StringComparison.Ordinal)
         .Replace("{Command Title}", "Command Title", StringComparison.Ordinal)
-        .Replace("{Reference Title}", "Reference Title", StringComparison.Ordinal);
+        .Replace("{Reference Title}", "Reference Title", StringComparison.Ordinal)
+        .Replace("{Stack Title}", "Stack Title", StringComparison.Ordinal)
+        .Replace("{Pattern Title}", "Pattern Title", StringComparison.Ordinal)
+        .Replace("{Explanation Title}", "Explanation Title", StringComparison.Ordinal)
+        .Replace("{litespec/page#apply-one-stack-obligation}", "litespec/backend/template/stack#apply-one-stack-obligation", StringComparison.Ordinal)
+        .Replace("{litespec/page#use-one-stack-default}", "litespec/backend/template/stack#use-one-stack-default", StringComparison.Ordinal)
+        .Replace("{litespec/page#record-header}", "litespec/frontend/patterns/template#record-header", StringComparison.Ordinal);
 
     /// <summary>Checks every authoring template against the page contract it seeds.</summary>
     internal void CheckAuthoringTemplates()

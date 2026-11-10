@@ -16,7 +16,7 @@ This command renames one record identifier across the consumer repository. It mo
 
 Both arguments are full record identifiers, such as `use-case/lending.borrow-copy`. The command refuses a new identifier a record already carries and an old identifier no record carries.
 
-Run it for every identifier rename, as `litespec/core/authoring#rewrite-every-link-on-a-rename` states. Never rename by moving the file by hand.
+Run it for every identifier rename, as `litespec/core/model#rewrite-every-link-on-a-rename` states. Never rename by moving the file by hand.
 
 ## Arguments
 

@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
 ///     Proves the one consumer-root rule: a command that reads a consumer refuses a folder
@@ -13,9 +13,9 @@ public sealed class ConsumerRootTests
     [Fact(DisplayName = "new refuses a folder with no project file")]
     public void NewRefusesAFolderWithNoProjectFile()
     {
-        using var folder = Cli.Temp("root-new");
+        using var folder = TestCli.Temp("root-new");
 
-        var result = Cli.Run("new", "decision", "hold-notices", "--root", folder.Path);
+        var result = TestCli.Run("new", "decision", "hold-notices", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
         Assert.Contains("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
@@ -27,9 +27,9 @@ public sealed class ConsumerRootTests
     [Fact(DisplayName = "rename refuses a folder with no project file")]
     public void RenameRefusesAFolderWithNoProjectFile()
     {
-        using var folder = Cli.Temp("root-rename");
+        using var folder = TestCli.Temp("root-rename");
 
-        var result = Cli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", folder.Path);
+        var result = TestCli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
         Assert.Contains("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
@@ -44,7 +44,7 @@ public sealed class ConsumerRootTests
         var nested = Path.Combine(consumer.Path, "nested");
         Directory.CreateDirectory(nested);
 
-        var result = Cli.Run("init", "--preset", "records", "--size", "small", "--root", nested);
+        var result = TestCli.Run("init", "--preset", "records", "--size", "small", "--root", nested);
 
         Assert.Equal(0, result.Status);
         Assert.True(File.Exists(Path.Combine(nested, ".litespec", "project.yaml")));

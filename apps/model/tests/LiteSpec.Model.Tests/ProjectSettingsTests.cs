@@ -8,7 +8,7 @@ public sealed class ProjectSettingsTests
     /// <summary>A file naming no setting reads the xml style and every layer with LiteSpec's practice.</summary>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact]
-    public void Missing_Settings_Read_Defaults()
+    public void MissingSettingsReadDefaults()
     {
         Assert.True(ProjectSettings.TryParse("schemaVersion: 1\n", out var settings, out var error));
 
@@ -24,7 +24,7 @@ public sealed class ProjectSettingsTests
     [Theory]
     [InlineData("xml", MarkStyle.Xml)]
     [InlineData("attribute", MarkStyle.Attribute)]
-    public void Declared_Settings_Read(string marks, MarkStyle style)
+    public void DeclaredSettingsRead(string marks, MarkStyle style)
     {
         var text = "marks: " + marks + "\n";
 
@@ -40,7 +40,7 @@ public sealed class ProjectSettingsTests
     [Theory]
     [InlineData("marks: yaml\n")]
     [InlineData("marks: 5\n")]
-    public void Invalid_Marks_Value_Reads_The_Default(string text)
+    public void InvalidMarksValueReadsTheDefault(string text)
     {
         Assert.True(ProjectSettings.TryParse(text, out var settings, out var error));
 
@@ -59,7 +59,7 @@ public sealed class ProjectSettingsTests
     [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec", "litespec", "litespec")]
     [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: own", "litespec", "own")]
     [InlineData("intent: litespec\n  behavior: litespec\n  proof: own", "none", "own")]
-    public void Layer_Claims_Read_As_Declared(string layers, string implementation, string proof)
+    public void LayerClaimsReadAsDeclared(string layers, string implementation, string proof)
     {
         var text = "layers:\n  " + layers + "\n";
 
@@ -75,7 +75,7 @@ public sealed class ProjectSettingsTests
     /// <summary>A project file claiming only Intent claims no Behavior, Implementation or Proof.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Intent_Only_Claim_Leaves_Every_Other_Layer_Unclaimed()
+    public void IntentOnlyClaimLeavesEveryOtherLayerUnclaimed()
     {
         Assert.True(ProjectSettings.TryParse("layers:\n  intent: litespec\n", out var settings, out var error));
 
@@ -103,7 +103,7 @@ public sealed class ProjectSettingsTests
     [Theory]
     [InlineData("marks: [xml\n", ".litespec/project.yaml is not valid YAML or JSON: expected valid YAML at line 2.")]
     [InlineData("- xml\n", ".litespec/project.yaml: expected a mapping.")]
-    public void Broken_Text_Errors(string text, string message)
+    public void BrokenTextErrors(string text, string message)
     {
         Assert.False(ProjectSettings.TryParse(text, out _, out var error));
 

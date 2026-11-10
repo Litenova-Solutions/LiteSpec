@@ -29,7 +29,7 @@ Check the authoring contract of this repository with the maintainer tool:
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 ```
 
-Run the CLI test suite with the analyzer tests:
+Run the whole test suite. To run the CLI tests alone, pass their project: `dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests`.
 
 ```bash
 dotnet test --solution LiteSpec.slnx
@@ -64,7 +64,7 @@ The entry file sits at the top of `apps/cli/src/LiteSpec.Cli/`. Each command liv
 
 The solution file `LiteSpec.slnx` lists the CLI, the CLI tests, the maintainer tool, the shared library, the analyzers, and their tests. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Microsoft.CodeAnalysis.CSharp`, `Markdig`, and `xunit.v3`. `global.json` selects `Microsoft.Testing.Platform` as the test runner and sets the lowest SDK, `10.0.114`, rolling forward to any later feature band.
 
-## Dispatch and Option Parsing
+### Dispatch and Option Parsing
 
 `Program.cs` matches `args[0]` in a switch expression. `--help`, `-h`, and `help` print the top-level usage and exit 0. `--version` prints `LiteSpecHome.Version`, which is the `version` field of `litespec.manifest.yaml`, and exits 0. Each of `init`, `new`, `rename`, `model`, `book`, and `rules` calls that command's static `Run` with the remaining arguments. Anything else prints `Unknown command '<name>'.` plus the usage to standard error and exits 2.
 
@@ -74,35 +74,35 @@ Two helpers apply across commands. `Json` is true when `--format json` or `--for
 
 The `--help` text of each command is the contract quoted in `docs/tools/`. Quote it when you document behavior, and change the `Usage` constant and the docs page together when you change options. Exit codes are stable: 0 for success, 1 for a finding or a failed check, and 2 for a usage error or an unreadable input. `init` exits 1 when the release's template, preset, or scaffold file is unreadable, and 2 when the project file exists or an option is invalid. `book` exits 1 for a model that does not build or an unwritable output, and 2 for a usage error, a root without a project file, a missing carried release, or a lexicon failure naming the carried file. `model query` exits 1 when no record holds the id.
 
-## Findings and Diagnostic Codes
+### Findings and Diagnostic Codes
 
 Model findings carry one reporting shape, shared with the authoring diagnostics the maintainer tool emits: a stable code, a one-sentence message, a file path, and a 1-based line. Human output prints one line per finding to standard error. JSON output prints one object to standard output so a caller never parses the human lines back apart.
 
-`Checker.Codes` in `Model/Checker.cs` lists every model finding code. The full table of codes and meanings lives on the [Model Builder](../../docs/tools/model.md) page. `Finding` carries `Code`, `Message`, `Path` as an absolute path, `Line`, and `Subject` as the record id the finding is about, or null. `Check` sorts findings by path, line, code, and message so parallel checks print in the same order on every run, then `Suppress` partitions open findings from known ones. A `known-gap` record covers a finding when its `check` equals the finding code, its `subject` lists the finding subject, and its end date has not passed. `model check` prints `path:line [code] message` per open finding and `path:line [known code] message` per covered one, then `N findings, M known.` JSON output writes `findings` and `known` arrays of `code`, `message`, `path`, `line`, and `subject` objects. Covered findings exit 0. Open findings and expired gaps exit 1.
+`Checker.Codes` in `Model/Checker.cs` lists every model finding code, and the [Model Builder](../../docs/tools/model.md) page gives each code its meaning. `Finding` carries `Code`, `Message`, `Path` as an absolute path, `Line`, and `Subject` as the record id the finding is about, or null. `Check` sorts findings by path, line, code, and message so parallel checks print in the same order on every run. A departure covers a finding when its `covers` names the finding code, its page, or its provision and its `subject` or `paths` match the finding; a covered finding reports outcome `covered` and exits 0, until the departure passes its `expiresOn` date. `model check` prints `path:line [code] message` per open finding, then `N findings, M blocking, K covered.`. Its JSON output writes `findings` and `covered` arrays, and the model command page lists each field. An open blocking finding exits 1, and a departure past its date reports `departure-expired`, which blocks the run.
 
 The consumer pass reports every finding with its code, message, path, and line, in the same shape as model findings, so `model check` prints one line per finding and writes one JSON object whatever the finding's pass.
 
-## Release and Consumer Roots
+### Release and Consumer Roots
 
 Two roots meet in most commands: the LiteSpec release the tool carries, and the repository under check.
 
-`LiteSpecHome` finds the release from the tool binary, not from the working directory, so the tool resolves the release it carries beside its binary at any working directory. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command converts that into exit 2 with its usage text. `Version` reads the `version` field for `--version` and for the `reviewedLiteSpecVersion` stamp that `init` writes. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/Cli.cs`, so every test runs against this repository.
+`LiteSpecHome` finds the release from the tool binary, not from the working directory, so the tool resolves the release it carries beside its binary at any working directory. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.yaml`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.yaml.` when no release resolves, and each command converts that into exit 2 with its usage text. `Version` reads the `version` field for `--version` and for the `reviewedLiteSpecVersion` stamp that `init` writes. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/TestCli.cs`, so every test runs against this repository.
 
 `model` reads the consumer repository at `--root`, which defaults to the working directory, and refuses a root without `.litespec/project.yaml` with `Root '<root>' holds no .litespec/project.yaml.` and exit 2. It then loads `ConsumerConfig` from that file: record roots, application, domain, web API, and infrastructure roots, test roots, frontends, API client sources, test results directory, size, shape, and stacks. The builder reads shared provisions from the release docs the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. `book` takes `--root` and `--out <folder>`, builds the model in memory from the consumer root, and reads its words from the carried release.
 
-## Test Harness and Fixtures
+### Test Harness and Fixtures
 
-The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project targets the CLI binary as a project reference, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. One folder covers each area: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`. `Support/Cli.cs` runs the built `litespec.dll` with `dotnet` as its own process, the way a consumer runs the tool, and asserts the exit code with both streams. With `LITESPEC_TEST_EXECUTABLE` set to a native `litespec` executable, it runs that executable instead, so the same suite proves a native build; CI sets it on every platform. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Fixture` for a path under `Fixtures/` and `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message and a documented exit code, never an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
+The tests live in `apps/cli/tests/LiteSpec.Cli.Tests/`. The test project targets the CLI binary as a project reference, uses `xunit.v3`, and excludes `Fixtures/**` from compilation so fixture files stay data. One folder covers each area: `Authoring/` for the `new` and `rename` tests, `Consumer/` and `Ui/` for the two passes inside `model check`, `Model/`, `Book/`, and `Init/`. `Support/TestCli.cs` runs the built `litespec.dll` with `dotnet` as its own process, the way a consumer runs the tool, and asserts the exit code with both streams. With `LITESPEC_TEST_EXECUTABLE` set to a native `litespec` executable, it runs that executable instead, so the same suite proves a native build; CI sets it on every platform. It sets `LITESPEC_HOME` to the repository root, finds the root by walking up for `litespec.manifest.yaml`, and offers `Fixture` for a path under `Fixtures/` and `Temp` for a fresh folder that is deleted on dispose unless `KEEP_FIXTURE` is set. `Support/InputErrorTests.cs` proves that ordinary user error reaches a message and a documented exit code, never an unhandled exception: a malformed project file, a missing project file, and an equals-form book option.
 
-Model tests start from `Model/ModelFixture.cs` and `Fixtures/Model/`. `small/` is a library loans system at size small with one module, three business records, eight use cases, and one open known gap; seven use cases have handlers and the eighth is covered by the gap. `large/` holds the same records plus problems, features, journeys, one case per use case, constraints, research, limits, runbooks, and a frontend route that imports a generated client operation. Both fixtures exit 0 under `model check`. `Fixtures/Model/README.md` documents the contents, the finding codes, and the overlay mechanism. `broken/<code>/` holds one overlay per finding code with only the files that differ from `large/`; `Prepare` copies `large/` to a temp folder, copies the overlay over it, deletes the paths in `DELETES.txt` when present, and returns the folder. `ModelCheckTests.cs` runs one theory row per code and expects exit 1 with that code. `WriteKnownGap` adds a covering gap for the suppression tests. `junit/` and `trx/` hold sample test results the proof checks read.
+Model tests start from `Model/ModelFixture.cs` and `Fixtures/Model/`. `small/` is a library loans system at size small with one module, three business records, eight use cases, and one open known gap; seven use cases have handlers and the eighth is covered by the gap. `large/` holds the same records plus problems, features, journeys, one case per use case, constraints, research, limits, runbooks, and a frontend route that imports a generated client operation. Both fixtures exit 0 under `model check`. `Fixtures/Model/README.md` documents the contents, the finding codes, and the overlay mechanism. `broken/<code>/` holds one overlay per finding code with only the files that differ from `large/`; `Prepare` copies `large/` to a temp folder, copies the overlay over it, deletes the paths in `DELETES.txt` when present, and returns the folder. `ModelCheckTests.cs` runs one theory row per code and expects exit 1 with that code. `junit/` and `trx/` hold sample test results the proof checks read.
 
 Book command tests run `book --root` against a temp copy of the `small` model fixture. Content tests write the book in-process from the frozen `Fixtures/Book/model.json` and `Fixtures/Book/review.json` through `BookTestBooks`, and assert the generated shell and shards.
 
 To add a fixture repository for a new case, follow the harness the area already uses. For a new model finding, copy `large/` by hand into a new `broken/<code>/` overlay that holds only the differing files, add `DELETES.txt` with one relative path per line when the case deletes files, and add the code to the theory list in `ModelCheckTests.cs`. For a new authoring rule, follow the maintainer test harness in the [maintainer tool](../maintain/README.md). For a new book shape, extend the frozen review model only when the shape needs a new record type, and keep the existing files byte-identical otherwise. For new command behavior, extend the command tests against the `small` fixture.
 
-## Common Changes
+### Common Changes
 
-### Add a Command
+#### Add a Command
 
 1. Add the usage text as a `Usage` constant on the new command class, with synopsis, options, and exit codes in the shape of the neighboring commands.
 2. Add the dispatch arm in `Program.cs` and route unknown subcommands to exit 2 with the usage text.
@@ -111,23 +111,23 @@ To add a fixture repository for a new case, follow the harness the area already 
 5. Write human lines to standard output or error and one JSON object to standard output under `--format json`, using `CliJson`. Build the object as a `JsonObject`, never as an anonymous object or a type the serializer reads by reflection: the native build has no reflection, and the build fails on a call that needs it.
 6. Document the command on a new page under `docs/tools/` with the command page sections, and link it from `docs/tools/README.md`.
 
-### Add a Model Finding
+#### Add a Model Finding
 
 1. Add the code to `Checker.Codes` in `Model/Checker.cs`.
 2. Append the finding with its absolute path, 1-based line, message, and subject record id to the `findings` list in the matching `Check*` method. Keep the message to one sentence that names the record and the fix.
-3. Honor known gaps: findings with a null subject always stay open; findings with a subject are suppressible by a `known-gap` record whose `check` equals the code and whose `subject` lists the id. Add `known-gap-expired` when a gap passes its end date with the check still red, and `gap-finding-unknown` when a gap names a code no check uses.
-4. Add a `broken/<code>/` overlay under `Fixtures/Model/` with only the differing files, and add the code to `FindingCodeList` in `Model/ModelCheckTests.cs`. Add the open-gap and expired-gap rows when the finding is suppressible.
+3. Keep departures honest: a finding with a null subject always stays open, and a departure covers a finding only by the `covers` rule the [departures page](../../docs/core/departures.md) states. Add a `departure-invalid` case when a departure names a code no check emits.
+4. Add a `broken/<code>/` overlay under `Fixtures/Model/` with only the differing files, add the code to the theory list in `Model/ModelCheckTests.cs`, and document the code in the finding table on the [Model Builder](../../docs/tools/model.md) page.
 5. Document the code and its meaning in the finding table on the [Model Builder](../../docs/tools/model.md) page.
 
-### Change a Message
+#### Change a Message
 
 1. Edit the message at its emission site, not in the test. Keep it to one sentence, name the file or record and the action the reader takes next.
 2. Update every test that asserts the old text, including `Support/InputErrorTests.cs` when the message covers user error.
 3. Check that JSON output needs no change: messages stay inside `message` fields, and codes, paths, and field names stay stable. Rename a code only as a new code with a new overlay, never by editing the old string in place.
 
-## Native Build
+### Native Build
 
-The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.Shared` sets `IsAotCompatible` for the same analyzers. `PublishAot` itself applies only to a pack or publish for a platform and to the top-level package, so a plain build restores no compiler. A call that needs runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release; `Sha256Tests` fails on any use of that namespace in the CLI or the shared library.
+The CLI compiles ahead of time with .NET Native AOT into one executable per platform that needs no .NET runtime. `LiteSpec.Cli.csproj` runs the trim, AOT, and single-file analyzers in every build, and `LiteSpec.Shared` sets `IsAotCompatible` for the same analyzers. `PublishAot` itself applies only to a pack or publish for a platform and to the top-level package, so a plain build restores no compiler. A call that needs runtime code, such as `JsonSerializer.Serialize` of an anonymous object, fails `dotnet build`. Every command therefore builds its JSON as a `JsonNode` tree and writes it with `CliJson`; `CliJson.Strings` and `CliJson.StringLists` build the common arrays. `JsonArray.Add` binds to its generic overload, which needs runtime code, for an argument typed as anything narrower than `JsonNode`, so cast the argument: `items.Add((JsonNode)new JsonObject { ... })`. `IL3000` is suppressed for one Roslyn method the CLI never calls, `CommonCompiler.GetAssemblyLocation`, and the CLI finds its own folder through `AppContext.BaseDirectory`. `InvariantGlobalization` leaves ICU out, because the CLI compares text ordinally and formats with the invariant culture. The CLI hashes with `Sha256`, its own SHA-256, because `System.Security.Cryptography` runs through OpenSSL on Linux, and a native executable would then start only where .NET loads an OpenSSL release;
 
 Native AOT compiles only for the operating system it runs on, with the platform linker: the Visual Studio C++ build tools on Windows, Xcode on macOS, and `clang` with `zlib` on Linux. Build and test a native executable for this machine:
 
@@ -138,7 +138,7 @@ LITESPEC_TEST_EXECUTABLE=artifacts/native/litespec.exe dotnet test --project app
 
 A pack or publish for a platform restores `Microsoft.DotNet.ILCompiler` at the runtime version the SDK bundles, so `global.json` sets the lowest SDK whose bundled runtime has no published advisory. That restore also adds the platform's packages to the lock file; run `dotnet restore LiteSpec.slnx --force-evaluate` before committing, which leaves only `Microsoft.NET.ILLink.Tasks`, the analyzers' package, at the bundled runtime version.
 
-## Packing
+### Packing
 
 `LiteSpec.Cli.csproj` sets `PackAsTool` to `true` with `ToolCommandName` `litespec`, so packing produces the `LiteSpec.Cli` tool packages described as `The LiteSpec command line: consumer and UI validation, the project model, and the project book.` `ToolPackageRuntimeIdentifiers` names the platforms. Three pack commands make the packages:
 

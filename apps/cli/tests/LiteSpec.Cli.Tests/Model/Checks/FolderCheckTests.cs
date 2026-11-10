@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
 using LiteSpec.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the folder checks: every folder is one of the closed set of its layer and level, every module folder names a declared module, and every record sits in the folder and level its type allows, at tier G.</summary>
 public sealed class FolderCheckTests
@@ -11,9 +11,9 @@ public sealed class FolderCheckTests
     /// <summary>Closed Intent Folders Pass.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Closed_Intent_Folders_Pass()
+    public void ClosedIntentFoldersPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "goals");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "features");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals");
@@ -28,9 +28,9 @@ public sealed class FolderCheckTests
     /// <summary>Intent Unknown Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Intent_Unknown_Folder_Reports()
+    public void IntentUnknownFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var directory = DirAt(temp.Path, ".litespec", "intent", "writing");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -45,9 +45,9 @@ public sealed class FolderCheckTests
     /// <summary>Governance Known Gaps Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Governance_Known_Gaps_Reports()
+    public void GovernanceKnownGapsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "governance", "known-gaps");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -60,9 +60,9 @@ public sealed class FolderCheckTests
     /// <summary>Behavior Unknown Module Subfolder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Behavior_Unknown_Module_Subfolder_Reports()
+    public void BehaviorUnknownModuleSubfolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending", "widgets");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -78,9 +78,9 @@ public sealed class FolderCheckTests
     /// <summary>Behavior Aggregate Folder Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Behavior_Aggregate_Folder_Passes()
+    public void BehaviorAggregateFolderPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
@@ -94,9 +94,9 @@ public sealed class FolderCheckTests
     /// <summary>An aggregate folder named events, in a module with aggregate folders, holds its aggregate.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Events_Aggregate_Folder_In_Module_Passes()
+    public void EventsAggregateFolderInModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "events", "events", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/events.event\ntitle: Event\n");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "events", "module.yaml");
@@ -111,9 +111,9 @@ public sealed class FolderCheckTests
     /// <summary>Behavior Operations Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Behavior_Operations_Folder_Reports()
+    public void BehaviorOperationsFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "operations");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -126,9 +126,9 @@ public sealed class FolderCheckTests
     /// <summary>Implementation Ui Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Implementation_Ui_Folder_Reports()
+    public void ImplementationUiFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "implementation", "ui");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -141,9 +141,9 @@ public sealed class FolderCheckTests
     /// <summary>Type Folder Child Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Type_Folder_Child_Reports()
+    public void TypeFolderChildReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "goals", "archive");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -156,9 +156,9 @@ public sealed class FolderCheckTests
     /// <summary>Unknown Top Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Unknown_Top_Folder_Reports()
+    public void UnknownTopFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "product");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -171,9 +171,9 @@ public sealed class FolderCheckTests
     /// <summary>Proof And Generated Folders Skipped.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Proof_And_Generated_Folders_Skipped()
+    public void ProofAndGeneratedFoldersSkipped()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "proof", "registers", "deep");
         DirAt(temp.Path, ".litespec", "model", "shards");
         DirAt(temp.Path, ".litespec", "book", "pages");
@@ -185,9 +185,9 @@ public sealed class FolderCheckTests
     /// <summary>Implementation Entry Point Nesting Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Implementation_Entry_Point_Nesting_Passes()
+    public void ImplementationEntryPointNestingPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "implementation", "entry-points", "library-app", "catalog");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -197,9 +197,9 @@ public sealed class FolderCheckTests
     /// <summary>Implementation Module Unknown Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Implementation_Module_Unknown_Folder_Reports()
+    public void ImplementationModuleUnknownFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "implementation", "modules", "lending", "widgets");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -215,9 +215,9 @@ public sealed class FolderCheckTests
     /// <summary>Governance Module Unknown Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Governance_Module_Unknown_Folder_Reports()
+    public void GovernanceModuleUnknownFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "governance", "modules", "lending", "reviews");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -233,9 +233,9 @@ public sealed class FolderCheckTests
     /// <summary>Intent Module Actors Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Intent_Module_Actors_Folder_Reports()
+    public void IntentModuleActorsFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "actors");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -251,9 +251,9 @@ public sealed class FolderCheckTests
     /// <summary>Behavior Module Events Folder Reports When Not Flat.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Behavior_Module_Events_Folder_Reports_When_Not_Flat()
+    public void BehaviorModuleEventsFolderReportsWhenNotFlat()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending", "events");
         var loans = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
         File.WriteAllText(loans, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
@@ -275,9 +275,9 @@ public sealed class FolderCheckTests
     /// <summary>Behavior Module Events Folder Passes When Flat.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Behavior_Module_Events_Folder_Passes_When_Flat()
+    public void BehaviorModuleEventsFolderPassesWhenFlat()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "posts", "events");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "posts", "module.yaml");
         var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "aggregate.yaml");
@@ -292,9 +292,9 @@ public sealed class FolderCheckTests
     /// <summary>Declared Module Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Declared_Module_Passes()
+    public void DeclaredModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending");
         DirAt(temp.Path, ".litespec", "implementation", "modules", "lending");
@@ -310,9 +310,9 @@ public sealed class FolderCheckTests
     /// <summary>Undeclared Behavior Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Undeclared_Behavior_Module_Reports()
+    public void UndeclaredBehaviorModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var directory = DirAt(temp.Path, ".litespec", "behavior", "modules", "ghost");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -327,9 +327,9 @@ public sealed class FolderCheckTests
     /// <summary>Undeclared Intent Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Undeclared_Intent_Module_Reports()
+    public void UndeclaredIntentModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "modules", "ghost");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
@@ -342,9 +342,9 @@ public sealed class FolderCheckTests
     /// <summary>Undeclared Modules Report Per Folder.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Undeclared_Modules_Report_Per_Folder()
+    public void UndeclaredModulesReportPerFolder()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "implementation", "modules", "ghost");
         DirAt(temp.Path, ".litespec", "governance", "modules", "ghost");
         var model = TestModel.Model(TestModel.Config(temp.Path));
@@ -355,9 +355,9 @@ public sealed class FolderCheckTests
     /// <summary>Feature At Product Level Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Feature_At_Product_Level_Reports()
+    public void FeatureAtProductLevelReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "goals", "stray-feature.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -374,9 +374,9 @@ public sealed class FolderCheckTests
     /// <summary>Journey Under Module Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Journey_Under_Module_Reports()
+    public void JourneyUnderModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-journey.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -393,9 +393,9 @@ public sealed class FolderCheckTests
     /// <summary>Actor Under Module Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Actor_Under_Module_Reports()
+    public void ActorUnderModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-actor.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -412,9 +412,9 @@ public sealed class FolderCheckTests
     /// <summary>Role Under Module Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Role_Under_Module_Reports()
+    public void RoleUnderModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-role.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -431,9 +431,9 @@ public sealed class FolderCheckTests
     /// <summary>Requirement Outside Features Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Requirement_Outside_Features_Reports()
+    public void RequirementOutsideFeaturesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "problems", "stray-requirement.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -448,9 +448,9 @@ public sealed class FolderCheckTests
     /// <summary>Use Case Directly Under Module Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Use_Case_Directly_Under_Module_Reports()
+    public void UseCaseDirectlyUnderModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "stray.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -467,9 +467,9 @@ public sealed class FolderCheckTests
     /// <summary>Use Case Placed Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Use_Case_Placed_Passes()
+    public void UseCasePlacedPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
         var underAggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
@@ -488,9 +488,9 @@ public sealed class FolderCheckTests
     /// <summary>Screen Outside Entry Points Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Screen_Outside_Entry_Points_Reports()
+    public void ScreenOutsideEntryPointsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "reactions", "loans.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -507,9 +507,9 @@ public sealed class FolderCheckTests
     /// <summary>Screen Placed Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Screen_Placed_Passes()
+    public void ScreenPlacedPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "loans.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -521,9 +521,9 @@ public sealed class FolderCheckTests
     /// <summary>Rule In Module Yaml Reports.</summary>
     /// <proves>litespec/core/model#hold-module-rules-in-rule-sets</proves>
     [Fact]
-    public void Rule_In_Module_Yaml_Reports()
+    public void RuleInModuleYamlReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -541,9 +541,9 @@ public sealed class FolderCheckTests
     /// <summary>Module Holding Rules Field Reports.</summary>
     /// <proves>litespec/core/model#hold-module-rules-in-rule-sets</proves>
     [Fact]
-    public void Module_Holding_Rules_Field_Reports()
+    public void ModuleHoldingRulesFieldReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -560,9 +560,9 @@ public sealed class FolderCheckTests
     /// <summary>Module Placed Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Module_Placed_Passes()
+    public void ModulePlacedPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -574,9 +574,9 @@ public sealed class FolderCheckTests
     /// <summary>Runbook In Behavior Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Runbook_In_Behavior_Reports()
+    public void RunbookInBehaviorReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "rules", "clear-stuck-holds.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -591,9 +591,9 @@ public sealed class FolderCheckTests
     /// <summary>Runbook Placed Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Runbook_Placed_Passes()
+    public void RunbookPlacedPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var product = PathAt(temp.Path, ".litespec", "implementation", "runbooks", "clear-stuck-holds.yaml");
         var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
@@ -609,9 +609,9 @@ public sealed class FolderCheckTests
     /// <summary>Record Under Proof Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Record_Under_Proof_Reports()
+    public void RecordUnderProofReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "proof", "registers", "old-goal.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -626,9 +626,9 @@ public sealed class FolderCheckTests
     /// <summary>Decision In Implementation Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Decision_In_Implementation_Passes()
+    public void DecisionInImplementationPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var product = PathAt(temp.Path, ".litespec", "implementation", "decisions", "0002-render-engine.yaml");
         var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0003-nightly-scan.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
@@ -644,9 +644,9 @@ public sealed class FolderCheckTests
     /// <summary>Permission Misplaced Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Permission_Misplaced_Reports()
+    public void PermissionMisplacedReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "reactions", "borrow-copy.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
@@ -663,9 +663,9 @@ public sealed class FolderCheckTests
     /// <summary>Flat Module Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Flat_Module_Passes()
+    public void FlatModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "aggregate.yaml");
         var useCaseFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "create-post.yaml");
         var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "posts", "module.yaml");
@@ -682,9 +682,9 @@ public sealed class FolderCheckTests
     /// <summary>Valid Layout Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Valid_Layout_Passes()
+    public void ValidLayoutPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var root = temp.Path;
         var aggregate = PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
@@ -735,9 +735,9 @@ public sealed class FolderCheckTests
     /// <summary>Term Outside Glossary Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Term_Outside_Glossary_Reports()
+    public void TermOutsideGlossaryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "goals", "stray-term.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -752,9 +752,9 @@ public sealed class FolderCheckTests
     /// <summary>Term In Glossary Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Term_In_Glossary_Passes()
+    public void TermInGlossaryPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "glossary.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -766,9 +766,9 @@ public sealed class FolderCheckTests
     /// <summary>Record Outside Record Roots Skipped.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Record_Outside_Record_Roots_Skipped()
+    public void RecordOutsideRecordRootsSkipped()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{}"""));
@@ -779,9 +779,9 @@ public sealed class FolderCheckTests
     /// <summary>Derived Record Skipped.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Derived_Record_Skipped()
+    public void DerivedRecordSkipped()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "proof", "register.yaml");
         using var document = JsonDocument.Parse("{}");
         var derived = new LiteSpec.Model.Record

@@ -10,6 +10,9 @@ namespace LiteSpec.Authoring;
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed partial class PageValidator
 {
+    /// <summary>The most options a pattern offers: its Default and two more.</summary>
+    private const int MaxPatternOptions = 3;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="PageValidator"/> class.
     /// </summary>
@@ -27,7 +30,7 @@ internal sealed partial class PageValidator
 
     // A page's location names its class. Four areas hold pages a reader follows or
     // looks up rather than pages that own provisions, and each one answers a
-    // question at a single layer. (litespec/core/authoring#state-one-layer-per-page)
+    // question at a single layer. (litespec/core/authoring#state-one-tier-per-page)
 
     // The words that stay lowercase inside a Title Case heading, unless first or
     // last: articles, coordinating conjunctions, and prepositions of four letters
@@ -765,9 +768,17 @@ internal sealed partial class PageValidator
         if (kind == "pattern")
         {
             var group = Path.GetFileNameWithoutExtension(relative);
-            foreach (var (line, message) in Patterns.PatternPage.Parse(group, reader.Raw).Check())
+            var patternPage = Patterns.PatternPage.Parse(group, reader.Raw);
+            foreach (var (line, message) in patternPage.Check())
             {
                 add(relative, line, Diagnostics.Codes.PatternInvalid, message);
+            }
+
+            // A pattern offers its Default and at most two more options, so a reader
+            // chooses among three drawn options rather than a catalog of many.
+            foreach (var pattern in patternPage.Patterns.Where(pattern => pattern.Options.Count > MaxPatternOptions))
+            {
+                add(relative, pattern.Line, Diagnostics.Codes.PatternOptionCount, $"pattern '{pattern.Name}' offers {pattern.Options.Count} options; a pattern offers its Default and at most two more");
             }
         }
 

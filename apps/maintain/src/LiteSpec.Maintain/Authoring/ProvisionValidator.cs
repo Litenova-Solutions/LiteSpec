@@ -801,6 +801,14 @@ internal sealed partial class ProvisionValidator
                 add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a finding code");
             }
         }
+
+        // The model check reports findings, so its Checked by line names the finding code it
+        // reports. A line that names the command with no code states no check that a reader can read.
+        if (command.Groups[1].Value.Contains("litespec model check", StringComparison.Ordinal)
+            && !InlineCodes(evidence).Any(span => FindingCodes.IsKnown(span)))
+        {
+            add(relative, line, Diagnostics.Codes.CheckedByFindingMissing, $"Verification for '{id}' names 'litespec model check' but no finding code");
+        }
     }
 
     /// <summary>Checks the command name in one checkable verification line.</summary>
@@ -920,5 +928,5 @@ internal sealed partial class ProvisionValidator
     /// <summary>Gets the pattern that matches a consumer finding code.</summary>
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"^[a-z0-9]+(?:-[a-z0-9]+)*-(?:missing|unknown|undeclared|unrecorded|unimplemented|unreached|drift|invalid|duplicate|clash|expired|reopened)$")]
-    private static partial Regex FindingCodePattern();
+    internal static partial Regex FindingCodePattern();
 }

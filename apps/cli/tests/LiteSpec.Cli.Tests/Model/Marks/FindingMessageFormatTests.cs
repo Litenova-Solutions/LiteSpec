@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 using Record = LiteSpec.Model.Record;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves every finding message from the code-side checkers starts with a subject title and quoted identifier.</summary>
 public sealed class FindingMessageFormatTests
@@ -30,9 +30,9 @@ public sealed class FindingMessageFormatTests
     /// <summary>Code Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void Code_Messages_Start_With_A_Subject_And_Identifier()
+    public void CodeMessagesStartWithASubjectAndIdentifier()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = CodeModel(temp.Path);
 
         var codes = new HashSet<string>(StringComparer.Ordinal)
@@ -53,9 +53,9 @@ public sealed class FindingMessageFormatTests
     /// <summary>Contract And Template Store Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void Contract_And_Template_Store_Messages_Start_With_A_Subject_And_Identifier()
+    public void ContractAndTemplateStoreMessagesStartWithASubjectAndIdentifier()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"owners": ["lending-team"], "paths": {"contract": "missing.json"}, "stackConfig": {"dotnet": {"templateStore": "MessageTemplates.cs"}}}""");
@@ -73,7 +73,7 @@ public sealed class FindingMessageFormatTests
     /// <summary>Mark Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void Mark_Messages_Start_With_A_Subject_And_Identifier()
+    public void MarkMessagesStartWithASubjectAndIdentifier()
     {
         var findings = new List<Finding>();
 
@@ -101,9 +101,9 @@ public sealed class FindingMessageFormatTests
     /// <summary>Screen Setting Constituent And Record Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void Screen_Setting_Constituent_And_Record_Messages_Start_With_A_Subject_And_Identifier()
+    public void ScreenSettingConstituentAndRecordMessagesStartWithASubjectAndIdentifier()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = MixedModel(temp.Path);
 
         var codes = new HashSet<string>(StringComparer.Ordinal)

@@ -1,9 +1,9 @@
-using LiteSpec.Tests.Consumer;
+using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Claims;
+namespace LiteSpec.Cli.Tests.Model.Claims;
 
 /// <summary>Proves a project in its own code layout, with two web hosts and smoke proof from a JUnit file, checks and renders under its layer claims.</summary>
 public sealed class PartialAdopterTests
@@ -14,11 +14,11 @@ public sealed class PartialAdopterTests
     [Theory]
     [InlineData("intent-and-behavior")]
     [InlineData("own-code-and-proof")]
-    public void Partial_Adopter_Check_Has_No_Blocking_Findings(string claim)
+    public void PartialAdopterCheckHasNoBlockingFindings(string claim)
     {
         using var fixture = Prepare(claim);
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.True(result.Status == 0, result.Output);
         Assert.Equal(0, BlockingCount(result.Stdout));
@@ -34,11 +34,11 @@ public sealed class PartialAdopterTests
     /// <summary>Under own code and proof the partial adopter reads both web hosts and the JUnit smoke proof, so no use case is unimplemented, unreached by an endpoint or unverified.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Own_Code_And_Proof_Partial_Adopter_Reads_Both_Hosts_And_JUnit_Proof()
+    public void OwnCodeAndProofPartialAdopterReadsBothHostsAndJUnitProof()
     {
         using var fixture = Prepare("own-code-and-proof");
 
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
 
         Assert.True(result.Status == 0, result.Output);
 
@@ -61,13 +61,13 @@ public sealed class PartialAdopterTests
     [Theory]
     [InlineData("intent-and-behavior", "intent=litespec,behavior=litespec")]
     [InlineData("own-code-and-proof", "intent=litespec,behavior=litespec,implementation=own,proof=own")]
-    public void Partial_Adopter_Book_Renders(string claim, string expected)
+    public void PartialAdopterBookRenders(string claim, string expected)
     {
         using var fixture = Prepare(claim);
-        using var temp = Cli.Temp("partial-adopter-book");
+        using var temp = TestCli.Temp("partial-adopter-book");
         var outDir = Path.Combine(temp.Path, "out");
 
-        var result = Cli.Run("book", "--root", fixture.Path, "--out", outDir);
+        var result = TestCli.Run("book", "--root", fixture.Path, "--out", outDir);
 
         Assert.Equal(0, result.Status);
         Assert.True(File.Exists(Path.Combine(outDir, "index.html")), "index.html was not written.");
@@ -84,11 +84,11 @@ public sealed class PartialAdopterTests
     /// <returns>The temp folder holding the prepared fixture; the caller deletes it.</returns>
     static TempFolder Prepare(string claim)
     {
-        var temp = Cli.Temp("partial-adopter");
+        var temp = TestCli.Temp("partial-adopter");
 
         try
         {
-            CopyContents(Cli.Fixture("partial-adopter"), temp.Path);
+            CopyContents(TestCli.Fixture("partial-adopter"), temp.Path);
             SetClaim(temp.Path, ConsumerFixture.Claim(claim));
             return temp;
         }

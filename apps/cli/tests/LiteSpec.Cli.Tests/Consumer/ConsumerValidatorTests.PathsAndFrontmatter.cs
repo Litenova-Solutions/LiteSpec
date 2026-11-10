@@ -1,12 +1,12 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for documentation paths and page frontmatter.</summary>
 public sealed partial class ConsumerValidatorTests
 {
     /// <summary>Documentation root that is on disk.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is on disk")]
     public void DocumentationRootThatIsOnDisk()
     {
@@ -16,7 +16,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Documentation root that is not on disk.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is not on disk")]
     public void DocumentationRootThatIsNotOnDisk()
     {
@@ -26,7 +26,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Documentation root that holds no Markdown.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that holds no Markdown")]
     public void DocumentationRootThatHoldsNoMarkdown()
     {
@@ -92,7 +92,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Glossary path that is not on disk.</summary>
-    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
+    /// <proves>litespec/core/language#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary path that is not on disk")]
     public void GlossaryPathThatIsNotOnDisk()
     {
@@ -116,7 +116,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page under the documentation root is scanned.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page under the documentation root is scanned")]
     public void PageUnderTheDocumentationRootIsScanned()
     {
@@ -131,7 +131,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Missing required title.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "missing required title")]
     public void MissingRequiredTitle()
     {
@@ -170,7 +170,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Result entry without its outcome.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "result entry without its outcome")]
     public void ResultEntryWithoutItsOutcome()
     {
@@ -183,7 +183,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Retired page type from the old model.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "retired page type from the old model")]
     public void RetiredPageTypeFromTheOldModel()
     {
@@ -196,7 +196,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with no frontmatter block.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with no frontmatter block")]
     public void PageWithNoFrontmatterBlock()
     {
@@ -209,7 +209,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a broken frontmatter block.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]
     public void PageWithABrokenFrontmatterBlock()
     {

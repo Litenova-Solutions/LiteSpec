@@ -252,7 +252,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Rationale:** The manifest is the version authority for the stack the standards select, so every consumer resolves the same tested combination. A version pinned in prose or remembered by an agent drifts from that authority with the next manifest change. Consumer dependencies still live in package manifests and lockfiles; only the standards-selected stack versions resolve from `litespec.manifest.yaml`.
 
-**Checked by:** `litespec model check` fails a project whose stack versions do not resolve from the manifest.
+**Checked by:** `litespec model check` reports `dependency-version-drift` for a package whose version differs from its manifest pin, and `stack-invalid` for a named stack the manifest does not ship.
 
 ### Keep Git as the Decision Record
 
@@ -346,7 +346,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Example:** A use case with no endpoint stays on its branch until the endpoint lands or a departure with `expiresOn` parks it.
 
-**Checked by:** `litespec model check` reports unreached records locally and blocks on them in the pull-request check.
+**Checked by:** `litespec model check` reports unreached records, such as `intent-unreached` and `constraint-unreached`, locally, and the pull-request check blocks on them.
 
 ### Prove Enforceable Boundaries Mechanically
 

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <RootNamespace>LiteSpec.Tests</RootNamespace>
+        <RootNamespace>LiteSpec.Cli.Tests</RootNamespace>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 

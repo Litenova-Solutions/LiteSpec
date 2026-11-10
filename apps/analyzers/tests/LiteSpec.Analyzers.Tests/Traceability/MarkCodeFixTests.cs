@@ -109,7 +109,7 @@ public sealed class MarkCodeFixTests
                 public sealed class ExpenseTests
                 {
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -125,7 +125,7 @@ public sealed class MarkCodeFixTests
                 {
                     /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -150,7 +150,7 @@ public sealed class MarkCodeFixTests
                 public sealed class ExpenseTests
                 {
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -166,7 +166,7 @@ public sealed class MarkCodeFixTests
                 {
                     /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }

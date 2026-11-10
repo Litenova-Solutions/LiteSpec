@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the advisory checks against hand-built models.</summary>
 public sealed class AdvisoryCheckTests
@@ -9,9 +9,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Use Case Without Summary Reports.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
     [Fact]
-    public void Use_Case_Without_Summary_Reports()
+    public void UseCaseWithoutSummaryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
@@ -25,9 +25,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Use Case With Summary Passes.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
     [Fact]
-    public void Use_Case_With_Summary_Passes()
+    public void UseCaseWithSummaryPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "loans.yaml"), """{"kind": "query", "summary": "A reader lists their loans."}"""));
@@ -38,9 +38,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Reaction Without Summary Reports.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
     [Fact]
-    public void Reaction_Without_Summary_Reports()
+    public void ReactionWithoutSummaryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""));
@@ -54,9 +54,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Goal Without Statement Reports.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
     [Fact]
-    public void Goal_Without_Statement_Reports()
+    public void GoalWithoutStatementReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "pickup.yaml"), """{"summary": "Readers pick up ready holds faster.", "measure": "Median pickup wait", "target": "2 days"}"""));
@@ -70,9 +70,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Goal With Summary And Statement Passes.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-every-use-case</proves>
     [Fact]
-    public void Goal_With_Summary_And_Statement_Passes()
+    public void GoalWithSummaryAndStatementPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "pickup.yaml"), """{"summary": "Readers pick up ready holds faster.", "statement": "Readers pick up ready holds faster.", "measure": "Median pickup wait", "target": "2 days"}"""));
@@ -83,9 +83,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Atomic With Two Cites Rules Reports.</summary>
     /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
-    public void Atomic_With_Two_Cites_Rules_Reports()
+    public void AtomicWithTwoCitesRulesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
@@ -96,9 +96,9 @@ public sealed class AdvisoryCheckTests
     /// <summary>Atomic With One Cites Rule Passes.</summary>
     /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
-    public void Atomic_With_One_Cites_Rule_Passes()
+    public void AtomicWithOneCitesRulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan"]}}"""));

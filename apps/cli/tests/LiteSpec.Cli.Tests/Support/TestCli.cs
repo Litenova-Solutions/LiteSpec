@@ -1,12 +1,12 @@
 using System.Diagnostics;
 
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Cli.Tests.Support;
 
 /// <summary>
 ///     Runs the built <c>litespec</c> CLI as its own process, the way a consumer
 ///     runs it, so a case proves the exit code and the printed text together.
 /// </summary>
-static class Cli
+static class TestCli
 {
     /// <summary>Gets the LiteSpec repository root, found above the test binary.</summary>
     public static string Repository { get; } = FindRepository();

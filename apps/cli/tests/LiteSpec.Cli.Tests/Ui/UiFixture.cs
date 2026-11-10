@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// A throwaway UI consumer built from the tracked templates. Each test creates its own instance
@@ -134,7 +134,7 @@ sealed class UiFixture : IDisposable
     /// <returns>The fresh fixture.</returns>
     public static UiFixture Create()
     {
-        var fixture = new UiFixture(Cli.Temp("ui"), Cli.Temp("ui-home"));
+        var fixture = new UiFixture(TestCli.Temp("ui"), TestCli.Temp("ui-home"));
         fixture.Build();
         return fixture;
     }
@@ -169,14 +169,14 @@ sealed class UiFixture : IDisposable
 
     /// <summary>Runs <c>litespec model check</c> against the fixture.</summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
-    public CliResult Run() => Cli.Run("model", "check", "--root", Root);
+    public CliResult Run() => TestCli.Run("model", "check", "--root", Root);
 
     /// <summary>
     /// Runs <c>litespec model check</c> against the fixture with the LiteSpec home pointed at the
     /// fixture release, so the pattern pages it reads are the fixture pages.
     /// </summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
-    public CliResult RunWithFixtureHome() => Cli.Run(
+    public CliResult RunWithFixtureHome() => TestCli.Run(
         ["model", "check", "--root", Root],
         null,
         new Dictionary<string, string> { ["LITESPEC_HOME"] = HomeDir });
@@ -409,8 +409,8 @@ sealed class UiFixture : IDisposable
 
         Directory.CreateDirectory(Path.Join(HomeDir, "schemas"));
         Directory.CreateDirectory(Path.Join(HomeDir, "docs", "frontend", "patterns"));
-        File.Copy(Path.Join(Cli.Repository, "litespec.manifest.yaml"), Path.Join(HomeDir, "litespec.manifest.yaml"));
-        foreach (var schema in Directory.GetFiles(Path.Join(Cli.Repository, "schemas")))
+        File.Copy(Path.Join(TestCli.Repository, "litespec.manifest.yaml"), Path.Join(HomeDir, "litespec.manifest.yaml"));
+        foreach (var schema in Directory.GetFiles(Path.Join(TestCli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Join(HomeDir, "schemas", Path.GetFileName(schema)));
         }
@@ -419,14 +419,14 @@ sealed class UiFixture : IDisposable
         // pattern page they read is this fixture rather than the release's own pages.
         File.WriteAllText(FixturePatternPage, FixturePatternPageText);
 
-        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/project.yaml"))!;
+        var project = (JsonObject)ReadJson(Path.Join(TestCli.Repository, "templates/consumer/project.yaml"))!;
         ResolvePlaceholders(project);
         var uiPackage = (JsonObject)project["ui"]!["package"]!;
         uiPackage["name"] = "@fixture/ui";
         uiPackage["publicExports"] = new JsonArray("@fixture/ui/floorplans");
         WriteJson(ProjectFile, project);
 
-        var sourceLock = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-source-lock.yaml"))!;
+        var sourceLock = (JsonObject)ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-source-lock.yaml"))!;
         WriteJson(LockFile, sourceLock);
 
         File.WriteAllText(Join("packages/ui/src/components/button.tsx"), ButtonSource);
@@ -439,13 +439,13 @@ sealed class UiFixture : IDisposable
 
         WriteJson(ComponentsFile, ComponentsJson());
 
-        var contract = File.ReadAllText(Path.Join(Cli.Repository, "templates/consumer/design-contract.md"));
+        var contract = File.ReadAllText(Path.Join(TestCli.Repository, "templates/consumer/design-contract.md"));
         File.WriteAllText(DesignFile, contract.Replace("__PROJECT__", "fixture", StringComparison.Ordinal));
 
         // The catalog travels with the consumer: the fixture copies the shipped template
         // to the path the project file names, then creates every source path the catalog
         // names, so the baseline proves the template as shipped.
-        var catalog = ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-pattern-catalog.yaml"))!;
+        var catalog = ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-pattern-catalog.yaml"))!;
         WriteJson(CatalogFile, catalog);
         foreach (var pattern in (JsonArray)catalog["patterns"]!)
         {

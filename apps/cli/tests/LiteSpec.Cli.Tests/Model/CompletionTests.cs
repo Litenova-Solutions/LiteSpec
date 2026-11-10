@@ -1,8 +1,8 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the builder computes the completion stage of every requirement, use case, journey, feature and goal.</summary>
 /// <follows>litespec/core/model#compute-completion-in-the-builder</follows>
@@ -11,9 +11,9 @@ public sealed class CompletionTests
     /// <summary>A requirement with no fulfiller is unfulfilled and holds itself.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_With_No_Fulfiller_Is_Unfulfilled()
+    public void RequirementWithNoFulfillerIsUnfulfilled()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"));
@@ -31,9 +31,9 @@ public sealed class CompletionTests
     /// <summary>A requirement whose fulfiller has no code is specified.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_With_Fulfiller_Without_Code_Is_Specified()
+    public void RequirementWithFulfillerWithoutCodeIsSpecified()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -52,9 +52,9 @@ public sealed class CompletionTests
     /// <summary>A requirement with code for every fulfiller and no test run is coded with proof unknown.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_Coded_With_No_Test_Run_Reads_Proof_Unknown()
+    public void RequirementCodedWithNoTestRunReadsProofUnknown()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -75,9 +75,9 @@ public sealed class CompletionTests
     /// <summary>A requirement verified with fresh proof is verified with proof known.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_Verified_With_Test_Run_Reads_Proof_Known()
+    public void RequirementVerifiedWithTestRunReadsProofKnown()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -99,9 +99,9 @@ public sealed class CompletionTests
     /// <summary>A journey is as far as its weakest step, and the unserved step holds it.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Journey_Is_As_Far_As_Its_Weakest_Step()
+    public void JourneyIsAsFarAsItsWeakestStep()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrowing-a-copy", Path.Combine(temp.Path, "journey.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
@@ -123,9 +123,9 @@ public sealed class CompletionTests
     /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap departure names it: completion follows proof alone.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Feature_With_Unfulfilled_Requirement_Ignores_Its_Gap_Departure()
+    public void FeatureWithUnfulfilledRequirementIgnoresItsGapDeparture()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
@@ -149,9 +149,9 @@ public sealed class CompletionTests
     /// <summary>A feature with an unfulfilled requirement and no gap is unfulfilled, held by that requirement.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Feature_With_Unfulfilled_Requirement_Is_Unfulfilled()
+    public void FeatureWithUnfulfilledRequirementIsUnfulfilled()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
@@ -168,9 +168,9 @@ public sealed class CompletionTests
     /// <summary>A goal is as far as its weakest feature.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Goal_Is_As_Far_As_Its_Weakest_Feature()
+    public void GoalIsAsFarAsItsWeakestFeature()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/borrow", Path.Combine(temp.Path, "goal.yaml"), "{}"),

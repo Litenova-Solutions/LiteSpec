@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the reach checks against hand-built models.</summary>
 public sealed class ReachCheckTests
@@ -9,9 +9,9 @@ public sealed class ReachCheckTests
     /// <summary>Problem Without Solver Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Problem_Without_Solver_Reports_Intent_Unreached()
+    public void ProblemWithoutSolverReportsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"));
@@ -22,9 +22,9 @@ public sealed class ReachCheckTests
     /// <summary>Problem Solved By Reaching Feature Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Problem_Solved_By_Reaching_Feature_Passes()
+    public void ProblemSolvedByReachingFeaturePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
@@ -38,9 +38,9 @@ public sealed class ReachCheckTests
     /// <summary>Problem Cited By Reaching Requirement Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Problem_Cited_By_Reaching_Requirement_Passes()
+    public void ProblemCitedByReachingRequirementPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
@@ -53,9 +53,9 @@ public sealed class ReachCheckTests
     /// <summary>Feature Without Reaching Requirement Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Feature_Without_Reaching_Requirement_Reports_Intent_Unreached()
+    public void FeatureWithoutReachingRequirementReportsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
@@ -67,9 +67,9 @@ public sealed class ReachCheckTests
     /// <summary>Feature With Reaching Requirement Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Feature_With_Reaching_Requirement_Passes()
+    public void FeatureWithReachingRequirementPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
@@ -82,9 +82,9 @@ public sealed class ReachCheckTests
     /// <summary>Requirement Without Fulfiller Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Requirement_Without_Fulfiller_Reports_Intent_Unreached()
+    public void RequirementWithoutFulfillerReportsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""));
@@ -95,9 +95,9 @@ public sealed class ReachCheckTests
     /// <summary>Requirement Fulfilled Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Requirement_Fulfilled_Passes()
+    public void RequirementFulfilledPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
@@ -109,9 +109,9 @@ public sealed class ReachCheckTests
     /// <summary>Requirement Cited By Journey Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Requirement_Cited_By_Journey_Passes()
+    public void RequirementCitedByJourneyPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
@@ -123,9 +123,9 @@ public sealed class ReachCheckTests
     /// <summary>Research Without Citer Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Research_Without_Citer_Reports_Intent_Unreached()
+    public void ResearchWithoutCiterReportsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"));
@@ -136,9 +136,9 @@ public sealed class ReachCheckTests
     /// <summary>Research Cited By Reaching Requirement Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Research_Cited_By_Reaching_Requirement_Passes()
+    public void ResearchCitedByReachingRequirementPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
@@ -151,9 +151,9 @@ public sealed class ReachCheckTests
     /// <summary>Research Cited By Served Journey Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Research_Cited_By_Served_Journey_Passes()
+    public void ResearchCitedByServedJourneyPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
@@ -166,9 +166,9 @@ public sealed class ReachCheckTests
     /// <summary>Decision Deciding Unreached Record Reports Intent Unreached.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Decision_Deciding_Unreached_Record_Reports_Intent_Unreached()
+    public void DecisionDecidingUnreachedRecordReportsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
@@ -180,9 +180,9 @@ public sealed class ReachCheckTests
     /// <summary>A use case another use case runs needs no journey of its own.</summary>
     /// <proves>litespec/core/model#connect-every-behavior-record-to-intent</proves>
     [Fact]
-    public void Use_Case_Run_By_Another_Skips_Journey_Missing()
+    public void UseCaseRunByAnotherSkipsJourneyMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), """{"owners": ["lending-team"], "size": "large"}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -198,9 +198,9 @@ public sealed class ReachCheckTests
     /// <summary>A technical decision under a module skips the Intent reach rule.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Module_Technical_Decision_Skips_Intent_Unreached()
+    public void ModuleTechnicalDecisionSkipsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var decisions = Path.Combine(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -213,9 +213,9 @@ public sealed class ReachCheckTests
     /// <summary>Decision Deciding Reaching Record Passes.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Decision_Deciding_Reaching_Record_Passes()
+    public void DecisionDecidingReachingRecordPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
@@ -228,9 +228,9 @@ public sealed class ReachCheckTests
     /// <summary>Decision Without Decides Skips Intent Unreached.</summary>
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
     [Fact]
-    public void Decision_Without_Decides_Skips_Intent_Unreached()
+    public void DecisionWithoutDecidesSkipsIntentUnreached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), "{}"));
@@ -242,9 +242,9 @@ public sealed class ReachCheckTests
     /// <summary>Role Without Holder Reports Role Orphan.</summary>
     /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
     [Fact]
-    public void Role_Without_Holder_Reports_Role_Orphan()
+    public void RoleWithoutHolderReportsRoleOrphan()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
@@ -255,9 +255,9 @@ public sealed class ReachCheckTests
     /// <summary>Role Held Passes.</summary>
     /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
     [Fact]
-    public void Role_Held_Passes()
+    public void RoleHeldPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": [{"role": "role/reader", "scope": "self"}]}"""),
@@ -270,9 +270,9 @@ public sealed class ReachCheckTests
     /// <summary>Permission Without Role Reports Permission Orphan.</summary>
     /// <proves>litespec/core/access#grant-permissions-through-roles</proves>
     [Fact]
-    public void Permission_Without_Role_Reports_Permission_Orphan()
+    public void PermissionWithoutRoleReportsPermissionOrphan()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("permission", "permission/ghost-read", Path.Combine(temp.Path, "ghost-read.yaml"), "{}"));
@@ -283,9 +283,9 @@ public sealed class ReachCheckTests
     /// <summary>Permission Allowed Passes.</summary>
     /// <proves>litespec/core/access#grant-permissions-through-roles</proves>
     [Fact]
-    public void Permission_Allowed_Passes()
+    public void PermissionAllowedPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
@@ -297,9 +297,9 @@ public sealed class ReachCheckTests
     /// <summary>Two Decisions Deciding One Record Report Decision Conflict.</summary>
     /// <proves>litespec/core/model#follow-the-authority-order</proves>
     [Fact]
-    public void Two_Decisions_Deciding_One_Record_Report_Decision_Conflict()
+    public void TwoDecisionsDecidingOneRecordReportDecisionConflict()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
@@ -316,9 +316,9 @@ public sealed class ReachCheckTests
     /// <summary>Single Decision Passes.</summary>
     /// <proves>litespec/core/model#follow-the-authority-order</proves>
     [Fact]
-    public void Single_Decision_Passes()
+    public void SingleDecisionPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-ghost-days", Path.Combine(temp.Path, "ghost-days.yaml"), """{"decides": ["requirement/borrowing.max-loans"]}"""),
@@ -330,9 +330,9 @@ public sealed class ReachCheckTests
     /// <summary>Intent Unreached Message Names Record.</summary>
     /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
-    public void Intent_Unreached_Message_Names_Record()
+    public void IntentUnreachedMessageNamesRecord()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"));
@@ -345,9 +345,9 @@ public sealed class ReachCheckTests
     /// <summary>Role Orphan Message Names Role.</summary>
     /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
     [Fact]
-    public void Role_Orphan_Message_Names_Role()
+    public void RoleOrphanMessageNamesRole()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("role", "role/ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""));
@@ -360,9 +360,9 @@ public sealed class ReachCheckTests
     /// <summary>Permission Orphan Message Names Permission.</summary>
     /// <proves>litespec/core/access#grant-permissions-through-roles</proves>
     [Fact]
-    public void Permission_Orphan_Message_Names_Permission()
+    public void PermissionOrphanMessageNamesPermission()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("permission", "permission/ghost-read", Path.Combine(temp.Path, "ghost-read.yaml"), "{}"));
@@ -375,9 +375,9 @@ public sealed class ReachCheckTests
     /// <summary>Parked Intent Unreached Reports Known.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Parked_Intent_Unreached_Reports_Known()
+    public void ParkedIntentUnreachedReportsKnown()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),

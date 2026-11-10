@@ -13,7 +13,7 @@ public sealed class FindingCodesTests
     /// <summary>Every mark finding code has a tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Mark_Codes_Have_Tiers()
+    public void MarkCodesHaveTiers()
     {
         var missing = MarkRules.FindingCodes
             .Where(code => !FindingCodes.IsKnown(code))
@@ -26,7 +26,7 @@ public sealed class FindingCodesTests
     /// <summary>Every code the checkers emit in source has a tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Emitted_Codes_Have_Tiers()
+    public void EmittedCodesHaveTiers()
     {
         var emitted = EmittedCodes(FindRepository());
         var missing = emitted
@@ -40,7 +40,7 @@ public sealed class FindingCodesTests
     /// <summary>Every code in the table is emitted by a check, so the table holds no dead code.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Table_Codes_Are_Emitted()
+    public void TableCodesAreEmitted()
     {
         var emitted = QuotedLiterals(FindRepository());
         emitted.UnionWith(MarkRules.FindingCodes);
@@ -56,7 +56,7 @@ public sealed class FindingCodesTests
     /// <summary>Every row of the table names its level, meaning and fix, and no code appears twice.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Table_Rows_Are_Complete_And_Unique()
+    public void TableRowsAreCompleteAndUnique()
     {
         Assert.All(FindingCodes.All, row =>
         {
@@ -74,7 +74,7 @@ public sealed class FindingCodesTests
     [Theory]
     [InlineData("requirement-cites-missing", "A")]
     [InlineData("constraint-unreached", "G")]
-    public void New_Intent_Codes_Have_Tiers(string code, string tier)
+    public void NewIntentCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
@@ -89,7 +89,7 @@ public sealed class FindingCodesTests
     [InlineData("source-link-bare")]
     [InlineData("source-key-unknown")]
     [InlineData("source-unused")]
-    public void New_Yaml_Codes_Are_Advisory(string code)
+    public void NewYamlCodesAreAdvisory(string code)
     {
         Assert.Equal("A", FindingCodes.Of(code).Level);
     }
@@ -106,7 +106,7 @@ public sealed class FindingCodesTests
     [InlineData("job-unimplemented", "S")]
     [InlineData("atomic-group-drift", "G")]
     [InlineData("atomic-group-invalid", "A")]
-    public void New_Behavior_Codes_Have_Tiers(string code, string tier)
+    public void NewBehaviorCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
@@ -120,7 +120,7 @@ public sealed class FindingCodesTests
     [InlineData("departure-invalid", "G")]
     [InlineData("use-case-unverified", "A")]
     [InlineData("proof-invalid", "A")]
-    public void New_Governance_Codes_Have_Tiers(string code, string tier)
+    public void NewGovernanceCodesHaveTiers(string code, string tier)
     {
         Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
@@ -140,7 +140,7 @@ public sealed class FindingCodesTests
     [InlineData("record-invalid", RecordLayer.Any, false, null)]
     [InlineData("quality-alert-missing", RecordLayer.Any, false, "delivery")]
     [InlineData("alert-link-missing", RecordLayer.Any, false, "delivery")]
-    public void Codes_State_Their_Layer_Trace_And_Extension(string code, RecordLayer layer, bool trace, string? extension)
+    public void CodesStateTheirLayerTraceAndExtension(string code, RecordLayer layer, bool trace, string? extension)
     {
         var row = FindingCodes.Of(code);
 
@@ -152,7 +152,7 @@ public sealed class FindingCodesTests
     /// <summary>The backend folder drift code blocks where its reader is qualified.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Mark_Folder_Drift_Code_Is_Stack()
+    public void MarkFolderDriftCodeIsStack()
     {
         Assert.Equal("S", FindingCodes.Of("mark-folder-drift").Level);
     }
@@ -160,7 +160,7 @@ public sealed class FindingCodesTests
     /// <summary>Every finding code reads subject-problem with one of the problem words.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]
-    public void Codes_Follow_Subject_Problem_Grammar()
+    public void CodesFollowSubjectProblemGrammar()
     {
         var bad = FindingCodes.All.Select(row => row.Code)
             .Where(code => !FollowsGrammar(code))

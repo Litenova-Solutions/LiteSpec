@@ -1,8 +1,8 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves a test proves the lowest record it verifies, from each of the seven proof kinds.</summary>
 public sealed class ProofTargetTests

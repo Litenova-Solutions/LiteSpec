@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace LiteSpec.Tests;
+namespace LiteSpec.Cli.Tests;
 
 /// <summary>
 ///     Proves the managed SHA-256 the CLI fingerprints content with: the FIPS 180-4 test vectors,
@@ -26,7 +26,7 @@ public sealed class Sha256Tests
 
     /// <summary>One million repetitions of 'a' hash to the published value.</summary>
     [Fact]
-    public void Hashes_A_Million_Letters()
+    public void HashesAMillionLetters()
     {
         var hasher = new Sha256();
         var thousand = Encoding.ASCII.GetBytes(new string('a', 1000));
@@ -41,7 +41,7 @@ public sealed class Sha256Tests
 
     /// <summary>Every message length across five blocks hashes as the platform implementation does, appended whole or in pieces.</summary>
     [Fact]
-    public void Matches_The_Platform_Hash_At_Every_Length()
+    public void MatchesThePlatformHashAtEveryLength()
     {
         var random = new Random(4_1_0);
 
@@ -72,13 +72,13 @@ public sealed class Sha256Tests
     ///     namespace runs through OpenSSL, which the native executable must not need.
     /// </summary>
     [Fact]
-    public void The_CLI_Uses_No_Platform_Cryptography()
+    public void TheCLIUsesNoPlatformCryptography()
     {
         var sources = new[] { Path.Combine("apps", "cli", "src"), Path.Combine("apps", "model", "src", "LiteSpec.Shared") }
-            .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(Support.Cli.Repository, folder), "*.cs", SearchOption.AllDirectories))
+            .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(Support.TestCli.Repository, folder), "*.cs", SearchOption.AllDirectories))
             .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
             .Where(file => File.ReadAllText(file).Contains("System.Security.Cryptography", StringComparison.Ordinal))
-            .Select(file => Path.GetRelativePath(Support.Cli.Repository, file))
+            .Select(file => Path.GetRelativePath(Support.TestCli.Repository, file))
             .ToList();
 
         Assert.Empty(sources);
@@ -86,7 +86,7 @@ public sealed class Sha256Tests
 
     /// <summary>Finishing a message starts the next one, so one hasher serves message after message.</summary>
     [Fact]
-    public void Starts_A_New_Message_After_Each_Hash()
+    public void StartsANewMessageAfterEachHash()
     {
         var hasher = new Sha256();
         hasher.Append(Encoding.ASCII.GetBytes("abc"));

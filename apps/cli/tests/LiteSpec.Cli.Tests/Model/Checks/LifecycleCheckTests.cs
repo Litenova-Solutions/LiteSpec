@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the state-unreached and transition-unknown checks against hand-built models.</summary>
 public sealed class LifecycleCheckTests
@@ -10,9 +10,9 @@ public sealed class LifecycleCheckTests
     /// <summary>State No Transition Reaches Reports State Unreachable.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void State_No_Transition_Reaches_Reports_State_Unreachable()
+    public void StateNoTransitionReachesReportsStateUnreachable()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Returned"}"""));
 
         var messages = Checker.Check(model).Findings
@@ -28,9 +28,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Aggregate Without Transitions Reports Every State Unreachable.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Aggregate_Without_Transitions_Reports_Every_State_Unreachable()
+    public void AggregateWithoutTransitionsReportsEveryStateUnreachable()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path));
 
         var messages = Checker.Check(model).Findings
@@ -48,9 +48,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Source Only State Reports State Unreachable.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Source_Only_State_Reports_State_Unreachable()
+    public void SourceOnlyStateReportsStateUnreachable()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "Overdue", "to": "Returned"}"""));
@@ -67,9 +67,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Full Chain Of Transitions Passes.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Full_Chain_Of_Transitions_Passes()
+    public void FullChainOfTransitionsPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "Returned", "to": "Overdue"}"""));
@@ -81,9 +81,9 @@ public sealed class LifecycleCheckTests
     /// <summary>A State Entered Only At Creation Is Reached.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void A_State_Entered_Only_At_Creation_Is_Reached()
+    public void AStateEnteredOnlyAtCreationIsReached()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "-", "to": "Overdue"}"""));
@@ -95,9 +95,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Transition To A Missing State Reports Transition Unresolved.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_To_A_Missing_State_Reports_Transition_Unresolved()
+    public void TransitionToAMissingStateReportsTransitionUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Vanished"}"""));
 
         Assert.Contains("transition-unknown", TestModel.Codes(model));
@@ -106,9 +106,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Transition From A Missing State Reports Transition Unresolved.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_From_A_Missing_State_Reports_Transition_Unresolved()
+    public void TransitionFromAMissingStateReportsTransitionUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Vanished", "to": "Returned"}"""));
 
         Assert.Contains("transition-unknown", TestModel.Codes(model));
@@ -117,9 +117,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Transition By A Missing Use Case Reports Transition Unresolved.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unresolved()
+    public void TransitionByAMissingUseCaseReportsTransitionUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "use-case/lending.nope"}"""));
@@ -130,9 +130,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Transition By A Record That Is No Use Case Reports Transition Unresolved.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_By_A_Record_That_Is_No_Use_Case_Reports_Transition_Unresolved()
+    public void TransitionByARecordThatIsNoUseCaseReportsTransitionUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "aggregate/lending.loan"}"""));
@@ -143,9 +143,9 @@ public sealed class LifecycleCheckTests
     /// <summary>Transition By A Use Case Passes.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_By_A_Use_Case_Passes()
+    public void TransitionByAUseCasePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),

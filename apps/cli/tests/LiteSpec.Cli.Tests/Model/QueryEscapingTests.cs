@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 using Record = LiteSpec.Model.Record;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>
 ///     Proves <c>model query</c> writes an apostrophe and an angle bracket as themselves. The query
@@ -14,9 +14,9 @@ public sealed class QueryEscapingTests
 {
     /// <summary>The Query Leaves An Apostrophe And An Angle Bracket Unescaped.</summary>
     [Fact]
-    public void Query_Leaves_An_Apostrophe_And_An_Angle_Bracket_Unescaped()
+    public void QueryLeavesAnApostropheAndAnAngleBracketUnescaped()
     {
-        using var temp = Cli.Temp("query-escaping");
+        using var temp = TestCli.Temp("query-escaping");
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
 

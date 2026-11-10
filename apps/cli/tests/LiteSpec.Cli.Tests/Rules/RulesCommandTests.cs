@@ -1,15 +1,15 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Rules;
+namespace LiteSpec.Cli.Tests.Rules;
 
 /// <summary>Proves <c>litespec rules</c> usage, exit codes, output shape, conventions and departures.</summary>
 public sealed class RulesCommandTests
 {
     /// <summary>Help prints the usage text and exits zero.</summary>
     [Fact]
-    public void Rules_Help_Prints_Usage()
+    public void RulesHelpPrintsUsage()
     {
-        var result = Cli.Run("rules", "--help");
+        var result = TestCli.Run("rules", "--help");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Usage:", result.Output);
@@ -17,9 +17,9 @@ public sealed class RulesCommandTests
 
     /// <summary>No target prints the usage text and exits 2.</summary>
     [Fact]
-    public void Rules_No_Target_Prints_Usage()
+    public void RulesNoTargetPrintsUsage()
     {
-        var result = Cli.Run("rules", "--root", Cli.Fixture("rules-basic"));
+        var result = TestCli.Run("rules", "--root", TestCli.Fixture("rules-basic"));
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Usage:", result.Output);
@@ -27,9 +27,9 @@ public sealed class RulesCommandTests
 
     /// <summary>An unknown option is a usage error and exits 2.</summary>
     [Fact]
-    public void Rules_Unknown_Option_Exits_2()
+    public void RulesUnknownOptionExits2()
     {
-        var result = Cli.Run("rules", "--root", Cli.Fixture("rules-basic"), "--diff", "apps/api/src/Demo/X.cs");
+        var result = TestCli.Run("rules", "--root", TestCli.Fixture("rules-basic"), "--diff", "apps/api/src/Demo/X.cs");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown option", result.Output);
@@ -37,10 +37,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A root without a project file exits 2.</summary>
     [Fact]
-    public void Rules_Missing_Project_File_Exits_2()
+    public void RulesMissingProjectFileExits2()
     {
-        using var temp = Cli.Temp("rules-no-project");
-        var result = Cli.Run("rules", "--root", temp.Path, "apps/api/src/Demo/X.cs");
+        using var temp = TestCli.Temp("rules-no-project");
+        var result = TestCli.Run("rules", "--root", temp.Path, "apps/api/src/Demo/X.cs");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("holds no .litespec/project.yaml", result.Output);
@@ -48,9 +48,9 @@ public sealed class RulesCommandTests
 
     /// <summary>A target naming no file or record exits 1.</summary>
     [Fact]
-    public void Rules_Unknown_Target_Exits_1()
+    public void RulesUnknownTargetExits1()
     {
-        var result = Cli.Run("rules", "--root", Cli.Fixture("rules-basic"), "apps/api/src/Demo/NoSuchFile.cs");
+        var result = TestCli.Run("rules", "--root", TestCli.Fixture("rules-basic"), "apps/api/src/Demo/NoSuchFile.cs");
 
         Assert.Equal(1, result.Status);
         Assert.Contains("No file or record", result.Output);
@@ -58,10 +58,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A handler path lists grouped one-line provisions with their reasons.</summary>
     [Fact]
-    public void Rules_Handler_Lists_Grouped_Provisions()
+    public void RulesHandlerListsGroupedProvisions()
     {
-        var root = Path.Combine(Cli.Repository, "examples", "claimwick");
-        var result = Cli.Run(
+        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
+        var result = TestCli.Run(
             "rules",
             "--root", root,
             "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
@@ -79,11 +79,11 @@ public sealed class RulesCommandTests
 
     /// <summary>A checked provision prints as one line with its analyzer ID and without its statement.</summary>
     [Fact]
-    public void Rules_Checked_Provisions_Print_One_Line_With_Codes()
+    public void RulesCheckedProvisionsPrintOneLineWithCodes()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
@@ -94,11 +94,11 @@ public sealed class RulesCommandTests
 
     /// <summary>A layer-wide provision prints by identifier only and without its statement.</summary>
     [Fact]
-    public void Rules_Layer_Wide_Provisions_Print_By_Id_Only()
+    public void RulesLayerWideProvisionsPrintByIdOnly()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
@@ -109,11 +109,11 @@ public sealed class RulesCommandTests
 
     /// <summary>Full output prints the checked and layer-wide statements that the compact output shortens.</summary>
     [Fact]
-    public void Rules_Full_Prints_Checked_And_Layer_Wide_Statements()
+    public void RulesFullPrintsCheckedAndLayerWideStatements()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs",
             "--full");
 
@@ -124,10 +124,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A code path in a project that claims no code returns no provisions and says why.</summary>
     [Fact]
-    public void Rules_Intent_And_Behavior_Code_Path_Returns_No_Provisions_And_Says_Why()
+    public void RulesIntentAndBehaviorCodePathReturnsNoProvisionsAndSaysWhy()
     {
         using var root = CopyFixtureWithClaim("rules-basic", "intent-and-behavior");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
@@ -140,10 +140,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A record identifier in a project that claims intent and behavior returns the provisions about records and no code provisions.</summary>
     [Fact]
-    public void Rules_Intent_And_Behavior_Record_Id_Returns_Records_Provisions()
+    public void RulesIntentAndBehaviorRecordIdReturnsRecordsProvisions()
     {
         using var root = CopyFixtureWithClaim("rules-basic", "intent-and-behavior");
-        var result = Cli.Run("rules", "--root", root.Path, "use-case/billing.send-invoice");
+        var result = TestCli.Run("rules", "--root", root.Path, "use-case/billing.send-invoice");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/billing.send-invoice (concern: records, artifact: use-case)", result.Output);
@@ -153,10 +153,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A code path in a project that claims its own code and proof returns no provisions about LiteSpec's code.</summary>
     [Fact]
-    public void Rules_Own_Code_Path_Excludes_LiteSpec_Code_Provisions()
+    public void RulesOwnCodePathExcludesLiteSpecCodeProvisions()
     {
         using var root = CopyFixtureWithClaim("rules-basic", "own-code-and-proof");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
@@ -168,10 +168,10 @@ public sealed class RulesCommandTests
 
     /// <summary>A record identifier lists the provisions that govern the record.</summary>
     [Fact]
-    public void Rules_Record_Id_Lists_Provisions()
+    public void RulesRecordIdListsProvisions()
     {
-        var root = Path.Combine(Cli.Repository, "examples", "claimwick");
-        var result = Cli.Run("rules", "--root", root, "use-case/spending.submit-expense");
+        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
+        var result = TestCli.Run("rules", "--root", root, "use-case/spending.submit-expense");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Rules for use-case/spending.submit-expense (concern: records, artifact: use-case)", result.Output);
@@ -181,10 +181,10 @@ public sealed class RulesCommandTests
 
     /// <summary>Full output adds the rationale and example under each item.</summary>
     [Fact]
-    public void Rules_Full_Prints_Rationale_And_Example()
+    public void RulesFullPrintsRationaleAndExample()
     {
-        var root = Path.Combine(Cli.Repository, "examples", "claimwick");
-        var result = Cli.Run(
+        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
+        var result = TestCli.Run(
             "rules",
             "--root", root,
             "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs",
@@ -197,11 +197,11 @@ public sealed class RulesCommandTests
 
     /// <summary>A convention whose scope matches the path prints beside the LiteSpec provisions.</summary>
     [Fact]
-    public void Rules_Convention_Appears_For_Matching_Path()
+    public void RulesConventionAppearsForMatchingPath()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
@@ -211,11 +211,11 @@ public sealed class RulesCommandTests
 
     /// <summary>A live departure replaces the provision its covers names; an expired one does not.</summary>
     [Fact]
-    public void Rules_Departure_Replaces_Covered_Provision()
+    public void RulesDepartureReplacesCoveredProvision()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
@@ -228,11 +228,11 @@ public sealed class RulesCommandTests
 
     /// <summary>Full output prints the departure consequences instead of the provision example.</summary>
     [Fact]
-    public void Rules_Full_Prints_Departure_Consequences()
+    public void RulesFullPrintsDepartureConsequences()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-basic"),
+            "--root", TestCli.Fixture("rules-basic"),
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs",
             "--full");
 
@@ -242,11 +242,11 @@ public sealed class RulesCommandTests
 
     /// <summary>A layer-projects endpoint derives its layer from the project name.</summary>
     [Fact]
-    public void Rules_Layered_Endpoint_Uses_Project_Name()
+    public void RulesLayeredEndpointUsesProjectName()
     {
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
-            "--root", Cli.Fixture("rules-layered"),
+            "--root", TestCli.Fixture("rules-layered"),
             "apps/api/src/Demo.WebApi/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs");
 
         Assert.Equal(0, result.Status);
@@ -258,12 +258,12 @@ public sealed class RulesCommandTests
 
     /// <summary>Copies one fixture to a temporary root with its layer claim replaced.</summary>
     /// <param name="fixture">The fixture name.</param>
-    /// <param name="claim">The claim name, as <see cref="LiteSpec.Tests.Consumer.ConsumerFixture.Claim" /> reads it.</param>
+    /// <param name="claim">The claim name, as <see cref="LiteSpec.Cli.Tests.Consumer.ConsumerFixture.Claim" /> reads it.</param>
     /// <returns>The temporary consumer root.</returns>
     static TempFolder CopyFixtureWithClaim(string fixture, string claim)
     {
-        var source = Cli.Fixture(fixture);
-        var temp = Cli.Temp("rules-level");
+        var source = TestCli.Fixture(fixture);
+        var temp = TestCli.Temp("rules-level");
 
         foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
         {
@@ -274,7 +274,7 @@ public sealed class RulesCommandTests
 
         var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
         var declared = DataFile.Read(project)!.AsObject();
-        declared["layers"] = LiteSpec.Tests.Consumer.ConsumerFixture.Claim(claim);
+        declared["layers"] = LiteSpec.Cli.Tests.Consumer.ConsumerFixture.Claim(claim);
         File.WriteAllText(project, declared.ToJsonString());
 
         return temp;

@@ -136,7 +136,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
 
-**Checked by:** `litespec model check` reports a blocking finding for a record outside its home, a folder under `intent/modules/` naming no declared module, a module folder without its module, a record type outside its allowed levels, and a link from another module to a module-local record.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and `module-undeclared` for a folder under `intent/modules/` naming no declared module or a module folder without its module.
 
 ### State One Product
 
@@ -180,7 +180,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** The folder fixes where a record sits. Reachability fixes that it leads to software. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.
 
-**Checked by:** `litespec model check` reports a blocking finding for a record that reaches no Behavior.
+**Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
 ### State Each Goal with Its Measure
 

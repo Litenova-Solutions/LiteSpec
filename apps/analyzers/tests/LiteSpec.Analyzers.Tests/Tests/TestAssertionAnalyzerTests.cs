@@ -26,7 +26,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Fact]
-                public void {|LS4001:Place_WhenDraft_MarksPlaced|}()
+                public void {|LS4001:PlaceWhenDraftMarksPlaced|}()
                 {
                     var order = new Order();
                     order.Place();
@@ -61,7 +61,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Fact]
-                public void Place_WhenDraft_MarksPlaced()
+                public void PlaceWhenDraftMarksPlaced()
                 {
                     var order = new Order();
                     order.Place();
@@ -90,7 +90,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Fact]
-                public void Place_WhenDraft_MarksPlaced()
+                public void PlaceWhenDraftMarksPlaced()
                 {
                     var order = new Order();
                     order.Place();
@@ -121,7 +121,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Theory]
-                public void Place_WhenDraft_MarksPlaced()
+                public void PlaceWhenDraftMarksPlaced()
                 {
                     Assert.True(true);
                 }
@@ -143,7 +143,7 @@ public sealed class TestAssertionAnalyzerTests
 
             public sealed class OrderTests
             {
-                public void Place_WhenDraft_MarksPlaced()
+                public void PlaceWhenDraftMarksPlaced()
                 {
                     var order = new Order();
                     order.Place();
@@ -171,7 +171,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Fact]
-                public void Place_WhenDraft_MarksPlaced()
+                public void PlaceWhenDraftMarksPlaced()
                 {
                     var order = new Order();
                     order.Place();
@@ -199,7 +199,7 @@ public sealed class TestAssertionAnalyzerTests
             public sealed class OrderTests
             {
                 [Fact]
-                public void {|LS4001:Place_WhenDraft_MarksPlaced|}()
+                public void {|LS4001:PlaceWhenDraftMarksPlaced|}()
                 {
                     var order = new Order();
                     order.Place();

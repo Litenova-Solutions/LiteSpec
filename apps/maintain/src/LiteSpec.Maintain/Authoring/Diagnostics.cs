@@ -110,6 +110,12 @@ internal static class Diagnostics
         Codes.ScopeNarrow,
         Codes.ScopeValue,
         Codes.StrengthLine,
+        Codes.CheckedByFindingMissing,
+        Codes.ExampleRecordUnknown,
+        Codes.FindingCodeUnknown,
+        Codes.IndexPageMissing,
+        Codes.PatternOptionCount,
+        Codes.TemplateCitedUnknown,
     ];
 
     /// <summary>The diagnostic code constants.</summary>
@@ -417,5 +423,23 @@ internal static class Diagnostics
 
         /// <summary>A missing or invalid Strength line.</summary>
         public const string StrengthLine = "STRENGTH_LINE";
+
+        /// <summary>A Checked by line for the model check that names no finding code.</summary>
+        public const string CheckedByFindingMissing = "CHECKED_BY_FINDING_MISSING";
+
+        /// <summary>A docs page that cites an example record ID the example lacks.</summary>
+        public const string ExampleRecordUnknown = "EXAMPLE_RECORD_UNKNOWN";
+
+        /// <summary>A docs page that cites a finding code the finding code table lacks.</summary>
+        public const string FindingCodeUnknown = "FINDING_CODE_UNKNOWN";
+
+        /// <summary>A docs page that the index page does not link, directly or through a section index.</summary>
+        public const string IndexPageMissing = "INDEX_PAGE_MISSING";
+
+        /// <summary>A pattern that offers more than three options.</summary>
+        public const string PatternOptionCount = "PATTERN_OPTION_COUNT";
+
+        /// <summary>A docs page that cites a template path the templates folder lacks.</summary>
+        public const string TemplateCitedUnknown = "TEMPLATE_CITED_UNKNOWN";
     }
 }

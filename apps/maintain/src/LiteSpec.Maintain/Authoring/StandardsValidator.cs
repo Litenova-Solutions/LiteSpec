@@ -100,6 +100,12 @@ internal static class StandardsValidator
 
         context.Repository.CheckAuthoringTemplates();
         context.Repository.CheckLinks(current);
+        // The docs cite the tools, the templates and the example, so each citation is a lookup
+        // against data the tools already hold. (litespec/core/authoring#run-repeatable-authoring-checks)
+        context.Repository.CheckFindingCitations(parsedPages);
+        context.Repository.CheckTemplateCitations(parsedPages);
+        context.Repository.CheckExampleCitations(parsedPages);
+        context.Repository.CheckIndexCoverage(current);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
         context.Manifest.CheckManifest(activeIds, provisionsByPage);
         context.Manifest.CheckAnalyzerRelease(parsedPages);
@@ -136,6 +142,27 @@ internal static class StandardsValidator
         else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
         {
             Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data is missing; run litespec-maintain provisions");
+        }
+
+        // The finding code, folder and pin tables are written from the code and the manifest, so a
+        // table that differs from them is stale like the index. (litespec/core/authoring#regenerate-the-provision-index)
+        if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
+        {
+            try
+            {
+                foreach (var (path, text) in ReferenceTables.Outputs(resolved))
+                {
+                    var file = ValidatorSupport.JoinRoot(resolved, path);
+                    if (!File.Exists(file) || FileText.ReadText(file).Replace("\r\n", "\n", StringComparison.Ordinal) != text)
+                    {
+                        Add(path, 1, Diagnostics.Codes.ProvisionsStale, "generated table differs from its source; run litespec-maintain provisions");
+                    }
+                }
+            }
+            catch (InvalidOperationException exception)
+            {
+                Add(ReferenceTables.ManifestPath, 1, Diagnostics.Codes.ProvisionsStale, exception.Message);
+            }
         }
 
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");

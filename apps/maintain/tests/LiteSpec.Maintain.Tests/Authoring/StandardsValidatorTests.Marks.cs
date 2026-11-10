@@ -1,6 +1,6 @@
 using LiteSpec.Authoring;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Self-mark cases: MARK_MISSING and MARK_UNRESOLVED over fixture projects.</summary>
 public sealed partial class StandardsValidatorTests

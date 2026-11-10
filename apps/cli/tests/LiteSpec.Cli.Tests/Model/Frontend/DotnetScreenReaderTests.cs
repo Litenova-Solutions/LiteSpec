@@ -2,9 +2,9 @@ using System.Linq;
 using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>
 ///     Proves the .NET reader reads Blazor route entries and Android destinations with their
@@ -15,9 +15,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Page Directive Becomes A Route At Its Template.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Page_Directive_Becomes_A_Route_At_Its_Template()
+    public void BlazorPageDirectiveBecomesARouteAtItsTemplate()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(temp.Path, "Pages/ExpenseList.razor", "<h1>Expenses</h1>\n@page \"/expenses\"\n");
 
         var route = Assert.Single(DotnetScreenReader.Read(Config(root, "blazor")));
@@ -30,9 +30,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Component Without A Page Directive Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Component_Without_A_Page_Directive_Is_No_Route()
+    public void BlazorComponentWithoutAPageDirectiveIsNoRoute()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Layout/MainLayout.razor",
@@ -46,9 +46,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Escaped And Commented Page Directives Are No Routes.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Escaped_And_Commented_Page_Directives_Are_No_Routes()
+    public void BlazorEscapedAndCommentedPageDirectivesAreNoRoutes()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/Help.razor",
@@ -62,9 +62,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Each Page Directive Becomes Its Own Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Each_Page_Directive_Becomes_Its_Own_Route()
+    public void BlazorEachPageDirectiveBecomesItsOwnRoute()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -82,9 +82,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Codebehind Doc Mark Becomes The Route Mark.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Codebehind_Doc_Mark_Becomes_The_Route_Mark()
+    public void BlazorCodebehindDocMarkBecomesTheRouteMark()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -100,9 +100,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Codebehind Attribute Mark Becomes The Route Mark.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Codebehind_Attribute_Mark_Becomes_The_Route_Mark()
+    public void BlazorCodebehindAttributeMarkBecomesTheRouteMark()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -118,9 +118,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Code Block Mark Becomes The Route Mark Without Codebehind.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Code_Block_Mark_Becomes_The_Route_Mark_Without_Codebehind()
+    public void BlazorCodeBlockMarkBecomesTheRouteMarkWithoutCodebehind()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -134,9 +134,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Route Without A Mark Reports No Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Route_Without_A_Mark_Reports_No_Marks()
+    public void BlazorRouteWithoutAMarkReportsNoMarks()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -152,9 +152,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Follows Marks Are Not Route Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Follows_Marks_Are_Not_Route_Marks()
+    public void BlazorFollowsMarksAreNotRouteMarks()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -170,9 +170,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Codebehind Client Call Becomes A Call Without Async.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Codebehind_Client_Call_Becomes_A_Call_Without_Async()
+    public void BlazorCodebehindClientCallBecomesACallWithoutAsync()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var behind =
             "namespace Web.Pages;\n\npublic partial class ExpenseList\n{\n    private readonly ExpenseClient _expenses;\n\n    public ExpenseList(ExpenseClient expenses)\n    {\n        _expenses = expenses;\n    }\n\n    private async Task LoadAsync()\n    {\n        await _expenses.ListAsync();\n    }\n}\n";
         var root = WriteFrontend(
@@ -193,9 +193,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Non Client And Non Async And Undirected Invocations Are No Calls.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Non_Client_And_Non_Async_And_Undirected_Invocations_Are_No_Calls()
+    public void BlazorNonClientAndNonAsyncAndUndirectedInvocationsAreNoCalls()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -211,9 +211,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Code Block Client Call Becomes A Call At Its Razor Line.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Code_Block_Client_Call_Becomes_A_Call_At_Its_Razor_Line()
+    public void BlazorCodeBlockClientCallBecomesACallAtItsRazorLine()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var razor =
             "@page \"/expenses\"\n\n@code {\n    private ExpenseClient _expenses = null!;\n\n    private async Task LoadAsync()\n    {\n        await _expenses.ListAsync();\n    }\n}\n";
         var root = WriteFrontend(temp.Path, "Pages/ExpenseList.razor", razor);
@@ -229,9 +229,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Inline Markup Client Call Becomes A Call.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Blazor_Inline_Markup_Client_Call_Becomes_A_Call()
+    public void BlazorInlineMarkupClientCallBecomesACall()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var razor =
             "@page \"/expenses\"\n<h1>Expenses</h1>\n<button @onclick=\"() => ExpensesClient.SaveAsync()\">Save</button>\n";
         var root = WriteFrontend(temp.Path, "Pages/ExpenseList.razor", razor);
@@ -247,9 +247,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Activity Becomes A Destination Named By Its Class.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Activity_Becomes_A_Destination_Named_By_Its_Class()
+    public void AndroidActivityBecomesADestinationNamedByItsClass()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var source =
             "namespace Mobile.Screens;\n\n/// <implements>screen/claimwick-app.expense-list</implements>\npublic class ExpenseListActivity : Activity\n{\n}\n";
         var root = WriteFrontend(temp.Path, "Screens/ExpenseListActivity.cs", source);
@@ -265,9 +265,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Fragment With A Qualified Base Becomes A Destination.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Fragment_With_A_Qualified_Base_Becomes_A_Destination()
+    public void AndroidFragmentWithAQualifiedBaseBecomesADestination()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/ReceiptFragment.cs",
@@ -282,9 +282,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Class Without A Destination Base Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Class_Without_A_Destination_Base_Is_No_Route()
+    public void AndroidClassWithoutADestinationBaseIsNoRoute()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/ExpenseAdapter.cs",
@@ -298,9 +298,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Nested Destination Class Is No Route.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Nested_Destination_Class_Is_No_Route()
+    public void AndroidNestedDestinationClassIsNoRoute()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/Outer.cs",
@@ -312,9 +312,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Destination Without A Mark Reports No Marks.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Destination_Without_A_Mark_Reports_No_Marks()
+    public void AndroidDestinationWithoutAMarkReportsNoMarks()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/ExpenseListActivity.cs",
@@ -328,9 +328,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Client Call Becomes A Call Without Async.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Client_Call_Becomes_A_Call_Without_Async()
+    public void AndroidClientCallBecomesACallWithoutAsync()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var source =
             "namespace Mobile.Screens;\n\npublic class ExpenseListActivity : Activity\n{\n    private ExpenseClient _expenses = null!;\n\n    public void Load()\n    {\n        _expenses.ListAsync();\n    }\n}\n";
         var root = WriteFrontend(temp.Path, "Screens/ExpenseListActivity.cs", source);
@@ -346,9 +346,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Non Client Invocation Is No Call.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Android_Non_Client_Invocation_Is_No_Call()
+    public void AndroidNonClientInvocationIsNoCall()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/ExpenseListActivity.cs",
@@ -362,9 +362,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Unknown Platform Reads No Routes.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Unknown_Platform_Reads_No_Routes()
+    public void UnknownPlatformReadsNoRoutes()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -378,9 +378,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Codebehind Mark Records The Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Blazor_Codebehind_Mark_Records_The_Style_Seen()
+    public void BlazorCodebehindMarkRecordsTheStyleSeen()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var doc = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -404,9 +404,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Blazor Code Block Marks Record Each Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Blazor_Code_Block_Marks_Record_Each_Style_Seen()
+    public void BlazorCodeBlockMarksRecordEachStyleSeen()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Pages/ExpenseList.razor",
@@ -421,9 +421,9 @@ public sealed class DotnetScreenReaderTests
     /// <summary>Android Destination Mark Records The Style Seen.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Android_Destination_Mark_Records_The_Style_Seen()
+    public void AndroidDestinationMarkRecordsTheStyleSeen()
     {
-        using var temp = Cli.Temp("dotnet-screens");
+        using var temp = TestCli.Temp("dotnet-screens");
         var root = WriteFrontend(
             temp.Path,
             "Screens/ExpenseListActivity.cs",

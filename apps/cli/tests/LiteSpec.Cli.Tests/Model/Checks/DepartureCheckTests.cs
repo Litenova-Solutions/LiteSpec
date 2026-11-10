@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the departure checks against hand-built models: coverage by code, provision, page and path, the invalid covers items, and expiry.</summary>
 public sealed class DepartureCheckTests
@@ -35,9 +35,9 @@ public sealed class DepartureCheckTests
     /// <summary>A lasting departure with no expiry date holds the finding its path names, and reports no expiry.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Lasting_Departure_Without_Expiry_Holds_Its_Path_Findings()
+    public void LastingDepartureWithoutExpiryHoldsItsPathFindings()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", "");
 
         var (findings, known) = Checker.Check(model);
@@ -50,9 +50,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming a page holds the findings of the codes that page's provisions check.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Page_Coverage_Holds_The_Codes_Of_Its_Provisions()
+    public void PageCoverageHoldsTheCodesOfItsProvisions()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingPage + "\"]", "");
 
         var (findings, known) = Checker.Check(model);
@@ -64,9 +64,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming a provision holds the findings of the codes its Checked by line names.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Provision_Coverage_Holds_The_Codes_Its_Checked_By_Line_Names()
+    public void ProvisionCoverageHoldsTheCodesItsCheckedByLineNames()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"" + MarkMissingProvision + "\"]", "");
 
         var (findings, known) = Checker.Check(model);
@@ -78,9 +78,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure holds findings only on the paths it names, so a file it does not name keeps its finding.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Holds_Nothing_On_Other_Paths()
+    public void DepartureHoldsNothingOnOtherPaths()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var departure = TestModel.Record(
             "departure",
             "departure/other-route",
@@ -100,9 +100,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming a model-load code reports departure-invalid and holds no finding.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Naming_A_Model_Load_Code_Reports_Invalid()
+    public void DepartureNamingAModelLoadCodeReportsInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (departure, model) = ModelWithUnmarkedHandler(temp.Path, "[\"record-invalid\"]", "");
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "departure-invalid");
@@ -114,9 +114,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming a code no check emits reports departure-invalid.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Naming_An_Unknown_Code_Reports_Invalid()
+    public void DepartureNamingAnUnknownCodeReportsInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"no-such-finding\"]", "");
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "departure-invalid");
@@ -127,9 +127,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming a provision the installed release does not ship reports departure-invalid.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Naming_An_Unshipped_Provision_Reports_Invalid()
+    public void DepartureNamingAnUnshippedProvisionReportsInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"litespec/core/layers#no-such-provision\"]", "");
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "departure-invalid");
@@ -140,9 +140,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure past its expiry date reports departure-expired and holds nothing.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Past_Its_Expires_On_Reports_Expired_And_Holds_Nothing()
+    public void DeparturePastItsExpiresOnReportsExpiredAndHoldsNothing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (departure, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2000-01-01\", \"exit\": \"The route is marked.\"");
 
         var expired = Assert.Single(Checker.Check(model).Findings, found => found.Code == "departure-expired");
@@ -155,9 +155,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure before its expiry date reports no expiry.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Before_Its_Expires_On_Reports_No_Expiry()
+    public void DepartureBeforeItsExpiresOnReportsNoExpiry()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (_, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2999-01-01\", \"exit\": \"The route is marked.\"");
 
         Assert.DoesNotContain("departure-expired", TestModel.Codes(model));
@@ -166,9 +166,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure that sets an expiry date and names no exit reports record-invalid.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_With_Expiry_And_No_Exit_Reports_Record_Invalid()
+    public void DepartureWithExpiryAndNoExitReportsRecordInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var (departure, model) = ModelWithUnmarkedHandler(temp.Path, "[\"mark-missing\"]", ", \"expiresOn\": \"2999-01-01\"");
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-invalid" && found.Subject == departure.Id);
@@ -179,9 +179,9 @@ public sealed class DepartureCheckTests
     /// <summary>A departure naming neither subject nor paths reports record-invalid.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Departure_Naming_Neither_Subject_Nor_Paths_Reports()
+    public void DepartureNamingNeitherSubjectNorPathsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("departure", "departure/list-loans-unimplemented", Path.Combine(temp.Path, "list-loans-unimplemented.yaml"), "{\"covers\": [\"use-case-unimplemented\"], \"reason\": \"Listing waits for the search index.\"}"));

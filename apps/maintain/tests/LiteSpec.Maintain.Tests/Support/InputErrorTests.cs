@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>
 ///     Proves that ordinary user error reaches a message and a documented exit
@@ -9,7 +9,7 @@ public sealed class InputErrorTests
     /// <summary>A Malformed Percent Escape In A Link Is A Broken Link.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void A_Malformed_Percent_Escape_In_A_Link_Is_A_Broken_Link()
+    public void AMalformedPercentEscapeInALinkIsABrokenLink()
     {
         using var folder = Cli.Temp("escape");
         Directory.CreateDirectory(Path.Combine(folder.Path, "docs"));
@@ -25,7 +25,7 @@ public sealed class InputErrorTests
     /// <summary>Provisions Refuses A Root Without Docs.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact]
-    public void Provisions_Refuses_A_Root_Without_Docs()
+    public void ProvisionsRefusesARootWithoutDocs()
     {
         using var folder = Cli.Temp("provisions");
 

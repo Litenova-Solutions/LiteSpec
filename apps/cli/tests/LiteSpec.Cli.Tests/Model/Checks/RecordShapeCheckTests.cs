@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the record shape checks: the unified edge grammar, the idempotency grammar and the structured failure policy.</summary>
 public sealed class RecordShapeCheckTests
@@ -9,9 +9,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Effects Runs Edge Feeds Effect Loop.</summary>
     /// <proves>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</proves>
     [Fact]
-    public void Reaction_Effects_Runs_Edge_Feeds_Effect_Loop()
+    public void ReactionEffectsRunsEdgeFeedsEffectLoop()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.yaml"), """{"kind": "command", "raises": ["event/loan.loan-returned"]}"""),
@@ -24,9 +24,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Effects Sends Edge Satisfies Notification Sender.</summary>
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
-    public void Reaction_Effects_Sends_Edge_Satisfies_Notification_Sender()
+    public void ReactionEffectsSendsEdgeSatisfiesNotificationSender()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
@@ -38,9 +38,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Scheduled Job Effects Sends Edge Satisfies Notification Sender.</summary>
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
-    public void Scheduled_Job_Effects_Sends_Edge_Satisfies_Notification_Sender()
+    public void ScheduledJobEffectsSendsEdgeSatisfiesNotificationSender()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}]}"""),
@@ -52,9 +52,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Without Effects Reports Record Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Reaction_Without_Effects_Reports_Record_Shape()
+    public void ReactionWithoutEffectsReportsRecordShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""));
@@ -65,9 +65,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Effects Without Timing Pass Shape.</summary>
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Reaction_Effects_Without_Timing_Pass_Shape()
+    public void ReactionEffectsWithoutTimingPassShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
@@ -80,9 +80,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Key Placeholder Naming No Input Field Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Key_Placeholder_Naming_No_Input_Field_Reports()
+    public void KeyPlaceholderNamingNoInputFieldReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "scope": "tenant"}}"""));
@@ -94,9 +94,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Key Without Placeholder Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Key_Without_Placeholder_Reports()
+    public void KeyWithoutPlaceholderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "scope": "tenant"}}"""));
@@ -108,9 +108,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Unknown Scope Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Unknown_Scope_Reports()
+    public void UnknownScopeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
@@ -121,9 +121,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Valid Key And Scope Pass Shape.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Valid_Key_And_Scope_Pass_Shape()
+    public void ValidKeyAndScopePassShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
@@ -134,9 +134,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Key Names Event Fields Unchecked.</summary>
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Reaction_Key_Names_Event_Fields_Unchecked()
+    public void ReactionKeyNamesEventFieldsUnchecked()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
@@ -147,9 +147,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Reaction Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Reaction_Prose_OnFailure_Reports()
+    public void ReactionProseOnFailureReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
@@ -160,9 +160,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Scheduled Job Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Scheduled_Job_Prose_OnFailure_Reports()
+    public void ScheduledJobProseOnFailureReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": "Retry a few times, then give up."}"""));
@@ -173,9 +173,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Missing Mode Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Missing_Mode_Reports()
+    public void MissingModeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
@@ -186,9 +186,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Unknown Mode Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Unknown_Mode_Reports()
+    public void UnknownModeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "give-up"}}"""));
@@ -199,9 +199,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Malformed Retry Delay Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Malformed_Retry_Delay_Reports()
+    public void MalformedRetryDelayReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
@@ -212,9 +212,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Missing InitialDelay Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Missing_InitialDelay_Reports()
+    public void MissingInitialDelayReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter"}}"""));
@@ -225,9 +225,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Missing MaxAttempts Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Missing_MaxAttempts_Reports()
+    public void MissingMaxAttemptsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
@@ -238,9 +238,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Missing Retry Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Missing_Retry_Reports()
+    public void MissingRetryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "then": "dead-letter"}}"""));
@@ -251,9 +251,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Missing Then Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Missing_Then_Reports()
+    public void MissingThenReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}}"""));
@@ -264,9 +264,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Unknown Then Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Unknown_Then_Reports()
+    public void UnknownThenReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "requeue"}}"""));
@@ -277,9 +277,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Structured OnFailure Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Structured_OnFailure_Passes_Shape()
+    public void StructuredOnFailurePassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT1M", "backoff": "exponential"}, "then": "dead-letter"}}"""),
@@ -292,9 +292,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Skip And Log Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Skip_And_Log_Passes_Shape()
+    public void SkipAndLogPassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "skip-and-log"}}"""));
@@ -305,9 +305,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Discard Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Discard_Passes_Shape()
+    public void DiscardPassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "discard"}}"""));
@@ -318,9 +318,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Effect Prose OnFailure Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Effect_Prose_OnFailure_Reports()
+    public void EffectProseOnFailureReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
@@ -331,9 +331,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Effect Retry Without Attempts Reports.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Effect_Retry_Without_Attempts_Reports()
+    public void EffectRetryWithoutAttemptsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}]}"""));
@@ -344,9 +344,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Effect Structured OnFailure Passes Shape.</summary>
     /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Effect_Structured_OnFailure_Passes_Shape()
+    public void EffectStructuredOnFailurePassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "discard"}}]}"""));
@@ -355,9 +355,9 @@ public sealed class RecordShapeCheckTests
     }
 
     [Fact]
-    public void Reservation_Without_ReleasedBy_Reports()
+    public void ReservationWithoutReleasedByReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"]}"""));
@@ -366,9 +366,9 @@ public sealed class RecordShapeCheckTests
     }
 
     [Fact]
-    public void Reservation_With_Never_Object_And_Reason_Passes()
+    public void ReservationWithNeverObjectAndReasonPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": {"mode": "never", "reason": "Holds never expire."}}"""));
@@ -377,9 +377,9 @@ public sealed class RecordShapeCheckTests
     }
 
     [Fact]
-    public void Reservation_With_Never_Object_And_No_Reason_Reports()
+    public void ReservationWithNeverObjectAndNoReasonReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": {"mode": "never"}}"""));
@@ -388,9 +388,9 @@ public sealed class RecordShapeCheckTests
     }
 
     [Fact]
-    public void Reservation_With_Use_Case_Id_Passes()
+    public void ReservationWithUseCaseIdPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": "use-case/lending.release-hold"}"""));
@@ -399,9 +399,9 @@ public sealed class RecordShapeCheckTests
     }
 
     [Fact]
-    public void Reservation_With_Legacy_Never_String_Reports()
+    public void ReservationWithLegacyNeverStringReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.yaml"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": "never (the hold never expires)"}"""));
@@ -412,9 +412,9 @@ public sealed class RecordShapeCheckTests
     /// <summary>Goal With DueBy Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
     [Fact]
-    public void Goal_With_DueBy_Passes_Shape()
+    public void GoalWithDueByPassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));

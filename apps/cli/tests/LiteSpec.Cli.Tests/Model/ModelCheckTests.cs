@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves <c>litespec model check</c> against the fixtures, one test per broken overlay.</summary>
 public sealed class ModelCheckTests
@@ -85,20 +85,20 @@ public sealed class ModelCheckTests
     /// <summary>Clean small fixture exits 0.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Clean_Small_Fixture_Exits_0()
+    public void CleanSmallFixtureExits0()
     {
         using var fixture = ModelFixture.Prepare("small");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Clean_Large_Fixture_Exits_0()
+    public void CleanLargeFixtureExits0()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
@@ -116,7 +116,7 @@ public sealed class ModelCheckTests
         var environment = Severity.PlannedIntent.Contains(code)
             ? new Dictionary<string, string> { ["CI"] = "true" }
             : null;
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
     }
@@ -124,7 +124,7 @@ public sealed class ModelCheckTests
     /// <summary>Every listed code has a row in the finding code table, which states the layer, trace and extension its claim gate reads.</summary>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Finding_Codes_Have_A_Claim_Row()
+    public void FindingCodesHaveAClaimRow()
     {
         foreach (var code in FindingCodeList)
         {
@@ -137,9 +137,9 @@ public sealed class ModelCheckTests
     /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Finding_Codes_Name_Broken_Overlay_Folders()
+    public void FindingCodesNameBrokenOverlayFolders()
     {
-        var overlays = Directory.GetDirectories(Cli.Fixture("Model/broken"))
+        var overlays = Directory.GetDirectories(TestCli.Fixture("Model/broken"))
             .Select(Path.GetFileName)
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
@@ -153,7 +153,7 @@ public sealed class ModelCheckTests
     /// <summary>An open departure turns its findings into exit 0.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Open_Departure_Turns_Its_Findings_Into_Exit_0()
+    public void OpenDepartureTurnsItsFindingsIntoExit0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
         WriteDeparture(
@@ -163,14 +163,14 @@ public sealed class ModelCheckTests
             ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
             ["use-case/lending.list-loans", "screen/library-app.loans"],
             "2035-06-01");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>An expired departure exits 1.</summary>
     /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Expired_Departure_Exits_1()
+    public void ExpiredDepartureExits1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
         WriteDeparture(
@@ -180,7 +180,7 @@ public sealed class ModelCheckTests
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
             "2020-01-01");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.Equal(1, result.Status);
     }
 

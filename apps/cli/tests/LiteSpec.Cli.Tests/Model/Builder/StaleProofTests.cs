@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a scenario changed after its proof passed reads stale until a newer run passes it.</summary>
 public sealed class StaleProofTests
@@ -15,7 +15,7 @@ public sealed class StaleProofTests
     /// <summary>A scenario unchanged since the run first passed its proof stays verified.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Unchanged_Scenario_Stays_Verified_Across_Builds()
+    public void UnchangedScenarioStaysVerifiedAcrossBuilds()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
@@ -39,7 +39,7 @@ public sealed class StaleProofTests
     /// <summary>The ledger records the scenario hash and the test hash at the last passing run.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Ledger_Records_Scenario_And_Test_Hashes()
+    public void LedgerRecordsScenarioAndTestHashes()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
@@ -61,7 +61,7 @@ public sealed class StaleProofTests
     /// <summary>A scenario whose semantic fields change after its proof passed reads stale and unverifies its use case.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Scenario_Changed_After_Its_Proof_Passed_Reads_Stale()
+    public void ScenarioChangedAfterItsProofPassedReadsStale()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
@@ -84,7 +84,7 @@ public sealed class StaleProofTests
     /// <summary>A test changed after its proof passed reads stale and unverifies its use case.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Test_Changed_After_Its_Proof_Passed_Reads_Stale()
+    public void TestChangedAfterItsProofPassedReadsStale()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
@@ -107,7 +107,7 @@ public sealed class StaleProofTests
     /// <summary>A newer passing run proves the changed scenario again and clears the stale proof.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Newer_Run_Clears_A_Stale_Proof()
+    public void NewerRunClearsAStaleProof()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));

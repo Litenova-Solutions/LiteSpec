@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
 /// Proves the consumer pass inside <c>litespec model check</c> against the fixture
@@ -101,19 +101,19 @@ public sealed partial class ConsumerValidatorTests
     static CliResult RunConsumer(string root, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
-        return Cli.Run(args);
+        return TestCli.Run(args);
     }
 
     static CliResult RunConsumer(string root, TempFolder home, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
-        return Cli.Run(args, environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+        return TestCli.Run(args, environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
     }
 
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
     /// <summary>Fixture validates as written.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {

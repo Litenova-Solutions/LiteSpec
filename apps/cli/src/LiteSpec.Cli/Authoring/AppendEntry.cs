@@ -10,7 +10,7 @@ namespace LiteSpec.Authoring;
 ///     one entry goes onto a use-case file's records, in house order, and the
 ///     file is written back in canonical form.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
 static partial class AppendEntry
 {
     /// <summary>Where the new entry lands among the file's entries.</summary>

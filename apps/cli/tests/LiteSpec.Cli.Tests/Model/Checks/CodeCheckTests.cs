@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the write-undeclared, result-undeclared and effect-undeclared checks against hand-built models.</summary>
 public sealed class CodeCheckTests
@@ -9,9 +9,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Taking An Undeclared Repository Reports.</summary>
     /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
-    public void Handler_Taking_An_Undeclared_Repository_Reports()
+    public void HandlerTakingAnUndeclaredRepositoryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -26,9 +26,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Taking A Declared Repository Passes.</summary>
     /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
-    public void Handler_Taking_A_Declared_Repository_Passes()
+    public void HandlerTakingADeclaredRepositoryPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -44,9 +44,9 @@ public sealed class CodeCheckTests
     /// <summary>Repository Serves The Aggregate Its Implementation Marks.</summary>
     /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
-    public void Repository_Serves_The_Aggregate_Its_Implementation_Marks()
+    public void RepositoryServesTheAggregateItsImplementationMarks()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var repositoryFile = Path.Combine(temp.Path, "LoanBookRepository.cs");
         var model = TestModel.Model(
@@ -68,9 +68,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Producing An Undeclared Literal Reports.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Producing_An_Undeclared_Literal_Reports()
+    public void HandlerProducingAnUndeclaredLiteralReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -85,9 +85,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Throwing An Undeclared Type Reports.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Throwing_An_Undeclared_Type_Reports()
+    public void HandlerThrowingAnUndeclaredTypeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -104,9 +104,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Producing A Declared Code Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Producing_A_Declared_Code_Passes()
+    public void HandlerProducingADeclaredCodePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -128,9 +128,9 @@ public sealed class CodeCheckTests
     /// <summary>Permission Grant Allows The Forbidden Code.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Permission_Grant_Allows_The_Forbidden_Code()
+    public void PermissionGrantAllowsTheForbiddenCode()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -145,9 +145,9 @@ public sealed class CodeCheckTests
     /// <summary>Custom Refusals Codes Are Allowed.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Custom_Refusals_Codes_Are_Allowed()
+    public void CustomRefusalsCodesAreAllowed()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"refusals": {"forbidden": "library.forbidden", "invalidInput": "library.invalid"}}""");
@@ -165,9 +165,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Dispatching An Undeclared Command Reports.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Dispatching_An_Undeclared_Command_Reports()
+    public void HandlerDispatchingAnUndeclaredCommandReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -182,9 +182,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Dispatching A Declared Command Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Dispatching_A_Declared_Command_Passes()
+    public void HandlerDispatchingADeclaredCommandPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -200,9 +200,9 @@ public sealed class CodeCheckTests
     /// <summary>Reaction Dispatching Against Runs Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Reaction_Dispatching_Against_Runs_Passes()
+    public void ReactionDispatchingAgainstRunsPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -218,9 +218,9 @@ public sealed class CodeCheckTests
     /// <summary>Reaction Dispatching Against An Effects Entry Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Reaction_Dispatching_Against_An_Effects_Entry_Passes()
+    public void ReactionDispatchingAgainstAnEffectsEntryPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -236,9 +236,9 @@ public sealed class CodeCheckTests
     /// <summary>Untagged Reaction In A Use Case Folder Answers To The Use Case Effects.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Untagged_Reaction_In_A_Use_Case_Folder_Answers_To_The_Use_Case_Effects()
+    public void UntaggedReactionInAUseCaseFolderAnswersToTheUseCaseEffects()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyOnRequestReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -257,9 +257,9 @@ public sealed class CodeCheckTests
     /// <summary>Reaction Calling A Declared Operation Passes.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Reaction_Calling_A_Declared_Operation_Passes()
+    public void ReactionCallingADeclaredOperationPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "PushPassOnLoanReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -274,9 +274,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Dispatching Through A Helper Names The Helper.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Dispatching_Through_A_Helper_Names_The_Helper()
+    public void HandlerDispatchingThroughAHelperNamesTheHelper()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -295,9 +295,9 @@ public sealed class CodeCheckTests
     /// <summary>Handler Dispatching Directly Names No Helper.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Handler_Dispatching_Directly_Names_No_Helper()
+    public void HandlerDispatchingDirectlyNamesNoHelper()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

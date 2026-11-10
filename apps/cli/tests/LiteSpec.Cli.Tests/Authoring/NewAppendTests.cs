@@ -2,10 +2,10 @@ using System.Text.Json.Nodes;
 using LiteSpec;
 using LiteSpec.Authoring;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.Authoring;
 
 /// <summary>Tests for <c>litespec new result</c> and <c>litespec new scenario</c>.</summary>
 public sealed class NewAppendTests
@@ -47,7 +47,7 @@ public sealed class NewAppendTests
         """;
 
     /// <summary>New result appends a refusal after the existing refusals.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new result appends a refusal after the existing refusals")]
     public void AppendsRefusalAfterExistingRefusals()
     {
@@ -55,7 +55,7 @@ public sealed class NewAppendTests
         var page = UseCasePage(fixture.Path);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "result", UseCase, "copy-on-loan",
             "--outcome", "refusal", "--code", "lending.copy-on-loan",
             "--root", fixture.Path);
@@ -77,7 +77,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New result appends a success before the refusals.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new result appends a success before the refusals")]
     public void AppendsSuccessBeforeRefusals()
     {
@@ -85,7 +85,7 @@ public sealed class NewAppendTests
         var page = UseCasePage(fixture.Path);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "result", UseCase, "renewed", "--outcome", "success", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
@@ -103,7 +103,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New scenario appends last.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new scenario appends last")]
     public void AppendsScenarioLast()
     {
@@ -111,7 +111,7 @@ public sealed class NewAppendTests
         var page = UseCasePage(fixture.Path);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "scenario", UseCase, "borrowing-a-loaned-copy-is-refused",
             "--result", "result/borrow-copy.copy-unavailable",
             "--root", fixture.Path);
@@ -132,7 +132,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New result refuses a duplicate id and leaves the page alone.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new result refuses a duplicate id and leaves the page alone")]
     public void RefusesDuplicateId()
     {
@@ -140,7 +140,7 @@ public sealed class NewAppendTests
         var page = UseCasePage(fixture.Path);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "result", UseCase, "borrowed", "--outcome", "success", "--root", fixture.Path);
 
         Assert.Equal(2, result.Status);
@@ -149,13 +149,13 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New scenario refuses an unknown use case.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new scenario refuses an unknown use case")]
     public void RefusesUnknownUseCase()
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "scenario", "use-case/lending.no-such-case", "something-happens",
             "--result", "result/borrow-copy.borrowed",
             "--root", fixture.Path);
@@ -165,11 +165,11 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New help documents the append forms.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new help documents the append forms")]
     public void HelpDocumentsAppendForms()
     {
-        var result = Cli.Run("new", "--help");
+        var result = TestCli.Run("new", "--help");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("new result <use-case-id> <name>", result.Stdout);
@@ -177,11 +177,11 @@ public sealed class NewAppendTests
     }
 
     /// <summary>New on a page type refuses the append options.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new on a page type refuses the append options")]
     public void ScaffoldRefusesAppendOptions()
     {
-        var result = Cli.Run("new", "use-case", "lending.borrow-copy", "--code", "lending.x");
+        var result = TestCli.Run("new", "use-case", "lending.borrow-copy", "--code", "lending.x");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Option --code applies only to new result and new scenario", result.Output);
@@ -190,7 +190,7 @@ public sealed class NewAppendTests
     /// <summary>Titles derive from kebab names.</summary>
     /// <param name="name">The kebab-case entry name to convert.</param>
     /// <param name="title">The title the name converts to.</param>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Theory(DisplayName = "titles derive from kebab names")]
     [InlineData("borrowed", "Borrowed")]
     [InlineData("copy-unavailable", "Copy unavailable")]
@@ -199,7 +199,7 @@ public sealed class NewAppendTests
         Assert.Equal(title, AppendEntry.TitleFrom(name));
 
     /// <summary>Insert places a refusal after the existing refusals.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert places a refusal after the existing refusals")]
     public void InsertPlacesRefusalAfterRefusals()
     {
@@ -226,7 +226,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert places a success before the refusals.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert places a success before the refusals")]
     public void InsertPlacesSuccessBeforeRefusals()
     {
@@ -252,7 +252,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert appends a scenario last.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert appends a scenario last")]
     public void InsertAppendsScenarioLast()
     {
@@ -280,7 +280,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert fills an empty records array.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert fills an empty records array")]
     public void InsertFillsEmptyRecords()
     {
@@ -308,7 +308,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert writes a missing records array.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert writes a missing records array")]
     public void InsertWritesMissingRecords()
     {
@@ -339,7 +339,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert refuses a records field that is not an array.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert refuses a records field that is not an array")]
     public void InsertRefusesNonArrayRecords()
     {
@@ -359,7 +359,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Insert refuses a file that holds no record.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "insert refuses a file that holds no record")]
     public void InsertRefusesFileWithoutRecord()
     {
@@ -370,7 +370,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Run writes a result through the model lookup.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "run writes a result through the model lookup")]
     public void RunWritesResult()
     {
@@ -389,7 +389,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Run accepts the use case as home and name.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "run accepts the use case as home and name")]
     public void RunAcceptsBareUseCaseName()
     {
@@ -402,7 +402,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Run accepts a derived result reference.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "run accepts a derived result reference")]
     public void RunAcceptsDerivedResultRef()
     {
@@ -420,7 +420,7 @@ public sealed class NewAppendTests
     }
 
     /// <summary>Run carries a success code as codes.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "run carries a success code as codes")]
     public void RunCarriesSuccessCodeAsCodes()
     {
@@ -463,7 +463,7 @@ public sealed class NewAppendTests
 
     /// <summary>Run refuses invalid appends and leaves the page alone.</summary>
     /// <param name="args">One rejected argument set from <see cref="RejectedArgs" />.</param>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Theory(DisplayName = "run refuses invalid appends and leaves the page alone")]
     [MemberData(nameof(RejectedArgs))]
     public void RunRefusesInvalidAppends(string[] args)
@@ -486,7 +486,7 @@ public sealed class NewAppendTests
     /// <returns>The temporary consumer folder holding the record file.</returns>
     static TempFolder Consumer(string pageJson)
     {
-        var temp = Cli.Temp("new-append");
+        var temp = TestCli.Temp("new-append");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", pageJson);
         return temp;

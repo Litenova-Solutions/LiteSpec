@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a refusal confirms from its status or its client code through the project's refusal map.</summary>
 public sealed class RefusalProofTests
@@ -12,7 +12,7 @@ public sealed class RefusalProofTests
     /// <summary>A refusal scenario asserting the mapped status alone confirms.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Status_Alone_Confirms_When_The_Table_Maps_It()
+    public void RefusalStatusAloneConfirmsWhenTheTableMapsIt()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -27,7 +27,7 @@ public sealed class RefusalProofTests
     /// <summary>A refusal scenario asserting a client code the map translates confirms.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Client_Code_Confirms_When_The_Map_Translates_It()
+    public void RefusalClientCodeConfirmsWhenTheMapTranslatesIt()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -42,7 +42,7 @@ public sealed class RefusalProofTests
     /// <summary>A refusal scenario asserting a status the table maps elsewhere does not confirm.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Wrong_Status_Does_Not_Confirm()
+    public void RefusalWrongStatusDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -57,7 +57,7 @@ public sealed class RefusalProofTests
     /// <summary>A refusal scenario asserting a client code the map does not translate does not confirm.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Unmapped_Client_Code_Does_Not_Confirm()
+    public void RefusalUnmappedClientCodeDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -72,7 +72,7 @@ public sealed class RefusalProofTests
     /// <summary>An integration fact asserting the mapped status member confirms.</summary>
     /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Status_Member_Confirms_An_Integration_Fact()
+    public void RefusalStatusMemberConfirmsAnIntegrationFact()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -199,7 +199,7 @@ public sealed class RefusalProofTests
         {
             /// <proves>scenario/borrow-copy.borrowing-an-unavailable-copy-refuses</proves>
             [Fact]
-            public async Task Borrowing_an_unavailable_copy_refuses_with_conflict()
+            public async Task BorrowingAnUnavailableCopyRefusesWithConflict()
             {
                 var command = new BorrowCopyCommand { CopyId = "copy-1" };
                 var outcome = await gateway.SendAsync(command);

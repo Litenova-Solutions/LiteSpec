@@ -2,9 +2,9 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
 /// Builds the throwaway small consumer every consumer case validates: a library-style shop with
@@ -296,7 +296,7 @@ static class ConsumerFixture
 
     static ManifestInfo ReadManifest()
     {
-        var manifest = (JsonObject)DataFile.Read(Path.Combine(Cli.Repository, "litespec.manifest.yaml"))!;
+        var manifest = (JsonObject)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
         var version = (string?)manifest["version"] ?? throw new InvalidOperationException("The manifest names no version.");
         var known = manifest["extensions"] is JsonObject extensions && extensions.Count > 0
             ? extensions.Select(pair => pair.Key).First()
@@ -366,7 +366,7 @@ static class ConsumerFixture
     /// <returns>The temporary folder holding the fixture consumer.</returns>
     public static TempFolder Create()
     {
-        var folder = Cli.Temp("consumer");
+        var folder = TestCli.Temp("consumer");
         // The project file drives path resolution. The fixture declares no frontend,
         // so the controlled UI validator stays out of these cases.
         var project = new JsonObject
@@ -419,13 +419,13 @@ static class ConsumerFixture
     /// <returns>The temporary folder holding the throwaway LiteSpec release.</returns>
     public static TempFolder CreateHome(Action<JsonObject>? mutateManifest = null)
     {
-        var home = Cli.Temp("consumer-home");
+        var home = TestCli.Temp("consumer-home");
         File.Copy(
-            Path.Combine(Cli.Repository, "litespec.manifest.yaml"),
+            Path.Combine(TestCli.Repository, "litespec.manifest.yaml"),
             Path.Combine(home.Path, "litespec.manifest.yaml"));
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
-        foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
+        foreach (var schema in Directory.GetFiles(Path.Combine(TestCli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Combine(schemas, Path.GetFileName(schema)));
         }

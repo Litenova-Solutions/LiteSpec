@@ -94,7 +94,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value answers to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
 
-**Checked by:** `litespec model check` reports each arbitrary value, raw palette value, important modifier, and inline style with its file.
+**Checked by:** `litespec model check` reports `ui-class-invalid` for each arbitrary value, raw palette value, and important modifier, and `ui-stylesheet-invalid` for each inline style, with its file.
 
 ### Track Source Changes
 
@@ -108,7 +108,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Rationale:** The source lock records the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive. Normalizing source before hashing lets two workspaces compute the same digest for identical source. One lock beside one copy is what makes a changed primitive report a fork instead of passing unreported.
 
-**Checked by:** `litespec model check` recomputes each digest and reports changed primitive source.
+**Checked by:** `litespec model check` recomputes each digest and reports `ui-sourcelock-invalid` for changed primitive source.
 
 ## Conventions
 

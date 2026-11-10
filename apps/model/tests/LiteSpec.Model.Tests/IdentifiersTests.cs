@@ -27,7 +27,7 @@ public sealed class IdentifiersTests
     [InlineData("proves", "<proves>use-case/lending.borrow-copy</proves>", false)]
     [InlineData("heading", "### Keep Shared UI in One Package", true)]
     [InlineData("heading", "## Standards", false)]
-    public void Pattern_Matches_Expected_Samples(string name, string sample, bool expected)
+    public void PatternMatchesExpectedSamples(string name, string sample, bool expected)
     {
         Regex pattern = name switch
         {
@@ -55,7 +55,7 @@ public sealed class IdentifiersTests
     [InlineData("00001-loan-period", true, false)]
     [InlineData("loan-period", true, false)]
     [InlineData("borrow-copy", false, true)]
-    public void Decision_Name_Opens_With_Four_Digits(string name, bool decision, bool expected)
+    public void DecisionNameOpensWithFourDigits(string name, bool decision, bool expected)
     {
         Assert.Equal(expected, Identifiers.ValidName(name, decision));
     }

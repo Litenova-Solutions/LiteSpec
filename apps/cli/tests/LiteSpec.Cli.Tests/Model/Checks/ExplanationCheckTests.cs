@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the explanation checks against hand-built models and files.</summary>
 public sealed class ExplanationCheckTests
@@ -9,9 +9,9 @@ public sealed class ExplanationCheckTests
     /// <summary>An explanation with no record file beside it reports.</summary>
     /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
-    public void Orphaned_Explanation_Reports()
+    public void OrphanedExplanationReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "stray.md");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "# Stray\n\nNo record stands beside this file.\n");
@@ -28,9 +28,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A README without frontmatter is a document, not an orphaned explanation.</summary>
     /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
-    public void Readme_Without_Frontmatter_Passes()
+    public void ReadmeWithoutFrontmatterPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "README.md"), "# Lending\n\nThe lending module.\n");
@@ -42,9 +42,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A Markdown file opening with a frontmatter fence is a document.</summary>
     /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
-    public void Document_With_Frontmatter_Passes()
+    public void DocumentWithFrontmatterPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "guide.md"), "---\ntype: reference\nid: guide/lending\n---\n\n# Guide\n");
@@ -56,9 +56,9 @@ public sealed class ExplanationCheckTests
     /// <summary>An explanation with its record file beside it passes.</summary>
     /// <proves>litespec/core/model#explain-each-record-beside-its-record-file</proves>
     [Fact]
-    public void Explanation_Beside_Its_Record_Passes()
+    public void ExplanationBesideItsRecordPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var folder = Path.Combine(temp.Path, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "loan.yaml"), "type: aggregate\n");
@@ -71,9 +71,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A decision with no explanation file reports the missing file.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Decision_Without_An_Explanation_Reports()
+    public void DecisionWithoutAnExplanationReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "decisions", "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -90,9 +90,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A decision explanation without Context reports the missing section.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Decision_Explanation_Without_Context_Reports()
+    public void DecisionExplanationWithoutContextReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -116,9 +116,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A decision explanation with Context passes.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Decision_Explanation_With_Context_Passes()
+    public void DecisionExplanationWithContextPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -137,9 +137,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A research explanation without Answer reports the missing section.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Research_Explanation_Without_Answer_Reports()
+    public void ResearchExplanationWithoutAnswerReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -163,9 +163,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A research explanation with Answer passes.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Research_Explanation_With_Answer_Passes()
+    public void ResearchExplanationWithAnswerPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -184,9 +184,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A research record with no explanation file reports the missing file.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Research_Without_An_Explanation_Reports()
+    public void ResearchWithoutAnExplanationReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "benchmarks.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -203,9 +203,9 @@ public sealed class ExplanationCheckTests
     /// <summary>An entry of an article type needs no explanation file.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Entry_Of_An_Article_Type_Needs_No_Explanation()
+    public void EntryOfAnArticleTypeNeedsNoExplanation()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "0001-loan-period.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -223,9 +223,9 @@ public sealed class ExplanationCheckTests
     /// <summary>A page outside the article types needs no explanation file.</summary>
     /// <proves>litespec/core/model#require-an-explanation-file-for-article-types</proves>
     [Fact]
-    public void Non_Article_Page_Needs_No_Explanation()
+    public void NonArticlePageNeedsNoExplanation()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));

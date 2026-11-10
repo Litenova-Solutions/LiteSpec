@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>
 ///     Runs the built <c>litespec-maintain</c> tool as its own process, the way a

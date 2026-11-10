@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the repository-unimplemented check against hand-built models and reader fixtures.</summary>
 public sealed class RepositoryCheckTests
@@ -10,9 +10,9 @@ public sealed class RepositoryCheckTests
     /// <summary>Changed Aggregate Without An Implementation Reports.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
-    public void Changed_Aggregate_Without_An_Implementation_Reports()
+    public void ChangedAggregateWithoutAnImplementationReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         CreateInfrastructure(temp.Path);
         var model = ChangedLoanModel(temp.Path);
         model.Code.DomainTypes.Add(RepositoryInterface(temp.Path));
@@ -23,9 +23,9 @@ public sealed class RepositoryCheckTests
     /// <summary>Changed Aggregate With An Implementation Passes.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
-    public void Changed_Aggregate_With_An_Implementation_Passes()
+    public void ChangedAggregateWithAnImplementationPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         CreateInfrastructure(temp.Path);
         var model = ChangedLoanModel(temp.Path);
         model.Code.DomainTypes.Add(RepositoryInterface(temp.Path));
@@ -38,9 +38,9 @@ public sealed class RepositoryCheckTests
     /// <summary>Reader Fixture Without An Implementation Reports.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
-    public void Reader_Fixture_Without_An_Implementation_Reports()
+    public void ReaderFixtureWithoutAnImplementationReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
             namespace Library.Domain.Lending.Loans;
@@ -60,9 +60,9 @@ public sealed class RepositoryCheckTests
     /// <summary>Reader Fixture With An Implementation Passes.</summary>
     /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
-    public void Reader_Fixture_With_An_Implementation_Passes()
+    public void ReaderFixtureWithAnImplementationPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
             namespace Library.Domain.Lending.Loans;

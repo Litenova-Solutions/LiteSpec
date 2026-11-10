@@ -7,8 +7,8 @@ namespace LiteSpec.Authoring;
 ///     type, the entry types that live inside another file, and the shared
 ///     identifier checks of <c>litespec new</c> and <c>litespec rename</c>.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
-/// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#rewrite-every-link-on-a-rename</follows>
 static class RecordPages
 {
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
@@ -103,7 +103,7 @@ static class RecordPages
             "command" => Path.Combine(docs, "tools", $"{name}.md"),
             "configuration" => Path.Combine(docs, "tools", $"{name}.md"),
             "glossary" => Path.Combine(behavior, $"{name}.md"),
-            "example-cast" => Path.Combine(behavior, $"{name}.md"),
+            "example-cast" => Path.Combine(docs, $"{name}.md"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(style), $"Style '{style}' owns no document."),
         };

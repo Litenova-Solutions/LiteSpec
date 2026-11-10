@@ -10,7 +10,7 @@ public sealed class SuppressionTests
     /// <summary>An open departure moves its covered finding to known.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Open_Departure_Covers_Its_Finding()
+    public void OpenDepartureCoversItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -45,7 +45,7 @@ public sealed class SuppressionTests
     /// <summary>An expired departure keeps its finding reported.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Expired_Departure_Keeps_Its_Finding()
+    public void ExpiredDepartureKeepsItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -80,7 +80,7 @@ public sealed class SuppressionTests
     /// <summary>An departure holds only the codes it covers, not every finding on its subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Covers_Only_Its_Codes()
+    public void DepartureCoversOnlyItsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -115,7 +115,7 @@ public sealed class SuppressionTests
     /// <summary>A paths glob holds a finding on a matching file, even with no subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Paths_Glob_Covers_A_Subjectless_Finding()
+    public void PathsGlobCoversASubjectlessFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -150,7 +150,7 @@ public sealed class SuppressionTests
     /// <summary>A paths glob keeps a finding on a file outside the glob reported.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Paths_Glob_Misses_Another_Folder()
+    public void PathsGlobMissesAnotherFolder()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -185,7 +185,7 @@ public sealed class SuppressionTests
     /// <summary>A departure holds the codes its provision governs.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Covers_Its_Provisions_Codes()
+    public void DepartureCoversItsProvisionsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -227,7 +227,7 @@ public sealed class SuppressionTests
     /// <summary>A departure holds nothing when no provision lookup is given.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Covers_Nothing_Without_A_Lookup()
+    public void DepartureCoversNothingWithoutALookup()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -262,7 +262,7 @@ public sealed class SuppressionTests
     /// <summary>An expiry finding is never held, even on the departure's own subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Expiry_Finding_Is_Never_Held()
+    public void ExpiryFindingIsNeverHeld()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -297,7 +297,7 @@ public sealed class SuppressionTests
     /// <summary>An departure naming a use case also holds findings about its scenarios.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Use_Case_Subject_Covers_Its_Scenario()
+    public void UseCaseSubjectCoversItsScenario()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(

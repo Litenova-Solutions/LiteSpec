@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Scope block, Strength line, Applies to line, and generated counts cases.</summary>
 public sealed partial class StandardsValidatorTests
@@ -261,7 +261,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "docs/analyzers/rules/ls1001.md", StandardsFixture.ReferencePage);
             StandardsFixture.Write(root, "docs/analyzers/rules/ls1002.md", StandardsFixture.ReferencePage);
-            StandardsFixture.Write(root, "docs/README.md", BaseReadme(root) + "\n<!-- generated:counts:analyzer-rules -->\nThis tree ships 2 analyzer rules.\n<!-- /generated:counts -->\n");
+            StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(extra: "- [LS1001](analyzers/rules/ls1001.md)\n- [LS1002](analyzers/rules/ls1002.md)\n") + "\n<!-- generated:counts:analyzer-rules -->\nThis tree ships 2 analyzer rules.\n<!-- /generated:counts -->\n");
         },
         []);
 
@@ -297,6 +297,8 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Delete(root, "docs/core/scopes.md");
+            StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(omit: ["core/scopes.md"]));
+            StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(omit: ["core/scopes.md"]));
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any", "**Stack:** cobol"));
             StandardsFixture.RebuildIndex(root);
         },

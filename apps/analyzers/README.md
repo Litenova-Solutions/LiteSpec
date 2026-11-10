@@ -1,6 +1,6 @@
 # LiteSpec.Analyzers
 
-## Who This Is For
+## Audience
 
 You maintain the Roslyn analyzers in `apps/analyzers/`. You add a rule, change what a rule reports, change layer resolution, or release the package. After reading this page you know which file owns each behavior, how to add a rule end to end, how the tests prove it, and how to check the package against a real project.
 
@@ -40,12 +40,6 @@ Install the package in a consumer project, or once in `Directory.Build.props`, a
 
 The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That floor comes from the Roslyn version below, not from the target framework.
 
-## Why netstandard2.0 and Roslyn 4.14
-
-The analyzer project targets `netstandard2.0` because analyzers load into every compiler host that builds a consumer project, and `netstandard2.0` loads everywhere. The project sets `LangVersion` to `latest` and disables implicit usings, so the code compiles the same way on any SDK.
-
-The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` through `VersionOverride`, while `Directory.Packages.props` pins the central version at `5.9.0` for the repository tools. Version `4.14.0` is the oldest compiler the package supports: the .NET 9.0.300 SDK and Visual Studio 17.14. You write analyzer code against the `4.14.0` API surface only, so the package keeps working for consumers who have not moved to a newer SDK. The reference uses `PrivateAssets="all"`, so Roslyn never leaks into the package. The test project pins the same `4.14.0` version, so the tests prove the rules against the oldest supported compiler.
-
 ## Layout
 
 | Path | What it owns |
@@ -77,7 +71,7 @@ The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` throu
 
 The repository root adds three files the analyzers depend on. `Directory.Build.props` sets the default target to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. The analyzer project overrides the framework back to `netstandard2.0` and disables implicit usings. `Directory.Packages.props` pins the central package versions. `.github/workflows/ci.yml` builds `LiteSpec.slnx`, tests it, packs the analyzers to `artifacts`, checks the provision index, and validates the repository.
 
-## How a Compilation Flows Through the Package
+### How a Compilation Flows Through the Package
 
 The layer-gated rules inherit `LayerAnalyzer` (the traceability rules through `TraceabilityAnalyzer`), so they follow the same path through a compilation. `Initialize` disables analysis of generated code with `GeneratedCodeAnalysisFlags.None`, enables concurrent execution, and registers one compilation-start action. That action skips the compilation when the declared `LiteSpecLayer` value is `None` or unknown, gates a declared or layer-projects compilation once through `AppliesTo`, and otherwise registers the rule for per-file gating: each action builds a `FileScope` in `Register` and checks it for the file under analysis. A rule in the wrong layer registers nothing and costs nothing. `LS2017` is the exception: `LayerNameAnalyzer` inherits `DiagnosticAnalyzer` directly, reads the declared value itself, and reports an unknown one, whatever the layer. The generator is separate: `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `Emitter.Execute`, which writes nothing and reports nothing when the layer is `None`, and writes the full surface for the module-layout application project.
 
@@ -134,7 +128,7 @@ Release tracking follows the Roslyn convention. `AnalyzerReleases.Shipped.md` li
 
 The project sets `EnforceExtendedAnalyzerRules` to `true`, so the Roslyn meta-analyzers check the rules themselves. It suppresses `RS1012` and `RS1013` in `NoWarn` because `LayerAnalyzer` registers each rule from its compilation-start action and hands that context to `Register`, which the meta-analyzer cannot see. It also suppresses `NU5128` because the package ships an analyzer with no `lib` folder. `TreatWarningsAsErrors` and `GenerateDocumentationFile` stay on, so analyzer code ships with XML documentation and a warning fails the build.
 
-## Test Harness
+### Test Harness
 
 `Verify.AnalyzerAsync` in `tests/LiteSpec.Analyzers.Tests/Support/Verify.cs` runs one analyzer over C# sources and compares its diagnostics with the spans the sources mark. A marked span reads `{|LS1002:OrderStatus|}`: the diagnostic ID, then the exact text the diagnostic covers. The harness strips the markup, builds a compilation from the clean text, runs the analyzer, and asserts that the actual diagnostics match the marked spans exactly, with nothing missing and nothing extra. Locations print as `ID Path(line,column)-(line,column)` with 1-based lines, so a failure tells you which span moved.
 
@@ -173,7 +167,7 @@ public Task ReportsAnEnumInDomain() =>
         """);
 ```
 
-## Add a Rule
+### Add a Rule
 
 Follow these steps in order. Each step names the file you change.
 
@@ -185,11 +179,11 @@ Follow these steps in order. Each step names the file you change.
 6. Add the rule row to the Rules table in `src/LiteSpec.Analyzers/README.md` with its ID, layer, short report text, and provision link.
 7. Document the rule with one reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md): the provision, the layers, where the diagnostic sits, what the rule ignores, and a breach example beside a compliant example taken from your tests.
 
-## Performance Rules
+### Performance Rules
 
 The analyzers run on every keystroke in an IDE, so you keep per-compilation work small and shared. Build the `FileScope` and the `CodeMap` once in the compilation-start action and close over them; never rebuild them per symbol. Resolve well-known types once with `GetTypeByMetadataName` inside `Register` and close over the results; never look them up per node. In compilation-end actions, walk `context.Compilation.Assembly.GlobalNamespace` only, which is the source assembly under analysis, and skip symbols with no `DeclaringSyntaxReferences`, so referenced packages cost nothing. Never call `GetSemanticModel` yourself: use the symbol, operation, and syntax-node contexts the compiler hands you, which already carry the right model. Pick the narrowest registration the rule allows, and keep `EnableConcurrentExecution` with `ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None)` from the base class. When you add a rule, check its registration against this list before you write the test.
 
-## End-To-End Check Against a Scratch Project
+### End-To-End Check Against a Scratch Project
 
 The unit tests prove each rule in isolation. This check proves the packed package reports in a real build. Pack the package, create a scratch project outside the repository, point it at a local feed, and build.
 
@@ -203,3 +197,9 @@ The unit tests prove each rule in isolation. This check proves the packed packag
 ## Limits
 
 The analyzers check the files of the layers the rule table names, plus test files such as `Shop.Domain.Tests` for the test rules, and stay quiet everywhere else, including `Shop.DomainTests` and files no layer folder or role suffix places. They skip generated code. They report syntax and symbols the compiler sees: a rule recognizes handlers, repositories, aggregates, child entities, and controllers by the names and base types its code reads, so a type that hides behind an unfamiliar name or an indirect base can slip past, and the rule's reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md) records what each rule ignores. Diagnostics are errors by default; a project changes severity per rule in `.editorconfig` with `dotnet_diagnostic.LS1011.severity`, and a project that departs from a Standard records a departure that cites the provision. The package supports the Roslyn version it pins and newer compilers only.
+
+### Why netstandard2.0 and Roslyn 4.14
+
+The analyzer project targets `netstandard2.0` because analyzers load into every compiler host that builds a consumer project, and `netstandard2.0` loads everywhere. The project sets `LangVersion` to `latest` and disables implicit usings, so the code compiles the same way on any SDK.
+
+The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` through `VersionOverride`, while `Directory.Packages.props` pins the central version at `5.9.0` for the repository tools. Version `4.14.0` is the oldest compiler the package supports: the .NET 9.0.300 SDK and Visual Studio 17.14. You write analyzer code against the `4.14.0` API surface only, so the package keeps working for consumers who have not moved to a newer SDK. The reference uses `PrivateAssets="all"`, so Roslyn never leaks into the package. The test project pins the same `4.14.0` version, so the tests prove the rules against the oldest supported compiler.

@@ -274,7 +274,7 @@ public sealed class MarkPresenceTests
                 public sealed class ExpenseTests
                 {
                     [Fact]
-                    public void {|LS5001:Submitting_with_a_receipt_succeeds|}()
+                    public void {|LS5001:SubmittingWithAReceiptSucceeds|}()
                     {
                     }
                 }
@@ -299,7 +299,7 @@ public sealed class MarkPresenceTests
                 {
                     /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }

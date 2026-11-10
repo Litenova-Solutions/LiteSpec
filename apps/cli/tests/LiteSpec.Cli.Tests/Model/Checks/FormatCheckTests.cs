@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the format check against hand-built models and files.</summary>
 public sealed class FormatCheckTests
@@ -10,9 +10,9 @@ public sealed class FormatCheckTests
     /// <summary>A record file outside canonical form reports.</summary>
     /// <proves>litespec/core/model#write-every-record-file-in-canonical-form</proves>
     [Fact]
-    public void Record_File_Outside_Canonical_Form_Reports()
+    public void RecordFileOutsideCanonicalFormReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "title: Loan\ntype: aggregate\nid: aggregate/lending.loan\n");
@@ -31,9 +31,9 @@ public sealed class FormatCheckTests
     /// <summary>A record file in canonical form passes.</summary>
     /// <proves>litespec/core/model#write-every-record-file-in-canonical-form</proves>
     [Fact]
-    public void Canonical_Record_File_Passes()
+    public void CanonicalRecordFilePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan", "kind": "entity"}""")!));
@@ -47,9 +47,9 @@ public sealed class FormatCheckTests
     /// <summary>A record file that is not YAML reports no format drift.</summary>
     /// <proves>litespec/core/model#write-every-record-file-in-canonical-form</proves>
     [Fact]
-    public void Unparsable_Record_File_Reports_No_Format_Drift()
+    public void UnparsableRecordFileReportsNoFormatDrift()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
         File.WriteAllText(file, "type: [unclosed\n");

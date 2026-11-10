@@ -1,9 +1,9 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Diff;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Diff;
+namespace LiteSpec.Cli.Tests.Model.Diff;
 
 /// <summary>Proves a proving test method changed without its scenario reports proof-hash-drift as advisory, and only on the base comparison.</summary>
 public sealed class ProofChangesTests
@@ -16,7 +16,7 @@ public sealed class ProofChangesTests
     /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as an advisory finding on the scenario.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void Test_Method_Changed_Without_Scenario_Reports_Advisory_Finding()
+    public void TestMethodChangedWithoutScenarioReportsAdvisoryFinding()
     {
         using var temp = ModelFixture.Prepare("small");
         var baseModel = Prove(temp.Path);
@@ -35,7 +35,7 @@ public sealed class ProofChangesTests
     /// <summary>A proving test method edited together with its scenario reports nothing, since the scenario is the change it proves.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void Test_Method_Changed_With_Scenario_Reports_Nothing()
+    public void TestMethodChangedWithScenarioReportsNothing()
     {
         using var temp = ModelFixture.Prepare("small");
         var baseModel = Prove(temp.Path);
@@ -51,7 +51,7 @@ public sealed class ProofChangesTests
     /// <summary>An edit elsewhere in the proving test's file, outside its method, reports nothing.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void Edit_Elsewhere_In_The_Test_File_Reports_Nothing()
+    public void EditElsewhereInTheTestFileReportsNothing()
     {
         using var temp = ModelFixture.Prepare("small");
         var baseModel = Prove(temp.Path);
@@ -66,7 +66,7 @@ public sealed class ProofChangesTests
     /// <summary>The check only runs against a base: a head build alone reports no proof-hash-drift.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void Without_A_Base_Nothing_Reports()
+    public void WithoutABaseNothingReports()
     {
         using var temp = ModelFixture.Prepare("small");
         Prove(temp.Path);
@@ -81,7 +81,7 @@ public sealed class ProofChangesTests
     /// <summary>A passing run records the proving test method hash in the ledger beside the scenario and test hashes.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void Passing_Run_Records_The_Method_Hash()
+    public void PassingRunRecordsTheMethodHash()
     {
         using var temp = ModelFixture.Prepare("small");
         Prove(temp.Path);

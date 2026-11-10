@@ -2,7 +2,7 @@
 
 ## Intent
 
-A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [Records and the Project Model](records-and-the-model.md), before they open their first record.
+A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [How LiteSpec Works](how-litespec-works.md), before they open their first record.
 
 ## Why Before How
 
@@ -117,4 +117,4 @@ A product person takes the journey track: one goal at a time, from promises to p
 
 ## Next
 
-[How the Tools Fit Together](the-tooling.md) explains when each tool runs on the records these tracks walk through.
+[How LiteSpec Works](how-litespec-works.md) explains when each tool runs on the records these tracks walk through.

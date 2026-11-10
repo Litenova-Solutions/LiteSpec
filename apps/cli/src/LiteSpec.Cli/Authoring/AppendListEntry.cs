@@ -11,7 +11,7 @@ namespace LiteSpec.Authoring;
 ///     no record identifier, so the file argument is the file's
 ///     consumer-relative path.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
 static class AppendListEntry
 {
     /// <summary>Runs the append path and returns its exit code.</summary>

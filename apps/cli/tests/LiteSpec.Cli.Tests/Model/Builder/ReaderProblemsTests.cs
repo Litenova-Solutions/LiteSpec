@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves the readers report what they skip as <c>reader-missing</c>, and that same-named types stay separate.</summary>
 public sealed class ReaderProblemsTests
@@ -10,9 +10,9 @@ public sealed class ReaderProblemsTests
     /// <summary>An unparsable backend file reports one reader-missing finding naming the file.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Unparsable_Backend_File_Reports_Reader_Missing()
+    public void UnparsableBackendFileReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         WriteProject(temp.Path);
         WriteApp(temp.Path, "Broken.cs", "public sealed class BrokenHandler { public void Handle( { }");
 
@@ -29,9 +29,9 @@ public sealed class ReaderProblemsTests
     /// <summary>A backend file another process holds open reports one reader-missing finding naming the file.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Unreadable_Backend_File_Reports_Reader_Missing()
+    public void UnreadableBackendFileReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         WriteProject(temp.Path);
         var file = WriteApp(temp.Path, "HeldHandler.cs", """
             namespace Reader.App;
@@ -54,9 +54,9 @@ public sealed class ReaderProblemsTests
     /// <summary>An unparsable scenario file reports one reader-missing finding naming the file.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Unparsable_Scenario_File_Reports_Reader_Missing()
+    public void UnparsableScenarioFileReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stacks": ["dotnet"], "paths": {"testRoots": ["src/Tests"]}}""");
@@ -75,9 +75,9 @@ public sealed class ReaderProblemsTests
     /// <summary>An unparsable Android screen file reports one reader-missing finding naming the file.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Unparsable_Screen_File_Reports_Reader_Missing()
+    public void UnparsableScreenFileReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         Directory.CreateDirectory(temp.Path);
         File.WriteAllText(
             Path.Combine(temp.Path, "BrokenActivity.cs"),
@@ -96,7 +96,7 @@ public sealed class ReaderProblemsTests
     /// <summary>A record file that does not parse reports record-invalid naming the file, the parser error and its line.</summary>
     /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
-    public void Malformed_Record_File_Reports_Record_Invalid()
+    public void MalformedRecordFileReportsRecordInvalid()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, ".litespec/behavior/broken-record.yaml", "type: use-case\n\tid: use-case/lending.broken\n");
@@ -119,7 +119,7 @@ public sealed class ReaderProblemsTests
     /// <summary>An explanation file with no record file beside it reports explanation-orphaned at line 1.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Orphaned_Explanation_Reports_Explanation_Orphaned()
+    public void OrphanedExplanationReportsExplanationOrphaned()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, ".litespec/behavior/stray-note.md", "# Stray note\n\nNo record file stands beside this file.\n");
@@ -137,9 +137,9 @@ public sealed class ReaderProblemsTests
     /// <summary>A declared stack root that does not exist reports reader-missing naming the declared root.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Missing_Declared_Stack_Root_Reports_Reader_Missing()
+    public void MissingDeclaredStackRootReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/Missing.Modules"}}}""");
@@ -155,9 +155,9 @@ public sealed class ReaderProblemsTests
     /// <summary>A declared stack root wildcard that matches no folder reports reader-missing naming the pattern.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Wildcard_Stack_Root_With_No_Match_Reports_Reader_Missing()
+    public void WildcardStackRootWithNoMatchReportsReaderMissing()
     {
-        using var temp = Cli.Temp("reader-problems");
+        using var temp = TestCli.Temp("reader-problems");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src"));
         File.WriteAllText(
             Path.Combine(temp.Path, ".litespec/project.yaml"),
@@ -172,9 +172,9 @@ public sealed class ReaderProblemsTests
     /// <summary>A server project with no backend reader reports reader-missing; a client-only project stays silent.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Server_Shape_Without_Backend_Reader_Reports_Reader_Missing()
+    public void ServerShapeWithoutBackendReaderReportsReaderMissing()
     {
-        using var server = Cli.Temp("reader-problems");
+        using var server = TestCli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(server.Path, ".litespec/project.yaml"),
             """{"shape": "server", "stacks": ["svelte"]}""");
@@ -185,7 +185,7 @@ public sealed class ReaderProblemsTests
         Assert.Contains("server", problem.Message);
         Assert.Contains("no backend reader", problem.Message);
 
-        using var client = Cli.Temp("reader-problems");
+        using var client = TestCli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(client.Path, ".litespec/project.yaml"),
             """{"shape": "client-only", "stacks": ["svelte"]}""");
@@ -198,23 +198,23 @@ public sealed class ReaderProblemsTests
     /// <summary>A LiteSpec manifest that cannot be parsed reports reader-missing naming the manifest.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Manifest_Read_Failure_Reports_Reader_Missing()
+    public void ManifestReadFailureReportsReaderMissing()
     {
-        using var consumer = Cli.Temp("reader-problems");
+        using var consumer = TestCli.Temp("reader-problems");
         File.WriteAllText(
             Path.Combine(consumer.Path, ".litespec/project.yaml"),
             """{"shape": "client-only", "stacks": []}""");
 
-        using var home = Cli.Temp("reader-problems-home");
+        using var home = TestCli.Temp("reader-problems-home");
         File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), "[]\n");
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
-        foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
+        foreach (var schema in Directory.GetFiles(Path.Combine(TestCli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Combine(schemas, Path.GetFileName(schema)));
         }
 
-        var check = Cli.Run(
+        var check = TestCli.Run(
             ["model", "check", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
@@ -225,9 +225,9 @@ public sealed class ReaderProblemsTests
     /// <summary>Two handlers with the same simple name in different namespaces keep their own kind and effects.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Same_Named_Handlers_In_Different_Namespaces_Keep_Their_Own_Kind_And_Effects()
+    public void SameNamedHandlersInDifferentNamespacesKeepTheirOwnKindAndEffects()
     {
-        var fixture = Cli.Fixture("readers-same-name");
+        var fixture = TestCli.Fixture("readers-same-name");
 
         var read = new DotnetBackendReader().ReadWithProblems(ConsumerConfig.Load(fixture));
 

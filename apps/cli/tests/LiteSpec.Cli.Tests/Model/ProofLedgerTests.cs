@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves test hashes ignore checkout path and line endings, and a damaged ledger reports.</summary>
 public sealed class ProofLedgerTests
@@ -13,9 +13,9 @@ public sealed class ProofLedgerTests
     /// <summary>The same test file with CRLF and LF content hashes the same.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Same_Test_With_Crlf_And_Lf_Hashes_The_Same()
+    public void SameTestWithCrlfAndLfHashesTheSame()
     {
-        using var temp = Cli.Temp("proof");
+        using var temp = TestCli.Temp("proof");
         WriteTest(temp.Path, "first line\nsecond line\n");
         var model = Model(temp.Path);
         var lf = ProofLedger.TestHashOf(model, Scenario);
@@ -28,10 +28,10 @@ public sealed class ProofLedgerTests
     /// <summary>The same test file under another project root hashes the same.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Same_Test_Under_Another_Root_Hashes_The_Same()
+    public void SameTestUnderAnotherRootHashesTheSame()
     {
-        using var first = Cli.Temp("proof");
-        using var second = Cli.Temp("proof");
+        using var first = TestCli.Temp("proof");
+        using var second = TestCli.Temp("proof");
         WriteTest(first.Path, "first line\nsecond line\n");
         WriteTest(second.Path, "first line\nsecond line\n");
 
@@ -43,9 +43,9 @@ public sealed class ProofLedgerTests
     /// <summary>A ledger that does not parse reports a model problem.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Ledger_That_Does_Not_Parse_Reports_A_Problem()
+    public void LedgerThatDoesNotParseReportsAProblem()
     {
-        using var temp = Cli.Temp("proof");
+        using var temp = TestCli.Temp("proof");
         var folder = Path.Combine(temp.Path, ".litespec", "proof");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "proofs.json"), "{ not json\n");

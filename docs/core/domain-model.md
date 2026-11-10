@@ -114,7 +114,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The term `refusal` carries `layer: behavior` with `aliases: ["rejection", "error"]`.
 
-**Checked by:** `litespec model check` fails a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
+**Checked by:** `litespec model check` reports `glossary-invalid` for a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
 
 ### State Every Module Dependency
 
@@ -144,7 +144,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The expense declares `kind: entity`, and the suppression list declares `kind: store`.
 
-**Checked by:** `litespec model check` fails an aggregate page without `kind` or with an unknown kind.
+**Checked by:** `litespec model check` reports `record-invalid` for an aggregate page without `kind` or with an unknown kind.
 
 ### Name the Owner of Every Store
 
@@ -158,7 +158,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A store holds state no aggregate invariant guards, so nothing in the model explains who answers for its shape: a library-owned table, a suppression list, or a delivery log. Naming the owner puts one party behind it, and keeps staff actions on it as ordinary use cases instead of unwritten operations.
 
-**Checked by:** `litespec model check` fails a store aggregate page without `owner`.
+**Checked by:** `litespec model check` reports `record-invalid` for a store aggregate page without `owner`.
 
 ### Model Each Aggregate Lifecycle with States
 
@@ -174,7 +174,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
-**Checked by:** `litespec model check` fails an entity page without `states` entries carrying a name and a meaning.
+**Checked by:** `litespec model check` reports `record-invalid` for an entity page without `states` entries carrying a name and a meaning.
 
 ### Leave States off Every Store
 
@@ -190,7 +190,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The suppression list declares `kind: store` with its owner and no states.
 
-**Checked by:** `litespec model check` fails a store aggregate carrying `states`.
+**Checked by:** `litespec model check` reports `record-invalid` for a store aggregate carrying `states`.
 
 ### Connect Every State Through Transitions
 
@@ -220,7 +220,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** `rule/expense.reimbursed-once` is an invariant stating "an expense is reimbursed at most once", checked on every reimbursement.
 
-**Checked by:** `litespec model check` fails a rule entry without `kind` or `statement`.
+**Checked by:** `litespec model check` reports `record-invalid` for a rule entry without `kind` or `statement`.
 
 ### Bind Every Atomic Write Group in Its Rule
 
@@ -308,7 +308,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A price, fee, or rate read live changes under settled business: a refund follows today price instead of the price at sale. Naming when the value freezes pins each reading to its moment, and the retained link keeps the earlier values reachable for audit and dispute.
 
-**Checked by:** `litespec model check` fails a commercial-data rule without `frozenWhen` or `retainedIn`.
+**Checked by:** `litespec model check` reports `record-invalid` for a commercial-data rule without `frozenWhen` or `retainedIn`.
 
 ### Compute Shared Values from One Calculation Rule
 
@@ -350,7 +350,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
 
-**Checked by:** `litespec model check` fails an event entry without `meaning` or `carries`.
+**Checked by:** `litespec model check` reports `record-invalid` for an event entry without `meaning` or `carries`.
 
 ### Name Every Event in the Past Tense
 

@@ -10,7 +10,7 @@ namespace LiteSpec.Authoring;
 ///     one document from the template for a document style. A decision takes
 ///     the next free number from the one decision sequence.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
 static class NewCommand
 {
     /// <summary>The command's usage text.</summary>

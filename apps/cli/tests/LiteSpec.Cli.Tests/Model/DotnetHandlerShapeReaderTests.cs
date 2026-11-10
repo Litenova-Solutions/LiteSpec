@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the backend reader collects the handler shape facts: aggregate calls and methods, message types, dependency counts, collaborators, loop reads, memory filters and audit actions.</summary>
 public sealed class DotnetHandlerShapeReaderTests
@@ -10,9 +10,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Handler Call On An Aggregate Local Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Handler_Call_On_An_Aggregate_Local_Is_Collected()
+    public void HandlerCallOnAnAggregateLocalIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteDomainRoot(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
@@ -39,9 +39,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Handler Call On A Loaded Var Resolves Through The Repository.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Handler_Call_On_A_Loaded_Var_Resolves_Through_The_Repository()
+    public void HandlerCallOnALoadedVarResolvesThroughTheRepository()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteDomainRoot(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
@@ -66,9 +66,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Static Calls And Non Root Types Are Not Aggregate Calls.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Static_Calls_And_Non_Root_Types_Are_Not_Aggregate_Calls()
+    public void StaticCallsAndNonRootTypesAreNotAggregateCalls()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "Order.cs", """
             namespace Library.Domain.Lending.Loans;
@@ -103,9 +103,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Aggregate Methods Carry The Events They Raise.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Aggregate_Methods_Carry_The_Events_They_Raise()
+    public void AggregateMethodsCarryTheEventsTheyRaise()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "Order.cs", """
             namespace Library.Domain.Lending.Loans;
@@ -144,9 +144,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Methods Outside An Aggregate Root Are Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Methods_Outside_An_Aggregate_Root_Are_Ignored()
+    public void MethodsOutsideAnAggregateRootAreIgnored()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "Ledger.cs", """
             namespace Library.Domain.Lending.Loans;
@@ -166,9 +166,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Handler Message Type And Dependency Count Are Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Handler_Message_Type_And_Dependency_Count_Are_Collected()
+    public void HandlerMessageTypeAndDependencyCountAreCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
@@ -192,9 +192,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Event Handler Dependency Count Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Event_Handler_Dependency_Count_Is_Collected()
+    public void EventHandlerDependencyCountIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.OnCopyBorrowed;
@@ -211,9 +211,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Collaborator Built With New And Holding A Repository Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Collaborator_Built_With_New_And_Holding_A_Repository_Is_Collected()
+    public void CollaboratorBuiltWithNewAndHoldingARepositoryIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "OrderEraser.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
@@ -249,9 +249,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Collaborator Without A Repository Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Collaborator_Without_A_Repository_Is_Ignored()
+    public void CollaboratorWithoutARepositoryIsIgnored()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
@@ -272,9 +272,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Repository Read Inside A Loop Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Repository_Read_Inside_A_Loop_Is_Collected()
+    public void RepositoryReadInsideALoopIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("RemindBorrowers"), "RemindBorrowersCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.RemindBorrowers;
@@ -303,9 +303,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Query Filter On A Repository List Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Query_Filter_On_A_Repository_List_Is_Collected()
+    public void QueryFilterOnARepositoryListIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
             namespace Library.Application.Lending.Loans.ListLoans;
@@ -327,9 +327,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Query Filter On A Session Query Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Query_Filter_On_A_Session_Query_Is_Ignored()
+    public void QueryFilterOnASessionQueryIsIgnored()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
             namespace Library.Application.Lending.Loans.ListLoans;
@@ -350,9 +350,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Command Filter On A Repository List Is Ignored.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Command_Filter_On_A_Repository_List_Is_Ignored()
+    public void CommandFilterOnARepositoryListIsIgnored()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
@@ -374,9 +374,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>Audited Action Literal Is Collected.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Audited_Action_Literal_Is_Collected()
+    public void AuditedActionLiteralIsCollected()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommand.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
@@ -394,9 +394,9 @@ public sealed class DotnetHandlerShapeReaderTests
     /// <summary>State Changing Method Without An Event Is An Aggregate Method Element.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void State_Changing_Method_Without_An_Event_Is_An_Aggregate_Method_Element()
+    public void StateChangingMethodWithoutAnEventIsAnAggregateMethodElement()
     {
-        using var temp = Cli.Temp("reader");
+        using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "Order.cs", """
             namespace Library.Domain.Lending.Loans;

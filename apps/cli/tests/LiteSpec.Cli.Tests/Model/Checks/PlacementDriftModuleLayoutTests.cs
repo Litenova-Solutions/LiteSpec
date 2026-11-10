@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
 using LiteSpec.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the code placement check matches the module layout: module-level use cases, the element's own folder, Contracts publishing, reactions, enforcing aggregates, and mirrored tests.</summary>
 public sealed class PlacementDriftModuleLayoutTests
@@ -11,9 +11,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A module-level use case endpoint in UseCases reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Level_Endpoint_In_UseCases_Reports_Nothing()
+    public void ModuleLevelEndpointInUseCasesReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagEndpoint.cs");
         WriteCode(file, "Library.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagEndpoint");
@@ -26,9 +26,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A module-level use case handler nested under an aggregate folder reports that folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Level_Handler_Nested_Under_Aggregate_Reports_Folder()
+    public void ModuleLevelHandlerNestedUnderAggregateReportsFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Controls", "Flags", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
@@ -43,9 +43,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An endpoint in its aggregate use case folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Owned_Endpoint_In_Own_Folders_Reports_Nothing()
+    public void AggregateOwnedEndpointInOwnFoldersReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
         WriteCode(file, "Library.Cancellations.EventChangeAnswers.UseCases.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
@@ -57,9 +57,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An endpoint in another aggregate folder reports that folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Owned_Endpoint_In_Wrong_Aggregate_Reports_Folder()
+    public void AggregateOwnedEndpointInWrongAggregateReportsFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
@@ -74,9 +74,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An aggregate-owned handler in the module UseCases folder reports UseCases.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Owned_Handler_In_Module_UseCases_Reports_UseCases_Folder()
+    public void AggregateOwnedHandlerInModuleUseCasesReportsUseCasesFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "RecordEventChangeAnswerCommandHandler", file, "use-case/cancellations.record-event-change-answer"));
@@ -91,9 +91,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A domain event of a module named like a layer folder reports nothing in its aggregate Domain folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Domain_Event_Of_Module_Named_Like_Layer_Folder_Reports_Nothing()
+    public void DomainEventOfModuleNamedLikeLayerFolderReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Events", "ComingSoonPages", "Domain", "Events", "ComingSoonPagePublishedEvent.cs");
         WriteCode(file, "Library.Events.ComingSoonPages.Domain.Events", "ComingSoonPagePublishedEvent");
@@ -105,9 +105,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An endpoint under an aggregate named like its module reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Endpoint_Under_Aggregate_Named_Like_Module_Reports_Nothing()
+    public void EndpointUnderAggregateNamedLikeModuleReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Directory", "Directory", "UseCases", "SearchAccounts", "SearchAccountsEndpoint.cs");
         WriteCode(file, "Library.Directory.Directory.UseCases.SearchAccounts", "SearchAccountsEndpoint");
@@ -119,9 +119,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A rule exception in its module Contracts folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Rule_Exception_In_Own_Module_Contracts_Reports_Nothing()
+    public void RuleExceptionInOwnModuleContractsReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Contracts", "Exceptions", "LoanNotFoundException.cs");
         WriteCode(file, "Library.Lending.Contracts.Exceptions", "LoanNotFoundException");
@@ -133,9 +133,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A product rule exception in the shared kernel reports nothing, wherever its record file sits.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Product_Rule_Exception_In_Shared_Kernel_Reports_Nothing()
+    public void ProductRuleExceptionInSharedKernelReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         AddProductRule(model, temp.Path);
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Exceptions", "TextRequiredException.cs");
@@ -148,9 +148,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A product rule exception in a module reports that it belongs in the shared kernel.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Product_Rule_Exception_In_A_Module_Reports_The_Shared_Kernel()
+    public void ProductRuleExceptionInAModuleReportsTheSharedKernel()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         AddProductRule(model, temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Contracts", "Exceptions", "TextRequiredException.cs");
@@ -173,9 +173,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A rule exception in another module Contracts folder reports the module folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Rule_Exception_In_Another_Module_Contracts_Reports_Module_Folder()
+    public void RuleExceptionInAnotherModuleContractsReportsModuleFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Billing", "Contracts", "Exceptions", "LoanNotFoundException.cs");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
@@ -190,9 +190,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A domain event in its module Contracts folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Domain_Event_In_Own_Module_Contracts_Reports_Nothing()
+    public void DomainEventInOwnModuleContractsReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Contracts", "IntegrationEvents", "LoanBorrowedEvent.cs");
         WriteCode(file, "Library.Lending.Contracts.IntegrationEvents", "LoanBorrowedEvent");
@@ -204,9 +204,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A rule exception beside an aggregate its rule governs reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Rule_Exception_Beside_Governed_Aggregate_Reports_Nothing()
+    public void RuleExceptionBesideGovernedAggregateReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Admission", "AdmissionGates", "Domain", "Exceptions", "AdmissionGateEventMismatchException.cs");
         WriteCode(file, "Library.Admission.AdmissionGates.Domain.Exceptions", "AdmissionGateEventMismatchException");
@@ -218,9 +218,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A rule exception beside an aggregate its rule neither homes nor governs reports that folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Rule_Exception_Beside_Ungoverned_Aggregate_Reports_Folder()
+    public void RuleExceptionBesideUngovernedAggregateReportsFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Admission", "Boxes", "Domain", "Exceptions", "AdmissionGateEventMismatchException.cs");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "AdmissionGateEventMismatchException", file, "rule/scanner-device.device-stands-at-own-event-gate"));
@@ -235,9 +235,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A test under UseCases for a module-level use case reports nothing.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void Test_For_Module_Level_Use_Case_Under_UseCases_Reports_Nothing()
+    public void TestForModuleLevelUseCaseUnderUseCasesReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = TestFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagScenarios.cs");
         WriteCode(file, "Library.Acceptance.Tests.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagScenarios");
@@ -249,9 +249,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A test under UseCases for an aggregate-owned use case reports UseCases.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void Test_For_Aggregate_Owned_Use_Case_Under_UseCases_Reports_Folder()
+    public void TestForAggregateOwnedUseCaseUnderUseCasesReportsFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = TestFile(temp.Path, "Lending", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file, "scenario/borrow-copy.borrowing-an-available-copy-succeeds"));
@@ -266,9 +266,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A module-level handler directly under the module leaves the folder to the closed folder check.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Level_Handler_Directly_Under_Module_Reports_Folder_Only()
+    public void ModuleLevelHandlerDirectlyUnderModuleReportsFolderOnly()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Controls", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
         WriteCode(file, "Library.Controls.ReadFeatureFlag", "ReadFeatureFlagQueryHandler");
@@ -284,9 +284,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An aggregate-owned handler under its aggregate UseCases folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Owned_Handler_Under_UseCases_Reports_Nothing()
+    public void AggregateOwnedHandlerUnderUseCasesReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
@@ -299,9 +299,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>An aggregate-owned endpoint flat in its aggregate folder reports the missing UseCases level.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Owned_Endpoint_Flat_In_Aggregate_Folder_Reports_UseCases_Folder()
+    public void AggregateOwnedEndpointFlatInAggregateFolderReportsUseCasesFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "BorrowCopy", "BorrowCopyEndpoint.cs");
         WriteCode(file, "Library.Lending.Loans.BorrowCopy", "BorrowCopyEndpoint");
@@ -317,9 +317,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A reaction under its module UseCases On fact folder reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Reaction_Under_UseCases_On_Fact_Reports_Nothing()
+    public void ReactionUnderUseCasesOnFactReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "UseCases", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
         WriteCode(file, "Library.Lending.UseCases.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
@@ -332,9 +332,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A file directly in a module Contracts folder reports the kind folders.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void File_Directly_In_Contracts_Reports_Contracts_Kind_Folders()
+    public void FileDirectlyInContractsReportsContractsKindFolders()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Contracts", "LoanId.cs");
         WriteCode(file, "Library.Lending.Contracts", "LoanId");
@@ -349,9 +349,9 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <summary>A shared kernel folder outside its closed set of layer folders reports the layer folders.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Shared_Kernel_Folder_Outside_Closed_Set_Reports_Layer_Folder()
+    public void SharedKernelFolderOutsideClosedSetReportsLayerFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         var shared = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Shared");
         Directory.CreateDirectory(shared);

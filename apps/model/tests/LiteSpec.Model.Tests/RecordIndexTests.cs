@@ -9,7 +9,7 @@ public sealed class RecordIndexTests
     /// <summary>ById reads the first record carrying the id, or null when none carries it.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void ById_Reads_The_First_Record_With_The_Id()
+    public void ByIdReadsTheFirstRecordWithTheId()
     {
         IReadOnlyList<IRecordFacts> records =
         [
@@ -26,7 +26,7 @@ public sealed class RecordIndexTests
     /// <summary>ByType reads every record of the type, in read order.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void ByType_Reads_Every_Record_Of_The_Type()
+    public void ByTypeReadsEveryRecordOfTheType()
     {
         IReadOnlyList<IRecordFacts> records =
         [

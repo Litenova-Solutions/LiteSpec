@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves a plain class carrying a job mark hosts its job: it clears job-unimplemented and takes exactly one mark.</summary>
 public sealed class JobMarkTests
@@ -8,7 +8,7 @@ public sealed class JobMarkTests
     /// <summary>Marked Plain Class Clears Job Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Marked_Plain_Class_Clears_Job_Unimplemented()
+    public void MarkedPlainClassClearsJobUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
@@ -35,7 +35,7 @@ public sealed class JobMarkTests
     /// <summary>Marked Plain Class With Two Marks Reports Mark Count.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Marked_Plain_Class_With_Two_Marks_Reports_Mark_Count()
+    public void MarkedPlainClassWithTwoMarksReportsMarkCount()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
@@ -64,7 +64,7 @@ public sealed class JobMarkTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Unmarked_Plain_Class_Is_Technical_And_Job_Stays_Unimplemented()
+    public void UnmarkedPlainClassIsTechnicalAndJobStaysUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
@@ -92,7 +92,7 @@ public sealed class JobMarkTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Marked_Class_In_Domain_Is_Not_A_Job_Host()
+    public void MarkedClassInDomainIsNotAJobHost()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);

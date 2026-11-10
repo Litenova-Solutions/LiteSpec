@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Operations;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the operations reader reads follows marks with the comment style.</summary>
 public sealed class OperationsMarkReaderTests
@@ -10,9 +10,9 @@ public sealed class OperationsMarkReaderTests
     /// <summary>Follows Marks Are Read With The Comment Style.</summary>
     /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Follows_Marks_Are_Read_With_The_Comment_Style()
+    public void FollowsMarksAreReadWithTheCommentStyle()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/Caddyfile", """
             # <follows>decision/0002-loan-index</follows>
@@ -36,9 +36,9 @@ public sealed class OperationsMarkReaderTests
     /// <summary>Marks Outside Comments And Other Verbs Are Ignored.</summary>
     /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Marks_Outside_Comments_And_Other_Verbs_Are_Ignored()
+    public void MarksOutsideCommentsAndOtherVerbsAreIgnored()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/Caddyfile", """
             <follows>decision/0002-loan-index</follows>
@@ -53,9 +53,9 @@ public sealed class OperationsMarkReaderTests
     /// <summary>Markdown Files Below An Operations Folder Are Ignored.</summary>
     /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Markdown_Files_Below_An_Operations_Folder_Are_Ignored()
+    public void MarkdownFilesBelowAnOperationsFolderAreIgnored()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/notes.md", "# <follows>decision/0002-loan-index</follows>\n");
 

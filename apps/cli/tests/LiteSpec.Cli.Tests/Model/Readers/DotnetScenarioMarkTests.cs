@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the scenario reader takes each test's claims from its proves marks, in either style.</summary>
 public sealed class DotnetScenarioMarkTests
@@ -10,9 +10,9 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Test Claim Xml Links Its Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Test_Claim_Xml_Links_Its_Scenario()
+    public void TestClaimXmlLinksItsScenario()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BorrowCopyScenarios.cs", """
             namespace Library.Acceptance.Tests;
@@ -20,7 +20,7 @@ public sealed class DotnetScenarioMarkTests
             public sealed class BorrowCopyScenarios
             {
                 /// <proves>scenario/borrow-copy.borrowing-succeeds</proves>
-                public Task Borrowing_succeeds() => Task.CompletedTask;
+                public Task BorrowingSucceeds() => Task.CompletedTask;
             }
             """);
 
@@ -32,9 +32,9 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Test Claim Attribute Links Its Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Test_Claim_Attribute_Links_Its_Scenario()
+    public void TestClaimAttributeLinksItsScenario()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BorrowCopyScenarios.cs", """
             namespace Library.Acceptance.Tests;
@@ -42,7 +42,7 @@ public sealed class DotnetScenarioMarkTests
             public sealed class BorrowCopyScenarios
             {
                 [Proves("scenario/borrow-copy.borrowing-succeeds")]
-                public Task Borrowing_succeeds() => Task.CompletedTask;
+                public Task BorrowingSucceeds() => Task.CompletedTask;
             }
             """);
 
@@ -54,9 +54,9 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Test Claim Names A Rule.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Test_Claim_Names_A_Rule()
+    public void TestClaimNamesARule()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BarcodeTests.cs", """
             namespace Library.Acceptance.Tests;
@@ -85,7 +85,7 @@ public sealed class DotnetScenarioMarkTests
     // The InlineData values name each proof-target claim case.
     public void Test_Claim_Names_A_Proof_Target(string claim)
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "LatencyTests.cs", $$"""
             namespace Library.Acceptance.Tests;
@@ -105,16 +105,16 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Test Without Claims Has No Scenario.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Test_Without_Claims_Has_No_Scenario()
+    public void TestWithoutClaimsHasNoScenario()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BorrowCopyScenarios.cs", """
             namespace Library.Acceptance.Tests;
 
             public sealed class BorrowCopyScenarios
             {
-                public Task Borrowing_succeeds() => Task.CompletedTask;
+                public Task BorrowingSucceeds() => Task.CompletedTask;
             }
             """);
 
@@ -124,9 +124,9 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Test Method Is Read As A Test Element.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Test_Method_Is_Read_As_A_Test_Element()
+    public void TestMethodIsReadAsATestElement()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BorrowCopyTests.cs", """
             namespace Library.Acceptance.Tests;
@@ -135,7 +135,7 @@ public sealed class DotnetScenarioMarkTests
             {
                 /// <proves>scenario/borrow-copy.borrowing-succeeds</proves>
                 [Fact]
-                public Task Borrowing_succeeds() => Task.CompletedTask;
+                public Task BorrowingSucceeds() => Task.CompletedTask;
             }
             """);
 
@@ -144,7 +144,7 @@ public sealed class DotnetScenarioMarkTests
 
         Assert.Equal(CodeKind.Test, element.Kind);
         Assert.Equal("BorrowCopyTests", element.Class);
-        Assert.Equal("Borrowing_succeeds", element.Member);
+        Assert.Equal("BorrowingSucceeds", element.Member);
         Assert.True(element.InTests);
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(element.Marks).RecordId);
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
@@ -153,9 +153,9 @@ public sealed class DotnetScenarioMarkTests
     /// <summary>Proves Without Test Attribute Lands In Stray Marks.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Proves_Without_Test_Attribute_Lands_In_Stray_Marks()
+    public void ProvesWithoutTestAttributeLandsInStrayMarks()
     {
-        using var temp = Cli.Temp("reader-marks");
+        using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "BorrowCopyScenarios.cs", """
             namespace Library.Acceptance.Tests;
@@ -163,7 +163,7 @@ public sealed class DotnetScenarioMarkTests
             public sealed class BorrowCopyScenarios
             {
                 /// <proves>scenario/borrow-copy.borrowing-succeeds</proves>
-                public Task Borrowing_succeeds() => Task.CompletedTask;
+                public Task BorrowingSucceeds() => Task.CompletedTask;
             }
             """);
 
@@ -173,7 +173,7 @@ public sealed class DotnetScenarioMarkTests
         var stray = Assert.Single(read.StrayMarks);
 
         Assert.Equal("BorrowCopyScenarios", stray.Class);
-        Assert.Equal("Borrowing_succeeds", stray.Member);
+        Assert.Equal("BorrowingSucceeds", stray.Member);
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(stray.Marks).RecordId);
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
     }

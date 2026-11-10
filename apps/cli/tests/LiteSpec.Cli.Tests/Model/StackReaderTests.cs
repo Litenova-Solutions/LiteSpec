@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the stack readers keep the build identical and read JUnit results.</summary>
 public sealed class StackReaderTests
@@ -18,7 +18,7 @@ public sealed class StackReaderTests
     [Theory]
     [InlineData("small", 73, 7, 0, 0)]
     [InlineData("large", 94, 7, 1, 9)]
-    public void Build_Reads_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
+    public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
@@ -32,7 +32,7 @@ public sealed class StackReaderTests
     /// <summary>A project naming neither dotnet nor blazor reads no .NET backend or scenarios.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Build_Without_Dotnet_Or_Blazor_Reads_No_Backend()
+    public void BuildWithoutDotnetOrBlazorReadsNoBackend()
     {
         using var temp = ModelFixture.Prepare("small");
 
@@ -53,7 +53,7 @@ public sealed class StackReaderTests
     [Theory]
     [InlineData("small")]
     [InlineData("large")]
-    public void Build_Holds_Null_Test_Run_Without_Result_Files(string fixture)
+    public void BuildHoldsNullTestRunWithoutResultFiles(string fixture)
     {
         using var temp = ModelFixture.Prepare(fixture);
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
@@ -64,7 +64,7 @@ public sealed class StackReaderTests
     /// <summary>A JUnit file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void JUnit_Results_Verify_The_Passing_Scenario_Only()
+    public void JUnitResultsVerifyThePassingScenarioOnly()
     {
         using var temp = ModelFixture.Prepare("small");
 
@@ -92,7 +92,7 @@ public sealed class StackReaderTests
 
         var resultsFolder = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(resultsFolder);
-        File.Copy(Cli.Fixture("Model/junit/results.xml"), Path.Combine(resultsFolder, "results.xml"));
+        File.Copy(TestCli.Fixture("Model/junit/results.xml"), Path.Combine(resultsFolder, "results.xml"));
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
@@ -111,7 +111,7 @@ public sealed class StackReaderTests
     /// <summary>A TRX file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Trx_Results_Verify_The_Passing_Scenario_Only()
+    public void TrxResultsVerifyThePassingScenarioOnly()
     {
         using var temp = ModelFixture.Prepare("small");
 
@@ -139,7 +139,7 @@ public sealed class StackReaderTests
 
         var resultsFolder = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(resultsFolder);
-        File.Copy(Cli.Fixture("Model/trx/results.trx"), Path.Combine(resultsFolder, "results.trx"));
+        File.Copy(TestCli.Fixture("Model/trx/results.trx"), Path.Combine(resultsFolder, "results.trx"));
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
@@ -158,7 +158,7 @@ public sealed class StackReaderTests
     /// <summary>A Playwright result verifies the browser-only use case and exercises its journey step.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Playwright_Results_Verify_The_Browser_Only_Use_Case()
+    public void PlaywrightResultsVerifyTheBrowserOnlyUseCase()
     {
         using var temp = ModelFixture.Prepare("large");
 
@@ -189,7 +189,7 @@ public sealed class StackReaderTests
 
         var resultsFolder = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(resultsFolder);
-        File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
+        File.Copy(TestCli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
@@ -210,7 +210,7 @@ public sealed class StackReaderTests
     /// <summary>A browser success proof asserting another string confirms nothing.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Playwright_Results_Asserting_Another_String_Do_Not_Verify()
+    public void PlaywrightResultsAssertingAnotherStringDoNotVerify()
     {
         using var temp = ModelFixture.Prepare("large");
 
@@ -241,7 +241,7 @@ public sealed class StackReaderTests
 
         var resultsFolder = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(resultsFolder);
-        File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
+        File.Copy(TestCli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 

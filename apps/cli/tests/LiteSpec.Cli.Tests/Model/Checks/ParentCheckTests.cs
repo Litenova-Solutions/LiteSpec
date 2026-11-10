@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
@@ -9,9 +9,9 @@ public sealed class ParentCheckTests
     /// <summary>Feature With Solves Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Feature_With_Solves_Passes()
+    public void FeatureWithSolvesPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""));
@@ -22,9 +22,9 @@ public sealed class ParentCheckTests
     /// <summary>Feature Without Solves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Feature_Without_Solves_Reports()
+    public void FeatureWithoutSolvesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{}"""));
@@ -38,9 +38,9 @@ public sealed class ParentCheckTests
     /// <summary>Journey Serving Goal Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Journey_Serving_Goal_Passes()
+    public void JourneyServingGoalPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
@@ -52,9 +52,9 @@ public sealed class ParentCheckTests
     /// <summary>Journey Serving Step Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Journey_Serving_Step_Reports()
+    public void JourneyServingStepReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
@@ -70,9 +70,9 @@ public sealed class ParentCheckTests
     /// <summary>Journey Without Serves Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Journey_Without_Serves_Reports()
+    public void JourneyWithoutServesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
@@ -86,9 +86,9 @@ public sealed class ParentCheckTests
     /// <summary>Journey With Dangling Serves Stays Silent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Journey_With_Dangling_Serves_Stays_Silent()
+    public void JourneyWithDanglingServesStaysSilent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.yaml"), """{"actor": ["actor/reader"], "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
@@ -100,9 +100,9 @@ public sealed class ParentCheckTests
     /// <summary>Scenario With Result Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Scenario_With_Result_Passes()
+    public void ScenarioWithResultPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -116,9 +116,9 @@ public sealed class ParentCheckTests
     /// <summary>Scenario Without Result Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Scenario_Without_Result_Reports()
+    public void ScenarioWithoutResultReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -134,9 +134,9 @@ public sealed class ParentCheckTests
     /// <summary>Scenario With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Scenario_With_Missing_Home_Reports()
+    public void ScenarioWithMissingHomeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("scenario", "scenario/no-such-case.filing-succeeds", Path.Combine(temp.Path, "file.yaml"), """{"given": "A clerk holds a filed copy.", "when": "The clerk files the copy.", "then": "The copy is filed.", "result": "result/no-such-case.filed"}"""));
@@ -150,9 +150,9 @@ public sealed class ParentCheckTests
     /// <summary>Result With Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Result_With_Home_Passes()
+    public void ResultWithHomePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -165,9 +165,9 @@ public sealed class ParentCheckTests
     /// <summary>Result With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Result_With_Missing_Home_Reports()
+    public void ResultWithMissingHomeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("result", "result/no-such-case.filed", Path.Combine(temp.Path, "file.yaml"), """{"outcome": "success", "meaning": "The copy is filed."}"""));
@@ -181,9 +181,9 @@ public sealed class ParentCheckTests
     /// <summary>Screen With Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_With_Home_Passes()
+    public void ScreenWithHomePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"address": "/loans"}"""),
@@ -195,9 +195,9 @@ public sealed class ParentCheckTests
     /// <summary>Screen With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_With_Missing_Home_Reports()
+    public void ScreenWithMissingHomeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.yaml"), """{"address": "/loans"}"""));
@@ -211,9 +211,9 @@ public sealed class ParentCheckTests
     /// <summary>Use Case With Module Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Use_Case_With_Module_Passes()
+    public void UseCaseWithModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -225,9 +225,9 @@ public sealed class ParentCheckTests
     /// <summary>Use Case With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Use_Case_With_Missing_Module_Reports()
+    public void UseCaseWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/nope.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
@@ -241,9 +241,9 @@ public sealed class ParentCheckTests
     /// <summary>Aggregate With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Aggregate_With_Missing_Module_Reports()
+    public void AggregateWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/nope.loan", Path.Combine(temp.Path, "loan.yaml"), """{"states": [{"name": "Active", "meaning": "The loan is active."}]}"""));
@@ -257,9 +257,9 @@ public sealed class ParentCheckTests
     /// <summary>Rule With Aggregate Home Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Rule_With_Aggregate_Home_Passes()
+    public void RuleWithAggregateHomePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -272,9 +272,9 @@ public sealed class ParentCheckTests
     /// <summary>A product-wide rule whose home is the product passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Rule_With_Product_Home_Passes()
+    public void RuleWithProductHomePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("product", "product/library", Path.Combine(temp.Path, "product.yaml"), """{"summary": "The library lends copies."}"""),
@@ -286,9 +286,9 @@ public sealed class ParentCheckTests
     /// <summary>Rule With Missing Home Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Rule_With_Missing_Home_Reports()
+    public void RuleWithMissingHomeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("rule", "rule/nope.loan-period", Path.Combine(temp.Path, "rules.yaml"), """{"kind": "invariant", "statement": "A loan lasts 21 days.", "governs": ["aggregate/lending.loan"]}"""));
@@ -302,9 +302,9 @@ public sealed class ParentCheckTests
     /// <summary>Event With Aggregate Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Event_With_Aggregate_Passes()
+    public void EventWithAggregatePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -317,9 +317,9 @@ public sealed class ParentCheckTests
     /// <summary>Event With Missing Aggregate Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Event_With_Missing_Aggregate_Reports()
+    public void EventWithMissingAggregateReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("event", "event/nope.loan-borrowed", Path.Combine(temp.Path, "loan.yaml"), """{"meaning": "The copy is lent.", "carries": []}"""));
@@ -333,9 +333,9 @@ public sealed class ParentCheckTests
     /// <summary>Reaction With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Reaction_With_Missing_Module_Reports()
+    public void ReactionWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
@@ -349,9 +349,9 @@ public sealed class ParentCheckTests
     /// <summary>Job With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Job_With_Missing_Module_Reports()
+    public void JobWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/nope.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due"}]}"""));
@@ -365,9 +365,9 @@ public sealed class ParentCheckTests
     /// <summary>Notification With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Notification_With_Missing_Module_Reports()
+    public void NotificationWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/nope.loan-due", Path.Combine(temp.Path, "notify.yaml"), """{"template": "loan-due"}"""));
@@ -381,9 +381,9 @@ public sealed class ParentCheckTests
     /// <summary>Setting With Missing Module Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Setting_With_Missing_Module_Reports()
+    public void SettingWithMissingModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("setting", "setting/nope.max-renewals", Path.Combine(temp.Path, "settings.yaml"), """{}"""));
@@ -397,9 +397,9 @@ public sealed class ParentCheckTests
     /// <summary>Root Type Without Parent Passes.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Root_Type_Without_Parent_Passes()
+    public void RootTypeWithoutParentPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.yaml"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
@@ -410,9 +410,9 @@ public sealed class ParentCheckTests
     /// <summary>Result Without Home Reports Parent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Result_Without_Home_Reports_Parent()
+    public void ResultWithoutHomeReportsParent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("result", "result/borrowed", Path.Combine(temp.Path, "borrow.yaml"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
@@ -427,9 +427,9 @@ public sealed class ParentCheckTests
     /// <summary>Use Case With Unparseable Id Reports Parent.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Use_Case_With_Unparseable_Id_Reports_Parent()
+    public void UseCaseWithUnparseableIdReportsParent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow.copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command"}"""));
@@ -444,9 +444,9 @@ public sealed class ParentCheckTests
     /// <summary>Requirement Without Home Stays Identifier Form.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_Without_Home_Stays_Identifier_Form()
+    public void RequirementWithoutHomeStaysIdentifierForm()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));

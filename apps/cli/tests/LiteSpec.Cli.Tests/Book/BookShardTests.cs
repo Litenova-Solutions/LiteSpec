@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book shard writer packs records, outlines and search rows under their caps with script-callable wrappers.</summary>
 public sealed class BookShardTests
@@ -10,7 +10,7 @@ public sealed class BookShardTests
     /// <summary>Packing fills each shard to its target, keeps one oversized item whole, and packs nothing to nothing.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Pack_Splits_Past_The_Target_And_Keeps_Big_Items_Whole()
+    public void PackSplitsPastTheTargetAndKeepsBigItemsWhole()
     {
         var packs = BookShards.Pack(["a", "b", "c"], _ => 100, 256);
         Assert.Equal(2, packs.Count);
@@ -27,9 +27,9 @@ public sealed class BookShardTests
     /// <summary>Records pack in identifier order with zero-padded shard ids, a full shard map, and every shard under the hard cap.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Records_Write_In_Identifier_Order_With_A_Full_Shard_Map()
+    public void RecordsWriteInIdentifierOrderWithAFullShardMap()
     {
-        using var temp = Cli.Temp("book-shards");
+        using var temp = TestCli.Temp("book-shards");
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal)
         {
             ["use-case/lending.borrow-copy"] = Detail("use-case/lending.borrow-copy", "use-case", "Borrow Copy"),
@@ -61,7 +61,7 @@ public sealed class BookShardTests
     /// <summary>Record outline nodes carry their records shard id; group nodes carry none; children nest below.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Outline_Nodes_Carry_Their_Record_Shard()
+    public void OutlineNodesCarryTheirRecordShard()
     {
         var shardOf = new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -97,7 +97,7 @@ public sealed class BookShardTests
     /// <summary>Code, test and finding outline nodes carry their kind with no shard, nested under their subject.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Outline_Leaf_Nodes_Carry_Their_Kind_With_No_Shard()
+    public void OutlineLeafNodesCarryTheirKindWithNoShard()
     {
         var shardOf = new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -133,9 +133,9 @@ public sealed class BookShardTests
     /// <summary>A layer past the outline budget splits into sequential shards that hold every top node in order.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Layers_Split_Into_Sequential_Shards_Past_Seven_Hundred_Kilobytes()
+    public void LayersSplitIntoSequentialShardsPastSevenHundredKilobytes()
     {
-        using var temp = Cli.Temp("book-shards");
+        using var temp = TestCli.Temp("book-shards");
         var dataDir = Path.Combine(temp.Path, "data");
         var tops = new List<BookOutlineNode>();
         for (var i = 0; i < 80; i++)
@@ -177,9 +177,9 @@ public sealed class BookShardTests
     /// <summary>Search rows pack in order into sequential shards with script-callable wrappers.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Search_Packs_Rows_In_Order()
+    public void SearchPacksRowsInOrder()
     {
-        using var temp = Cli.Temp("book-shards");
+        using var temp = TestCli.Temp("book-shards");
         var dataDir = Path.Combine(temp.Path, "data");
         var rows = new JsonArray();
         for (var i = 0; i < 5; i++)
@@ -199,9 +199,9 @@ public sealed class BookShardTests
     /// <summary>Every shard file holds exactly one BookData.put call whose JSON parses back to the value, with markup escaped.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Shard_Files_Call_BookData_Put_With_Escaped_Json()
+    public void ShardFilesCallBookDataPutWithEscapedJson()
     {
-        using var temp = Cli.Temp("book-shards");
+        using var temp = TestCli.Temp("book-shards");
         var dataDir = Path.Combine(temp.Path, "data");
         var value = new JsonObject
         {
@@ -225,7 +225,7 @@ public sealed class BookShardTests
     /// <summary>Search excerpts prefer the statement-like fields, then the explanation's head on one line cut to 200 characters.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Search_Excerpts_Prefer_Statement_Then_Explanation()
+    public void SearchExcerptsPreferStatementThenExplanation()
     {
         var stated = new JsonObject
         {

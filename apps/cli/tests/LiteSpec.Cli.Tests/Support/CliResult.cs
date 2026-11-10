@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Cli.Tests.Support;
 
 /// <summary>The exit code and the two output streams of one CLI run.</summary>
 /// <param name="Status">The exit code.</param>

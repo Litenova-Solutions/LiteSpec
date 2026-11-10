@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text.Json;
 using LiteSpec.Model.Diff;
-using LiteSpec.Tests.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Support;
 using Record = LiteSpec.Model.Record;
 
-namespace LiteSpec.Tests.Model.Diff;
+namespace LiteSpec.Cli.Tests.Model.Diff;
 
 /// <summary>Proves <c>model check --since</c> reports breaking contract changes as findings.</summary>
 public sealed class ContractBreakTests
@@ -13,9 +13,9 @@ public sealed class ContractBreakTests
     /// <summary>A result the head removed reports contract-break on its use case.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Removed_Result_Reports_Contract_Break()
+    public void RemovedResultReportsContractBreak()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var useCase = TestModel.Record("use-case", "use-case/lending.borrow-copy", file, """{"kind": "command"}""");
@@ -37,9 +37,9 @@ public sealed class ContractBreakTests
     /// <summary>A refusal code the head removed reports contract-break naming the code.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Removed_Refusal_Code_Reports_Contract_Break()
+    public void RemovedRefusalCodeReportsContractBreak()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var before = TestModel.Record(
@@ -63,9 +63,9 @@ public sealed class ContractBreakTests
     /// <summary>A refusal code the head changed reports contract-break naming both codes.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Changed_Refusal_Code_Reports_Contract_Break()
+    public void ChangedRefusalCodeReportsContractBreak()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var before = TestModel.Record(
@@ -88,9 +88,9 @@ public sealed class ContractBreakTests
     /// <summary>A refusal code the head added reports nothing: only removals break clients.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Added_Refusal_Code_Reports_Nothing()
+    public void AddedRefusalCodeReportsNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var before = TestModel.Record(
@@ -110,9 +110,9 @@ public sealed class ContractBreakTests
     /// <summary>An integration event whose payload changed reports contract-break.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Changed_Integration_Event_Reports_Contract_Break()
+    public void ChangedIntegrationEventReportsContractBreak()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
@@ -135,9 +135,9 @@ public sealed class ContractBreakTests
     /// <summary>An integration event with only its title changed reports nothing.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Retitled_Integration_Event_Reports_Nothing()
+    public void RetitledIntegrationEventReportsNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
@@ -157,9 +157,9 @@ public sealed class ContractBreakTests
     /// <summary>An integration event the head removed reports contract-break.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Removed_Integration_Event_Reports_Contract_Break()
+    public void RemovedIntegrationEventReportsContractBreak()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "loan-shipped.yaml");
         var before = TestModel.Record(
@@ -179,9 +179,9 @@ public sealed class ContractBreakTests
     /// <summary>Identical models report nothing.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Unchanged_Models_Report_Nothing()
+    public void UnchangedModelsReportNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var useCase = TestModel.Record("use-case", "use-case/lending.borrow-copy", file, """{"kind": "command"}""");
@@ -199,9 +199,9 @@ public sealed class ContractBreakTests
     /// <summary>An added result reports nothing: only removals break clients.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Added_Result_Reports_Nothing()
+    public void AddedResultReportsNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var useCase = TestModel.Record("use-case", "use-case/lending.borrow-copy", file, """{"kind": "command"}""");
@@ -219,9 +219,9 @@ public sealed class ContractBreakTests
     /// <summary>A removed record outside the client contract reports nothing.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Removed_Requirement_Reports_Nothing()
+    public void RemovedRequirementReportsNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrowing.yaml");
         var requirement = TestModel.Record(
@@ -238,9 +238,9 @@ public sealed class ContractBreakTests
     /// <summary>A result whose use case is gone too anchors on the project file.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Removed_Use_Case_Anchors_On_The_Project_File()
+    public void RemovedUseCaseAnchorsOnTheProjectFile()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var file = Path.Combine(temp.Path, "borrow-copy.yaml");
         var useCase = TestModel.Record("use-case", "use-case/lending.borrow-copy", file, """{"kind": "command"}""");
@@ -261,9 +261,9 @@ public sealed class ContractBreakTests
     /// <summary>A derived result the head removed reports nothing: it follows its use case.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Derived_Result_Reports_Nothing()
+    public void DerivedResultReportsNothing()
     {
-        using var temp = Cli.Temp("contract-break");
+        using var temp = TestCli.Temp("contract-break");
         var config = TestModel.Config(temp.Path);
         var before = Derived(
             "result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, "borrow-copy.yaml"),
@@ -279,16 +279,16 @@ public sealed class ContractBreakTests
     /// <summary>A removed result blocks <c>model check --since</c> with a level S finding.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Check_Since_Reports_A_Removed_Result_As_Blocking()
+    public void CheckSinceReportsARemovedResultAsBlocking()
     {
-        using var folder = Cli.Temp("contract-break");
+        using var folder = TestCli.Temp("contract-break");
         CopyBase(folder.Path);
         CommitAll(folder.Path);
         RemoveRecordBlock(
             Path.Combine(folder.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"),
             "result/borrow-copy.copy-unavailable");
 
-        var json = Cli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
         var breaks = BreaksOf(json.Stdout);
 
         Assert.Equal(1, json.Status);
@@ -296,7 +296,7 @@ public sealed class ContractBreakTests
         Assert.Equal("S", breaking.Level);
         Assert.Equal("blocking", breaking.Outcome);
 
-        var text = Cli.Run("model", "check", "--root", folder.Path, "--since", "HEAD");
+        var text = TestCli.Run("model", "check", "--root", folder.Path, "--since", "HEAD");
 
         Assert.Equal(1, text.Status);
         Assert.Contains("[contract-break]", text.Output);
@@ -306,15 +306,15 @@ public sealed class ContractBreakTests
     /// <summary>A changed integration event blocks <c>model check --since</c> with a level S finding.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Check_Since_Reports_A_Changed_Integration_Event_As_Blocking()
+    public void CheckSinceReportsAChangedIntegrationEventAsBlocking()
     {
-        using var folder = Cli.Temp("contract-break");
+        using var folder = TestCli.Temp("contract-break");
         CopyBase(folder.Path);
         CommitAll(folder.Path);
         var file = Path.Combine(folder.Path, ".litespec", "behavior", "modules", "lending", "loans", "loan-shipped.yaml");
         File.WriteAllText(file, File.ReadAllText(file).Replace("The lent loan.", "The shipped loan.", StringComparison.Ordinal));
 
-        var json = Cli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
         var breaks = BreaksOf(json.Stdout);
 
         Assert.Equal(1, json.Status);
@@ -326,13 +326,13 @@ public sealed class ContractBreakTests
     /// <summary>An unchanged tree reports no contract-break finding.</summary>
     /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
-    public void Check_Since_Without_Contract_Changes_Reports_None()
+    public void CheckSinceWithoutContractChangesReportsNone()
     {
-        using var folder = Cli.Temp("contract-break");
+        using var folder = TestCli.Temp("contract-break");
         CopyBase(folder.Path);
         CommitAll(folder.Path);
 
-        var json = Cli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");
 
         Assert.Empty(BreaksOf(json.Stdout));
     }
@@ -387,7 +387,7 @@ public sealed class ContractBreakTests
     /// <param name="target">The folder to copy the fixture into.</param>
     static void CopyBase(string target)
     {
-        var source = Cli.Fixture("Diff/base");
+        var source = TestCli.Fixture("Diff/base");
 
         foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
         {

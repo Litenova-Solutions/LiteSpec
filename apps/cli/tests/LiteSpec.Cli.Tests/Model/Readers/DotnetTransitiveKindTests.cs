@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the backend reader recognizes handlers, reactions, jobs and events through a base class or an intermediate interface.</summary>
 public sealed class DotnetTransitiveKindTests
@@ -10,9 +10,9 @@ public sealed class DotnetTransitiveKindTests
     /// <summary>Handler Through Base Class Links Its Use Case.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Handler_Through_Base_Class_Links_Its_Use_Case()
+    public void HandlerThroughBaseClassLinksItsUseCase()
     {
-        using var temp = Cli.Temp("reader-transitive");
+        using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "BorrowCopyHandlerBase.cs", """
             namespace Library.Application.Lending.Loans.BorrowCopy;
@@ -50,9 +50,9 @@ public sealed class DotnetTransitiveKindTests
     /// <summary>Query Handler Through Base Class Reads Query Kind.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Query_Handler_Through_Base_Class_Reads_Query_Kind()
+    public void QueryHandlerThroughBaseClassReadsQueryKind()
     {
-        using var temp = Cli.Temp("reader-transitive");
+        using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "ListLoansHandlerBase.cs", """
             namespace Library.Application.Lending.Loans.ListLoans;
@@ -82,9 +82,9 @@ public sealed class DotnetTransitiveKindTests
     /// <summary>Event Handler Through Base Class Links Its Reaction.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Event_Handler_Through_Base_Class_Links_Its_Reaction()
+    public void EventHandlerThroughBaseClassLinksItsReaction()
     {
-        using var temp = Cli.Temp("reader-transitive");
+        using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "LoanBorrowedReactionBase.cs", """
             namespace Library.Application.Lending.Loans.OnLoanBorrowed;
@@ -112,9 +112,9 @@ public sealed class DotnetTransitiveKindTests
     /// <summary>Job Host Through BackgroundService Base Links Its Job.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Job_Host_Through_BackgroundService_Base_Links_Its_Job()
+    public void JobHostThroughBackgroundServiceBaseLinksItsJob()
     {
-        using var temp = Cli.Temp("reader-transitive");
+        using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "ScanServiceBase.cs", """
             namespace Library.Application.Lending.Loans.NightlyScan;
@@ -142,9 +142,9 @@ public sealed class DotnetTransitiveKindTests
     /// <summary>Event Through Intermediate Interface Links Its Event.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Event_Through_Intermediate_Interface_Links_Its_Event()
+    public void EventThroughIntermediateInterfaceLinksItsEvent()
     {
-        using var temp = Cli.Temp("reader-transitive");
+        using var temp = TestCli.Temp("reader-transitive");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Domain", "ILoanEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
