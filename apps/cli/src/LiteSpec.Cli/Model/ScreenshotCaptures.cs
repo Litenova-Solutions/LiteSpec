@@ -72,7 +72,7 @@ static class ScreenshotCaptures
                 }
 
                 captures.Add(new ScreenCapture(
-                    model.Config.Relative(file),
+                    PathText.Relative(model.Config.Root, file),
                     match.Groups["theme"].Value,
                     width,
                     File.GetLastWriteTimeUtc(file).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)));

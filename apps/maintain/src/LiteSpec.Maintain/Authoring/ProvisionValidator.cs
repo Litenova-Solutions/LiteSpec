@@ -91,14 +91,14 @@ internal sealed partial class ProvisionValidator
                     activeLabel = name;
                     if (!allowedLabels.Contains(name))
                     {
-                        add(relative, item.Number, "STANDARD_LABEL_INVALID", $"label '{name}' is invalid in {provision.Section}");
+                        add(relative, item.Number, Diagnostics.Codes.StandardLabelInvalid, $"label '{name}' is invalid in {provision.Section}");
                     }
 
                     if (name is "Rationale" or "Example")
                     {
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
-                            add(relative, item.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
+                            add(relative, item.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
                         }
                     }
                     else if (name == "Deviation" && provision.Section == "Standards")
@@ -107,7 +107,7 @@ internal sealed partial class ProvisionValidator
                         // bounded reason that permits a departure, in plain words.
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
-                            add(relative, item.Number, "STANDARD_DEVIATION_NORMATIVE", $"Deviation for '{provision.Id}' contains normative vocabulary");
+                            add(relative, item.Number, Diagnostics.Codes.StandardDeviationNormative, $"Deviation for '{provision.Id}' contains normative vocabulary");
                         }
                     }
 
@@ -118,7 +118,7 @@ internal sealed partial class ProvisionValidator
                 {
                     if (activeLabel != "Example" && !fenceReported)
                     {
-                        add(relative, item.Number, "STANDARD_EXAMPLE_LABEL", $"fenced example in '{provision.Id}' must follow an Example label");
+                        add(relative, item.Number, Diagnostics.Codes.StandardExampleLabel, $"fenced example in '{provision.Id}' must follow an Example label");
                         fenceReported = true;
                     }
 
@@ -132,14 +132,14 @@ internal sealed partial class ProvisionValidator
 
                 if (activeLabel == "" || activeLabel is "Statement" or "Deviation" or "Default" or "Replacement")
                 {
-                    add(relative, item.Number, "STANDARD_UNLABELED_CONTENT", $"content in '{provision.Id}' must follow a Rationale or Example label");
+                    add(relative, item.Number, Diagnostics.Codes.StandardUnlabeledContent, $"content in '{provision.Id}' must follow a Rationale or Example label");
                 }
 
                 if (activeLabel is "Rationale" or "Example")
                 {
                     if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                     {
-                        add(relative, item.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
+                        add(relative, item.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
                     }
                 }
             }
@@ -149,7 +149,7 @@ internal sealed partial class ProvisionValidator
                 var count = labels.Count(label => label.Name == name);
                 if (count > 1)
                 {
-                    add(relative, labels.First(label => label.Name == name).Line, "STANDARD_LABEL_DUPLICATE", $"provision '{provision.Id}' has {count} {name} labels");
+                    add(relative, labels.First(label => label.Name == name).Line, Diagnostics.Codes.StandardLabelDuplicate, $"provision '{provision.Id}' has {count} {name} labels");
                 }
             }
 
@@ -159,7 +159,7 @@ internal sealed partial class ProvisionValidator
                 var position = Array.IndexOf(allowedLabels, label.Name);
                 if (position >= 0 && position < previousLabel)
                 {
-                    add(relative, label.Line, "STANDARD_LABEL_ORDER", $"label '{label.Name}' is out of order in '{provision.Id}'");
+                    add(relative, label.Line, Diagnostics.Codes.StandardLabelOrder, $"label '{label.Name}' is out of order in '{provision.Id}'");
                     break;
                 }
 
@@ -198,13 +198,13 @@ internal sealed partial class ProvisionValidator
         var statements = nonblank.Where(item => item.Line.StartsWith("**Statement:**", StringComparison.Ordinal)).ToList();
         if (statements.Count == 0)
         {
-            add(relative, provision.Line, "STANDARD_MISSING_REQUIREMENT", $"Standard '{provision.Id}' has no Statement");
+            add(relative, provision.Line, Diagnostics.Codes.StandardMissingRequirement, $"Standard '{provision.Id}' has no Statement");
             return;
         }
 
         if (statements.Count > 1)
         {
-            add(relative, provision.Line, "STANDARD_REQUIREMENT_COUNT", $"Standard '{provision.Id}' has {statements.Count} Statements");
+            add(relative, provision.Line, Diagnostics.Codes.StandardRequirementCount, $"Standard '{provision.Id}' has {statements.Count} Statements");
         }
 
         var assertion = statements[0];
@@ -213,34 +213,34 @@ internal sealed partial class ProvisionValidator
         var modalCount = ModalsPattern().Count(visibleStatement);
         if (modalCount != 1)
         {
-            add(relative, assertion.Number, "STANDARD_MODAL_COUNT", $"Statement for '{provision.Id}' has {modalCount} normative modals");
+            add(relative, assertion.Number, Diagnostics.Codes.StandardModalCount, $"Statement for '{provision.Id}' has {modalCount} normative modals");
         }
 
         if (OtherNormativePattern().IsMatch(visibleStatement))
         {
-            add(relative, assertion.Number, "STANDARD_MODAL_VOCABULARY", $"Statement for '{provision.Id}' uses an unsupported normative term");
+            add(relative, assertion.Number, Diagnostics.Codes.StandardModalVocabulary, $"Statement for '{provision.Id}' uses an unsupported normative term");
         }
 
         if (Prose.Sentences(visibleStatement).Count != 1)
         {
-            add(relative, assertion.Number, "STANDARD_SENTENCE_COUNT", $"Statement for '{provision.Id}' must contain one sentence");
+            add(relative, assertion.Number, Diagnostics.Codes.StandardSentenceCount, $"Statement for '{provision.Id}' must contain one sentence");
         }
 
         var should = ShouldPattern().IsMatch(visibleStatement);
         var deviations = nonblank.Where(item => item.Line.StartsWith("**Deviation:**", StringComparison.Ordinal)).ToList();
         if (should && deviations.Count == 0)
         {
-            add(relative, provision.Line, "STANDARD_MISSING_DEVIATION", $"recommendation '{provision.Id}' has no Deviation statement");
+            add(relative, provision.Line, Diagnostics.Codes.StandardMissingDeviation, $"recommendation '{provision.Id}' has no Deviation statement");
         }
 
         if (!should && deviations.Count > 0)
         {
-            add(relative, deviations[0].Number, "STANDARD_UNEXPECTED_DEVIATION", $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
+            add(relative, deviations[0].Number, Diagnostics.Codes.StandardUnexpectedDeviation, $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
         }
 
         if (deviations.Count > 0 && Prose.Sentences(PageReader.VisibleText(deviations[0].Line["**Deviation:**".Length..].Trim())).Count != 1)
         {
-            add(relative, deviations[0].Number, "STANDARD_DEVIATION_SENTENCE", $"Deviation for '{provision.Id}' must contain one sentence");
+            add(relative, deviations[0].Number, Diagnostics.Codes.StandardDeviationSentence, $"Deviation for '{provision.Id}' must contain one sentence");
         }
     }
 
@@ -255,29 +255,29 @@ internal sealed partial class ProvisionValidator
         var replacements = nonblank.Where(item => item.Line.StartsWith("**Replacement:**", StringComparison.Ordinal)).ToList();
         if (defaults.Count == 0)
         {
-            add(relative, provision.Line, "CONVENTION_MISSING_DEFAULT", $"convention '{provision.Id}' has no Default statement");
+            add(relative, provision.Line, Diagnostics.Codes.ConventionMissingDefault, $"convention '{provision.Id}' has no Default statement");
         }
 
         if (replacements.Count == 0)
         {
-            add(relative, provision.Line, "CONVENTION_MISSING_REPLACEMENT", $"convention '{provision.Id}' has no Replacement statement");
+            add(relative, provision.Line, Diagnostics.Codes.ConventionMissingReplacement, $"convention '{provision.Id}' has no Replacement statement");
         }
 
         if (defaults.Count > 0 && Prose.Sentences(PageReader.VisibleText(defaults[0].Line["**Default:**".Length..].Trim())).Count != 1)
         {
-            add(relative, defaults[0].Number, "CONVENTION_DEFAULT_SENTENCE", $"Default for '{provision.Id}' must contain one sentence");
+            add(relative, defaults[0].Number, Diagnostics.Codes.ConventionDefaultSentence, $"Default for '{provision.Id}' must contain one sentence");
         }
 
         if (replacements.Count > 0 && Prose.Sentences(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..].Trim())).Count != 1)
         {
-            add(relative, replacements[0].Number, "CONVENTION_REPLACEMENT_SENTENCE", $"Replacement for '{provision.Id}' must contain one sentence");
+            add(relative, replacements[0].Number, Diagnostics.Codes.ConventionReplacementSentence, $"Replacement for '{provision.Id}' must contain one sentence");
         }
 
         // A Replacement names the local convention that takes the default's
         // place. A departure instrument belongs to a Standard, never here.
         if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
-            add(relative, replacements[0].Number, "CONVENTION_REPLACEMENT_DEVIATION", $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
+            add(relative, replacements[0].Number, Diagnostics.Codes.ConventionReplacementDeviation, $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
         }
     }
 
@@ -303,7 +303,7 @@ internal sealed partial class ProvisionValidator
             provision.Claim = Claim(assertion.Line[prefix.Length..]);
             if (provision.Claim.Length > 0 && provision.Claim == Claim(provision.Title))
             {
-                add(relative, provision.Line, "PROVISION_RESTATES_HEADING", $"{label} for '{provision.Id}' only restates its heading");
+                add(relative, provision.Line, Diagnostics.Codes.ProvisionRestatesHeading, $"{label} for '{provision.Id}' only restates its heading");
             }
         }
     }
@@ -325,7 +325,7 @@ internal sealed partial class ProvisionValidator
 
             if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
             {
-                add(relative, item.Number, "PROSE_NORMATIVE_LOCATION", "normative vocabulary is outside a Statement, Default, or Replacement");
+                add(relative, item.Number, Diagnostics.Codes.ProseNormativeLocation, "normative vocabulary is outside a Statement, Default, or Replacement");
             }
         }
     }
@@ -344,29 +344,29 @@ internal sealed partial class ProvisionValidator
         var ids = fields.Where(item => PageReader.TryParseIdLine(item.Line, out _)).ToList();
         if (ids.Count == 0)
         {
-            add(relative, provision.Line, "ID_LINE_MISSING", $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
+            add(relative, provision.Line, Diagnostics.Codes.IdLineMissing, $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
             return;
         }
 
         var first = fields.First(item => item.Line.Trim().Length > 0);
         if (!PageReader.TryParseIdLine(first.Line, out _))
         {
-            add(relative, ids[0].Number, "ID_LINE_MISSING", $"ID line for '{provision.Id}' must be the first line after the heading");
+            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMissing, $"ID line for '{provision.Id}' must be the first line after the heading");
         }
 
         if (!PageReader.TryParseIdLine(ids[0].Line, out var stated) || !Provisions.IsProvisionId(stated))
         // The combined condition above also covers a stated id that is no provision identifier.
         {
-            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}', which is not a provision identifier");
+            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMismatch, $"ID line states '{stated}', which is not a provision identifier");
         }
         else if (Provisions.Parse(stated)!.Page != Provisions.PagePath(relative))
         {
-            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}' but the provision sits on page '{Provisions.PagePath(relative)}'");
+            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMismatch, $"ID line states '{stated}' but the provision sits on page '{Provisions.PagePath(relative)}'");
         }
 
         if (ids.Count > 1)
         {
-            add(relative, ids[1].Number, "ID_LINE_MISMATCH", $"provision '{provision.Id}' has {ids.Count} ID lines");
+            add(relative, ids[1].Number, Diagnostics.Codes.IdLineMismatch, $"provision '{provision.Id}' has {ids.Count} ID lines");
         }
     }
 
@@ -416,7 +416,7 @@ internal sealed partial class ProvisionValidator
         {
             foreach (var (provision, named) in artifactNamed.Where(entry => !entry.named))
             {
-                add(relative, provision.Line, "SCOPE_ARTIFACT", $"provision '{provision.Id}' names no artifact on a page where another provision names one; name the kinds of file it governs, or `artifact: any` when it governs every file of its layer");
+                add(relative, provision.Line, Diagnostics.Codes.ScopeArtifact, $"provision '{provision.Id}' names no artifact on a page where another provision names one; name the kinds of file it governs, or `artifact: any` when it governs every file of its layer");
             }
         }
 
@@ -436,11 +436,11 @@ internal sealed partial class ProvisionValidator
             var strengths = fields.Where(item => PageReader.TryParseStrengthLine(item.Line, out _)).ToList();
             if (strengths.Count == 0)
             {
-                add(relative, provision.Line, "STRENGTH_LINE", $"provision '{provision.Id}' carries no Strength line; write `**Strength:** rule`, `default`, or `advice` directly after its ID line");
+                add(relative, provision.Line, Diagnostics.Codes.StrengthLine, $"provision '{provision.Id}' carries no Strength line; write `**Strength:** rule`, `default`, or `advice` directly after its ID line");
             }
             else if (PageReader.TryParseStrengthLine(strengths[0].Line, out var named) && !Scopes.StrengthValues.Contains(Scopes.Unquote(named)))
             {
-                add(relative, strengths[0].Number, "STRENGTH_LINE", $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `rule`, `default`, and `advice`");
+                add(relative, strengths[0].Number, Diagnostics.Codes.StrengthLine, $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `rule`, `default`, and `advice`");
             }
 
             var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();
@@ -448,7 +448,7 @@ internal sealed partial class ProvisionValidator
             {
                 if (Provisions.IsProvisionPage(relative) && !Scopes.ConformanceValues.Contains(pageConformance))
                 {
-                    add(relative, provision.Line, "SCOPE_VALUE", $"provision '{provision.Id}' has no conformance level; its page sits outside the folders docs/core/scopes.md names, or it states no `conformance` field on an Applies to line");
+                    add(relative, provision.Line, Diagnostics.Codes.ScopeValue, $"provision '{provision.Id}' has no conformance level; its page sits outside the folders docs/core/scopes.md names, or it states no `conformance` field on an Applies to line");
                 }
 
                 continue;
@@ -462,14 +462,14 @@ internal sealed partial class ProvisionValidator
             var narrowed = Scopes.ParseScopeFields(rest);
             if (narrowed.Count == 0)
             {
-                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, artifact, or conformance");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, layer, artifact, or conformance");
                 continue;
             }
 
             var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name != "stack" && name != "layer" && name != "artifact" && name != "conformance");
             if (unknown is not null)
             {
-                add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, artifact, or conformance");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, layer, artifact, or conformance");
                 continue;
             }
 
@@ -478,7 +478,7 @@ internal sealed partial class ProvisionValidator
             {
                 if (field.Values.Count == 0)
                 {
-                    add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
+                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
                     clean = false;
                     continue;
                 }
@@ -487,14 +487,14 @@ internal sealed partial class ProvisionValidator
                 {
                     if (field.Values.Count != 1)
                     {
-                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `conformance` with {field.Values.Count} values; name exactly one of `records`, `traced`, or `full`");
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `conformance` with {field.Values.Count} values; name exactly one of `records`, `traced`, or `full`");
                         clean = false;
                         continue;
                     }
 
                     if (!Scopes.ConformanceValues.Contains(field.Values[0]))
                     {
-                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `conformance` value '{field.Values[0]}', which is outside `records`, `traced`, and `full`");
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `conformance` value '{field.Values[0]}', which is outside `records`, `traced`, and `full`");
                         clean = false;
                     }
 
@@ -516,7 +516,7 @@ internal sealed partial class ProvisionValidator
                     };
                     if (!known)
                     {
-                        add(relative, applies[0].Number, "SCOPE_VALUE", $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
+                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
                         clean = false;
                     }
                 }
@@ -537,7 +537,7 @@ internal sealed partial class ProvisionValidator
                     && ScopeValues(narrowed, "layer").Count == 0
                     && ScopeValues(narrowed, "artifact").Count == 0)
                 {
-                    add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
+                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
                 }
 
                 continue;
@@ -582,15 +582,15 @@ internal sealed partial class ProvisionValidator
 
             if (widened)
             {
-                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' widens its page scope");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' widens its page scope");
             }
             else if (conformanceRepeats)
             {
-                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' states its page conformance level '{pageConformance}'; state a conformance level only when it differs from its page");
             }
             else if (!strictlyNarrower)
             {
-                add(relative, applies[0].Number, "SCOPE_NARROW", $"Applies to line for '{provision.Id}' is as wide as its page scope; narrow it or remove the line");
+                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' is as wide as its page scope; narrow it or remove the line");
             }
         }
     }
@@ -618,12 +618,12 @@ internal sealed partial class ProvisionValidator
         {
             if (table.Header.Count == 3 && table.Header[0] == "ID" && table.Header[1] == "Mark" && table.Header[2] == "Evidence")
             {
-                add(relative, table.HeaderLine, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+                add(relative, table.HeaderLine, Diagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
                 foreach (var row in table.Rows)
                 {
                     if (row.Cells.Count == 3 && Provisions.IsProvisionId(row.Cells[0].Trim()))
                     {
-                        add(relative, row.Line, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+                        add(relative, row.Line, Diagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
                     }
                 }
             }
@@ -653,13 +653,13 @@ internal sealed partial class ProvisionValidator
                 .ToList();
             if (lines.Count == 0)
             {
-                add(relative, provision.Line, "VERIFY_MISSING_ID", $"provision '{provision.Id}' has no verification line");
+                add(relative, provision.Line, Diagnostics.Codes.VerifyMissingId, $"provision '{provision.Id}' has no verification line");
                 continue;
             }
 
             if (lines.Count > 1)
             {
-                add(relative, lines[1].Item.Number, "VERIFY_DUPLICATE_ID", $"provision '{provision.Id}' has {lines.Count} verification lines");
+                add(relative, lines[1].Item.Number, Diagnostics.Codes.VerifyDuplicateId, $"provision '{provision.Id}' has {lines.Count} verification lines");
             }
 
             var (found, position) = lines[0];
@@ -670,19 +670,19 @@ internal sealed partial class ProvisionValidator
                     || item.Fenced
                     || item.Line.Trim().Length > 0)))
             {
-                add(relative, found.Number, "VERIFY_ORDER", $"verification line for '{provision.Id}' must be last among its fields");
+                add(relative, found.Number, Diagnostics.Codes.VerifyOrder, $"verification line for '{provision.Id}' must be last among its fields");
             }
 
             var parsedVerification = PageReader.TryParseVerificationLine(found.Line, out var labelName, out var evidence);
             var mark = parsedVerification && labelName == "Checked by" ? "checkable" : "guidance";
             if (HasNormativeVocabulary(PageReader.VisibleText(found.Line)))
             {
-                add(relative, found.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
+                add(relative, found.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
             }
 
             if (GenericEvidencePattern().IsMatch(PageReader.VisibleText(evidence)))
             {
-                add(relative, found.Number, "VERIFY_GENERIC_EVIDENCE", $"Verification for '{provision.Id}' uses generic evidence");
+                add(relative, found.Number, Diagnostics.Codes.VerifyGenericEvidence, $"Verification for '{provision.Id}' uses generic evidence");
             }
 
             // Evidence that echoes its own provision heading names no artifact. It
@@ -693,13 +693,13 @@ internal sealed partial class ProvisionValidator
             var withoutTags = ProvisionTagPattern().Replace(evidence, " ");
             if (ownerClaim.Length > 0 && Claim(withoutTags).Contains(ownerClaim, StringComparison.Ordinal))
             {
-                add(relative, found.Number, "VERIFY_TEMPLATED_EVIDENCE", $"Verification for '{provision.Id}' repeats its provision heading instead of naming evidence");
+                add(relative, found.Number, Diagnostics.Codes.VerifyTemplatedEvidence, $"Verification for '{provision.Id}' repeats its provision heading instead of naming evidence");
             }
 
             var normalized = evidence.Trim();
             if (normalized.Length > 0 && !seenEvidence.Add(normalized))
             {
-                add(relative, found.Number, "VERIFY_DUPLICATE_EVIDENCE", $"Verification for '{provision.Id}' repeats evidence used by another provision on this page");
+                add(relative, found.Number, Diagnostics.Codes.VerifyDuplicateEvidence, $"Verification for '{provision.Id}' repeats evidence used by another provision on this page");
             }
 
             if (mark == "checkable")
@@ -728,7 +728,7 @@ internal sealed partial class ProvisionValidator
         var command = EvidenceCommandPattern().Match(evidence);
         if (!command.Success)
         {
-            add(relative, line, "VERIFY_COMMAND", $"Verification for '{id}' is checkable but names no command");
+            add(relative, line, Diagnostics.Codes.VerifyCommand, $"Verification for '{id}' is checkable but names no command");
             return;
         }
 
@@ -764,7 +764,7 @@ internal sealed partial class ProvisionValidator
             var target = JoinRoot(root, candidate);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
                 return;
             }
         }
@@ -789,19 +789,19 @@ internal sealed partial class ProvisionValidator
 
                 if (shipped is not null && !shipped.Contains(span))
                 {
-                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', but the pinned analyzer release '{pin}' does not ship it");
+                    add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', but the pinned analyzer release '{pin}' does not ship it");
                 }
             }
             else if (MaintainCodePattern().IsMatch(span))
             {
                 if (!StableCodeSet.Contains(span))
                 {
-                    add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
+                    add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
                 }
             }
             else if (FindingCodePattern().IsMatch(span) && !FindingCodes.IsKnown(span))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a finding code");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a finding code");
             }
         }
     }
@@ -819,7 +819,7 @@ internal sealed partial class ProvisionValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!LiteSpecCommands.Contains(subcommand))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
             }
 
             return;
@@ -830,7 +830,7 @@ internal sealed partial class ProvisionValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!MaintainCommands.Contains(subcommand))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
             }
 
             return;
@@ -840,12 +840,12 @@ internal sealed partial class ProvisionValidator
         {
             if (tokens[3].EndsWith("LiteSpec.Cli", StringComparison.Ordinal) && !LiteSpecCommands.Contains(tokens[5]))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
             }
 
             if (tokens[3].EndsWith("LiteSpec.Maintain", StringComparison.Ordinal) && !MaintainCommands.Contains(tokens[5]))
             {
-                add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
+                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
             }
         }
     }

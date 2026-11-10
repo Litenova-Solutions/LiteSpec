@@ -1,14 +1,14 @@
 // Search and sharing metadata: canonical URLs, meta descriptions, the social image,
 // and the schema.org objects every page writes as JSON-LD.
 import { execFileSync } from "node:child_process";
+import { SITE_ORIGIN } from "./origin.ts";
 import { root, version } from "./spec.ts";
 
-export const siteUrl = "https://litespec.dev";
 const github = "https://github.com/Litenova-Solutions/LiteSpec";
 
 /** The absolute URL of a site path. */
 export function absoluteUrl(pathname: string): string {
-  return new URL(pathname, siteUrl).toString();
+  return new URL(pathname, SITE_ORIGIN).toString();
 }
 
 /** The build date as YYYY-MM-DD, used when no git date is available. */
@@ -51,7 +51,7 @@ export const socialImage = {
 
 export const organization = {
   "@type": "Organization",
-  "@id": `${siteUrl}/#organization`,
+  "@id": `${SITE_ORIGIN}/#organization`,
   name: "Litenova Solutions",
   url: "https://litenova.solutions",
   sameAs: [github],
@@ -59,24 +59,24 @@ export const organization = {
 
 export const website = {
   "@type": "WebSite",
-  "@id": `${siteUrl}/#website`,
+  "@id": `${SITE_ORIGIN}/#website`,
   name: "LiteSpec",
-  url: `${siteUrl}/`,
+  url: `${SITE_ORIGIN}/`,
   description:
     "The specification standard for building business applications with AI agents: versioned rules for architecture, code, records, and tests, with tools that verify a project against them.",
   inLanguage: "en",
-  publisher: { "@id": `${siteUrl}/#organization` },
+  publisher: { "@id": `${SITE_ORIGIN}/#organization` },
 };
 
 export const softwareSource = {
   "@type": "SoftwareSourceCode",
-  "@id": `${siteUrl}/#source`,
+  "@id": `${SITE_ORIGIN}/#source`,
   name: "LiteSpec",
   codeRepository: github,
   license: "https://opensource.org/licenses/MIT",
   version,
   programmingLanguage: ["C#", "TypeScript"],
-  author: { "@id": `${siteUrl}/#organization` },
+  author: { "@id": `${SITE_ORIGIN}/#organization` },
 };
 
 /** A breadcrumb trail, each item a name and an optional site path. An item
@@ -106,8 +106,8 @@ export function webPage(options: {
     description: metaDescription(options.description),
     url: absoluteUrl(options.path),
     inLanguage: "en",
-    isPartOf: { "@id": `${siteUrl}/#website` },
-    publisher: { "@id": `${siteUrl}/#organization` },
+    isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
+    publisher: { "@id": `${SITE_ORIGIN}/#organization` },
   };
 }
 
@@ -131,9 +131,9 @@ export function techArticle(options: {
     dateModified: options.modified ?? buildDate(),
     mainEntityOfPage: { "@type": "WebPage", "@id": `${absoluteUrl(options.path)}#webpage` },
     image: socialImage.url,
-    isPartOf: { "@id": `${siteUrl}/#website` },
-    publisher: { "@id": `${siteUrl}/#organization` },
-    author: { "@id": `${siteUrl}/#organization` },
+    isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
+    publisher: { "@id": `${SITE_ORIGIN}/#organization` },
+    author: { "@id": `${SITE_ORIGIN}/#organization` },
   };
 }
 

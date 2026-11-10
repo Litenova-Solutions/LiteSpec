@@ -2,6 +2,7 @@
   import { base, book, cap } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import { esc } from "$lib/book/html";
+  import { formatLabel } from "$lib/utils";
   import InlineRef from "$lib/components/book/InlineRef.svelte";
   import SourceLink from "$lib/components/book/SourceLink.svelte";
   import Block from "../blocks/Block.svelte";
@@ -27,7 +28,7 @@
       <KvRow label="entryPoint"><InlineRef id={base(String(f.entryPoint))} /></KvRow>
     {/if}
     {#if f.floorplan}
-      <KvRow label="floorplan">{cap(String(f.floorplan).replace(/-/g, " "))}</KvRow>
+      <KvRow label="floorplan">{cap(formatLabel(f.floorplan))}</KvRow>
     {/if}
     <KvRow label="Route">
       {#if route}

@@ -445,14 +445,6 @@ sealed class ConsumerConfig
         return config;
     }
 
-    /// <summary>
-    ///     A path written with forward slashes, relative to the root.
-    /// </summary>
-    /// <param name="absolute">The absolute path to make relative.</param>
-    /// <returns>The path relative to the root, with forward slashes.</returns>
-    public string Relative(string absolute) =>
-        Path.GetRelativePath(Root, absolute).Replace(Path.DirectorySeparatorChar, '/');
-
     /// <summary>Whether the declaration selects the extension id in selectedExtensions.</summary>
     /// <param name="root">The declaration root object.</param>
     /// <param name="id">The extension id to test for.</param>

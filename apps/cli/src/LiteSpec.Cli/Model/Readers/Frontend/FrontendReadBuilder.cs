@@ -86,7 +86,7 @@ static class FrontendReadBuilder
             screens.Add(new ScreenInfo(
                 frontend.Name,
                 route.Address,
-                config.Relative(file),
+                PathText.Relative(config.Root, file),
                 [.. operations.Select(operation => new GeneratedOperation(operation, "", ""))],
                 [.. useCases],
                 route.Marks.Count > 0 ? route.Marks[0] : null,

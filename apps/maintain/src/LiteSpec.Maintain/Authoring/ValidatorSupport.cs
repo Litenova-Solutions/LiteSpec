@@ -152,7 +152,6 @@ internal static class ValidatorSupport
         return relative != "CHANGELOG.md"
             && relative != "changelog"
             && !relative.StartsWith("changelog/", StringComparison.Ordinal)
-            && relative != "LICENSE.md"
             && !relative.StartsWith("apps/", StringComparison.Ordinal)
             && !relative.StartsWith("packages/", StringComparison.Ordinal)
             && !relative.StartsWith("examples/", StringComparison.Ordinal);

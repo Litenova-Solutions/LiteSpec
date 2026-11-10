@@ -1,3 +1,5 @@
+using LiteSpec.Authoring;
+
 namespace LiteSpec.Tests.Authoring;
 
 /// <summary>Controlled-prose cases, each asserting its diagnostic codes.</summary>
@@ -14,14 +16,14 @@ public sealed partial class StandardsValidatorTests
             page = StandardsFixture.ReplaceFirst(page, "- with an em dash -", emDash + " with an em dash");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
-        ["PROSE_NON_ASCII"]);
+        [Diagnostics.Codes.ProseNonAscii]);
 
     static void CheckNonAsciiCodepoint(string codepoint)
     {
         var character = char.ConvertFromUtf32(Convert.ToInt32(codepoint, 16));
         Check(
             root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "one repository topic", $"one repository{character}topic")),
-            ["PROSE_NON_ASCII"]);
+            [Diagnostics.Codes.ProseNonAscii]);
     }
 
     /// <summary>Non-ASCII prose U+00A0 (a plain space).</summary>
@@ -76,5 +78,5 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "normative guide prose")]
     public void NormativeGuideProse() => Check(
         root => StandardsFixture.Write(root, "docs/guide/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.GuidePage, "Create one verified standards artifact.", "Consumers MUST create one verified standards artifact.")),
-        ["PROSE_NORMATIVE_LOCATION"]);
+        [Diagnostics.Codes.ProseNormativeLocation]);
 }

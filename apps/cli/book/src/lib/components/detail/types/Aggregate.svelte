@@ -2,6 +2,7 @@
   import { book, cap, uniq } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import { esc } from "$lib/book/html";
+  import { formatLabel } from "$lib/utils";
   import Icon from "$lib/components/book/Icon.svelte";
   import InlineRef from "$lib/components/book/InlineRef.svelte";
   import Block from "../blocks/Block.svelte";
@@ -32,7 +33,7 @@
 
   const classRows = $derived(
     classes.map((c) => [
-      tdHtml(`<b>${esc(cap(String(c.name ?? "").replace(/-/g, " ")))}</b><div class="mt-1">${clsBadgeHtml(c.classification)}</div>`),
+      tdHtml(`<b>${esc(cap(formatLabel(c.name)))}</b><div class="mt-1">${clsBadgeHtml(c.classification)}</div>`),
       tdHtml(`<div class="flex flex-wrap gap-1">${((c.fields as string[] | undefined) ?? []).map((x) => `<span class="${codeCls}">${esc(x)}</span>`).join("")}</div>`),
       tdHtml(esc(c.purpose ?? "")),
       tdHtml(
@@ -142,7 +143,7 @@
             {i + 1}
           </span>
           <div class="min-w-0">
-            <b>{cap(label.replace(/-/g, " "))}</b>
+            <b>{cap(formatLabel(label))}</b>
             {#if s.runs}
               <div class="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">Runs <InlineRef id={String(s.runs)} /></div>
             {/if}

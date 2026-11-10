@@ -8,10 +8,10 @@ namespace LiteSpec.Ui;
 /// <summary>
 ///     Reads JSON properties for the UI checks, keeping each read's presence in
 ///     <see cref="JsValue"/>, and prints reads the way a message prints them.
-///     The truthiness and strict equality of the values themselves come from
+///     The text, truthiness and strict equality of the values come from
 ///     <see cref="JsonValues"/>; this type keeps only what that contract does
-///     not carry: a missing key is not a present null, and a value printed for
-///     a reader is a scalar or <c>[object Object]</c>, never its JSON form.
+///     not carry: a missing key is not a present null, and a missing key prints
+///     as <c>undefined</c>.
 /// </summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
 /// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
@@ -56,39 +56,14 @@ static class JsonRead
     /// <param name="value">The read to print.</param>
     /// <returns>The text the read prints as in a message.</returns>
     public static string Show(JsValue value) =>
-        value.Node is null ? (value.Found ? "null" : "undefined") : ShowNode(value.Node);
-
-    /// <summary>How a message prints a read held as a found flag and a value.</summary>
-    /// <param name="found">Whether the key exists.</param>
-    /// <param name="node">The value the key holds, or null.</param>
-    /// <returns>The text the read prints as in a message.</returns>
-    public static string Show(bool found, JsonNode? node) => Show(new JsValue(found, node));
-
-    /// <summary>How a message prints a value: scalars raw, objects opaque.</summary>
-    /// <param name="node">The JSON value to print.</param>
-    /// <returns>The text the value prints as in a message.</returns>
-    public static string ShowNode(JsonNode? node) => node switch
-    {
-        null => "null",
-        JsonValue value => value.GetValueKind() switch
-        {
-            JsonValueKind.String => value.GetValue<string>(),
-            JsonValueKind.True => "true",
-            JsonValueKind.False => "false",
-            JsonValueKind.Number => value.TryGetValue<long>(out var integer)
-                ? integer.ToString(CultureInfo.InvariantCulture)
-                : value.GetValue<double>().ToString(CultureInfo.InvariantCulture),
-            _ => "null",
-        },
-        _ => "[object Object]",
-    };
+        value.Found ? JsonValues.Text(value.Node) : "undefined";
 
     /// <summary>A read with a fallback for a missing or null value.</summary>
     /// <param name="value">The read to print.</param>
     /// <param name="fallback">The text for a missing or null value.</param>
     /// <returns>The text the read prints as in a message.</returns>
     public static string ShowOr(JsValue value, string fallback) =>
-        value.Node is null ? fallback : ShowNode(value.Node);
+        value.Node is null ? fallback : JsonValues.Text(value.Node);
 
     /// <summary>Whether a read counts as present.</summary>
     /// <param name="value">The read to test.</param>

@@ -821,7 +821,7 @@ internal static class CodeChecks
 
             findings.Add(CodeFinding(
                 "operation-use-case-drift",
-                $"Contract '{model.Config.Relative(contract)}' is unreadable: {(detail.Length > 0 ? detail : "an unknown error")}.",
+                $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: {(detail.Length > 0 ? detail : "an unknown error")}.",
                 contract,
                 1,
                 null));
@@ -834,7 +834,7 @@ internal static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the document is not an object.",
+                    $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: the document is not an object.",
                     contract,
                     1,
                     null));
@@ -850,7 +850,7 @@ internal static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the 'paths' value is not an object.",
+                    $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: the 'paths' value is not an object.",
                     contract,
                     1,
                     null));
@@ -963,7 +963,7 @@ internal static class CodeChecks
                 continue;
             }
 
-            var relative = model.Config.Relative(file);
+            var relative = PathText.Relative(model.Config.Root, file);
             var parts = relative.Split('/');
 
             for (var index = 0; index < parts.Length - 1; index++)
@@ -1009,7 +1009,7 @@ internal static class CodeChecks
             return false;
         }
 
-        var relative = Path.GetRelativePath(kernel, file);
+        var relative = PathText.Relative(kernel, file);
 
         return !relative.StartsWith("..", StringComparison.Ordinal) && !Path.IsPathRooted(relative);
     }

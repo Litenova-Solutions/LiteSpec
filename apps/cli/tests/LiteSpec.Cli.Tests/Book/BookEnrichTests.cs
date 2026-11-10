@@ -411,7 +411,7 @@ public sealed class BookEnrichTests
         {
             ["code"] = "use-case-unimplemented",
             ["tier"] = "G",
-            ["message"] = "Missing handler.",
+            ["message"] = "Missing handler for 'missing/x.y'.",
             ["subject"] = "use-case/lending.borrow-copy#step",
             ["path"] = ".litespec/a.yaml",
             ["line"] = 3,
@@ -437,6 +437,7 @@ public sealed class BookEnrichTests
         var finding = borrowFindings[0] as JsonObject ?? new JsonObject();
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
         Assert.False(BoolOf(finding["known"]));
+        Assert.Equal("Missing handler for <code>missing/x.y</code>.", Str(finding, "messageHtml"));
         var journeyFindings = Arr(details["journey/borrowing"], "findings");
         Assert.Single(journeyFindings);
         Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["known"]));

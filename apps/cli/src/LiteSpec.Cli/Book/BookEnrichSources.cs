@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LiteSpec.Model;
 
 namespace LiteSpec.Book;
@@ -11,6 +12,9 @@ namespace LiteSpec.Book;
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookEnrichSources
 {
+    /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>
+    static readonly Regex QuotedIds = new("'([a-z-]+/[^']+)'", RegexOptions.Compiled);
+
     /// <summary>Gets the layer keys the outline roots may name.</summary>
     static HashSet<string> KnownLayers { get; } = new(StringComparer.Ordinal)
     {
@@ -241,6 +245,7 @@ static class BookEnrichSources
     public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, ConformanceLevel level)
     {
         var bySubject = new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
+        (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
         void Add(JsonObject finding, bool known)
         {
             if (level == ConformanceLevel.Records
@@ -268,12 +273,14 @@ static class BookEnrichSources
                 bySubject[target] = list;
             }
 
+            var message = BookRender.StrProp(finding, "message") ?? "";
             list.Add(new JsonObject
             {
                 ["code"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "code")),
                 ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level")),
                 ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
-                ["message"] = BookRender.StrProp(finding, "message") ?? "",
+                ["message"] = message,
+                ["messageHtml"] = BookMarkdown.Inline(QuotedIds.Replace(message, "`$1`"), LinkRecord, null),
                 ["known"] = known,
                 ["outcome"] = finding["outcome"]?.DeepClone(),
                 ["reason"] = finding["reason"]?.DeepClone(),

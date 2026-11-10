@@ -39,7 +39,7 @@ sealed class CatalogChecks
     public void ValidatePatternCatalog(string relative)
     {
         var file = session.FilePath(relative);
-        var label = session.RelativeToRoot(file);
+        var label = PathText.Relative(session.Root, file);
         if (!FileWalk.Exists(file))
         {
             session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] pattern catalog: no catalog at '{relative}'", file);

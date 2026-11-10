@@ -126,7 +126,7 @@ static class Constituents
     /// <param name="type">The Domain type the entry names.</param>
     /// <returns>The relative file path and type name joined by a colon.</returns>
     private static string Entry(ProjectModel model, DomainType type) =>
-        $"{model.Config.Relative(type.File)}:{type.Name}";
+        $"{PathText.Relative(model.Config.Root, type.File)}:{type.Name}";
 
     /// <summary>
     ///     The aggregate id per folder that declares exactly one aggregate root carrying one
@@ -309,7 +309,7 @@ static class Constituents
             return false;
         }
 
-        var relative = Path.GetRelativePath(root, file);
+        var relative = PathText.Relative(root, file);
 
         return !relative.StartsWith("..", StringComparison.Ordinal)
             && !Path.IsPathRooted(relative);

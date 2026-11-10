@@ -11,7 +11,7 @@ The CLI is a .NET 10 console tool named `litespec`. It scaffolds and validates c
 The user-facing contract of each command lives in `docs/tools/`. Read those pages before you change behavior:
 
 - [Initialize Consumer](../../docs/tools/init.md), [Scaffold Record](../../docs/tools/new.md), [Rename Record](../../docs/tools/rename.md), [Model Builder](../../docs/tools/model.md), [Book](../../docs/tools/book.md), and [Rules Query](../../docs/tools/rules.md) for the consumer commands.
-- [CLI overview](../../docs/tools/README.md) for how to run the CLI from this repository and from a consumer, and for the `LITESPEC_HOME` and `LITESPEC_TIMING` environment variables.
+- [CLI overview](../../docs/tools/README.md) for how to run the CLI from this repository and from a consumer, and for the `LITESPEC_HOME` environment variable.
 
 ## Quick Start
 
@@ -88,7 +88,7 @@ Two roots meet in most commands: the LiteSpec release the tool carries, and the 
 
 `LiteSpecHome` finds the release from the tool binary, not from the working directory, so the tool resolves the release it carries beside its binary at any working directory. `LITESPEC_HOME` overrides the search; when set, the folder must hold `litespec.manifest.json`, else `Root` is null. Without the variable, `Locate` walks up from `AppContext.BaseDirectory` for the manifest, which reaches the repository root in a repository checkout. `RequireRoot` throws `No LiteSpec release was found above '<dir>'. Set LITESPEC_HOME to the folder that holds litespec.manifest.json.` when no release resolves, and each command converts that into exit 2 with its usage text. `Version` reads the `version` field for `--version` and for the `reviewedLiteSpecVersion` stamp that `init` writes. `PathTo` joins a forward-slash relative path such as `docs/reference/provisions.md` onto the release root. The tests set `LITESPEC_HOME` to the repository root in `Support/Cli.cs`, so every test runs against this repository.
 
-`model` reads the consumer repository at `--root`, which defaults to the working directory, and refuses a root without `.litespec/project.json` with `Root '<root>' holds no .litespec/project.json.` and exit 2. It then loads `ConsumerConfig` from that file: record roots, application, domain, web API, and infrastructure roots, test roots, frontends, API client sources, test results directory, size, shape, and stacks. The builder reads shared provisions from the release docs the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. `book` takes `--root` and `--out <folder>`, builds the model in memory from the consumer root, and reads its words from the carried release. Set `LITESPEC_TIMING` to any value to print `model` phase timings such as `[time] check-schema 0.1s` on standard error; normal runs print nothing besides their findings.
+`model` reads the consumer repository at `--root`, which defaults to the working directory, and refuses a root without `.litespec/project.json` with `Root '<root>' holds no .litespec/project.json.` and exit 2. It then loads `ConsumerConfig` from that file: record roots, application, domain, web API, and infrastructure roots, test roots, frontends, API client sources, test results directory, size, shape, and stacks. The builder reads shared provisions from the release docs the tool carries and the test run from TRX or JUnit XML files under `paths.testResults`. `book` takes `--root` and `--out <folder>`, builds the model in memory from the consumer root, and reads its words from the carried release.
 
 ## Test Harness and Fixtures
 

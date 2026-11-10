@@ -20,6 +20,9 @@ public static class Provisions
     /// <summary>The generated provision data, relative to the repository root.</summary>
     public const string JsonPath = "docs/reference/provisions.json";
 
+    /// <summary>The generated page index the site reads, relative to the repository root.</summary>
+    public const string PagesPath = "docs/reference/pages.json";
+
     /// <summary>Every provision kind (PROVISION_KINDS).</summary>
     public static readonly IReadOnlyList<string> Kinds = ["convention", "pattern", "rule"];
 
@@ -338,6 +341,19 @@ public static class Provisions
         }
 
         return new JsonObject { ["provisions"] = provisions }.ToJsonString(JsonOptions);
+    }
+
+    /// <summary>
+    ///     Builds the page index text from <see cref="Layout.PageIndex"/>, without a trailing newline.
+    ///     A root without a manifest ships no stacks, so its index lists pages and no selections.
+    /// </summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The page index text.</returns>
+    public static string BuildPages(string root)
+    {
+        var file = Path.Combine(root, LiteSpecHome.ManifestFile);
+        var manifest = File.Exists(file) ? JsonNode.Parse(File.ReadAllText(file)) as JsonObject ?? [] : [];
+        return Layout.PageIndex(root, manifest).ToJsonString(JsonOptions);
     }
 
     /// <summary>The provision data layout: indented with <c>\n</c> line ends, and the default escaping.</summary>

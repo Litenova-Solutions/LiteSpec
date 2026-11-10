@@ -37,7 +37,7 @@ static class ConsumerRoot
     /// </summary>
     /// <param name="explicitRoot">The --root value, or null when it was not passed.</param>
     /// <returns>The consumer root, or the full start folder when no folder above it holds a project file.</returns>
-    public static string Resolve(string? explicitRoot)
+    static string Resolve(string? explicitRoot)
     {
         var start = new DirectoryInfo(Path.GetFullPath(string.IsNullOrEmpty(explicitRoot) ? Directory.GetCurrentDirectory() : explicitRoot));
 
@@ -54,15 +54,17 @@ static class ConsumerRoot
 
     /// <summary>
     ///     Finds the folder a command works on and checks it. With <paramref name="requireProject" />,
-    ///     the folder is the consumer found by <see cref="Resolve" />, and it must exist and hold the
-    ///     project file. Without it, the folder is the start folder itself, literally, for a command
-    ///     that creates the project. A failure prints one message and sets the exit code to 2.
+    ///     the folder is the consumer found by walking up from the start folder, and it must exist and
+    ///     hold the project file. Without it, the folder is the start folder itself, literally, for a
+    ///     command that creates the project. A failure is written through <see cref="LastResort.Fail" />
+    ///     as one message, with exit code 2.
     /// </summary>
     /// <param name="rootOption">The --root value, or null when it was not passed.</param>
     /// <param name="requireProject">Whether the command reads an existing consumer.</param>
+    /// <param name="json">True when the caller requested JSON output, so a failure is written as the JSON object.</param>
     /// <param name="exitCode">The exit code for the caller to return when the folder is refused; 0 otherwise.</param>
     /// <returns>The consumer folder, or null when the folder is refused.</returns>
-    public static string? Locate(string? rootOption, bool requireProject, out int exitCode)
+    public static string? Locate(string? rootOption, bool requireProject, bool json, out int exitCode)
     {
         exitCode = 0;
         string root;
@@ -75,8 +77,7 @@ static class ConsumerRoot
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{rootOption}': {exception.Message}");
-            exitCode = 2;
+            exitCode = LastResort.Fail($"Invalid root '{rootOption}': {exception.Message}", json, 2);
             return null;
         }
 
@@ -87,8 +88,7 @@ static class ConsumerRoot
 
         if (!Directory.Exists(root))
         {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            exitCode = 2;
+            exitCode = LastResort.Fail($"Root '{root}' does not exist.", json, 2);
             return null;
         }
 
@@ -96,8 +96,7 @@ static class ConsumerRoot
         // would read or write a folder that is not a consumer at all.
         if (!File.Exists(ProjectFile(root)))
         {
-            Console.Error.WriteLine(NoProjectMessage(root));
-            exitCode = 2;
+            exitCode = LastResort.Fail(NoProjectMessage(root), json, 2);
             return null;
         }
 
@@ -107,15 +106,16 @@ static class ConsumerRoot
     /// <summary>
     ///     Finds the consumer a command reads, and loads its declaration. Every command
     ///     that reads a consumer calls this, so the folder rule and the project-file
-    ///     messages are the same everywhere. A failure prints one message and sets the
-    ///     exit code to 2.
+    ///     messages are the same everywhere. A failure is written through
+    ///     <see cref="LastResort.Fail" /> as one message, with exit code 2.
     /// </summary>
     /// <param name="rootOption">The --root value, or null when it was not passed.</param>
+    /// <param name="json">True when the caller requested JSON output, so a failure is written as the JSON object.</param>
     /// <param name="exitCode">The exit code for the caller to return when the consumer is refused; 0 otherwise.</param>
     /// <returns>The loaded declaration, or null when the consumer is refused.</returns>
-    public static ConsumerConfig? Open(string? rootOption, out int exitCode)
+    public static ConsumerConfig? Open(string? rootOption, bool json, out int exitCode)
     {
-        var root = Locate(rootOption, requireProject: true, out exitCode);
+        var root = Locate(rootOption, requireProject: true, json, out exitCode);
 
         if (root is null)
         {
@@ -128,18 +128,17 @@ static class ConsumerRoot
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine(InvalidProjectMessage(exception.Message));
+            exitCode = LastResort.Fail(InvalidProjectMessage(exception.Message), json, 2);
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
+            exitCode = LastResort.Fail(exception.Message, json, 2);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Cannot read {ProjectFileDisplay}: {exception.Message}");
+            exitCode = LastResort.Fail($"Cannot read {ProjectFileDisplay}: {exception.Message}", json, 2);
         }
 
-        exitCode = 2;
         return null;
     }
 

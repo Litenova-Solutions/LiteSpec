@@ -5,6 +5,7 @@
 import { base, book, cap, plural, uniq } from "$lib/book";
 import type { BookRecord, Fields } from "$lib/book/types";
 import { duration, editorHref, esc, inline, safeHref } from "$lib/book/html";
+import { formatLabel } from "$lib/utils";
 
 export interface BodySection {
   h: string;
@@ -213,13 +214,13 @@ export function relationLabelOf(label: string, items: { id: string }[], selfType
 
 /** One wave-5 value in LiteSpec words: the mode names the case, the reason completes "because ...". */
 export function modeWord(m: unknown) {
-  return String(m ?? "").replace(/-/g, " ");
+  return formatLabel(m);
 }
 
 export function opRefHtml(op: unknown) {
   const b = base(op);
   const tail = String(op ?? "").split("#")[1];
-  return inlineRefHtml(b) + (tail ? ` <span class="font-mono text-[11px] text-muted-foreground">${esc(tail.replace(/-/g, " "))}</span>` : "");
+  return inlineRefHtml(b) + (tail ? ` <span class="font-mono text-[11px] text-muted-foreground">${esc(formatLabel(tail))}</span>` : "");
 }
 
 export function freshnessNoteHtml(g: Fields) {

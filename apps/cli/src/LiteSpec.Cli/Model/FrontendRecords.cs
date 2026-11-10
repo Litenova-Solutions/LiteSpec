@@ -35,7 +35,7 @@ static class FrontendRecords
                 UseCaseIds(model, frontend),
                 ScreenIds(model, frontend),
                 ProofTargetIds(model)));
-            written.Add(model.Config.Relative(path));
+            written.Add(PathText.Relative(model.Config.Root, path));
         }
 
         return written;

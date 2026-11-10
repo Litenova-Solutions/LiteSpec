@@ -224,7 +224,7 @@ internal sealed partial class PageValidator
         {
             if (!names.Contains(required))
             {
-                add(relative, 1, "PAGE_MISSING_SECTION", $"missing required H2 '{required}'");
+                add(relative, 1, Diagnostics.Codes.PageMissingSection, $"missing required H2 '{required}'");
             }
         }
 
@@ -233,7 +233,7 @@ internal sealed partial class PageValidator
         {
             if (!allowed.Contains(section.Name))
             {
-                add(relative, section.Line, "PAGE_UNKNOWN_SECTION", $"H2 '{section.Name}' is not valid for {kind} pages");
+                add(relative, section.Line, Diagnostics.Codes.PageUnknownSection, $"H2 '{section.Name}' is not valid for {kind} pages");
             }
         }
 
@@ -277,7 +277,7 @@ internal sealed partial class PageValidator
             var position = canonical.IndexOf(section.Name);
             if (position < previous)
             {
-                add(relative, section.Line, "PAGE_SECTION_ORDER", $"H2 '{section.Name}' is out of order");
+                add(relative, section.Line, Diagnostics.Codes.PageSectionOrder, $"H2 '{section.Name}' is out of order");
                 break;
             }
 
@@ -366,7 +366,7 @@ internal sealed partial class PageValidator
 
             if (title.Length > 0 && !TitleCase(heading.DisplayText))
             {
-                add(relative, heading.Line, "PAGE_HEADING_CASE", $"H{heading.Level} '{title}' must use Title Case");
+                add(relative, heading.Line, Diagnostics.Codes.PageHeadingCase, $"H{heading.Level} '{title}' must use Title Case");
             }
         }
     }
@@ -402,12 +402,12 @@ internal sealed partial class PageValidator
         var add = Context.Add;
         if (kind == "index" && (sections.Count == 0 || sections[0].Name != "Intent"))
         {
-            add(relative, sections.Count > 0 ? sections[0].Line : 1, "INDEX_INTENT", "an index must start with an Intent H2");
+            add(relative, sections.Count > 0 ? sections[0].Line : 1, Diagnostics.Codes.IndexIntent, "an index must start with an Intent H2");
         }
 
         if (kind == "explanation" && (sections.Count == 0 || sections[0].Name != "Intent"))
         {
-            add(relative, sections.Count > 0 ? sections[0].Line : 1, "PAGE_MISSING_SECTION", "an explanation page starts with an Intent H2");
+            add(relative, sections.Count > 0 ? sections[0].Line : 1, Diagnostics.Codes.PageMissingSection, "an explanation page starts with an Intent H2");
         }
 
         if (kind != "glossary")
@@ -421,7 +421,7 @@ internal sealed partial class PageValidator
             .ToList();
         if (terms.Where((term, index) => term != sorted[index]).Any())
         {
-            add(relative, 1, "GLOSSARY_ORDER", "glossary terms are not alphabetical");
+            add(relative, 1, Diagnostics.Codes.GlossaryOrder, "glossary terms are not alphabetical");
         }
 
         var lines = reader.Lines;
@@ -454,7 +454,7 @@ internal sealed partial class PageValidator
 
             if (Prose.Sentences(PageReader.VisibleText(string.Join(' ', firstParagraph))).Count != 1)
             {
-                add(relative, sections[index].Line, "GLOSSARY_DEFINITION", $"term '{sections[index].Name}' must start with one definition sentence");
+                add(relative, sections[index].Line, Diagnostics.Codes.GlossaryDefinition, $"term '{sections[index].Name}' must start with one definition sentence");
             }
         }
 
@@ -476,7 +476,7 @@ internal sealed partial class PageValidator
                 .ToList();
             if (group.Where((term, position) => term != ordered[position]).Any())
             {
-                add(relative, sections[index].Line, "GLOSSARY_ORDER", $"glossary terms under '{sections[index].Name}' are not alphabetical");
+                add(relative, sections[index].Line, Diagnostics.Codes.GlossaryOrder, $"glossary terms under '{sections[index].Name}' are not alphabetical");
             }
         }
     }
@@ -519,7 +519,7 @@ internal sealed partial class PageValidator
 
         if (blocks.Count == 0)
         {
-            add(relative, titles[0].Line, "SCOPE_BLOCK", "page owns provisions but carries no Scope block directly under its title; write a `**Stack:**` line and a `**Layer:**` line");
+            add(relative, titles[0].Line, Diagnostics.Codes.ScopeBlock, "page owns provisions but carries no Scope block directly under its title; write a `**Stack:**` line and a `**Layer:**` line");
             return;
         }
 
@@ -528,12 +528,12 @@ internal sealed partial class PageValidator
         var layers = parsed.SelectMany(entry => entry.Fields.Where(field => field.Name == "layer").SelectMany(field => field.Values)).ToList();
         if (stacks.Count == 0)
         {
-            add(relative, blocks[0].Number, "SCOPE_BLOCK", "Scope block names no stack; write a `**Stack:**` line");
+            add(relative, blocks[0].Number, Diagnostics.Codes.ScopeBlock, "Scope block names no stack; write a `**Stack:**` line");
         }
 
         if (layers.Count == 0)
         {
-            add(relative, blocks[0].Number, "SCOPE_BLOCK", "Scope block names no layer; write a `**Layer:**` line");
+            add(relative, blocks[0].Number, Diagnostics.Codes.ScopeBlock, "Scope block names no layer; write a `**Layer:**` line");
         }
 
         var vocabulary = Context.Vocabulary;
@@ -551,7 +551,7 @@ internal sealed partial class PageValidator
                     var known = field.Name == "stack" ? vocabulary.Stacks.Contains(value) : vocabulary.Layers.Contains(value);
                     if (!known)
                     {
-                        add(relative, number, "SCOPE_VALUE", $"Scope block names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
+                        add(relative, number, Diagnostics.Codes.ScopeValue, $"Scope block names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
                     }
                 }
             }
@@ -606,7 +606,7 @@ internal sealed partial class PageValidator
             var title = heading.Text.Trim();
             if (title.Contains("litespec/", StringComparison.Ordinal))
             {
-                add(relative, heading.Line, "ID_IN_HEADING", $"provision heading '{title}' carries identifier text; the ID line under the heading states the identity");
+                add(relative, heading.Line, Diagnostics.Codes.IdInHeading, $"provision heading '{title}' carries identifier text; the ID line under the heading states the identity");
             }
 
             var nextLine = reader.Headings
@@ -630,12 +630,12 @@ internal sealed partial class PageValidator
             // A pattern heading is the pattern's name, so its ID survives a change of default.
             if (!pattern && (!firstWord.Success || !ActionVerbs.Contains(firstWord.Value)))
             {
-                add(relative, heading.Line, "HEADING_ACTION", $"provision heading '{title}' must start with an action verb");
+                add(relative, heading.Line, Diagnostics.Codes.HeadingAction, $"provision heading '{title}' must start with an action verb");
             }
 
             if (globalIds.TryGetValue(id, out var first))
             {
-                add(relative, heading.Line, "ID_DUPLICATE", $"provision ID '{id}' also appears in {first}");
+                add(relative, heading.Line, Diagnostics.Codes.IdDuplicate, $"provision ID '{id}' also appears in {first}");
             }
             else
             {
@@ -677,7 +677,7 @@ internal sealed partial class PageValidator
 
             if (!hasBody)
             {
-                add(relative, heading.Line, "HEADING_EMPTY_BODY", $"heading '{heading.Text}' has no body and no nested heading");
+                add(relative, heading.Line, Diagnostics.Codes.HeadingEmptyBody, $"heading '{heading.Text}' has no body and no nested heading");
             }
         }
 
@@ -685,17 +685,17 @@ internal sealed partial class PageValidator
         // provision without citing it. (litespec/core/authoring#use-the-declared-page-contract)
         if (kind == "index" && reader.OrderedStepLines.Count > 0)
         {
-            add(relative, reader.OrderedStepLines[0], "INDEX_CONTAINS_PROCEDURE", "an index must not contain a numbered procedure");
+            add(relative, reader.OrderedStepLines[0], Diagnostics.Codes.IndexContainsProcedure, "an index must not contain a numbered procedure");
         }
 
         if (kind is not null && kind != "index" && h1s.Count != 1)
         {
-            add(relative, h1s.Count > 1 ? h1s[1].Line : 1, "PAGE_TITLE_COUNT", $"expected one H1, found {h1s.Count}");
+            add(relative, h1s.Count > 1 ? h1s[1].Line : 1, Diagnostics.Codes.PageTitleCount, $"expected one H1, found {h1s.Count}");
         }
 
         if (kind is not null && kind != "index" && h1s.Count == 1 && !TitleCase(h1s[0].DisplayText))
         {
-            add(relative, h1s[0].Line, "PAGE_TITLE_CASE", $"H1 '{h1s[0].Text}' must use Title Case");
+            add(relative, h1s[0].Line, Diagnostics.Codes.PageTitleCase, $"H1 '{h1s[0].Text}' must use Title Case");
         }
 
         CheckSectionOrder(relative, kind, sections);
@@ -715,11 +715,11 @@ internal sealed partial class PageValidator
                 var body = SectionBody(reader, section.Name);
                 if (body.Length == 0)
                 {
-                    add(relative, section.Line, "PAGE_EMPTY_SECTION", $"H2 '{section.Name}' must contain content or 'None.'");
+                    add(relative, section.Line, Diagnostics.Codes.PageEmptySection, $"H2 '{section.Name}' must contain content or 'None.'");
                 }
                 else if (EmptySectionVariant(body))
                 {
-                    add(relative, section.Line, "PAGE_EMPTY_SECTION_TEXT", $"H2 '{section.Name}' must contain exactly 'None.' when it has nothing to say");
+                    add(relative, section.Line, Diagnostics.Codes.PageEmptySectionText, $"H2 '{section.Name}' must contain exactly 'None.' when it has nothing to say");
                 }
             }
         }
@@ -750,7 +750,7 @@ internal sealed partial class PageValidator
             if (!firstLine.StartsWith("This informative example demonstrates ", StringComparison.Ordinal) || ids.Count == 0)
             {
                 var section = sections.FirstOrDefault(item => item.Name == "Reference Example");
-                add(relative, section?.Line ?? 1, "REFERENCE_EXAMPLE_DECLARATION", "Reference Example must begin with an informative declaration and provision IDs");
+                add(relative, section?.Line ?? 1, Diagnostics.Codes.ReferenceExampleDeclaration, "Reference Example must begin with an informative declaration and provision IDs");
             }
         }
 
@@ -767,7 +767,7 @@ internal sealed partial class PageValidator
             var group = Path.GetFileNameWithoutExtension(relative);
             foreach (var (line, message) in Patterns.PatternPage.Parse(group, reader.Raw).Check())
             {
-                add(relative, line, "PATTERN_INVALID", message);
+                add(relative, line, Diagnostics.Codes.PatternInvalid, message);
             }
         }
 

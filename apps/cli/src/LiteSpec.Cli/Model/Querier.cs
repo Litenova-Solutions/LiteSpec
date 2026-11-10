@@ -84,7 +84,7 @@ static class Querier
             ["id"] = record.Id,
             ["qualifiedId"] = record.QualifiedId,
             ["title"] = record.Title,
-            ["file"] = model.Config.Relative(record.File),
+            ["file"] = PathText.Relative(model.Config.Root, record.File),
             ["line"] = record.Line,
             ["fields"] = JsonNode.Parse(record.Raw.GetRawText()),
             ["links"] = CliJson.StringLists(ModelBuilder.ResolvedLinks(model, record)),

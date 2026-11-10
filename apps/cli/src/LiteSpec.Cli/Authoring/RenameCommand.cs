@@ -46,16 +46,12 @@ static class RenameCommand
 
         if (parsed.Error is not null)
         {
-            Console.Error.WriteLine(parsed.Error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var oldId, var newId])
         {
-            Console.Error.WriteLine("Rename needs an old and a new identifier.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError("Rename needs an old and a new identifier.", Usage, json: false);
         }
 
         if (!TryRecordId(oldId, out var oldType, out var oldHome, out _))
@@ -82,7 +78,7 @@ static class RenameCommand
             return 2;
         }
 
-        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
         if (config is null)
         {
@@ -114,7 +110,7 @@ static class RenameCommand
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{newId}' is already taken by {config.Relative(clash.File)}.");
+            Console.Error.WriteLine($"Identifier '{newId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -128,11 +124,11 @@ static class RenameCommand
                 return 1;
             }
 
-            Console.WriteLine($"Moved {config.Relative(moved.From)} -> {config.Relative(moved.To)}.");
+            Console.WriteLine($"Moved {PathText.Relative(config.Root, moved.From)} -> {PathText.Relative(config.Root, moved.To)}.");
 
             if (moved.ExplanationFrom is not null && moved.ExplanationTo is not null)
             {
-                Console.WriteLine($"Moved {config.Relative(moved.ExplanationFrom)} -> {config.Relative(moved.ExplanationTo)}.");
+                Console.WriteLine($"Moved {PathText.Relative(config.Root, moved.ExplanationFrom)} -> {PathText.Relative(config.Root, moved.ExplanationTo)}.");
             }
         }
 
@@ -151,7 +147,7 @@ static class RenameCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to read '{config.Relative(file)}': {exception.Message}");
+                Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, file)}': {exception.Message}");
                 return 1;
             }
 
@@ -182,11 +178,11 @@ static class RenameCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{config.Relative(file)}': {exception.Message}");
+                Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, file)}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Updated {config.Relative(file)} ({count} {(code ? "marks" : "citations")}).");
+            Console.WriteLine($"Updated {PathText.Relative(config.Root, file)} ({count} {(code ? "marks" : "citations")}).");
 
             if (code)
             {
@@ -282,7 +278,7 @@ static class RenameCommand
             return false;
         }
 
-        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
+        if (RecordFile.NodeOf(tree) is not JsonObject node)
         {
             return false;
         }

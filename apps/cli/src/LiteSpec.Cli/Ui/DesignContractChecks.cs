@@ -60,7 +60,7 @@ sealed class DesignContractChecks
         }
 
         var file = session.FilePath(relative);
-        var label = session.RelativeToRoot(file);
+        var label = PathText.Relative(session.Root, file);
         if (!FileWalk.Exists(file))
         {
             session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'", file);

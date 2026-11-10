@@ -18,10 +18,9 @@ static partial class ModelBuilder
     /// <returns>The built project model.</returns>
     public static ProjectModel Build(ConsumerConfig config)
     {
-        var total = System.Diagnostics.Stopwatch.StartNew();
         var model = new ProjectModel { Config = config };
 
-        var read = Timed("records", () => RecordReader.Read(config));
+        var read = RecordReader.Read(config);
 
         model.Problems.AddRange(read.Problems);
         model.Problems.AddRange(config.Problems);
@@ -47,12 +46,12 @@ static partial class ModelBuilder
         {
             var stacks = StackReaders.For(config);
             model.Problems.AddRange(stacks.Problems);
-            var backendRead = Timed("code", () => stacks.Backend.Read(config));
+            var backendRead = stacks.Backend.Read(config);
 
             model.Code = backendRead.Code;
             model.Problems.AddRange(backendRead.Problems);
 
-            var screens = Timed("screens", () => ReadScreens(config, stacks, model.Code));
+            var screens = ReadScreens(config, stacks, model.Code);
 
             model.Screens.AddRange(screens.Screens);
             model.ScreenComments.AddRange(screens.Comments);
@@ -60,7 +59,7 @@ static partial class ModelBuilder
             model.Problems.AddRange(screens.Findings);
             model.TypeScriptQualified = screens.TypeScriptQualified;
 
-            var scenarioRead = Timed("tests", () => stacks.Scenarios.Read(config));
+            var scenarioRead = stacks.Scenarios.Read(config);
             var tests = scenarioRead.Tests;
 
             model.Problems.AddRange(scenarioRead.Problems);
@@ -71,28 +70,23 @@ static partial class ModelBuilder
             model.StepFacts = tests.StepFacts;
             model.ProbeRoutes = tests.ProbeRoutes;
             model.TestComments.AddRange(tests.Comments);
-            model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
+            model.TestRun = stacks.TestRuns.Read(config);
             model.Ledger = ProofLedger.Load(config);
             model.Problems.AddRange(model.Ledger.Problems);
 
-            model.Measures.AddRange(Timed("measures", () => MeasureReader.Read(config)));
+            model.Measures.AddRange(MeasureReader.Read(config));
         }
 
-        Timed("compute", () =>
-        {
-            ModelLinks.MatchEvents(model);
-            ModelLinks.ComputeImplements(model);
-            ModelLinks.ComputeFollows(model);
-            ComputeCalls(model);
-            RefusalCodes.Compute(model);
-            ProofConfirmation.Compute(model);
-            CompletionCalculator.Compute(model);
-            ComputeReachableStates(model);
-            Constituents.Compute(model);
-            ScreenshotCaptures.Compute(model);
-        });
-
-        Timing.Report($"[time] build total {total.Elapsed.TotalSeconds:0.0}s");
+        ModelLinks.MatchEvents(model);
+        ModelLinks.ComputeImplements(model);
+        ModelLinks.ComputeFollows(model);
+        ComputeCalls(model);
+        RefusalCodes.Compute(model);
+        ProofConfirmation.Compute(model);
+        CompletionCalculator.Compute(model);
+        ComputeReachableStates(model);
+        Constituents.Compute(model);
+        ScreenshotCaptures.Compute(model);
 
         return model;
     }
@@ -144,27 +138,6 @@ static partial class ModelBuilder
             model.ReachableStates[aggregate.Id] = entered;
         }
     }
-
-    /// <summary>Runs one build phase and reports how long it took.</summary>
-    /// <param name="name">The phase name.</param>
-    /// <param name="run">The phase.</param>
-    /// <returns>The value the phase produced.</returns>
-    /// <typeparam name="T">The value type the phase produces.</typeparam>
-    private static T Timed<T>(string name, Func<T> run)
-    {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-        var value = run();
-
-        Timing.Report($"[time] {name} {watch.Elapsed.TotalSeconds:0.0}s");
-
-        return value;
-    }
-
-    /// <summary>Runs one build phase and reports how long it took.</summary>
-    /// <param name="name">The phase name.</param>
-    /// <param name="run">The phase.</param>
-    private static void Timed(string name, Action run) =>
-        Timed(name, () => { run(); return 0; });
 
     /// <summary>
     ///     The standard pages and provisions the project's stacks and extensions apply, through the

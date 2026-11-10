@@ -38,7 +38,7 @@ static class FrontendChecks
 
             // A declared frontend whose directory is absent reads as a frontend with no
             // code, and every check for it passes by having nothing to read.
-            if (declared is not null && declared.TryGetPropertyValue("path", out var frontendPath) && JsonRead.AsString(frontendPath) is string frontendDir)
+            if (declared is not null && declared.TryGetPropertyValue("path", out var frontendPath) && JsonValues.AsString(frontendPath) is string frontendDir)
             {
                 if (!File.Exists(Path.Join(run.Root, frontendDir)) && !Directory.Exists(Path.Join(run.Root, frontendDir)))
                 {
@@ -53,7 +53,7 @@ static class FrontendChecks
 
             var platform = declared is not null && declared.TryGetPropertyValue("platform", out var platformValue) ? platformValue : null;
             var namedStacks = (run.Project as JsonObject)?["stacks"] is JsonArray namedArray
-                ? namedArray.Select(JsonRead.AsString).OfType<string>().ToHashSet(StringComparer.Ordinal)
+                ? namedArray.Select(JsonValues.AsString).OfType<string>().ToHashSet(StringComparer.Ordinal)
                 : new HashSet<string>(StringComparer.Ordinal);
 
             // A frontend platform names a frontend stack the project names: a backend
@@ -67,7 +67,7 @@ static class FrontendChecks
                     1,
                     null));
             }
-            else if (JsonRead.AsString(platform) is not string stack || !run.KnownStacks.Contains(stack))
+            else if (JsonValues.AsString(platform) is not string stack || !run.KnownStacks.Contains(stack))
             {
                 run.Err(new Finding(
                     "frontend-invalid",
@@ -110,12 +110,12 @@ static class FrontendChecks
         else if (JsonValues.IsTruthy(uiPackage))
         {
             var package = uiPackage as JsonObject;
-            var packageName = JsonRead.PropString(package, "name") ?? "(unnamed)";
+            var packageName = JsonValues.PropString(package, "name") ?? "(unnamed)";
             var label = $"paths.uiPackage '{packageName}'";
 
             foreach (var key in new[] { "path", "componentsJson", "primitives", "tokens", "sourceLock", "designContract" })
             {
-                if (package is not null && package.TryGetPropertyValue(key, out var configured) && JsonRead.AsString(configured) is string configuredPath)
+                if (package is not null && package.TryGetPropertyValue(key, out var configured) && JsonValues.AsString(configured) is string configuredPath)
                 {
                     if (!File.Exists(Path.Join(run.Root, configuredPath)) && !Directory.Exists(Path.Join(run.Root, configuredPath)))
                     {
@@ -129,13 +129,13 @@ static class FrontendChecks
                 var declared = frontend as JsonObject;
                 var ui = declared?["ui"] as JsonObject;
 
-                if (ui is not null && ui.TryGetPropertyValue("globalCss", out var stylesheetValue) && JsonRead.AsString(stylesheetValue) is string stylesheet)
+                if (ui is not null && ui.TryGetPropertyValue("globalCss", out var stylesheetValue) && JsonValues.AsString(stylesheetValue) is string stylesheet)
                 {
                     if (!File.Exists(Path.Join(run.Root, stylesheet)) && !Directory.Exists(Path.Join(run.Root, stylesheet)))
                     {
                         run.Err(new Finding(
                             "frontend-invalid",
-                            $"frontend '{JsonRead.PropText(declared, "name")}' ui.globalCss path does not exist '{stylesheet}'",
+                            $"frontend '{JsonValues.PropText(declared, "name")}' ui.globalCss path does not exist '{stylesheet}'",
                             projectFile,
                             1,
                             null));

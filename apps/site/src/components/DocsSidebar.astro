@@ -6,6 +6,7 @@
 // comes first inside it. The tree is built as a string because Astro components
 // cannot recurse; icons come from the shared icon paths.
 import { areaLabel, folderLabel, folderOverview, groups, inDir } from "../lib/areas";
+import { escape } from "../lib/html";
 import { paths } from "../lib/icons";
 import { pages, pageUrl, type Page } from "../lib/spec";
 
@@ -15,9 +16,6 @@ interface Props {
 }
 
 const { current } = Astro.props;
-
-const escapeHtml = (value: string): string =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const iconSvg = (name: string, cls: string): string =>
   `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(paths as Record<string, string>)[name] ?? ""}</svg>`;
@@ -36,8 +34,8 @@ const childDirs = (dir: string): string[] => {
 
 const link = (page: Page): string =>
   page.file === current
-    ? `<a class="on" href="${escapeHtml(pageUrl(page))}" aria-current="page">${escapeHtml(page.title)}</a>`
-    : `<a href="${escapeHtml(pageUrl(page))}">${escapeHtml(page.title)}</a>`;
+    ? `<a class="on" href="${escape(pageUrl(page))}" aria-current="page">${escape(page.title)}</a>`
+    : `<a href="${escape(pageUrl(page))}">${escape(page.title)}</a>`;
 
 /** Pages that open a subfolder of their own folder, listed inside that subfolder instead. */
 const opensSubfolder = (page: Page, dir: string): boolean =>
@@ -56,7 +54,7 @@ const folderTree = (dir: string): string => {
   const { label, stack } = folderLabel(dir);
   const tag = stack ? `<span class="tag">stack</span>` : "";
   const open = current.startsWith(`${dir}/`) ? " open" : "";
-  return `<details${open}><summary>${escapeHtml(label)}${tag}${iconSvg("chevron", "icon chev")}</summary><div class="kids">${folderLinks(dir)}</div></details>`;
+  return `<details${open}><summary>${escape(label)}${tag}${iconSvg("chevron", "icon chev")}</summary><div class="kids">${folderLinks(dir)}</div></details>`;
 };
 
 const sidebar = groups
@@ -66,13 +64,13 @@ const sidebar = groups
     const open = group.key === "learn" || holds;
     const inner = group.areas
       .map((area) => {
-        const head = group.areas.length > 1 ? `<div class="area-h">${escapeHtml(areaLabel(area))}</div>` : "";
+        const head = group.areas.length > 1 ? `<div class="area-h">${escape(areaLabel(area))}</div>` : "";
         return head + folderLinks(`docs/${area}`);
       })
       .join("");
     return (
       `<details class="group"${open ? " open" : ""}>` +
-      `<summary class="group-h collapse${holds ? " open-here" : ""}">${iconSvg(group.icon, "icon")}${escapeHtml(group.label)}<span class="count">${count}</span>${iconSvg("chevron", "icon chev")}</summary>` +
+      `<summary class="group-h collapse${holds ? " open-here" : ""}">${iconSvg(group.icon, "icon")}${escape(group.label)}<span class="count">${count}</span>${iconSvg("chevron", "icon chev")}</summary>` +
       `<div class="tree">${inner}</div></details>`
     );
   })

@@ -79,44 +79,32 @@ static class InitCommand
 
         if (parsed.Error is not null)
         {
-            Console.Error.WriteLine(parsed.Error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
         var size = parsed.Value("--size");
 
         if (size is not ("small" or "large"))
         {
-            Console.Error.WriteLine(size is null
-                ? "Missing --size; use small or large."
-                : $"Unknown size '{size}'; use small or large.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(size is null ? "Missing --size; use small or large." : $"Unknown size '{size}'; use small or large.", Usage, json: false);
         }
 
         var preset = parsed.Value("--preset");
 
         if (preset is null || !Presets.Contains(preset))
         {
-            Console.Error.WriteLine(preset is null
-                ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}."
-                : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
         }
 
         var install = parsed.Value("--install") ?? "tool";
 
         if (!Installs.TryGetValue(install, out var command))
         {
-            Console.Error.WriteLine($"Unknown install '{install}'; use tool or standalone.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
         }
 
         // init creates the project, so its root is the folder named, never a parent consumer.
-        var root = ConsumerRoot.Locate(parsed.Value("--root"), requireProject: false, out var rootExit);
+        var root = ConsumerRoot.Locate(parsed.Value("--root"), requireProject: false, json: false, out var rootExit);
 
         if (root is null)
         {
@@ -139,9 +127,7 @@ static class InitCommand
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(exception.Message, Usage, json: false);
         }
 
         var version = LiteSpecHome.Version;

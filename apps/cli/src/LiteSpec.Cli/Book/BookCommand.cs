@@ -51,43 +51,14 @@ static class BookCommand
             return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Root, json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Root);
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            return LastResort.Fail($"Invalid root '{parsed.Root}': {exception.Message}", json: false, code: 2);
+            return openExit;
         }
 
-        if (!Directory.Exists(root))
-        {
-            return LastResort.Fail($"Root '{root}' does not exist.", json: false, code: 2);
-        }
-
-        // Without a project file every path falls back to a default, and the
-        // book would render a folder that is not a consumer at all.
-        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
-        {
-            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json: false, code: 2);
-        }
-
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json: false, code: 2);
-        }
-        catch (InvalidOperationException exception)
-        {
-            return LastResort.Fail(exception.Message, json: false, code: 2);
-        }
+        var root = config.Root;
 
         string liteSpecRoot;
         try

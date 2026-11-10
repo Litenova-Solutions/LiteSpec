@@ -17,7 +17,7 @@ static class FrontendModuleMirror
     {
         var root = Path.GetFullPath(frontend.ModulesRoot);
         var full = Path.GetFullPath(folder);
-        var relative = Path.GetRelativePath(root, full);
+        var relative = PathText.Relative(root, full);
 
         if (Path.IsPathRooted(relative)
             || relative is "." or ".."

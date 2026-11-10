@@ -35,11 +35,7 @@ static partial class AppendEntry
 
         if (parsed.Positionals is not [_, var useCaseArg, var name])
         {
-            Console.Error.WriteLine(kind == "result"
-                ? "New result needs a use case and a name."
-                : "New scenario needs a use case and a name.");
-            Console.Error.WriteLine(NewCommand.Usage);
-            return 2;
+            return LastResort.UsageError(kind == "result" ? "New result needs a use case and a name." : "New scenario needs a use case and a name.", NewCommand.Usage, json: false);
         }
 
         var outcome = parsed.Value("--outcome");
@@ -124,7 +120,7 @@ static partial class AppendEntry
             return 2;
         }
 
-        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
         if (config is null)
         {
@@ -155,7 +151,7 @@ static partial class AppendEntry
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {config.Relative(clash.File)}.");
+            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -167,7 +163,7 @@ static partial class AppendEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to read '{config.Relative(useCase.File)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
             return 1;
         }
 
@@ -191,11 +187,11 @@ static partial class AppendEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(useCase.File)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Appended {entryId} to {config.Relative(useCase.File)}.");
+        Console.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, useCase.File)}.");
         return 0;
     }
 
@@ -218,7 +214,7 @@ static partial class AppendEntry
             return null;
         }
 
-        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
+        if (RecordFile.NodeOf(tree) is not JsonObject node)
         {
             error = "The file holds no record to append to.";
             return null;

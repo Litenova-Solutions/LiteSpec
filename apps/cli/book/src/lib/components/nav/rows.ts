@@ -3,6 +3,7 @@
 // renders, so the components never walk the store twice.
 
 import { base, cap, type Book } from "$lib/book";
+import { formatLabel } from "$lib/utils";
 import type { SecurityItem } from "$lib/book/types";
 
 /** One virtual row in the outline or list view. */
@@ -160,7 +161,7 @@ export function securityItems(book: Book): SecurityItem[] {
         items.push({
           kind: "calls", id,
           text: "Calls " + book.title(base(String(e.calls)))
-            + (String(e.calls).indexOf("#") > 0 ? ", " + String(e.calls).split("#")[1].replace(/-/g, " ") : ""),
+            + (String(e.calls).indexOf("#") > 0 ? ", " + formatLabel(String(e.calls).split("#")[1]) : ""),
         });
       }
     }
@@ -168,7 +169,7 @@ export function securityItems(book: Book): SecurityItem[] {
       if (d.classification === "personal" || d.classification === "sensitive") {
         items.push({
           kind: "data", id,
-          text: cap(String(d.classification)) + " data: " + String(d.name).replace(/-/g, " ")
+          text: cap(String(d.classification)) + " data: " + formatLabel(d.name)
             + (d.onErasure ? ", on erasure " + d.onErasure : ""),
         });
       }

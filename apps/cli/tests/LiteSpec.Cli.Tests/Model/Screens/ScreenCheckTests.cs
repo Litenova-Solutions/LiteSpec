@@ -380,7 +380,7 @@ public sealed class ScreenCheckTests
             "ListLoans", "use-case/lending.list-loans", "", "",
             Path.Combine(model.Config.Root, "ListLoansEndpoint.cs"), 3));
         model.Screens.Add(new ScreenInfo(
-            "web", address, model.Config.Relative(file),
+            "web", address, PathText.Relative(model.Config.Root, file),
             [new GeneratedOperation("listLoans", "", "")], useCases, screenId));
     }
 

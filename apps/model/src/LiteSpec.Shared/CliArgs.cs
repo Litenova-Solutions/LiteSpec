@@ -135,10 +135,4 @@ public sealed class CliArgs
 
     /// <summary>Gets a usage error for a <c>--format</c> value other than <c>json</c> or <c>text</c>.</summary>
     public string? FormatError => Value("--format") is null or "json" or "text" ? null : $"Unknown format '{Value("--format")}'; use json or text.";
-
-    /// <summary>The <c>--root</c> value as a full path, or the working directory.</summary>
-    /// <param name="fallback">The root to use when no root option was passed.</param>
-    /// <returns>The root as a full path.</returns>
-    public string Root(string? fallback = null) =>
-        Path.GetFullPath(Value("--root") ?? fallback ?? Directory.GetCurrentDirectory());
 }

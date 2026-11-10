@@ -71,43 +71,14 @@ static class ModelCommand
             return LastResort.UsageError(error, Usage, json);
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            return LastResort.Fail($"Invalid root '{parsed.Value("--root")}': {exception.Message}", json, 2);
+            return openExit;
         }
 
-        if (!Directory.Exists(root))
-        {
-            return LastResort.Fail($"Root '{root}' does not exist.", json, 2);
-        }
-
-        // Without a project file every path falls back to a default, and the
-        // check would pass a folder that is not a consumer at all.
-        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
-        {
-            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json, 2);
-        }
-
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json, 2);
-        }
-        catch (InvalidOperationException exception)
-        {
-            return LastResort.Fail(exception.Message, json, 2);
-        }
+        var root = config.Root;
 
         switch (command)
         {
@@ -214,7 +185,7 @@ static class ModelCommand
 
                     foreach (var gap in known)
                     {
-                        Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
+                        Console.WriteLine($"{PathText.Relative(config.Root, gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
                     }
 
                     if (shown.Count > 0)
@@ -385,7 +356,7 @@ static class ModelCommand
     /// <param name="demoted">Whether <c>--since</c> demoted the finding as unchanged.</param>
     /// <returns>The printed line for the finding.</returns>
     static string FindingLine(ConsumerConfig config, Finding finding, bool demoted) =>
-        $"{config.Relative(finding.Path)}:{finding.Line} [{LevelLabel(finding, demoted)}] [{finding.Code}] {finding.Message}";
+        $"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [{LevelLabel(finding, demoted)}] [{finding.Code}] {finding.Message}";
 
     /// <summary>The sort rank of a level: G first, then S, then A.</summary>
     /// <param name="level">The level letter: G, S or A.</param>
@@ -430,7 +401,7 @@ static class ModelCommand
         ["outcome"] = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
         ["reason"] = demoted ? "unchanged" : null,
         ["message"] = finding.Message,
-        ["path"] = config.Relative(finding.Path),
+        ["path"] = PathText.Relative(config.Root, finding.Path),
         ["line"] = finding.Line,
         ["subject"] = finding.Subject,
     };
@@ -447,7 +418,7 @@ static class ModelCommand
         ["outcome"] = "known",
         ["reason"] = null,
         ["message"] = finding.Message,
-        ["path"] = config.Relative(finding.Path),
+        ["path"] = PathText.Relative(config.Root, finding.Path),
         ["line"] = finding.Line,
         ["subject"] = finding.Subject,
     };

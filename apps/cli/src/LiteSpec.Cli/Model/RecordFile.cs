@@ -85,6 +85,23 @@ static class RecordFile
     }
 
     /// <summary>
+    ///     The JSON node of a tree, for the callers that edit a record as a JSON object. The tree is
+    ///     converted node by node, never printed to text and parsed back.
+    /// </summary>
+    /// <param name="value">The tree to convert.</param>
+    /// <returns>The node, or null for a JSON null.</returns>
+    public static JsonNode? NodeOf(JsonText value) => value.Kind switch
+    {
+        JsonKind.Object => new JsonObject(value.Properties.Select(property => KeyValuePair.Create(property.Key, NodeOf(property.Value)))),
+        JsonKind.Array => new JsonArray(value.Items.Select(NodeOf).ToArray()),
+        JsonKind.String => JsonValue.Create(value.GetString()),
+        JsonKind.Number => JsonNode.Parse(value.GetNumber()!),
+        JsonKind.True => JsonValue.Create(true),
+        JsonKind.False => JsonValue.Create(false),
+        _ => null,
+    };
+
+    /// <summary>
     ///     The JSON element of a tree, for the readers that navigate records as JSON. The tree is
     ///     written once through a writer, never as text.
     /// </summary>

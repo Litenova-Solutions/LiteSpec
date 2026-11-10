@@ -38,7 +38,7 @@ internal static class ConstituentChecks
             return ".";
         }
 
-        var relative = model.Config.Relative(folder);
+        var relative = PathText.Relative(model.Config.Root, folder);
 
         return relative.Length == 0 ? "." : relative;
     }

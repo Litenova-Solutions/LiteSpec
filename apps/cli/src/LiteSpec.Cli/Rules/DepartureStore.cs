@@ -50,7 +50,7 @@ internal sealed class DepartureStore
 
             foreach (var file in Directory.GetFiles(folder, "*.yaml", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
             {
-                var relative = Path.GetRelativePath(folder, file).Replace(Path.DirectorySeparatorChar, '/');
+                var relative = PathText.Relative(folder, file);
 
                 if (!relative.StartsWith("exceptions/", StringComparison.Ordinal)
                     && !relative.Contains("/exceptions/", StringComparison.Ordinal))

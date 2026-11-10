@@ -89,6 +89,8 @@ export interface BookFinding {
   tier?: string | null;
   level?: string | null;
   message?: string;
+  /** The message rendered by the CLI: record references as book links, inline Markdown as HTML. */
+  messageHtml?: string;
   known?: boolean;
   outcome?: unknown;
   reason?: unknown;

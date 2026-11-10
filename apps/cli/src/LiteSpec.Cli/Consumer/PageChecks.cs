@@ -77,12 +77,11 @@ static class PageChecks
             errors[slot] = [];
         }
 
-        var watch = System.Diagnostics.Stopwatch.StartNew();
 
         Parallel.For(0, count, index =>
         {
             var file = run.Files[index];
-            var relative = run.Relative(file);
+            var relative = PathText.Relative(run.Root, file);
             var raw = run.ReadText(file);
             var add = errors[index].Add;
 
@@ -96,8 +95,6 @@ static class PageChecks
             }
         });
 
-        watch.Stop();
-        Timing.Report($"[time] consumer-pages {watch.Elapsed.TotalSeconds:0.0}s");
 
         for (var index = 0; index < count; index++)
         {
@@ -132,8 +129,8 @@ static class PageChecks
             return false;
         }
 
-        var meta = JsonNode.Parse(tree.ToJson());
-        var subject = JsonRead.PropString(meta as JsonObject, "id");
+        var meta = RecordFile.NodeOf(tree);
+        var subject = JsonValues.PropString(meta as JsonObject, "id");
 
         // The record is validated through the shared schema module against the
         // record schema, so the schema is the one statement of every record shape.
@@ -142,7 +139,7 @@ static class PageChecks
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
-        var type = JsonRead.PropString(meta as JsonObject, "type");
+        var type = JsonValues.PropString(meta as JsonObject, "type");
 
         if (type is not null && DocumentStyles.Contains(type))
         {
@@ -229,14 +226,14 @@ static class PageChecks
         }
 
         var meta = JsonNode.Parse(parsed.Root.GetRawText());
-        var subject = JsonRead.PropString(meta as JsonObject, "id");
+        var subject = JsonValues.PropString(meta as JsonObject, "id");
 
         foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
-        var type = JsonRead.PropString(meta as JsonObject, "type");
+        var type = JsonValues.PropString(meta as JsonObject, "type");
 
         if (type is not null && !DocumentStyles.Contains(type) && (RecordTypes.All.Contains(type) || RecordTypes.PageStyles.Contains(type)))
         {
@@ -262,7 +259,7 @@ static class PageChecks
     {
         if (RecordFile.TryParse(run.ReadText(recordPath), out var root, out _, out _))
         {
-            return JsonRead.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
+            return JsonValues.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
         }
 
         return null;
@@ -287,8 +284,8 @@ static class PageChecks
         if (RecordFile.TryParse(run.ReadText(RecordFile.RecordPathOf(file)), out var root, out _, out _))
         {
             var meta = JsonNode.Parse(root.GetRawText()) as JsonObject;
-            type = JsonRead.PropString(meta, "type");
-            subject = JsonRead.PropString(meta, "id");
+            type = JsonValues.PropString(meta, "type");
+            subject = JsonValues.PropString(meta, "id");
         }
 
         var lines = SplitLines(raw);

@@ -40,7 +40,7 @@ static partial class Renderer
                 if (rewritten != text)
                 {
                     File.WriteAllText(file, rewritten);
-                    changed.Add(model.Config.Relative(file));
+                    changed.Add(PathText.Relative(model.Config.Root, file));
                 }
             }
         }
@@ -76,7 +76,7 @@ static partial class Renderer
         {
             var trigger = runbook.Field(RecordFields.Trigger) ?? "";
 
-            lines.Add($"- [{runbook.Title}]({RelativeLink(file, runbook.File)}): {trigger}");
+            lines.Add($"- [{runbook.Title}]({PathText.Relative(Path.GetDirectoryName(file)!, runbook.File)}): {trigger}");
         }
 
         return string.Join('\n', lines);
@@ -121,7 +121,7 @@ static partial class Renderer
             var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), RecordTypes.Requirement);
             var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), RecordTypes.Runbook);
             var severity = Cell(RuleLabel(rule, "severity"));
-            var source = Cell(model.Config.Relative(rule.File));
+            var source = Cell(PathText.Relative(model.Config.Root, rule.File));
 
             lines.Add($"| {requirement} | {Cell(rule.Name)} | {runbook} | {severity} | {source} |");
         }
@@ -146,15 +146,8 @@ static partial class Renderer
         id.Length == 0
             ? ""
             : model.ById.TryGetValue(id, out var record) && record.Type == type
-                ? $"[`{id}`]({RelativeLink(file, record.File)})"
+                ? $"[`{id}`]({PathText.Relative(Path.GetDirectoryName(file)!, record.File)})"
                 : $"`{id}`";
-
-    /// <summary>Builds the link target from one page to another file.</summary>
-    /// <param name="from">The page the link sits on.</param>
-    /// <param name="to">The file the link points at.</param>
-    /// <returns>The relative path from the page folder to the target, with forward slashes.</returns>
-    private static string RelativeLink(string from, string to) =>
-        Path.GetRelativePath(Path.GetDirectoryName(from)!, to).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>Escapes one cell for a Markdown table row.</summary>
     /// <param name="text">The cell text to escape.</param>

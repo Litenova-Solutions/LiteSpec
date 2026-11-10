@@ -127,6 +127,28 @@ public static class JsonValues
         return ReferenceEquals(left, right);
     }
 
+    /// <summary>The string a JSON value carries, or null when it carries none.</summary>
+    /// <param name="value">The JSON value, or null for a missing value.</param>
+    /// <returns>The string the value carries, or null for any other value.</returns>
+    public static string? AsString(JsonNode? value) =>
+        value is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
+
+    /// <summary>The string a property carries, or null when the property is missing or carries none.</summary>
+    /// <param name="container">The object holding the property, or null.</param>
+    /// <param name="key">The property name.</param>
+    /// <returns>The string the property carries, or null.</returns>
+    public static string? PropString(JsonObject? container, string key) => AsString(container?[key]);
+
+    /// <summary>
+    ///     How a property reads inside a message: a missing property reads as <c>undefined</c>,
+    ///     and every other value reads as <see cref="Text"/> reads it.
+    /// </summary>
+    /// <param name="container">The object holding the property, or null.</param>
+    /// <param name="key">The property name.</param>
+    /// <returns>The text the property prints as in a message.</returns>
+    public static string PropText(JsonObject? container, string key) =>
+        container is not null && container.TryGetPropertyValue(key, out var value) ? Text(value) : "undefined";
+
     /// <summary>Prints one JSON number in invariant form: whole numbers without a fraction, the rest as invariant decimals.</summary>
     /// <param name="scalar">The JSON number.</param>
     /// <returns>The number in invariant form.</returns>

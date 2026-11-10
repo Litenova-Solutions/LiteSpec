@@ -87,7 +87,7 @@ static class ModelLinks
                 }
 
                 model.Implements.Add(new ImplementsLink(
-                    model.Config.Relative(mark.File), mark.RecordId, kind));
+                    PathText.Relative(model.Config.Root, mark.File), mark.RecordId, kind));
             }
         }
 
@@ -97,7 +97,7 @@ static class ModelLinks
 
         foreach (var literal in model.Code.Literals)
         {
-            codes.TryAdd(literal.Value, model.Config.Relative(literal.File));
+            codes.TryAdd(literal.Value, PathText.Relative(model.Config.Root, literal.File));
         }
 
         foreach (var result in model.Records.Where(record => record.Type == RecordTypes.Result))
@@ -121,7 +121,7 @@ static class ModelLinks
             foreach (var mark in element.Marks.Where(mark => mark.Verb == MarkVerb.Follows))
             {
                 model.Follows.Add(new FollowsLink(
-                    model.Config.Relative(mark.File), mark.RecordId, element.Kind.ToString()));
+                    PathText.Relative(model.Config.Root, mark.File), mark.RecordId, element.Kind.ToString()));
             }
         }
     }

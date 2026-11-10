@@ -96,7 +96,7 @@ internal sealed partial class ManifestValidator
         }
         catch (Exception exception)
         {
-            add("litespec.manifest.json", 1, "MANIFEST_JSON", exception.Message);
+            add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestJson, exception.Message);
             return;
         }
 
@@ -144,13 +144,13 @@ internal sealed partial class ManifestValidator
             var target = JoinRoot(root, relative);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add("litespec.manifest.json", 1, "MANIFEST_PATH", $"path '{relative}' does not exist");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestPath, $"path '{relative}' does not exist");
                 continue;
             }
 
             if (anchor.Length > 0 && File.Exists(target) && !PageReader.Parse(ReadText(target)).Anchors.Contains(anchor))
             {
-                add("litespec.manifest.json", 1, "MANIFEST_ANCHOR", $"anchor '#{anchor}' does not exist in '{relative}'");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestAnchor, $"anchor '#{anchor}' does not exist in '{relative}'");
             }
         }
 
@@ -191,20 +191,20 @@ internal sealed partial class ManifestValidator
 
             if (Layout.KindFor(folder).Length == 0)
             {
-                add("litespec.manifest.json", 1, "STACK_FOLDER", $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
                 continue;
             }
 
             var trimmed = folder.TrimEnd('/');
             if (!Directory.Exists(JoinRoot(root, trimmed)))
             {
-                add("litespec.manifest.json", 1, "STACK_FOLDER", $"stack '{id}' folder '{folder}' does not exist");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' does not exist");
                 continue;
             }
 
             if (!File.Exists(JoinRoot(root, trimmed + "/stack.md")))
             {
-                add("litespec.manifest.json", 1, "STACK_FOLDER", $"stack '{id}' folder '{folder}' holds no 'stack.md'");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' holds no 'stack.md'");
             }
         }
     }
@@ -230,7 +230,7 @@ internal sealed partial class ManifestValidator
             {
                 if (!stacks.ContainsKey(required))
                 {
-                    add("litespec.manifest.json", 1, "STACK_REFERENCE", $"stack '{id}' requires '{required}', which the manifest does not ship");
+                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' requires '{required}', which the manifest does not ship");
                 }
             }
 
@@ -238,11 +238,11 @@ internal sealed partial class ManifestValidator
             {
                 if (!stacks.ContainsKey(partner))
                 {
-                    add("litespec.manifest.json", 1, "STACK_REFERENCE", $"stack '{id}' pairs with '{partner}', which the manifest does not ship");
+                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which the manifest does not ship");
                 }
                 else if (kinds.GetValueOrDefault(partner) == "frontend")
                 {
-                    add("litespec.manifest.json", 1, "STACK_REFERENCE", $"stack '{id}' pairs with '{partner}', which is a frontend stack");
+                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which is a frontend stack");
                 }
             }
         }
@@ -273,7 +273,7 @@ internal sealed partial class ManifestValidator
             if (pagesNode.All(node => JsonString(node) is not null)
                 && new HashSet<string>(pages, StringComparer.Ordinal).Count != pagesNode.Count)
             {
-                add("litespec.manifest.json", 1, "MANIFEST_DUPLICATE_PATH", $"shape '{id}' contains a duplicate backend page path");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestDuplicatePath, $"shape '{id}' contains a duplicate backend page path");
             }
 
             foreach (var page in pages)
@@ -281,7 +281,7 @@ internal sealed partial class ManifestValidator
                 var rest = page.StartsWith(backendPrefix, StringComparison.Ordinal) ? page[backendPrefix.Length..] : null;
                 if (rest is null || rest.Length <= ".md".Length || rest.Contains('/') || !rest.EndsWith(".md", StringComparison.Ordinal))
                 {
-                    add("litespec.manifest.json", 1, "SHAPE_PAGE", $"shape '{id}' backend page '{page}' is not a page directly in 'docs/backend/'");
+                    add("litespec.manifest.json", 1, Diagnostics.Codes.ShapePage, $"shape '{id}' backend page '{page}' is not a page directly in 'docs/backend/'");
                 }
             }
         }
@@ -312,7 +312,7 @@ internal sealed partial class ManifestValidator
             var file = $"ext/{id}.md";
             if (path != $"docs/{file}" && !folders.Any(folder => folder.Length > 0 && path == $"{folder}/{file}"))
             {
-                add("litespec.manifest.json", 1, "EXTENSION_LOCATION", $"extension '{id}' path '{path}' is not 'docs/ext/{id}.md' or '<stack folder>/ext/{id}.md'");
+                add("litespec.manifest.json", 1, Diagnostics.Codes.ExtensionLocation, $"extension '{id}' path '{path}' is not 'docs/ext/{id}.md' or '<stack folder>/ext/{id}.md'");
             }
         }
     }
@@ -352,7 +352,7 @@ internal sealed partial class ManifestValidator
                 && relative.Contains("/ext/", StringComparison.Ordinal)
                 && !listed.Contains(relative))
             {
-                add(relative, 1, "EXTENSION_UNLISTED", "page is in an ext/ folder but no extension in litespec.manifest.json lists it");
+                add(relative, 1, Diagnostics.Codes.ExtensionUnlisted, "page is in an ext/ folder but no extension in litespec.manifest.json lists it");
             }
         }
     }
@@ -421,7 +421,7 @@ internal sealed partial class ManifestValidator
                 var folder = Slash(Path.GetDirectoryName(relative) ?? "");
                 if (!covered.Contains(folder))
                 {
-                    add(relative, 1, "LAYER_UNREACHABLE", "page is applied by no stack selection in litespec.manifest.json");
+                    add(relative, 1, Diagnostics.Codes.LayerUnreachable, "page is applied by no stack selection in litespec.manifest.json");
                 }
             }
         }
@@ -457,7 +457,7 @@ internal sealed partial class ManifestValidator
                 continue;
             }
 
-            add(relative, 1, "LAYER_UNLISTED", "page is in none of the known docs areas");
+            add(relative, 1, Diagnostics.Codes.LayerUnlisted, "page is in none of the known docs areas");
         }
     }
 
@@ -496,7 +496,7 @@ internal sealed partial class ManifestValidator
             var scope = JsonString(ext?["activationScope"]) ?? "undefined";
             if (!activation.Contains($"Activation scope: `{scope}`.", StringComparison.Ordinal))
             {
-                add(extensionPath, 1, "EXTENSION_SCOPE", $"extension '{id}' does not state activation scope '{scope}'");
+                add(extensionPath, 1, Diagnostics.Codes.ExtensionScope, $"extension '{id}' does not state activation scope '{scope}'");
             }
 
             var kindLine = SplitLines(activation).FirstOrDefault(line => line.StartsWith("Applicable specification kinds:", StringComparison.Ordinal)) ?? "";
@@ -504,7 +504,7 @@ internal sealed partial class ManifestValidator
             var expectedKinds = JsonStrings(ext?["applicableKinds"]);
             if (actualKinds.Count != expectedKinds.Count || actualKinds.Any(kind => !expectedKinds.Contains(kind)))
             {
-                add(extensionPath, 1, "EXTENSION_KIND", $"extension '{id}' applicable kinds do not match the manifest");
+                add(extensionPath, 1, Diagnostics.Codes.ExtensionKind, $"extension '{id}' applicable kinds do not match the manifest");
             }
 
             var activationDetail = SplitLines(activation).Where(line =>
@@ -516,17 +516,17 @@ internal sealed partial class ManifestValidator
             }).ToList();
             if (activationDetail.Count == 0)
             {
-                add(extensionPath, 1, "EXTENSION_ACTIVATION", $"extension '{id}' has no activation criterion");
+                add(extensionPath, 1, Diagnostics.Codes.ExtensionActivation, $"extension '{id}' has no activation criterion");
             }
 
             if (baseline.Length == 0)
             {
-                add(extensionPath, 1, "EXTENSION_BASELINE", $"extension '{id}' has an empty Baseline Relationship");
+                add(extensionPath, 1, Diagnostics.Codes.ExtensionBaseline, $"extension '{id}' has an empty Baseline Relationship");
             }
 
             if (dependencies.Length == 0)
             {
-                add(extensionPath, 1, "EXTENSION_DEPENDENCIES", $"extension '{id}' has an empty Dependencies section");
+                add(extensionPath, 1, Diagnostics.Codes.ExtensionDependencies, $"extension '{id}' has an empty Dependencies section");
             }
 
             // A replacement is machine-readable: every replaced ID resolves to an
@@ -540,13 +540,13 @@ internal sealed partial class ManifestValidator
             {
                 if (!activeIds.Contains(replaced))
                 {
-                    add("litespec.manifest.json", 1, "EXTENSION_REPLACES_UNKNOWN", $"extension '{id}' replaces unknown provision '{replaced}'");
+                    add("litespec.manifest.json", 1, Diagnostics.Codes.ExtensionReplacesUnknown, $"extension '{id}' replaces unknown provision '{replaced}'");
                 }
 
                 var provision = own.FirstOrDefault(item => item.Id == replaced);
                 if (provision is not null)
                 {
-                    add(extensionPath, provision.Line, "EXTENSION_REPLACES_ENFORCED", $"extension '{id}' replaces '{replaced}' and still states it as its own provision");
+                    add(extensionPath, provision.Line, Diagnostics.Codes.ExtensionReplacesEnforced, $"extension '{id}' replaces '{replaced}' and still states it as its own provision");
                 }
             }
         }
@@ -597,17 +597,17 @@ internal sealed partial class ManifestValidator
             }
             catch (Exception exception)
             {
-                add(relative, 1, "SCHEMA_JSON", exception.Message);
+                add(relative, 1, Diagnostics.Codes.SchemaJson, exception.Message);
                 continue;
             }
 
             if (id is null)
             {
-                add(relative, 1, "SCHEMA_ID", $"schema has no $id; it must be '{expected}'");
+                add(relative, 1, Diagnostics.Codes.SchemaId, $"schema has no $id; it must be '{expected}'");
             }
             else if (id != expected)
             {
-                add(relative, 1, "SCHEMA_ID", $"schema $id '{id}' must be '{expected}'");
+                add(relative, 1, Diagnostics.Codes.SchemaId, $"schema $id '{id}' must be '{expected}'");
             }
         }
     }
@@ -636,7 +636,7 @@ internal sealed partial class ManifestValidator
         }
         catch (Exception exception)
         {
-            add(valueRelative, 1, "SCHEMA_JSON", exception.Message);
+            add(valueRelative, 1, Diagnostics.Codes.SchemaJson, exception.Message);
             return;
         }
 
@@ -653,7 +653,7 @@ internal sealed partial class ManifestValidator
 
         foreach (var error in errors)
         {
-            add(valueRelative, 1, "SCHEMA_INVALID", error);
+            add(valueRelative, 1, Diagnostics.Codes.SchemaInvalid, error);
         }
     }
 
@@ -676,7 +676,7 @@ internal sealed partial class ManifestValidator
         var projectVersion = ReadAnalyzerProjectVersion();
         if (projectVersion is not null && pin != projectVersion)
         {
-            add("litespec.manifest.json", 1, "MANIFEST_ANALYZER_PIN", $"analyzer pin '{pin}' differs from analyzer project version '{projectVersion}'");
+            add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestAnalyzerPin, $"analyzer pin '{pin}' differs from analyzer project version '{projectVersion}'");
         }
 
         var shipped = ReadShippedAnalyzerRules(pin);
@@ -693,7 +693,7 @@ internal sealed partial class ManifestValidator
             {
                 if (!shipped.Contains(match.Value))
                 {
-                    add(page.Relative, LineNumber(prose, match.Index), "MANIFEST_ANALYZER_RULE", $"'{match.Value}' is cited but the pinned analyzer release '{pin}' does not ship it");
+                    add(page.Relative, LineNumber(prose, match.Index), Diagnostics.Codes.ManifestAnalyzerRule, $"'{match.Value}' is cited but the pinned analyzer release '{pin}' does not ship it");
                 }
             }
         }

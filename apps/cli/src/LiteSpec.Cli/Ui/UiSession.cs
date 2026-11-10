@@ -516,7 +516,7 @@ sealed class UiSession
                 expiresOn = JsonNode.Parse(expires.GetRawText());
             }
 
-            found.Add(new UiException(RelativeToRoot(entry.FullName), provision, expiresOn));
+            found.Add(new UiException(PathText.Relative(Root, Path.GetFullPath(entry.FullName)), provision, expiresOn));
         }
 
         return found;
@@ -551,7 +551,7 @@ sealed class UiSession
     /// <param name="message">The message without its label.</param>
     /// <returns>The message with its label, unless the label is the file.</returns>
     string Labelled(string label, string file, string message) =>
-        label == RelativeToRoot(file) ? message : $"{label}: {message}";
+        label == PathText.Relative(Root, Path.GetFullPath(file)) ? message : $"{label}: {message}";
 
     /// <summary>
     ///     Requires one property of a value, recording a finding when it is absent.
@@ -627,14 +627,6 @@ sealed class UiSession
     /// <param name="relative">The recorded relative path.</param>
     /// <returns>The full path.</returns>
     public string FilePath(string relative) => Path.GetFullPath(Path.Combine(Root, relative));
-
-    /// <summary>
-    ///     The path of a file relative to the consumer root.
-    /// </summary>
-    /// <param name="file">The file to make relative.</param>
-    /// <returns>The forward-slash relative path.</returns>
-    public string RelativeToRoot(string file) =>
-        Path.GetRelativePath(Root, Path.GetFullPath(file)).Replace(Path.DirectorySeparatorChar, '/');
 
     // A source lock names one file in several component entries, and the walk that
     // collects source files reads each one again. Hashing is the expensive step, so
@@ -745,7 +737,7 @@ sealed class UiSession
 
         try
         {
-            return JsonNode.Parse(YamlText.Parse(raw.Substring(3, end - 3).Trim('\r', '\n')).ToJson());
+            return RecordFile.NodeOf(YamlText.Parse(raw.Substring(3, end - 3).Trim('\r', '\n')));
         }
         catch (JsonTextException cause)
         {

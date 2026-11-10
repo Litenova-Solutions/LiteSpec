@@ -40,7 +40,7 @@ sealed class SourceLockChecks
     /// <param name="platform">The package platform.</param>
     public void ValidateSourceLock(string file, JsonNode? baseline, string packageRoot, JsonNode? manifest, bool baselineOverride, string platform)
     {
-        var label = session.RelativeToRoot(file);
+        var label = PathText.Relative(session.Root, file);
         var lockNode = session.ReadJson(file, "ui-sourcelock-invalid");
         if (lockNode is null)
         {
@@ -101,7 +101,7 @@ sealed class SourceLockChecks
                 var name = dependency is JsonValue dependencyValue && dependencyValue.TryGetValue<string>(out var dependencyName) ? dependencyName : null;
                 if (name is null || !pinnedPackages.Contains(name))
                 {
-                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonRead.ShowNode(dependency)}' is not pinned in the LiteSpec manifest", file);
+                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonValues.Text(dependency)}' is not pinned in the LiteSpec manifest", file);
                 }
             }
 

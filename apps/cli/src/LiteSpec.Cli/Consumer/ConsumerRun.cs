@@ -74,7 +74,7 @@ sealed class ConsumerRun
         get
         {
             var paths = (Project as JsonObject)?["paths"] as JsonObject;
-            var glossaryPath = JsonRead.PropString(paths, "glossary");
+            var glossaryPath = JsonValues.PropString(paths, "glossary");
             return Path.GetFullPath(glossaryPath is not null ? Path.Join(Root, glossaryPath) : Path.Join(DocsRoot, "glossary.yaml"));
         }
     }
@@ -116,7 +116,7 @@ sealed class ConsumerRun
         {
             if (!File.Exists(schemaFile))
             {
-                FailInput($"Schema '{Relative(StandardsRoot, schemaFile)}' is missing from the pinned LiteSpec release; the check cannot run without it");
+                FailInput($"Schema '{PathText.Relative(StandardsRoot, schemaFile)}' is missing from the pinned LiteSpec release; the check cannot run without it");
             }
         }
 
@@ -141,8 +141,6 @@ sealed class ConsumerRun
             FailInput($"Cannot read {ConsumerRoot.ProjectFileDisplay}: {cause.Message}");
         }
 
-        var total = System.Diagnostics.Stopwatch.StartNew();
-        var projectWatch = System.Diagnostics.Stopwatch.StartNew();
         ProjectFileChecks.CheckProjectRecord(this);
         ManifestSelectionChecks.CheckManifest(this);
         FrontendChecks.CheckFrontends(this);
@@ -160,18 +158,12 @@ sealed class ConsumerRun
                 null));
         }
 
-        projectWatch.Stop();
-        Timing.Report($"[time] consumer-project {projectWatch.Elapsed.TotalSeconds:0.0}s");
 
         PageChecks.CheckPages(this);
         ManifestSelectionChecks.CheckStageDeferrals(this);
         GlossaryChecks.CheckGlossary(this);
 
-        var uiWatch = System.Diagnostics.Stopwatch.StartNew();
         ControlledUiChecks.CheckControlledUi(this);
-        uiWatch.Stop();
-        Timing.Report($"[time] consumer-ui {uiWatch.Elapsed.TotalSeconds:0.0}s");
-        Timing.Report($"[time] consumer total {total.Elapsed.TotalSeconds:0.0}s");
     }
 
     /// <summary>
@@ -343,22 +335,6 @@ sealed class ConsumerRun
             return schema;
         }
     }
-
-    /// <summary>
-    ///     The path of a file relative to the consumer root.
-    /// </summary>
-    /// <param name="file">The file to make relative.</param>
-    /// <returns>The forward-slash relative path.</returns>
-    public string Relative(string file) => Relative(Root, file);
-
-    /// <summary>
-    ///     The path of a file relative to a root.
-    /// </summary>
-    /// <param name="root">The root the path is made relative to.</param>
-    /// <param name="file">The file to make relative.</param>
-    /// <returns>The forward-slash relative path.</returns>
-    public static string Relative(string root, string file) =>
-        Path.GetRelativePath(root, file).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>
     ///     Ends the pass as a usage error, carrying the path and the parse message

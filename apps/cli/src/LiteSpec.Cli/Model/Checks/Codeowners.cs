@@ -49,7 +49,7 @@ internal sealed class Codeowners
             return true;
         }
 
-        var relative = Path.GetRelativePath(root, file).Replace(Path.DirectorySeparatorChar, '/');
+        var relative = PathText.Relative(root, file);
         IReadOnlyList<string>? hit = null;
 
         foreach (var rule in _rules)

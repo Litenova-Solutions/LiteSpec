@@ -74,9 +74,9 @@ static class ManifestSelectionChecks
         // stack-scoped provision would pass by applying to nothing.
         var project = run.Project as JsonObject;
         var manifestObj = manifest as JsonObject;
-        var shape = JsonRead.PropString(project, "shape") ?? "server";
+        var shape = JsonValues.PropString(project, "shape") ?? "server";
         var named = project?["stacks"] is JsonArray declaredStacks
-            ? declaredStacks.Select(JsonRead.AsString).OfType<string>().ToList()
+            ? declaredStacks.Select(JsonValues.AsString).OfType<string>().ToList()
             : new List<string>();
 
         if (manifestObj is not null)
@@ -102,7 +102,7 @@ static class ManifestSelectionChecks
 
             // At the records conformance level stacks are informational, so a
             // project may name none; every other level selects its stacks here.
-            var recordsLevel = JsonRead.PropString(project, "conformance") == "records";
+            var recordsLevel = JsonValues.PropString(project, "conformance") == "records";
 
             // A server project names exactly one backend stack; a client-only
             // project names none, and reads the backend pages its shape lists.
@@ -197,7 +197,7 @@ static class ManifestSelectionChecks
                         // An extension under a stack folder supports that stack only;
                         // under docs/ext/ it supports every stack. Selecting it without
                         // its stack applies nothing it states.
-                        var path = JsonRead.AsString((shipped as JsonObject)?["path"]);
+                        var path = JsonValues.AsString((shipped as JsonObject)?["path"]);
 
                         if (path is not null && !IsUnder(path, "docs/ext"))
                         {
@@ -258,10 +258,10 @@ static class ManifestSelectionChecks
             var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
 
             if (page is not null
-                && JsonRead.PropString(page, "type") == "exception"
-                && JsonRead.PropString(page, "kind") == "departure")
+                && JsonValues.PropString(page, "type") == "exception"
+                && JsonValues.PropString(page, "kind") == "departure")
             {
-                deferrals.Add((file, JsonRead.PropText(page, "id"), JsonRead.AsString(page["covers"])));
+                deferrals.Add((file, JsonValues.PropText(page, "id"), JsonValues.AsString(page["covers"])));
             }
         }
 

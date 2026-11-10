@@ -1,5 +1,6 @@
 <script lang="ts">
   import { cap } from "$lib/book";
+  import { formatLabel } from "$lib/utils";
   import type { Fields } from "$lib/book/types";
   import Icon from "$lib/components/book/Icon.svelte";
   import InlineRef from "$lib/components/book/InlineRef.svelte";
@@ -28,7 +29,7 @@
             </span>
             <span class="min-w-0">
               <InlineRef id={tgt} />
-              {#if op}{" "}<span class="font-mono text-[11px] text-muted-foreground">{op.replace(/-/g, " ")}</span>{/if}
+              {#if op}{" "}<span class="font-mono text-[11px] text-muted-foreground">{formatLabel(op)}</span>{/if}
               {#if cond}<span class="mt-0.5 block text-xs text-muted-foreground">{@html cond}</span>{/if}
             </span>
             {#if e.timing}<FactBadge text={cap(e.timing)} />{/if}

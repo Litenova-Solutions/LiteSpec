@@ -85,7 +85,7 @@ static class BookRender
 
     /// <summary>
     ///     Coerces a value to its display string: missing values become the empty string,
-    ///     arrays join with commas, objects become <c>[object Object]</c>, and a scalar
+    ///     arrays join with commas, objects print as compact JSON, and a scalar
     ///     prints as <see cref="JsonValues.Text"/> prints it.
     /// </summary>
     /// <param name="value">The JSON value, or null for a missing value.</param>
@@ -96,7 +96,7 @@ static class BookRender
         {
             null => "",
             JsonArray items => string.Join(",", items.Select(Str)),
-            JsonObject => "[object Object]",
+            JsonObject => JsonValues.Text(value),
             _ => JsonValues.Text(value),
         };
     }

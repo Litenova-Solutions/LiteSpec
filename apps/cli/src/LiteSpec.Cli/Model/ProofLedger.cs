@@ -168,7 +168,7 @@ sealed class ProofLedger
         foreach (var file in files)
         {
             var full = Path.IsPathRooted(file) ? file : Path.Combine(model.Config.Root, file);
-            var relative = Path.GetRelativePath(model.Config.Root, full)
+            var relative = PathText.Relative(model.Config.Root, full)
                 .Replace(Path.DirectorySeparatorChar, '/')
                 .Replace(Path.AltDirectorySeparatorChar, '/');
 

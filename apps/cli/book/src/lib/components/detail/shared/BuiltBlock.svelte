@@ -2,6 +2,7 @@
   import { plural, uniq } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import { esc } from "$lib/book/html";
+  import { formatLabel } from "$lib/utils";
   import Block from "../blocks/Block.svelte";
   import Callout from "../blocks/Callout.svelte";
   import Table from "../blocks/Table.svelte";
@@ -47,7 +48,7 @@
     <Table head={["implements", "source"]} rows={rows} />
     {#if more.length}
       <p class="mt-2 mb-4 text-xs text-muted-foreground">
-        and {plural(more.length, "more part")} marked with this action: {uniq(more.map((c) => String(c.kind).replace(/-/g, " "))).join(", ")}
+        and {plural(more.length, "more part")} marked with this action: {uniq(more.map((c) => formatLabel(c.kind))).join(", ")}
       </p>
     {/if}
   </Block>

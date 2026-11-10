@@ -21,9 +21,7 @@ static class AppendListEntry
     {
         if (parsed.Positionals is not [_, var pageArg, var entryType, var name])
         {
-            Console.Error.WriteLine("New entry needs a page, a type, and a name.");
-            Console.Error.WriteLine(NewCommand.Usage);
-            return 2;
+            return LastResort.UsageError("New entry needs a page, a type, and a name.", NewCommand.Usage, json: false);
         }
 
         foreach (var option in new[] { "--code", "--outcome", "--result" })
@@ -41,7 +39,7 @@ static class AppendListEntry
             return 2;
         }
 
-        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
         if (config is null)
         {
@@ -77,7 +75,7 @@ static class AppendListEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to read '{config.Relative(pageFile)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
             return 1;
         }
 
@@ -96,7 +94,7 @@ static class AppendListEntry
         if (pageType != PageOf(entryType))
         {
             var actual = pageType is null ? "a file without a type" : $"'{pageType}'";
-            Console.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{config.Relative(pageFile)}' is {actual}.");
+            Console.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
             return 2;
         }
 
@@ -106,9 +104,9 @@ static class AppendListEntry
         {
             Console.Error.WriteLine(entryType switch
             {
-                "setting" => $"The file '{config.Relative(pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
-                "requirement" => $"The file '{config.Relative(pageFile)}' names no feature to take the home from.",
-                _ => $"The file '{config.Relative(pageFile)}' holds no rule to take the home from.",
+                "setting" => $"The file '{PathText.Relative(config.Root, pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
+                "requirement" => $"The file '{PathText.Relative(config.Root, pageFile)}' names no feature to take the home from.",
+                _ => $"The file '{PathText.Relative(config.Root, pageFile)}' holds no rule to take the home from.",
             });
             return 2;
         }
@@ -125,7 +123,7 @@ static class AppendListEntry
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {config.Relative(clash.File)}.");
+            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -144,11 +142,11 @@ static class AppendListEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(pageFile)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Appended {entryId} to {config.Relative(pageFile)}.");
+        Console.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, pageFile)}.");
         return 0;
     }
 

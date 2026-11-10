@@ -51,43 +51,14 @@ static class RulesCommand
             return LastResort.UsageError("Rules needs a path or record id.", Usage, json: false);
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            return LastResort.Fail($"Invalid root '{parsed.Value("--root")}': {exception.Message}", json: false, code: 2);
+            return openExit;
         }
 
-        if (!Directory.Exists(root))
-        {
-            return LastResort.Fail($"Root '{root}' does not exist.", json: false, code: 2);
-        }
-
-        // Without a project file the selection is unknown, and the command
-        // would list provisions for stacks the consumer never selected.
-        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
-        {
-            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json: false, code: 2);
-        }
-
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json: false, code: 2);
-        }
-        catch (InvalidOperationException exception)
-        {
-            return LastResort.Fail(exception.Message, json: false, code: 2);
-        }
+        var root = config.Root;
 
         string home;
 

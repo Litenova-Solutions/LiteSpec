@@ -1,4 +1,3 @@
-using System.Diagnostics;
 
 namespace LiteSpec.Model;
 
@@ -34,28 +33,28 @@ static class StagedScope
         // The path from the root up to the repository top, such as "../" or "". Git names the top by its
         // resolved path, which differs from the root's own form when the root runs through a symbolic
         // link, such as /var on macOS, so the top is reached from the root and keeps the root's form.
-        var up = RunGit(model.Config.Root, "rev-parse", "--show-cdup");
+        var up = ProcessRunner.Git(model.Config.Root, "rev-parse", "--show-cdup");
 
         if (up.Status != 0)
         {
             return (null, $"Cannot read changes since '{revision}': {Detail(up, "the root sits outside a git repository")}.");
         }
 
-        var known = RunGit(model.Config.Root, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
+        var known = ProcessRunner.Git(model.Config.Root, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
 
         if (known.Status != 0)
         {
             return (null, $"Cannot read changes since '{revision}': the revision names no commit.");
         }
 
-        var diff = RunGit(model.Config.Root, "diff", revision, "--name-only", "-z");
+        var diff = ProcessRunner.Git(model.Config.Root, "diff", revision, "--name-only", "-z");
 
         if (diff.Status != 0)
         {
             return (null, $"Cannot read changes since '{revision}': {Detail(diff, "git diff failed")}.");
         }
 
-        var untracked = RunGit(model.Config.Root, "ls-files", "--others", "--exclude-standard", "-z");
+        var untracked = ProcessRunner.Git(model.Config.Root, "ls-files", "--others", "--exclude-standard", "-z");
 
         if (untracked.Status != 0)
         {
@@ -161,7 +160,7 @@ static class StagedScope
         {
             try
             {
-                relative.Add(model.Config.Relative(path));
+                relative.Add(PathText.Relative(model.Config.Root, path));
             }
             catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
             {
@@ -193,45 +192,6 @@ static class StagedScope
     /// <param name="run">The finished git run.</param>
     /// <param name="fallback">The detail used when git wrote no error.</param>
     /// <returns>The trimmed git error, or the fallback when it is empty.</returns>
-    static string Detail((int Status, string Stdout, string Error) run, string fallback) =>
+    static string Detail(ProcessRunner.Result run, string fallback) =>
         run.Error.Trim().Length > 0 ? run.Error.Trim() : fallback;
-
-    /// <summary>Runs git and captures its exit status and output.</summary>
-    /// <param name="workdir">The working directory git runs in.</param>
-    /// <param name="args">The git arguments, passed without a shell.</param>
-    /// <returns>The exit status with the captured standard output and error.</returns>
-    static (int Status, string Stdout, string Error) RunGit(string workdir, params string[] args)
-    {
-        var start = new ProcessStartInfo("git")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = workdir,
-        };
-
-        foreach (var arg in args)
-        {
-            start.ArgumentList.Add(arg);
-        }
-
-        try
-        {
-            using var process = Process.Start(start)!;
-            var stdout = process.StandardOutput.ReadToEndAsync();
-            var stderr = process.StandardError.ReadToEndAsync();
-
-            if (!process.WaitForExit(TimeSpan.FromMinutes(5)))
-            {
-                process.Kill(entireProcessTree: true);
-                return (1, "", "git did not finish in five minutes.");
-            }
-
-            return (process.ExitCode, stdout.Result, stderr.Result);
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            return (1, "", "git is not available.");
-        }
-    }
 }

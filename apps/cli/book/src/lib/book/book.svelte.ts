@@ -6,6 +6,7 @@
 // counts their changes: every accessor reads `rev`, so a component that calls one
 // re-renders when data arrives. Small UI state is ordinary $state.
 
+import { formatLabel } from "../utils";
 import { createSearch, type BookSearch } from "./search";
 import type { ShardLoader } from "$lib/data/shards";
 import type {
@@ -624,7 +625,7 @@ export class Book {
       const agg = this.parentTitle(id), mod = this.homeOf(id);
       return [agg || mod, agg && mod ? mod : ""];
     }
-    if (t === "screen") return [this.parentTitle(id) || "No entry point", f.floorplan ? cap(String(f.floorplan).replace(/-/g, " ")) : ""];
+    if (t === "screen") return [this.parentTitle(id) || "No entry point", f.floorplan ? cap(formatLabel(f.floorplan)) : ""];
     if (t === "journey") return [f.actor ? this.title(base(f.actor)) : "No actor", this.outs(base(id), "serves").map((x) => this.title(x))[0] ?? ""];
     if (t === "problem") { const a = f.affects ?? []; return [a.length ? this.title(base(a[0])) : "No affected actor", this.goalTitleForProblem(id)]; }
     if (t === "feature") return [this.parentTitle(id) || "No module", this.goalTitleForFeature(id)];

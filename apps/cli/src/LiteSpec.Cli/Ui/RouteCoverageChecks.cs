@@ -47,7 +47,7 @@ sealed class RouteCoverageChecks
             if (name.StartsWith("__root", StringComparison.Ordinal)
                 || name.Contains(".lazy.", StringComparison.Ordinal)
                 || name.StartsWith("routeTree.gen.", StringComparison.Ordinal)
-                || IgnoredRouteSegment(Path.GetRelativePath(routes, file)))
+                || IgnoredRouteSegment(PathText.Relative(routes, file)))
             {
                 return false;
             }
@@ -75,7 +75,7 @@ sealed class RouteCoverageChecks
                 return false;
             }
 
-            return !IgnoredRouteSegment(Path.GetRelativePath(routes, file));
+            return !IgnoredRouteSegment(PathText.Relative(routes, file));
         });
 
     /// <summary>
@@ -114,10 +114,10 @@ sealed class RouteCoverageChecks
             return;
         }
 
-        var expected = session.RelativeToRoot(suite);
+        var expected = PathText.Relative(session.Root, suite);
         foreach (var file in files)
         {
-            session.Add("ui-route-suite-missing", $"[litespec/frontend/ui#check-every-route] {label}: route '{session.RelativeToRoot(file)}' has no route suite at '{expected}'", file);
+            session.Add("ui-route-suite-missing", $"[litespec/frontend/ui#check-every-route] {label}: route '{PathText.Relative(session.Root, file)}' has no route suite at '{expected}'", file);
         }
     }
 }

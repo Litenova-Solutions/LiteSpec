@@ -97,9 +97,7 @@ static class NewCommand
 
         if (parsed.Error is not null)
         {
-            Console.Error.WriteLine(parsed.Error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
         if (parsed.Positionals is [var first, ..] && first is "result" or "scenario")
@@ -114,9 +112,7 @@ static class NewCommand
 
         if (parsed.Positionals is not [var type, var id])
         {
-            Console.Error.WriteLine("New needs a type and an id, or a document style and a name.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError("New needs a type and an id, or a document style and a name.", Usage, json: false);
         }
 
         foreach (var option in new[] { "--code", "--outcome", "--result" })
@@ -170,9 +166,7 @@ static class NewCommand
 
             if (type == "feature" && homeName is null)
             {
-                Console.Error.WriteLine("New feature needs a module: use litespec new feature <module>.<name>.");
-                Console.Error.WriteLine(Usage);
-                return 2;
+                return LastResort.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
             }
 
             if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
@@ -206,7 +200,7 @@ static class NewCommand
             name = "";
         }
 
-        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
         if (config is null)
         {
@@ -242,7 +236,7 @@ static class NewCommand
 
         if (holder is not null)
         {
-            Console.Error.WriteLine($"Identifier '{full}' is already taken by {config.Relative(holder.File)}.");
+            Console.Error.WriteLine($"Identifier '{full}' is already taken by {PathText.Relative(config.Root, holder.File)}.");
             return 2;
         }
 
@@ -259,7 +253,7 @@ static class NewCommand
             return 1;
         }
 
-        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
+        if (RecordFile.NodeOf(tree) is not JsonObject node)
         {
             Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}.");
             return 1;
@@ -286,7 +280,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{config.Relative(target)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -294,7 +288,7 @@ static class NewCommand
 
         if (explanationTarget is not null && File.Exists(explanationTarget))
         {
-            Console.Error.WriteLine($"'{config.Relative(explanationTarget)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, explanationTarget)}' already exists; pick another name.");
             return 2;
         }
 
@@ -310,15 +304,15 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(target)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {config.Relative(target)} with {full}.");
+        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)} with {full}.");
 
         if (explanationTarget is not null)
         {
-            Console.WriteLine($"Wrote {config.Relative(explanationTarget)}.");
+            Console.WriteLine($"Wrote {PathText.Relative(config.Root, explanationTarget)}.");
         }
 
         return 0;
@@ -337,7 +331,7 @@ static class NewCommand
             return 2;
         }
 
-        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
         if (config is null)
         {
@@ -357,7 +351,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{config.Relative(target)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -368,11 +362,11 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(target)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {config.Relative(target)}.");
+        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)}.");
         return 0;
     }
 

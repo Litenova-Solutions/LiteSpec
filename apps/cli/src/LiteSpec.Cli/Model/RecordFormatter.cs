@@ -31,7 +31,7 @@ static class RecordFormatter
 
             if (canonical is null)
             {
-                invalid.Add(config.Relative(file));
+                invalid.Add(PathText.Relative(config.Root, file));
                 continue;
             }
 
@@ -40,7 +40,7 @@ static class RecordFormatter
                 File.WriteAllText(file, canonical);
             }
 
-            changed.Add(config.Relative(file));
+            changed.Add(PathText.Relative(config.Root, file));
         }
 
         return (changed, invalid);

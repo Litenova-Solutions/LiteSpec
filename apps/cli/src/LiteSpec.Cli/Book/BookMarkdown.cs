@@ -262,7 +262,7 @@ static class BookMarkdown
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
     /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered HTML for the text run.</returns>
-    static string Inline(string text, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
+    public static string Inline(string text, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
         var escaped = BookRender.Esc(text);
         var codes = new List<string>();

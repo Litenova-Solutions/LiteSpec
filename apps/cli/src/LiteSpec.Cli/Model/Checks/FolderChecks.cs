@@ -177,7 +177,7 @@ internal static class FolderChecks
                 {
                     findings.Add(new Finding(
                         "folder-invalid",
-                        $"Folder '{model.Config.Relative(directory)}' sits outside the closed folder set of its layer and level.",
+                        $"Folder '{PathText.Relative(model.Config.Root, directory)}' sits outside the closed folder set of its layer and level.",
                         directory,
                         1,
                         null));
@@ -201,7 +201,7 @@ internal static class FolderChecks
             {
                 findings.Add(new Finding(
                     "module-undeclared",
-                    $"Module folder '{model.Config.Relative(directory)}' names no declared module.",
+                    $"Module folder '{PathText.Relative(model.Config.Root, directory)}' names no declared module.",
                     directory,
                     1,
                     null));
@@ -215,7 +215,7 @@ internal static class FolderChecks
     /// <returns>The segments from the record layer down, or the relative segments when the root names no layer.</returns>
     private static string[] AnchoredSegments(string root, string directory)
     {
-        var relative = Path.GetRelativePath(root, directory);
+        var relative = PathText.Relative(root, directory);
 
         if (relative == ".")
         {
@@ -544,7 +544,7 @@ internal static class FolderChecks
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Rule '{record.Id}' sits in '{model.Config.Relative(record.File)}', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
+                $"Rule '{record.Id}' sits in '{PathText.Relative(model.Config.Root, record.File)}', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -553,7 +553,7 @@ internal static class FolderChecks
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"Module '{record.Id}' holds rules in '{model.Config.Relative(record.File)}'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
+                $"Module '{record.Id}' holds rules in '{PathText.Relative(model.Config.Root, record.File)}'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.",
                 record.File, record.Line, SubjectOf(record)));
         }
 

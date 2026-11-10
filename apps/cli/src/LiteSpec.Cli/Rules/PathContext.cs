@@ -124,7 +124,7 @@ internal sealed record PathContext(
 
         foreach (var root in config.RecordRoots)
         {
-            if (Under(absolute, root) && Path.GetRelativePath(root, absolute) is { } relative && relative != ".")
+            if (Under(absolute, root) && PathText.Relative(root, absolute) is { } relative && relative != ".")
             {
                 candidates.Add(relative.Replace(Path.DirectorySeparatorChar, '/'));
             }
@@ -148,7 +148,7 @@ internal sealed record PathContext(
     /// <returns>The derived context.</returns>
     static PathContext FromPath(ConsumerConfig config, string backendStack, string absolute, bool isFolder)
     {
-        var relative = config.Relative(absolute);
+        var relative = PathText.Relative(config.Root, absolute);
         var name = Path.GetFileName(absolute);
         var extension = Path.GetExtension(absolute).ToLowerInvariant();
         var segments = relative.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -311,7 +311,7 @@ internal sealed record PathContext(
 
         if (name.EndsWith(".svelte", StringComparison.Ordinal) || name.EndsWith(".tsx", StringComparison.Ordinal))
         {
-            var relative = config.Relative(absolute);
+            var relative = PathText.Relative(config.Root, absolute);
 
             if (relative.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(segment => segment == "components"))
             {

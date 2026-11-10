@@ -43,70 +43,70 @@ static class Checker
     {
         var findings = new List<Finding>(model.Problems);
 
-        Time("schema", () => SchemaChecks.Run(model, findings));
-        Time("identifiers", () => IdentifierChecks.Run(model, findings));
-        Time("names", () => RecordNameChecks.RunNames(model, findings));
-        Time("record-names", () => RecordNameChecks.Run(model, findings));
-        Time("citations", () => CitationChecks.Run(model, findings));
-        Time("gates", () => GateChecks.Run(model, findings));
-        Time("proof", () => ProofChecks.Run(model, findings));
-        Time("use-case-unverified", () => ProofChecks.RunUnverified(model, findings));
-        Time("proof-invalid", () => ProofChecks.RunProofInvalid(model, findings));
-        Time("result-scenarios", () => ResultScenarioChecks.Run(model, findings));
-        Time("fulfillment", () => FulfilmentChecks.Run(model, findings));
-        Time("requirement-cited", () => FulfilmentChecks.RunRequirementCited(model, findings));
-        Time("constraint-cited", () => FulfilmentChecks.RunConstraintCited(model, findings));
-        Time("links", () => LinkChecks.Run(model, findings));
-        Time("explanations", () => ExplanationChecks.Run(model, findings));
-        Time("sources", () => ResearchSourceChecks.Run(model, findings));
-        Time("format", () => FormatChecks.Run(model, findings));
-        Time("profile", () => SizeTypeChecks.Run(model, findings));
-        Time("reach", () => ReachChecks.RunReach(model, findings));
-        Time("behavior", () => ReachChecks.RunBehavior(model, findings));
-        Time("intent-unreached", () => ReachChecks.RunIntentUnreached(model, findings));
-        Time("role-orphaned", () => ReachChecks.RunRoleOrphan(model, findings));
-        Time("permission-orphaned", () => ReachChecks.RunPermissionOrphan(model, findings));
-        Time("decision-decides-duplicate", () => ReachChecks.RunDecisionConflict(model, findings));
-        Time("folders", () => FolderChecks.Run(model, findings));
-        Time("locality", () => LocalityChecks.Run(model, findings));
-        Time("placement", () => PlacementChecks.Run(model, findings));
-        Time("marks", () => MarkChecks.Run(model, findings));
-        Time("screens", () => ScreenChecks.Run(model, findings));
-        Time("code", () => CodeChecks.Run(model, findings));
-        Time("constituents", () => ConstituentChecks.Run(model, findings));
-        Time("operations", () => OperationsChecks.Run(model, findings));
-        Time("setting-keys", () => SettingChecks.Run(model, findings));
-        Time("dependencies", () => DependencyChecks.Run(model, findings));
-        Time("analyzer-suppressions", () => AnalyzerSuppressionChecks.Run(model, findings));
-        Time("lifecycle", () => LifecycleChecks.Run(model, findings));
-        Time("erasure", () => GraphChecks.RunErasure(model, findings));
-        Time("retention", () => GraphChecks.RunRetention(model, findings));
-        Time("calculations", () => CalculationChecks.Run(model, findings));
-        Time("reactions", () => GraphChecks.RunReactionTrigger(model, findings));
-        Time("measured", () => MeasuredChecks.Run(model, findings));
-        Time("orphaned", () => GraphChecks.RunOrphaned(model, findings));
-        Time("parents", () => ParentChecks.Run(model, findings));
-        Time("intent", () => IntentChecks.Run(model, findings));
-        Time("steps", () => GraphChecks.RunStepUnserved(model, findings));
-        Time("loops", () => GraphChecks.RunEffectLoop(model, findings));
-        Time("consistency", () => GraphChecks.RunConsistency(model, findings));
-        Time("output", () => GraphChecks.RunQueryOutput(model, findings));
-        Time("paging", () => GraphChecks.RunPaging(model, findings));
-        Time("widening", () => GraphChecks.RunWidening(model, findings));
-        Time("settings", () => GraphChecks.RunSettingDefault(model, findings));
-        Time("reservations", () => GraphChecks.RunReservation(model, findings));
-        Time("senders", () => GraphChecks.RunNotificationSender(model, findings));
-        Time("except", () => GraphChecks.RunExceptFallback(model, findings));
-        Time("job-guard", () => GraphChecks.RunJobGuard(model, findings));
-        Time("schedule", () => GraphChecks.RunSchedule(model, findings));
-        Time("prose", () => GraphChecks.RunProse(model, findings));
-        Time("groups", () => GraphChecks.RunManyAggregates(model, findings));
-        Time("atomic-drift", () => GraphChecks.RunAtomicGroupDrift(model, findings));
-        Time("atomic-invalid", () => GraphChecks.RunAtomicGroupInvalid(model, findings));
-        Time("typed-inputs", () => GraphChecks.RunTypedInputs(model, findings));
-        Time("exercises", () => GraphChecks.RunExercises(model, findings));
-        Time("doors", () => GraphChecks.RunDoors(model, findings));
-        Time("scope", () => ScopeChecks.Run(model, findings));
+        SchemaChecks.Run(model, findings);
+        IdentifierChecks.Run(model, findings);
+        RecordNameChecks.RunNames(model, findings);
+        RecordNameChecks.Run(model, findings);
+        CitationChecks.Run(model, findings);
+        GateChecks.Run(model, findings);
+        ProofChecks.Run(model, findings);
+        ProofChecks.RunUnverified(model, findings);
+        ProofChecks.RunProofInvalid(model, findings);
+        ResultScenarioChecks.Run(model, findings);
+        FulfilmentChecks.Run(model, findings);
+        FulfilmentChecks.RunRequirementCited(model, findings);
+        FulfilmentChecks.RunConstraintCited(model, findings);
+        LinkChecks.Run(model, findings);
+        ExplanationChecks.Run(model, findings);
+        ResearchSourceChecks.Run(model, findings);
+        FormatChecks.Run(model, findings);
+        SizeTypeChecks.Run(model, findings);
+        ReachChecks.RunReach(model, findings);
+        ReachChecks.RunBehavior(model, findings);
+        ReachChecks.RunIntentUnreached(model, findings);
+        ReachChecks.RunRoleOrphan(model, findings);
+        ReachChecks.RunPermissionOrphan(model, findings);
+        ReachChecks.RunDecisionConflict(model, findings);
+        FolderChecks.Run(model, findings);
+        LocalityChecks.Run(model, findings);
+        PlacementChecks.Run(model, findings);
+        MarkChecks.Run(model, findings);
+        ScreenChecks.Run(model, findings);
+        CodeChecks.Run(model, findings);
+        ConstituentChecks.Run(model, findings);
+        OperationsChecks.Run(model, findings);
+        SettingChecks.Run(model, findings);
+        DependencyChecks.Run(model, findings);
+        AnalyzerSuppressionChecks.Run(model, findings);
+        LifecycleChecks.Run(model, findings);
+        GraphChecks.RunErasure(model, findings);
+        GraphChecks.RunRetention(model, findings);
+        CalculationChecks.Run(model, findings);
+        GraphChecks.RunReactionTrigger(model, findings);
+        MeasuredChecks.Run(model, findings);
+        GraphChecks.RunOrphaned(model, findings);
+        ParentChecks.Run(model, findings);
+        IntentChecks.Run(model, findings);
+        GraphChecks.RunStepUnserved(model, findings);
+        GraphChecks.RunEffectLoop(model, findings);
+        GraphChecks.RunConsistency(model, findings);
+        GraphChecks.RunQueryOutput(model, findings);
+        GraphChecks.RunPaging(model, findings);
+        GraphChecks.RunWidening(model, findings);
+        GraphChecks.RunSettingDefault(model, findings);
+        GraphChecks.RunReservation(model, findings);
+        GraphChecks.RunNotificationSender(model, findings);
+        GraphChecks.RunExceptFallback(model, findings);
+        GraphChecks.RunJobGuard(model, findings);
+        GraphChecks.RunSchedule(model, findings);
+        GraphChecks.RunProse(model, findings);
+        GraphChecks.RunManyAggregates(model, findings);
+        GraphChecks.RunAtomicGroupDrift(model, findings);
+        GraphChecks.RunAtomicGroupInvalid(model, findings);
+        GraphChecks.RunTypedInputs(model, findings);
+        GraphChecks.RunExercises(model, findings);
+        GraphChecks.RunDoors(model, findings);
+        ScopeChecks.Run(model, findings);
 
         // A project reports only the findings of the conformance level it claims.
         var claimed = model.Config.Conformance;
@@ -135,18 +135,6 @@ static class Checker
         });
 
         return Suppress(model, findings);
-    }
-
-    /// <summary>Runs one check phase and reports its elapsed time to the timing log.</summary>
-    /// <param name="name">The phase name used in the timing line.</param>
-    /// <param name="run">The check phase to run.</param>
-    private static void Time(string name, Action run)
-    {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-
-        run();
-
-        Timing.Report($"[time] check-{name} {watch.Elapsed.TotalSeconds:0.0}s");
     }
 
     /// <summary>Partitions findings into the ones that stand and the ones a known gap covers.</summary>

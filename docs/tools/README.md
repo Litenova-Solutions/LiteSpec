@@ -122,7 +122,7 @@ The [.NET 10 supported OS list](https://github.com/dotnet/core/blob/main/release
 
 Run every command from the consumer root, the folder that holds `.litespec/project.json`. The command pages write the consumer form as `litespec <command>`; with the local .NET tool, type `dotnet litespec <command>`. In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`.
 
-The CLI carries its release beside its own executable; set `LITESPEC_HOME` to point it at another copy. Set `LITESPEC_TIMING` to print the phase timings of `litespec model` on standard error.
+The CLI carries its release beside its own executable; set `LITESPEC_HOME` to point it at another copy.
 
 Every command accepts `--help`, and `model check` accepts `--format json` for a caller that reads the result rather than the text.
 

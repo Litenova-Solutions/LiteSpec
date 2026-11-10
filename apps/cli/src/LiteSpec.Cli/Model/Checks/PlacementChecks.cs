@@ -392,7 +392,7 @@ internal static class PlacementChecks
                 return null;
             }
 
-            var segments = Path.GetRelativePath(config.ModulesRoot, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
 
             if (segments.Length >= 2 && segments[0].Equals("Composition", StringComparison.OrdinalIgnoreCase))
             {
@@ -417,7 +417,7 @@ internal static class PlacementChecks
             return false;
         }
 
-        var segments = Path.GetRelativePath(config.ModulesRoot, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
 
         return segments.Length >= 3
             && SameName(segments[0], module)
@@ -812,7 +812,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no shared kernel layer folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no shared kernel layer folder.", child, 1, null));
         }
     }
 
@@ -836,7 +836,7 @@ internal static class PlacementChecks
 
             if (modules.Count > 0 && !modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no Composition folder or declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no Composition folder or declared module.", module, 1, null));
                 continue;
             }
 
@@ -874,7 +874,7 @@ internal static class PlacementChecks
 
             if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(name, aggregate.Aggregate)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or declared aggregate.", child, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or declared aggregate.", child, 1, null));
                 continue;
             }
 
@@ -894,13 +894,13 @@ internal static class PlacementChecks
 
             if (!ContractsKindFolders.Contains(name))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no Contracts kind folder.", child, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Contracts kind folder.", child, 1, null));
             }
         }
 
         foreach (var file in ChildFiles(contracts))
         {
-            findings.Add(new Finding("code-placement-drift", $"File '{config.Relative(file)}' sits directly in Contracts/, which holds only its kind folders.", file, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Contracts/, which holds only its kind folders.", file, 1, null));
         }
     }
 
@@ -928,7 +928,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or UseCases folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or UseCases folder.", child, 1, null));
         }
     }
 
@@ -941,7 +941,7 @@ internal static class PlacementChecks
     {
         foreach (var child in ChildFolders(useCase))
         {
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' sits in {kind} '{Path.GetFileName(useCase)}', which holds files only.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in {kind} '{Path.GetFileName(useCase)}', which holds files only.", child, 1, null));
         }
     }
 
@@ -996,8 +996,8 @@ internal static class PlacementChecks
             findings.Add(new Finding(
                 "code-placement-drift",
                 aggregateName is null
-                    ? $"Folder '{config.Relative(child)}' names no declared use case or reaction folder."
-                    : $"Folder '{config.Relative(child)}' names no declared use case.",
+                    ? $"Folder '{PathText.Relative(config.Root, child)}' names no declared use case or reaction folder."
+                    : $"Folder '{PathText.Relative(config.Root, child)}' names no declared use case.",
                 child,
                 1,
                 null));
@@ -1027,7 +1027,7 @@ internal static class PlacementChecks
 
             if (!modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no declared module.", module, 1, null));
             }
         }
     }
@@ -1050,7 +1050,7 @@ internal static class PlacementChecks
 
             if (!modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no declared module.", module, 1, null));
             }
         }
     }
@@ -1261,7 +1261,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var segments = PathText.Relative(root, file).Split('/');
 
             if (segments.Length >= 3)
             {
@@ -1285,7 +1285,7 @@ internal static class PlacementChecks
             return null;
         }
 
-        var relative = Path.GetRelativePath(Path.GetFullPath(frontend.ModulesRoot), Path.GetFullPath(folder));
+        var relative = PathText.Relative(Path.GetFullPath(frontend.ModulesRoot), Path.GetFullPath(folder));
 
         if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
         {

@@ -188,7 +188,7 @@ internal static class OperationsChecks
 
         foreach (var file in OperationsMarkReader.Files(model.Config))
         {
-            var relative = model.Config.Relative(file);
+            var relative = PathText.Relative(model.Config.Root, file);
 
             if (!byFile.TryGetValue(file, out var held) || held.Count == 0)
             {
