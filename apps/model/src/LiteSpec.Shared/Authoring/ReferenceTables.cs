@@ -96,8 +96,8 @@ public static class ReferenceTables
     {
         var tables = new List<(string Path, string Text)>
         {
-            (FindingCodesPath, BuildFindingCodes() + "\n"),
-            (FoldersPath, BuildFolders() + "\n"),
+            (FindingCodesPath, BuildFindingCodes()),
+            (FoldersPath, BuildFolders()),
         };
         var manifestFile = Path.Combine(root, ManifestPath.Replace('/', Path.DirectorySeparatorChar));
         if (!File.Exists(manifestFile))

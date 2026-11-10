@@ -171,4 +171,3 @@ Use this generated page to read what a finding code means and how to resolve it.
 ## Notes
 
 The `litespec-maintain provisions` command writes this page from the finding code table, and `litespec-maintain provisions --check` fails when it differs. Edit the table, not the page.
-

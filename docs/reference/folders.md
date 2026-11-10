@@ -64,4 +64,3 @@ Use this generated page to find the folder and file each record type lives in, r
 ## Notes
 
 The `litespec-maintain provisions` command writes this page from the record folder table in the model, and `litespec-maintain provisions --check` fails when it differs. Edit the table, not the page.
-
