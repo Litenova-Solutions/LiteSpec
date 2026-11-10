@@ -21,16 +21,11 @@ internal static class CalculationChecks
             .Select(record => (Record: record, Aggregate: ModelBuilder.AggregateOf(model, record)))
             .Where(entry => entry.Aggregate is not null)
             .ToLookup(entry => entry.Aggregate!.Id, entry => entry.Record, StringComparer.Ordinal);
-        var scenariosByHome = model.Records
-            .Where(record => record.Type == RecordTypes.Scenario)
-            .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
-            .Where(entry => entry.Home is not null)
-            .ToLookup(entry => entry.Home!, entry => entry.Record, StringComparer.Ordinal);
 
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "calculation"))
         {
             var covered = GovernedUseCases(model, rule, useCasesByAggregate)
-                .SelectMany(useCase => ScenariosOf(useCase, scenariosByHome))
+                .SelectMany(useCase => ScenariosOf(model, useCase))
                 .Any(HasExamples);
 
             if (!covered)
@@ -70,12 +65,12 @@ internal static class CalculationChecks
     }
 
     /// <summary>The scenarios on a use case page.</summary>
+    /// <param name="model">The loaded project model that indexes records by the home their identifier names.</param>
     /// <param name="useCase">The use case record whose scenario records are collected.</param>
-    /// <param name="scenariosByHome">The scenarios by the use-case name their identifier is homed at, in model order.</param>
     /// <returns>The scenario records held on the use case page, or an empty list when the use case identifier does not split.</returns>
-    private static IEnumerable<Record> ScenariosOf(Record useCase, ILookup<string, Record> scenariosByHome) =>
+    private static IEnumerable<Record> ScenariosOf(ProjectModel model, Record useCase) =>
         Identifiers.TrySplit(useCase.Id, out _, out _, out var name)
-            ? scenariosByHome[name]
+            ? model.RecordsByHome[name].Where(record => record.Type == RecordTypes.Scenario)
             : [];
 
     /// <summary>Whether the scenario carries a non-empty examples table.</summary>

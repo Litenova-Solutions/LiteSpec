@@ -213,6 +213,26 @@ sealed class ProjectModel
     /// <summary>The cached use case runners, built on first use.</summary>
     private ILookup<string, Record>? _useCaseRunners;
 
+    /// <summary>Gets the records by the home their identifier names (<c>place-order</c> for <c>scenario/place-order.paid</c>), in model order.</summary>
+    public ILookup<string, Record> RecordsByHome =>
+        _recordsByHome ??= Records
+            .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
+            .Where(entry => entry.Home is not null)
+            .ToLookup(entry => entry.Home!, entry => entry.Record, StringComparer.Ordinal);
+
+    /// <summary>The cached records by home, built on first use.</summary>
+    private ILookup<string, Record>? _recordsByHome;
+
+    /// <summary>Gets the records by the name their identifier ends in (<c>paid</c> for <c>scenario/place-order.paid</c>), in model order.</summary>
+    public ILookup<string, Record> RecordsByName =>
+        _recordsByName ??= Records
+            .Select(record => (Record: record, Name: Identifiers.TrySplit(record.Id, out _, out _, out var name) ? name : null))
+            .Where(entry => entry.Name is not null)
+            .ToLookup(entry => entry.Name!, entry => entry.Record, StringComparer.Ordinal);
+
+    /// <summary>The cached records by name, built on first use.</summary>
+    private ILookup<string, Record>? _recordsByName;
+
     /// <summary>The cached aggregates by folder index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _aggregatesByFolder;
 

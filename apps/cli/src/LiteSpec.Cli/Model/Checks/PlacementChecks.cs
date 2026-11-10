@@ -84,23 +84,11 @@ internal static class PlacementChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckBackendPlacement(ProjectModel model, List<Finding> findings)
     {
-        var namespaces = new Dictionary<string, string>(StringComparer.Ordinal);
+        var placed = model.Code.Elements.Where(element => HasBackendPlacement(model.Config, element)).ToList();
+        var namespaces = NamespacesOf(placed.Where(element => element.Marks.Count > 0).Select(element => element.File));
 
-        foreach (var element in model.Code.Elements)
+        foreach (var element in placed)
         {
-            if (element.InTests
-                || element.Kind is CodeKind.Test or CodeKind.BrowserTest
-                    or CodeKind.FrontendModule or CodeKind.FrontendRoute
-                    or CodeKind.AggregateMethod or CodeKind.Technical)
-            {
-                continue;
-            }
-
-            if (element.Kind == CodeKind.Endpoint && IsHostEndpoint(model.Config, element.File))
-            {
-                continue;
-            }
-
             foreach (var mark in element.Marks)
             {
                 if (mark.Verb == MarkVerb.Follows)
@@ -551,22 +539,11 @@ internal static class PlacementChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTestPlacement(ProjectModel model, List<Finding> findings)
     {
-        var namespaces = new Dictionary<string, string>(StringComparer.Ordinal);
+        var placed = model.Code.Elements.Where(element => HasTestPlacement(model.Config, element)).ToList();
+        var namespaces = NamespacesOf(placed.Where(element => element.Marks.Count > 0).Select(element => element.File));
 
-        foreach (var element in model.Code.Elements)
+        foreach (var element in placed)
         {
-            if (element.Kind != CodeKind.Test)
-            {
-                continue;
-            }
-
-            if (SourceRoots.LayerOf(model.Config, element.File) == "Infrastructure"
-                || SourceRoots.IsUnder(model.Config.InfrastructureRoot, element.File)
-                || LayerResolver.FolderLayer(element.File) == Layer.Infrastructure)
-            {
-                continue;
-            }
-
             foreach (var mark in element.Marks)
             {
                 if (mark.Verb != MarkVerb.Proves)
@@ -1221,33 +1198,62 @@ internal static class PlacementChecks
             return known;
         }
 
-        string found = "";
-
-        try
-        {
-            if (File.Exists(file))
-            {
-                var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
-                var spaces = tree.GetRoot().DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().ToList();
-
-                if (spaces.FirstOrDefault(space => space is FileScopedNamespaceDeclarationSyntax) is { } scoped)
-                {
-                    found = scoped.Name.ToString();
-                }
-                else if (spaces.Count > 0)
-                {
-                    found = string.Join(".", spaces.Select(space => space.Name.ToString()));
-                }
-            }
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            found = "";
-        }
-
+        var found = ParseNamespace(file);
         namespaces[file] = found;
 
         return found;
+    }
+
+    /// <summary>Reads the declared namespace of each file in parallel, so the placement checks that follow find every one read.</summary>
+    /// <param name="files">The full paths of the files whose namespaces the checks will look up.</param>
+    /// <returns>The declared namespace per file, empty where a file cannot be read or declares none.</returns>
+    private static Dictionary<string, string> NamespacesOf(IEnumerable<string> files)
+    {
+        var distinct = files.Distinct(StringComparer.Ordinal).ToList();
+        var found = new string[distinct.Count];
+
+        Parallel.For(0, distinct.Count, index => found[index] = ParseNamespace(distinct[index]));
+
+        var namespaces = new Dictionary<string, string>(distinct.Count, StringComparer.Ordinal);
+
+        for (var index = 0; index < distinct.Count; index++)
+        {
+            namespaces[distinct[index]] = found[index];
+        }
+
+        return namespaces;
+    }
+
+    /// <summary>Parses the declared namespace of one file.</summary>
+    /// <param name="file">The full path of the file whose namespace is wanted.</param>
+    /// <returns>The file-scoped namespace, the nested block namespaces joined by dots, or an empty string when the file cannot be read or declares none.</returns>
+    private static string ParseNamespace(string file)
+    {
+        try
+        {
+            if (!File.Exists(file))
+            {
+                return "";
+            }
+
+            // A namespace is declared only in the compilation unit or inside another namespace.
+            var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file));
+            var spaces = tree.GetRoot()
+                .DescendantNodes(node => node is CompilationUnitSyntax or BaseNamespaceDeclarationSyntax)
+                .OfType<BaseNamespaceDeclarationSyntax>()
+                .ToList();
+
+            if (spaces.FirstOrDefault(space => space is FileScopedNamespaceDeclarationSyntax) is { } scoped)
+            {
+                return scoped.Name.ToString();
+            }
+
+            return spaces.Count > 0 ? string.Join(".", spaces.Select(space => space.Name.ToString())) : "";
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return "";
+        }
     }
 
     /// <summary>Whether the endpoint sits in a host, where host endpoints carry their mark without a use case folder.</summary>
@@ -1258,6 +1264,30 @@ internal static class PlacementChecks
         !SourceRoots.IsProductRoot(config.ModulesRoot)
             ? false
             : SourceRoots.IsUnderHost(config, file);
+
+    /// <summary>
+    ///     Whether the element carries a backend placement: not a test, a frontend element, an
+    ///     aggregate method, a technical class or a host endpoint.
+    /// </summary>
+    /// <param name="config">The project configuration naming the host roots.</param>
+    /// <param name="element">The marked code element.</param>
+    /// <returns>True when the element's folder and namespace follow its record.</returns>
+    private static bool HasBackendPlacement(ConsumerConfig config, MarkedElement element) =>
+        !element.InTests
+        && element.Kind is not (CodeKind.Test or CodeKind.BrowserTest
+            or CodeKind.FrontendModule or CodeKind.FrontendRoute
+            or CodeKind.AggregateMethod or CodeKind.Technical)
+        && !(element.Kind == CodeKind.Endpoint && IsHostEndpoint(config, element.File));
+
+    /// <summary>Whether the element is a test outside the Infrastructure layer, whose folder and namespace follow its scenario.</summary>
+    /// <param name="config">The project configuration naming the layer roots.</param>
+    /// <param name="element">The marked code element.</param>
+    /// <returns>True when the element is a test whose placement is checked.</returns>
+    private static bool HasTestPlacement(ConsumerConfig config, MarkedElement element) =>
+        element.Kind == CodeKind.Test
+        && SourceRoots.LayerOf(config, element.File) != "Infrastructure"
+        && !SourceRoots.IsUnder(config.InfrastructureRoot, element.File)
+        && LayerResolver.FolderLayer(element.File) != Layer.Infrastructure;
 
     /// <summary>The test path segments under the test project, or null when the file sits outside every test root or in a project root.</summary>
     /// <param name="config">The project configuration that holds each test root.</param>

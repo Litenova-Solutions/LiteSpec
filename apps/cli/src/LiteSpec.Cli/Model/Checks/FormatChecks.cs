@@ -26,24 +26,38 @@ internal static class FormatChecks
             subjects.TryAdd(model.Config.GlossaryPath, null);
         }
 
-        foreach (var file in subjects.Keys.Order(StringComparer.Ordinal))
+        // Each file is judged in parallel; the findings follow in path order.
+        var files = subjects.Keys.Order(StringComparer.Ordinal).ToList();
+        var drifted = new bool[files.Count];
+
+        Parallel.For(0, files.Count, index => drifted[index] = Drifted(files[index]));
+
+        for (var index = 0; index < files.Count; index++)
         {
-            string text;
-
-            try
+            if (drifted[index])
             {
-                text = SourceTree.Read(file);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            // A file outside the subset is record-invalid, which the reader reports.
-            if (!RecordFile.IsCanonical(text, out var canonical) && canonical is not null)
-            {
-                findings.Add(new Finding("format-drift", "Run 'litespec model format'.", file, 1, subjects[file]));
+                findings.Add(new Finding("format-drift", "Run 'litespec model format'.", files[index], 1, subjects[files[index]]));
             }
         }
+    }
+
+    /// <summary>Whether the record file reads but is not in canonical form.</summary>
+    /// <param name="file">The record file to judge.</param>
+    /// <returns>True when the file has a canonical form it does not match; false when it matches or cannot be read.</returns>
+    private static bool Drifted(string file)
+    {
+        string text;
+
+        try
+        {
+            text = SourceTree.Read(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+
+        // A file outside the subset is record-invalid, which the reader reports.
+        return !RecordFile.IsCanonical(text, out var canonical) && canonical is not null;
     }
 }

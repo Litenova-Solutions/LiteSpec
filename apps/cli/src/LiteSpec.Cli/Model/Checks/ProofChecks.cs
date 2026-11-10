@@ -38,17 +38,15 @@ internal static class ProofChecks
                 continue;
             }
 
-            var own = results.Where(result =>
-                Identifiers.TrySplit(result.Id, out _, out var home, out _) && home == name).ToList();
+            var homed = model.RecordsByHome[name];
 
-            if (!own.Any(result => result.Field(RecordFields.Outcome) == "success"))
+            if (!homed.Any(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "success"))
             {
                 findings.Add(new Finding("use-case-success-missing", $"Use case '{useCase.Id}' has no success result.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             if (model.Config.Size == "large"
-                && !model.Records.Any(record => record.Type == RecordTypes.Scenario
-                    && Identifiers.TrySplit(record.Id, out _, out var scenarioHome, out _) && scenarioHome == name))
+                && !homed.Any(record => record.Type == RecordTypes.Scenario))
             {
                 findings.Add(new Finding("use-case-scenario-missing", $"Use case '{useCase.Id}' has no scenario.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
@@ -158,10 +156,7 @@ internal static class ProofChecks
                 continue;
             }
 
-            var own = model.Records.Any(record => record.Type == RecordTypes.Scenario
-                && Identifiers.TrySplit(record.Id, out _, out var home, out _) && home == name);
-
-            if (!own)
+            if (!model.RecordsByHome[name].Any(record => record.Type == RecordTypes.Scenario))
             {
                 continue;
             }

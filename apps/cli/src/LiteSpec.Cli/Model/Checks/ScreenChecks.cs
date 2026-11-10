@@ -352,13 +352,6 @@ internal static class ScreenChecks
         // A frontend's dictionary and asserted codes are read once, however many routes it serves.
         var dictionaries = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var assertedBy = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        var refusalsByHome = model.Records
-            .Where(record => record.Type == RecordTypes.Result
-                && !record.Derived
-                && record.Field(RecordFields.Outcome) == "refusal")
-            .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
-            .Where(entry => entry.Home is not null)
-            .ToLookup(entry => entry.Home!, entry => entry.Record, StringComparer.Ordinal);
 
         foreach (var screen in ScreenRecords(model))
         {
@@ -394,7 +387,10 @@ internal static class ScreenChecks
                         continue;
                     }
 
-                    foreach (var result in refusalsByHome[useCaseName])
+                    foreach (var result in model.RecordsByHome[useCaseName].Where(record =>
+                        record.Type == RecordTypes.Result
+                        && !record.Derived
+                        && record.Field(RecordFields.Outcome) == "refusal"))
                     {
                         var code = result.Field(RecordFields.Code);
 

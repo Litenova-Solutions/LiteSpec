@@ -72,6 +72,9 @@ internal static class CodeChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckWriteUndeclared(ProjectModel model, List<Finding> findings)
     {
+        // Each repository interface's implementing classes are looked up once, however many holders take it.
+        var marked = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
         foreach (var handler in model.Code.Handlers)
         {
             if (handler.Repositories is not { Count: > 0 }
@@ -86,7 +89,7 @@ internal static class CodeChecks
 
             foreach (var repository in handler.Repositories)
             {
-                if (!RepositoryDeclared(model, repository.Interface, declared))
+                if (!RepositoryDeclared(model, repository.Interface, declared, marked))
                 {
                     findings.Add(CodeFinding(
                         "write-undeclared",
@@ -113,7 +116,7 @@ internal static class CodeChecks
 
             foreach (var repository in host.Repositories)
             {
-                if (!RepositoryDeclared(model, repository.Interface, declared))
+                if (!RepositoryDeclared(model, repository.Interface, declared, marked))
                 {
                     findings.Add(CodeFinding(
                         "write-undeclared",
@@ -134,14 +137,19 @@ internal static class CodeChecks
     /// <param name="model">The loaded project model that holds every aggregate record and implementation.</param>
     /// <param name="face">The repository interface name under test.</param>
     /// <param name="declared">The aggregate identifiers the record declares in changes and reads.</param>
+    /// <param name="marked">The aggregates each repository interface's implementing classes name, filled as interfaces are first seen.</param>
     /// <returns>True when the interface serves a declared aggregate or names no aggregate; otherwise false.</returns>
-    private static bool RepositoryDeclared(ProjectModel model, string face, HashSet<string> declared)
+    private static bool RepositoryDeclared(ProjectModel model, string face, HashSet<string> declared, Dictionary<string, List<string>> marked)
     {
-        var marked = MarkedRepositoryAggregates(model, face);
-
-        if (marked.Count > 0)
+        if (!marked.TryGetValue(face, out var aggregates))
         {
-            return marked.Any(declared.Contains);
+            aggregates = MarkedRepositoryAggregates(model, face);
+            marked[face] = aggregates;
+        }
+
+        if (aggregates.Count > 0)
+        {
+            return aggregates.Any(declared.Contains);
         }
 
         if (RepositoryAggregate(face) is not { } stem)
@@ -149,22 +157,7 @@ internal static class CodeChecks
             return true;
         }
 
-        foreach (var record in model.Records)
-        {
-            if (record.Type != RecordTypes.Aggregate)
-            {
-                continue;
-            }
-
-            if (Identifiers.TrySplit(record.Id, out _, out _, out var name)
-                && name == stem
-                && declared.Contains(record.Id))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return model.RecordsByName[stem].Any(record => record.Type == RecordTypes.Aggregate && declared.Contains(record.Id));
     }
 
     /// <summary>The aggregates the classes implementing the repository interface name in their implements marks.</summary>
@@ -314,16 +307,14 @@ internal static class CodeChecks
 
         if (Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
         {
-            foreach (var result in model.Records)
+            foreach (var result in model.RecordsByHome[name])
             {
                 if (result.Type != RecordTypes.Result || result.Derived || result.Field(RecordFields.Outcome) != "refusal")
                 {
                     continue;
                 }
 
-                if (result.Field(RecordFields.Code) is { } code
-                    && Identifiers.TrySplit(result.Id, out _, out var home, out _)
-                    && home == name)
+                if (result.Field(RecordFields.Code) is { } code)
                 {
                     declared.Add(code);
                 }
@@ -655,20 +646,11 @@ internal static class CodeChecks
             }
         }
 
-        var found = new List<string>();
-
-        foreach (var record in model.Records)
-        {
-            if (record.Type != RecordTypes.UseCase)
-            {
-                continue;
-            }
-
-            if (Identifiers.TrySplit(record.Id, out _, out _, out var operation) && stems.Contains(operation))
-            {
-                found.Add(record.Id);
-            }
-        }
+        var found = stems
+            .SelectMany(stem => model.RecordsByName[stem])
+            .Where(record => record.Type == RecordTypes.UseCase)
+            .Select(record => record.Id)
+            .ToList();
 
         found.Sort(StringComparer.Ordinal);
 
